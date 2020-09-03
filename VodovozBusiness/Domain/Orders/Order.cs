@@ -1341,9 +1341,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculateItemsPrice()
 		{
-			foreach(OrderItem item in ObservableOrderItems) {
-				if(item.Nomenclature.Category == NomenclatureCategory.water) {
-					item.RecalculatePrice();
+			for (int i = 0; i < ObservableOrderItems.Count; i++) {
+				if(ObservableOrderItems[i].Nomenclature.Category == NomenclatureCategory.water) {
+					ObservableOrderItems[i].RecalculatePrice();
 				}
 			}
 		}
@@ -1663,8 +1663,16 @@ namespace Vodovoz.Domain.Orders
 					};
 					deliveryPriceItem.Price = price;
 					deliveryPriceItem.Count = 1;
-					ObservableOrderItems.Add(deliveryPriceItem);
-					return true;
+
+					var delivery = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == paidDeliveryNomenclatureId);
+
+					if (delivery == null) {
+						ObservableOrderItems.Add(deliveryPriceItem);
+						return true;
+					}
+					else
+						return false;
+					
 				} else if(deliveryPriceItem.Price == price) {
 					return false;
 				}
@@ -2563,6 +2571,7 @@ namespace Vodovoz.Domain.Orders
 				ObservableOrderItems.Remove(item);
 				DeleteOrderEquipmentOnOrderItem(item);
 			}
+
 			UpdateDocuments();
 		}
 
