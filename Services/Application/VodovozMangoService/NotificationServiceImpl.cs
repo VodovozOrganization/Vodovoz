@@ -97,7 +97,8 @@ namespace VodovozMangoService
 			
 			var message = new NotificationMessage
 			{
-			 	CallFrom = caller,
+			 	CallId = info.LastEvent.call_id,
+				CallFrom = caller,
 			 	Timestamp = Timestamp.FromDateTimeOffset(info.LastEvent.Time),
 			 	State = info.LastEvent.CallState
 			};

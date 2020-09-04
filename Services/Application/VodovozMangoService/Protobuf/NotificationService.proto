@@ -11,11 +11,12 @@ message NotificationSubscribeRequest {
 }
 
 message NotificationMessage {
-  Caller call_from = 1;
-  CallState state = 2;
-  google.protobuf.Timestamp timestamp = 3;
-  bool is_transfer = 4;
-  Caller primary_caller = 5;
+  string call_id = 1;
+  Caller call_from = 2;
+  CallState state = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  bool is_transfer = 5;
+  Caller primary_caller = 6;
 }
 
 message Caller{
