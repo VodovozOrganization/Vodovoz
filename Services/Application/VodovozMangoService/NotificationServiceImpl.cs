@@ -107,7 +107,17 @@ namespace VodovozMangoService
 			
 			// Отправляем уведомление о поступлении входящего
 			foreach (var subscription in subscriptions)
+			{
+				if (subscription.Queue.Count > 5)
+				{
+					logger.Warn($"Подписчик {subscription.Extension} не читает уведомления..видимо сломался удаляем его.");
+					lock (Subscribers)
+					{
+						Subscribers.Remove(subscription);
+					}
+				}
 				subscription.Queue.Add(message);
+			}
 		}
 	}
 }
