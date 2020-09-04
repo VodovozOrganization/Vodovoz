@@ -257,6 +257,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		if(tdiMain.CloseAllTabs()) {
 			a.RetVal = false;
+			AutofacScope.Dispose();
 			Application.Quit();
 		} else {
 			a.RetVal = true;
@@ -266,6 +267,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnQuitActionActivated(object sender, EventArgs e)
 	{
 		if(tdiMain.CloseAllTabs()) {
+			AutofacScope.Dispose();
 			Application.Quit();
 		}
 	}

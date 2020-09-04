@@ -1,6 +1,7 @@
 #User Specific
 *.userprefs
 *.usertasks
+*.DotSettings.user
 *~
 
 #Rider

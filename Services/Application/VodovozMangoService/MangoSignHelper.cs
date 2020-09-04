@@ -10,22 +10,26 @@ namespace Mango
         {
             if (String.IsNullOrEmpty(vpbx_api_key))
                 throw new ArgumentException($"{nameof(vpbx_api_key)} was empty");
-            if(String.IsNullOrEmpty(json))
+            if (String.IsNullOrEmpty(json))
                 throw new ArgumentException($"{nameof(json)} was empty");
-            if(String.IsNullOrEmpty(vpbx_api_salt))
+            if (String.IsNullOrEmpty(vpbx_api_salt))
                 throw new ArgumentException($"{nameof(vpbx_api_salt)} was empty");
 
             string common = vpbx_api_key + json + vpbx_api_salt;
             string sign = null;
-            using(SHA256 algorithm = SHA256.Create()) {
+            using (SHA256 algorithm = SHA256.Create())
+            {
                 byte[] data = algorithm.ComputeHash(Encoding.UTF8.GetBytes(common));
-                    var sBuilder = new StringBuilder();
+                var sBuilder = new StringBuilder();
 
-                    for(int i = 0; i < data.Length; i++) {
-                        sBuilder.Append(data[i].ToString("x2"));
-                    }
-                    sign = sBuilder.ToString();
+                for (int i = 0; i < data.Length; i++)
+                {
+                    sBuilder.Append(data[i].ToString("x2"));
+                }
+
+                sign = sBuilder.ToString();
             }
+
             return sign;
         }
     }

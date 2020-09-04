@@ -214,6 +214,8 @@ namespace Vodovoz.Infrastructure.Mango
 		#endregion
 		public void Dispose()
 		{
+			notificationCancellation.Cancel();
+			notificationClient.Dispose();
 			GLib.Source.Remove(timer);
 		}
 
