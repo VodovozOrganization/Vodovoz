@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
@@ -8,14 +9,29 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Representations
 {
     public class ProductGroupVM: RepresentationModelEntityBase<ProductGroup, ProductGroupVMNode>
     {
-        public event EventHandler PropertyChanged;
+        public ProductGroupVM(IUnitOfWork uow)
+        {
+            UoW = uow;
+            CreateRepresentationFilter = () => {
+                filter = new ProductGroupFilterViewModel();
+                return filter;
+            };
+        }
+
+        public ProductGroupVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
+        
+        public ProductGroupVM(IUnitOfWork uow, ProductGroupFilterViewModel filterViewModel) : this(uow)
+        {
+            Filter = filterViewModel;
+        }
+        
+        
         private ProductGroupFilterViewModel filter;
         public ProductGroupFilterViewModel Filter {
             get => filter;
@@ -23,25 +39,18 @@ namespace Vodovoz.Representations
             {
                 if(filter != value) {
                     filter = value;
-                    filter.OnFiltered += (sender, e) =>
-                    {
-                        UpdateNodes(); 
-                        PropertyChanged?.Invoke(this, EventArgs.Empty);
-                    };
-                    PropertyChanged?.Invoke(this, EventArgs.Empty);
+                    filter.OnFiltered += (sender, e) => UpdateNodes();
                 }
             }
         }
-        
-        public ProductGroupVM(IUnitOfWork uow) : base() => this.UoW = uow;
-        public ProductGroupVM(IUnitOfWork uow, Warehouse parent) : this(uow) => parentId = parent.Id;
-        public ProductGroupVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
-        
-        
-        int? parentId;
-        public IyTreeModel TreeModel { get; set; }
 
-        IColumnsConfig columnsConfig  = FluentColumnsConfig<ProductGroupVMNode>.Create()
+        private IyTreeModel iyTreeModel;
+        public override IyTreeModel YTreeModel {
+            get => iyTreeModel;
+            protected set => SetField(ref iyTreeModel, value);
+        }
+
+        public override IColumnsConfig ColumnsConfig { get; } = FluentColumnsConfig<ProductGroupVMNode>.Create()
             .AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
             .AddColumn("Название").AddTextRenderer(node => node.Name)
             .RowCells()
@@ -49,7 +58,6 @@ namespace Vodovoz.Representations
                 (c, n) => c.Foreground = n.IsArchive ? "grey" : "black"
             )
             .Finish();
-        public override IColumnsConfig ColumnsConfig => columnsConfig;
 
         public override void UpdateNodes()
         {
@@ -59,14 +67,14 @@ namespace Vodovoz.Representations
 
             if (Filter.HideArchive)
             {
-                tasksQuery.Where(x => !x.MappedIsArchive);
+                tasksQuery.Where(x => !x.IsArchive);
             }
             
             var allProductGroupNodes = tasksQuery.SelectList(list => list
                 .Select(() => productGroupAlias.Id).WithAlias(() => resultAlias.Id)
                 .Select(() => productGroupAlias.Name).WithAlias(() => resultAlias.Name)
-                .Select(() => productGroupAlias.MappedParent.Id).WithAlias(() => resultAlias.ParentId)
-                .Select(() => productGroupAlias.MappedIsArchive).WithAlias(() => resultAlias.IsArchive)
+                .Select(() => productGroupAlias.Parent.Id).WithAlias(() => resultAlias.ParentId)
+                .Select(() => productGroupAlias.IsArchive).WithAlias(() => resultAlias.IsArchive)
                 )
                 .TransformUsing(Transformers.AliasToBean<ProductGroupVMNode>())
                 .List<ProductGroupVMNode>();
@@ -83,16 +91,17 @@ namespace Vodovoz.Representations
                     SetChildren(n);
                 }
             }
+
+            SetItemsSource(allProductGroupNodes);
             
-            TreeModel = new RecursiveTreeModel<ProductGroupVMNode>(allProductGroupNodes.Where((x) => x.ParentId == null).ToList(),
+            YTreeModel = new RecursiveTreeModel<ProductGroupVMNode>(allProductGroupNodes.Where((x) => x.ParentId == null).ToList(),
                 x => x.Parent,
                 x => x.Children);
-            
-            SetItemsSource(allProductGroupNodes);
         }
 
         public bool NeedUpdate { get; set; }
         protected override bool NeedUpdateFunc(ProductGroup updatedSubject) => NeedUpdate;
+        
     }
     
     public class ProductGroupVMNode
@@ -103,11 +112,10 @@ namespace Vodovoz.Representations
         [UseForSearch]
         [SearchHighlight]
         public string Name { get; set; }
-        
         public bool IsArchive { get; set; }
         public IList<ProductGroupVMNode> Children { get; set; } = new List<ProductGroupVMNode>();
         public ProductGroupVMNode Parent { get; set; }
-        public int? ParentId{ get; set; }
+        public int? ParentId { get; set; }
 
     }
     

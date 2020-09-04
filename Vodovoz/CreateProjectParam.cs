@@ -94,7 +94,6 @@ using Vodovoz.Footers.Views;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.Views.Orders.OrdersWithoutShipment;
 using Vodovoz.Dialogs.Email;
-using Vodovoz.JournalFilters;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Dialogs.Fuel;
@@ -187,6 +186,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<OrderJournalFilterViewModel, OrderFilterView>()
 				.RegisterWidgetForWidgetViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
 				.RegisterWidgetForWidgetViewModel<ResidueFilterViewModel, ResidueFilterView>()
+				.RegisterWidgetForWidgetViewModel<ProductGroupFilterViewModel, ProductGroupFilterView>()
 				.RegisterWidgetForWidgetViewModel<FineFilterViewModel, FineFilterView>()
 				.RegisterWidgetForWidgetViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureFilterViewModel, NomenclaturesFilterView>()
@@ -340,15 +340,11 @@ namespace Vodovoz
 				.Column("Тип", x => x.CategoryString)
 				.SearchColumn("Номер в ИМ", x => x.OnlineStoreExternalId)
 				.End();
-			OrmMain.AddObjectDescription<Folder1c>().Dialog<Folder1cDlg>().DefaultTableView().SearchColumn("Код 1С", x => x.Code1c).SearchColumn("Название", x => x.Name).TreeConfig(new RecursiveTreeConfig<Folder1c>(x => x.Parent, x => x.Childs)).End();
-			OrmMain.AddObjectDescription<ProductGroup>()
-				.Dialog<ProductGroupDlg>()
-				.EditPermision("can_edit_online_store")
+			OrmMain.AddObjectDescription<Folder1c>().Dialog<Folder1cDlg>()
 				.DefaultTableView()
-				.SearchColumn("Код", x => x.Id.ToString())
+				.SearchColumn("Код 1С", x => x.Code1c)
 				.SearchColumn("Название", x => x.Name)
-				.TreeConfig(new RecursiveTreeConfig<ProductGroup>(x => x.Parent, x => x.Childs))
-				.End();
+				.TreeConfig(new RecursiveTreeConfig<Folder1c>(x => x.Parent, x => x.Childs)).End();
 			#endregion
 
 			#region Простые справочники

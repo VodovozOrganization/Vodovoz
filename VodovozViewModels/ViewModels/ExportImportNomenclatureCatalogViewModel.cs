@@ -516,7 +516,7 @@ namespace Vodovoz.ViewModels
 					return;
 				}
 				if(exportType == ExportType.OnlineStoreGoods) {
-					var onlineStoreGroups = UoW.Session.QueryOver<ProductGroup>().Where(x => x.MappedIsOnlineStore).Select(x => x.Id).List<int>();
+					var onlineStoreGroups = UoW.Session.QueryOver<ProductGroup>().Where(x => x.IsOnlineStore).Select(x => x.Id).List<int>();
 					nodes = nodes.Where(x => x.GroupId.HasValue && onlineStoreGroups.Contains(x.GroupId.Value));
 				}
 				ProgressBarValue++;

@@ -25,21 +25,25 @@ namespace Vodovoz.JournalViewers
 
 		private void ConfigureWidget()
 		{
-			vm = new ProductGroupVM();
-			tableProductGroup.ColumnsConfig = vm.ColumnsConfig;
-			vm.Filter = new ProductGroupFilterViewModel();
-			CreateProductGroupFilterView(vm.Filter, EventArgs.Empty);
+			vm = new ProductGroupVM {
+				Filter = new ProductGroupFilterViewModel()
+			};
+
+			productGroupFilterView = new ProductGroupFilterView(vm.Filter);
+			hboxFilter.Add(productGroupFilterView);
+			hboxFilter.Show();
 			
 			tableProductGroup.RepresentationModel = vm;
 			tableProductGroup.EnableSearch = true;
 			vm.UpdateNodes();
-			tableProductGroup.YTreeModel = vm.TreeModel;
+			tableProductGroup.ColumnsConfig = vm.ColumnsConfig;
+			tableProductGroup.YTreeModel = vm.YTreeModel;
 			
 			#region SignalsConnect
 			
 			btnAdd.Clicked += OnButtonAddClicked;
 			buttonDelete.Clicked += OnButtonDeleteClicked;
-			buttonRefresh.Clicked += (sender, args) => { vm.UpdateNodes(); tableProductGroup.YTreeModel = vm.TreeModel; };
+			buttonRefresh.Clicked += (sender, args) => { vm.UpdateNodes(); tableProductGroup.YTreeModel = vm.YTreeModel; };
 			buttonFilter.Clicked += OnButtonFilterClicked;
 			tableProductGroup.Selection.Changed += OnSelectionChanged;
 			
@@ -47,7 +51,10 @@ namespace Vodovoz.JournalViewers
 			searchentity.TextChanged += OnSearchEntryTextChanged;
 			tableProductGroup.RowActivated += (o, args) => { buttonEdit.Click(); };
 
-			vm.PropertyChanged += (sender, args) => { tableProductGroup.YTreeModel = vm.TreeModel; };
+			vm.PropertyChanged += (sender, args) => {
+				if(args.PropertyName == nameof(vm.YTreeModel))
+					tableProductGroup.YTreeModel = vm.YTreeModel;
+			};
 
 			#endregion
 		}
@@ -61,7 +68,7 @@ namespace Vodovoz.JournalViewers
 					var productGroupDlg = new ProductGroupDlg();
 					productGroupDlg.EntitySaved += (o, args) => {
 						vm.UpdateNodes();
-						tableProductGroup.YTreeModel = vm.TreeModel;
+						tableProductGroup.YTreeModel = vm.YTreeModel;
 					};
 					return productGroupDlg;
 				}, 
@@ -76,7 +83,7 @@ namespace Vodovoz.JournalViewers
         		DeleteHelper.DeleteEntity(typeof(ProductGroup), item.Id);
 
         	vm.UpdateNodes();
-            tableProductGroup.YTreeModel = vm.TreeModel;
+            tableProductGroup.YTreeModel = vm.YTreeModel;
 		}
 
 		private void OnButtonFilterClicked(object sender, EventArgs e)
@@ -94,7 +101,7 @@ namespace Vodovoz.JournalViewers
 						var dlg = new ProductGroupDlg(selectedNode.Id);
 						dlg.EntitySaved += (s, ea) => {
 							vm.UpdateNodes();
-							tableProductGroup.YTreeModel = vm.TreeModel;
+							tableProductGroup.YTreeModel = vm.YTreeModel;
 						};
 						return dlg;
 					},
@@ -110,17 +117,8 @@ namespace Vodovoz.JournalViewers
 			if (string.IsNullOrWhiteSpace(searchentity.Text))
 			{
 				vm.UpdateNodes();
-				tableProductGroup.YTreeModel = vm.TreeModel;		
+				tableProductGroup.YTreeModel = vm.YTreeModel;		
 			}
-		}
-
-		private void CreateProductGroupFilterView(object filter, EventArgs e)
-		{
-			productGroupFilterView?.Destroy();
-
-			productGroupFilterView = new ProductGroupFilterView(vm.Filter);
-			hboxFilter.Add(productGroupFilterView);
-			hboxFilter.Show();
 		}
 
 		private void OnSelectionChanged(object sender, EventArgs e)

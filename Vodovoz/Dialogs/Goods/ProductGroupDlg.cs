@@ -1,8 +1,11 @@
 ﻿using System;
 using Gamma.Widgets.Additions;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Representations;
 
 namespace Vodovoz.Dialogs.Goods
 {
@@ -24,7 +27,6 @@ namespace Vodovoz.Dialogs.Goods
 
 		public ProductGroupDlg(ProductGroup sub) : this(sub.Id) { }
 
-
 		protected void ConfigureDialog()
 		{
 			yentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
@@ -34,14 +36,15 @@ namespace Vodovoz.Dialogs.Goods
 
 			ycheckExportToOnlineStore.Binding.AddBinding(Entity, e => e.ExportToOnlineStore, w => w.Active).InitializeFromSource();
 			
-			ycheckbuttonOnlineStore.Active = Entity.IsOnlineStore;
-			ycheckbuttonOnlineStore.Binding.AddBinding(Entity, e => e.IsOnlineStore, w => w.Active);
-
-			ycheckArchived.Active = Entity.IsArchive;
-			ycheckArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active);
+			ycheckbuttonOnlineStore.Binding.AddBinding(Entity, e => e.IsOnlineStore, w => w.Active).InitializeFromSource();
+			ycheckExportToOnlineStore.Toggled += (sender, args) =>  Entity.SetIsOnlineStoreRecursively(ycheckExportToOnlineStore.Active);
 			
-			yentryParent.SubjectType = typeof(ProductGroup);
-			yentryParent.Binding.AddBinding(Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
+			ycheckArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
+			ycheckArchived.Toggled += (sender, args) =>  Entity.SetIsArchiveRecursively(ycheckExportToOnlineStore.Active);
+			
+			entryParent.JournalButtons = Buttons.None;
+			entryParent.RepresentationModel = new ProductGroupVM(UoW, new ProductGroupFilterViewModel());
+			entryParent.Binding.AddBinding(Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
 
 			checklistCharacteristics.EnumType = typeof(NomenclatureProperties);
 			checklistCharacteristics.Binding.AddBinding(
