@@ -196,6 +196,8 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void Dispose()
 		{
+			notificationCancellation.Cancel();
+			notificationClient.Dispose();
 			GLib.Source.Remove(timer);
 		}
 
