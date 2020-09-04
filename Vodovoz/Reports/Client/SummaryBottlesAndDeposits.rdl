@@ -17,405 +17,419 @@
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
-	docs.doc_id,
-	docs.doc_date,
-	IFNULL(docs.delivery_point_id, '0') AS delivery_point_id,
-	IFNULL(docs.delivery_point_address, 'Самовывоз') AS delivery_point_address,
-	docs.doc_name,
-	docs.doc_status,
-	docs.doc_payment_type,
-	CASE
+    docs.doc_id,
+    docs.doc_date,
+    IFNULL(docs.delivery_point_id, '0') AS delivery_point_id,
+    IFNULL(docs.delivery_point_address, 'Самовывоз') AS delivery_point_address,
+    docs.doc_name,
+    docs.doc_status,
+    docs.doc_payment_type,
+    CASE
 #sum if it's residue
-		WHEN docs.doc_name = 'Ввод остатков' THEN
-			(SELECT 
-				debt
-			FROM
-				doc_residue
-			LEFT JOIN
-				money_movement_operations ON money_movement_operations.id = doc_residue.money_movement_operation_id
-			WHERE
-				doc_residue.id = docs.doc_id)
+        WHEN docs.doc_name = 'Ввод остатков' THEN
+            (SELECT
+                 debt
+             FROM
+                 doc_residue
+                     LEFT JOIN
+                 money_movement_operations ON money_movement_operations.id = doc_residue.money_movement_operation_id
+             WHERE
+                     doc_residue.id = docs.doc_id)
 #sum if it's order
-		WHEN docs.doc_name = 'Заказ' THEN
-			(SELECT 
-			IF(docs.doc_status &lt;&gt; 'WaitForPayment', ROUND(SUM(order_items.price * IFNULL(order_items.actual_count, 0) - order_items.discount_money)), 0)	
-			FROM
-				order_items
-			WHERE
-				order_items.order_id = docs.doc_id)
-	END AS sum,
-	IF(docs.doc_name = 'Заказ',
-		forfeits.forfeit,
-		NULL) AS forfeit,
-	IF(docs.doc_name = 'Заказ',
-		IF(forfeits.forfeitCount = 0, null, forfeits.forfeitCount) ,
-		NULL) AS forfeitCount,
+        WHEN docs.doc_name = 'Заказ' THEN
+            (SELECT
+                 IF(docs.doc_status &lt;&gt; 'WaitForPayment', ROUND(SUM(order_items.price * IFNULL(order_items.actual_count, 0) - order_items.discount_money)), 0)
+             FROM
+                 order_items
+             WHERE
+                     order_items.order_id = docs.doc_id)
+        END AS sum,
     IF(docs.doc_name = 'Заказ',
-		IF(empty_bottles.bottles_count = 0, null, empty_bottles.bottles_count) ,
-		NULL) AS empty_bottles_count,    
-	IF(docs.doc_name = 'Заказ',
-		IFNULL(bottles_movement_operations.delivered, IF(docs.doc_status = 'Closed',0,NULL)),
-		IFNULL(bottles_movement_operations.delivered, 0)
-	) AS delivered,
-	IF(docs.doc_name = 'Заказ',
-		IFNULL(bottles_movement_operations.returned, IF(docs.doc_status = 'Closed',0,NULL)),
-		IFNULL(bottles_movement_operations.returned, 0)
-	) AS returned,
-	CASE
+       forfeits.forfeit,
+       NULL) AS forfeit,
+    IF(docs.doc_name = 'Заказ',
+       IF(forfeits.forfeitCount = 0, null, forfeits.forfeitCount) ,
+       NULL) AS forfeitCount,
+    IF(docs.doc_name = 'Заказ',
+       IF(empty_bottles.bottles_count = 0, null, empty_bottles.bottles_count) ,
+       NULL) AS empty_bottles_count,
+    IF(docs.doc_name = 'Заказ',
+       IFNULL(bottles_movement_operations.delivered, IF(docs.doc_status = 'Closed',0,NULL)),
+       IFNULL(bottles_movement_operations.delivered, 0)
+        ) AS delivered,
+    IF(docs.doc_name = 'Заказ',
+       IFNULL(bottles_movement_operations.returned, IF(docs.doc_status = 'Closed',0,NULL)),
+       IFNULL(bottles_movement_operations.returned, 0)
+        ) AS returned,
+    CASE
 #bottles deposit if it's residue
-		WHEN docs.doc_name = 'Ввод остатков' THEN
-			(SELECT
-				deposit_residue_bottles
-			FROM
-				doc_residue
-			WHERE
-				doc_residue.id = docs.doc_id)
+        WHEN docs.doc_name = 'Ввод остатков' THEN
+            (SELECT
+                 deposit_residue_bottles
+             FROM
+                 doc_residue
+             WHERE
+                     doc_residue.id = docs.doc_id)
 #bottles deposit if it's order
-		WHEN docs.doc_name = 'Заказ' THEN
-			(IFNULL((SELECT 
-				SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
-			FROM
-				deposit_operations
-			WHERE
-				deposit_operations.order_id = docs.doc_id
-				AND deposit_operations.deposit_type = 'Bottles'), IF(docs.doc_status = 'Closed',0,NULL)))
+        WHEN docs.doc_name = 'Заказ' THEN
+            (IFNULL((SELECT
+                         SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
+                     FROM
+                         deposit_operations
+                     WHERE
+                             deposit_operations.order_id = docs.doc_id
+                       AND deposit_operations.deposit_type = 'Bottles'), IF(docs.doc_status = 'Closed',0,NULL)))
 #bottles deposit if it's transfer
-		ELSE
-			(SELECT
-				CASE
-					WHEN docs.doc_payment_type = 'out' THEN
-						SUM(out_bd_op.received_deposit - out_bd_op.refund_deposit)
-					WHEN docs.doc_payment_type = 'inc' THEN
-						SUM(inc_bd_op.received_deposit - inc_bd_op.refund_deposit)
-				END
-			FROM
-				transfer_operations
-			LEFT JOIN
-				deposit_operations AS out_bd_op ON out_bd_op.id = transfer_operations.outgoing_bottle_deposit_operation
-			LEFT JOIN
-				deposit_operations AS inc_bd_op ON inc_bd_op.id = transfer_operations.incoming_bottle_deposit_operation
-			WHERE
-				(out_bd_op.deposit_type = 'Bottles' OR inc_bd_op.deposit_type = 'Bottles')
-				AND transfer_operations.id = docs.doc_id)
-	END AS bottles_deposit,
-		CASE
+        ELSE
+            (SELECT
+                 CASE
+                     WHEN docs.doc_payment_type = 'out' THEN
+                         SUM(out_bd_op.received_deposit - out_bd_op.refund_deposit)
+                     WHEN docs.doc_payment_type = 'inc' THEN
+                         SUM(inc_bd_op.received_deposit - inc_bd_op.refund_deposit)
+                     END
+             FROM
+                 transfer_operations
+                     LEFT JOIN
+                 deposit_operations AS out_bd_op ON out_bd_op.id = transfer_operations.outgoing_bottle_deposit_operation
+                     LEFT JOIN
+                 deposit_operations AS inc_bd_op ON inc_bd_op.id = transfer_operations.incoming_bottle_deposit_operation
+             WHERE
+                 (out_bd_op.deposit_type = 'Bottles' OR inc_bd_op.deposit_type = 'Bottles')
+               AND transfer_operations.id = docs.doc_id)
+        END AS bottles_deposit,
+    CASE
 #equipment deposit if it's residue
-		WHEN docs.doc_name = 'Ввод остатков' THEN
-			(SELECT
-				SUM(doc_residue_equipment_deposit_items.deposit * doc_residue_equipment_deposit_items.deposit_count) AS deposit_residue_equipment
-			FROM
-				doc_residue
-				LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
-			WHERE
-				doc_residue.id = docs.doc_id
-			GROUP BY doc_residue.id)
+        WHEN docs.doc_name = 'Ввод остатков' THEN
+            (SELECT
+                 SUM(doc_residue_equipment_deposit_items.deposit * doc_residue_equipment_deposit_items.deposit_count) AS deposit_residue_equipment
+             FROM
+                 doc_residue
+                     LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
+             WHERE
+                     doc_residue.id = docs.doc_id
+             GROUP BY doc_residue.id)
 #equipment deposit if its order
-		WHEN docs.doc_name = 'Заказ' THEN
-			IFNULL((SELECT 
-				SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
-			FROM
-				deposit_operations
-			WHERE
-				deposit_operations.order_id = docs.doc_id
-				AND deposit_operations.deposit_type = 'Equipment'), IF(docs.doc_status = 'Closed',0,NULL))
+        WHEN docs.doc_name = 'Заказ' THEN
+            IFNULL((SELECT
+                        SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
+                    FROM
+                        deposit_operations
+                    WHERE
+                            deposit_operations.order_id = docs.doc_id
+                      AND deposit_operations.deposit_type = 'Equipment'), IF(docs.doc_status = 'Closed',0,NULL))
 #equipment deposit if it's transfer
-		ELSE
-			(SELECT
-				CASE
-					WHEN docs.doc_payment_type = 'out' THEN
-						SUM(out_ed_op.received_deposit - out_ed_op.refund_deposit)
-					WHEN docs.doc_payment_type = 'inc' THEN
-						SUM(inc_ed_op.received_deposit - inc_ed_op.refund_deposit)
-				END
-			FROM
-				transfer_operations
-			LEFT JOIN
-				deposit_operations AS out_ed_op ON out_ed_op.id = transfer_operations.outgoing_equipment_deposit_operation
-			LEFT JOIN
-				deposit_operations AS inc_ed_op ON inc_ed_op.id = transfer_operations.incoming_equipment_deposit_operation
-			WHERE
-				(out_ed_op.deposit_type = 'Equipment' OR inc_ed_op.deposit_type = 'Equipment')
-				AND transfer_operations.id = docs.doc_id)
-	END AS equipment_deposit,
+        ELSE
+            (SELECT
+                 CASE
+                     WHEN docs.doc_payment_type = 'out' THEN
+                         SUM(out_ed_op.received_deposit - out_ed_op.refund_deposit)
+                     WHEN docs.doc_payment_type = 'inc' THEN
+                         SUM(inc_ed_op.received_deposit - inc_ed_op.refund_deposit)
+                     END
+             FROM
+                 transfer_operations
+                     LEFT JOIN
+                 deposit_operations AS out_ed_op ON out_ed_op.id = transfer_operations.outgoing_equipment_deposit_operation
+                     LEFT JOIN
+                 deposit_operations AS inc_ed_op ON inc_ed_op.id = transfer_operations.incoming_equipment_deposit_operation
+             WHERE
+                 (out_ed_op.deposit_type = 'Equipment' OR inc_ed_op.deposit_type = 'Equipment')
+               AND transfer_operations.id = docs.doc_id)
+        END AS equipment_deposit,
 
-	CASE
+    CASE
 #Оборудование из ввода остатков
-		WHEN docs.doc_name = 'Ввод остатков' THEN
-			(SELECT 
-				GROUP_CONCAT(
-				IF(doc_residue_equipment_deposit_items.equipment_count = 0,
-					NULL,
-					CONCAT(nomenclature.official_name, ' (', doc_residue_equipment_deposit_items.equipment_count, ' шт.)')) 
-				SEPARATOR ', ')
-			FROM
-				doc_residue
-				LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
-				LEFT JOIN nomenclature ON nomenclature.id = doc_residue_equipment_deposit_items.nomenclature_id
-			WHERE
-				doc_residue.id = docs.doc_id AND doc_residue_equipment_deposit_items.direction = 'ToClient'
-			GROUP BY doc_residue.id)
-		WHEN docs.doc_name = 'Заказ' THEN
-			#Если в заказе оборудование записано в старом виде (строки) то выводим только его
-			IF(docs.to_client_text IS NOT NULL,
-				#IF TRUE #старое поле со списком оборудования в виде строки
-				docs.to_client_text,
-				#IF FALSE #новый список оборудования
-				(SELECT 
-					GROUP_CONCAT(
-						CONCAT(
-							nomenclature.name, ' ',
-							CASE
-								WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
-								WHEN order_equipment.own_type = 'Client' THEN '(Собст. клиента)'
-								WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
-								ELSE ''
-							END, ' - ',
-							ROUND(amount),
-							'шт')
-						SEPARATOR ',\n')
-				FROM
-					counterparty_movement_operations
-				LEFT JOIN
-					order_equipment ON order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
-				LEFT JOIN
-					nomenclature ON nomenclature.id = order_equipment.nomenclature_id
-				WHERE
-					order_equipment.order_id = docs.doc_id
-					AND order_equipment.direction = 'Deliver'
-					AND nomenclature.category = 'equipment'
-				)
-			)		
-		END AS equipment_to_client,
+        WHEN docs.doc_name = 'Ввод остатков' THEN
+            (SELECT
+                 GROUP_CONCAT(
+                         IF(doc_residue_equipment_deposit_items.equipment_count = 0,
+                            NULL,
+                            CONCAT(nomenclature.official_name, ' (', doc_residue_equipment_deposit_items.equipment_count, ' шт.)'))
+                         SEPARATOR ', ')
+             FROM
+                 doc_residue
+                     LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
+                     LEFT JOIN nomenclature ON nomenclature.id = doc_residue_equipment_deposit_items.nomenclature_id
+             WHERE
+                     doc_residue.id = docs.doc_id AND doc_residue_equipment_deposit_items.direction = 'ToClient'
+             GROUP BY doc_residue.id)
+        WHEN docs.doc_name = 'Заказ' THEN
+            #Если в заказе оборудование записано в старом виде (строки) то выводим только его
+            IF(docs.to_client_text IS NOT NULL,
+                #IF TRUE #старое поле со списком оборудования в виде строки
+               docs.to_client_text,
+                #IF FALSE #новый список оборудования
+               (SELECT
+                    GROUP_CONCAT(
+                            CONCAT(
+                                    nomenclature.name, ' ',
+                                    CASE
+                                        WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
+                                        WHEN order_equipment.own_type = 'Client' THEN '(Собст. клиента)'
+                                        WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
+                                        ELSE ''
+                                        END, ' - ',
+                                    ROUND(amount),
+                                    'шт')
+                            SEPARATOR ',\n')
+                FROM
+                    counterparty_movement_operations
+                        LEFT JOIN
+                    order_equipment ON order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
+                        LEFT JOIN
+                    nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+                WHERE
+                        order_equipment.order_id = docs.doc_id
+                  AND order_equipment.direction = 'Deliver'
+                  AND nomenclature.category = 'equipment'
+               )
+                )
+        END AS equipment_to_client,
 
-		CASE
+    CASE
 #Оборудование из ввода остатков
-		WHEN docs.doc_name = 'Ввод остатков' THEN
-			(SELECT 
-				GROUP_CONCAT(
-				IF(doc_residue_equipment_deposit_items.equipment_count = 0,
-					NULL,
-					CONCAT(nomenclature.official_name, ' (', doc_residue_equipment_deposit_items.equipment_count, ' шт.)')) 
-				SEPARATOR ', ')
-			FROM
-				doc_residue
-				LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
-				LEFT JOIN nomenclature ON nomenclature.id = doc_residue_equipment_deposit_items.nomenclature_id
-			WHERE
-				doc_residue.id = docs.doc_id AND doc_residue_equipment_deposit_items.direction = 'FromClient'
-			GROUP BY doc_residue.id)
+        WHEN docs.doc_name = 'Ввод остатков' THEN
+            (SELECT
+                 GROUP_CONCAT(
+                         IF(doc_residue_equipment_deposit_items.equipment_count = 0,
+                            NULL,
+                            CONCAT(nomenclature.official_name, ' (', doc_residue_equipment_deposit_items.equipment_count, ' шт.)'))
+                         SEPARATOR ', ')
+             FROM
+                 doc_residue
+                     LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
+                     LEFT JOIN nomenclature ON nomenclature.id = doc_residue_equipment_deposit_items.nomenclature_id
+             WHERE
+                     doc_residue.id = docs.doc_id AND doc_residue_equipment_deposit_items.direction = 'FromClient'
+             GROUP BY doc_residue.id)
 #Оборудование из заказа			
-		WHEN docs.doc_name = 'Заказ' THEN
-			#Если в заказе оборудование записано в старом виде (строки) то выводим только его
-			IF(docs.from_client_text IS NOT NULL,
-				#IF TRUE #старое поле со списком оборудования в виде строки
-				docs.from_client_text,
-				#IF FALSE #новый список оборудования
-				(
-				TRIM(',\n' FROM CONCAT_WS(
-						',\n',
-						(SELECT 
-							IF(
-								GROUP_CONCAT(
-									CONCAT(
-										nomenclature.name, ' ',
-										CASE
-											WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
-											WHEN order_equipment.own_type = 'Client' THEN '(Собст. клиента)'
-											WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
-											ELSE ''
-										END, ' - ',
-										ROUND(amount),
-										'шт')
-									SEPARATOR ',\n') IS NULL,
-									'',
-									GROUP_CONCAT(
-										CONCAT(
-											nomenclature.name, ' ',
-											CASE
-												WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
-												WHEN order_equipment.own_type = 'Client' THEN '(Собст. клиента)'
-												WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
-												ELSE ''
-											END, ' - ',
-											ROUND(amount),
-											'шт')
-										SEPARATOR ',\n')
-								) AS eq
-						FROM
-							counterparty_movement_operations
-						LEFT JOIN
-							order_equipment ON order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
-						LEFT JOIN
-							nomenclature ON nomenclature.id = order_equipment.nomenclature_id
-						WHERE
-							order_equipment.order_id = docs.doc_id
-							AND order_equipment.direction = 'PickUp'
-							AND nomenclature.category NOT IN('water','bottle','master')
+        WHEN docs.doc_name = 'Заказ' THEN
+            #Если в заказе оборудование записано в старом виде (строки) то выводим только его
+            IF(docs.from_client_text IS NOT NULL,
+                #IF TRUE #старое поле со списком оборудования в виде строки
+               docs.from_client_text,
+                #IF FALSE #новый список оборудования
+               (
+                   TRIM(',\n' FROM CONCAT_WS(
+                           ',\n',
+                           (SELECT
+                                IF(
+                                        GROUP_CONCAT(
+                                                CONCAT(
+                                                        nomenclature.name, ' ',
+                                                        CASE
+                                                            WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
+                                                            WHEN order_equipment.own_type = 'Client' THEN '(Собст. клиента)'
+                                                            WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
+                                                            ELSE ''
+                                                            END, ': ',
+                                                        ROUND(amount),
+                                                        'шт')
+                                                SEPARATOR ',\n') IS NULL,
+                                        '',
+                                        GROUP_CONCAT(
+                                                CONCAT(
+                                                        nomenclature.name, ' ',
+                                                        CASE
+                                                            WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
+                                                            WHEN order_equipment.own_type = 'Client' THEN '(Собст. клиента)'
+                                                            WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
+                                                            ELSE ''
+                                                            END, ': ',
+                                                        ROUND(amount),
+                                                        'шт')
+                                                SEPARATOR ',\n')
+                                    ) AS eq
+                            FROM
+                                counterparty_movement_operations
+                                    LEFT JOIN
+                                order_equipment ON order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
+                                    LEFT JOIN
+                                nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+                            WHERE
+                                    order_equipment.order_id = docs.doc_id
+                              AND order_equipment.direction = 'PickUp'
+                              AND nomenclature.category NOT IN('water','bottle','master')
 #equipment from client from store_self_delivery_document
-						),
-						(SELECT
-							GROUP_CONCAT(
-								CONCAT(
-									IF(nomenclature.short_name IS NULL, nomenclature.name, nomenclature.short_name),
-									': ',
-									ROUND(warehouse_movement_operations.amount),
-									' шт')
-								SEPARATOR ',\n') AS eq
-						FROM
-							orders
-						LEFT JOIN
-							store_self_delivery_document ON orders.id = store_self_delivery_document.order_id
-						LEFT JOIN
-							store_self_delivery_document_returned ON store_self_delivery_document.id = store_self_delivery_document_returned.store_self_delivery_document_id
-						LEFT JOIN
-							warehouse_movement_operations ON warehouse_movement_operations.id = store_self_delivery_document_returned.warehouse_movement_operation_id
-						LEFT JOIN
-							nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
-						LEFT JOIN
-							delivery_points ON delivery_points.id = orders.delivery_point_id
-						LEFT JOIN
-							counterparty ON counterparty.id = orders.client_id
-						WHERE 
-							nomenclature.category NOT IN('water','bottle','master')
-							AND orders.id = docs.doc_id
-						)
-					))
-				
-				)				
-			)
-		END AS equipment_from_client	
+                           ),
+                           (SELECT
+                                GROUP_CONCAT(
+                                        CONCAT(
+                                            IF(nomenclature.short_name IS NULL, nomenclature.name, nomenclature.short_name),
+                                            ' ',
+                                            IFNULL((SELECT
+                                                        CASE
+                                                            WHEN oe.own_type = 'Rent' THEN '(Аренда)'
+                                                            WHEN oe.own_type = 'Client' THEN '(Собст. клиента)'
+                                                            WHEN oe.own_type = 'Duty' THEN '(Дежурный)'
+                                                            ELSE ''
+                                                        END
+                                                    FROM order_equipment oe
+                                                    WHERE oe.order_id = orders.id
+                                                   ), ''
+                                            ),
+                                            ': ',
+                                            ROUND(warehouse_movement_operations.amount),
+                                            ' шт'
+                                        )
+                                        SEPARATOR ',\n'
+                                ) AS eq
+                            FROM
+                                orders
+                                    LEFT JOIN
+                                store_self_delivery_document ON orders.id = store_self_delivery_document.order_id
+                                    LEFT JOIN
+                                store_self_delivery_document_returned ON store_self_delivery_document.id = store_self_delivery_document_returned.store_self_delivery_document_id
+                                    LEFT JOIN
+                                warehouse_movement_operations ON warehouse_movement_operations.id = store_self_delivery_document_returned.warehouse_movement_operation_id
+                                    LEFT JOIN
+                                nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+                                    LEFT JOIN
+                                delivery_points ON delivery_points.id = orders.delivery_point_id
+                                    LEFT JOIN
+                                counterparty ON counterparty.id = orders.client_id
+                            WHERE
+                                    nomenclature.category NOT IN('water','bottle','master')
+                              AND orders.id = docs.doc_id
+                           )
+                       ))
+
+                   )
+                )
+        END AS equipment_from_client
 FROM
 #subselect orders
-	(SELECT 
-		orders.id AS doc_id,
-		orders.bottles_movement_operation_id,
-		orders.delivery_date AS doc_date,
-		GET_TRANSLATED_PAYMENT_TYPE_SHORT(orders.payment_type) AS doc_payment_type,
-		delivery_points.id AS delivery_point_id,
-		delivery_points.compiled_address AS delivery_point_address,
-		'Заказ' AS doc_name,
-		orders.order_status AS doc_status,
-		orders.client_id AS doc_client_id,
-		orders.to_client_text AS to_client_text,
-		orders.from_client_text AS from_client_text
-	FROM
-		orders
-	LEFT JOIN
-		delivery_points ON delivery_points.id = orders.delivery_point_id
-	WHERE
-		NOT (orders.order_status = 'Canceled' 
-			OR orders.order_status = 'DeliveryCanceled'
-			OR orders.order_status = 'NotDelivered')
-        AND !orders.is_contract_closer    
+(SELECT
+     orders.id AS doc_id,
+     orders.bottles_movement_operation_id,
+     orders.delivery_date AS doc_date,
+     GET_TRANSLATED_PAYMENT_TYPE_SHORT(orders.payment_type) AS doc_payment_type,
+     delivery_points.id AS delivery_point_id,
+     delivery_points.compiled_address AS delivery_point_address,
+     'Заказ' AS doc_name,
+     orders.order_status AS doc_status,
+     orders.client_id AS doc_client_id,
+     orders.to_client_text AS to_client_text,
+     orders.from_client_text AS from_client_text
+ FROM
+     orders
+         LEFT JOIN
+     delivery_points ON delivery_points.id = orders.delivery_point_id
+ WHERE
+     NOT (orders.order_status = 'Canceled'
+         OR orders.order_status = 'DeliveryCanceled'
+         OR orders.order_status = 'NotDelivered')
+   AND !orders.is_contract_closer
 #subselect doc_residue
-	UNION SELECT
-		doc_residue.id AS doc_id,
-		doc_residue.bottles_movement_operation_id,
-		doc_residue.date AS doc_date,
-		GROUP_CONCAT(DISTINCT 
-			IF(doc_residue_equipment_deposit_items.equipment_count = 0,
-				NULL,
-				GET_TRANSLATED_PAYMENT_TYPE_SHORT(doc_residue_equipment_deposit_items.payment_type)) SEPARATOR ',\n') AS doc_payment_type,
-		doc_residue.delivery_point_id AS delivery_point_id,
-		delivery_points.compiled_address AS delivery_point_address,
-		'Ввод остатков' AS doc_name,
-		'' AS doc_status, 
-		doc_residue.client_id AS doc_client_id,
-		'' AS to_client_text,
-		'' AS from_client_text
-	FROM
-		doc_residue
-	LEFT JOIN
-		delivery_points ON delivery_points.id = doc_residue.delivery_point_id
-	LEFT JOIN
-		doc_residue_equipment_deposit_items ON doc_residue_equipment_deposit_items.residue_id = doc_residue.id
-	GROUP BY(doc_residue.id)
+ UNION SELECT
+           doc_residue.id AS doc_id,
+           doc_residue.bottles_movement_operation_id,
+           doc_residue.date AS doc_date,
+           GROUP_CONCAT(DISTINCT
+                        IF(doc_residue_equipment_deposit_items.equipment_count = 0,
+                           NULL,
+                           GET_TRANSLATED_PAYMENT_TYPE_SHORT(doc_residue_equipment_deposit_items.payment_type)) SEPARATOR ',\n') AS doc_payment_type,
+           doc_residue.delivery_point_id AS delivery_point_id,
+           delivery_points.compiled_address AS delivery_point_address,
+           'Ввод остатков' AS doc_name,
+           '' AS doc_status,
+           doc_residue.client_id AS doc_client_id,
+           '' AS to_client_text,
+           '' AS from_client_text
+ FROM
+     doc_residue
+         LEFT JOIN
+     delivery_points ON delivery_points.id = doc_residue.delivery_point_id
+         LEFT JOIN
+     doc_residue_equipment_deposit_items ON doc_residue_equipment_deposit_items.residue_id = doc_residue.id
+ GROUP BY(doc_residue.id)
 #subselect transfer_operations: transfer from client
-	UNION SELECT
-		transfer_operations.id AS doc_id,
-		transfer_operations.outgoing_bottle_operation AS bottles_movement_operation_id,
-		transfer_operations.operation_time AS doc_date,
-		'out' AS doc_payment_type,  #crutch
-		transfer_operations.from_delivery_point_id AS delivery_point_id,
-		out_delivery_point.compiled_address AS delivery_point_address,
-		CONCAT(
-			'Перенесено клиенту ',
-			inc_counterparty.name,
-			' по адресу ',
-			COMPILE_ADDRESS(inc_delivery_point.id)) AS doc_name,
-		'' AS doc_status, 
-		transfer_operations.from_client_id AS doc_client_id,
-		'' AS to_client_text,
-		'' AS from_client_text
-	FROM
-		transfer_operations
-	LEFT JOIN
-		delivery_points AS out_delivery_point ON out_delivery_point.id = transfer_operations.from_delivery_point_id
-	LEFT JOIN
-		delivery_points AS inc_delivery_point ON inc_delivery_point.id = transfer_operations.to_delivery_point_id
-	LEFT JOIN
-		counterparty AS inc_counterparty ON inc_counterparty.id = transfer_operations.to_client_id
+ UNION SELECT
+           transfer_operations.id AS doc_id,
+           transfer_operations.outgoing_bottle_operation AS bottles_movement_operation_id,
+           transfer_operations.operation_time AS doc_date,
+           'out' AS doc_payment_type,  #crutch
+           transfer_operations.from_delivery_point_id AS delivery_point_id,
+           out_delivery_point.compiled_address AS delivery_point_address,
+           CONCAT(
+                   'Перенесено клиенту ',
+                   inc_counterparty.name,
+                   ' по адресу ',
+                   COMPILE_ADDRESS(inc_delivery_point.id)) AS doc_name,
+           '' AS doc_status,
+           transfer_operations.from_client_id AS doc_client_id,
+           '' AS to_client_text,
+           '' AS from_client_text
+ FROM
+     transfer_operations
+         LEFT JOIN
+     delivery_points AS out_delivery_point ON out_delivery_point.id = transfer_operations.from_delivery_point_id
+         LEFT JOIN
+     delivery_points AS inc_delivery_point ON inc_delivery_point.id = transfer_operations.to_delivery_point_id
+         LEFT JOIN
+     counterparty AS inc_counterparty ON inc_counterparty.id = transfer_operations.to_client_id
 #subselect transfer_operations: transfer to client
-	UNION SELECT
-		transfer_operations.id AS transfer_operation_id,
-		transfer_operations.incoming_bottle_operation AS bottles_movement_operation_id,
-		transfer_operations.operation_time AS doc_date,
-		'inc' AS payment_type, #crutch
-		transfer_operations.to_delivery_point_id AS delivery_point_id,
-		inc_delivery_point.compiled_address AS delivery_point_address,
-		CONCAT(
-			'Перенесено от клиента ',
-			out_counterparty.name,
-			' с адреса ',
-			COMPILE_ADDRESS(inc_delivery_point.id)) AS doc_name,
-		'' AS doc_status, 
-		transfer_operations.to_client_id AS doc_client_id,
-		'' AS to_client_text,
-		'' AS from_client_text
-	FROM
-		transfer_operations
-	LEFT JOIN
-		delivery_points AS inc_delivery_point ON inc_delivery_point.id = transfer_operations.to_delivery_point_id
-	LEFT JOIN
-		delivery_points AS out_delivery_point ON out_delivery_point.id = transfer_operations.from_delivery_point_id
-	LEFT JOIN
-		counterparty AS out_counterparty ON out_counterparty.id = transfer_operations.from_client_id
-	) AS docs
-LEFT JOIN
-	bottles_movement_operations ON docs.bottles_movement_operation_id = bottles_movement_operations.id
-LEFT JOIN
-	(SELECT 
-		order_items.order_id AS order_id,
-		SUM(order_items.price * IFNULL(order_items.actual_count, 0)) AS forfeit,
-		SUM(IFNULL(order_items.actual_count, '')) AS forfeitCount
-	FROM
-		order_items
-	WHERE
-		order_items.nomenclature_id IN 
-			(SELECT
-				str_value
-			FROM
-				base_parameters
-			WHERE
-				base_parameters.name = 'forfeit_nomenclature_id')
-	GROUP BY order_items.order_id) AS forfeits ON forfeits.order_id = docs.doc_id
-LEFT JOIN
-	(SELECT 
-		order_items.order_id AS order_id,
-		SUM(IFNULL(order_items.actual_count, 0)) AS bottles_count
-	FROM
-		order_items
-	WHERE
-		order_items.nomenclature_id IN ( 38, 78, 38, 831, 1043, 332, 87, 505, 1045, 304, 1044, 1149, 589, 592, 72)
-	GROUP BY order_items.order_id) AS empty_bottles ON empty_bottles.order_id = docs.doc_id    
+ UNION SELECT
+           transfer_operations.id AS transfer_operation_id,
+           transfer_operations.incoming_bottle_operation AS bottles_movement_operation_id,
+           transfer_operations.operation_time AS doc_date,
+           'inc' AS payment_type, #crutch
+           transfer_operations.to_delivery_point_id AS delivery_point_id,
+           inc_delivery_point.compiled_address AS delivery_point_address,
+           CONCAT(
+                   'Перенесено от клиента ',
+                   out_counterparty.name,
+                   ' с адреса ',
+                   COMPILE_ADDRESS(inc_delivery_point.id)) AS doc_name,
+           '' AS doc_status,
+           transfer_operations.to_client_id AS doc_client_id,
+           '' AS to_client_text,
+           '' AS from_client_text
+ FROM
+     transfer_operations
+         LEFT JOIN
+     delivery_points AS inc_delivery_point ON inc_delivery_point.id = transfer_operations.to_delivery_point_id
+         LEFT JOIN
+     delivery_points AS out_delivery_point ON out_delivery_point.id = transfer_operations.from_delivery_point_id
+         LEFT JOIN
+     counterparty AS out_counterparty ON out_counterparty.id = transfer_operations.from_client_id
+) AS docs
+    LEFT JOIN
+bottles_movement_operations ON docs.bottles_movement_operation_id = bottles_movement_operations.id
+    LEFT JOIN
+(SELECT
+     order_items.order_id AS order_id,
+     SUM(order_items.price * IFNULL(order_items.actual_count, 0)) AS forfeit,
+     SUM(IFNULL(order_items.actual_count, '')) AS forfeitCount
+ FROM
+     order_items
+ WHERE
+         order_items.nomenclature_id IN
+         (SELECT
+              str_value
+          FROM
+              base_parameters
+          WHERE
+                  base_parameters.name = 'forfeit_nomenclature_id')
+ GROUP BY order_items.order_id) AS forfeits ON forfeits.order_id = docs.doc_id
+    LEFT JOIN
+(SELECT
+     order_items.order_id AS order_id,
+     SUM(IFNULL(order_items.actual_count, 0)) AS bottles_count
+ FROM
+     order_items
+ WHERE
+         order_items.nomenclature_id IN ( 38, 78, 38, 831, 1043, 332, 87, 505, 1045, 304, 1044, 1149, 589, 592, 72)
+ GROUP BY order_items.order_id) AS empty_bottles ON empty_bottles.order_id = docs.doc_id
 WHERE
-	docs.doc_client_id = @client_id
-	AND (@delivery_point_id = -1
-		OR docs.delivery_point_id = @delivery_point_id)
-	AND (@startDate = ''
-		OR docs.doc_date &gt;= @startDate)
-	AND (@endDate = ''
-		OR docs.doc_date &lt;= @endDate)
+        docs.doc_client_id = @client_id
+  AND (@delivery_point_id = -1
+    OR docs.delivery_point_id = @delivery_point_id)
+  AND (@startDate = ''
+    OR docs.doc_date &gt;= @startDate)
+  AND (@endDate = ''
+    OR docs.doc_date &lt;= @endDate)
 ORDER BY docs.doc_date;
 </CommandText>
         <QueryParameters>
@@ -859,10 +873,10 @@ WHERE
             <Width>65.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>119.2pt</Width>
+            <Width>116.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>54.2pt</Width>
+            <Width>57.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>46.3pt</Width>
