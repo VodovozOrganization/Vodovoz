@@ -1282,7 +1282,10 @@ FROM
             route_list_addresses.route_list_id AS rl_id,
             counterparty.name AS entry_name,
             delivery_points.compiled_address_short AS entry_address,
-            (order_items.price - order_items.discount_money) AS entry_price,
+            IF(order_items.actual_count = 0 OR order_items.actual_count IS NULL,
+               0,
+               (order_items.price * order_items.actual_count - order_items.discount_money) / order_items.actual_count
+            ) as entry_price,
             IFNULL(order_items.actual_count, 0) AS entry_count,
             orders.payment_type AS entry_payment_type,
             IF(order_items.actual_count = 0 OR order_items.actual_count IS NULL,
