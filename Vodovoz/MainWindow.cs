@@ -166,12 +166,11 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		//int s2 = random.Next(10, 99);
 		//string number = f3 + "-" + s3 + "-" + f2 + "-" + s2;
 		//string number = "0000000000";
-		//NavigationManager.OpenViewModel<UnknowTalkViewModel,Phone>(null,new Phone() {Number = number});
-
 		var mangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
-		mangoManager.Connect();
+		NavigationManager.OpenViewModel<TestMangoViewModel,MangoManager>(null,mangoManager);
+		//mangoManager.Connect();
 
-		BanksUpdater.CheckBanksUpdate(false);
+		//BanksUpdater.CheckBanksUpdate(false);
 	}
 
 	#region IProgressBarDisplayable implementation
