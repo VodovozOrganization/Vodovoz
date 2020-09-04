@@ -102,16 +102,33 @@ namespace Vodovoz
 		#region Работа с боковыми панелями
 
 		public PanelViewType[] InfoWidgets {
-			get {
-				return new[]{
-					PanelViewType.AdditionalAgreementPanelView,
-					PanelViewType.CounterpartyView,
-					PanelViewType.DeliveryPricePanelView,
-					PanelViewType.DeliveryPointView,
-					PanelViewType.EmailsPanelView,
-					PanelViewType.CallTaskPanelView,
-					PanelViewType.SmsSendPanelView
-				};
+			get
+			{
+				if (Order.OrderStatus == OrderStatus.Accepted ||
+				    Order.OrderStatus == OrderStatus.OnTheWay ||
+				    Order.OrderStatus == OrderStatus.Shipped ||
+				    Order.OrderStatus == OrderStatus.InTravelList ||
+				    Order.OrderStatus == OrderStatus.OnLoading)
+					return new[]
+					{
+						PanelViewType.AdditionalAgreementPanelView,
+						PanelViewType.CounterpartyView,
+						PanelViewType.DeliveryPricePanelView,
+						PanelViewType.DeliveryPointView,
+						PanelViewType.EmailsPanelView,
+						PanelViewType.CallTaskPanelView,
+						PanelViewType.SmsSendPanelView
+					};
+				else
+					return new[]
+					{
+						PanelViewType.AdditionalAgreementPanelView,
+						PanelViewType.CounterpartyView,
+						PanelViewType.DeliveryPricePanelView,
+						PanelViewType.DeliveryPointView,
+						PanelViewType.EmailsPanelView,
+						PanelViewType.CallTaskPanelView
+					};
 			}
 		}
 
