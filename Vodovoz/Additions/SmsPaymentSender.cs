@@ -12,7 +12,7 @@ namespace Vodovoz.Additions
             ISmsPaymentService service = SmsPaymentServiceSetting.GetSmsmPaymentServite();
             if (service == null)
             {
-                return new PaymentResult { ErrorDescription = "Сервис отправки Sms не работает" };
+                return new PaymentResult { ErrorDescription = "Сервис отправки Sms не работает, обратитесь в РПО." };
             }
 
             string realPhoneNumber = "8" + PhoneUtils.RemoveNonDigit(phoneNumber);
