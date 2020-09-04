@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using ClientMangoService;
+using ClientMangoService.Commands;
 using Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.Utilities;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -32,25 +34,28 @@ namespace Vodovoz.Infrastructure.Mango
 		private NotificationMessage LastMessage;
 		private IPage CurrentPage;
 		private uint timer;
+		private MangoController mangoController;
 
-		public MangoManager(Gtk.Action toolbarIcon, 
-			IUnitOfWorkFactory unitOfWorkFactory, 
-			IEmployeeService employeeService, 
-			IUserService userService, 
-			INavigationManager navigation)
+		public MangoManager(Gtk.Action toolbarIcon,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IEmployeeService employeeService,
+			IUserService userService,
+			INavigationManager navigation,
+			BaseParametersProvider parametrs)
 		{
 			this.toolbarIcon = toolbarIcon;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			this.navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
+ 			this.mangoController = new MangoController(parametrs.VpbxApiKey, parametrs.VpbxApiSalt);
 
 			timer = GLib.Timeout.Add (1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
 			toolbarIcon.Activated += ToolbarIcon_Activated;
 		}
 
-		#region Current State
 		public ConnectionState ConnectionState {
+			#region Current State
 			get => connectionState; private set {
 				connectionState = value;
 				var iconName = $"phone-{value.ToString().ToLower()}";
@@ -193,7 +198,20 @@ namespace Vodovoz.Infrastructure.Mango
 		}
 
 		#endregion
+		#region MangoController_Methods
 
+		public void HangUp()
+		{
+			//mangoController.HangUp();
+		}
+
+		public void GetAllVPBXEmploies()
+		{
+			mangoController.GetAllVPBXEmploies();
+		}
+
+
+		#endregion
 		public void Dispose()
 		{
 			GLib.Source.Remove(timer);

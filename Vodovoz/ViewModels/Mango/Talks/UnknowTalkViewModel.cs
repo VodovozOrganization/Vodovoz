@@ -15,6 +15,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
@@ -34,7 +35,8 @@ namespace Vodovoz.ViewModels.Mango
 		public UnknowTalkViewModel(Phone phone, 
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
-			IInteractiveQuestion interactive) : base(navigation)
+			IInteractiveQuestion interactive,
+			MangoManager mangoManager) : base(navigation)
 		{
 			this.tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
@@ -42,7 +44,6 @@ namespace Vodovoz.ViewModels.Mango
 			Title = "Входящий новый номер";
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
-
 			this.phone = phone;
 		}
 
