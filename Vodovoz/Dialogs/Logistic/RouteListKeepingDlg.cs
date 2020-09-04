@@ -541,32 +541,7 @@ namespace Vodovoz
 			HasChanged = true;
 			OnPropertyChanged<RouteListItemStatus>(() => Status);
 		}
-		
-		IList<Fine> fines = new List<Fine>();
-		[Display(Name = "Штрафы")]
-		public virtual IList<Fine> Fines {
-			get => fines;
-			set => SetField(ref fines, value);
-		}
 
-		GenericObservableList<Fine> observableFines;
-		public virtual GenericObservableList<Fine> ObservableFines {
-			get {
-				if(observableFines == null) {
-					observableFines = new GenericObservableList<Fine>(Fines);
-				}
-				return observableFines;
-			}
-		}
-		
-		public virtual string GetAllFines()
-		{
-			return ObservableFines.Any() ? 
-				string.Join("\n", ObservableFines.SelectMany(x => x.ObservableItems)
-					.Select(x => x.Title)) 
-				: String.Empty;
-		}
-		
 	}
 
 	public class StatusChangedEventArgs : EventArgs

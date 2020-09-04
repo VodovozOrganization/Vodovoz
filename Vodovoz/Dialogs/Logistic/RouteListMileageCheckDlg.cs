@@ -117,10 +117,6 @@ namespace Vodovoz
 					.AddEnumRenderer(node => node.Status).Editing(false)
 				.AddColumn("Последнее редактирование")
 					.AddTextRenderer(node => node.LastUpdate)
-				
-				.AddColumn("Штрафы за перерасход р.")
-					.AddTextRenderer(node => SumOfFines(node))
-				
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.RowColor)
 				.Finish();
@@ -146,20 +142,6 @@ namespace Vodovoz
 			}
 			else
 				RecountMileage();
-		}
-
-		private string SumOfFines(RouteListKeepingItemNode node)
-		{
-			var s = node.RouteListItem.Fines.Count;
-			var result = node.RouteListItem.Fines;
-			var r1 = result.Where(x => x.FineType == FineTypes.FuelOverspending);
-			var r2 = r1.Sum(x => x.TotalMoney);
-			
-			 // node.RouteListItem.Fines
-				//  .Where(x => x.FineType == FineTypes.FuelOverspending);
-				//  .Sum(x => x.TotalMoney)
-				// .ToString();
-			 return r2.ToString();
 		}
 
 		private void ButtonAcceptFineOnClicked(object sender, EventArgs e)
