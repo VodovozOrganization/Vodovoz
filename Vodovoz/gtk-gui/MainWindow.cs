@@ -1079,7 +1079,7 @@ public partial class MainWindow
 		this.ActionOrderStatisticByWeekReport = new global::Gtk.Action("ActionOrderStatisticByWeekReport", global::Mono.Unix.Catalog.GetString("Статистика по дням недели"), null, null);
 		this.ActionOrderStatisticByWeekReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Статистика по дням недели");
 		w1.Add(this.ActionOrderStatisticByWeekReport, null);
-		this.MangoAction = new global::Gtk.Action("MangoAction", global::Mono.Unix.Catalog.GetString("Mango"), null, "Phone");
+		this.MangoAction = new global::Gtk.Action("MangoAction", global::Mono.Unix.Catalog.GetString("Mango"), null, "phone-disable");
 		this.MangoAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Mango");
 		w1.Add(this.MangoAction, null);
 		this.UIManager.InsertActionGroup(w1, 0);
