@@ -47,48 +47,6 @@ namespace Vodovoz.Dialogs
                    .Distinct();
 			resultList.AddRange(documentsContract);
 
-			//Доп. соглашения
-			var documentsAgreement = 
-				UoW.Session.QueryOver<OrderAgreement>()			                            
-				   .WhereRestrictionOn(x => x.AdditionalAgreement.Id)
-				   .IsIn(counterpartyDocuments
-				         .Select(y => y.Document)
-				         .OfType<AdditionalAgreement>()			
-				         .Select(x => x.Id)						
-				         .ToList()
-						 )
-				   .List()
-				   .Distinct();
-			resultList.AddRange(documentsAgreement);
-
-			//Гарантийные талоны на кулера
-			var documentsCoolerWarranty = 
-				UoW.Session.QueryOver<CoolerWarrantyDocument>()
-				   .WhereRestrictionOn(x => x.Id)
-				   .IsIn(counterpartyDocuments
-				         .Select(y => y.Document)						   
-				         .OfType<CoolerWarrantyDocument>()					
-				         .Select(x => x.Id)					 
-				         .ToList()			 	 	
-				        )					
-				   .List()
-				   .Distinct();
-			resultList.AddRange(documentsCoolerWarranty);
-
-			//Гарантийные талоны на помпы
-			var documentsPumpWarranty = 
-				UoW.Session.QueryOver<PumpWarrantyDocument>()
-				   .WhereRestrictionOn(x => x.Id)
-				   .IsIn(counterpartyDocuments							
-				         .Select(y => y.Document)
-				         .OfType<PumpWarrantyDocument>()							
-				         .Select(x => x.Id)							
-				         .ToList()									
-				        )								
-				   .List()			                               
-				   .Distinct();
-			resultList.AddRange(documentsPumpWarranty);
-
 			//Документы заказа
 			var documentsOrder = UoW.Session.QueryOver<OrderDocument>()
 			   .WhereRestrictionOn(x => x.Id).IsIn(orderDocuments.Select(y => y.DocumentId).ToList())

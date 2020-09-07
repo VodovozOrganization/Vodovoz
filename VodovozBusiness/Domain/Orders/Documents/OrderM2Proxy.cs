@@ -9,7 +9,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class OrderM2Proxy : OrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
+	public class OrderM2Proxy : PrintableOrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
 	{
 		#region implemented abstract members of OrderDocument
 

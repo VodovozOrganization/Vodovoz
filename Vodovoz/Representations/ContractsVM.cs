@@ -52,11 +52,6 @@ namespace Vodovoz.ViewModel
 			Counterparty counterpartyAlias = null;
 			Organization organizationAlias = null;
 			ContractsVMNode resultAlias = null;
-			AdditionalAgreement agreementAlias = null;
-
-			var subquery = NHibernate.Criterion.QueryOver.Of<AdditionalAgreement>(() => agreementAlias)
-				.Where(() => agreementAlias.Contract.Id == contractAlias.Id)
-				.ToRowCountQuery();
 
 			var contractslist = UoW.Session.QueryOver<CounterpartyContract> (() => contractAlias)
 				.JoinAlias (c => c.Counterparty, () => counterpartyAlias)
@@ -70,7 +65,6 @@ namespace Vodovoz.ViewModel
 					.Select(() => contractAlias.IsArchive).WithAlias(() => resultAlias.IsArchive)
 					.Select(() => contractAlias.OnCancellation).WithAlias(() => resultAlias.OnCancellation)
 					.Select(() => organizationAlias.Name).WithAlias(() => resultAlias.Organization)
-					.SelectSubQuery(subquery).WithAlias(() => resultAlias.AdditionalAgreements)
 				)
 				.TransformUsing(Transformers.AliasToBean<ContractsVMNode>())
 				.List<ContractsVMNode>();
@@ -81,7 +75,6 @@ namespace Vodovoz.ViewModel
 		IColumnsConfig columnsConfig = FluentColumnsConfig <ContractsVMNode>.Create ()
 			.AddColumn("Номер").SetDataProperty (node => node.Title)
 			.AddColumn ("Организация").SetDataProperty (node => node.Organization)
-			.AddColumn ("Кол-во доп. соглашений").SetDataProperty (node => node.AdditionalAgreements)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
@@ -100,27 +93,20 @@ namespace Vodovoz.ViewModel
 			
 		#endregion
 
-		#region implemented abstract members of RepresentationModelEntitySubscribingBase
-
-		protected override bool NeedUpdateFunc(object updatedSubject)
-		{
-			var agreement = updatedSubject as AdditionalAgreement;
-			return Counterparty.Id == agreement.Contract.Counterparty.Id;
-		}
-
-		#endregion
-
-		public ContractsVM (IUnitOfWorkGeneric<Counterparty> uow) : base(
-			typeof(WaterSalesAgreement))
+		public ContractsVM (IUnitOfWorkGeneric<Counterparty> uow)
 		{
 			this.UoW = uow;
 		}
 
-		public ContractsVM (IUnitOfWork uow, Counterparty counterparty) : base(
-			typeof(WaterSalesAgreement))
+		public ContractsVM (IUnitOfWork uow, Counterparty counterparty)
 		{
 			UoW = uow;
 			Counterparty = counterparty;
+		}
+
+		protected override bool NeedUpdateFunc(object updatedSubject)
+		{
+			return true;
 		}
 	}
 		
@@ -144,8 +130,6 @@ namespace Vodovoz.ViewModel
 		}
 			
 		public string Organization { get; set;}
-
-		public int AdditionalAgreements { get; set;}
 
 		public string RowColor {
 			get {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using NHibernate;
@@ -61,22 +62,8 @@ namespace Vodovoz.Domain.Orders
 
 		public override void Activate(Order order)
 		{
-			var agreementsId = order.Client.CounterpartyContracts
-								.SelectMany(x => x.AdditionalAgreements)
-								.Select(x => x.Self)
-								.OfType<WaterSalesAgreement>().Select(a => a.Id);
-
-			foreach(var agreementId in agreementsId) {
-				using(var uow = UnitOfWorkFactory.CreateForRoot<WaterSalesAgreement>(agreementId)) {
-					var oldFixedPrice = uow.Root.ObservableFixedPrices.FirstOrDefault(p => p.Nomenclature.Id == Nomenclature.Id);
-					if(oldFixedPrice == null)
-						uow.Root.AddFixedPrice(Nomenclature, Price);
-					else
-						oldFixedPrice.Price = Price;
-
-					uow.Save();
-				}
-			}
+			//TODO код применения фиксы по точке доставки или по контрагенту
+			throw new NotImplementedException();
 		}
 
 		public override void Deactivate(Order order)

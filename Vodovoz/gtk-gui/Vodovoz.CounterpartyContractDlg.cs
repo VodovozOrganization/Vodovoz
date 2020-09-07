@@ -14,8 +14,6 @@ namespace Vodovoz
 
 		private global::Gtk.Table datatable5;
 
-		private global::Vodovoz.AdditionalAgreementsView additionalagreementsview1;
-
 		private global::Gamma.GtkWidgets.yCheckButton checkOnCancellation;
 
 		private global::QS.Widgets.GtkUI.DatePicker dateIssue;
@@ -101,18 +99,6 @@ namespace Vodovoz
 			this.datatable5.RowSpacing = ((uint)(6));
 			this.datatable5.ColumnSpacing = ((uint)(6));
 			this.datatable5.BorderWidth = ((uint)(6));
-			// Container child datatable5.Gtk.Table+TableChild
-			this.additionalagreementsview1 = new global::Vodovoz.AdditionalAgreementsView();
-			this.additionalagreementsview1.HeightRequest = 150;
-			this.additionalagreementsview1.Events = ((global::Gdk.EventMask)(256));
-			this.additionalagreementsview1.Name = "additionalagreementsview1";
-			this.additionalagreementsview1.IsEditable = true;
-			this.datatable5.Add(this.additionalagreementsview1);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable5[this.additionalagreementsview1]));
-			w6.TopAttach = ((uint)(6));
-			w6.BottomAttach = ((uint)(7));
-			w6.RightAttach = ((uint)(3));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
 			this.checkOnCancellation = new global::Gamma.GtkWidgets.yCheckButton();
 			this.checkOnCancellation.CanFocus = true;

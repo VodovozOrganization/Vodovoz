@@ -31,7 +31,8 @@ namespace Vodovoz.HibernateMapping
 		public OrderAgreementMap ()
 		{
 			DiscriminatorValue ("AdditionalAgreement");
-			References (x => x.AdditionalAgreement).Column ("agreement_id");
+			Map(x => x.FullName).Column("agreement_full_number");
+			Map(x => x.AdditionalAgreementId).Column ("agreement_id");
 		}
 	}
 
@@ -61,17 +62,6 @@ namespace Vodovoz.HibernateMapping
 			DiscriminatorValue("SpecialBill");
 
 			Map(x => x.HideSignature).Column("hide_signature");
-		}
-	}
-
-	public class CoolerWarrantyDocumentMap:SubclassMap<CoolerWarrantyDocument>
-	{
-		public CoolerWarrantyDocumentMap()
-		{
-			DiscriminatorValue ("CoolerWarranty");
-			Map(x => x.WarrantyNumber).Column("warranty_number");
-			References(x => x.Contract).Column("contract_id");
-			References(x => x.AdditionalAgreement).Column("agreement_id");
 		}
 	}
 
@@ -130,17 +120,6 @@ namespace Vodovoz.HibernateMapping
 		}
 	}
 
-	public class PumpWarrantyDocumentMap:SubclassMap<PumpWarrantyDocument>
-	{
-		public PumpWarrantyDocumentMap()
-		{
-			DiscriminatorValue ("PumpWarranty");
-			Map(x => x.WarrantyNumber).Column("warranty_number");
-			References(x => x.Contract).Column("contract_id");
-			References(x => x.AdditionalAgreement).Column("agreement_id");
-		}
-	}
-
 	public class UPDDocumentMap:SubclassMap<UPDDocument>
 	{
 		public UPDDocumentMap()
@@ -178,30 +157,6 @@ namespace Vodovoz.HibernateMapping
 		public ShetFacturaDocumentMap()
 		{
 			DiscriminatorValue("ShetFactura");
-		}
-	}
-
-	public class RefundBottleDepositDocumentMap : SubclassMap<RefundBottleDepositDocument>
-	{
-		public RefundBottleDepositDocumentMap()
-		{
-			DiscriminatorValue("RefundBottleDeposit");
-		}
-	}
-
-	public class RefundEquipmentDepositDocumentMap : SubclassMap<RefundEquipmentDepositDocument>
-	{
-		public RefundEquipmentDepositDocumentMap()
-		{
-			DiscriminatorValue("RefundEquipmentDeposit");
-		}
-	}
-
-	public class BottleTransferDocumentMap : SubclassMap<BottleTransferDocument>
-	{
-		public BottleTransferDocumentMap()
-		{
-			DiscriminatorValue("BottleTransfer");
 		}
 	}
 

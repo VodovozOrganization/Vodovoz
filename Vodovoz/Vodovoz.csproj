@@ -408,7 +408,6 @@
     <Compile Include="gtk-gui\Vodovoz.CounterpartyDlg.cs" />
     <Compile Include="PricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.PricesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementsView.cs" />
     <Compile Include="Dialogs\PaidRentPackageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentPackageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointView.cs" />
@@ -442,7 +441,6 @@
     <Compile Include="ViewModels\Cash\PaymentByCardViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonCategoryViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
-    <Compile Include="ViewWidgets\AdditionalAgreementsView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointView.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
@@ -459,7 +457,6 @@
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterMaterialView.cs" />
     <Compile Include="Dialogs\CommentTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CommentTemplateDlg.cs" />
-    <Compile Include="Representations\AdditionalAgreementsVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.ClientBalanceFilter.cs" />
     <Compile Include="Representations\CounterpartyVM.cs" />
     <Compile Include="Representations\DocumentsVM.cs" />
@@ -571,7 +568,6 @@
     <Compile Include="SidePanel\InfoViews\DeliveryPointPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\ICounterpartyInfoProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\IDeliveryPointInfoProvider.cs" />
-    <Compile Include="SidePanel\InfoViews\AdditionalAgreementPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
     <Compile Include="ReportsParameters\Revision.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
@@ -613,8 +609,6 @@
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
     <Compile Include="Representations\EquipmentTypesForRentVM.cs" />
-    <Compile Include="Dialogs\Client\WaterAgreementDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.WaterAgreementDlg.cs" />
     <Compile Include="Representations\ClientDeliveryPointsVM.cs" />
     <Compile Include="Representations\DeliveryPointsVM.cs" />
     <Compile Include="Dialogs\DocumentDialogs\InventoryDocumentDlg.cs" />
@@ -814,7 +808,6 @@
     <Compile Include="gtk-gui\Vodovoz.SidePanel.PanelViewContainer.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CounterpartyPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.DeliveryPointPanelView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.AdditionalAgreementPanelView.cs" />
     <Compile Include="ReportsParameters\IncomeBalanceReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.IncomeBalanceReport.cs" />
     <Compile Include="ServiceDialogs\Database\ReplaceEntityLinksDlg.cs" />

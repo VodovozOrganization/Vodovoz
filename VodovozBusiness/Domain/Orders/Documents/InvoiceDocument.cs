@@ -7,7 +7,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class InvoiceDocument : OrderDocument, IPrintableRDLDocument, IAdvertisable, ISignableDocument
+	public class InvoiceDocument : PrintableOrderDocument, IPrintableRDLDocument, IAdvertisable, ISignableDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.Invoice;

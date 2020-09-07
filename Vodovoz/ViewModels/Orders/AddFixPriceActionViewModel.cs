@@ -6,7 +6,7 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Tools.AdditionalAgreements;
+using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.Orders
 {

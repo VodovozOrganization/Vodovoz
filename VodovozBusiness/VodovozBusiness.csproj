@@ -68,6 +68,7 @@
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
     <Compile Include="Domain\Orders\OnlineStore.cs" />
+    <Compile Include="Domain\Orders\Documents\PrintableOrderDocument.cs" />
     <Compile Include="Domain\Orders\ReturnTareReason.cs" />
     <Compile Include="Domain\Orders\ReturnTareReasonCategory.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
@@ -126,7 +127,6 @@
     <Compile Include="Domain\Cash\ExpenseCategory.cs" />
     <Compile Include="Domain\Cash\Income.cs" />
     <Compile Include="Domain\Cash\IncomeCategory.cs" />
-    <Compile Include="Domain\Client\AdditionalAgreement.cs" />
     <Compile Include="Domain\Client\Contact.cs" />
     <Compile Include="Domain\Client\Counterparty.cs" />
     <Compile Include="Domain\Client\CounterpartyContract.cs" />
@@ -186,7 +186,6 @@
     <Compile Include="Domain\Operations\OperationBase.cs" />
     <Compile Include="Domain\Operations\WarehouseMovementOperation.cs" />
     <Compile Include="Domain\Orders\Documents\BillDocument.cs" />
-    <Compile Include="Domain\Orders\Documents\CoolerWarrantyDocument.cs" />
     <Compile Include="Domain\Orders\Documents\DoneWorkDocument.cs" />
     <Compile Include="Domain\Orders\Documents\DriverTicketDocument.cs" />
     <Compile Include="Domain\Orders\Documents\EquipmentTransferDocument.cs" />
@@ -195,7 +194,6 @@
     <Compile Include="Domain\Orders\Documents\OrderAgreement.cs" />
     <Compile Include="Domain\Orders\Documents\OrderContract.cs" />
     <Compile Include="Domain\Orders\Documents\OrderDocument.cs" />
-    <Compile Include="Domain\Orders\Documents\PumpWarrantyDocument.cs" />
     <Compile Include="Domain\Orders\Documents\UPDDocument.cs" />
     <Compile Include="Domain\Orders\Order.cs" />
     <Compile Include="Domain\Orders\OrderDepositItem.cs" />
@@ -225,7 +223,6 @@
     <Compile Include="HibernateMapping\Contracts\CounterpartyContractMap.cs" />
     <Compile Include="HibernateMapping\Contracts\FreeRentPackageMap.cs" />
     <Compile Include="HibernateMapping\Contracts\PaidRentPackageMap.cs" />
-    <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\ContactMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointMap.cs" />
@@ -344,8 +341,6 @@
     <Compile Include="DocTemplates\FreeRentAgreementParser.cs" />
     <Compile Include="DocTemplates\DailyRentAgreementParser.cs" />
     <Compile Include="DocTemplates\RepairAgreementParser.cs" />
-    <Compile Include="Domain\Client\WaterSalesAgreementFixedPrice.cs" />
-    <Compile Include="HibernateMapping\Counterparty\WaterSalesAgreementFixedPriceMap.cs" />
     <Compile Include="HibernateMapping\Operations\FuelOperationMap.cs" />
     <Compile Include="Domain\Operations\FuelOperation.cs" />
     <Compile Include="Repositories\Operations\FuelRepository.cs" />
@@ -403,7 +398,6 @@
     <Compile Include="Domain\Client\SalesEquipment.cs" />
     <Compile Include="DocTemplates\EquipmentAgreementParser.cs" />
     <Compile Include="HibernateMapping\Counterparty\SalesEquipmentMap.cs" />
-    <Compile Include="Repositories\Client\AdditionalAgreementRepository.cs" />
     <Compile Include="Domain\Orders\Documents\RefundBottleDepositDocument.cs" />
     <Compile Include="Domain\Orders\Documents\RefundEquipmentDepositDocument.cs" />
     <Compile Include="Domain\Orders\Documents\BottleTransferDocument.cs" />

@@ -23,24 +23,6 @@ namespace Vodovoz.Domain.Client
 	{
 		#region Сохраняемые поля
 
-		private IList<AdditionalAgreement> agreements { get; set; }
-
-		[Display(Name = "Дополнительные соглашения")]
-		public virtual IList<AdditionalAgreement> AdditionalAgreements {
-			get { return agreements; }
-			set { agreements = value; }
-		}
-
-		GenericObservableList<AdditionalAgreement> observableAdditionalAgreements;
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<AdditionalAgreement> ObservableAdditionalAgreements {
-			get {
-				if(observableAdditionalAgreements == null)
-					observableAdditionalAgreements = new GenericObservableList<AdditionalAgreement>(AdditionalAgreements);
-				return observableAdditionalAgreements;
-			}
-		}
-
 		public virtual int Id { get; set; }
 
 		int maxDelay;
@@ -190,79 +172,6 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#region Функции
-
-		/// <summary>
-		/// Проверяет, не создано ли уже подобное доп. соглашение.
-		/// </summary>
-		/// <returns><c>true</c>, если такое доп. соглашение уже существует, <c>false</c> иначе.</returns>
-		/// <param name="id">Id доп. соглашения, для исключения совпадения с самим собой.</param>
-		/// <param name="deliveryPoint">Точка доставки.</param>
-		public virtual bool CheckWaterSalesAgreementExists(int id, DeliveryPoint deliveryPoint)
-		{
-			if(AdditionalAgreements == null || AdditionalAgreements.Count < 1) {
-				return false;
-			}
-			if(deliveryPoint != null) {
-				return AdditionalAgreements.Any(
-					a => a.Id != id &&
-					a.DeliveryPoint != null &&
-					a.DeliveryPoint.Id == deliveryPoint.Id &&
-					a.Type == AgreementType.WaterSales &&
-					!a.IsCancelled);
-			}
-			return AdditionalAgreements.Any(
-				a => a.Id != id &&
-				a.DeliveryPoint == null &&
-				a.Type == AgreementType.WaterSales &&
-				!a.IsCancelled
-			);
-		}
-
-		public virtual WaterSalesAgreement GetWaterSalesAgreement(DeliveryPoint deliveryPoint, Nomenclature nomenclature)
-		{
-			if(AdditionalAgreements == null || !AdditionalAgreements.Any())
-				return null;
-
-			AdditionalAgreement agreement = null;
-			if(deliveryPoint != null) {
-				agreement = AdditionalAgreements.Select(x => x.Self).OfType<WaterSalesAgreement>().FirstOrDefault(a =>
-				   a.DeliveryPoint != null &&
-				   a.DeliveryPoint.Id == deliveryPoint.Id &&
-				   !a.IsCancelled
-				   && a.HasFixedPrice
-				   && a.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id)
-				);
-				if(agreement == null) {
-					agreement = AdditionalAgreements.FirstOrDefault(a =>
-						a.DeliveryPoint != null &&
-						a.DeliveryPoint.Id == deliveryPoint.Id &&
-						a.Type == AgreementType.WaterSales &&
-						!a.IsCancelled);
-				}
-			}
-			if(agreement == null) {
-				agreement = AdditionalAgreements.FirstOrDefault(a =>
-				   a.DeliveryPoint == null &&
-			   a.Type == AgreementType.WaterSales &&
-			   !a.IsCancelled);
-			}
-			return agreement?.Self as WaterSalesAgreement;
-		}
-
-
-		/// <summary>
-		/// Возвращает допсоглашение на воду по текущей точке доставке
-		/// </summary>
-		public virtual WaterSalesAgreement GetWaterSalesAgreement(DeliveryPoint deliveryPoint)
-		{
-			if(AdditionalAgreements == null || !AdditionalAgreements.Any())
-				return null;
-
-			return AdditionalAgreements.Select(x => x.Self)
-									   .OfType<WaterSalesAgreement>()
-									   .FirstOrDefault(x => x.DeliveryPoint == deliveryPoint && !x.IsCancelled)
-									   ;
-		}
 
 		/// <summary>
 		/// Updates template for the contract.

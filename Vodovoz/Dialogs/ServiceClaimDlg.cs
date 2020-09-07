@@ -29,8 +29,7 @@ namespace Vodovoz
 			get{
 				return new[]{ 
 					PanelViewType.CounterpartyView,
-					PanelViewType.DeliveryPointView,
-					PanelViewType.AdditionalAgreementPanelView
+					PanelViewType.DeliveryPointView
 				};
 			}
 		}
@@ -239,10 +238,6 @@ namespace Vodovoz
 
 			if (UoWGeneric.Root.InitialOrder != null)
 				UoWGeneric.Root.InitialOrder.AddServiceClaimAsInitial (UoWGeneric.Root);
-
-			if (UoWGeneric.Root.FinalOrder != null) {
-				UoWGeneric.Root.FinalOrder.AddServiceClaimAsFinal (UoWGeneric.Root);
-			}
 
 			if (UoWGeneric.IsNew)
 				UoWGeneric.Root.AddHistoryRecord (UoWGeneric.Root.Status, 

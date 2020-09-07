@@ -17,8 +17,6 @@ namespace Vodovoz.SidePanel
 					return new CounterpartyPanelView();
 				case PanelViewType.DeliveryPointView:
 					return new DeliveryPointPanelView();
-				case PanelViewType.AdditionalAgreementPanelView:
-					return new AdditionalAgreementPanelView();
 				case PanelViewType.DeliveryPricePanelView:
 					return new DeliveryPricePanelView();
 				case PanelViewType.UndeliveredOrdersPanelView:

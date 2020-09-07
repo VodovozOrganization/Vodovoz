@@ -24,28 +24,8 @@ namespace Vodovoz.Repositories.Client
 				if(issueDate.HasValue) {
 					contract.IssueDate = issueDate.Value;
 				}
-				contract.AdditionalAgreements = new List<AdditionalAgreement>();
 				uow.Save();
 				result = UoW.GetById<CounterpartyContract>(uow.Root.Id);
-			}
-			return result;
-		}
-
-		/// <summary>
-		/// Создает дополнительное соглашение для доставки воды
-		/// </summary>
-		public static WaterSalesAgreement CreateDefaultWaterAgreement(IUnitOfWork UoW, DeliveryPoint deliveryPoint, DateTime? deliveryDate, CounterpartyContract contract)
-		{
-			WaterSalesAgreement result = null;
-			using(var uow = WaterSalesAgreement.Create(contract)) {
-				uow.Root.DeliveryPoint = deliveryPoint;
-				uow.Root.FillFixedPricesFromDeliveryPoint(uow);
-				if(deliveryDate.HasValue) {
-					uow.Root.IssueDate = deliveryDate.Value;
-					uow.Root.StartDate = deliveryDate.Value;
-				}
-				uow.Save();
-				result = UoW.GetById<WaterSalesAgreement>(uow.Root.Id);
 			}
 			return result;
 		}

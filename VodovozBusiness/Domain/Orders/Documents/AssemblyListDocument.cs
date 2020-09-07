@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class AssemblyListDocument : OrderDocument, IPrintableRDLDocument
+	public class AssemblyListDocument : PrintableOrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.AssemblyList;

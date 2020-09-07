@@ -4,7 +4,6 @@
 	{
 		CounterpartyView,
 		DeliveryPointView,
-		AdditionalAgreementPanelView,
 		DeliveryPricePanelView,
 		UndeliveredOrdersPanelView,
 		EmailsPanelView,

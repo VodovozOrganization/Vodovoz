@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories;
 
-namespace Vodovoz.Tools.AdditionalAgreements
+namespace Vodovoz.Tools
 {
 	public class WaterFixedPriceGenerator
 	{
@@ -72,6 +71,19 @@ namespace Vodovoz.Tools.AdditionalAgreements
 			set { SemiozeriePrice = value - priceIncrement * 3; }
 		}
 
+		public class WaterSalesAgreementFixedPrice
+		{
+			public Nomenclature Nomenclature { get; }
+			public decimal Price { get; }
+
+			public WaterSalesAgreementFixedPrice(Nomenclature nomenclature, decimal price)
+			{
+				throw new NotImplementedException("Нужно создать генератор фиксированных цен");
+				Nomenclature = nomenclature;
+				Price = price;
+			}
+		}
+		
 		/// <summary>
 		/// Создает фиксированные цены по всем номенклатурам воды основываясь на цене одной номенклатуры
 		/// </summary>

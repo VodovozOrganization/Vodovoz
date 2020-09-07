@@ -35,14 +35,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		AdditionalAgreement additionalAgreement;
-
-		[Display(Name = "Дополнительное соглашение")]
-		public virtual AdditionalAgreement AdditionalAgreement {
-			get => additionalAgreement;
-			set => SetField(ref additionalAgreement, value, () => AdditionalAgreement);
-		}
-
 		Nomenclature nomenclature;
 
 		[Display(Name = "Номенклатура")]
@@ -260,28 +252,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsDepositCategory => Nomenclature.Category == NomenclatureCategory.deposit;
 
-		int RentTime {
-			get {
-				if(AdditionalAgreement == null) {
-					return 0;
-				}
-
-				return 0;
-			}
-		}
-
-		public virtual string RentString {
-			get {
-				int rentCount = RentTime;
-				int count = RentEquipmentCount;
-
-				if(rentCount != 0)
-					return string.Format("{0}*{1}", count, rentCount);
-				return string.Empty;
-			}
-		}
-
-		public virtual decimal ReturnedCount => Count - ActualCount ?? 0;
+		public virtual int ReturnedCount => Count - ActualCount ?? 0;
 
 		public virtual bool IsDelivered => ReturnedCount == 0;
 
@@ -386,10 +357,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanEditAmount {
 			get {
-				bool result = AdditionalAgreement == null;
-
-				if(AdditionalAgreement?.Type == AgreementType.WaterSales)
-					result = true;
+				bool result = true;
 
 				if(IsRentRenewal())
 					result = true;
@@ -418,16 +386,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string NomenclatureString => Nomenclature != null ? Nomenclature.Name : string.Empty;
 
-		public virtual string AgreementString {
-			get {
-				if(AdditionalAgreement != null) {
-					string result = string.Format("{0} №{1}", AdditionalAgreement.AgreementTypeTitle, AdditionalAgreement.FullNumberText);
-					return result;
-				}
-				return string.Empty;
-			}
-		}
-
 		public virtual string Title => $"[{Order.Title}] {Nomenclature.Name} - {Count}*{Price}={Sum}";
 
 		#region IOrderItemWageCalculationSource implementation
@@ -443,17 +401,13 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Методы
-
-		//FIXME Для предварительной реализации продления аренды пока не решили как она будет работать
+		
 		private bool IsRentRenewal()
 		{
-			if(Order.IsLoadedFrom1C)
-				//Так как все товары в таких заказах не будут привязаны к доп соглашениям
+			if(Order.IsLoadedFrom1C) {
 				return false;
-
-			//Определяет что аренда на продажу не связана с дополнительным соглашением и таким образом является 
-			//продлением существующей аренды, на КОТОРУЮ ПОКА НЕТ ССЫЛКИ
-			return AdditionalAgreement == null;
+			}
+			return true;
 		}
 
 		public virtual decimal? GetWaterFixedPrice()
@@ -466,15 +420,8 @@ namespace Vodovoz.Domain.Orders
 			//влияющая номенклатура
 			Nomenclature infuentialNomenclature = Nomenclature?.DependsOnNomenclature;
 			if(Nomenclature.Category == NomenclatureCategory.water) {
-				if(!(AdditionalAgreement.Self is WaterSalesAgreement waterSalesAgreement))
-					return result;
-
-				if(waterSalesAgreement.HasFixedPrice && waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == Nomenclature.Id
-																						   && infuentialNomenclature == null)) {
-					result = waterSalesAgreement.FixedPrices.First(x => x.Nomenclature.Id == Nomenclature.Id).Price;
-				} else if(waterSalesAgreement.HasFixedPrice && waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == infuentialNomenclature?.Id)) {
-					result = waterSalesAgreement.FixedPrices.First(x => x.Nomenclature.Id == infuentialNomenclature.Id).Price;
-				}
+				//TODO Берем фиксу из доп соглашения, если фиксы нет, ищем по зависиой номенклатуре
+				throw new NotImplementedException();
 			}
 			return result;
 		}

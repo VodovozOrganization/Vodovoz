@@ -66,7 +66,6 @@ namespace Vodovoz
 						.AddDeleteDependence<RegradingOfGoodsTemplateItem>(x => x.NomenclatureNew)
 						.AddDeleteDependence<ProductSpecificationMaterial>(x => x.Material)
 						.AddDeleteDependence<ProductSpecification>(x => x.Product)
-						.AddDeleteDependence<WaterSalesAgreementFixedPrice>(x => x.Nomenclature)
 						.AddDeleteDependence<FineNomenclature>(x => x.Nomenclature)
 						.AddDeleteDependence<CarLoadDocumentItem>(x => x.Nomenclature)
 						.AddDeleteDependence<WarehouseMovementOperation>(item => item.Nomenclature)
@@ -78,7 +77,6 @@ namespace Vodovoz
 						.AddClearDependence<PaidRentPackage>(x => x.DepositService)
 						.AddClearDependence<DeliveryPoint>(x => x.DefaultWaterNomenclature)
 						.AddClearDependence<Nomenclature>(x => x.DependsOnNomenclature)
-						.AddDeleteDependence<SalesEquipment>(x => x.Nomenclature)
 						.AddDeleteDependence<ShiftChangeWarehouseDocumentItem>(x => x.Nomenclature)
 						.AddDeleteDependence<NomenclaturePrice>(x => x.Nomenclature)
 						.AddDeleteDependence<OrderDepositItem>(x => x.EquipmentNomenclature)
@@ -447,18 +445,8 @@ namespace Vodovoz
 				.AddDeleteDependenceFromCollection(item => item.Persons);
 
 			DeleteConfig.AddHibernateDeleteInfo<CounterpartyContract>()
-				.AddDeleteDependence<AdditionalAgreement>(item => item.Contract)
 				.AddDeleteDependence<OrderContract>(x => x.Contract)
 				.AddClearDependence<Order>(x => x.Contract);
-
-			DeleteConfig.AddHibernateDeleteInfo<AdditionalAgreement>().HasSubclasses()
-				.AddDeleteDependence<OrderAgreement>(x => x.AdditionalAgreement)
-				.AddDeleteDependence<WaterSalesAgreementFixedPrice>(x => x.AdditionalAgreement)
-				.AddClearDependence<OrderItem>(item => item.AdditionalAgreement);
-
-			DeleteConfig.AddHibernateDeleteInfo<WaterSalesAgreement>();
-
-			DeleteConfig.AddHibernateDeleteInfo<SalesEquipment>();
 
 			DeleteConfig.AddHibernateDeleteInfo<SupplierPriceItem>()
 						;
@@ -473,7 +461,6 @@ namespace Vodovoz
 
 			//основной класс. не удаляем. в тестах настроен игнор.
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPoint>()
-				.AddDeleteDependence<AdditionalAgreement>(item => item.DeliveryPoint)
 				.AddClearDependence<BottlesMovementOperation>(item => item.DeliveryPoint)
 				.AddDeleteDependence<TransferOperationDocument>(item => item.FromDeliveryPoint)
 				.AddDeleteDependence<TransferOperationDocument>(item => item.ToDeliveryPoint)
@@ -496,12 +483,9 @@ namespace Vodovoz
 				.AddDeleteCascadeDependence(item => item.IncEquipmentDepositOperation)
 				.AddDeleteCascadeDependence(item => item.OutEquipmentDepositOperation);
 
-			DeleteConfig.AddHibernateDeleteInfo<WaterSalesAgreementFixedPrice>();
-
 			DeleteConfig.AddHibernateDeleteInfo<CallTask>();
 
 			DeleteConfig.AddHibernateDeleteInfo<DocTemplate>()
-				.AddClearDependence<AdditionalAgreement>(x => x.DocumentTemplate)
 				.AddClearDependence<CounterpartyContract>(x => x.DocumentTemplate)
 				.AddClearDependence<EmployeeContract>(x => x.EmployeeContractTemplate)
 				;
@@ -733,8 +717,6 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<BillDocument>();
 
-			DeleteConfig.AddHibernateDeleteInfo<CoolerWarrantyDocument>();
-
 			DeleteConfig.AddHibernateDeleteInfo<DoneWorkDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<EquipmentTransferDocument>();
@@ -743,11 +725,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<InvoiceDocument>();
 
-			DeleteConfig.AddHibernateDeleteInfo<OrderAgreement>();
-
 			DeleteConfig.AddHibernateDeleteInfo<OrderContract>();
-
-			DeleteConfig.AddHibernateDeleteInfo<PumpWarrantyDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<UPDDocument>();
 
@@ -760,12 +738,9 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<SpecialBillDocument>();
 			DeleteConfig.AddHibernateDeleteInfo<SpecialUPDDocument>();
 			DeleteConfig.AddHibernateDeleteInfo<OrderM2Proxy>();
-			DeleteConfig.AddHibernateDeleteInfo<BottleTransferDocument>();
 			DeleteConfig.AddHibernateDeleteInfo<EquipmentReturnDocument>();
 			DeleteConfig.AddHibernateDeleteInfo<InvoiceContractDoc>();
 			DeleteConfig.AddHibernateDeleteInfo<NomenclatureCertificateDocument>();
-			DeleteConfig.AddHibernateDeleteInfo<RefundBottleDepositDocument>();
-			DeleteConfig.AddHibernateDeleteInfo<RefundEquipmentDepositDocument>();
 			#endregion
 
 			//Документы

@@ -10,7 +10,6 @@ using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
-using NHibernate.Proxy;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
@@ -66,6 +65,7 @@ using Vodovoz.JournalFilters;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
@@ -146,7 +146,6 @@ namespace Vodovoz
 		public PanelViewType[] InfoWidgets {
 			get {
 				return new[]{
-					PanelViewType.AdditionalAgreementPanelView,
 					PanelViewType.CounterpartyView,
 					PanelViewType.DeliveryPricePanelView,
 					PanelViewType.DeliveryPointView,
@@ -528,8 +527,7 @@ namespace Vodovoz
 			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
-
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<WaterSalesAgreement>(WaterSalesAgreement_ObjectUpdatedGeneric);
+			
 			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());
 			SetDiscountEditable();
 			SetDiscountUnitEditable();
@@ -611,7 +609,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Аренда")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(node => node.IsRentCategory ? node.RentString : string.Empty)
+					.AddTextRenderer(node => string.Empty)
 				.AddColumn("Цена")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
@@ -621,11 +619,9 @@ namespace Vodovoz
 						if(Entity.OrderStatus == OrderStatus.NewOrder || (Entity.OrderStatus == OrderStatus.WaitForPayment && !Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
 							c.ForegroundGdk = colorBlack;
-							if(node.AdditionalAgreement == null) {
-								return;
-							}
-							AdditionalAgreement aa = node.AdditionalAgreement.Self;
-							if(aa is WaterSalesAgreement wsa && wsa.HasFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == node.Nomenclature.Id)) {
+							//TODO Получить фиксу, если есть фикса то цвет зеленый
+							bool isFixPrice = true;
+							if(isFixPrice) {
 								c.ForegroundGdk = colorGreen;
 							} else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 								c.ForegroundGdk = colorBlue;
@@ -680,9 +676,6 @@ namespace Vodovoz
 							c.Text = n.OriginalDiscountReason?.Name ?? n.DiscountReason?.Name;
 						}
 					)
-				.AddColumn("Доп. соглашение")
-					.HeaderAlignment(0.5f)
-					.AddTextRenderer(node => node.AgreementString)
 				.AddColumn("Промо-наборы").SetTag(nameof(Entity.PromotionalSets))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.PromoSet == null ? "" : node.PromoSet.Name)
@@ -815,17 +808,6 @@ namespace Vodovoz
 			bool canChangeCommentOdz = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_odz_op_comment", currentUserId);
 			textODZComments.Sensitive = canChangeCommentOdz;
 			textOPComments.Sensitive = canChangeCommentOdz;
-		}
-
-		void WaterSalesAgreement_ObjectUpdatedGeneric(EntityChangeEvent[] changeEvents)
-		{
-			foreach(var ad in changeEvents.Select(x => x.GetEntity<WaterSalesAgreement>())) {
-				foreach(var item in Entity.OrderItems) {
-					if(item.AdditionalAgreement?.Id == ad.Id)
-						UoW.Session.Refresh(item.AdditionalAgreement);
-				}
-				Entity.UpdatePrices(ad);
-			}
 		}
 
 		#endregion
@@ -1128,7 +1110,7 @@ namespace Vodovoz
 				return;
 
 			var rdlDocs = treeDocuments.GetSelectedObjects()
-									   .Cast<OrderDocument>()
+									   .OfType<PrintableOrderDocument>()
 									   .Where(d => d.PrintType == PrinterType.RDL)
 									   .ToList();
 
@@ -1147,24 +1129,12 @@ namespace Vodovoz
 			}
 
 			var odtDocs = treeDocuments.GetSelectedObjects()
-									   .Cast<OrderDocument>()
+									   .OfType<PrintableOrderDocument>()
 									   .Where(d => d.PrintType == PrinterType.ODT)
 									   .ToList();
 			if(odtDocs.Any())
 				foreach(var doc in odtDocs) {
-					if(doc is OrderAgreement) {
-						var agreement = (doc as OrderAgreement).AdditionalAgreement;
-						var type = NHibernateProxyHelper.GuessClass(agreement);
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName(type, agreement.Id),
-							() => {
-								var dialog = OrmMain.CreateObjectDialog(type, EntityUoWBuilder.ForOpenInChildUoW(agreement.Id, UoW), UnitOfWorkFactory.GetDefaultFactory);
-								if(dialog is IAgreementSaved)
-									(dialog as IAgreementSaved).AgreementSaved += AgreementSaved;
-								return dialog;
-							}
-						);
-					} else if(doc is OrderContract)
+					if(doc is OrderContract)
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<CounterpartyContract>((doc as OrderContract).Contract.Id),
 							() => {
@@ -1199,7 +1169,7 @@ namespace Vodovoz
 		private void PrintDocuments(IList<OrderDocument> docList)
 		{
 			if(docList.Any()) {
-				new DocumentPrinter().PrintAll(docList);
+				new DocumentPrinter().PrintAll(docList.OfType<PrintableOrderDocument>());
 			}
 		}
 
@@ -1280,8 +1250,9 @@ namespace Vodovoz
 		{
 			if(toggleDocuments.Active)
 				notebook1.CurrentPage = 6;
-			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments.Any(doc => doc.PrintType == PrinterType.RDL
-															   || doc.PrintType == PrinterType.ODT);
+			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments
+				.OfType<PrintableOrderDocument>()
+				.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT);
 		}
 
 		#endregion
@@ -1664,20 +1635,6 @@ namespace Vodovoz
 
 		#region Создание договоров, доп соглашений
 
-		protected void CreateContractWithAgreement(Nomenclature nomenclature, int count)
-		{
-			var contract = GetActualInstanceContract(ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate));
-			Entity.Contract = contract;
-			Entity.AddContractDocument(contract);
-			AdditionalAgreement agreement = contract.GetWaterSalesAgreement(Entity.DeliveryPoint, nomenclature);
-			if(agreement == null) {
-				agreement = ClientDocumentsRepository.CreateDefaultWaterAgreement(UoW, Entity.DeliveryPoint, Entity.DeliveryDate, contract);
-				contract.AdditionalAgreements.Add(agreement);
-				Entity.CreateOrderAgreementDocument(agreement);
-				TryAddNomenclature(nomenclature, count);
-			}
-		}
-
 		CounterpartyContract GetActualInstanceContract(CounterpartyContract anotherSessionContract)
 		{
 			return UoW.GetById<CounterpartyContract>(anotherSessionContract.Id);
@@ -1691,21 +1648,6 @@ namespace Vodovoz
 		protected void OnYcomboboxReasonItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			SetDiscountUnitEditable();
-		}
-
-		void RunAgreementDialog(ITdiDialog dlg)
-		{
-			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
-			TabParent.AddSlaveTab(this, dlg);
-		}
-
-		void AgreementSaved(object sender, AgreementSavedEventArgs e)
-		{
-			var agreement = UoWGeneric.GetById<AdditionalAgreement>(e.Agreement.Id);
-
-			Entity.CreateOrderAgreementDocument(agreement);
-			if(!Entity.Contract.ObservableAdditionalAgreements.Contains(agreement))
-				Entity.Contract.ObservableAdditionalAgreements.Add(agreement);
 		}
 
 		protected int AskCreateContract()
@@ -1728,29 +1670,7 @@ namespace Vodovoz
 			//будут запускаться после создания договора
 			return (int)ResponseType.Accept;
 		}
-
-		protected void RunContractAndWaterAgreementDialog(Nomenclature nomenclature, int count = 0)
-		{
-			ITdiTab dlg = new CounterpartyContractDlg(Entity.Client, Entity.PaymentType,
-							  OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric, Entity.Client.PersonType, Entity.PaymentType),
-							  Entity.DeliveryDate);
-			(dlg as IContractSaved).ContractSaved += OnContractSaved;
-			dlg.TabClosed += (sender, e) => {
-				CounterpartyContract contract =
-					CounterpartyContractRepository.GetCounterpartyContractByPaymentType(
-						UoWGeneric,
-						Entity.Client,
-						Entity.Client.PersonType,
-						Entity.PaymentType);
-				if(contract != null) {
-					bool hasWaterAgreement = contract.GetWaterSalesAgreement(Entity.DeliveryPoint, nomenclature) != null;
-					if(!hasWaterAgreement)
-						RunAdditionalAgreementWaterDialog(nomenclature, count);
-				}
-			};
-			TabParent.AddSlaveTab(this, dlg);
-		}
-
+		
 		protected void OnContractSaved(object sender, ContractSavedEventArgs args)
 		{
 			CounterpartyContract contract =
@@ -1766,19 +1686,6 @@ namespace Vodovoz
 			});
 
 			Entity.Contract = contract;
-		}
-
-		protected void RunAdditionalAgreementWaterDialog(Nomenclature nom = null, int count = 0)
-		{
-			ITdiDialog dlg = new WaterAgreementDlg(CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType), Entity.DeliveryPoint, Entity.DeliveryDate);
-			(dlg as IAgreementSaved).AgreementSaved +=
-				(sender, e) => {
-					AgreementSaved(sender, e);
-					if(nom != null) {
-						TryAddNomenclature(nom, count);
-					}
-				};
-			TabParent.AddSlaveTab(this, dlg);
 		}
 		#endregion
 
@@ -1940,13 +1847,8 @@ namespace Vodovoz
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
 		{
-			if(!HasAgreementForDeliveryPoint()) {
-				Order originalOrder = UoW.GetById<Order>(Entity.Id);
-				Entity.DeliveryPoint = originalOrder?.DeliveryPoint;
-			}
 			CheckSameOrders();
 			Entity.ChangeOrderContract();
-			Entity.ChangeWaterAgreementDeliveryPointChanged();
 			
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
@@ -1968,7 +1870,7 @@ namespace Vodovoz
 				if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
 					UoWGeneric.Save();
 
-				var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
+				var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().OfType<PrintableOrderDocument>()
 					.Where(doc => doc.PrintType == PrinterType.RDL).ToList();
 				if(selectedPrintableRDLDocuments.Any()) {
 					new DocumentPrinter().PrintAll(selectedPrintableRDLDocuments);
@@ -1986,7 +1888,7 @@ namespace Vodovoz
 
 		protected void OnBtnOpnPrnDlgClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderDocuments.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT))
+			if(Entity.OrderDocuments.OfType<PrintableOrderDocument>().Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT))
 				TabParent.AddSlaveTab(this, new DocumentsPrinterDlg(Entity));
 		}
 
@@ -2258,25 +2160,6 @@ namespace Vodovoz
 
 		#region Service functions
 
-		bool HasAgreementForDeliveryPoint()
-		{
-			bool a = Entity.HasActualWaterSaleAgreementByDeliveryPoint();
-			if(Entity.ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare) &&
-			   !a) {
-				//У выбранной точки доставки нет соглашения о доставке воды, предлагаем создать.
-				//Если пользователь создаст соглашение, то запишется выбранная точка доставки
-				//если не создаст то ничего не произойдет и точка доставки останется прежней
-				CounterpartyContract contract = Entity.Contract ?? CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-				if(MessageDialogHelper.RunQuestionDialog("В заказе добавлена вода, а для данной точки доставки нет дополнительного соглашения о доставке воды, создать?")) {
-					ITdiDialog dlg = new WaterAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate);
-					(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
-					TabParent.AddSlaveTab(this, dlg);
-				}
-				return false;
-			}
-			return true;
-		}
-
 		/// <summary>
 		/// Is the payment type barter or cashless?
 		/// </summary>
@@ -2375,16 +2258,7 @@ namespace Vodovoz
 		{
 			object[] items = treeItems.GetSelectedObjects();
 
-			if(items.Length == 0) {
-				return;
-			}
-
-			var deleteTypes = new AgreementType[] {
-				AgreementType.WaterSales
-			};
-			btnDeleteOrderItem.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null
-														   || deleteTypes.Contains((items[0] as OrderItem).AdditionalAgreement.Type)
-														  );
+			btnDeleteOrderItem.Sensitive = items.Any();
 		}
 
 		/// <summary>
