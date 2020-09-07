@@ -25,9 +25,11 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories;
 using System.Collections.Generic;
+using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Representations;
 
 namespace Vodovoz
 {
@@ -126,8 +128,11 @@ namespace Vodovoz
 
 			yentryFolder1c.SubjectType = typeof(Folder1c);
 			yentryFolder1c.Binding.AddBinding(Entity, e => e.Folder1C, w => w.Subject).InitializeFromSource();
-			yentryProductGroup.SubjectType = typeof(ProductGroup);
+			
+			yentryProductGroup.JournalButtons = Buttons.Add | Buttons.Edit;
+			yentryProductGroup.RepresentationModel = new ProductGroupVM(UoW, new ProductGroupFilterViewModel());
 			yentryProductGroup.Binding.AddBinding(Entity, e => e.ProductGroup, w => w.Subject).InitializeFromSource();
+			
 			referenceUnit.SubjectType = typeof(MeasurementUnits);
 			referenceUnit.Binding.AddBinding(Entity, n => n.Unit, w => w.Subject).InitializeFromSource();
 			yentryrefEqupmentType.SubjectType = typeof(EquipmentType);
@@ -220,6 +225,7 @@ namespace Vodovoz
 			labelStorageCell.Visible = isEshopNomenclature;
 			yspinbuttonPurchasePrice.Visible = isEshopNomenclature;
 			labelPurchasePrice.Visible = isEshopNomenclature;
+			ylblOnlineStore.Visible = ylblOnlineStoreStr.Visible = Entity?.ProductGroup?.IsOnlineStore ?? false;
 		}
 
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -283,7 +289,6 @@ namespace Vodovoz
 			radioEquipment.Sensitive = selected == NomenclatureCategory.equipment;
 			enumSaleCategory.Visible = lblSaleCategory.Visible = Nomenclature.GetCategoriesWithSaleCategory().Contains(selected);
 			enumDepositType.Visible = lblSubType.Visible = selected == NomenclatureCategory.deposit;
-			ylblOnlineStore.Visible = ylblOnlineStoreStr.Visible = selected == NomenclatureCategory.additional;
 
 			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.deposit);
 			spinVolume.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.deposit);
