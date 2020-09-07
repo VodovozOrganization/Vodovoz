@@ -1127,8 +1127,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionProductGroupsActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<ProductGroup>(),
-			() => new OrmReference(typeof(ProductGroup))
+			TdiTabBase.GenerateHashName<ProductGroupView>(),
+			() => new ProductGroupView()
 		);
 	}
 

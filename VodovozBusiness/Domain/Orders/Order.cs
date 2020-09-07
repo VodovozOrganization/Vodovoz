@@ -1348,9 +1348,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculateItemsPrice()
 		{
-			foreach(OrderItem item in ObservableOrderItems) {
-				if(item.Nomenclature.Category == NomenclatureCategory.water) {
-					item.RecalculatePrice();
+			for (int i = 0; i < ObservableOrderItems.Count; i++) {
+				if(ObservableOrderItems[i].Nomenclature.Category == NomenclatureCategory.water) {
+					ObservableOrderItems[i].RecalculatePrice();
 				}
 			}
 		}
@@ -1670,8 +1670,16 @@ namespace Vodovoz.Domain.Orders
 					};
 					deliveryPriceItem.Price = price;
 					deliveryPriceItem.Count = 1;
-					ObservableOrderItems.Add(deliveryPriceItem);
-					return true;
+
+					var delivery = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == paidDeliveryNomenclatureId);
+
+					if (delivery == null) {
+						ObservableOrderItems.Add(deliveryPriceItem);
+						return true;
+					}
+					else
+						return false;
+					
 				} else if(deliveryPriceItem.Price == price) {
 					return false;
 				}
@@ -2570,6 +2578,7 @@ namespace Vodovoz.Domain.Orders
 				ObservableOrderItems.Remove(item);
 				DeleteOrderEquipmentOnOrderItem(item);
 			}
+
 			UpdateDocuments();
 		}
 
@@ -4077,12 +4086,15 @@ namespace Vodovoz.Domain.Orders
 
 			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
-												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
-
-			if(OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.additional) && !EShopOrder.HasValue)
+					new[] { this.GetPropertyName(o => o.OnlineOrder) });
+			
+			if(!EShopOrder.HasValue
+			   && OrderItems
+				   .Where(x => x.Nomenclature.ProductGroup != null)
+				   .Select(x => DomainTreeNodeBase<ProductGroup>.GetRootParent(x.Nomenclature.ProductGroup))
+				   .Any(x => x.Id == new NomenclatureParametersProvider().RootProductGroupForOnlineStoreNomenclatures))
 				yield return new ValidationResult(
-					$"При добавлении в заказ номенклатур категории \"{NomenclatureCategory.additional.GetEnumTitle()}\" " +
-						"необходимо указать номер заказа интернет-магазина.",
+					"При добавлении в заказ номенклатур с группой товаров интернет-магазиа необходимо указать номер заказа интернет-магазина.",
 					new[] { nameof(EShopOrder) });
 
 			if(PaymentType == PaymentType.ByCard && PaymentByCardFrom == null)

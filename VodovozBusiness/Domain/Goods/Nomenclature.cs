@@ -442,6 +442,13 @@ namespace Vodovoz.Domain.Goods
 
 		#region Свойства товаров для магазина
 
+		private string onlineStoreExternalId;
+		[Display(Name = "Id в интернет магазине")]
+		public virtual string OnlineStoreExternalId {
+			get => onlineStoreExternalId;
+			set => SetField(ref onlineStoreExternalId, value);
+		}
+		
 		private decimal purchasePrice;
 		[Display(Name = "Цена закупки")]
 		public virtual decimal PurchasePrice {

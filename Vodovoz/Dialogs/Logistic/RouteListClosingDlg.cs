@@ -231,6 +231,9 @@ namespace Vodovoz
 						Amount = 0
 					});
 			}
+			foreach (RouteListItem routeListItem in routeListAddressesView.Items)
+				routeListItem.RecalculateTotalCash();
+			
 
 			routelistdiscrepancyview.RouteList = Entity;
 			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures(false,
@@ -287,11 +290,19 @@ namespace Vodovoz
 		private void UpdateSensitivity()
 		{
 			if(Entity.Status != RouteListStatus.OnClosing && Entity.Status != RouteListStatus.MileageCheck) {
-				tblRLInfo.Sensitive = false;
+				ytextviewFuelInfo.Sensitive = false;
+				ycheckHideCells.Sensitive = false;
+				vbxFuelTickets.Sensitive = false;
+				speccomboShift.Sensitive = false;
+				referenceLogistican.Sensitive = false;
+				referenceDriver.Sensitive = false;
+				referenceForwarder.Sensitive = false;
+				entityviewmodelentryCar.Sensitive = false;
+				datePickerDate.Sensitive = false;
+
 				vboxHidenPanel.Sensitive = false;
 				hbxStatistics1.Sensitive = false;
 				hbxStatistics2.Sensitive = false;
-				buttonSave.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
 
 				HasChanges = false;

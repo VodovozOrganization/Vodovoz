@@ -33,7 +33,7 @@ namespace Vodovoz.Additions
 
             IInstantSmsService service = InstantSmsServiceSetting.GetInstantSmsService();
             if(service == null) {
-                return new ResultMessage { ErrorDescription = "Сервис отправки Sms не работает" };
+                return new ResultMessage { ErrorDescription = "Сервис отправки Sms не работает, обратитесь в РПО." };
             }
             return service.SendSms(smsNotification);
         }
