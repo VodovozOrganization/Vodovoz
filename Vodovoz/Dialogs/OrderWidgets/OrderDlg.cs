@@ -380,14 +380,6 @@ namespace Vodovoz
 				Entity.UpdateClientDefaultParam();
 			};
 
-			Entity.ObservableOrderItems.ElementChanged += (aList, aIdx) => {
-				FixPrice(aIdx[0]);
-			};
-
-			Entity.ObservableOrderItems.ElementAdded += (aList, aIdx) => {
-				FixPrice(aIdx[0]);
-			};
-
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
 			dataSumDifferenceReason.Completion = new EntryCompletion {
 				Model = GetListStoreSumDifferenceReasons(UoWGeneric),
@@ -457,6 +449,8 @@ namespace Vodovoz
 			labelSumDifference.Hide();
 			dataSumDifferenceReason.Hide();
 			labelSumDifferenceReason.Hide();
+
+			yCheckBtnNeedTerminal.Binding.AddBinding(Entity, e => e.NeedTerminal, w => w.Active).InitializeFromSource();
 
 			UpdateUIState();
 
@@ -800,12 +794,6 @@ namespace Vodovoz
 			Entity.SaveOrderComment();
 		}
 
-		protected void OnButtonFormOrderClicked(object sender, EventArgs e)
-		{
-			ValidateAndFormOrder();
-			CheckCertificates();
-		}
-
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
 			AcceptOrder();
@@ -899,8 +887,7 @@ namespace Vodovoz
 		private void OnFormOrderActions()
 		{
 			//проверка и добавление платной доставки в товары
-			if(Entity.CalculateDeliveryPrice())
-				MessageDialogHelper.RunInfoDialog("Была изменена стоимость доставки.");
+			Entity.CalculateDeliveryPrice();
 		}
 
 		/// <summary>
@@ -1408,17 +1395,18 @@ namespace Vodovoz
 			if(Entity.IsLoadedFrom1C)
 				return;
 
-			if(proSet != null && !proSet.IsArchive && proSet.PromotionalSetItems.Any())
-				foreach(var proSetItem in proSet.PromotionalSetItems) {
+			if (proSet != null && !proSet.IsArchive && proSet.PromotionalSetItems.Any()) {
+				foreach (var proSetItem in proSet.PromotionalSetItems) {
 					var nomenclature = proSetItem.Nomenclature;
-					if(Entity.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
-					   && nomenclature.Category == NomenclatureCategory.master) {
+					if (Entity.OrderItems.Any(x =>
+						    !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
+					    && nomenclature.Category == NomenclatureCategory.master) {
 						MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
 						return;
 					}
 
-					if(Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
-					   && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
+					if (Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
+					    && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
 						MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
 						return;
 					}
@@ -1432,6 +1420,9 @@ namespace Vodovoz
 						proSetItem.PromoSet
 					);
 				}
+
+				OnFormOrderActions();
+			}
 		}
 
 		private void AddRentAgreement(OrderAgreementType type)
@@ -1948,6 +1939,9 @@ namespace Vodovoz
 				pickerDeliveryDate.ModifyBase(StateType.Normal, new Gdk.Color(255, 0, 0));
 			else
 				pickerDeliveryDate.ModifyBase(StateType.Normal, new Gdk.Color(255, 255, 255));
+			
+			if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+				OnFormOrderActions();
 		}
 
 		protected void OnEntityVMEntryClientChanged(object sender, EventArgs e)
@@ -2032,6 +2026,9 @@ namespace Vodovoz
 				UpdateProxyInfo();
 				Entity.SetProxyForOrder();
 			}
+			
+			if(Entity.DeliveryDate.HasValue && Entity.OrderStatus == OrderStatus.NewOrder)
+				OnFormOrderActions();
 		}
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
@@ -2045,6 +2042,9 @@ namespace Vodovoz
 			CheckSameOrders();
 			Entity.ChangeOrderContract();
 			Entity.ChangeWaterAgreementDeliveryPointChanged();
+			
+			if(Entity.DeliveryDate.HasValue && Entity.OrderStatus == OrderStatus.NewOrder)
+				OnFormOrderActions();
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
@@ -2395,11 +2395,19 @@ namespace Vodovoz
 			treeItems.ExposeEvent += TreeAnyGoods_ExposeEvent;
 			//Выполнение в случае если размер не поменяется
 			EditGoodsCountCellOnAdd(treeItems);
+			FixPrice(aIdx[0]);
 		}
 		
 		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			HboxReturnTareReasonCategoriesShow();
+			
+			int paidDeliveryNomenclatureId = int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"));
+
+			var item = aObject as OrderItem;
+			
+			if(item.Nomenclature.Id != paidDeliveryNomenclatureId && item.Nomenclature.Category == NomenclatureCategory.water)
+				Entity.CalculateDeliveryPrice();
 		}
 
 		void ObservableOrderDocuments_ListChanged(object aList)
@@ -2487,8 +2495,14 @@ namespace Vodovoz
 				foreach(var i in aIdx) {
 					OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
 					
+					FixPrice(aIdx[0]);
+					
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
 						HboxReturnTareReasonCategoriesShow();
+					
+					if(oItem != null && oItem.Count > 0 && oItem.Nomenclature.Category == NomenclatureCategory.water 
+					   && Entity.OrderStatus == OrderStatus.NewOrder)
+						OnFormOrderActions();
 					
 					if(oItem == null || oItem.PaidRentEquipment == null) {
 						return;

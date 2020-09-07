@@ -32,26 +32,27 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			btnDeleteOrderItem.Clicked += (sender, e) => ViewModel.DeleteItemCommand.Execute();
 			ybtnOpenBill.Clicked += (sender, e) => ViewModel.OpenBillCommand.Execute();
 
-			ylabelOrderNum.Binding.AddBinding(ViewModel.Entity, vm => vm.Id, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			ylabelOrderNum.Binding.AddBinding(ViewModel.Entity, e => e.Id, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 			ylabelOrderDate.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.CreateDate.ToString(), w => w.Text).InitializeFromSource();
 			ylabelOrderAuthor.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.Author.ShortName, w => w.Text).InitializeFromSource();
 			btnDeleteOrderItem.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedItem != null, w => w.Sensitive).InitializeFromSource();
+			yCheckBtnHideSignature.Binding.AddBinding(ViewModel.Entity, e => e.HideSignature, w => w.Active).InitializeFromSource();
 
-			entityviewmodelentry1.SetEntityAutocompleteSelectorFactory(
+			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
 			);
 
-			entityviewmodelentry1.Changed += ViewModel.OnEntityViewModelEntryChanged;
+			entityViewModelEntryCounterparty.Changed += ViewModel.OnEntityViewModelEntryChanged;
 
-			entityviewmodelentry1.Binding.AddBinding(ViewModel.Entity, vm => vm.Client, w => w.Subject).InitializeFromSource();
-			entityviewmodelentry1.Binding.AddFuncBinding(ViewModel, vm => !vm.IsDocumentSent, w => w.Sensitive).InitializeFromSource();
-			entityviewmodelentry1.CanEditReference = true;
+			entityViewModelEntryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Client, w => w.Subject).InitializeFromSource();
+			entityViewModelEntryCounterparty.Binding.AddFuncBinding(ViewModel, vm => !vm.IsDocumentSent, w => w.Sensitive).InitializeFromSource();
+			entityViewModelEntryCounterparty.CanEditReference = true;
 			
 			var sendEmailView = new SendDocumentByEmailView(ViewModel.SendDocViewModel);
 			hboxSendDocuments.Add(sendEmailView);
 			sendEmailView.Show();
 			
-			ViewModel.OpenCounterpartyJournal += entityviewmodelentry1.OpenSelectDialog;
+			ViewModel.OpenCounterpartyJournal += entityViewModelEntryCounterparty.OpenSelectDialog;
 
 			ConfigureTreeItems();
 		}
@@ -124,7 +125,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 		
 		public override void Destroy()
 		{
-			entityviewmodelentry1.Changed -= ViewModel.OnEntityViewModelEntryChanged;
+			entityViewModelEntryCounterparty.Changed -= ViewModel.OnEntityViewModelEntryChanged;
 			
 			base.Destroy();
 		}

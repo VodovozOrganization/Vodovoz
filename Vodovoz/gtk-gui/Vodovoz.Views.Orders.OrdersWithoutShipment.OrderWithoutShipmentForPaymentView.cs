@@ -30,11 +30,13 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private global::Gamma.GtkWidgets.yLabel ylabel7;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentry1;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityViewModelEntryCounterparty;
 
 		private global::Gtk.HBox hbox6;
 
 		private global::Gamma.GtkWidgets.yButton ybtnOpenBill;
+
+		private global::Gamma.GtkWidgets.yCheckButton yCheckBtnHideSignature;
 
 		private global::Gtk.HBox hboxSendDocuments;
 
@@ -163,12 +165,12 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.entityviewmodelentry1 = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentry1.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentry1.Name = "entityviewmodelentry1";
-			this.entityviewmodelentry1.CanEditReference = false;
-			this.hbox2.Add(this.entityviewmodelentry1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityviewmodelentry1]));
+			this.entityViewModelEntryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityViewModelEntryCounterparty.Events = ((global::Gdk.EventMask)(256));
+			this.entityViewModelEntryCounterparty.Name = "entityViewModelEntryCounterparty";
+			this.entityViewModelEntryCounterparty.CanEditReference = false;
+			this.hbox2.Add(this.entityViewModelEntryCounterparty);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityViewModelEntryCounterparty]));
 			w11.Position = 1;
 			this.vbox1.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
@@ -190,21 +192,33 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			w13.Position = 0;
 			w13.Expand = false;
 			w13.Fill = false;
-			this.vbox1.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox6]));
-			w14.Position = 3;
+			// Container child hbox6.Gtk.Box+BoxChild
+			this.yCheckBtnHideSignature = new global::Gamma.GtkWidgets.yCheckButton();
+			this.yCheckBtnHideSignature.CanFocus = true;
+			this.yCheckBtnHideSignature.Name = "yCheckBtnHideSignature";
+			this.yCheckBtnHideSignature.Label = global::Mono.Unix.Catalog.GetString("Счет без печати и подписей");
+			this.yCheckBtnHideSignature.DrawIndicator = true;
+			this.yCheckBtnHideSignature.UseUnderline = true;
+			this.hbox6.Add(this.yCheckBtnHideSignature);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.yCheckBtnHideSignature]));
+			w14.Position = 1;
 			w14.Expand = false;
 			w14.Fill = false;
+			this.vbox1.Add(this.hbox6);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox6]));
+			w15.Position = 3;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxSendDocuments = new global::Gtk.HBox();
 			this.hboxSendDocuments.Name = "hboxSendDocuments";
 			this.hboxSendDocuments.Spacing = 6;
 			this.vbox1.Add(this.hboxSendDocuments);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSendDocuments]));
-			w15.Position = 4;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSendDocuments]));
+			w16.Position = 4;
 			this.vbox2.Add(this.vbox1);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vbox1]));
-			w16.Position = 0;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vbox1]));
+			w17.Position = 0;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox10 = new global::Gtk.HBox();
 			this.hbox10.Name = "hbox10";
@@ -214,10 +228,10 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.ylabel13.Name = "ylabel13";
 			this.ylabel13.LabelProp = global::Mono.Unix.Catalog.GetString("Период: ");
 			this.hbox10.Add(this.ylabel13);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.ylabel13]));
-			w17.Position = 0;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.ylabel13]));
+			w18.Position = 0;
+			w18.Expand = false;
+			w18.Fill = false;
 			// Container child hbox10.Gtk.Box+BoxChild
 			this.daterangepickerOrdersDate = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.daterangepickerOrdersDate.Events = ((global::Gdk.EventMask)(256));
@@ -225,13 +239,13 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.daterangepickerOrdersDate.StartDate = new global::System.DateTime(0);
 			this.daterangepickerOrdersDate.EndDate = new global::System.DateTime(0);
 			this.hbox10.Add(this.daterangepickerOrdersDate);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.daterangepickerOrdersDate]));
-			w18.Position = 1;
-			this.vbox2.Add(this.hbox10);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox10]));
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.daterangepickerOrdersDate]));
 			w19.Position = 1;
-			w19.Expand = false;
-			w19.Fill = false;
+			this.vbox2.Add(this.hbox10);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox10]));
+			w20.Position = 1;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox9 = new global::Gtk.HBox();
 			this.hbox9.Name = "hbox9";
@@ -241,15 +255,15 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.ylabel11.Name = "ylabel11";
 			this.ylabel11.LabelProp = global::Mono.Unix.Catalog.GetString("Заказы: ");
 			this.hbox9.Add(this.ylabel11);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ylabel11]));
-			w20.Position = 0;
-			w20.Expand = false;
-			w20.Fill = false;
-			this.vbox2.Add(this.hbox9);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox9]));
-			w21.Position = 2;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ylabel11]));
+			w21.Position = 0;
 			w21.Expand = false;
 			w21.Fill = false;
+			this.vbox2.Add(this.hbox9);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox9]));
+			w22.Position = 2;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -260,8 +274,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.ytreeviewOrders.Name = "ytreeviewOrders";
 			this.GtkScrolledWindow1.Add(this.ytreeviewOrders);
 			this.vbox2.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow1]));
-			w23.Position = 3;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow1]));
+			w24.Position = 3;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

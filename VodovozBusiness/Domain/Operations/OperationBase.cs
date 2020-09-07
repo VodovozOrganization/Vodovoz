@@ -9,10 +9,9 @@ namespace Vodovoz.Domain.Operations
 		public virtual int Id { get; set; }
 
 		DateTime operationTime;
-
 		public virtual DateTime OperationTime {
-			get { return operationTime; }
-			set { SetField (ref operationTime, value, () => OperationTime); }
+			get => operationTime;
+			set => SetField (ref operationTime, value);
 		}
 
 		#region IValidatableObject implementation

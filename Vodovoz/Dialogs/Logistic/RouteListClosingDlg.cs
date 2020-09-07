@@ -39,9 +39,12 @@ using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Services;
 
 namespace Vodovoz
 {
@@ -57,6 +60,8 @@ namespace Vodovoz
 		private bool canCloseRoutelist = false;
 		private Employee previousForwarder = null;
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
+		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 
 		List<ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
@@ -226,9 +231,13 @@ namespace Vodovoz
 						Amount = 0
 					});
 			}
+			foreach (RouteListItem routeListItem in routeListAddressesView.Items)
+				routeListItem.RecalculateTotalCash();
+			
 
 			routelistdiscrepancyview.RouteList = Entity;
-			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures();
+			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures(false,
+				terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
 
@@ -281,11 +290,19 @@ namespace Vodovoz
 		private void UpdateSensitivity()
 		{
 			if(Entity.Status != RouteListStatus.OnClosing && Entity.Status != RouteListStatus.MileageCheck) {
-				tblRLInfo.Sensitive = false;
+				ytextviewFuelInfo.Sensitive = false;
+				ycheckHideCells.Sensitive = false;
+				vbxFuelTickets.Sensitive = false;
+				speccomboShift.Sensitive = false;
+				referenceLogistican.Sensitive = false;
+				referenceDriver.Sensitive = false;
+				referenceForwarder.Sensitive = false;
+				entityviewmodelentryCar.Sensitive = false;
+				datePickerDate.Sensitive = false;
+
 				vboxHidenPanel.Sensitive = false;
 				hbxStatistics1.Sensitive = false;
 				hbxStatistics2.Sensitive = false;
-				buttonSave.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
 
 				HasChanges = false;
@@ -412,12 +429,16 @@ namespace Vodovoz
 					break;
 				case RouteListActions.TransferReceptionToAnotherRL:
 					this.TabParent.AddSlaveTab(
-						this, new TransferGoodsBetweenRLDlg(Entity, TransferGoodsBetweenRLDlg.OpenParameter.Sender)
+						this, new TransferGoodsBetweenRLDlg(Entity, 
+							TransferGoodsBetweenRLDlg.OpenParameter.Sender,
+							employeeNomenclatureMovementRepository)
 					);
 					break;
 				case RouteListActions.TransferReceptionToThisRL:
 					this.TabParent.AddSlaveTab(
-						this, new TransferGoodsBetweenRLDlg(Entity, TransferGoodsBetweenRLDlg.OpenParameter.Receiver)
+						this, new TransferGoodsBetweenRLDlg(Entity, 
+							TransferGoodsBetweenRLDlg.OpenParameter.Receiver,
+							employeeNomenclatureMovementRepository)
 					);
 					break;
 				case RouteListActions.TransferAddressesToThisRL:
@@ -428,7 +449,13 @@ namespace Vodovoz
 							return;
 					}
 					this.TabParent.AddSlaveTab(
-						this, new RouteListAddressesTransferringDlg(Entity, RouteListAddressesTransferringDlg.OpenParameter.Receiver)
+						this, 
+						new RouteListAddressesTransferringDlg(
+							Entity.Id, 
+							RouteListAddressesTransferringDlg.OpenParameter.Receiver,
+							employeeNomenclatureMovementRepository,
+							terminalNomenclatureProvider
+						)
 					);
 					break;
 				case RouteListActions.TransferAddressesToAnotherRL:
@@ -439,7 +466,13 @@ namespace Vodovoz
 							return;
 					}
 					this.TabParent.AddSlaveTab(
-						this, new RouteListAddressesTransferringDlg(Entity, RouteListAddressesTransferringDlg.OpenParameter.Sender)
+						this, 
+						new RouteListAddressesTransferringDlg(
+							Entity.Id, 
+							RouteListAddressesTransferringDlg.OpenParameter.Sender,
+							employeeNomenclatureMovementRepository,
+							terminalNomenclatureProvider
+						)
 					);
 					break;
 				default:

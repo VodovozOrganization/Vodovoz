@@ -165,7 +165,9 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Add(item);
 		}
 
-		public virtual void AddItem(ReciveTypes reciveType, Nomenclature nomenclature, Equipment equipment, decimal amount, Service.ServiceClaim serviceClaim, string redhead = null, DefectSource source = DefectSource.None, CullingCategory typeOfDefect = null)
+		public virtual void AddItem(ReciveTypes reciveType, Nomenclature nomenclature, Equipment equipment, 
+		                            decimal amount, Service.ServiceClaim serviceClaim, int terminalId, string redhead = null, 
+		                            DefectSource source = DefectSource.None, CullingCategory typeOfDefect = null)
 		{
 			var operation = new WarehouseMovementOperation {
 				Amount = amount,
@@ -174,16 +176,28 @@ namespace Vodovoz.Domain.Documents
 				Equipment = equipment,
 				OperationTime = TimeStamp
 			};
-			AddItem(
-				new CarUnloadDocumentItem {
-					ReciveType = reciveType,
-					MovementOperation = operation,
-					ServiceClaim = serviceClaim,
-					Redhead = redhead,
-					Source = source,
-					TypeOfDefect = typeOfDefect
-				}
-			);
+
+			var item = new CarUnloadDocumentItem {
+				ReciveType = reciveType,
+				MovementOperation = operation,
+				ServiceClaim = serviceClaim,
+				Redhead = redhead,
+				Source = source,
+				TypeOfDefect = typeOfDefect
+			};
+
+			if (nomenclature.Id == terminalId) {
+				var terminalMovementOperation = new EmployeeNomenclatureMovementOperation {
+					Amount = -(int)amount,
+					Nomenclature = nomenclature,
+					Employee = RouteList.Driver,
+					OperationTime = TimeStamp
+				};
+
+				item.EmployeeNomenclatureMovementOperation = terminalMovementOperation;
+			}
+			
+			AddItem(item);
 		}
 
 		public virtual void UpdateWarehouse()
