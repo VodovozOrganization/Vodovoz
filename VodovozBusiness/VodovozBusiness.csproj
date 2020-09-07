@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
+    <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
     <Compile Include="Domain\Orders\OnlineStore.cs" />
     <Compile Include="Domain\Orders\ReturnTareReason.cs" />
     <Compile Include="Domain\Orders\ReturnTareReasonCategory.cs" />
@@ -69,10 +70,13 @@
     <Compile Include="Domain\WageCalculation\WageParameterItem.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItemTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
+    <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
+    <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />
     <Compile Include="HibernateMapping\Logistic\LateArrivalReasonMap.cs" />
+    <Compile Include="HibernateMapping\Operations\EmployeeNomenclatureMovementOperationMap.cs" />
     <Compile Include="HibernateMapping\Order\OnlineStoreMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentMap.cs" />
@@ -349,6 +353,7 @@
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IOrganisationParametersProvider.cs" />
     <Compile Include="Services\ISmsPaymentServiceParametersProvider.cs" />
+    <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="HibernateMapping\Service\CullingCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\CommentTemplateMap.cs" />

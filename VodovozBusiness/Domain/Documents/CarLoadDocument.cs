@@ -206,7 +206,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateOperations(IUnitOfWork uow)
+		public virtual void UpdateOperations(IUnitOfWork uow, int terminalId)
 		{
 			foreach(var item in Items) {
 				if(item.Amount == 0 && item.MovementOperation != null) {
@@ -219,6 +219,9 @@ namespace Vodovoz.Domain.Documents
 					} else {
 						item.CreateOperation(Warehouse, TimeStamp);
 					}
+					
+					if(item.Nomenclature.Id == terminalId && item.EmployeeNomenclatureMovementOperation == null)
+						item.CreateEmployeeNomenclatureIncomeOperation(TimeStamp);
 				}
 			}
 		}

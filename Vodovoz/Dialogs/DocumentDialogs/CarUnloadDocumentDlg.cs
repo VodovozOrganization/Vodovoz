@@ -21,6 +21,8 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Store;
 using Vodovoz.ViewWidgets.Store;
 using QS.Project.Services;
+using Vodovoz.Core.DataService;
+using Vodovoz.Services;
 
 namespace Vodovoz
 {
@@ -28,9 +30,10 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private IEmployeeRepository EmployeeRepository { get { return EmployeeSingletonRepository.GetInstance(); } }
-		private IUserPermissionRepository UserPermissionRepository { get { return UserPermissionSingletonRepository.GetInstance(); } }
-		private ICarUnloadRepository CarUnloadRepository { get { return CarUnloadSingletonRepository.GetInstance(); } }
+		private IEmployeeRepository EmployeeRepository => EmployeeSingletonRepository.GetInstance();
+		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
+		private ICarUnloadRepository CarUnloadRepository => CarUnloadSingletonRepository.GetInstance();
+		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 		IList<Equipment> alreadyUnloadedEquipment;
 
 		public override bool HasChanges => true;
@@ -152,7 +155,7 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 
-			if(!UpdateReceivedItemsOnEntity())
+			if(!UpdateReceivedItemsOnEntity(terminalNomenclatureProvider.GetNomenclatureIdForTerminal))
 				return false;
 
 			var valid = new QS.Validation.QSValidator<CarUnloadDocument>(UoWGeneric.Root);
@@ -276,6 +279,7 @@ namespace Vodovoz
 						continue;
 					case ReciveTypes.Bottle:
 					case ReciveTypes.Returnes:
+					case ReciveTypes.ReturnCashEquipment:
 						break;
 					case ReciveTypes.Defective:
 						var defective = defectiveitemsreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
@@ -305,7 +309,7 @@ namespace Vodovoz
 			}
 		}
 
-		bool UpdateReceivedItemsOnEntity()
+		bool UpdateReceivedItemsOnEntity(int terminalId)
 		{
 			//Собираем список всего на возврат из разных виджетов.
 			var tempItemList = new List<InternalItem>();
@@ -341,11 +345,14 @@ namespace Vodovoz
 					continue;
 
 				var item = new InternalItem {
-					ReciveType = ReciveTypes.Returnes,
+					ReciveType = node.NomenclatureId == terminalId
+						? ReciveTypes.ReturnCashEquipment
+						: ReciveTypes.Returnes,
 					NomenclatureId = node.NomenclatureId,
 					Amount = node.Amount,
 					Redhead = node.Redhead
 				};
+
 				tempItemList.Add(item);
 			}
 
@@ -383,6 +390,7 @@ namespace Vodovoz
 						null,
 						tempItem.Amount,
 						null,
+						terminalId,
 						null,
 						tempItem.Source,
 						tempItem.TypeOfDefect
@@ -408,6 +416,7 @@ namespace Vodovoz
 						null,
 						tempItem.Amount,
 						null,
+						terminalId,
 						tempItem.Redhead
 					);
 				} else {

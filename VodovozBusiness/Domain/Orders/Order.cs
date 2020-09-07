@@ -671,6 +671,13 @@ namespace Vodovoz.Domain.Orders
 			get => returnTareReasonCategory;
 			set => SetField(ref returnTareReasonCategory, value);
 		}
+		
+		bool needTerminal;
+		[Display(Name = "Нужен терминал для оплаты?")]
+		public virtual bool NeedTerminal {
+			get => needTerminal;
+			set => SetField(ref needTerminal, value);
+		}
 
 		#endregion
 

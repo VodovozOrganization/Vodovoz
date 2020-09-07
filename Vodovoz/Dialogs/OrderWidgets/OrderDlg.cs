@@ -450,6 +450,8 @@ namespace Vodovoz
 			dataSumDifferenceReason.Hide();
 			labelSumDifferenceReason.Hide();
 
+			yCheckBtnNeedTerminal.Binding.AddBinding(Entity, e => e.NeedTerminal, w => w.Active).InitializeFromSource();
+
 			UpdateUIState();
 
 			yChkActionBottle.Toggled += (sender, e) => {

@@ -35,6 +35,12 @@ namespace Vodovoz.Domain.Documents
 			get { return movementOperation; }
 			set { SetField (ref movementOperation, value, () => MovementOperation); }
 		}
+		
+		EmployeeNomenclatureMovementOperation employeeNomenclatureMovementOperation;
+		public virtual EmployeeNomenclatureMovementOperation EmployeeNomenclatureMovementOperation { 
+			get => employeeNomenclatureMovementOperation;
+			set => SetField (ref employeeNomenclatureMovementOperation, value);
+		}
 
 		ServiceClaim serviceClaim;
 
@@ -81,7 +87,9 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Возврат недовоза")]
 		Returnes,
 		[Display(Name = "Брак")]
-		Defective
+		Defective,
+		[Display (Name = "Возврат кассового оборудования")]
+		ReturnCashEquipment
 	}
 
 	public class ReciveTypesStringType : NHibernate.Type.EnumStringType
