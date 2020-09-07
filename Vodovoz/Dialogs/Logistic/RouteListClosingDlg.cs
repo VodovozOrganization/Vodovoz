@@ -231,9 +231,6 @@ namespace Vodovoz
 						Amount = 0
 					});
 			}
-			foreach (RouteListItem routeListItem in routeListAddressesView.Items)
-				routeListItem.RecalculateTotalCash();
-			
 
 			routelistdiscrepancyview.RouteList = Entity;
 			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures(false,
@@ -281,7 +278,9 @@ namespace Vodovoz
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintDocuments)e.ItemEnum);
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
-
+			
+			foreach (RouteListItem routeListItem in routeListAddressesView.Items)
+				routeListItem.RecalculateTotalCash();
 			CalculateTotal();
 
 			UpdateSensitivity();
