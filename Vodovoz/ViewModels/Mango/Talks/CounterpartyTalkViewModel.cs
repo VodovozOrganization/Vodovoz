@@ -1,44 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.ViewModels.Dialog;
-using Vodovoz.Domain.Client;
-using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Orders;
-using QS.Views.Dialog;
-using Gtk;
-using Vodovoz.Views.Mango;
-using System.Collections.Generic;
-using Vodovoz.Dialogs;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.Domain.Employees;
-using Vodovoz.JournalViewModels;
-using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
-using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Warehouses;
-using Vodovoz.Representations;
-using Vodovoz.Reports;
-using Vodovoz.Services.Permissions;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.EntityRepositories.Store;
-using QS.Project.Journal;
 using QSReport;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Dialogs.Sale;
-using Vodovoz.JournalNodes;
-using QS.Dialog;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
+using Vodovoz.JournalNodes;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Complaints;
+using Vodovoz.Views.Mango;
 
-namespace Vodovoz.ViewModels.Mango
+namespace Vodovoz.ViewModels.Mango.Talks
 {
-	public partial class CounterpartyTalkViewModel : WindowDialogViewModelBase
+	public partial class CounterpartyTalkViewModel : TalkViewModelBase
 	{
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private readonly IInteractiveQuestion interactive;
-		public readonly MangoManager MangoManager;
+
 		private IUnitOfWork UoW;
 		private List<CounterpartyOrderViewModel> counterpartyOrdersModels = new List<CounterpartyOrderViewModel>();
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels {
@@ -66,11 +55,11 @@ namespace Vodovoz.ViewModels.Mango
 			ITdiCompatibilityNavigation tdinavigation,
 			IInteractiveQuestion interactive,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			MangoManager manager) : base(navigation)
+			MangoManager manager) : base(navigation, manager)
 		{
 			this.NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(navigation));
-			this.MangoManager = manager ?? throw new ArgumentNullException(nameof(manager));
+
 			this.interactive = interactive;
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			Title = "Входящий звонок существующего контрагента";

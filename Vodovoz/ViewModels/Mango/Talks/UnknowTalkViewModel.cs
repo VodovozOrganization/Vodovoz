@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog;
@@ -15,13 +15,14 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class UnknowTalkViewModel : WindowDialogViewModelBase
+	public class UnknowTalkViewModel : TalkViewModelBase
 	{
 		private readonly ITdiCompatibilityNavigation tdiNavigation;
 		private readonly IInteractiveQuestion interactive;
@@ -34,7 +35,8 @@ namespace Vodovoz.ViewModels.Mango
 		public UnknowTalkViewModel(Phone phone, 
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
-			IInteractiveQuestion interactive) : base(navigation)
+			IInteractiveQuestion interactive,
+			MangoManager manager) : base(navigation, manager)
 		{
 			this.tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
