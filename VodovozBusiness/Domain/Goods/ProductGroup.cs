@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NHibernate;
+using NLog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -14,47 +16,35 @@ namespace Vodovoz.Domain.Goods
 		Nominative = "группа товаров")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class ProductGroup : DomainTreeNodeBase<ProductGroup>, IValidatableObject
+	public class ProductGroup : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		
 		#region Свойства
+		
+		public virtual int Id { get; set; }
 
-		string name;
+		private string name;
 		[Display(Name = "Название")]
-		[StringLength(100)]
-		[Required(ErrorMessage = "Название должно быть заполнено.")]
 		public virtual string Name {
-			get { return name; }
-			set { SetField(ref name, value, () => Name); }
-		}
-
-		/// <summary>
-		/// Нужен для NHibernate.
-		/// </summary>
-		public virtual ProductGroup MappedParent {
-			get => parent;
-			set { SetField(ref parent, value, () => MappedParent); }
-		}
-
-		private ProductGroup parent;
-		/// <summary>
-		/// Для Nhibernate используйте <see cref="MappedParent"/>
-		/// </summary>
-		public override ProductGroup Parent {
-			get => parent;
-			set {
-				parent?.Childs.Remove(this);
-				MappedParent = value;
-				parent?.Childs.Add(this);
-			}
-		}
-
-		private Guid? onlineStoreGuid;
-		[Display(Name = "Guid интернет магазина")]
-		public virtual Guid? OnlineStoreGuid {
-			get => onlineStoreGuid;
-			set { SetField(ref onlineStoreGuid, value, () => OnlineStoreGuid); }
+			get => name;
+			set => SetField(ref name, value, () => Name);
 		}
 		
+		private ProductGroup parent;
+		[Display(Name = "Родительская группа")]
+		public virtual ProductGroup Parent {
+			get => parent;
+			set => SetField(ref parent, value);
+		}
+		
+		private IList<ProductGroup> childs;
+		[Display(Name = "Дочерние группы")]
+		public virtual IList<ProductGroup> Childs {
+			get => childs;
+			set => SetField(ref childs, value);
+		}
+
 		private string onlineStoreExternalId;
 		[Display(Name = "Id в интернет магазине")]
 		public virtual string OnlineStoreExternalId {
@@ -66,57 +56,21 @@ namespace Vodovoz.Domain.Goods
 		[Display(Name = "Выгружать товары в онлайн магазин?")]
 		public virtual bool ExportToOnlineStore {
 			get => exportToOnlineStore;
-			set { SetField(ref exportToOnlineStore, value, () => ExportToOnlineStore); }
+			set => SetField(ref exportToOnlineStore, value);
+		}
+		
+		private Guid? onlineStoreGuid;
+		[Display(Name = "Guid интернет магазина")]
+		public virtual Guid? OnlineStoreGuid {
+			get => onlineStoreGuid;
+			set => SetField(ref onlineStoreGuid, value);
 		}
 
 		private bool isOnlineStore;
-		/// <summary>
-		/// Для Nhibernate используйте <see cref="MappedIsOnlineStore"/>
-		/// </summary>
 		[Display(Name = "Группа товаров интернет магазина?")]
 		public virtual bool IsOnlineStore {
 			get => isOnlineStore;
-			set {
-				MappedIsOnlineStore = value;
-				if(Childs != null) {
-					foreach(var item in Childs) {
-						item.IsOnlineStore = value;
-					}
-				}
-			}
-		}
-		
-		private bool isArchive;
-		/// <summary>
-		/// Для Nhibernate используйте <see cref="MappedIsArchive"/>
-		/// </summary>
-		[Display(Name = "Группа архивирована")]
-		public virtual bool IsArchive {
-			get => isArchive;
-			set {
-				MappedIsArchive = value;
-				if(Childs != null) {
-					foreach(var item in Childs) {
-						item.IsArchive = value;
-					}
-				}
-			}
-		}
-
-		/// <summary>
-		/// Нужен для NHibernate.
-		/// </summary>
-		public virtual bool MappedIsArchive {
-			get => isArchive;
-			set { SetField(ref isArchive, value, () => MappedIsArchive); }
-		}
-		
-		/// <summary>
-		/// Нужен для NHibernate.
-		/// </summary>
-		public virtual bool MappedIsOnlineStore {
-			get => isOnlineStore;
-			set { SetField(ref isOnlineStore, value, () => MappedIsOnlineStore); }
+			set => SetField(ref isOnlineStore, value);
 		}
 		
 		private OnlineStore onlineStore;
@@ -124,6 +78,13 @@ namespace Vodovoz.Domain.Goods
 		public virtual OnlineStore OnlineStore {
 			get => onlineStore;
 			set => SetField(ref onlineStore, value);
+		}
+
+		private bool isArchive;
+		[Display(Name = "Группа архивирована")]
+		public virtual bool IsArchive {
+			get => isArchive;
+			set => SetField(ref isArchive, value);
 		}
 
 		[Display(Name = "Характеристики товаров")]
@@ -136,11 +97,10 @@ namespace Vodovoz.Domain.Goods
 				}
 				var parts = value.Split(',');
 				foreach(var characteristic in parts) {
-					NomenclatureProperties property;
-					if(Enum.TryParse<NomenclatureProperties>(characteristic, out property))
+					if(Enum.TryParse<NomenclatureProperties>(characteristic, out var property))
 						characteristics.Add(property);
 					else
-						logger.Error($"Характеристика товара {characteristic}, не была найдена в перечислении {typeof(NomenclatureProperties).Name}, поэтому была отброшена.");
+						logger.Error($"Характеристика товара {characteristic}, не была найдена в перечислении {nameof(NomenclatureProperties)}, поэтому была отброшена.");
 				}
 			}
 		}
@@ -154,9 +114,22 @@ namespace Vodovoz.Domain.Goods
 
 		#endregion
 
-		/// <summary>
-		/// Cоздает новый Guid. Uow необходим для сохранения созданного Guid в базу.
-		/// </summary>
+		#region Функции
+
+		public virtual void SetIsArchiveRecursively(bool value)
+		{
+			IsArchive = value;
+			foreach (var child in Childs)
+				child.SetIsArchiveRecursively(value);
+		}
+
+		public virtual void SetIsOnlineStoreRecursively(bool value)
+		{
+			IsArchive = value;
+			foreach (var child in Childs) 
+				child.SetIsOnlineStoreRecursively(value);
+		}
+		
 		public virtual void CreateGuidIfNotExist(IUnitOfWork uow)
 		{
 			if(OnlineStoreGuid == null && ExportToOnlineStore) {
@@ -165,24 +138,59 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		private bool IsValidParent(ProductGroup parentGroup)
+		private bool isChildsFetched = false;
+		public virtual void FetchChilds(IUnitOfWork uow)
 		{
-			if(parentGroup == null)
-				return true;
-
-			if(this == parentGroup)
-				return false;
-				
-			return IsValidParent(parentGroup.parent);
+			if(isChildsFetched)
+				return;
+			
+			uow.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
+			isChildsFetched = true;
 		}
+
+		#endregion
+
+		#region IValidatableObject Implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!IsValidParent(parent))
+			if(CheckCircle(this, parent)) {
 				yield return new ValidationResult(
-					"\"Родитель не назначен, так как возникает зацикливание\"",
+					"Родитель не назначен, так как возникает зацикливание", 
 					new[] { nameof(Parent) }
 				);
+			}
+			
+			if(String.IsNullOrWhiteSpace(name)) {
+				yield return new ValidationResult(
+					"Название должно быть заполнено.", 
+					new[] { nameof(Name) }
+				);
+			} else if(name.Length > 100) {
+				yield return new ValidationResult(
+					"Длина поля \"Название\" должна бать меньше 100 символов", 
+					new[] { nameof(Name) }
+				);
+			}
 		}
+
+		#endregion
+
+		#region Статические функции
+
+		public static bool CheckCircle(ProductGroup group, ProductGroup parent)
+		{
+			if(parent == null)
+				return false;
+			return group == parent || CheckCircle(group, parent.Parent);
+		}
+
+		public static ProductGroup GetRootParent(ProductGroup group)
+		{
+			return group.Parent == null ? group : GetRootParent(group.Parent);
+		}
+
+		#endregion
+		
 	}
 }
