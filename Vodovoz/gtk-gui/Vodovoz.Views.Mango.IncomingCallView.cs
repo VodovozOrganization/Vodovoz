@@ -6,9 +6,7 @@ namespace Vodovoz.Views.Mango
 	{
 		private global::Gtk.VBox vbox1;
 
-		private global::Gamma.GtkWidgets.yLabel labelName;
-
-		private global::Gamma.GtkWidgets.yLabel labelNumber;
+		private global::Gtk.VBox vboxIncomings;
 
 		private global::Gtk.HBox hbox2;
 
@@ -29,24 +27,12 @@ namespace Vodovoz.Views.Mango
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.labelName = new global::Gamma.GtkWidgets.yLabel();
-			this.labelName.Name = "labelName";
-			this.labelName.LabelProp = global::Mono.Unix.Catalog.GetString("ylabel2");
-			this.labelName.WidthChars = 35;
-			this.vbox1.Add(this.labelName);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelName]));
+			this.vboxIncomings = new global::Gtk.VBox();
+			this.vboxIncomings.Name = "vboxIncomings";
+			this.vboxIncomings.Spacing = 6;
+			this.vbox1.Add(this.vboxIncomings);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxIncomings]));
 			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.labelNumber = new global::Gamma.GtkWidgets.yLabel();
-			this.labelNumber.Name = "labelNumber";
-			this.labelNumber.LabelProp = global::Mono.Unix.Catalog.GetString("ylabel3");
-			this.vbox1.Add(this.labelNumber);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelNumber]));
-			w2.Position = 1;
-			w2.Expand = false;
-			w2.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox();
 			this.hbox2.Name = "hbox2";
@@ -55,13 +41,13 @@ namespace Vodovoz.Views.Mango
 			this.WidgetPlace = new global::Gtk.Notebook();
 			this.WidgetPlace.CanFocus = true;
 			this.WidgetPlace.Name = "WidgetPlace";
-			this.WidgetPlace.CurrentPage = 0;
+			this.WidgetPlace.CurrentPage = 1;
 			this.hbox2.Add(this.WidgetPlace);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.WidgetPlace]));
-			w3.Position = 0;
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.WidgetPlace]));
+			w2.Position = 0;
 			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-			w4.Position = 2;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w3.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
@@ -72,20 +58,20 @@ namespace Vodovoz.Views.Mango
 			this.buttonDisconnect.Name = "buttonDisconnect";
 			this.buttonDisconnect.UseUnderline = true;
 			this.buttonDisconnect.Label = global::Mono.Unix.Catalog.GetString("Завершить");
-			global::Gtk.Image w5 = new global::Gtk.Image();
-			w5.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.decline-call.png");
-			this.buttonDisconnect.Image = w5;
+			global::Gtk.Image w4 = new global::Gtk.Image();
+			w4.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.decline-call.png");
+			this.buttonDisconnect.Image = w4;
 			this.hbox1.Add(this.buttonDisconnect);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonDisconnect]));
-			w6.PackType = ((global::Gtk.PackType)(1));
-			w6.Position = 0;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonDisconnect]));
+			w5.PackType = ((global::Gtk.PackType)(1));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w6.Position = 2;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w7.Position = 3;
-			w7.Expand = false;
-			w7.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

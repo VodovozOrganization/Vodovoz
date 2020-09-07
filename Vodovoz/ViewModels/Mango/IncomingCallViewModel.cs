@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using QS.Dialog;
-using QS.Navigation;
-using Vodovoz.Domain.Client;
-using QS.ViewModels.Dialog;
-using Vodovoz.Infrastructure.Mango;
-using QS.DomainModel.UoW;
 using ClientMangoService.Commands;
+using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.ViewModels.Dialog;
+using Vodovoz.Domain.Client;
+using Vodovoz.Infrastructure.Mango;
 
 namespace Vodovoz.ViewModels.Mango
 {
@@ -31,8 +31,6 @@ namespace Vodovoz.ViewModels.Mango
 			MangoManager manager) : base(navigation)
 		{
 			this.MangoManager = manager ?? throw new ArgumentNullException(nameof(manager));
-			manager.PropertyChanged += Manager_PropertyChanged;
-			SetTitle();
 
 			if(manager.Clients != null) {
 				counterpartyOrdersModels = new List<CounterpartyOrderViewModel>();
@@ -44,6 +42,7 @@ namespace Vodovoz.ViewModels.Mango
 			}
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
+			Title = "Входящий звонок";
 		}
 
 		#region Действия View
@@ -56,17 +55,5 @@ namespace Vodovoz.ViewModels.Mango
 		}
 
 		#endregion
-
-		void Manager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(MangoManager.StageDuration))
-				SetTitle();
-		}
-
-		private void SetTitle()
-		{
-			Title = String.Format("Входящий звонок {0:mm\\:ss}", MangoManager.StageDuration);
-		}
-
 	}
 }

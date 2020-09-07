@@ -1558,6 +1558,9 @@
     <Compile Include="Views\Mango\Talks\CounterpartyTalkView.cs" />
     <Compile Include="Views\Mango\Talks\UnknowTalkView.cs" />
     <Compile Include="ViewModels\Mango\Talks\TalkViewModelBase.cs" />
+    <Compile Include="Views\Mango\Incoming\IncomingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.Incoming.IncomingView.cs" />
+    <Compile Include="Infrastructure\Mango\IncomingCall.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1833,6 +1836,7 @@
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Mango\Talks\" />
     <Folder Include="Views\Mango\Talks\" />
+    <Folder Include="Views\Mango\Incoming\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

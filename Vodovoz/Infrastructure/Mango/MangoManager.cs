@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using ClientMangoService;
 using Gtk;
@@ -15,6 +16,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Repositories.Client;
 using Vodovoz.ViewModels.Mango;
+using Vodovoz.ViewModels.Mango.Talks;
 
 namespace Vodovoz.Infrastructure.Mango
 {
@@ -70,6 +72,8 @@ namespace Vodovoz.Infrastructure.Mango
 		//List<object> FoundByPhoneItems;
 		public string CallerNumber => LastMessage?.CallFrom.Number;
 
+		public List<IncomingCall> IncomingCalls { get; set; } = new List<IncomingCall>();
+
 
 		#endregion
 
@@ -99,7 +103,7 @@ namespace Vodovoz.Infrastructure.Mango
 		private void NotificationClientOnIncomeCall(object sender, IncomeCallEventArgs e)
 		{
 			LastMessage = e.Message;
-			Application.Invoke((s, arg) => HandleMessage(LastMessage));
+			Application.Invoke((s, arg) => HandleMessage(e.Message));
 		}
 
 		void NotificationClient_ChanalStateChanged(object sender, ConnectionStateEventArgs e)
@@ -119,6 +123,15 @@ namespace Vodovoz.Infrastructure.Mango
 		void CurrentPage_PageClosed(object sender, PageClosedEventArgs e)
 		{
 			CurrentPage = null;
+		}
+
+		bool HandleTimeoutHandler()
+		{
+			if(LastMessage != null)
+				OnPropertyChanged(nameof(StageDuration));
+			if(IncomingCalls.Any())
+				OnPropertyChanged("IncomingCalls.Time");
+			return true;
 		}
 
 		#endregion
@@ -153,35 +166,30 @@ namespace Vodovoz.Infrastructure.Mango
 			}
 		}
 
-		bool HandleTimeoutHandler()
-		{
-			if(LastMessage != null)
-				OnPropertyChanged(nameof(StageDuration));
-			return true;
-		}
+		#endregion
+		#region Работа с сообщениями
 
 		private void HandleMessage(NotificationMessage message)
 		{
-			if(CurrentPage != null) {
-				navigation.ForceClosePage(CurrentPage);
-			}
-
 			if(message.State == CallState.Appeared) {
-				//FoundByPhoneItemsConfigure();
-				CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
+				AddNewIncome(message);
+				if(CurrentPage == null) {
+					CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
+					CurrentPage.PageClosed += CurrentPage_PageClosed;
+				}
+				return;
 			}
 
-			if(message.State == CallState.Connected) {
-				if(message.CallFrom.Type == CallerType.Internal) {
-					CurrentPage = navigation.OpenViewModel<InternalCallViewModel, MangoManager>(null,this);
-				 }
-				else
-				{
-					if(clients != null)
-						CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<Counterparty>>(null, this, clients);
-					else
-						CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, Phone>(null, new Phone() { Number = CallerNumber });
+			if(message.State == CallState.Disconnected) {
+				if(TryRemoveIncome(message)) { //HACK сожалению другие способы уменьшения окна с телефонами не сработали. Поэтому просто преотрываем окно.
+					if(CurrentPage != null)
+						navigation.ForceClosePage(CurrentPage);
+					if(IncomingCalls.Any()) {
+						CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
+						CurrentPage.PageClosed += CurrentPage_PageClosed;
+					}
 				}
+				LastMessage = null;
 			}
 
 			if(CurrentPage != null)
@@ -190,6 +198,21 @@ namespace Vodovoz.Infrastructure.Mango
 			if(message.State == CallState.Disconnected) {
 				LastMessage = null;
 			}
+		}
+
+		private void AddNewIncome(NotificationMessage message)
+		{
+			IncomingCalls.Add(new IncomingCall(message));
+			OnPropertyChanged(nameof(IncomingCalls));
+		}
+
+		private bool TryRemoveIncome(NotificationMessage message)
+		{
+			if(IncomingCalls.RemoveAll(x => x.CallId == message.CallId) > 0) {
+				OnPropertyChanged(nameof(IncomingCalls));
+				return true;
+			}
+			return false;
 		}
 
 		#endregion
