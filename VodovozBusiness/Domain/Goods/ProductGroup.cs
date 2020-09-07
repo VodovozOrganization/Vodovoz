@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NHibernate;
 using NLog;
-using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -138,6 +138,16 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		private bool isChildsFetched = false;
+		public virtual void FetchChilds(IUnitOfWork uow)
+		{
+			if(isChildsFetched)
+				return;
+			
+			uow.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
+			isChildsFetched = true;
+		}
+
 		#endregion
 
 		#region IValidatableObject Implementation
@@ -146,7 +156,7 @@ namespace Vodovoz.Domain.Goods
 		{
 			if(CheckCircle(this, parent)) {
 				yield return new ValidationResult(
-					"Родитель не назначен, так как возникает зацикливани", 
+					"Родитель не назначен, так как возникает зацикливание", 
 					new[] { nameof(Parent) }
 				);
 			}
@@ -162,7 +172,6 @@ namespace Vodovoz.Domain.Goods
 					new[] { nameof(Name) }
 				);
 			}
-				
 		}
 
 		#endregion
