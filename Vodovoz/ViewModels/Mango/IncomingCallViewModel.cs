@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void DeclineCall()
 		{
-			MangoManager.GetAllVPBXEmploies();
+			MangoManager.HangUp();
 			NavigationManager.AskClosePage(NavigationManager.FindPage(this));
 		}
 

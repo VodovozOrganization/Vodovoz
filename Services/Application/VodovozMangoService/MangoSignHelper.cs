@@ -10,13 +10,17 @@ namespace Mango
         {
             if (String.IsNullOrEmpty(vpbx_api_key))
                 throw new ArgumentException($"{nameof(vpbx_api_key)} was empty");
-            if (String.IsNullOrEmpty(json))
-                throw new ArgumentException($"{nameof(json)} was empty");
+            //if (String.IsNullOrEmpty(json))
+                //throw new ArgumentException($"{nameof(json)} was empty");
             if (String.IsNullOrEmpty(vpbx_api_salt))
                 throw new ArgumentException($"{nameof(vpbx_api_salt)} was empty");
+			string common = null;
 
-            string common = vpbx_api_key + json + vpbx_api_salt;
-            string sign = null;
+			if(String.IsNullOrWhiteSpace(json))
+				common = vpbx_api_key + "{}" + vpbx_api_salt;
+			else
+				common = vpbx_api_key + json + vpbx_api_salt;
+			string sign = null;
             using (SHA256 algorithm = SHA256.Create())
             {
                 byte[] data = algorithm.ComputeHash(Encoding.UTF8.GetBytes(common));

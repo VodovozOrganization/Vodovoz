@@ -74,6 +74,7 @@
     </Reference>
     <Reference Include="xNet">
       <HintPath>..\..\..\lib\xNet.dll</HintPath>
+      <IncludeInPackage>true</IncludeInPackage>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -84,13 +85,21 @@
     <Compile Include="NotificationConnectionWatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\MangoController.cs" />
+    <Compile Include="DTO\User\User.cs" />
+    <Compile Include="DTO\HangUp\HangUpRequest.cs" />
+    <Compile Include="DTO\HangUp\HangUpResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Properties\EmptyJSONFile.json" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ProtoBuf\" />
     <Folder Include="Commands\" />
+    <Folder Include="JsonResult\" />
+    <Folder Include="DTO\" />
+    <Folder Include="DTO\User\" />
+    <Folder Include="DTO\HangUp\" />
   </ItemGroup>
   <ItemGroup>
     <Protobuf Include="..\..\Application\VodovozMangoService\Protobuf\NotificationService.proto">

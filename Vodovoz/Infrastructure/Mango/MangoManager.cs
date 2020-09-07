@@ -202,12 +202,14 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void HangUp()
 		{
-			//mangoController.HangUp();
+			//mangoController.HangUp(LastMessage.CallId);
+			mangoController.HangUp("100500");
+
 		}
 
-		public void GetAllVPBXEmploies()
+		public IEnumerable<ClientMangoService.DTO.Users.User> GetAllVPBXEmploies()
 		{
-			mangoController.GetAllVPBXEmploies();
+			return mangoController.GetAllVPBXEmploies();
 		}
 
 
