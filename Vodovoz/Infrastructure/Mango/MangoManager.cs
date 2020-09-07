@@ -13,6 +13,7 @@ using QS.Utilities;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Repositories.Client;
 using Vodovoz.ViewModels.Mango;
@@ -27,6 +28,7 @@ namespace Vodovoz.Infrastructure.Mango
 		private readonly IEmployeeService employeeService;
 		private readonly IUserService userService;
 		private readonly INavigationManager navigation;
+		private readonly PhoneRepository phoneRepository;
 		private ConnectionState connectionState;
 		private uint extension;
 		private MangoNotificationClient notificationClient;
@@ -39,13 +41,15 @@ namespace Vodovoz.Infrastructure.Mango
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			IEmployeeService employeeService, 
 			IUserService userService, 
-			INavigationManager navigation)
+			INavigationManager navigation,
+			PhoneRepository phoneRepository)
 		{
 			this.toolbarIcon = toolbarIcon;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			this.navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
+			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 
 			timer = GLib.Timeout.Add (1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
 			toolbarIcon.Activated += ToolbarIcon_Activated;
@@ -146,7 +150,7 @@ namespace Vodovoz.Infrastructure.Mango
 
 		private void FoundByPhoneItemsConfigure()
 		{
-			var _list= PhoneRepository.GetObjectByPhone(CallerNumber, unitOfWorkFactory.CreateWithoutRoot()) as ArrayList;
+			var _list= phoneRepository.GetObjectByPhone(CallerNumber, unitOfWorkFactory.CreateWithoutRoot()) as ArrayList;
 			if(_list != null)
 			foreach(var item in _list) {
 				if(item.GetType() == typeof(Counterparty)) {
@@ -154,15 +158,15 @@ namespace Vodovoz.Infrastructure.Mango
 							clients = new List<Counterparty>();
 						clients.Add(item as Counterparty);
 
-					}
+				}
 				else if(item.GetType() == typeof(Employee) && employee != null) {
-						employee = item as Employee;
-					}
+					employee = item as Employee;
+				}
 				else if(item.GetType() == typeof(DeliveryPoint)) {
-						if(deliveryPoints == null)
-							deliveryPoints = new List<DeliveryPoint>();
-						deliveryPoints.Add(item as DeliveryPoint);
-					}
+					if(deliveryPoints == null)
+						deliveryPoints = new List<DeliveryPoint>();
+					deliveryPoints.Add(item as DeliveryPoint);
+				}
 			}
 		}
 
