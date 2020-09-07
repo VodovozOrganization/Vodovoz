@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Dapper;
 using QS.DomainModel.UoW;
@@ -38,7 +39,7 @@ namespace Vodovoz.EntityRepositories
 		/// <param name="UoW">Uo w.</param>
 		public IEnumerable GetObjectByPhone(string digitsPhone, IUnitOfWork uow) 
 		{
-			string number = digitsPhone.ReplaceFirstOccurrence("+7", "");
+			string number = digitsPhone.Substring(digitsPhone.Length - Math.Min(10, digitsPhone.Length));
 			var sql = "SELECT * FROM phones WHERE digits_number = @phone";
 			var list = uow.Session.Connection.Query(sql, new {phone  = number});
 			ArrayList _list = new ArrayList();
