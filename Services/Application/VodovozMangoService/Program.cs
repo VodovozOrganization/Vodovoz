@@ -4,6 +4,7 @@ using Grpc.Core;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog.Web;
 
@@ -59,8 +60,23 @@ namespace VodovozMangoService
 		        return;
 	        }
 	        #endregion
-	        
-	        InitNotifacationService();
+
+	        logger.Info("Настраиваем соединение с базой данных.");
+	        MySqlConnectionStringBuilder conStrBuilder;
+	        try {
+		        conStrBuilder = new MySqlConnectionStringBuilder();
+		        conStrBuilder.Server = mysqlServerHostName;
+		        conStrBuilder.Port = UInt32.Parse(mysqlServerPort);
+		        conStrBuilder.Database = mysqlDatabase;
+		        conStrBuilder.UserID = mysqlUser;
+		        conStrBuilder.Password = mysqlPassword;
+		        conStrBuilder.SslMode = MySqlSslMode.None;
+				InitNotifacationService(conStrBuilder);
+	        }
+	        catch(Exception ex) {
+		        logger.Fatal(ex, "Ошибка в настройке подключения к БД.");
+	        }
+
 	        CreateHostBuilder(args).Build().Run();
         }
 
@@ -89,9 +105,9 @@ namespace VodovozMangoService
                 })
 	            .UseNLog();
 
-        private static void InitNotifacationService()
+        private static void InitNotifacationService(MySqlConnectionStringBuilder stringBuilder)
         {
-	        var service = NotificationServiceInstance = new NotificationServiceImpl();
+	        var service = NotificationServiceInstance = new NotificationServiceImpl(new MySqlConnection(stringBuilder.GetConnectionString(true)));
             Server server = new Server
             {
                 Services = { NotificationService.BindService(service) },
