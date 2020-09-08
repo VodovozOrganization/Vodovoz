@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
@@ -118,7 +118,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -674,7 +674,7 @@ GROUP BY name</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Image">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>/*
 SET @id1 = 3; #VodovozLogo
@@ -687,6 +687,7 @@ SET @id7 = 9; #VIP
 SET @id8 = 10; #Договор оферты
 SET @id9 = 13; #Безконтактная доставка
 SET @id10 = 14; #Оплата по SMS
+SET @id11 = 17; #Терминал
 */
 
 SELECT
@@ -719,7 +720,10 @@ R9.id as ID9 ,
 R9.binary_file as IM9 ,
 
 R10.id as ID10 ,
-R10.binary_file as IM10
+R10.binary_file as IM10,
+
+R11.id as ID11 ,
+R11.binary_file as IM11
 
 FROM stored_resource
 
@@ -804,6 +808,15 @@ LEFT JOIN
     WHERE stored_resource.id = @id10
 ) as R10 ON R10.id = @id10
 
+LEFT JOIN
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource
+    WHERE stored_resource.id = @id11
+) as R11 ON R11.id = @id11
+
 WHERE stored_resource.id = @id1</CommandText>
         <QueryParameters>
           <QueryParameter Name="id1">
@@ -836,9 +849,12 @@ WHERE stored_resource.id = @id1</CommandText>
           <QueryParameter Name="id10">
             <Value>14</Value>
           </QueryParameter>
+          <QueryParameter Name="id11">
+            <Value>17</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="IM1">
           <DataField>IM1</DataField>
           <TypeName>System.String</TypeName>
@@ -879,6 +895,10 @@ WHERE stored_resource.id = @id1</CommandText>
           <DataField>IM10</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="IM11">
+          <DataField>IM11</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -888,7 +908,7 @@ WHERE stored_resource.id = @id1</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>767.0pt</Height>
+    <Height>755.7pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table1">
@@ -1484,8 +1504,8 @@ WHERE stored_resource.id = @id1</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>18.2pt</Left>
-        <Top>263.1pt</Top>
+        <Left>20.6pt</Left>
+        <Top>246.4pt</Top>
         <Visibility>
           <Hidden>
           </Hidden>
@@ -1847,8 +1867,8 @@ WHERE stored_resource.id = @id1</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>23.0pt</Left>
-        <Top>390.6pt</Top>
+        <Left>25.4pt</Left>
+        <Top>373.9pt</Top>
       </Table>
       <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>19.50pt</Height>
@@ -2220,14 +2240,14 @@ WHERE stored_resource.id = @id1</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>11.1pt</Left>
-        <Top>152.9pt</Top>
+        <Left>13.5pt</Left>
+        <Top>136.2pt</Top>
       </Table>
       <Image Name="Image8">
         <Height>51.20pt</Height>
         <Width>183.72pt</Width>
-        <Left>25.7pt</Left>
-        <Top>713.3pt</Top>
+        <Left>28.1pt</Left>
+        <Top>696.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2346,14 +2366,14 @@ WHERE stored_resource.id = @id1</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>24.0pt</Left>
-        <Top>226.0pt</Top>
+        <Left>26.4pt</Left>
+        <Top>209.3pt</Top>
       </Table>
       <Image Name="Image2">
         <Height>67.50pt</Height>
         <Width>520.00pt</Width>
-        <Left>25.0pt</Left>
-        <Top>642.4pt</Top>
+        <Left>27.4pt</Left>
+        <Top>625.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2486,8 +2506,8 @@ WHERE stored_resource.id = @id1</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>20.3pt</Left>
-        <Top>355.3pt</Top>
+        <Left>22.7pt</Left>
+        <Top>338.6pt</Top>
       </Table>
       <Image Name="Image3">
         <Height>57.98pt</Height>
@@ -2507,8 +2527,8 @@ WHERE stored_resource.id = @id1</CommandText>
       <Image Name="Image4">
         <Height>70.50pt</Height>
         <Width>520.00pt</Width>
-        <Left>24.7pt</Left>
-        <Top>569.1pt</Top>
+        <Left>27.1pt</Left>
+        <Top>552.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2748,14 +2768,14 @@ WHERE stored_resource.id = @id1</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>17.0pt</Left>
-        <Top>317.9pt</Top>
+        <Left>19.4pt</Left>
+        <Top>301.2pt</Top>
       </Table>
       <Image Name="Image5">
-        <Height>59.41pt</Height>
-        <Width>112.14pt</Width>
-        <Left>125.7pt</Left>
-        <Top>70.1pt</Top>
+        <Height>58.66pt</Height>
+        <Width>96.38pt</Width>
+        <Left>125.70pt</Left>
+        <Top>70.10pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3570,14 +3590,14 @@ WHERE stored_resource.id = @id1</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>18.7pt</Left>
-        <Top>425.1pt</Top>
+        <Left>21.1pt</Left>
+        <Top>408.4pt</Top>
       </Table>
       <Image Name="Image6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>89.05pt</Height>
-        <Width>89.93pt</Width>
-        <Left>354.1pt</Left>
-        <Top>54.8pt</Top>
+        <Height>74.78pt</Height>
+        <Width>85.43pt</Width>
+        <Left>354.10pt</Left>
+        <Top>54.80pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3588,21 +3608,53 @@ WHERE stored_resource.id = @id1</CommandText>
         <Sizing>FitProportional</Sizing>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
-      <Image Name="Image9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>64.94pt</Height>
-        <Width>95.95pt</Width>
-        <Left>248.9pt</Left>
-        <Top>70.9pt</Top>
+      <List Name="List2">
+        <Height>76.87pt</Height>
+        <Width>118.91pt</Width>
+        <Left>229.50pt</Left>
+        <Top>56.10pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox103">
+            <Height>24.02pt</Height>
+            <Width>61.70pt</Width>
+            <Value>Оплата по терминалу</Value>
+            <ZIndex>1</ZIndex>
+            <Left>56.9pt</Left>
+            <Top>37.3pt</Top>
+            <Visibility>
+              <Hidden>= !{?need_terminal}</Hidden>
+            </Visibility>
+            <Style>
+              <TextAlign>Center</TextAlign>
+              <FontWeight>Bold</FontWeight>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Image Name="Image9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>63.49pt</Height>
+            <Width>89.92pt</Width>
+            <Left>8.90pt</Left>
+            <Top>3.30pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=iif({?payment_by_sms}, First( {IM10}, "Image" ), iif({?need_terminal}, First( {IM11}, "Image" ), NULL))</Value>
+            <Sizing>FitProportional</Sizing>
+            <MIMEType>image/jpeg</MIMEType>
+          </Image>
+        </ReportItems>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
         </Style>
-        <Source>Database</Source>
-        <Value>=iif({?payment_by_sms}, First( {IM10}, "Image" ), NULL)</Value>
-        <Sizing>FitProportional</Sizing>
-        <MIMEType>image/jpeg</MIMEType>
-      </Image>
+        <DataSetName>Image</DataSetName>
+      </List>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -4068,6 +4120,14 @@ WHERE stored_resource.id = @id1</CommandText>
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="payment_by_sms">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="need_terminal">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
