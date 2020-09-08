@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+
 namespace Vodovoz.Infrastructure.Mango
 {
 	public class IncomingCall
@@ -15,7 +17,7 @@ namespace Vodovoz.Infrastructure.Mango
 		public DateTime? StageBegin => message.Timestamp.ToDateTime();
 		public TimeSpan? StageDuration => DateTime.Now - StageBegin;
 
-		public string CallerName => message.CallFrom.Name;
-		public string CallerNumber => message.CallFrom.Number;
+		public string CallerName => message.CallFrom?.Names != null ? String.Join("\n", message.CallFrom.Names.Select(x => x.Name)) : null;
+		public string CallerNumber => message.CallFrom?.Number;
 	}
 }

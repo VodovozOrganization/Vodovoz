@@ -22,7 +22,7 @@ message NotificationMessage {
 message Caller{
   CallerType type = 1;
   string number = 2;
-  string name = 3;
+  repeated CallerName names = 3;
 }
 
 enum CallState{
@@ -35,4 +35,11 @@ enum CallState{
 enum CallerType {
     CALLER_TYPE_INTERNAL = 0;
     CALLER_TYPE_EXTERNAL = 1;
+}
+
+message CallerName{
+  string name = 1;
+  uint32 counterparty_id = 2;
+  uint32 delivery_point_id = 3;
+  uint32 employee_id = 4;
 }

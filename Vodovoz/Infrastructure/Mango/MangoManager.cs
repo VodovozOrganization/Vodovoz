@@ -72,7 +72,7 @@ namespace Vodovoz.Infrastructure.Mango
 		public DateTime? StageBegin => LastMessage?.Timestamp.ToDateTime();
 		public TimeSpan? StageDuration => DateTime.Now - StageBegin;
 
-		public string CallerName => LastMessage?.CallFrom.Name;
+		public string CallerName => LastMessage.CallFrom.Names != null ? String.Join("\n", LastMessage.CallFrom.Names.Select(x => x.Name)) : null;
 		//List<object> FoundByPhoneItems;
 		public string CallerNumber => LastMessage?.CallFrom.Number;
 

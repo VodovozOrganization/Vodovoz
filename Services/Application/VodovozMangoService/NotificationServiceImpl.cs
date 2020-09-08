@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using MySql.Data.MySqlClient;
@@ -18,7 +19,7 @@ namespace VodovozMangoService
 		
 		public readonly List<Subscription> Subscribers = new List<Subscription>();
 		
-		private readonly List<NameCache> ExternalCallers = new List<NameCache>(); 
+		private readonly List<CallerInfoCache> ExternalCallers = new List<CallerInfoCache>(); 
 		
 		public NotificationServiceImpl(MySqlConnection connection)
 		{
@@ -85,12 +86,7 @@ namespace VodovozMangoService
 			Caller caller;
 			if (String.IsNullOrEmpty(from.extension))
 			{
-				caller = new Caller
-				{
-					Type = CallerType.External,
-					Number = from.number,
-					Name = GetExternalCallerName(from.number)
-				};
+				caller = GetExternalCaller(from.number);
 			}
 			else
 			{
@@ -98,7 +94,6 @@ namespace VodovozMangoService
 				{
 					Type = CallerType.Internal,
 					Number = from.extension,
-					Name = GetInternalCallerName(from.extension)
 				};
 			}
 			
@@ -107,9 +102,9 @@ namespace VodovozMangoService
 			var message = new NotificationMessage
 			{
 			 	CallId = info.LastEvent.call_id,
-				CallFrom = caller,
-			 	Timestamp = Timestamp.FromDateTimeOffset(info.LastEvent.Time),
-			 	State = info.LastEvent.CallState
+			    Timestamp = Timestamp.FromDateTimeOffset(info.LastEvent.Time),
+			 	State = info.LastEvent.CallState,
+			    CallFrom = caller
 			};
 #if DEBUG
 			logger.Debug($"Отправляем {subscriptions.Count} подписчикам, сообщение: {message}.");
@@ -130,28 +125,30 @@ namespace VodovozMangoService
 			}
 		}
 
-		private string GetExternalCallerName(string number)
+		private Caller GetExternalCaller(string number)
 		{
+			CallerInfoCache caller;
 			lock (ExternalCallers)
 			{
 				ExternalCallers.RemoveAll(x => x.LiveTime.TotalMinutes > 5);
-				var caller = ExternalCallers.Find(x => x.Number == number);
+				caller = ExternalCallers.Find(x => x.Number == number);
 				if (caller != null)
-					return caller.Name;
+					return caller.Caller;
 			}
 
 			logger.Debug($"Поиск...{number}");
-			string names = null;
 			lock (connection)
 			{
-				var caller = ExternalCallers.Find(x => x.Number == number);
+				caller = ExternalCallers.Find(x => x.Number == number);
 				//Здесь проверяем наличие в кеше повтоно, так как если наш поток ожидал разблокировки соединение.
 				//Значит другой в этот момент мог положить в кэш полученное значение.
 				if (caller != null)  
-					return caller.Name;
+					return caller.Caller;
 				var digits = number.Substring(number.Length - Math.Min(10, number.Length));
 				var sql =
-					"SELECT counterparty.name as counterparty_name, delivery_points.compiled_address_short as address, CONCAT_WS(\" \", employees.last_name, employees.name, employees.patronymic) as employee_name FROM phones " +
+					"SELECT counterparty.name as counterparty_name, delivery_points.compiled_address_short as address, CONCAT_WS(\" \", employees.last_name, employees.name, employees.patronymic) as employee_name, " + 
+					"phones.employee_id, phones.delivery_point_id, counterparty.id as counterparty_id " +
+					"FROM phones " +
 					"LEFT JOIN employees ON employees.id = phones.employee_id " +
 					"LEFT JOIN delivery_points ON delivery_points.id = phones.delivery_point_id " +
 					"LEFT JOIN counterparty ON counterparty.id = phones.counterparty_id OR counterparty.id = delivery_points.counterparty_id " +
@@ -161,15 +158,25 @@ namespace VodovozMangoService
 				//Очищаем контрагентов у которых номер соответсвует звонящей точке доставки
 				list.RemoveAll(x => !String.IsNullOrEmpty(x.counterparty_name) && String.IsNullOrEmpty(x.address) 
 					&& list.Any( a => !String.IsNullOrEmpty(a.counterparty_name) && !String.IsNullOrEmpty(a.address)));
-				names = String.Join("\n", list.Select(TitleExternalName));
+				caller = new CallerInfoCache(new Caller
+				{
+					Number = number,
+					Type = CallerType.External,
+				});
+				foreach (var row in list)
+					caller.Caller.Names.Add(new CallerName
+						{
+							Name = TitleExternalName(row), 
+							CounterpartyId = (uint?)row.counterparty_id ?? 0,
+							DeliveryPointId = (uint?)row.delivery_point_id ?? 0,
+							EmployeeId = (uint?)row.employee_id ?? 0
+						});
 				lock (ExternalCallers)
 				{
-					ExternalCallers.Add(new NameCache(number, names));
+					ExternalCallers.Add(caller);
 				}
 			}
-			if(!String.IsNullOrEmpty(names))
-				logger.Debug($"Найдено:{names}");
-			return names;
+			return caller.Caller;
 		}
 
 		private string TitleExternalName(dynamic row)
