@@ -20,12 +20,12 @@ namespace Vodovoz.Views.Mango
 
 		protected void Clicked_GetAllVPBXEmploies(object sender, EventArgs e)
 		{
-			ViewModel.GetHashCode();
+			ViewModel.GetAllVPBXEmploies();
 		}
 
 		protected void Clicked_HangUp(object sender, EventArgs e)
 		{
-
+			ViewModel.HangUp();
 		}
 	}
 }

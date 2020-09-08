@@ -11,6 +11,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using ClientMangoService.DTO.HangUp;
+using ClientMangoService.DTO.ForwardCall;
+using ClientMangoService.DTO;
+using ClientMangoService.DTO.MakeCall;
 
 namespace ClientMangoService.Commands
 {
@@ -66,6 +69,81 @@ namespace ClientMangoService.Commands
 			}
 		}
 
+		public bool MakeCall(string from_extension, string to_extension,[CallerMemberName]string commandId = "")
+		{
+			string command = @"vpbx/commands/callback";
+			MakeCallRequest options = new MakeCallRequest();
+			options.command_id = commandId;
+			options.from = new From();
+			options.from.extension = from_extension;
+			options.to_number = to_extension;
+
+			json = JsonConvert.SerializeObject(options);
+			sign = MangoSignHelper.GetSign(vpbx_api_key, json, vpbx_api_salt);
+
+			HttpResponse response = null;
+			using(var request = new HttpRequest(baseURL)) {
+				request.AddField("vpbx_api_key", vpbx_api_key, Encoding.ASCII);
+				request.AddField("sign", sign, Encoding.ASCII);
+
+				if(String.IsNullOrWhiteSpace(json))
+					request.AddField("json", "{}", Encoding.ASCII);
+				else
+					request.AddField("json", json, Encoding.ASCII);
+
+				response = request.Post(command);
+
+				CommandResult result = null;
+				using(Stream stream = response.ToMemoryStream())
+				using(StreamReader reader = new StreamReader(stream)) {
+					JObject obj = (JObject)JToken.ReadFrom(new JsonTextReader(reader));
+					result = obj.ToObject<CommandResult>();
+					if(result.result == "1000")
+						return true;
+					else
+						return false;
+				}
+			}
+		}
+
+		public bool ForwardCall(string call_id ,string from_extension,string to_extension,string method, [CallerMemberName]string commandId= "")
+		{
+			string command = @"vpbx/commands/transfer";
+
+			ForwardCallRequest options = new ForwardCallRequest();
+			options.call_id = call_id;
+			options.command_id = commandId;
+			options.method = method;
+			options.to_number = to_extension;
+			options.initiator = from_extension;
+
+			json = JsonConvert.SerializeObject(options);
+			sign = MangoSignHelper.GetSign(vpbx_api_key, json, vpbx_api_salt);
+			HttpResponse response;
+
+			using(var request = new HttpRequest(baseURL)) {
+				request.AddField("vpbx_api_key", vpbx_api_key, Encoding.ASCII);
+				request.AddField("sign", sign, Encoding.ASCII);
+
+				if(String.IsNullOrWhiteSpace(json))
+					request.AddField("json", "{}", Encoding.ASCII);
+				else
+					request.AddField("json", json, Encoding.ASCII);
+
+				response = request.Post(command);
+				CommandResult result = null;
+				using(Stream stream = response.ToMemoryStream())
+				using(StreamReader reader = new StreamReader(stream)) {
+					JObject obj = (JObject)JToken.ReadFrom(new JsonTextReader(reader));
+					result = obj.ToObject<CommandResult>();
+					if(result.result == "1000")
+						return true;
+					else
+						return false;
+				}
+			}
+
+		}
 
 		public bool HangUp(string call_id, [CallerMemberName]string commandId = "")
 		{
@@ -91,11 +169,11 @@ namespace ClientMangoService.Commands
 
 				response = request.Post(command);
 
-				HangUpResult result = null;
+				CommandResult result = null;
 				using(Stream stream = response.ToMemoryStream())
 				using(StreamReader reader = new StreamReader(stream)) {
 					JObject obj = (JObject)JToken.ReadFrom(new JsonTextReader(reader));
-					result = obj.ToObject<HangUpResult>();
+					result = obj.ToObject<CommandResult>();
 					if(result.result == "1000")
 						return true;
 					else

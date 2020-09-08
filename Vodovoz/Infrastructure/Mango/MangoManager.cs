@@ -212,12 +212,22 @@ namespace Vodovoz.Infrastructure.Mango
 			return mangoController.GetAllVPBXEmploies();
 		}
 
+		public void MakeCall(string to_extension)
+		{
+			mangoController.MakeCall(Convert.ToString(this.extension),to_extension);
+		}
+
+		public void ForwardCall(string to_extension,string method)
+		{
+			mangoController.ForwardCall(LastMessage.CallId,Convert.ToString(this.extension),to_extension, method);
+		}
 
 		#endregion
 		public void Dispose()
 		{
 			notificationCancellation.Cancel();
-			notificationClient.Dispose();
+			if(notificationClient != null)
+				notificationClient.Dispose();
 			GLib.Source.Remove(timer);
 		}
 

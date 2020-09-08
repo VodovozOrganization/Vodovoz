@@ -8,7 +8,7 @@ namespace Vodovoz.Views.Mango
 
 		private global::Gtk.Button ForwardingButton;
 
-		private global::Gtk.Button ForwardingToConsultationButton1;
+		private global::Gtk.Button ForwardingToConsultationButton;
 
 		private global::Gtk.HBox hbox1;
 
@@ -31,6 +31,8 @@ namespace Vodovoz.Views.Mango
 			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.Views.Mango.SubscriberSelectionView
 			global::Stetic.BinContainer.Attach(this);
+			this.WidthRequest = 450;
+			this.HeightRequest = 530;
 			this.Name = "Vodovoz.Views.Mango.SubscriberSelectionView";
 			// Container child Vodovoz.Views.Mango.SubscriberSelectionView.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(5)), ((uint)(8)), false);
@@ -50,12 +52,12 @@ namespace Vodovoz.Views.Mango
 			w1.RightAttach = ((uint)(8));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ForwardingToConsultationButton1 = new global::Gtk.Button();
-			this.ForwardingToConsultationButton1.CanFocus = true;
-			this.ForwardingToConsultationButton1.Name = "ForwardingToConsultationButton1";
-			this.ForwardingToConsultationButton1.Label = global::Mono.Unix.Catalog.GetString("Переадресация с консультацией");
-			this.table1.Add(this.ForwardingToConsultationButton1);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.ForwardingToConsultationButton1]));
+			this.ForwardingToConsultationButton = new global::Gtk.Button();
+			this.ForwardingToConsultationButton.CanFocus = true;
+			this.ForwardingToConsultationButton.Name = "ForwardingToConsultationButton";
+			this.ForwardingToConsultationButton.Label = global::Mono.Unix.Catalog.GetString("Переадресация с консультацией");
+			this.table1.Add(this.ForwardingToConsultationButton);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.ForwardingToConsultationButton]));
 			w2.TopAttach = ((uint)(4));
 			w2.BottomAttach = ((uint)(5));
 			w2.RightAttach = ((uint)(4));
@@ -144,6 +146,8 @@ namespace Vodovoz.Views.Mango
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.CancelButton1.Clicked += new global::System.EventHandler(this.Table_SizeRequested);
+			this.ySearchTable.SelectCursorRow += new global::Gtk.SelectCursorRowHandler(this.SelectCursorRow_OrderYTreeView);
 		}
 	}
 }

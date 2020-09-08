@@ -87,7 +87,10 @@
     <Compile Include="Commands\MangoController.cs" />
     <Compile Include="DTO\User\User.cs" />
     <Compile Include="DTO\HangUp\HangUpRequest.cs" />
-    <Compile Include="DTO\HangUp\HangUpResult.cs" />
+    <Compile Include="DTO\ForwardCall\ForwardCallRequest.cs" />
+    <Compile Include="DTO\MakeCall\MakeCallRequest.cs" />
+    <Compile Include="DTO\Common\From.cs" />
+    <Compile Include="DTO\Common\CommandResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -100,6 +103,9 @@
     <Folder Include="DTO\" />
     <Folder Include="DTO\User\" />
     <Folder Include="DTO\HangUp\" />
+    <Folder Include="DTO\ForwardCall\" />
+    <Folder Include="DTO\MakeCall\" />
+    <Folder Include="DTO\Common\" />
   </ItemGroup>
   <ItemGroup>
     <Protobuf Include="..\..\Application\VodovozMangoService\Protobuf\NotificationService.proto">
