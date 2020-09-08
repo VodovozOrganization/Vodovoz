@@ -451,6 +451,7 @@ namespace Vodovoz
 			labelSumDifferenceReason.Hide();
 
 			yCheckBtnNeedTerminal.Binding.AddBinding(Entity, e => e.NeedTerminal, w => w.Active).InitializeFromSource();
+			yCheckBtnNeedTerminal.Toggled += YCheckBtnNeedTerminalOnToggled;
 
 			UpdateUIState();
 
@@ -461,6 +462,7 @@ namespace Vodovoz
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
+			ycheckPaymentBySms.Toggled += YCheckPaymentBySmsOnToggled;
 
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
 		}
@@ -2096,11 +2098,11 @@ namespace Vodovoz
 			checkDelivered.Visible = enumDocumentType.Visible = labelDocumentType.Visible = IsPaymentTypeCashless();
 			
 			if (Entity.PaymentType != PaymentType.cash) {
-				ycheckPaymentBySms.Visible = false;
-				ycheckPaymentBySms.Active = false;
+				ycheckPaymentBySms.Visible = ycheckPaymentBySms.Active = false;
+				yCheckBtnNeedTerminal.Visible = yCheckBtnNeedTerminal.Active = false;
 			}
 			else {
-				ycheckPaymentBySms.Visible = true;
+				ycheckPaymentBySms.Visible = yCheckBtnNeedTerminal.Visible = true;
 			}
 
 			enumSignatureType.Visible = labelSignatureType.Visible =
@@ -2313,6 +2315,24 @@ namespace Vodovoz
 					hboxReasons.Visible = true;
 
 				yCmbReturnTareReasons.ItemsList = category.ChildReasons;
+			}
+		}
+		
+		private void YCheckBtnNeedTerminalOnToggled(object sender, EventArgs e) {
+			if (Entity.NeedTerminal) {
+				Entity.PaymentBySms = ycheckPaymentBySms.Sensitive = false;
+			}
+			else {
+				ycheckPaymentBySms.Sensitive = true;
+			}
+		}
+		
+		private void YCheckPaymentBySmsOnToggled(object sender, EventArgs e) {
+			if (Entity.PaymentBySms) {
+				Entity.NeedTerminal = yCheckBtnNeedTerminal.Sensitive = false;
+			}
+			else {
+				yCheckBtnNeedTerminal.Sensitive = true;
 			}
 		}
 
@@ -2604,6 +2624,7 @@ namespace Vodovoz
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer") && val && !Entity.SelfDelivery;
 			hbxTareNonReturnReason.Sensitive = val;
+			yCheckBtnNeedTerminal.Sensitive = val;
 
 			if(Entity != null)
 				yCmbPromoSets.Sensitive = val;
