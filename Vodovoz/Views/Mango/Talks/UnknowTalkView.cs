@@ -1,9 +1,8 @@
 ﻿using System;
-using QS.Navigation;
 using QS.Views.Dialog;
-using Vodovoz.ViewModels.Mango;
+using Vodovoz.ViewModels.Mango.Talks;
 
-namespace Vodovoz.Views.Mango
+namespace Vodovoz.Views.Mango.Talks
 {
 	public partial class UnknowTalkView : DialogViewBase<UnknowTalkViewModel>
 	{

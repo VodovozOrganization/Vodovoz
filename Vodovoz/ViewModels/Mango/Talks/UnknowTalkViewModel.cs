@@ -7,7 +7,6 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using QS.ViewModels.Dialog;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -20,7 +19,7 @@ using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
 
-namespace Vodovoz.ViewModels.Mango
+namespace Vodovoz.ViewModels.Mango.Talks
 {
 	public class UnknowTalkViewModel : TalkViewModelBase
 	{

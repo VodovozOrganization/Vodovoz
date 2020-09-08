@@ -45,7 +45,7 @@ namespace Vodovoz.Infrastructure.Mango
 			IEmployeeService employeeService,
 			IUserService userService,
 			INavigationManager navigation,
-			BaseParametersProvider parametrs)
+			BaseParametersProvider parametrs,
 			PhoneRepository phoneRepository)
 		{
 			this.toolbarIcon = toolbarIcon;

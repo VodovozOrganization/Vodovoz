@@ -1,14 +1,10 @@
 ﻿using System;
-using Vodovoz.Domain.Orders;
-using Gamma.GtkWidgets;
 using QS.Views.Dialog;
 using Gtk;
-using Vodovoz.ViewModels.Mango;
 using Vodovoz.Domain.Client;
-using FluentNHibernate.Data;
-using System.Collections.Generic;
+using Vodovoz.ViewModels.Mango.Talks;
 
-namespace Vodovoz.Views.Mango
+namespace Vodovoz.Views.Mango.Talks
 {
 	public partial class CounterpartyTalkView : DialogViewBase<CounterpartyTalkViewModel>
 	{
