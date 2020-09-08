@@ -23,8 +23,9 @@ namespace Vodovoz.Domain.Orders.Documents
 					{ "without_advertising", WithoutAdvertising },
 					{ "hide_signature", HideSignature },
 					{ "contactless_delivery", Order.ContactlessDelivery },
-					{ "payment_by_sms", Order.PaymentBySms }
-				}
+					{ "payment_by_sms", Order.PaymentBySms },
+					{ "need_terminal", Order.NeedTerminal }
+			}
 			};
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
