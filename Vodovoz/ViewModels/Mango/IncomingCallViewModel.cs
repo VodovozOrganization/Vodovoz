@@ -49,9 +49,8 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void DeclineCall()
 		{
-			MangoController controller = new MangoController();
-			controller.HangUp();
-			NavigationManager.AskClosePage(NavigationManager.CurrentPage);
+			MangoManager.HangUp();
+			NavigationManager.AskClosePage(NavigationManager.FindPage(this));
 		}
 
 		#endregion

@@ -128,7 +128,7 @@ using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
-
+using Vodovoz.Core.DataService;
 namespace Vodovoz
 {
 	partial class MainClass
@@ -539,6 +539,7 @@ namespace Vodovoz
 
 			#region База
 			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
+			builder.RegisterType<BaseParametersProvider>().AsSelf();
 			//builder.RegisterType<DefaultSessionProvider>().As<ISessionProvider>();
 			//builder.Register<DbConnection>(c => Connection.ConnectionDB).AsSelf();
 			#endregion

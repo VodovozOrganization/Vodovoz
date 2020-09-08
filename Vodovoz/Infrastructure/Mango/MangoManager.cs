@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using ClientMangoService;
+using ClientMangoService.Commands;
 using Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.Utilities;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -36,12 +38,14 @@ namespace Vodovoz.Infrastructure.Mango
 		private NotificationMessage LastMessage;
 		private IPage CurrentPage;
 		private uint timer;
+		private MangoController mangoController;
 
-		public MangoManager(Gtk.Action toolbarIcon, 
-			IUnitOfWorkFactory unitOfWorkFactory, 
-			IEmployeeService employeeService, 
-			IUserService userService, 
+		public MangoManager(Gtk.Action toolbarIcon,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IEmployeeService employeeService,
+			IUserService userService,
 			INavigationManager navigation,
+			BaseParametersProvider parametrs)
 			PhoneRepository phoneRepository)
 		{
 			this.toolbarIcon = toolbarIcon;
@@ -50,13 +54,14 @@ namespace Vodovoz.Infrastructure.Mango
 			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			this.navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
+ 			this.mangoController = new MangoController(parametrs.VpbxApiKey, parametrs.VpbxApiSalt);
 
 			timer = GLib.Timeout.Add (1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
 			toolbarIcon.Activated += ToolbarIcon_Activated;
 		}
 
-		#region Current State
 		public ConnectionState ConnectionState {
+			#region Current State
 			get => connectionState; private set {
 				connectionState = value;
 				var iconName = $"phone-{value.ToString().ToLower()}";
@@ -227,11 +232,36 @@ namespace Vodovoz.Infrastructure.Mango
 		}
 
 		#endregion
+		#region MangoController_Methods
 
+		public void HangUp()
+		{
+			//mangoController.HangUp(LastMessage.CallId);
+			mangoController.HangUp("100500");
+
+		}
+
+		public IEnumerable<ClientMangoService.DTO.Users.User> GetAllVPBXEmploies()
+		{
+			return mangoController.GetAllVPBXEmploies();
+		}
+
+		public void MakeCall(string to_extension)
+		{
+			mangoController.MakeCall(Convert.ToString(this.extension),to_extension);
+		}
+
+		public void ForwardCall(string to_extension,string method)
+		{
+			mangoController.ForwardCall(LastMessage.CallId,Convert.ToString(this.extension),to_extension, method);
+		}
+
+		#endregion
 		public void Dispose()
 		{
 			notificationCancellation.Cancel();
-			notificationClient.Dispose();
+			if(notificationClient != null)
+				notificationClient.Dispose();
 			GLib.Source.Remove(timer);
 		}
 

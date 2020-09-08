@@ -44,7 +44,6 @@ namespace Vodovoz.ViewModels.Mango
 			Title = "Входящий новый номер";
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
-
 			this.phone = phone;
 		}
 

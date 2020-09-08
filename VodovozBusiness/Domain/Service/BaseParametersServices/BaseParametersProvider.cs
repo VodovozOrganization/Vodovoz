@@ -452,19 +452,19 @@ namespace Vodovoz.Core.DataService
 
 		public string VpbxApiKey { 
 			get {
-				if(!ParametersProvider.Instance.ContainsParameter("VpbxApiKey")) {
+				if(!ParametersProvider.Instance.ContainsParameter("vpbx_api_key")) {
 					throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
 				}
-				return ParametersProvider.Instance.GetParameterValue("VpbxApiKey");
+				return ParametersProvider.Instance.GetParameterValue("vpbx_api_key");
 			}
 		}
 
 		public string VpbxApiSalt {
 			get {
-				if(!ParametersProvider.Instance.ContainsParameter("VpbxApiSalt")) {
+				if(!ParametersProvider.Instance.ContainsParameter("vpbx_api_salt")) {
 					throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
 				}
-				return ParametersProvider.Instance.GetParameterValue("VpbxApiSalt");
+				return ParametersProvider.Instance.GetParameterValue("vpbx_api_salt");
 			}
 		}
 	}

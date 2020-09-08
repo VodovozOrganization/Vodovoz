@@ -201,6 +201,9 @@
     <Reference Include="Dapper">
       <HintPath>..\packages\Dapper.2.0.35\lib\net461\Dapper.dll</HintPath>
     </Reference>
+    <Reference Include="xNet">
+      <HintPath>..\lib\xNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -1561,6 +1564,12 @@
     <Compile Include="Views\Mango\Incoming\IncomingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Incoming.IncomingView.cs" />
     <Compile Include="Infrastructure\Mango\IncomingCall.cs" />
+    <Compile Include="ViewModels\Mango\TestMangoViewModel.cs" />
+    <Compile Include="Views\Mango\TestMangoView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.TestMangoView.cs" />
+    <Compile Include="ViewModels\Mango\SubscriberSelectionViewModel.cs" />
+    <Compile Include="Views\Mango\SubscriberSelectionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.SubscriberSelectionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
