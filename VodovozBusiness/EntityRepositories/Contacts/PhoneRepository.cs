@@ -32,12 +32,11 @@ namespace Vodovoz.EntityRepositories
 		#region Телефоны
 
 		/// <summary>
-		/// Возвращает объект класса (Counterparty / Employ )
+		/// Возвращает список объектов которым принадлежит телефон
 		/// </summary>
-		/// <returns>The counterparty by phone.</returns>
+		/// <returns>Counterparty / DeliveryPoint / Employee.</returns>
 		/// <param name="digitsPhone">Digits phone.</param>
-		/// <param name="UoW">Uo w.</param>
-		public IEnumerable GetObjectByPhone(string digitsPhone, IUnitOfWork uow) 
+		public object[] GetObjectByPhone(IUnitOfWork uow, string digitsPhone) 
 		{
 			string number = digitsPhone.Substring(digitsPhone.Length - Math.Min(10, digitsPhone.Length));
 			var sql = "SELECT * FROM phones WHERE digits_number = @phone";
@@ -48,16 +47,16 @@ namespace Vodovoz.EntityRepositories
 					Counterparty client = uow.GetById<Counterparty>((int)phone.counterparty_id);
 					_list.Add(client);
 				}
-				if(phone.counterparty_contact_id != null) {
-					CounterpartyContract contract = uow.GetById<CounterpartyContract>((int)phone.counterparty_id);
-					_list.Add(contract);
+				if(phone.delivery_point_id != null) {
+					DeliveryPoint deliveryPoint = uow.GetById<DeliveryPoint>((int)phone.delivery_point_id);
+					_list.Add(deliveryPoint);
 				}
 				if(phone.employee_id != null) {
 					Employee employee = uow.GetById<Employee>((int)phone.employee_id);
 					_list.Add(employee);
 				}
 			}
-			return _list;
+			return _list.ToArray();
 		}
 
 		#endregion

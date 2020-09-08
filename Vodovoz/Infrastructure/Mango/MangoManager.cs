@@ -150,23 +150,30 @@ namespace Vodovoz.Infrastructure.Mango
 
 		private void FoundByPhoneItemsConfigure()
 		{
-			var _list= phoneRepository.GetObjectByPhone(CallerNumber, unitOfWorkFactory.CreateWithoutRoot()) as ArrayList;
-			if(_list != null)
-			foreach(var item in _list) {
-				if(item.GetType() == typeof(Counterparty)) {
-						if(clients == null)
-							clients = new List<Counterparty>();
-						clients.Add(item as Counterparty);
+			using (var uow = unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var _list = phoneRepository.GetObjectByPhone(uow, CallerNumber);
+				if (_list != null)
+					foreach (var item in _list)
+					{
+						if (item.GetType() == typeof(Counterparty))
+						{
+							if (clients == null)
+								clients = new List<Counterparty>();
+							clients.Add(item as Counterparty);
 
-				}
-				else if(item.GetType() == typeof(Employee) && employee != null) {
-					employee = item as Employee;
-				}
-				else if(item.GetType() == typeof(DeliveryPoint)) {
-					if(deliveryPoints == null)
-						deliveryPoints = new List<DeliveryPoint>();
-					deliveryPoints.Add(item as DeliveryPoint);
-				}
+						}
+						else if (item.GetType() == typeof(Employee) && employee != null)
+						{
+							employee = item as Employee;
+						}
+						else if (item.GetType() == typeof(DeliveryPoint))
+						{
+							if (deliveryPoints == null)
+								deliveryPoints = new List<DeliveryPoint>();
+							deliveryPoints.Add(item as DeliveryPoint);
+						}
+					}
 			}
 		}
 
