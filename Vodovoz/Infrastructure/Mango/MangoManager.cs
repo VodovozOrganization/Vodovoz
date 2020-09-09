@@ -251,7 +251,7 @@ namespace Vodovoz.Infrastructure.Mango
 			mangoController.MakeCall(Convert.ToString(this.extension),to_extension);
 		}
 
-		public void ForwardCall(string to_extension,string method)
+		public void ForwardCall(string to_extension,ForwardingMethod method)
 		{
 			mangoController.ForwardCall(LastMessage.CallId,Convert.ToString(this.extension),to_extension, method);
 		}

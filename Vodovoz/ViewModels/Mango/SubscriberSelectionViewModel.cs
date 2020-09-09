@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ClientMangoService.Commands;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Infrastructure.Mango;
@@ -8,11 +9,6 @@ namespace Vodovoz.ViewModels.Mango
 	public class SubscriberSelectionViewModel : WindowDialogViewModelBase
 	{
 		#region InnerTypes
-		public enum ForwardingMethod
-		{
-			hold,
-			blind
-		}
 
 		public enum DialogType
 		{
@@ -44,10 +40,7 @@ namespace Vodovoz.ViewModels.Mango
 		public void ForwardCall(string extension,ForwardingMethod method)
 		{
 			NavigationManager.AskClosePage(NavigationManager.FindPage(this));
-			if(method == ForwardingMethod.blind)
-				Manager.ForwardCall(extension, "blind");
-			else if(method == ForwardingMethod.hold)
-				Manager.ForwardCall(extension, "hold");
+			Manager.ForwardCall(extension, method);
 
 		}
 
