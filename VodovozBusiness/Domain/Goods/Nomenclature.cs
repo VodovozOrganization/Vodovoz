@@ -878,6 +878,7 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.material,
 				NomenclatureCategory.spare_parts,
 				NomenclatureCategory.water,
+				NomenclatureCategory.CashEquipment
 			};
 		}
 
