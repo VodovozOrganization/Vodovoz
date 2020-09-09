@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NLog;
@@ -72,11 +73,12 @@ namespace OnlineStoreImportService
 
         private void LoadFromOnlineStore()
         {
-            string importData = null;
+            StringBuilder importData = null;
             using (WebClient client = new WebClient()) {
                 try
                 {
-                    importData = client.DownloadString(nomenclatureParametersProvider.OnlineStoreExportFileUrl);
+                    importData = new StringBuilder(client.DownloadString(nomenclatureParametersProvider.OnlineStoreExportFileUrl));
+                    ReplaceHtmlCodes(importData);
                 }
                 catch (Exception ex)
                 {
@@ -87,13 +89,19 @@ namespace OnlineStoreImportService
 
             try
             {
-                var productsData = JsonConvert.DeserializeObject<Dictionary<object, object>>(importData);
+                var productsData = JsonConvert.DeserializeObject<Dictionary<object, object>>(importData.ToString());
                 LoadNomenclatures(productsData);
             }
             catch (Exception ex)
             {
                 logger.Error(ex, "Произошла ошибка при чтении выгрузки.");
             }
+        }
+
+        private void ReplaceHtmlCodes(StringBuilder importData)
+        {
+            HtmlCodeReplacer replacer = new HtmlCodeReplacer();
+            replacer.ReplaceCodes(importData);
         }
 
         private void LoadNomenclatures(IDictionary<object, object> productsData)
