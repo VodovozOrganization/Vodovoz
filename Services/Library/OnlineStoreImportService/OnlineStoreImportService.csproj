@@ -74,6 +74,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="CategoryImporter.cs" />
+        <Compile Include="HtmlCodeReplacer.cs" />
         <Compile Include="ImporterDataFromOnlineStore.cs" />
         <Compile Include="OnlineStoreNomenclatureFactory.cs" />
         <Compile Include="Product.cs" />
