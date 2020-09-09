@@ -1,5 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using ClientMangoService.Commands;
+using ClientMangoService.DTO.Group;
+using ClientMangoService.DTO.Users;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Infrastructure.Mango;
@@ -19,8 +24,8 @@ namespace Vodovoz.ViewModels.Mango
 		public readonly DialogType dialogType;
 		private MangoManager Manager { get; }
 
-		public List<ClientMangoService.DTO.Users.User> Users { get; private set; }
-
+		public List<SearchTableEntity> SearchTableEntities { get; private set; }
+		public List<SearchTableEntity> LocalEntities { get; set; }
 
 		public SubscriberSelectionViewModel(INavigationManager navigation,
 			MangoManager manager,
@@ -28,8 +33,19 @@ namespace Vodovoz.ViewModels.Mango
 		{
 			this.dialogType = dialogType;
 			Manager = manager;
-			Users = new List<ClientMangoService.DTO.Users.User>();
-			Users.AddRange(manager.GetAllVPBXEmploies());
+
+			LocalEntities = new List<SearchTableEntity>();
+
+			SearchTableEntities = new List<SearchTableEntity>();
+			List<User> users = Manager.GetAllVPBXEmploies().ToList();
+			foreach(var user in users) {
+				SearchTableEntities.Add(new SearchTableEntity(user));
+			}
+
+			List<Group> groups = Manager.GetAllVPBXGroups().ToList();
+			foreach(var group in groups) {
+				SearchTableEntities.Add(new SearchTableEntity(group));
+			}
 		}
 
 		public void MakeCall(string extension)
@@ -44,5 +60,28 @@ namespace Vodovoz.ViewModels.Mango
 
 		}
 
+	}
+	public class SearchTableEntity
+	{
+		public string Name { get; set; }
+		public string Department { get; set; }
+		public string Extension { get; set; }
+		public bool Status { get; set; }
+
+		public SearchTableEntity(User user)
+		{
+			Name = user.general.name;
+			Department = user.general.department;
+			Extension = user.telephony.extension;
+			Status = user.telephony.numbers.Any(x => x.status == "on");
+		}
+
+		public SearchTableEntity(Group group)
+		{
+			Name = group.name;
+			Department = "";
+			Extension = group.extension;
+			Status = true;
+		}
 	}
 }

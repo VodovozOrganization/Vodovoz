@@ -10,6 +10,7 @@ using FluentNHibernate.Data;
 using System.Collections.Generic;
 using ClientMangoService.DTO.Users;
 using System.Linq;
+using ClientMangoService.Commands;
 
 namespace Vodovoz.Views.Mango
 {
@@ -31,8 +32,7 @@ namespace Vodovoz.Views.Mango
 
 				ForwardingToConsultationButton.Clicked += Clicked_ForwardingToConsultationButton;
 				ForwardingButton.Clicked += Clicked_ForwardingButton;
-			}
-			else if(ViewModel.dialogType == SubscriberSelectionViewModel.DialogType.Telephone) {
+			} else if(ViewModel.dialogType == SubscriberSelectionViewModel.DialogType.Telephone) {
 				Header_Label.Text = "Телефон";
 				ForwardingToConsultationButton.Visible = false;
 				ForwardingToConsultationButton.Sensitive = false;
@@ -41,29 +41,29 @@ namespace Vodovoz.Views.Mango
 				ForwardingButton.Clicked += Clicked_MakeCall;
 			}
 
-			ySearchTable.ColumnsConfig = ColumnsConfigFactory.Create<User>()
-				.AddColumn("Сотрудник")
-				.AddTextRenderer(user => user.general.name)
+			ySearchTable.ColumnsConfig = ColumnsConfigFactory.Create<SearchTableEntity>()
+				.AddColumn("Имя")
+				.AddTextRenderer(entity => entity.Name)
 				.AddColumn("Отдел")
-				.AddTextRenderer(user => user.general.department)
+				.AddTextRenderer(entity => entity.Department)
 				.AddColumn("Номер")
-				.AddTextRenderer(user => user.telephony.extension)
+				.AddTextRenderer(entity => entity.Extension)
 				.AddColumn("Статус")
-				.AddTextRenderer(user => user.telephony.numbers.Any(x => x.status == "on") ? "<span foreground=\"green\">●</span>" : "<span foreground=\"red\">●</span>", useMarkup:true)
+				.AddTextRenderer(entity => entity.Status ? "<span foreground=\"green\">●</span>" : "<span foreground=\"red\">●</span>", useMarkup: true)
 				.Finish();
-			ySearchTable.SetItemsSource<User>(ViewModel.Users);
+			ySearchTable.SetItemsSource<SearchTableEntity>(ViewModel.SearchTableEntities);
 
 			ySearchTable.RowActivated += SelectCursorRow_OrderYTreeView;
 		}
 
 		private void SelectCursorRow_OrderYTreeView(object sender, EventArgs e)
 		{
-			var row = ySearchTable.GetSelectedObject<User>();
-			if(row.telephony.numbers.Any(x => x.status == "on"))
-				extension = row.telephony.extension;
+			var row = ySearchTable.GetSelectedObject<SearchTableEntity>();
+			if(row.Status == true)
+				extension = row.Extension;
 		}
 
-		protected void Clicked_MakeCall(object sender , EventArgs e)
+		protected void Clicked_MakeCall(object sender, EventArgs e)
 		{
 			if(!String.IsNullOrWhiteSpace(extension))
 				ViewModel.MakeCall(extension);
@@ -73,20 +73,65 @@ namespace Vodovoz.Views.Mango
 		protected void Clicked_ForwardingButton(object sender, EventArgs e)
 		{
 			if(!String.IsNullOrWhiteSpace(extension))
-				ViewModel.ForwardCall(extension, SubscriberSelectionViewModel.ForwardingMethod.blind);
+				ViewModel.ForwardCall(extension, ForwardingMethod.blind);
 		}
 
 		protected void Clicked_ForwardingToConsultationButton(object sender, EventArgs e)
 		{
 			if(!String.IsNullOrWhiteSpace(extension))
-				ViewModel.ForwardCall(extension, SubscriberSelectionViewModel.ForwardingMethod.hold);
+				ViewModel.ForwardCall(extension, ForwardingMethod.hold);
 		}
 
-		protected void Table_SizeRequested(object o, EventArgs args)
+		protected void Clicked_RollUpButton(object sender, EventArgs e)
 		{
-			Console.WriteLine($"{this.WidthRequest} : {this.HeightRequest}");
+			
+		}
+
+		private bool isFistTime = true;
+		private int filterStringLength = 0;
+
+		protected void Changed_FilterEntry(object sender, EventArgs args)
+		{
+
+			string input = ((yEntry)sender).Text;
+			if(input.Length > filterStringLength && !isFistTime) {
+				var array = ViewModel.SearchTableEntities
+				.Where(e =>
+					   (!String.IsNullOrWhiteSpace(e.Name) && e.Name.IndexOf(input) != -1)
+					|| (!String.IsNullOrWhiteSpace(e.Department) && e.Department.IndexOf(input) != -1)
+					|| (!String.IsNullOrWhiteSpace(e.Department) && e.Extension.IndexOf(input) != -1))
+					.OrderBy(en => en.Name).ToList();
+				filterStringLength = input.Length;
+				ViewModel.LocalEntities = array;
+
+			} else if(input.Length < filterStringLength || isFistTime) {
+				var array = ViewModel.SearchTableEntities
+				.Where(e => 
+					   (!String.IsNullOrWhiteSpace(e.Name) && e.Name.IndexOf(input) != -1 )
+					|| (!String.IsNullOrWhiteSpace(e.Department) && e.Department.IndexOf(input) != -1) 
+					|| (!String.IsNullOrWhiteSpace(e.Department) && e.Extension.IndexOf(input) != -1))
+					.OrderBy(en => en.Name).ToList();
+				filterStringLength = input.Length;
+				isFistTime = false;
+				ViewModel.LocalEntities = array;
+			} 
+
+			if(String.IsNullOrWhiteSpace(input)) {
+				isFistTime = true;
+			}
+			Update_SearchTree();
+ 		}
+
+		private void Update_SearchTree() 
+		{
+			if(String.IsNullOrWhiteSpace(FilterEntry.Text)) {
+				ySearchTable.SetItemsSource(ViewModel.SearchTableEntities);
+				ViewModel.LocalEntities = new List<SearchTableEntity>();
+			}
+			else
+				ySearchTable.SetItemsSource(ViewModel.LocalEntities);
+			ySearchTable.ShowAll();
 
 		}
 	}
-
 }

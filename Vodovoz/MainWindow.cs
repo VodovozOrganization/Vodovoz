@@ -168,7 +168,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		//string number = "0000000000";
 		var mangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
 		mangoManager.Connect();
-		//NavigationManager.OpenViewModel<SubscriberSelectionViewModel,MangoManager,SubscriberSelectionViewModel.DialogType>(null,mangoManager,SubscriberSelectionViewModel.DialogType.Telephone);
+		NavigationManager.OpenViewModel<SubscriberSelectionViewModel,MangoManager,SubscriberSelectionViewModel.DialogType>(null,mangoManager,SubscriberSelectionViewModel.DialogType.Telephone);
 
 		//BanksUpdater.CheckBanksUpdate(false);
 	}

@@ -91,6 +91,8 @@
     <Compile Include="DTO\MakeCall\MakeCallRequest.cs" />
     <Compile Include="DTO\Common\From.cs" />
     <Compile Include="DTO\Common\CommandResult.cs" />
+    <Compile Include="DTO\Group\Group.cs" />
+    <Compile Include="DTO\Group\GroupRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -106,6 +108,7 @@
     <Folder Include="DTO\ForwardCall\" />
     <Folder Include="DTO\MakeCall\" />
     <Folder Include="DTO\Common\" />
+    <Folder Include="DTO\Group\" />
   </ItemGroup>
   <ItemGroup>
     <Protobuf Include="..\..\Application\VodovozMangoService\Protobuf\NotificationService.proto">

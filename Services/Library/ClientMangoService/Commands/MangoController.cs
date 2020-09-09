@@ -14,6 +14,8 @@ using ClientMangoService.DTO.HangUp;
 using ClientMangoService.DTO.ForwardCall;
 using ClientMangoService.DTO;
 using ClientMangoService.DTO.MakeCall;
+using ClientMangoService.DTO.Group;
+
 
 namespace ClientMangoService.Commands
 {
@@ -34,6 +36,9 @@ namespace ClientMangoService.Commands
 		private string json;
 		private string vpbx_api_salt;
 
+
+		private JsonSerializerSettings settings = new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore };
+
 		/// <param name="vpbx_api_key">Уникальный код вашей АТС.</param>
 		/// <param name="vpbx_api_salt">Ключ для создания подписи.</param>
 		public MangoController(string vpbx_api_key, string vpbx_api_salt)
@@ -41,40 +46,32 @@ namespace ClientMangoService.Commands
 			this.vpbx_api_key = vpbx_api_key;
 			this.vpbx_api_salt = vpbx_api_salt;
 		}
-		private object PerformCommand(string command, string json = "")
+
+		private string PerformCommand(string command, string json = "")
 		{
 			this.json = json;
 			sign = MangoSignHelper.GetSign(vpbx_api_key, json, vpbx_api_salt);
-			HttpResponse response;
 			string result = String.Empty;
 			using(var request = new HttpRequest(baseURL)) {
-				request.AddField("vpbx_api_key", vpbx_api_key, Encoding.ASCII);
-				request.AddField("sign", sign, Encoding.ASCII);
+				request.AddField("vpbx_api_key", vpbx_api_key, Encoding.UTF8);
+				request.AddField("sign", sign, Encoding.UTF8);
 
 				if(String.IsNullOrWhiteSpace(json))
-					request.AddField("json", "{}", Encoding.ASCII);
+					request.AddField("json", "{}", Encoding.UTF8);
 				else
-					request.AddField("json", json, Encoding.ASCII);
+					request.AddField("json", json, Encoding.UTF8);
 
-				response = request.Post(command);
-
-				using(Stream stream = response.ToMemoryStream()) {
-
-					using(StreamReader reader = new StreamReader(stream)) {
-
-						JObject obj = (JObject)JToken.ReadFrom(new JsonTextReader(reader));
-						IList<JToken> results = obj["users"].Children().ToList();
-
-						IList<User> users = new List<User>();
-						foreach(JToken _result in results) {
-							User user = _result.ToObject<User>();
-							users.Add(user);
-						}
-						return users;
-					}
-				}
-
+				result = request.Post(command).ToString();
 			}
+			return result;
+		}
+
+
+		private bool GetSimpleResult(string json)
+		{
+			JObject obj = JObject.Parse(json);
+			CommandResult commandResult = obj.ToObject<CommandResult>();
+			return commandResult.result == "1000";
 		}
 
 		/// <summary>
@@ -84,7 +81,37 @@ namespace ClientMangoService.Commands
 		public IEnumerable<User> GetAllVPBXEmploies()
 		{
 			string command = "vpbx/config/users/request";
-			return PerformCommand(command) as List<User>;
+			string response = PerformCommand(command);
+
+			JObject obj = JObject.Parse(response);
+			List<JToken> tokens = obj["users"].Children().ToList();
+
+			IList<User> users = new List<User>();
+			foreach(JToken _result in tokens) {
+				User user = _result.ToObject<User>();
+				users.Add(user);
+			}
+			return users;
+		}
+		/// <summary>
+		/// Возвращает все группы в ВАТС 
+		/// </summary>
+		/// <returns>ClientMangoService.DTO.Group.Group type</returns>
+		public IEnumerable<Group> GetAllVpbxGroups()
+		{
+			string command = "vpbx/groups";
+			string response = PerformCommand(command);
+
+			JObject obj = JObject.Parse(response);
+			List<JToken> tokens = obj["groups"].Children().ToList();
+
+			IList<Group> users = new List<Group>();
+			foreach(JToken _result in tokens) {
+				Group group = _result.ToObject<Group>();
+				users.Add(group);
+			}
+			return users;
+
 		}
 
 		/// <summary>
@@ -94,7 +121,7 @@ namespace ClientMangoService.Commands
 		/// <param name="from_extension">Внутренний номер сотрудника ВАТС , который звонит</param>
 		/// <param name="to_extension">Внутренний номер сотрудника ВАТС , которому звонят</param>
 		/// <param name="commandId">Не обязательный параметр , обозначающий id комнды (может быть любым , по умолчанию : имя метода)</param>
-		public bool MakeCall(string from_extension, string to_extension,[CallerMemberName]string commandId = "")
+		public bool MakeCall(string from_extension, string to_extension, [CallerMemberName]string commandId = "")
 		{
 			string command = @"vpbx/commands/callback";
 			MakeCallRequest options = new MakeCallRequest();
@@ -102,11 +129,9 @@ namespace ClientMangoService.Commands
 			options.from = new From();
 			options.from.extension = from_extension;
 			options.to_number = to_extension;
+			string json = JsonConvert.SerializeObject(options,settings);
 
-			string json = JsonConvert.SerializeObject(options);
-			bool result = Convert.ToBoolean((command, json));
-
-			return result;
+			return GetSimpleResult(PerformCommand(command, json));
 		}
 
 		/// <summary>
@@ -118,9 +143,9 @@ namespace ClientMangoService.Commands
 		/// <param name="to_extension">Внутренний номер сотрудника ВАТС , которому звонят</param>
 		/// <param name="method">Метод переадресации , "blind" - слепая перевод , "hold" - консультативный перевод.</param>
 		/// <param name="commandId">Не обязательный параметр , обозначающий id комнды (может быть любым , по умолчанию : имя метода)</param>
-		public bool ForwardCall(string call_id ,string from_extension,string to_extension,ForwardingMethod method, [CallerMemberName]string commandId= "")
+		public bool ForwardCall(string call_id, string from_extension, string to_extension, ForwardingMethod method, [CallerMemberName]string commandId = "")
 		{
-			string command = @"vpbx/commands/transfer";				
+			string command = @"vpbx/commands/transfer";
 			ForwardCallRequest options = new ForwardCallRequest();
 			options.call_id = call_id;
 			options.command_id = commandId;
@@ -132,11 +157,10 @@ namespace ClientMangoService.Commands
 
 			options.to_number = to_extension;
 			options.initiator = from_extension;
+			string json = JsonConvert.SerializeObject(options,settings);
 
-			string json = JsonConvert.SerializeObject(options);
-			bool result = Convert.ToBoolean((command, json));
+			return GetSimpleResult(PerformCommand(command, json));
 
-			return result;
 		}
 
 		/// <summary>
@@ -150,13 +174,11 @@ namespace ClientMangoService.Commands
 			string command = "vpbx/result/call/hangup";
 
 			HangUpRequest options = new HangUpRequest();
-			options.command_id = "Hangup"+call_id;
+			options.command_id = "Hangup" + call_id;
 			options.call_id = call_id;
+			string json = JsonConvert.SerializeObject(options,settings);
 
-			string json = JsonConvert.SerializeObject(options);
-			bool result = Convert.ToBoolean((command, json));
-
-			return result;
+			return GetSimpleResult(PerformCommand(command, json));
 		}
 	}
 }
