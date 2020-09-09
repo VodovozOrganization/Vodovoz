@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -204,16 +204,30 @@ namespace Vodovoz.Infrastructure.Mango
 						CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
 						CurrentPage.PageClosed += CurrentPage_PageClosed;
 					}
+					return;
 				}
 				LastMessage = null;
 			}
 
+			if(CurrentPage != null) {
+				navigation.ForceClosePage(CurrentPage);
+			}
+
+			if(message.State == CallState.Connected) {
+				if(message.CallFrom.Type == CallerType.Internal) {
+					CurrentPage = navigation.OpenViewModel<InternalCallViewModel, MangoManager>(null,this);
+				 }
+				else
+				{
+					if(clients != null)
+						CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<Counterparty>>(null, this, clients);
+					else
+						CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, Phone>(null, new Phone() { Number = CallerNumber });
+				}
+			}
+
 			if(CurrentPage != null)
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
-
-			if(message.State == CallState.Disconnected) {
-				LastMessage = null;
-			}
 		}
 
 		private void AddNewIncome(NotificationMessage message)
