@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Store
 {
@@ -8,6 +9,7 @@ namespace Vodovoz.Domain.Store
 		NominativePlural = "фуры",
 		Nominative = "фура")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class MovementWagon : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
