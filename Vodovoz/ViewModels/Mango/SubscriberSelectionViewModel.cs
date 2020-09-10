@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MangoService;
 using MangoService.DTO.Group;
@@ -23,7 +24,6 @@ namespace Vodovoz.ViewModels.Mango
 		private MangoManager Manager { get; }
 
 		public List<SearchTableEntity> SearchTableEntities { get; private set; }
-		public List<SearchTableEntity> LocalEntities { get; set; }
 
 		public SubscriberSelectionViewModel(INavigationManager navigation,
 			MangoManager manager,
@@ -32,32 +32,31 @@ namespace Vodovoz.ViewModels.Mango
 			this.dialogType = dialogType;
 			Manager = manager;
 
-			LocalEntities = new List<SearchTableEntity>();
-
 			SearchTableEntities = new List<SearchTableEntity>();
-			List<User> users = Manager.GetAllVPBXEmploies().ToList();
+			List<User> users = Manager.GetAllVPBXEmploies().Where(x => !String.IsNullOrEmpty(x.telephony.extension)).ToList();
 			foreach(var user in users) {
 				SearchTableEntities.Add(new SearchTableEntity(user));
 			}
 
-			List<Group> groups = Manager.GetAllVPBXGroups().ToList();
+			List<Group> groups = Manager.GetAllVPBXGroups().Where(x => !String.IsNullOrEmpty(x.extension)).ToList();
 			foreach(var group in groups) {
 				SearchTableEntities.Add(new SearchTableEntity(group));
 			}
+
+			Title = dialogType == DialogType.Telephone ? "Вызов абонента" : "Перевод звонка на абонента";
 		}
 
-		public void MakeCall(string extension)
+		public void MakeCall(SearchTableEntity extension)
 		{
-			Manager.MakeCall(extension);
+			Manager.MakeCall(extension.Extension);
 		}
 
-		public void ForwardCall(string extension, ForwardingMethod method)
+		public void ForwardCall(SearchTableEntity extension, ForwardingMethod method)
 		{
 			NavigationManager.AskClosePage(NavigationManager.FindPage(this));
-			Manager.ForwardCall(extension, method);
+			Manager.ForwardCall(extension.Extension, method);
 
 		}
-
 	}
 	public class SearchTableEntity
 	{

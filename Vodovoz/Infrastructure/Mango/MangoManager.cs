@@ -134,9 +134,14 @@ namespace Vodovoz.Infrastructure.Mango
 
 		void ToolbarIcon_Activated(object sender, EventArgs e)
 		{
-			if(LastMessage != null && CurrentPage == null)
-				HandleMessage(LastMessage);
-			//FIXME Здесь еще открываем диалог исходящего вызова, если текущего диалога не происходит.
+			if(CurrentPage == null) {
+				if(LastMessage != null)
+					HandleMessage(LastMessage);
+				else {
+					CurrentPage = navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>(null, this, SubscriberSelectionViewModel.DialogType.Telephone);
+					CurrentPage.PageClosed += CurrentPage_PageClosed;
+				}
+			} 
 		}
 
 		void CurrentPage_PageClosed(object sender, PageClosedEventArgs e)

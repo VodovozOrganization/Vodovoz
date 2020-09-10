@@ -18,12 +18,6 @@ namespace Vodovoz.Views.Mango
 
 		private global::Gamma.GtkWidgets.yTreeView ySearchTable;
 
-		private global::Gtk.HBox hbox2;
-
-		private global::Gamma.GtkWidgets.yButton RollUpButton;
-
-		private global::Gtk.Label Header_Label;
-
 		private global::Gtk.Label Search;
 
 		protected virtual void Build()
@@ -35,7 +29,7 @@ namespace Vodovoz.Views.Mango
 			this.HeightRequest = 530;
 			this.Name = "Vodovoz.Views.Mango.SubscriberSelectionView";
 			// Container child Vodovoz.Views.Mango.SubscriberSelectionView.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(5)), ((uint)(8)), false);
+			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(6)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -47,8 +41,6 @@ namespace Vodovoz.Views.Mango
 			this.FilterEntry.InvisibleChar = '•';
 			this.table1.Add(this.FilterEntry);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.FilterEntry]));
-			w1.TopAttach = ((uint)(2));
-			w1.BottomAttach = ((uint)(3));
 			w1.LeftAttach = ((uint)(1));
 			w1.RightAttach = ((uint)(6));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -60,10 +52,10 @@ namespace Vodovoz.Views.Mango
 			this.ForwardingButton.Label = global::Mono.Unix.Catalog.GetString("Переадресовать");
 			this.table1.Add(this.ForwardingButton);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.ForwardingButton]));
-			w2.TopAttach = ((uint)(4));
-			w2.BottomAttach = ((uint)(5));
+			w2.TopAttach = ((uint)(2));
+			w2.BottomAttach = ((uint)(3));
 			w2.LeftAttach = ((uint)(4));
-			w2.RightAttach = ((uint)(8));
+			w2.RightAttach = ((uint)(6));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ForwardingToConsultationButton = new global::Gtk.Button();
@@ -72,8 +64,8 @@ namespace Vodovoz.Views.Mango
 			this.ForwardingToConsultationButton.Label = global::Mono.Unix.Catalog.GetString("Переадресация с консультацией");
 			this.table1.Add(this.ForwardingToConsultationButton);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.ForwardingToConsultationButton]));
-			w3.TopAttach = ((uint)(4));
-			w3.BottomAttach = ((uint)(5));
+			w3.TopAttach = ((uint)(2));
+			w3.BottomAttach = ((uint)(3));
 			w3.RightAttach = ((uint)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -94,61 +86,28 @@ namespace Vodovoz.Views.Mango
 			w5.Position = 0;
 			this.table1.Add(this.hbox1);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox1]));
-			w6.TopAttach = ((uint)(3));
-			w6.BottomAttach = ((uint)(4));
-			w6.RightAttach = ((uint)(8));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
+			w6.RightAttach = ((uint)(6));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.hbox2 = new global::Gtk.HBox();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.RollUpButton = new global::Gamma.GtkWidgets.yButton();
-			this.RollUpButton.CanFocus = true;
-			this.RollUpButton.Name = "RollUpButton";
-			this.RollUpButton.UseUnderline = true;
-			this.RollUpButton.Label = global::Mono.Unix.Catalog.GetString("-");
-			this.hbox2.Add(this.RollUpButton);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.RollUpButton]));
-			w7.PackType = ((global::Gtk.PackType)(1));
-			w7.Position = 2;
-			w7.Expand = false;
-			w7.Fill = false;
-			this.table1.Add(this.hbox2);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox2]));
-			w8.RightAttach = ((uint)(8));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.Header_Label = new global::Gtk.Label();
-			this.Header_Label.Name = "Header_Label";
-			this.Header_Label.LabelProp = global::Mono.Unix.Catalog.GetString("Дополнительный звонок");
-			this.table1.Add(this.Header_Label);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.Header_Label]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
-			w9.RightAttach = ((uint)(8));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.Search = new global::Gtk.Label();
 			this.Search.Name = "Search";
+			this.Search.Xalign = 1F;
 			this.Search.LabelProp = global::Mono.Unix.Catalog.GetString("Поиск:");
 			this.table1.Add(this.Search);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.Search]));
-			w10.TopAttach = ((uint)(2));
-			w10.BottomAttach = ((uint)(3));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.Search]));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.RollUpButton.Clicked += new global::System.EventHandler(this.Clicked_RollUpButton);
 			this.ySearchTable.SelectCursorRow += new global::Gtk.SelectCursorRowHandler(this.SelectCursorRow_OrderYTreeView);
 			this.FilterEntry.Changed += new global::System.EventHandler(this.Changed_FilterEntry);
+			this.FilterEntry.Activated += new global::System.EventHandler(this.OnFilterEntryActivated);
 		}
 	}
 }

@@ -158,17 +158,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		}
 
 		NavigationManager = AutofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-		//Point!
-		//Random random = new Random();
-		//int f3 = random.Next(950, 999);
-		//int s3 = random.Next(100, 999);
-		//int f2 = random.Next(10, 99);
-		//int s2 = random.Next(10, 99);
-		//string number = f3 + "-" + s3 + "-" + f2 + "-" + s2;
-		//string number = "0000000000";
 		var mangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
 		mangoManager.Connect();
-		NavigationManager.OpenViewModel<SubscriberSelectionViewModel,MangoManager,SubscriberSelectionViewModel.DialogType>(null,mangoManager,SubscriberSelectionViewModel.DialogType.Telephone);
 
 		//BanksUpdater.CheckBanksUpdate(false);
 	}
