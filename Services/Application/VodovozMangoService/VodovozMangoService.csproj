@@ -34,4 +34,8 @@
       </Protobuf>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\Library\MangoController\MangoController.csproj" />
+    </ItemGroup>
+
 </Project>
