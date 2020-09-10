@@ -5,6 +5,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Tools.Orders
 {
@@ -105,7 +106,18 @@ namespace Vodovoz.Tools.Orders
 			this.DefaultDocumentType = Order.DocumentType ?? Order.Client.DefaultDocumentType;
 			this.IsDocTypeTORG12 = DefaultDocumentType.HasValue && DefaultDocumentType == Domain.Client.DefaultDocumentType.torg12;
 			this.HasOrderEquipment = Order.ObservableOrderEquipments.Any();
-			this.HasOrderItems = Order.ObservableOrderItems.Any();
+			
+			if(!Order.ObservableOrderItems.Any() || 
+			   (Order.ObservableOrderItems.Count == 1 && Order.ObservableOrderItems.Any(x => 
+				x.Nomenclature.Id == int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))))) 
+			{
+				HasOrderItems = false;
+			}
+			else
+			{
+				HasOrderItems = true;
+			}
+			
 			this.IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.Sum) <= 0m;
 			this.NeedToReturnBottles = Order.BottlesReturn > 0;
 			this.NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any();
