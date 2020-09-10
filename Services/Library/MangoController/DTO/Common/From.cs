@@ -1,5 +1,5 @@
 ﻿using System;
-namespace ClientMangoService.DTO
+namespace MangoService.DTO.Common
 {
 	public class From
 	{

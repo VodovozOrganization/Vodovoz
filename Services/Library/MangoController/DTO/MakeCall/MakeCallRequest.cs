@@ -1,4 +1,6 @@
-﻿namespace ClientMangoService.DTO.MakeCall
+﻿using MangoService.DTO.Common;
+
+namespace MangoService.DTO.MakeCall
 {
 	public class MakeCallRequest
 	{

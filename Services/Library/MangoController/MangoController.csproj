@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
+        <Company>Quality Solution</Company>
+        <NeutralLanguage>ru</NeutralLanguage>
+        <RootNamespace>MangoService</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="..\..\Application\VodovozMangoService\MangoSignHelper.cs">
+        <Link>MangoSignHelper.cs</Link>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="xNet, Version=3.3.3.0, Culture=neutral, PublicKeyToken=null" Condition="'$(TargetFramework)' == 'net461'">
+        <HintPath>..\..\..\lib\xNet.dll</HintPath>
+      </Reference>
+      <Reference Include="xNetStandard, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+        <HintPath>..\..\..\lib\netCore\xNetStandard\xNetStandard.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

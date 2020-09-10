@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using ClientMangoService.Commands;
-using ClientMangoService.DTO.Group;
-using ClientMangoService.DTO.Users;
+using MangoService;
+using MangoService.DTO.Group;
+using MangoService.DTO.Users;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Infrastructure.Mango;
@@ -53,7 +51,7 @@ namespace Vodovoz.ViewModels.Mango
 			Manager.MakeCall(extension);
 		}
 
-		public void ForwardCall(string extension,ForwardingMethod method)
+		public void ForwardCall(string extension, ForwardingMethod method)
 		{
 			NavigationManager.AskClosePage(NavigationManager.FindPage(this));
 			Manager.ForwardCall(extension, method);

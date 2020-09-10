@@ -1,16 +1,10 @@
 ﻿using System;
 using QS.Views.Dialog;
-using Vodovoz.Infrastructure.Mango;
 using Vodovoz.ViewModels.Mango;
-using Vodovoz.Domain.Orders;
 using Gamma.GtkWidgets;
-using Gtk;
-using Vodovoz.Domain.Client;
-using FluentNHibernate.Data;
 using System.Collections.Generic;
-using ClientMangoService.DTO.Users;
 using System.Linq;
-using ClientMangoService.Commands;
+using MangoService;
 
 namespace Vodovoz.Views.Mango
 {

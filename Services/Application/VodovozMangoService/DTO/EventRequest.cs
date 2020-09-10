@@ -31,7 +31,7 @@ namespace VodovozMangoService.DTO
                 return false;
             }
             
-            var testSign = Mango.MangoSignHelper.GetSign(Program.VpbxApiKey, Json, Program.VpbxApiSalt);
+            var testSign = MangoService.MangoSignHelper.GetSign(Program.VpbxApiKey, Json, Program.VpbxApiSalt);
             return testSign == Sign;
         }
     }

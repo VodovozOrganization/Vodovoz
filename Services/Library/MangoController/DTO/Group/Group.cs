@@ -1,5 +1,5 @@
 ﻿using System;
-namespace ClientMangoService.DTO.Group
+namespace MangoService.DTO.Group
 {
 	/// <summary>
 	/// Алгоритм распределения звонков в группе

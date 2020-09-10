@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using ClientMangoService;
-using ClientMangoService.Commands;
 using Gtk;
+using MangoService;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -17,7 +16,6 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.Repositories.Client;
 using Vodovoz.ViewModels.Mango;
 using Vodovoz.ViewModels.Mango.Talks;
 
@@ -38,7 +36,7 @@ namespace Vodovoz.Infrastructure.Mango
 		private NotificationMessage LastMessage;
 		private IPage CurrentPage;
 		private uint timer;
-		private MangoController mangoController;
+		private MangoService.MangoController mangoController;
 
 		public MangoManager(Gtk.Action toolbarIcon,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -54,7 +52,7 @@ namespace Vodovoz.Infrastructure.Mango
 			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			this.navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
- 			this.mangoController = new MangoController(parametrs.VpbxApiKey, parametrs.VpbxApiSalt);
+ 			this.mangoController = new MangoService.MangoController(parametrs.VpbxApiKey, parametrs.VpbxApiSalt);
 
 			timer = GLib.Timeout.Add (1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
 			toolbarIcon.Activated += ToolbarIcon_Activated;
@@ -255,12 +253,12 @@ namespace Vodovoz.Infrastructure.Mango
 
 		}
 
-		public IEnumerable<ClientMangoService.DTO.Group.Group> GetAllVPBXGroups()
+		public IEnumerable<MangoService.DTO.Group.Group> GetAllVPBXGroups()
 		{
 			return mangoController.GetAllVpbxGroups();
 		}
 
-		public IEnumerable<ClientMangoService.DTO.Users.User> GetAllVPBXEmploies()
+		public IEnumerable<MangoService.DTO.Users.User> GetAllVPBXEmploies()
 		{
 			return mangoController.GetAllVPBXEmploies();
 		}

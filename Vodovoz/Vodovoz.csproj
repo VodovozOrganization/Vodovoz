@@ -201,9 +201,6 @@
     <Reference Include="Dapper">
       <HintPath>..\packages\Dapper.2.0.35\lib\net461\Dapper.dll</HintPath>
     </Reference>
-    <Reference Include="xNet">
-      <HintPath>..\lib\xNet.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -1644,6 +1641,10 @@
     <ProjectReference Include="..\Services\Library\ClientMangoService\ClientMangoService.csproj">
       <Project>{892519ba-d891-43b6-971c-6415ea4d14e5}</Project>
       <Name>ClientMangoService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\MangoController\MangoController.csproj">
+      <Project>{527e0cce-c1f1-4fce-8b92-ea5c4ca5f548}</Project>
+      <Name>MangoController</Name>
     </ProjectReference>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>

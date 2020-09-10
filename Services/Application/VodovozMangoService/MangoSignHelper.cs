@@ -2,7 +2,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Mango
+namespace MangoService
 {
     public static class MangoSignHelper
     {

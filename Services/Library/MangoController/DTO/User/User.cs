@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ClientMangoService.DTO.Users
+namespace MangoService.DTO.Users
 {
 	public class User
 	{

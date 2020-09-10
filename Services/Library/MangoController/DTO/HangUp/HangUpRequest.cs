@@ -1,5 +1,5 @@
 ﻿using System;
-namespace ClientMangoService.DTO.HangUp
+namespace MangoService.DTO.HangUp
 {
 	public class HangUpRequest
 	{

@@ -1,5 +1,5 @@
 ﻿using System;
-namespace ClientMangoService.DTO.ForwardCall
+namespace MangoService.DTO.ForwardCall
 {
 	public class ForwardCallRequest
 	{

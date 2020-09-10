@@ -65,13 +65,7 @@
     <Reference Include="Google.Protobuf">
       <HintPath>..\..\..\packages\Google.Protobuf.3.12.3\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp">
-      <HintPath>..\..\..\packages\RestSharp.106.11.4\lib\net452\RestSharp.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="xNet">
       <HintPath>..\..\..\lib\xNet.dll</HintPath>
       <IncludeInPackage>true</IncludeInPackage>
@@ -84,31 +78,12 @@
     <Compile Include="MangoNotificationClient.cs" />
     <Compile Include="NotificationConnectionWatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Commands\MangoController.cs" />
-    <Compile Include="DTO\User\User.cs" />
-    <Compile Include="DTO\HangUp\HangUpRequest.cs" />
-    <Compile Include="DTO\ForwardCall\ForwardCallRequest.cs" />
-    <Compile Include="DTO\MakeCall\MakeCallRequest.cs" />
-    <Compile Include="DTO\Common\From.cs" />
-    <Compile Include="DTO\Common\CommandResult.cs" />
-    <Compile Include="DTO\Group\Group.cs" />
-    <Compile Include="DTO\Group\GroupRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Properties\EmptyJSONFile.json" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ProtoBuf\" />
-    <Folder Include="Commands\" />
-    <Folder Include="JsonResult\" />
-    <Folder Include="DTO\" />
-    <Folder Include="DTO\User\" />
-    <Folder Include="DTO\HangUp\" />
-    <Folder Include="DTO\ForwardCall\" />
-    <Folder Include="DTO\MakeCall\" />
-    <Folder Include="DTO\Common\" />
-    <Folder Include="DTO\Group\" />
   </ItemGroup>
   <ItemGroup>
     <Protobuf Include="..\..\Application\VodovozMangoService\Protobuf\NotificationService.proto">

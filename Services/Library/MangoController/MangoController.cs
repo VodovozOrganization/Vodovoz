@@ -1,23 +1,24 @@
 ﻿using System;
-using System.IO;
-using System.Security.Cryptography;
 using System.Text;
-using xNet;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Mango;
-using ClientMangoService.DTO.Users;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using ClientMangoService.DTO.HangUp;
-using ClientMangoService.DTO.ForwardCall;
-using ClientMangoService.DTO;
-using ClientMangoService.DTO.MakeCall;
-using ClientMangoService.DTO.Group;
+using MangoService.DTO.Common;
+using MangoService.DTO.ForwardCall;
+using MangoService.DTO.Group;
+using MangoService.DTO.HangUp;
+using MangoService.DTO.MakeCall;
+using MangoService.DTO.Users;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+#if NETFRAMEWORK
+using xNet;
+#else
+using xNetStandard;
+#endif
 
 
-namespace ClientMangoService.Commands
+namespace MangoService
 {
 	public enum ForwardingMethod
 	{
