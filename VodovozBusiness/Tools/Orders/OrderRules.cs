@@ -278,7 +278,6 @@ namespace Vodovoz.Tools.Orders
 		);
 	}
 
-
 	class ProhibitionRule
 	{
 		public Func<OrderStateKey, bool> Condition;
