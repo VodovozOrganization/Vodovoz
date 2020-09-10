@@ -761,13 +761,18 @@ namespace Vodovoz
 					if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
 						return false;
 				}
+				
+				if (Entity.Id == 0 && 
+					Entity.PaymentType == PaymentType.cashless) {
+					Entity.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				}
 
 				if(OrderItemEquipmentCountHasChanges) {
 					MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
 				}
 
 				logger.Info("Сохраняем заказ...");
-
+				
 				if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(emailRepository)) {
 					bool sendEmail = true;
 					var emailAddressForBill = Entity.GetEmailAddressForBill();

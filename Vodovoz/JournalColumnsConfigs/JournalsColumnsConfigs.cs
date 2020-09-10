@@ -6,6 +6,7 @@ using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
@@ -75,7 +76,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Клиент").AddTextRenderer(node => node.Counterparty)
 					.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 					.AddColumn("Статус оплаты").AddTextRenderer(x =>
-						x.OrderPaymentStatus != null ? x.OrderPaymentStatus.GetEnumTitle() : "")
+						(x.OrderPaymentStatus != OrderPaymentStatus.None) ? x.OrderPaymentStatus.GetEnumTitle() : "")
 					.AddColumn("Район доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DistrictName)
 					.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 					.AddColumn("Изменил").AddTextRenderer(node => node.LastEditor)

@@ -47,6 +47,8 @@ namespace Vodovoz.Domain.Orders
 
 	public enum OrderPaymentStatus
 	{
+		[Display(Name = "Нет")]
+		None,
 		[Display(Name = "Оплачен")]
 		Paid,
 		[Display(Name = "Частично оплачен")]

@@ -824,7 +824,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			Comment = string.Empty;
 			OrderStatus = OrderStatus.NewOrder;
-			OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+			OrderPaymentStatus = OrderPaymentStatus.None;
 			SumDifferenceReason = string.Empty;
 			ClientPhone = string.Empty;
 		}
