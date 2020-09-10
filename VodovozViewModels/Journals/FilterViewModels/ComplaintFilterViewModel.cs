@@ -179,6 +179,8 @@ namespace Vodovoz.FilterViewModels
 	{
 		[Display(Name = "план. завершения")]
 		PlannedCompletionDate,
+		[Display(Name = "факт. завершения")]
+		ActualCompletionDate,
 		[Display(Name = "создания")]
 		CreationDate
 	}
