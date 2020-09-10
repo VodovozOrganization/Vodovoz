@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
+using MangoService;
+using MangoService.DTO.Users;
 using MySql.Data.MySqlClient;
 using NLog;
 using VodovozMangoService.Calling;
@@ -15,15 +16,15 @@ namespace VodovozMangoService
 	public class NotificationServiceImpl : NotificationService.NotificationServiceBase
 	{
 		private readonly MySqlConnection connection;
+		private readonly MangoController mangoController;
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		
 		public readonly List<Subscription> Subscribers = new List<Subscription>();
-		
-		private readonly List<CallerInfoCache> ExternalCallers = new List<CallerInfoCache>(); 
-		
-		public NotificationServiceImpl(MySqlConnection connection)
+
+		public NotificationServiceImpl(MySqlConnection connection, MangoController mangoController)
 		{
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
+			this.mangoController = mangoController ?? throw new ArgumentNullException(nameof(mangoController));
 		}
 
 		public override async Task Subscribe(NotificationSubscribeRequest request, IServerStreamWriter<NotificationMessage> responseStream, ServerCallContext context)
@@ -85,18 +86,10 @@ namespace VodovozMangoService
 			var from = info.LastEvent.from;
 			Caller caller;
 			if (String.IsNullOrEmpty(from.extension))
-			{
 				caller = GetExternalCaller(from.number);
-			}
 			else
-			{
-				caller = new Caller
-				{
-					Type = CallerType.Internal,
-					Number = from.extension,
-				};
-			}
-			
+				caller = GetInternalCaller(from.extension);
+
 			logger.Debug($"Caller:{caller}");
 			
 			var message = new NotificationMessage
@@ -125,6 +118,8 @@ namespace VodovozMangoService
 			}
 		}
 
+		#region External call
+		private readonly List<CallerInfoCache> ExternalCallers = new List<CallerInfoCache>();
 		private Caller GetExternalCaller(string number)
 		{
 			CallerInfoCache caller;
@@ -187,10 +182,36 @@ namespace VodovozMangoService
 				return $"{row.counterparty_name} ({row.address})";
 			return row.counterparty_name;
 		}
-		
-		private string GetInternalCallerName(string number)
+		#endregion
+
+		#region Internal Call
+		private List<User> Users;
+		DateTime lastUpdateUsers = DateTime.MinValue;
+		private Caller GetInternalCaller(string number)
 		{
-			return String.Empty;
+			if(Users == null || (DateTime.Now - lastUpdateUsers).TotalMinutes > 5)
+				GetUsers();
+			var user = Users.Find(x => x.telephony.extension == number);
+			if(user == null)
+				GetUsers(); //Обновляем на случай если номер добавлен но его нет в кеше.
+			user = Users.Find(x => x.telephony.extension == number);
+			if(user == null)
+				logger.Warn( $"Пришло событие для номера {number}, но его нет в списке пользователей Mango");
+			var caller = new Caller
+			{
+				Type = CallerType.Internal,
+				Number = number,
+			};
+			if(user != null)
+				caller.Names.Add(new CallerName{Name = user.general.name});
+			return caller;
 		}
+
+		private void GetUsers()
+		{
+			Users = mangoController.GetAllVPBXEmploies().ToList();
+			lastUpdateUsers = DateTime.Now;
+		}
+		#endregion
 	}
 }

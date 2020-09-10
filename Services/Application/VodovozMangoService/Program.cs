@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using Grpc.Core;
+using MangoService;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -107,7 +108,10 @@ namespace VodovozMangoService
 
         private static void InitNotifacationService(MySqlConnectionStringBuilder stringBuilder)
         {
-	        var service = NotificationServiceInstance = new NotificationServiceImpl(new MySqlConnection(stringBuilder.GetConnectionString(true)));
+	        var service = NotificationServiceInstance = new NotificationServiceImpl(
+		        new MySqlConnection(stringBuilder.GetConnectionString(true)),
+		        new MangoController(VpbxApiKey, VpbxApiSalt)
+		        );
             Server server = new Server
             {
                 Services = { NotificationService.BindService(service) },
