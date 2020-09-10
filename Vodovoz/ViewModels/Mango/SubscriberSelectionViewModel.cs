@@ -49,13 +49,13 @@ namespace Vodovoz.ViewModels.Mango
 		public void MakeCall(SearchTableEntity extension)
 		{
 			Manager.MakeCall(extension.Extension);
+			Close(false, CloseSource.Self);
 		}
 
 		public void ForwardCall(SearchTableEntity extension, ForwardingMethod method)
 		{
-			NavigationManager.AskClosePage(NavigationManager.FindPage(this));
 			Manager.ForwardCall(extension.Extension, method);
-
+			Close(false, CloseSource.Self);
 		}
 	}
 	public class SearchTableEntity
