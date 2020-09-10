@@ -5,7 +5,9 @@ using System.Threading;
 using ClientMangoService;
 using Gtk;
 using MangoService;
+using NLog;
 using QS.DomainModel.Entity;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
@@ -23,6 +25,7 @@ namespace Vodovoz.Infrastructure.Mango
 {
 	public class MangoManager : PropertyChangedBase, IDisposable
 	{
+		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		private readonly Gtk.Action toolbarIcon;
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly IEmployeeService employeeService;
@@ -56,6 +59,9 @@ namespace Vodovoz.Infrastructure.Mango
 
 			timer = GLib.Timeout.Add (1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
 			toolbarIcon.Activated += ToolbarIcon_Activated;
+			var userId = this.userService.CurrentUserId;
+			QS.DomainModel.NotifyChange.NotifyConfiguration.Instance.BatchSubscribe(OnUserChanged).IfEntity<Employee>()
+				.AndWhere(x => x.User.Id == userId);
 		}
 
 		public ConnectionState ConnectionState {
@@ -80,8 +86,6 @@ namespace Vodovoz.Infrastructure.Mango
 		public string CallerNumber => LastMessage?.CallFrom.Number;
 
 		public List<IncomingCall> IncomingCalls { get; set; } = new List<IncomingCall>();
-
-
 		#endregion
 
 		#region Методы
@@ -106,6 +110,14 @@ namespace Vodovoz.Infrastructure.Mango
 
 		#endregion
 		#region Обработка событий
+		private void OnUserChanged(EntityChangeEvent[] changeevents)
+		{
+			logger.Info("Текущий сотрудник именён, мог поменятся номер привязки, переподключаемся...");
+			notificationCancellation.Cancel();
+			if(notificationClient != null)
+				notificationClient.Dispose();
+			Connect();
+		}
 
 		private void NotificationClientOnIncomeCall(object sender, IncomeCallEventArgs e)
 		{
@@ -276,6 +288,7 @@ namespace Vodovoz.Infrastructure.Mango
 		#endregion
 		public void Dispose()
 		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			notificationCancellation.Cancel();
 			if(notificationClient != null)
 				notificationClient.Dispose();
