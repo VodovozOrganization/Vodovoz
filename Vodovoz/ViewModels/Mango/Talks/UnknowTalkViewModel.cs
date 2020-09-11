@@ -26,13 +26,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly ITdiCompatibilityNavigation tdiNavigation;
 		private readonly IInteractiveQuestion interactive;
 		private IUnitOfWork UoW;
-		private Phone phone;
-		public Phone Phone {
-			get => phone;
-			private set { phone = value; }
-		}
-		public UnknowTalkViewModel(Phone phone, 
-			IUnitOfWorkFactory unitOfWorkFactory, 
+		public UnknowTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
 			IInteractiveQuestion interactive,
 			MangoManager manager) : base(navigation, manager)
@@ -43,11 +37,14 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			Title = "Входящий новый номер";
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
-			this.phone = phone;
 		}
 
 		#region Действия View
 
+		public string GetPhoneNumber()
+		{
+			return MangoManager.CallerNumber;
+		}
 		public void SelectNewConterparty()
 		{
 			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg>(null);
@@ -68,6 +65,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			if(e.CloseSource == CloseSource.Save) {
 				List<Counterparty> clients = new List<Counterparty>();
 				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
+				Phone phone = new Phone(){Number = MangoManager.CallerNumber};
 				client.Phones.Add(phone);
 				clients.Add(client);
 				UoW.Save<Counterparty>(client);
@@ -82,6 +80,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
 			Counterparty firstClient = clients.First();
 			if(interactive.Question($"Доабать телефон к контагенту {firstClient.Name} ?", "Телефон контрагента")) {
+				Phone phone = new Phone(){Number = MangoManager.CallerNumber};
 				firstClient.Phones.Add(phone);
 				UoW.Save<Counterparty>(firstClient);
 				UoW.Commit();

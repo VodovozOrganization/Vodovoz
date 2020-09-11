@@ -15,7 +15,7 @@ namespace Vodovoz.Views.Mango.Talks
 		private void Configure()
 		{
 			//(this as IPage).PageClosed += ViewModel.SaveAndClose
-			CallNumberLabel.Text = ViewModel.Phone.LongText;
+			CallNumberLabel.Text = ViewModel.GetPhoneNumber();
 		}
 		#region Events
 		protected void Cliked_RollUpButton(object sender, EventArgs e)

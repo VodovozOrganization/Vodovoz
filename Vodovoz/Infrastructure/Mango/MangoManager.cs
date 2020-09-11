@@ -17,6 +17,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.ViewModels.Mango;
 using Vodovoz.ViewModels.Mango.Talks;
@@ -157,28 +158,23 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			using (var uow = unitOfWorkFactory.CreateWithoutRoot())
 			{
-				var _list = phoneRepository.GetObjectByPhone(uow, CallerNumber);
-				if (_list != null)
-					foreach (var item in _list)
-					{
-						if (item.GetType() == typeof(Counterparty))
-						{
-							if (clients == null)
-								clients = new List<Counterparty>();
-							clients.Add(item as Counterparty);
+				foreach (var item in LastMessage.CallFrom.Names)
+				{
+					int id = Convert.ToInt32(item.CounterpartyId);
+					Counterparty client = uow.GetById<Counterparty>(id);
+					if (client != null)
+						clients.Add(client);
 
-						}
-						else if (item.GetType() == typeof(Employee) && employee != null)
-						{
-							employee = item as Employee;
-						}
-						else if (item.GetType() == typeof(DeliveryPoint))
-						{
-							if (deliveryPoints == null)
-								deliveryPoints = new List<DeliveryPoint>();
-							deliveryPoints.Add(item as DeliveryPoint);
-						}
-					}
+					id = Convert.ToInt32(item.EmployeeId);
+					Employee employee = uow.GetById<Employee>(id);
+					if (employee != null)
+						this.employee = employee;
+
+					id = Convert.ToInt32(item.DeliveryPointId);
+					DeliveryPoint deliveryPoint = uow.GetById<DeliveryPoint>(id);
+					if (deliveryPoint != null)
+						DeliveryPoints.Add(deliveryPoint);
+				}
 			}
 		}
 
@@ -189,6 +185,7 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			if(message.State == CallState.Appeared) {
 				AddNewIncome(message);
+				FoundByPhoneItemsConfigure();
 				if(CurrentPage == null) {
 					CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
 					CurrentPage.PageClosed += CurrentPage_PageClosed;
@@ -213,7 +210,9 @@ namespace Vodovoz.Infrastructure.Mango
 				navigation.ForceClosePage(CurrentPage);
 			}
 
-			if(message.State == CallState.Connected) {
+			if(message.State == CallState.Connected)
+			{
+				FoundByPhoneItemsConfigure();
 				if(message.CallFrom.Type == CallerType.Internal) {
 					CurrentPage = navigation.OpenViewModel<InternalCallViewModel, MangoManager>(null,this);
 				 }
@@ -222,7 +221,7 @@ namespace Vodovoz.Infrastructure.Mango
 					if(clients != null)
 						CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<Counterparty>>(null, this, clients);
 					else
-						CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, Phone>(null, new Phone() { Number = CallerNumber });
+						CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, MangoManager>(null, this);
 				}
 			}
 
