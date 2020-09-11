@@ -1642,10 +1642,6 @@
       <Project>{892519ba-d891-43b6-971c-6415ea4d14e5}</Project>
       <Name>ClientMangoService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\MangoController\MangoController.csproj">
-      <Project>{527e0cce-c1f1-4fce-8b92-ea5c4ca5f548}</Project>
-      <Name>MangoController</Name>
-    </ProjectReference>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
@@ -1725,6 +1721,10 @@
     <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</Project>
       <Name>VodovozInfrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\MangoControllerForNet\MangoControllerForNet.csproj">
+      <Project>{322CC78B-9068-4E5B-87F1-5FED9B5AB5E0}</Project>
+      <Name>MangoControllerForNet</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
