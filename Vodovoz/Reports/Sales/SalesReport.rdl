@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>175.4pt</Height>
+    <Height>327.5pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>24.05pt</Height>
@@ -546,8 +546,9 @@ FROM
 			OR order_status = 'Closed'
             OR (order_status = 'WaitForPayment' AND self_delivery AND pay_after_shipment)
          )
-			AND (delivery_date &gt;= @start_date
+			AND (delivery_date &gt;= @start_date 
 			AND delivery_date &lt;= @end_date)
+			AND (@need_terminal = 0 OR need_terminal = @need_terminal)
 			AND !orders.is_contract_closer
 		AND (
 				((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
@@ -691,6 +692,9 @@ GROUP BY nomenclature_id
           </QueryParameter>
           <QueryParameter Name="product_group_exclude">
             <Value>={?product_group_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="need_terminal">
+            <Value>=Parameters!need_terminal</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -891,12 +895,14 @@ FROM
 		
 		IF(
 			'0' NOT IN (@payment_type_include),
-			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@payment_type_include) GROUP BY orders.payment_type) AS q),
+			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@payment_type_include) 
+				AND (@need_terminal = 0 OR need_terminal = @need_terminal) GROUP BY orders.payment_type) AS q),
 			0
 		) AS included_payment_types,
 		IF(
 			'0' NOT IN (@payment_type_exclude),
-			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@payment_type_exclude) GROUP BY orders.payment_type) AS q),
+			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@payment_type_exclude) 
+				AND (@need_terminal = 0 OR need_terminal = @need_terminal) GROUP BY orders.payment_type) AS q),
 			0
 		) AS excluded_payment_types,
 		IF(
@@ -994,6 +1000,9 @@ FROM
           <QueryParameter Name="product_group_exclude">
             <Value>={?product_group_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="need_terminal">
+            <Value>Parameters!need_terminal</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
@@ -1052,7 +1061,7 @@ FROM
 		orders.delivery_date &gt;= @start_date
 		AND orders.delivery_date &lt;= @end_date
 		AND !orders.is_contract_closer
-		
+		AND (@need_terminal = 0 OR need_terminal = @need_terminal)
 		AND ( (0 IN (@counterparty_include) AND 0 IN (@counterparty_exclude)) OR EXISTS
 		(
 			SELECT * FROM order_items
@@ -1174,6 +1183,9 @@ FROM
           </QueryParameter>
           <QueryParameter Name="product_group_exclude">
             <Value>={?product_group_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="need_terminal">
+            <Value>=Parameters!need_terminal</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1389,14 +1401,24 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="product_group_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="need_terminal">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
