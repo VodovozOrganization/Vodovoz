@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
@@ -21,12 +22,17 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentForAdvancePaymentViewModel : EntityTabViewModelBase<OrderWithoutShipmentForAdvancePayment>, ITdiTabAddedNotifier
 	{
+		private readonly IEmployeeService employeeService;
+		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		
 		private object selectedItem;
 		public object SelectedItem {
 			get => selectedItem;
@@ -43,8 +49,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public OrderWithoutShipmentForAdvancePaymentViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
-			ICommonServices commonServices) : base(uowBuilder, uowFactory, commonServices)
+			ICommonServices commonServices,
+			IEmployeeService employeeService,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory) : base(uowBuilder, uowFactory, commonServices)
 		{
+			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			
 			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			
 			if (uowBuilder.IsNewEntity)
@@ -96,7 +109,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 					nomenclatureFilter,
 					UnitOfWorkFactory,
-					ServicesConfig.CommonServices
+					ServicesConfig.CommonServices,
+					employeeService,
+					nomenclatureSelectorFactory,
+					counterpartySelectorFactory
 				) {
 					SelectionMode = JournalSelectionMode.Single,
 				};

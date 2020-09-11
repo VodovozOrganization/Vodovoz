@@ -26,13 +26,14 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		private readonly ICommonServices commonServices;
 		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
-		private readonly IEmployeeService employeeService;
 		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
-
+		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
+		public IEmployeeService EmployeeService { get; }
+		
 		public ComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
@@ -42,15 +43,17 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IFilePickerService filePickerService,
-			ISubdivisionRepository subdivisionRepository
+			ISubdivisionRepository subdivisionRepository,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory
 			) : base(uowBuilder, uowFactory, commonServices)
 		{
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
@@ -132,7 +135,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public Employee CurrentEmployee {
 			get {
 				if(currentEmployee == null) {
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
+					currentEmployee = EmployeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
 				}
 				return currentEmployee;
 			}
@@ -159,7 +162,7 @@ namespace Vodovoz.ViewModels.Complaints
 						this,
 						UoW,
 						filePickerService,
-						employeeService,
+						EmployeeService,
 						CommonServices,
 						employeeSelectorFactory
 					);
@@ -281,7 +284,7 @@ namespace Vodovoz.ViewModels.Complaints
 					var fineJournalViewModel = new FinesJournalViewModel(
 						fineFilter,
 						undeliveryViewOpener,
-						employeeService,
+						EmployeeService,
 						employeeSelectorFactory,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices
@@ -315,7 +318,7 @@ namespace Vodovoz.ViewModels.Complaints
 						EntityUoWBuilder.ForCreate(),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						undeliveryViewOpener,
-						employeeService,
+						EmployeeService,
 						employeeSelectorFactory,
 						CommonServices
 					);

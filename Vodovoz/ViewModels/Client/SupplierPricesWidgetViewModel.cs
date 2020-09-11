@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using QS.Commands;
-using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Search;
 using QS.Services;
 using QS.Tdi;
@@ -11,25 +11,38 @@ using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewModels.Client
 {
 	public class SupplierPricesWidgetViewModel : EntityWidgetViewModelBase<Counterparty>
 	{
-		readonly ITdiTab dialogTab;
-
+		private readonly ITdiTab dialogTab;
+		private readonly IEmployeeService employeeService;
+		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		public event EventHandler ListContentChanged;
 
 		public IJournalSearch Search { get; private set; }
 
-		public SupplierPricesWidgetViewModel(Counterparty entity, IUnitOfWork uow, ITdiTab dialogTab, ICommonServices commonServices) : base(entity, commonServices)
+		public SupplierPricesWidgetViewModel(Counterparty entity, 
+		                                     IUnitOfWork uow, 
+		                                     ITdiTab dialogTab, 
+		                                     ICommonServices commonServices,
+		                                     IEmployeeService employeeService,
+		                                     IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+		                                     IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory) : base(entity, commonServices)
 		{
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
+			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			
 			CreateCommands();
 			RefreshPrices();
+			
 			Search = new SearchViewModel();
 			Search.OnSearch += (sender, e) => RefreshPrices();
 			Entity.ObservableSuplierPriceItems.ElementAdded += (aList, aIdx) => RefreshPrices();
@@ -75,7 +88,10 @@ namespace Vodovoz.ViewModels.Client
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices
+						CommonServices,
+						employeeService,
+						nomenclatureSelectorFactory,
+						counterpartySelectorFactory
 					) {
 						SelectionMode = JournalSelectionMode.Single,
 						ExcludingNomenclatureIds = existingNomenclatures.ToArray()

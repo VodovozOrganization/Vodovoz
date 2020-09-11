@@ -679,6 +679,10 @@ namespace Vodovoz.Domain.Goods
 			return false;
 		}
 
+		public void RemoveWarehouse(Warehouse warehouse) {
+			ObservableWarehouses.Remove(warehouse);
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation

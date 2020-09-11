@@ -68,6 +68,7 @@ using QS.Tdi;
 using QS.Tools;
 using Vodovoz.Infrastructure;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels;
 using Vodovoz.JournalViewModels;
@@ -377,14 +378,24 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionNomenclatureActivated(object sender, EventArgs e)
-	{
+	protected void OnActionNomenclatureActivated(object sender, EventArgs e) {
+		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+			new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(
+				ServicesConfig.CommonServices);
+		
+		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+				ServicesConfig.CommonServices);
+
 		tdiMain.OpenTab(
 			() => {
 				return new NomenclaturesJournalViewModel(
 					new NomenclatureFilterViewModel() { HidenByDefault = true },
 					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices
+					ServicesConfig.CommonServices,
+					VodovozGtkServicesConfig.EmployeeService,
+					nomenclatureSelectorFactory,
+					counterpartySelectorFactory
 				);
 			}
 		);
@@ -708,6 +719,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
 		IEntityAutocompleteSelectorFactory employeeSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFilePickerService filePickerService = new GtkFilePicker();
@@ -721,9 +733,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 					VodovozGtkServicesConfig.EmployeeService,
 					employeeSelectorFactory,
 					counterpartySelectorFactory,
+					nomenclatureSelectorFactory,
 					routeListItemRepository,
 					SubdivisionParametersProvider.Instance,
-					EmployeeSingletonRepository.GetInstance(),
 					new ComplaintFilterViewModel(
 						ServicesConfig.CommonServices,
 						subdivisionRepository,
@@ -1309,10 +1321,16 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e)
 	{
+		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
+		
 		tdiMain.AddTab(
 			new PromotionalSetsJournalViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				VodovozGtkServicesConfig.EmployeeService,
+				counterpartySelectorFactory,
+				nomenclatureSelectorFactory
 			)
 		);
 	}

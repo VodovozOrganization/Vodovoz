@@ -36,11 +36,13 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.EntityRepositories.Store;
 using QS.Project.Journal;
+using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
@@ -304,6 +306,9 @@ public partial class MainWindow : Window
 
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e)
 	{
+		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
+		
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
 			() => new RequestToSupplierViewModel(
@@ -311,21 +316,28 @@ public partial class MainWindow : Window
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
-				new SupplierPriceItemsRepository()
+				new SupplierPriceItemsRepository(),
+				counterpartySelectorFactory,
+				nomenclatureSelectorFactory
 			)
 		);
 	}
 
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
 	{
-		IEntitySelectorFactory nomenclatureSelectorFactory = new DefaultEntitySelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices);
+		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
+		//IEntitySelectorFactory nomenclatureSelectorFactory = new DefaultEntitySelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices);
 		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(nomenclatureSelectorFactory);
+
 		var requestsJournal = new RequestsToSuppliersJournalViewModel(
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
-			new SupplierPriceItemsRepository()
+			new SupplierPriceItemsRepository(),
+			counterpartySelectorFactory,
+			nomenclatureSelectorFactory
 		);
 		tdiMain.AddTab(requestsJournal);
 	}
@@ -796,8 +808,16 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
+		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
+
 		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel();
-		var ordersJournal = new OrderJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, QS.Project.Services.ServicesConfig.CommonServices);
+		var ordersJournal = new OrderJournalViewModel(filter, 
+													  UnitOfWorkFactory.GetDefaultFactory, 
+													  QS.Project.Services.ServicesConfig.CommonServices,
+													  VodovozGtkServicesConfig.EmployeeService,
+													  nomenclatureSelectorFactory,
+													  counterpartySelectorFactory);
 		tdiMain.AddTab(ordersJournal);
 	}
 

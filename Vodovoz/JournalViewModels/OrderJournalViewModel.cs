@@ -25,20 +25,31 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class OrderJournalViewModel : FilterableMultipleEntityJournalViewModelBase<OrderJournalNode, OrderJournalFilterViewModel>
 	{
 		private readonly ICommonServices commonServices;
+		private readonly IEmployeeService employeeService;
+		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 
 		public OrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
 			IUnitOfWorkFactory unitOfWorkFactory, 
-			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			IEmployeeService employeeService,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-
+			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			
 			TabName = "Журнал заказов";
 
 			RegisterOrders();
@@ -525,13 +536,19 @@ namespace Vodovoz.JournalViewModels
 					() => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices
+						commonServices,
+						employeeService,
+						nomenclatureSelectorFactory,
+						counterpartySelectorFactory
 					),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices
+						commonServices,
+						employeeService,
+						nomenclatureSelectorFactory,
+						counterpartySelectorFactory
 					),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),

@@ -16,7 +16,8 @@ namespace Vodovoz.ViewModels.Complaints
 	public class CreateComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
-
+		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
+		public IEmployeeService EmployeeService { get; }
 		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 
 		public CreateComplaintViewModel(
@@ -26,12 +27,14 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
-			ICommonServices commonServices
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory
 			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.Checking);
@@ -43,7 +46,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public Employee CurrentEmployee {
 			get {
 				if(currentEmployee == null) {
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+					currentEmployee = EmployeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
 				return currentEmployee;
 			}
@@ -55,7 +58,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 
 		private List<ComplaintSource> complaintSources;
-		private readonly IEmployeeService employeeService;
 		private readonly ISubdivisionRepository subdivisionRepository;
 
 		public IEnumerable<ComplaintSource> ComplaintSources {

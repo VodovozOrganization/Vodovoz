@@ -1432,6 +1432,9 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ProductGroupFilterView.cs" />
     <Compile Include="JournalViewers\ProductGroupView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.ProductGroupView.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureViewModel.cs" />
+    <Compile Include="Views\Goods\NomenclatureView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1677,7 +1680,7 @@
     <Folder Include="ViewModels\FuelDocuments\" />
     <Folder Include="icons\buttons\NullableCheckBox\" />
     <Folder Include="ViewWidgets\AdvancedWageParameterViews\" />
-    <Folder Include="Views\Warehouse\" />
+    <Folder Include="Views\Warehouses\" />
     <Folder Include="TempAdapters\" />
     <Folder Include="Views\ForAdministrators\" />
     <Folder Include="Views\Orders\" />
@@ -1703,6 +1706,8 @@
     <Folder Include="ViewModels\Orders\OrdersWithoutShipment\" />
     <Folder Include="Dialogs\Email\" />
     <Folder Include="Views\Cash\" />
+    <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\Goods\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

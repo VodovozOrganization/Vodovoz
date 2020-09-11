@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
@@ -11,12 +12,20 @@ namespace Vodovoz.ViewModels.Orders
 {
 	public class AddFixPriceActionViewModel : UoWWidgetViewModelBase, ICreationControl
 	{
-		public AddFixPriceActionViewModel(IUnitOfWork UoW, PromotionalSet promotionalSet, ICommonServices commonServices)
+		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
+		
+		public AddFixPriceActionViewModel(IUnitOfWork UoW, 
+		                                  PromotionalSet promotionalSet, 
+		                                  ICommonServices commonServices,
+		                                  IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory) 
 		{
+			NomenclatureSelectorFactory = nomenclatureSelectorFactory ??
+			                              throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			
 			CreateCommands();
 			PromotionalSet = promotionalSet;
 			CommonServices = commonServices;
-			base.UoW = UoW;
+			this.UoW = UoW;
 		}
 
 		public PromotionalSet PromotionalSet { get; set; }

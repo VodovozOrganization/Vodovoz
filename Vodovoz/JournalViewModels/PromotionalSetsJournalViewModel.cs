@@ -5,8 +5,10 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Orders;
 
@@ -15,13 +17,24 @@ namespace Vodovoz.JournalViewModels
 	public class PromotionalSetsJournalViewModel : SingleEntityJournalViewModelBase<PromotionalSet, PromotionalSetViewModel, PromotionalSetJournalNode>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-
-		public PromotionalSetsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false)
+		private readonly IEmployeeService employeeService;
+		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		
+		public PromotionalSetsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
+		                                       ICommonServices commonServices,
+		                                       IEmployeeService employeeService,
+		                                       IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+		                                       IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+		                                       bool hideJournalForOpenDialog = false, 
+		                                       bool hideJournalForCreateDialog = false)
 			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-
+			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			
 			TabName = "Рекламные наборы";
 
 			var threadLoader = DataLoader as ThreadDataLoader<PromotionalSetJournalNode>;
@@ -55,13 +68,19 @@ namespace Vodovoz.JournalViewModels
 		protected override Func<PromotionalSetViewModel> CreateDialogFunction => () => new PromotionalSetViewModel(
 			EntityUoWBuilder.ForCreate(),
 			unitOfWorkFactory,
-			commonServices
+			commonServices,
+			employeeService,
+			counterpartySelectorFactory,
+			nomenclatureSelectorFactory
 		);
 
 		protected override Func<PromotionalSetJournalNode, PromotionalSetViewModel> OpenDialogFunction => node => new PromotionalSetViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
 			unitOfWorkFactory,
-			commonServices
+			commonServices,
+			employeeService,
+			counterpartySelectorFactory,
+			nomenclatureSelectorFactory
 	   	);
 
 		protected override void CreateNodeActions()
