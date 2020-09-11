@@ -278,6 +278,12 @@ namespace Vodovoz
 			//Подписываемся на изменение товара, для обновления количества оборудования в доп. соглашении
 			Entity.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged_ChangeCount;
 			Entity.ObservableOrderEquipments.ElementChanged += ObservableOrderEquipments_ElementChanged_ChangeCount;
+			
+			Entity.ObservableOrderDepositItems.ElementAdded += ObservableOrderDepositItemsOnElementAdded;
+			Entity.ObservableOrderDepositItems.ElementRemoved += ObservableOrderDepositItemsOnElementRemoved;
+			
+			Entity.ObservableOrderEquipments.ElementAdded += ObservableOrderEquipmentsOnElementAdded;
+			Entity.ObservableOrderEquipments.ElementRemoved += ObservableOrderEquipmentsOnElementRemoved;
 
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
 			enumSignatureType.Binding.AddBinding(Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource();
@@ -378,6 +384,9 @@ namespace Vodovoz
 				lblDeliveryPoint.Sensitive = referenceDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
 				Entity.UpdateClientDefaultParam();
+				
+				if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+					OnFormOrderActions();
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
@@ -2029,7 +2038,7 @@ namespace Vodovoz
 				Entity.SetProxyForOrder();
 			}
 			
-			if(Entity.DeliveryDate.HasValue && Entity.OrderStatus == OrderStatus.NewOrder)
+			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
 		}
 
@@ -2045,7 +2054,7 @@ namespace Vodovoz
 			Entity.ChangeOrderContract();
 			Entity.ChangeWaterAgreementDeliveryPointChanged();
 			
-			if(Entity.DeliveryDate.HasValue && Entity.OrderStatus == OrderStatus.NewOrder)
+			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
 		}
 
@@ -2282,6 +2291,9 @@ namespace Vodovoz
 		private void OnEntryBottlesToReturnChanged(object sender, EventArgs e)
 		{
 			HboxReturnTareReasonCategoriesShow();
+			
+			if(Entity.OrderStatus == OrderStatus.NewOrder)
+				OnFormOrderActions();
 		}
 
 		private void HboxReturnTareReasonCategoriesShow()
@@ -2411,23 +2423,27 @@ namespace Vodovoz
 
 		void Entity_ObservableOrderItems_ElementAdded(object aList, int[] aIdx)
 		{
+			FixPrice(aIdx[0]);
+			
+			if (Entity.OrderStatus == OrderStatus.NewOrder) {
+				Entity.CheckAndSetOrderIsService();
+				OnFormOrderActions();
+			}
+
 			treeAnyGoodsFirstColWidth = treeItems.Columns.First(x => x.Title == "Номенклатура").Width;
 			treeItems.ExposeEvent += TreeAnyGoods_ExposeEvent;
 			//Выполнение в случае если размер не поменяется
 			EditGoodsCountCellOnAdd(treeItems);
-			FixPrice(aIdx[0]);
 		}
 		
 		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			HboxReturnTareReasonCategoriesShow();
 			
-			int paidDeliveryNomenclatureId = int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"));
-
-			var item = aObject as OrderItem;
-			
-			if(item.Nomenclature.Id != paidDeliveryNomenclatureId && item.Nomenclature.Category == NomenclatureCategory.water)
-				Entity.CalculateDeliveryPrice();
+			if (Entity.OrderStatus == OrderStatus.NewOrder) {
+				Entity.CheckAndSetOrderIsService();
+				OnFormOrderActions();
+			}
 		}
 
 		void ObservableOrderDocuments_ListChanged(object aList)
@@ -2520,8 +2536,7 @@ namespace Vodovoz
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
 						HboxReturnTareReasonCategoriesShow();
 					
-					if(oItem != null && oItem.Count > 0 && oItem.Nomenclature.Category == NomenclatureCategory.water 
-					   && Entity.OrderStatus == OrderStatus.NewOrder)
+					if(oItem != null && oItem.Count > 0 && Entity.OrderStatus == OrderStatus.NewOrder)
 						OnFormOrderActions();
 					
 					if(oItem == null || oItem.PaidRentEquipment == null) {
@@ -2554,7 +2569,27 @@ namespace Vodovoz
 				}
 			}
 		}
+		
+		private void ObservableOrderDepositItemsOnElementRemoved(object alist, int[] aidx, object aobject) {
+			if(Entity.OrderStatus == OrderStatus.NewOrder)
+				OnFormOrderActions();
+		}
 
+		private void ObservableOrderDepositItemsOnElementAdded(object alist, int[] aidx) {
+			if(Entity.OrderStatus == OrderStatus.NewOrder)
+				OnFormOrderActions();
+		}
+
+		private void ObservableOrderEquipmentsOnElementRemoved(object alist, int[] aidx, object aobject) {
+			if(Entity.OrderStatus == OrderStatus.NewOrder)
+				OnFormOrderActions();
+		}
+
+		private void ObservableOrderEquipmentsOnElementAdded(object alist, int[] aidx) {
+			if(Entity.OrderStatus == OrderStatus.NewOrder)
+				OnFormOrderActions();
+		}
+		
 		/// <summary>
 		/// Меняет количество оборудования в списке оборудования заказа, в списке 
 		/// товаров заказа, в списке оборудования дополнитульного соглашения и 
