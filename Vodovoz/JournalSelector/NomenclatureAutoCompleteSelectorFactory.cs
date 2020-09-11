@@ -3,9 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
-using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Journals.JournalViewModels;
 
 namespace Vodovoz.JournalSelector
 {
@@ -13,19 +11,26 @@ namespace Vodovoz.JournalSelector
 			NomenclatureSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>, IEntityAutocompleteSelectorFactory
 		where NomenclaturesJournalViewModel : JournalViewModelBase, IEntityAutocompleteSelector
 	{
-		public NomenclatureAutoCompleteSelectorFactory(ICommonServices commonServices, NomenclatureFilterViewModel filterViewModel) : base(commonServices, filterViewModel)
+		public NomenclatureAutoCompleteSelectorFactory(
+			ICommonServices commonServices, 
+			NomenclatureFilterViewModel filterViewModel,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory) 
+			: base(commonServices, filterViewModel, counterpartySelectorFactory)
 		{
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			filter = filterViewModel;
+			//this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			//filter = filterViewModel;
 		}
 
-		private readonly ICommonServices commonServices;
-		private NomenclatureFilterViewModel filter;
+		//private readonly ICommonServices commonServices;
+		//private readonly NomenclatureFilterViewModel filter;
 
 		public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
 		{
 			NomenclaturesJournalViewModel selectorViewModel = (NomenclaturesJournalViewModel)Activator
-			.CreateInstance(typeof(NomenclaturesJournalViewModel), new object[] { filter, UnitOfWorkFactory.GetDefaultFactory, commonServices });
+			.CreateInstance(typeof(NomenclaturesJournalViewModel), new object[] { filter, 
+				UnitOfWorkFactory.GetDefaultFactory, commonServices, VodovozGtkServicesConfig.EmployeeService, 
+				this, counterpartySelectorFactory});
+			
 			selectorViewModel.SelectionMode = JournalSelectionMode.Single;
 			return selectorViewModel;
 		}

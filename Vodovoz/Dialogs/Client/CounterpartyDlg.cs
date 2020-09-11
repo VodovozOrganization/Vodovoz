@@ -19,7 +19,6 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Repositories;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -28,13 +27,26 @@ using Gtk;
 using Vodovoz.Domain.Goods;
 using QS.Project.Services;
 using QS.Tdi;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
 	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+		
+		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
+
+		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+			new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel,
+				NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
+		
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.CounterpartyView };
@@ -89,7 +101,14 @@ namespace Vodovoz
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
 			commentsview4.UoW = UoW;
-			supplierPricesWidget.ViewModel = new ViewModels.Client.SupplierPricesWidgetViewModel(Entity, UoW, this, QS.Project.Services.ServicesConfig.CommonServices);
+			supplierPricesWidget.ViewModel =
+				new ViewModels.Client.SupplierPricesWidgetViewModel(Entity, 
+																	UoW, 
+																	this, 
+																	ServicesConfig.CommonServices,
+																	employeeService,
+																	counterpartySelectorFactory,
+																	nomenclatureSelectorFactory);
 			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			validatedINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();

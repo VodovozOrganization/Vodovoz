@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using EmailService;
 using fyiReporting.RDL;
-using fyiReporting.RdlGtkViewer;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
@@ -57,7 +56,6 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalFilters;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repositories;
@@ -71,6 +69,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Core;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Repository;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using Vodovoz.JournalViewModels;
@@ -93,6 +92,16 @@ namespace Vodovoz
 
 		Order templateOrder;
 
+		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
+
+		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+			new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel,
+				NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
+		
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
@@ -1309,7 +1318,10 @@ namespace Vodovoz
 			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				employeeService,
+				nomenclatureSelectorFactory,
+				counterpartySelectorFactory
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};
@@ -1344,7 +1356,10 @@ namespace Vodovoz
 			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				employeeService,
+				nomenclatureSelectorFactory,
+				counterpartySelectorFactory
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};

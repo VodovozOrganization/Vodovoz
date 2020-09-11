@@ -5,6 +5,7 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Utilities;
 using QS.ViewModels;
@@ -22,10 +23,12 @@ namespace Vodovoz.ViewModels.Suppliers
 {
 	public class RequestToSupplierViewModel : EntityTabViewModelBase<RequestToSupplier>
 	{
-		readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
-		readonly IEmployeeService employeeService;
+		private readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
+		private readonly IEmployeeService employeeService;
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		readonly ICommonServices commonServices;
+		private readonly ICommonServices commonServices;
+		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		public event EventHandler ListContentChanged;
 
 		public RequestToSupplierViewModel(
@@ -33,16 +36,22 @@ namespace Vodovoz.ViewModels.Suppliers
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			ISupplierPriceItemsRepository supplierPriceItemsRepository
+			ISupplierPriceItemsRepository supplierPriceItemsRepository,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory
 		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
+			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			
 			CreateCommands();
 			RefreshSuppliers();
 			ConfigureEntityPropertyChanges();
+			
 			Entity.ObservableRequestingNomenclatureItems.ElementAdded += (aList, aIdx) => RefreshSuppliers();
 			Entity.ObservableRequestingNomenclatureItems.ListContentChanged += (aList, aIdx) => RefreshSuppliers();
 			Entity.ObservableRequestingNomenclatureItems.ElementRemoved += (aList, aIdx, aObject) => RefreshSuppliers();
@@ -225,7 +234,10 @@ namespace Vodovoz.ViewModels.Suppliers
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 						filter,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices
+						CommonServices,
+						employeeService,
+						nomenclatureSelectorFactory,
+						counterpartySelectorFactory
 					) {
 						SelectionMode = JournalSelectionMode.Single,
 						ExcludingNomenclatureIds = existingNomenclatures.ToArray()
@@ -282,7 +294,9 @@ namespace Vodovoz.ViewModels.Suppliers
 						unitOfWorkFactory,
 						commonServices,
 						employeeService,
-						supplierPriceItemsRepository
+						supplierPriceItemsRepository,
+						counterpartySelectorFactory,
+						nomenclatureSelectorFactory
 					);
 					foreach(var item in array) {
 						if(item is RequestToSupplierItem requestItem) {

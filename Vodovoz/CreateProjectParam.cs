@@ -97,7 +97,9 @@ using Vodovoz.Dialogs.Email;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Goods;
 using Vodovoz.Views.Cash;
+using Vodovoz.Views.Goods;
 using Vodovoz.Views.Orders;
 
 namespace Vodovoz
@@ -172,6 +174,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PaymentByCardViewModel, PaymentByCardView>()
 				.RegisterWidgetForTabViewModel<RouteListAnalysisViewModel, RouteListAnalysisView>()
 				.RegisterWidgetForTabViewModel<LateArrivalReasonViewModel, LateArrivalReasonView>()
+				.RegisterWidgetForTabViewModel<NomenclatureViewModel, NomenclatureView>()
 				;
 
 			//Регистрация виджетов

@@ -39,11 +39,11 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly IEmployeeService employeeService;
 		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IRouteListItemRepository routeListItemRepository;
 		private readonly ISubdivisionService subdivisionService;
-		private readonly IEmployeeRepository employeeRepository;
 		private readonly IReportViewOpener reportViewOpener;
 		private readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkDlgOpener;
 
@@ -60,9 +60,9 @@ namespace Vodovoz.Journals.JournalViewModels
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionService subdivisionService,
-			IEmployeeRepository employeeRepository,
 			ComplaintFilterViewModel filterViewModel,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
@@ -76,11 +76,11 @@ namespace Vodovoz.Journals.JournalViewModels
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			this.subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
-			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			this.gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 
@@ -94,9 +94,9 @@ namespace Vodovoz.Journals.JournalViewModels
 			FinishJournalConfiguration();
 
 			FilterViewModel.SubdivisionService = subdivisionService;
-			FilterViewModel.EmployeeRepository = employeeRepository;
+			FilterViewModel.EmployeeService = employeeService;
 
-			var currentEmployeeSubdivision = employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision;
+			var currentEmployeeSubdivision = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
 			if(currentEmployeeSubdivision != null) {
 				if(FilterViewModel.SubdivisionService.GetOkkId() != currentEmployeeSubdivision.Id)
 					FilterViewModel.Subdivision = currentEmployeeSubdivision;
@@ -375,7 +375,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						subdivisionRepository,
-						commonServices
+						commonServices,
+						nomenclatureSelectorFactory
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -387,7 +388,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						filePickerService,
-						subdivisionRepository
+						subdivisionRepository,
+						nomenclatureSelectorFactory
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -416,7 +418,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						filePickerService,
-						subdivisionRepository
+						subdivisionRepository,
+						nomenclatureSelectorFactory
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -503,7 +506,8 @@ namespace Vodovoz.Journals.JournalViewModels
 								employeeSelectorFactory,
 								counterpartySelectorFactory,
 								filePickerService,
-								subdivisionRepository
+								subdivisionRepository,
+								nomenclatureSelectorFactory
 							);
 							currentComplaintVM.AddFineCommand.Execute(this);
 						}
@@ -529,7 +533,8 @@ namespace Vodovoz.Journals.JournalViewModels
 								employeeSelectorFactory,
 								counterpartySelectorFactory,
 								filePickerService,
-								subdivisionRepository
+								subdivisionRepository,
+								nomenclatureSelectorFactory
 							);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))
