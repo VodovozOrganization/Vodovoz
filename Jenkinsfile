@@ -27,6 +27,7 @@ node {
       sh 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
    }
    stage('Build') {
+        export FrameworkPathOverride=$(dirname $(which mono))/../lib/mono/4.5/
         sh 'msbuild /p:Configuration=DebugWin /p:Platform=x86 Vodovoz/Vodovoz.sln'
         fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
         zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
