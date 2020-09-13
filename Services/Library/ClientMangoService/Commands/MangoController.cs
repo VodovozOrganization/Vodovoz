@@ -35,8 +35,6 @@ namespace ClientMangoService.Commands
 		private string sign;
 		private string json;
 		private string vpbx_api_salt;
-
-
 		private JsonSerializerSettings settings = new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore };
 
 		/// <param name="vpbx_api_key">Уникальный код вашей АТС.</param>
@@ -171,10 +169,10 @@ namespace ClientMangoService.Commands
 		/// <param name="commandId">Не обязательный параметр , обозначающий id комнды (может быть любым , по умолчанию : имя метода)</param>
 		public bool HangUp(string call_id, [CallerMemberName]string commandId = "")
 		{
-			string command = "vpbx/result/call/hangup";
+			string command = "vpbx/commands/call/hangup";
 
 			HangUpRequest options = new HangUpRequest();
-			options.command_id = "Hangup" + call_id;
+			options.command_id = commandId;
 			options.call_id = call_id;
 			string json = JsonConvert.SerializeObject(options,settings);
 
