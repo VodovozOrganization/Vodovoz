@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using NLog;
 using VodovozMangoService.Calling;
 using VodovozMangoService.DTO;
 
@@ -11,7 +11,7 @@ namespace VodovozMangoService.Controllers
     [Route("mango/[controller]")]
     public class EventsController : ControllerBase
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger ();
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
         public static Dictionary<string, CallInfo> Calls = new Dictionary<string, CallInfo>();
 
@@ -38,9 +38,12 @@ namespace VodovozMangoService.Controllers
                     return;
                 if (message.CallState == CallState.Disconnected)
                     Calls.Remove(message.call_id);
+                
+                call.LastEvent = message;
+                if (!String.IsNullOrEmpty(message.from.taken_from_call_id) &&
+                    Calls.ContainsKey(message.from.taken_from_call_id))
+                    call.OnHoldCall = Calls[message.from.taken_from_call_id];
             }
-
-            call.LastEvent = message;
             Program.NotificationServiceInstance.NewEvent(call);
         }
     }

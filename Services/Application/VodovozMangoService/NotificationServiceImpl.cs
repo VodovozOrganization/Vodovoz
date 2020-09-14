@@ -99,6 +99,16 @@ namespace VodovozMangoService
 			 	State = info.LastEvent.CallState,
 			    CallFrom = caller
 			};
+
+			if (info.OnHoldCall != null)
+			{
+				message.IsTransfer = true;
+				if (String.IsNullOrEmpty(info.OnHoldCall.LastEvent.from.extension))
+					message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.from.number);
+				else
+					message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.from.extension);
+			}
+			
 #if DEBUG
 			logger.Debug($"Отправляем {subscriptions.Count} подписчикам, сообщение: {message}.");
 #endif

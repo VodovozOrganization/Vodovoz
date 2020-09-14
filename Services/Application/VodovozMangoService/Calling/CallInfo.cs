@@ -15,5 +15,6 @@ namespace VodovozMangoService.Calling
 
         public uint Seq => LastEvent?.seq ?? 0;
         public CallEvent LastEvent;
+        public CallInfo OnHoldCall;
     }
 }
