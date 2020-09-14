@@ -3,6 +3,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
 using SmsPaymentService;
+using Vodovoz.Services;
 
 namespace VodovozSmsPaymentService
 {
@@ -10,18 +11,20 @@ namespace VodovozSmsPaymentService
 	{
 		private readonly IPaymentWorker paymentWorker;
 		private readonly IDriverPaymentService driverPaymentService;
+		private readonly ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider;
 
-		public SmsPaymentServiceInstanceProvider(IPaymentWorker paymentWorker, IDriverPaymentService driverPaymentService)
+		public SmsPaymentServiceInstanceProvider(IPaymentWorker paymentWorker, IDriverPaymentService driverPaymentService, ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider)
 		{
 			this.paymentWorker = paymentWorker ?? throw new ArgumentNullException(nameof(paymentWorker));
 			this.driverPaymentService = driverPaymentService ?? throw new ArgumentNullException(nameof(driverPaymentService));
+			this.smsPaymentServiceParametersProvider = smsPaymentServiceParametersProvider ?? throw new ArgumentNullException(nameof(smsPaymentServiceParametersProvider));
 		}
 
 		#region IInstanceProvider implementation
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new SmsPaymentService.SmsPaymentService(paymentWorker, driverPaymentService);
+			return new SmsPaymentService.SmsPaymentService(paymentWorker, driverPaymentService, smsPaymentServiceParametersProvider);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)
