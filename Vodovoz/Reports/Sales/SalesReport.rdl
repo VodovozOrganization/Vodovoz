@@ -342,8 +342,8 @@
         <Width>223.58pt</Width>
         <Value>=First({criterions}, "Criterions")</Value>
         <ZIndex>1</ZIndex>
-        <Left>335.6pt</Left>
-        <Top>119.1pt</Top>
+        <Left>335.60pt</Left>
+        <Top>119.10pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -409,7 +409,7 @@
           </TableRows>
         </Details>
         <Left>7.9pt</Left>
-        <Top>140.9pt</Top>
+        <Top>152.9pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -463,6 +463,22 @@
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.51pt</Height>
+        <Width>223.58pt</Width>
+        <Value>="Количество заказов: " + Countdistinct({order_id}, "Sales")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>335.5pt</Left>
+        <Top>135.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <CanShrink>true</CanShrink>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -492,7 +508,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	T.counterparty,
@@ -698,7 +714,7 @@ GROUP BY nomenclature_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -734,7 +750,7 @@ GROUP BY nomenclature_id
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -1005,7 +1021,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -1013,7 +1029,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="bottles">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	SUM(t.plan) AS plan,
@@ -1189,7 +1205,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="plan">
           <DataField>plan</DataField>
         </Field>
@@ -1211,7 +1227,7 @@ FROM
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
