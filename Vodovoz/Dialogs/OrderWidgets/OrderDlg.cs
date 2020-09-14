@@ -2292,7 +2292,7 @@ namespace Vodovoz
 		{
 			HboxReturnTareReasonCategoriesShow();
 			
-			if(Entity.OrderStatus == OrderStatus.NewOrder)
+			if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
 		}
 
@@ -2425,7 +2425,7 @@ namespace Vodovoz
 		{
 			FixPrice(aIdx[0]);
 			
-			if (Entity.OrderStatus == OrderStatus.NewOrder) {
+			if (Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder) {
 				Entity.CheckAndSetOrderIsService();
 				OnFormOrderActions();
 			}
@@ -2440,7 +2440,7 @@ namespace Vodovoz
 		{
 			HboxReturnTareReasonCategoriesShow();
 			
-			if (Entity.OrderStatus == OrderStatus.NewOrder) {
+			if (Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder) {
 				Entity.CheckAndSetOrderIsService();
 				OnFormOrderActions();
 			}
@@ -2536,7 +2536,7 @@ namespace Vodovoz
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
 						HboxReturnTareReasonCategoriesShow();
 					
-					if(oItem != null && oItem.Count > 0 && Entity.OrderStatus == OrderStatus.NewOrder)
+					if(oItem != null && oItem.Count > 0 && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 						OnFormOrderActions();
 					
 					if(oItem == null || oItem.PaidRentEquipment == null) {
@@ -2571,22 +2571,22 @@ namespace Vodovoz
 		}
 		
 		private void ObservableOrderDepositItemsOnElementRemoved(object alist, int[] aidx, object aobject) {
-			if(Entity.OrderStatus == OrderStatus.NewOrder)
+			if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
 		}
 
 		private void ObservableOrderDepositItemsOnElementAdded(object alist, int[] aidx) {
-			if(Entity.OrderStatus == OrderStatus.NewOrder)
+			if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
 		}
 
 		private void ObservableOrderEquipmentsOnElementRemoved(object alist, int[] aidx, object aobject) {
-			if(Entity.OrderStatus == OrderStatus.NewOrder)
+			if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
 		}
 
 		private void ObservableOrderEquipmentsOnElementAdded(object alist, int[] aidx) {
-			if(Entity.OrderStatus == OrderStatus.NewOrder)
+			if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
 		}
 		
