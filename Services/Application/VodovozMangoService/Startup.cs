@@ -41,6 +41,7 @@ namespace VodovozMangoService
 
             app.UseHttpsRedirection();
 
+            app.UseMiddleware<PerformanceMiddleware>();
             app.UseRouting();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
