@@ -15,6 +15,7 @@ using QS.Project.DB;
 using QSProjectsLib;
 using QSSupportLib;
 using SmsPaymentService;
+using Vodovoz.Core.DataService;
 
 namespace VodovozSmsPaymentService
 {
@@ -99,12 +100,12 @@ namespace VodovozSmsPaymentService
 
 				ChannelFactory<IAndroidDriverService> channelFactory = new ChannelFactory<IAndroidDriverService>(
 					new BasicHttpBinding(),
-					string.Format("http://{0}:{1}/AndroidDriverService", driverServiceHostName, driverServicePort)
+					$"http://{driverServiceHostName}:{driverServicePort}/AndroidDriverService"
 				);
 				IDriverPaymentService driverPaymentService = new DriverPaymentService(channelFactory);
 				var paymentSender = new BitrixPaymentWorker(baseAddress);
 
-				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(paymentSender, driverPaymentService);
+				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(paymentSender, driverPaymentService, new BaseParametersProvider());
 
 				ServiceHost smsPaymentServiceHost = new SmsPaymentServiceHost(smsPaymentServiceInstanceProvider);
 				
