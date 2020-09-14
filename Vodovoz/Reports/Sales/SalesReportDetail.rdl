@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>190.6pt</Height>
+    <Height>227.0pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>20.29pt</Height>
@@ -645,7 +645,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>Фактически забрання тара</Value>
+                      <Value>Фактически забранная тара</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -677,7 +677,7 @@
           </TableRows>
         </Details>
         <Left>507.6pt</Left>
-        <Top>156.6pt</Top>
+        <Top>171.0pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -731,6 +731,20 @@
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox34" >
+        <Height>14.25pt</Height>
+        <Width>182.66pt</Width>
+        <Value>="Количество заказов: " + Countdistinct({order_id}, "Sales")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>628.74pt</Left>
+        <Top>153.20pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -760,7 +774,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     T.counterparty,
@@ -986,7 +1000,7 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -1305,7 +1319,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="bottles">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     SUM(t.plan) AS plan,
@@ -1481,7 +1495,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="plan">
           <DataField>plan</DataField>
         </Field>
@@ -1503,7 +1517,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
