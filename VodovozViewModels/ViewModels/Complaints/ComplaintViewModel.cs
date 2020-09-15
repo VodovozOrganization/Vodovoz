@@ -13,6 +13,8 @@ using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
@@ -33,6 +35,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		public IEmployeeService EmployeeService { get; }
+		public INomenclatureRepository NomenclatureRepository { get; }
+		public IUserRepository UserRepository { get; }
 		
 		public ComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -44,7 +48,9 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository
 			) : base(uowBuilder, uowFactory, commonServices)
 		{
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
@@ -54,6 +60,8 @@ namespace Vodovoz.ViewModels.Complaints
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;

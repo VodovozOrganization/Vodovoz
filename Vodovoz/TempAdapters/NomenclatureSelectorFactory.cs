@@ -6,11 +6,12 @@ using QS.Project.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 
@@ -41,13 +42,16 @@ namespace Vodovoz.TempAdapters
 			nomenclatureFilter.RestrictCategory = NomenclatureCategory.fuel;
 			nomenclatureFilter.RestrictArchive = false;
 			
+			var nomenclatureRepository = new NomenclatureRepository();
+			
 			var counterpartySelectorFactory =
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
 					ServicesConfig.CommonServices);
 			
 			var nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory);
+					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository,
+					UserSingletonRepository.GetInstance());
 
 			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
@@ -55,7 +59,9 @@ namespace Vodovoz.TempAdapters
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
 				nomenclatureSelectorFactory,
-				counterpartySelectorFactory
+				counterpartySelectorFactory,
+				nomenclatureRepository,
+				UserSingletonRepository.GetInstance()
 			);
 
 			vm.SelectionMode = JournalSelectionMode.Multiple;

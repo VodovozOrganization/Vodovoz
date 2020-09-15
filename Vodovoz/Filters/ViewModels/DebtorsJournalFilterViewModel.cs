@@ -13,6 +13,9 @@ using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.ViewModel;
 using Vodovoz.FilterViewModels.Goods;
 using QS.DomainModel.Entity;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Filters.ViewModels
@@ -128,23 +131,28 @@ namespace Vodovoz.Filters.ViewModels
 			}
 		}
 
-		private IEntityAutocompleteSelectorFactory nomenclatureVM;
-		public virtual IEntityAutocompleteSelectorFactory NomenclatureVM {
-			get {
-				if(nomenclatureVM == null) {
-					nomenclatureVM = new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
-				}
-				return nomenclatureVM;
-			}
-		}
-
 		private IEntityAutocompleteSelectorFactory counterpartyVM;
 		public virtual IEntityAutocompleteSelectorFactory CounterpartyVM {
 			get {
 				if(counterpartyVM == null) {
-					counterpartyVM = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+					counterpartyVM =
+						new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+							CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 				};
 				return counterpartyVM;
+			}
+		}
+		
+		private IEntityAutocompleteSelectorFactory nomenclatureVM;
+		public virtual IEntityAutocompleteSelectorFactory NomenclatureVM {
+			get {
+				if(nomenclatureVM == null) {
+					nomenclatureVM =
+						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartyVM,
+							new NomenclatureRepository(), UserSingletonRepository.GetInstance());
+				}
+				return nomenclatureVM;
 			}
 		}
 	}

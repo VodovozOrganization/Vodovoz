@@ -27,8 +27,11 @@ using Gtk;
 using Vodovoz.Domain.Goods;
 using QS.Project.Services;
 using QS.Tdi;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
@@ -38,15 +41,43 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		
 		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
+		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
 
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel,
-				NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
+		private  INomenclatureRepository nomenclatureRepository;
+		public virtual INomenclatureRepository NomenclatureRepository {
+			get {
+				if(nomenclatureRepository == null) {
+					nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository();
+				};
+				return nomenclatureRepository;
+			}
+		}
 		
+		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
+			get {
+				if(counterpartySelectorFactory == null) {
+					counterpartySelectorFactory =
+						new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+							CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+				};
+				return counterpartySelectorFactory;
+			}
+		}
+
+		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory {
+			get {
+				if(nomenclatureSelectorFactory == null) {
+					nomenclatureSelectorFactory =
+						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
+							NomenclatureRepository, userRepository);
+				}
+				return nomenclatureSelectorFactory;
+			}
+		}
+
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.CounterpartyView };
@@ -107,8 +138,10 @@ namespace Vodovoz
 																	this, 
 																	ServicesConfig.CommonServices,
 																	employeeService,
-																	counterpartySelectorFactory,
-																	nomenclatureSelectorFactory);
+																	CounterpartySelectorFactory,
+																	NomenclatureSelectorFactory,
+																	NomenclatureRepository,
+																	userRepository);
 			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			validatedINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();

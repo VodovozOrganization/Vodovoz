@@ -66,7 +66,9 @@ namespace Vodovoz.Views.Complaints
 												ServicesConfig.CommonServices,
 												ViewModel.EmployeeService,
 												ViewModel.NomenclatureSelectorFactory,
-												ViewModel.CounterpartySelectorFactory);
+												ViewModel.CounterpartySelectorFactory,
+												ViewModel.NomenclatureRepository,
+												ViewModel.UserRepository);
 			});
 
 			entryOrder.SetEntityAutocompleteSelectorFactory(orderSelectorFactory);

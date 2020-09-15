@@ -13,17 +13,22 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Suppliers
 {
 	public class RequestToSupplierViewModel : EntityTabViewModelBase<RequestToSupplier>
 	{
 		private readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
+		private readonly INomenclatureRepository nomenclatureRepository;
+		private readonly IUserRepository userRepository;
 		private readonly IEmployeeService employeeService;
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ICommonServices commonServices;
@@ -38,13 +43,17 @@ namespace Vodovoz.ViewModels.Suppliers
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository
 		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
+			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			
@@ -237,7 +246,9 @@ namespace Vodovoz.ViewModels.Suppliers
 						CommonServices,
 						employeeService,
 						nomenclatureSelectorFactory,
-						counterpartySelectorFactory
+						counterpartySelectorFactory,
+						nomenclatureRepository,
+						userRepository
 					) {
 						SelectionMode = JournalSelectionMode.Single,
 						ExcludingNomenclatureIds = existingNomenclatures.ToArray()
@@ -296,7 +307,9 @@ namespace Vodovoz.ViewModels.Suppliers
 						employeeService,
 						supplierPriceItemsRepository,
 						counterpartySelectorFactory,
-						nomenclatureSelectorFactory
+						nomenclatureSelectorFactory,
+						nomenclatureRepository,
+						userRepository
 					);
 					foreach(var item in array) {
 						if(item is RequestToSupplierItem requestItem) {
@@ -331,7 +344,9 @@ namespace Vodovoz.ViewModels.Suppliers
 					var item = array.FirstOrDefault();
 					if(item is RequestToSupplierItem requestItem) {
 						var nom = requestItem.Nomenclature;
-						this.TabParent.AddSlaveTab(this, new NomenclatureDlg(nom));
+						this.TabParent.AddSlaveTab(this, new NomenclatureViewModel(EntityUoWBuilder.ForOpen(nom.Id),
+							UnitOfWorkFactory, commonServices, employeeService, nomenclatureSelectorFactory,
+							counterpartySelectorFactory, nomenclatureRepository, userRepository));
 						return;
 					}
 					if(item is SupplierNode supplierItem) {
