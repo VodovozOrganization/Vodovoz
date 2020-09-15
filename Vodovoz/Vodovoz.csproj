@@ -478,9 +478,6 @@
     <EmbeddedResource Include="icons\phone\phone-disable.png" />
     <EmbeddedResource Include="icons\phone\phone-connected.png" />
     <EmbeddedResource Include="icons\phone\decline-call.png" />
-    <EmbeddedResource Include="..\..\..\Загрузки\icons8-телефон-40.png" />
-    <EmbeddedResource Include="..\..\..\Загрузки\icons8-телефон-32.png" />
-    <EmbeddedResource Include="..\..\..\Загрузки\icons8-телефон-16.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\SmsSender.cs" />
