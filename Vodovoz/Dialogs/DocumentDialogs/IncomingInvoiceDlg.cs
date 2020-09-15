@@ -63,7 +63,7 @@ namespace Vodovoz
 				var permissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
 				canEdit &= permissionValidator.Validate(typeof(IncomingInvoice), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			}
-
+			
 			canCreate = Entity.Id == 0 && !StoreDocumentHelper.CheckCreateDocument(WarehousePermissions.IncomingInvoiceCreate, Entity.Warehouse);
 			if(!canCreate && Entity.Id == 0) {
 				FailInitialize = true;

@@ -90,6 +90,8 @@
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
+    <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
+    <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\Accounting\AccountExpense.cs" />
     <Compile Include="Domain\Accounting\AccountIncome.cs" />

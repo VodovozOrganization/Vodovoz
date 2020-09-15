@@ -416,8 +416,6 @@
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
     <Compile Include="TempAdapters\EquipmentRepositoryForViews.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
-    <Compile Include="Dialogs\DocumentDialogs\IncomingInvoiceDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentDlg.cs" />
@@ -457,7 +455,6 @@
     <Compile Include="ServiceDialogs\LoadFrom1c\Bank1c.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1cDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.LoadFrom1cDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceItemsView.cs" />
     <Compile Include="Representations\OrdersVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrdersFilter.cs" />
     <Compile Include="Representations\ContactsVM.cs" />
@@ -626,7 +623,6 @@
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentItemsView.cs" />
-    <Compile Include="Dialogs\DocumentDialogs\IncomingInvoiceItemsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterMaterialView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentItemsView.cs" />
     <Compile Include="Dialogs\Employees\EmployeeDlg.cs" />
@@ -1432,6 +1428,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ProductGroupFilterView.cs" />
     <Compile Include="JournalViewers\ProductGroupView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.ProductGroupView.cs" />
+    <Compile Include="Views\Warehouse\IncomingInvoiceView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.IncomingInvoiceView.cs" />
     <Compile Include="ViewModels\Goods\NomenclatureViewModel.cs" />
     <Compile Include="Views\Goods\NomenclatureView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureView.cs" />

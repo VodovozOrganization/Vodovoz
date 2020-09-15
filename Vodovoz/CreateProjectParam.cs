@@ -157,6 +157,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
 				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
+				.RegisterWidgetForTabViewModel<IncomingInvoiceViewModel, IncomingInvoiceView>()
 				.RegisterWidgetForTabViewModel<PhoneTypeViewModel, PhoneTypeView>()
 				.RegisterWidgetForTabViewModel<EmailTypeViewModel, EmailTypeView>()
 				.RegisterWidgetForTabViewModel<UserSettingsViewModel, UserSettingsView>()
@@ -325,7 +326,6 @@ namespace Vodovoz
 			};
 
 			#region Складские документы
-			OrmMain.AddObjectDescription<IncomingInvoice>().Dialog<IncomingInvoiceDlg>();
 			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
 			OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentDlg>();
 			OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentDlg>();

@@ -8,7 +8,9 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -19,6 +21,35 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class IncomingInvoice : Document, IValidatableObject
 	{
+		//TODO Map invoice item to database
+
+		IList<IncomingInvoiceItem> items = new List<IncomingInvoiceItem>();
+
+		[Display(Name = "Строки")]
+		public virtual IList<IncomingInvoiceItem> Items {
+			get => items;
+			set {
+				SetField(ref items, value, () => Items);
+				observableItems = null;
+			}
+		}
+
+		GenericObservableList<IncomingInvoiceItem> observableItems;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<IncomingInvoiceItem> ObservableItems {
+			get {
+				if(observableItems == null)
+					observableItems = new GenericObservableList<IncomingInvoiceItem>(Items);
+				return observableItems;
+			}
+		}
+		
+		
+		
+		
+
+		#region Properties
+		
 		public override DateTime TimeStamp {
 			get => base.TimeStamp;
 			set {
@@ -53,7 +84,18 @@ namespace Vodovoz.Domain.Documents
 			get => contractor;
 			set => SetField(ref contractor, value, () => Contractor);
 		}
-
+		public virtual decimal TotalSum
+		{
+			get
+			{
+				decimal total = 0;
+				foreach (var item in Items) {
+					total += item.Sum;
+				}
+				return total;
+			}
+		}
+		
 		Warehouse warehouse;
 
 		[Display(Name = "Склад")]
@@ -76,46 +118,40 @@ namespace Vodovoz.Domain.Documents
 			get => comment;
 			set => SetField(ref comment, value, () => Comment);
 		}
-
-		//TODO Map invoice item to database
-
-		IList<IncomingInvoiceItem> items = new List<IncomingInvoiceItem>();
-
-		[Display(Name = "Строки")]
-		public virtual IList<IncomingInvoiceItem> Items {
-			get => items;
-			set {
-				SetField(ref items, value, () => Items);
-				observableItems = null;
-			}
-		}
-
-		GenericObservableList<IncomingInvoiceItem> observableItems;
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<IncomingInvoiceItem> ObservableItems {
-			get {
-				if(observableItems == null)
-					observableItems = new GenericObservableList<IncomingInvoiceItem>(Items);
-				return observableItems;
-			}
-		}
+		
 
 		public virtual string Title => string.Format("Поступление №{0} от {1:d}", Id, TimeStamp);
+		
+		public virtual bool CanAddItem => true;
+		public virtual bool CanDeleteItems => true;
 
+		#endregion
+		
+		#region Functions
+
+		
 		public virtual void AddItem(IncomingInvoiceItem item)
 		{
+			if (!CanAddItem) return;
+
 			item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
 			item.IncomeGoodsOperation.OperationTime = TimeStamp;
 			item.Document = this;
 			ObservableItems.Add(item);
 		}
-
+		public virtual void DeleteItem(IncomingInvoiceItem item)
+		{
+			if(item == null || !CanDeleteItems || !ObservableItems.Contains(item)) 
+				return;
+			ObservableItems.Remove(item);
+		}
+		
 		public IncomingInvoice()
 		{
 			WaybillNumber = string.Empty;
 			InvoiceNumber = string.Empty;
 		}
-
+		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			int maxCommentLength = 500;
@@ -165,6 +201,9 @@ namespace Vodovoz.Domain.Documents
 					}
 				);
 		}
+
+		#endregion
+		
 	}
 }
 

@@ -139,8 +139,23 @@ namespace Vodovoz
 					case DocumentType.IncomingInvoice:
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<IncomingInvoice>(id),
-							() => new IncomingInvoiceDlg (id),
-							this);
+							() => {
+								return new IncomingInvoiceViewModel(
+									EntityUoWBuilder.ForOpen(id),
+									UnitOfWorkFactory.GetDefaultFactory,
+									new WarehousePermissionService(),
+									VodovozGtkServicesConfig.EmployeeService,
+									new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+									new NomenclatureSelectorFactory(),
+									new OrderSelectorFactory(),
+									new WarehouseRepository(),
+									new RdlPreviewOpener(),
+									ServicesConfig.CommonServices
+								);
+							},
+							this
+						);
+						
 						break;
 					case DocumentType.IncomingWater:
 						TabParent.OpenTab(
