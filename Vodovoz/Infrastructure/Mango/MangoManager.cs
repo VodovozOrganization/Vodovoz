@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,12 +14,9 @@ using QS.Services;
 using QS.Utilities;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.Repositories;
-using Vodovoz.Repositories.Client;
 using Vodovoz.ViewModels.Mango;
 using Vodovoz.ViewModels.Mango.Talks;
 
@@ -166,16 +163,11 @@ namespace Vodovoz.Infrastructure.Mango
 				OnPropertyChanged("IncomingCalls.Time");
 			return true;
 		}
-
 		#endregion
 		#region Private
-
-		List<Counterparty> clients = null;
-		public List<Counterparty> Clients { get => clients; private set => clients = value; }
-		Employee employee = null;
-		public Employee Employee { get => employee; private set => employee = value; }
-		List<DeliveryPoint> deliveryPoints = null;
-		public List<DeliveryPoint> DeliveryPoints { get => deliveryPoints;private set => deliveryPoints = value; }
+		public List<Counterparty> Clients { get; private set; } = null;
+		public Employee Employee { get; private set; } = null;
+		public List<DeliveryPoint> DeliveryPoints { get; private set; } = null;
 
 		private void FoundByPhoneItemsConfigure()
 		{
@@ -186,12 +178,12 @@ namespace Vodovoz.Infrastructure.Mango
 					int id = Convert.ToInt32(item.CounterpartyId);
 					Counterparty client = uow.GetById<Counterparty>(id);
 					if (client != null)
-						clients.Add(client);
+						Clients.Add(client);
 
 					id = Convert.ToInt32(item.EmployeeId);
 					Employee employee = uow.GetById<Employee>(id);
 					if (employee != null)
-						this.employee = employee;
+						this.Employee = employee;
 
 					id = Convert.ToInt32(item.DeliveryPointId);
 					DeliveryPoint deliveryPoint = uow.GetById<DeliveryPoint>(id);
@@ -205,16 +197,14 @@ namespace Vodovoz.Infrastructure.Mango
 		//Point!
 		private void FoundByPhoneItemsConfigureTest()
 		{
-			//CallerName = "ООО Ленинградские булочные";
-			//CallerNumber = "+79536600012";
 			object[] objects = phoneRepository.GetObjectByPhone(unitOfWorkFactory.CreateWithoutRoot(),CallerNumber);
 			foreach(var item in objects) {
 				if(item.GetType().Name == "Counterparty")
-					clients.Add((Counterparty)item);
+					Clients.Add((Counterparty)item);
 				else if(item.GetType().Name == "DeliveryPoint")
-					deliveryPoints.Add((DeliveryPoint)item);
+					DeliveryPoints.Add((DeliveryPoint)item);
 				else if(item.GetType().Name == "Employee")
-					employee = (Employee)item;
+					Employee = (Employee)item;
 			}
 		}
 
@@ -225,8 +215,6 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			if(message.State == CallState.Appeared) {
 				AddNewIncome(message);
-				//Point!
-				//FoundByPhoneItemsConfigureTest();
 				if(CurrentPage == null) {
 					CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
 					CurrentPage.PageClosed += CurrentPage_PageClosed;
@@ -260,8 +248,8 @@ namespace Vodovoz.Infrastructure.Mango
 				}
 				else
 				{
-					if(clients != null) {
-						CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<Counterparty>>(null, this, clients);
+					if(Clients != null) {
+						CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<Counterparty>>(null, this, Clients);
 						CurrentPage.PageClosed += CurrentPage_PageClosed;
 					} else {
 						CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, MangoManager>(null, this);
@@ -291,11 +279,11 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void AddedCounterpartyToCall(Counterparty client , bool changeCallState)
 		{
-			if(clients == null)
-				clients = new List<Counterparty>();
-			clients.Add(client);
+			if(Clients == null)
+				Clients = new List<Counterparty>();
+			Clients.Add(client);
 			if(changeCallState) {
-				CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<Counterparty>>(null, this, clients);
+				CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<Counterparty>>(null, this, Clients);
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
 				//if(LastMessage != null && CurrentPage == null)
 					//HandleMessage(LastMessage);
