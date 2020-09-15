@@ -159,6 +159,7 @@ namespace Vodovoz.Infrastructure.Mango
 		void CurrentPage_PageClosed(object sender, PageClosedEventArgs e)
 		{
 			CurrentPage = null;
+			ConnectionState = ConnectionState.Connected;
 		}
 
 		bool HandleTimeoutHandler()
@@ -177,6 +178,9 @@ namespace Vodovoz.Infrastructure.Mango
 
 		private void FoundByPhoneItemsConfigure()
 		{
+			if(LastMessage?.CallFrom?.Names == null)
+				return;
+
 			using (var uow = unitOfWorkFactory.CreateWithoutRoot())
 			{
 				foreach (var item in LastMessage.CallFrom.Names)
@@ -205,6 +209,7 @@ namespace Vodovoz.Infrastructure.Mango
 		private void HandleMessage(NotificationMessage message)
 		{
 			if(message.State == CallState.Appeared) {
+				ConnectionState = ConnectionState.Ring;
 				AddNewIncome(message);
 				if(CurrentPage == null) {
 					CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
@@ -232,6 +237,7 @@ namespace Vodovoz.Infrastructure.Mango
 
 			if(message.State == CallState.Connected)
 			{
+				ConnectionState = ConnectionState.Talk;
 				FoundByPhoneItemsConfigure();
 				if(message.CallFrom.Type == CallerType.Internal) {
 					CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, MangoManager>(null,this);
