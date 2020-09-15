@@ -75,9 +75,13 @@ namespace VodovozMangoService
 
 				subscriptions = Subscribers
 					.Where(x => x.Extension == info.LastEvent.to.Extension 
-					            || (x.Extension == 0 && (x.CurrentCall == null || x.CurrentCall == info)))
+					            || x.CurrentCall == info || (x.Extension == 0 && x.CurrentCall == null))
 					.ToList();
 			}
+			
+			#if DEBUG
+			logger.Debug($"Для звонка на {info.LastEvent.to.Extension} подходит {subscriptions.Count} из {Subscribers.Count} подписчиков.");
+			#endif
 			
 			if(subscriptions.Count == 0)
 				return; //Не кого уведомлять.
@@ -118,11 +122,17 @@ namespace VodovozMangoService
 			{
 				if (subscription.Queue.Count > 5)
 				{
-					logger.Warn($"Подписчик {subscription.Extension} не читает уведомления..видимо сломался удаляем его.");
+					logger.Warn($"Подписчик {subscription.Extension} не читает уведомления, видимо сломался, удаляем его.");
 					lock (Subscribers)
 					{
 						Subscribers.Remove(subscription);
 					}
+					continue;
+				}
+				switch (info.LastEvent.call_state)
+				{
+					case "Disconnected": subscription.CurrentCall = null; break; 
+					case "Connected": subscription.CurrentCall = info; break;
 				}
 				subscription.Queue.Add(message);
 			}
