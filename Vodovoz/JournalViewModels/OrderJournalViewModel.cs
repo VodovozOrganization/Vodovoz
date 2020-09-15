@@ -26,6 +26,8 @@ using QS.Project.Journal.DataLoader;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.JournalViewModels
@@ -34,6 +36,8 @@ namespace Vodovoz.JournalViewModels
 	{
 		private readonly ICommonServices commonServices;
 		private readonly IEmployeeService employeeService;
+		private readonly INomenclatureRepository nomenclatureRepository;
+		private readonly IUserRepository userRepository;
 		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 
@@ -43,10 +47,14 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			
@@ -539,7 +547,9 @@ namespace Vodovoz.JournalViewModels
 						commonServices,
 						employeeService,
 						nomenclatureSelectorFactory,
-						counterpartySelectorFactory
+						counterpartySelectorFactory,
+						nomenclatureRepository,
+						userRepository
 					),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
@@ -548,7 +558,9 @@ namespace Vodovoz.JournalViewModels
 						commonServices,
 						employeeService,
 						nomenclatureSelectorFactory,
-						counterpartySelectorFactory
+						counterpartySelectorFactory,
+						nomenclatureRepository,
+						userRepository
 					),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),

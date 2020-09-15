@@ -12,6 +12,8 @@ using QS.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
@@ -26,6 +28,8 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeService employeeService;
 		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly INomenclatureRepository nomenclatureRepository;
+		private readonly IUserRepository userRepository;
 
 		public NomenclaturesJournalViewModel(
 			NomenclatureFilterViewModel filterViewModel,
@@ -33,13 +37,17 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository
 		) : base(filterViewModel, unitOfWorkFactory, commonServices) 
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			
+			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+
 			TabName = "Журнал ТМЦ";
 			this.currentUserId = commonServices.UserService.CurrentUserId;
 			SetOrder(x => x.Name);
@@ -170,10 +178,12 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<NomenclatureViewModel> CreateDialogFunction =>
 			() => new NomenclatureViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices,
-				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory);
+				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
+				userRepository);
 
 		protected override Func<NomenclatureJournalNode, NomenclatureViewModel> OpenDialogFunction =>
 			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
-				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory);
+				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
+				userRepository);
 	}
 }

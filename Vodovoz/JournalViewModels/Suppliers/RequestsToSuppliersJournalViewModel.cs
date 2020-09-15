@@ -13,6 +13,8 @@ using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Services;
@@ -27,6 +29,8 @@ namespace Vodovoz.JournalViewModels.Suppliers
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
 		private readonly IEmployeeService employeeService;
+		private readonly INomenclatureRepository nomenclatureRepository;
+		private readonly IUserRepository userRepository;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 
@@ -37,10 +41,14 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			this.filterViewModel = filterViewModel;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -117,7 +125,9 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			employeeService,
 			supplierPriceItemsRepository,
 			counterpartySelectorFactory,
-			nomenclatureSelectorFactory
+			nomenclatureSelectorFactory,
+			nomenclatureRepository,
+			userRepository
 		);
 
 		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n => new RequestToSupplierViewModel(
@@ -127,7 +137,9 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			employeeService,
 			supplierPriceItemsRepository,
 			counterpartySelectorFactory,
-			nomenclatureSelectorFactory
+			nomenclatureSelectorFactory,
+			nomenclatureRepository,
+			userRepository
 		);
 
 		protected override void CreatePopupActions()
@@ -149,7 +161,9 @@ namespace Vodovoz.JournalViewModels.Suppliers
 								employeeService,
 								supplierPriceItemsRepository,
 								counterpartySelectorFactory,
-								nomenclatureSelectorFactory
+								nomenclatureSelectorFactory,
+								nomenclatureRepository,
+								userRepository
 							);
 							newRequestVM.Entity.Name = currentRequest.Name;
 							newRequestVM.Entity.WithDelayOnly = currentRequest.WithDelayOnly;

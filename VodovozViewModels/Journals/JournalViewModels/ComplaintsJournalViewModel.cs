@@ -16,7 +16,9 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels;
@@ -46,6 +48,8 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ISubdivisionService subdivisionService;
 		private readonly IReportViewOpener reportViewOpener;
 		private readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkDlgOpener;
+		private readonly INomenclatureRepository nomenclatureRepository;
+		private readonly IUserRepository userRepository;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -67,7 +71,9 @@ namespace Vodovoz.Journals.JournalViewModels
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
 			IReportViewOpener reportViewOpener,
-			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener
+			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -83,6 +89,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			this.subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			this.gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
+			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			TabName = "Журнал рекламаций";
 
@@ -376,7 +384,9 @@ namespace Vodovoz.Journals.JournalViewModels
 						counterpartySelectorFactory,
 						subdivisionRepository,
 						commonServices,
-						nomenclatureSelectorFactory
+						nomenclatureSelectorFactory,
+						nomenclatureRepository,
+						userRepository
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -389,7 +399,9 @@ namespace Vodovoz.Journals.JournalViewModels
 						counterpartySelectorFactory,
 						filePickerService,
 						subdivisionRepository,
-						nomenclatureSelectorFactory
+						nomenclatureSelectorFactory,
+						nomenclatureRepository,
+						userRepository
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -419,7 +431,9 @@ namespace Vodovoz.Journals.JournalViewModels
 						counterpartySelectorFactory,
 						filePickerService,
 						subdivisionRepository,
-						nomenclatureSelectorFactory
+						nomenclatureSelectorFactory,
+						nomenclatureRepository,
+						userRepository
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -507,7 +521,9 @@ namespace Vodovoz.Journals.JournalViewModels
 								counterpartySelectorFactory,
 								filePickerService,
 								subdivisionRepository,
-								nomenclatureSelectorFactory
+								nomenclatureSelectorFactory,
+								nomenclatureRepository,
+								userRepository
 							);
 							currentComplaintVM.AddFineCommand.Execute(this);
 						}
@@ -534,7 +550,9 @@ namespace Vodovoz.Journals.JournalViewModels
 								counterpartySelectorFactory,
 								filePickerService,
 								subdivisionRepository,
-								nomenclatureSelectorFactory
+								nomenclatureSelectorFactory,
+								nomenclatureRepository,
+								userRepository
 							);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))

@@ -388,8 +388,7 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref productGroup, value, () => ProductGroup);
 		}
 
-		private IList<NomenclatureImage> images;
-
+		private IList<NomenclatureImage> images = new List<NomenclatureImage>();
 		[Display(Name = "Изображения")]
 		public virtual IList<NomenclatureImage> Images {
 			get => images;
@@ -681,6 +680,11 @@ namespace Vodovoz.Domain.Goods
 
 		public void RemoveWarehouse(Warehouse warehouse) {
 			ObservableWarehouses.Remove(warehouse);
+		}
+		
+		public void AddWarehouse(Warehouse warehouse) {
+			if(ObservableWarehouses.All(x => x.Id != warehouse.Id))
+				ObservableWarehouses.Add(warehouse);
 		}
 
 		#endregion

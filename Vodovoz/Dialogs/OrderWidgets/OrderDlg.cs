@@ -68,8 +68,10 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Core;
 using Vodovoz.Dialogs.Email;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalSelector;
 using Vodovoz.Repository;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using Vodovoz.JournalViewModels;
@@ -93,21 +95,49 @@ namespace Vodovoz
 		Order templateOrder;
 
 		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
+		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
 
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel,
-				NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
-		
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
 		private IEmailRepository emailRepository { get; set; } = new EmailRepository();
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
+		private  INomenclatureRepository nomenclatureRepository;
+		public virtual INomenclatureRepository NomenclatureRepository {
+			get {
+				if (nomenclatureRepository == null) {
+					nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository();
+				}
+				return nomenclatureRepository;
+			}
+		}
+		
+		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
+			get {
+				if(counterpartySelectorFactory == null) {
+					counterpartySelectorFactory =
+						new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+							CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+				};
+				return counterpartySelectorFactory;
+			}
+		}
+		
+		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory {
+			get {
+				if(nomenclatureSelectorFactory == null) {
+					nomenclatureSelectorFactory =
+						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
+							NomenclatureRepository, userRepository);
+				}
+				return nomenclatureSelectorFactory;
+			}
+		}
+		
 		#region Работа с боковыми панелями
 
 		public PanelViewType[] InfoWidgets {
@@ -331,7 +361,7 @@ namespace Vodovoz
 			yEntTareActBtlFromClient.Changed += OnYEntTareActBtlFromClientChanged;
 
 			if(Entity.OrderStatus == OrderStatus.Closed) {
-				entryTareReturned.Text = new BottlesRepository().GetEmptyBottlesFromClientByOrder(UoW, new EntityRepositories.Goods.NomenclatureRepository(), Entity).ToString();
+				entryTareReturned.Text = new BottlesRepository().GetEmptyBottlesFromClientByOrder(UoW, NomenclatureRepository, Entity).ToString();
 				entryTareReturned.Visible = lblTareReturned.Visible = true;
 			}
 
@@ -1320,8 +1350,10 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				employeeService,
-				nomenclatureSelectorFactory,
-				counterpartySelectorFactory
+				NomenclatureSelectorFactory,
+				CounterpartySelectorFactory,
+				NomenclatureRepository,
+				userRepository
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};
@@ -1358,8 +1390,10 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				employeeService,
-				nomenclatureSelectorFactory,
-				counterpartySelectorFactory
+				NomenclatureSelectorFactory,
+				CounterpartySelectorFactory,
+				NomenclatureRepository,
+				userRepository
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};
