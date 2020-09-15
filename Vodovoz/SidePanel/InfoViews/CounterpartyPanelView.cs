@@ -2,6 +2,7 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
+using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -14,6 +15,7 @@ using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModelBased;
+using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -90,10 +92,22 @@ namespace Vodovoz.SidePanel.InfoViews
 			var currentOrders = OrderRepository.GetCurrentOrders(InfoProvider.UoW, Counterparty);
 			ytreeCurrentOrders.SetItemsSource<Order>(currentOrders);
 			vboxCurrentOrders.Visible = currentOrders.Count > 0;
-
-			labelPhone.LabelProp = String.Join(";\n", Counterparty.Phones.Select(ph => ph.LongText));
-			if(Counterparty.Phones.Count <= 0)
-				labelPhone.Text = "[+] чтоб добавить -->";
+			Button btn = btnAddPhone;
+			if(Counterparty.Phones.Count > 0) {
+				uint rowsCount = Convert.ToUInt32(Counterparty.Phones.Count);
+				PhonesTable.Resize(rowsCount, 2);
+				for(uint row = 0; row < rowsCount; row++) {
+					Label label = new Label();
+					label.Markup = $"<b>+7{Counterparty.Phones[Convert.ToInt32(row)].DigitsNumber}</b>";
+					HandsetView handsetView = new HandsetView(Counterparty.Phones[Convert.ToInt32(row)].Number);
+					PhonesTable.Attach(label, 0, 1, row, row + 1);
+					PhonesTable.Attach(handsetView, 1, 2, row, row + 1);
+				}
+			}
+			PhonesTable.ShowAll();
+			//labelPhone.LabelProp = String.Join(";\n", Counterparty.Phones.Select(ph => ph.LongText));
+			//if(Counterparty.Phones.Count <= 0)
+			//labelPhone.Text = "[+] чтоб добавить -->";
 		}
 
 		public bool VisibleOnPanel

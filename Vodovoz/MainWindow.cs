@@ -83,6 +83,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	private ILifetimeScope AutofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
 	public TdiNavigationManager NavigationManager;
+	public MangoManager MangoManager;
 
 	public MainWindow() : base(Gtk.WindowType.Toplevel)
 	{
@@ -158,8 +159,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		}
 
 		NavigationManager = AutofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-		var mangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
-		mangoManager.Connect();
+		MangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
+		MangoManager.Connect();
 
 		//BanksUpdater.CheckBanksUpdate(false);
 	}

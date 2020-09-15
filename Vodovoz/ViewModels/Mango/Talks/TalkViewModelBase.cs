@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Infrastructure.Mango;
@@ -14,6 +15,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.MangoManager = manager ?? throw new ArgumentNullException(nameof(manager));
 			manager.PropertyChanged += Manager_PropertyChanged;
 			SetTitle();
+			IsModal = false;
 		}
 
 		void Manager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -25,6 +27,22 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private void SetTitle()
 		{
 			Title = String.Format("Разговор {0:mm\\:ss}", MangoManager.StageDuration);
+		}
+
+		public void FinishCallCommand()
+		{
+			MangoManager.HangUp();
+			Close(false, CloseSource.Self);
+		}
+
+		public void ForwardCallCommand()
+		{
+			Action action = () => { Close(false, CloseSource.Self); };
+			IPage page = NavigationManager.OpenViewModelNamedArgs<SubscriberSelectionViewModel>
+			(this, new Dictionary<string, object>()
+				{ {"manager",MangoManager },{"dialogType", SubscriberSelectionViewModel.DialogType.AdditionalCall },
+				{"exitAction", action}
+			});
 		}
 
 	}

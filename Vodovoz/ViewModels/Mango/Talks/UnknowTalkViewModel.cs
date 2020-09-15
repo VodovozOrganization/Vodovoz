@@ -26,13 +26,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly ITdiCompatibilityNavigation tdiNavigation;
 		private readonly IInteractiveQuestion interactive;
 		private IUnitOfWork UoW;
-		private Phone phone;
-		public Phone Phone {
-			get => phone;
-			private set { phone = value; }
-		}
-		public UnknowTalkViewModel(Phone phone, 
-			IUnitOfWorkFactory unitOfWorkFactory, 
+		public UnknowTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
 			IInteractiveQuestion interactive,
 			MangoManager manager) : base(navigation, manager)
@@ -43,16 +37,19 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			Title = "Входящий новый номер";
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
-			this.phone = phone;
 		}
 
 		#region Действия View
 
+		public string GetPhoneNumber()
+		{
+			return MangoManager.CallerNumber;
+		}
+
 		public void SelectNewConterparty()
 		{
-			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg>(null);
+			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg,string>(this,MangoManager.CallerNumber);
 			var tab = page.TdiTab as CounterpartyDlg;
-			tab.Entity.Phones.First().Number = "+7-000-000-00-00"; //FIXME
 			page.PageClosed += NewCounerpatry_PageClosed;
 		}
 
@@ -66,13 +63,13 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		void NewCounerpatry_PageClosed(object sender, PageClosedEventArgs e)
 		{ 
 			if(e.CloseSource == CloseSource.Save) {
-				List<Counterparty> clients = new List<Counterparty>();
 				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
-				client.Phones.Add(phone);
-				clients.Add(client);
-				UoW.Save<Counterparty>(client);
-				NavigationManager.OpenViewModel<CounterpartyTalkViewModel, IEnumerable<Counterparty>,Phone>(null,clients,phone);
-				this.Close(false, CloseSource.Self);
+				if(client != null) {
+					MangoManager.AddedCounterpartyToCall(client, true);
+					this.Close(false, CloseSource.Self);
+
+				} else
+					throw new Exception("При сохранении контрагента произошла ошибка , попробуйте снова." + "\n Сообщение для поддержки : UnknowTalkViewModel.NewCounterparty_PageClose()");
 			}
 		}
 
@@ -82,10 +79,12 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
 			Counterparty firstClient = clients.First();
 			if(interactive.Question($"Доабать телефон к контагенту {firstClient.Name} ?", "Телефон контрагента")) {
+				Phone phone = new Phone(){Number = MangoManager.CallerNumber};
 				firstClient.Phones.Add(phone);
 				UoW.Save<Counterparty>(firstClient);
 				UoW.Commit();
-				NavigationManager.OpenViewModel<CounterpartyTalkViewModel, IEnumerable<Counterparty>, Phone>(null, clients, phone);
+
+				MangoManager.AddedCounterpartyToCall(firstClient, true);
 				this.Close(false, CloseSource.Self);
 			}
 		}
@@ -115,24 +114,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			tdiNavigation.OpenTdiTab<DeliveryPriceDlg>(null);
 		}
 
-		#region CallEvents
-		public void FinishCallCommand()
-		{
-			//FIXME
-		}
-
-		public void ForwardCallCommand()
-		{
-			//FIXME
-		}
-
-		public void ForwardToConsultationCommand()
-		{
-			//FIXME
-		}
-		#endregion
-
-		//public void
 		#endregion
 
 	}

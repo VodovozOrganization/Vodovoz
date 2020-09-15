@@ -53,6 +53,7 @@ namespace Vodovoz.ViewModels.Complaints
 			string phone = null) : this(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,phone)
 		{
 			Entity.Counterparty = client;
+			Entity.Phone = phone;
 		}
 
 		private Employee currentEmployee;

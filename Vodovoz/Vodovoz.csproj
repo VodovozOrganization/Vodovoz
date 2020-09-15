@@ -256,7 +256,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="icons\map\GreenCar.png" />
     <EmbeddedResource Include="icons\map\BlueCar.png" />
-    <EmbeddedResource Include="icons\map\RedCar.png" />
     <EmbeddedResource Include="icons\map\BlackCar.png" />
     <EmbeddedResource Include="icons\buttons\window-new.png" />
     <EmbeddedResource Include="toolbars\archive.xml">
@@ -479,6 +478,9 @@
     <EmbeddedResource Include="icons\phone\phone-disable.png" />
     <EmbeddedResource Include="icons\phone\phone-connected.png" />
     <EmbeddedResource Include="icons\phone\decline-call.png" />
+    <EmbeddedResource Include="..\..\..\Загрузки\icons8-телефон-40.png" />
+    <EmbeddedResource Include="..\..\..\Загрузки\icons8-телефон-32.png" />
+    <EmbeddedResource Include="..\..\..\Загрузки\icons8-телефон-16.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\SmsSender.cs" />
@@ -1538,19 +1540,12 @@
     <Compile Include="ViewModels\Mango\InternalCallViewModel.cs" />
     <Compile Include="Views\Mango\InternalCallView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.InternalCallView.cs" />
-    <Compile Include="Views\Mango\FullInternalCallView.cs" />
     <Compile Include="Infrastructure\Mango\MangoManager.cs" />
-    <Compile Include="ViewModels\Mango\FullInternalCallViewModel.cs" />
     <Compile Include="Views\Mango\CounterpartyOrderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.CounterpartyOrderView.cs" />
-    <Compile Include="ViewModels\Mango\CounterpartyOrderViewModel.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Mango.AdditionalCallView.cs" />
-    <Compile Include="Views\Mango\AdditionalCallView.cs" />
-    <Compile Include="ViewModels\Mango\AdditionalCallViewModel.cs" />
     <Compile Include="ViewModels\Mango\IncomingCallViewModel.cs" />
     <Compile Include="Views\Mango\IncomingCallView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.IncomingCallView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Mango.FullInternalCallView.cs" />
     <Compile Include="ViewModels\Mango\Talks\CounterpartyTalkViewModel.cs" />
     <Compile Include="ViewModels\Mango\Talks\UnknowTalkViewModel.cs" />
     <Compile Include="Views\Mango\Talks\CounterpartyTalkView.cs" />
@@ -1567,6 +1562,9 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.SubscriberSelectionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.UnknowTalkView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.CounterpartyTalkView.cs" />
+    <Compile Include="ViewModels\Mango\WidgetsModel\CounterpartyOrderViewModel.cs" />
+    <Compile Include="ViewWidgets\Mango\HandsetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Mango.HandsetView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1847,6 +1845,8 @@
     <Folder Include="ViewModels\Mango\Talks\" />
     <Folder Include="Views\Mango\Talks\" />
     <Folder Include="Views\Mango\Incoming\" />
+    <Folder Include="ViewModels\Mango\WidgetsModel\" />
+    <Folder Include="ViewWidgets\Mango\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2344,6 +2344,7 @@
     <None Include="Reports\Logistic\NonClosedRLByPeriodReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="icons\phone\make-call.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Reports\Logistic\ScheduleOnLinePerShiftReport.rdl">
