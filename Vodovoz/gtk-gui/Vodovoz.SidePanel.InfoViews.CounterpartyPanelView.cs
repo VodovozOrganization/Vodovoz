@@ -46,9 +46,9 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Vodovoz.WrapLabel labelPhone;
 
-		private global::Gtk.Label labelPhoneText;
-
 		private global::Gamma.GtkWidgets.yLabel ylabelDebtInfo;
+
+		private global::Gtk.Table PhonesTable;
 
 		protected virtual void Build()
 		{
@@ -196,7 +196,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			w15.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -211,8 +210,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.btnAddPhone]));
 			w17.LeftAttach = ((uint)(2));
 			w17.RightAttach = ((uint)(3));
-			w17.XOptions = ((global::Gtk.AttachOptions)(0));
-			w17.YOptions = ((global::Gtk.AttachOptions)(0));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
@@ -258,35 +257,35 @@ namespace Vodovoz.SidePanel.InfoViews
 			// Container child table1.Gtk.Table+TableChild
 			this.labelPhone = new global::Vodovoz.WrapLabel();
 			this.labelPhone.Name = "labelPhone";
-			this.labelPhone.LabelProp = global::Mono.Unix.Catalog.GetString("Щёлкните чтоб добавить -->");
+			this.labelPhone.LabelProp = global::Mono.Unix.Catalog.GetString("Щёлкните чтоб добавить телефон-->");
 			this.table1.Add(this.labelPhone);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.labelPhone]));
-			w21.LeftAttach = ((uint)(1));
 			w21.RightAttach = ((uint)(2));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.labelPhoneText = new global::Gtk.Label();
-			this.labelPhoneText.Name = "labelPhoneText";
-			this.labelPhoneText.Xalign = 1F;
-			this.labelPhoneText.LabelProp = global::Mono.Unix.Catalog.GetString("Телефон:");
-			this.table1.Add(this.labelPhoneText);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.labelPhoneText]));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelDebtInfo = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDebtInfo.Name = "ylabelDebtInfo";
 			this.ylabelDebtInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Долг(по клиенту):");
 			this.table1.Add(this.ylabelDebtInfo);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelDebtInfo]));
-			w23.TopAttach = ((uint)(2));
-			w23.BottomAttach = ((uint)(3));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelDebtInfo]));
+			w22.TopAttach = ((uint)(2));
+			w22.BottomAttach = ((uint)(3));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w23.PackType = ((global::Gtk.PackType)(1));
+			w23.Position = 8;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.PhonesTable = new global::Gtk.Table(((uint)(1)), ((uint)(2)), false);
+			this.PhonesTable.Name = "PhonesTable";
+			this.PhonesTable.RowSpacing = ((uint)(6));
+			this.PhonesTable.ColumnSpacing = ((uint)(6));
+			this.vbox1.Add(this.PhonesTable);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.PhonesTable]));
 			w24.PackType = ((global::Gtk.PackType)(1));
-			w24.Position = 8;
+			w24.Position = 9;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
