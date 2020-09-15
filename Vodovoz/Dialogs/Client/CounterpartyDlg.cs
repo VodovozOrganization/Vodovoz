@@ -72,6 +72,13 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
+		public CounterpartyDlg(string phoneNumber)
+		{
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			Entity.Phones.Add(new Phone() { Number = phoneNumber });
+			ConfigureDlg();
+		}
 		void ConfigureDlg()
 		{
 			notebook1.CurrentPage = 0;

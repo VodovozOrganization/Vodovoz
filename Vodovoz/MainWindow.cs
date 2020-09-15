@@ -83,6 +83,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	private ILifetimeScope AutofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
 	public TdiNavigationManager NavigationManager;
+	public MangoManager MangoManager;
 
 	public MainWindow() : base(Gtk.WindowType.Toplevel)
 	{
@@ -166,9 +167,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		//int s2 = random.Next(10, 99);
 		//string number = f3 + "-" + s3 + "-" + f2 + "-" + s2;
 		//string number = "0000000000";
-		var mangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
-		mangoManager.Connect();
-		NavigationManager.OpenViewModel<SubscriberSelectionViewModel,MangoManager,SubscriberSelectionViewModel.DialogType>(null,mangoManager,SubscriberSelectionViewModel.DialogType.Telephone);
+		MangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
+		MangoManager.Connect();
+		//NavigationManager.OpenViewModel<SubscriberSelectionViewModel,MangoManager,SubscriberSelectionViewModel.DialogType>(null,mangoManager,SubscriberSelectionViewModel.DialogType.Telephone);
 
 		//BanksUpdater.CheckBanksUpdate(false);
 	}

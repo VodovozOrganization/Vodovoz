@@ -39,18 +39,11 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 
 		private Counterparty currentCounterparty { get; set; }
-		private Phone phone;
 
 		//public delegate void GotTheNewCounterpartyOrderViewModel(object sender, EventArgs e);
 		public event System.Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
-		public Phone Phone {
-			get => phone;
-			private set { phone = value; }
-		}
-
 		public CounterpartyTalkViewModel(IEnumerable<Counterparty> clients,
-			Phone phone,
 			INavigationManager navigation,
 			ITdiCompatibilityNavigation tdinavigation,
 			IInteractiveQuestion interactive,
@@ -64,7 +57,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			Title = "Входящий звонок существующего контрагента";
 
-			this.phone = phone ?? throw new ArgumentNullException(nameof(phone));
 			if(clients != null) 
 			{
 				foreach(Counterparty client in clients) 
@@ -78,11 +70,10 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		}
 
-		void Configure()
+		public string GetPhoneNumber()
 		{
-
+			return MangoManager.CallerNumber;
 		}
-
 
 		public IDictionary<string, CounterpartyOrderView> GetCounterpartyViewModels()
 		{
@@ -90,10 +81,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		}
 		#region Взаимодействие с Mangos
 
-		//private IList<Counterparty> GetCounterpartiesByPhone(Phone phone)
-		//{
-		//	return IList<Counterparty>
-		//}
 		#endregion
 
 		#region Действия View
@@ -105,7 +92,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		}
 		public void NewClientCommand()
 		{
-			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg>(this,OpenPageOptions.AsSlave);
+			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg>(this);
 			var tab = page.TdiTab as CounterpartyDlg;
 			page.PageClosed += NewCounerpatry_PageClosed;
 		}
@@ -122,6 +109,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			if(e.CloseSource == CloseSource.Save) {
 				List<Counterparty> clients = new List<Counterparty>();
 				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
+				Phone phone = new Phone() { Number = MangoManager.CallerNumber };
 				client.Phones.Add(phone);
 				clients.Add(client);
 				UoW.Save<Counterparty>(client);
@@ -139,6 +127,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
 			Counterparty firstClient = clients.First();
 			if(interactive.Question($"Доабать телефон к контагенту {firstClient.Name} ?", "Телефон контрагента")) {
+				Phone phone = new Phone() { Number = MangoManager.CallerNumber };
 				firstClient.Phones.Add(phone);
 				UoW.Save<Counterparty>(firstClient);
 				UoW.Commit();
@@ -190,23 +179,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		{
 			tdiNavigation.OpenTdiTab<DeliveryPriceDlg>(null);
 		}
-
-		#region CallEvents
-		public void FinishCallCommand()
-		{
-			//FIXME
-		}
-
-		public void ForwardCallCommand()
-		{
-			//FIXME
-		}
-
-		public void ForwardToConsultationCommand()
-		{
-			//FIXME
-		}
-		#endregion
 
 		#endregion
 	}

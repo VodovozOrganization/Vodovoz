@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Mango.Talks
 
 		void Configure()
 		{
-			CallNumberYLabel.Text = ViewModel.Phone.Number;
+			CallNumberYLabel.Text = ViewModel.GetPhoneNumber();
 
 			foreach(var item in ViewModel.CounterpartyOrdersModels) {
 				var label = new Gtk.Label(item.Client.Name);
@@ -50,6 +50,7 @@ namespace Vodovoz.Views.Mango.Talks
 				WidgetPlace.ShowAll();
 			}
 		}
+
 		protected void Clicked_NewClientButton(object sender, EventArgs e)
 		{
 			ViewModel.NewClientCommand();
@@ -91,11 +92,6 @@ namespace Vodovoz.Views.Mango.Talks
 		protected void Clicked_ForwardingButton(object sender, EventArgs e)
 		{
 			ViewModel.ForwardCallCommand();
-		}
-
-		protected void Clicked_ForwardingToConsultationButton(object sender, EventArgs e)
-		{
-			ViewModel.ForwardToConsultationCommand();
 		}
 
 		protected void Clicked_FinishButton(object sender, EventArgs e)

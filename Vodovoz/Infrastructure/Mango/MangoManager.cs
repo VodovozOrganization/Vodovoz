@@ -79,8 +79,15 @@ namespace Vodovoz.Infrastructure.Mango
 		public TimeSpan? StageDuration => DateTime.Now - StageBegin;
 
 		public string CallerName => LastMessage.CallFrom.Names != null ? String.Join("\n", LastMessage.CallFrom.Names.Select(x => x.Name)) : null;
-		//List<object> FoundByPhoneItems;
 		public string CallerNumber => LastMessage?.CallFrom.Number;
+		public bool IsTransfer => LastMessage.IsTransfer;
+		public Caller PrimaryCaller => LastMessage?.PrimaryCaller;
+
+			//Point!
+		//FIXME Тестовая заглушка телефона и имени
+		//public string CallerNumber { get; set; }
+		//public string CallerName { get; set; }
+
 
 		public List<IncomingCall> IncomingCalls { get; set; } = new List<IncomingCall>();
 
@@ -178,6 +185,23 @@ namespace Vodovoz.Infrastructure.Mango
 			}
 		}
 
+
+		//Point!
+		private void FoundByPhoneItemsConfigureTest()
+		{
+			//CallerName = "ООО Ленинградские булочные";
+			//CallerNumber = "+79536600012";
+			object[] objects = phoneRepository.GetObjectByPhone(unitOfWorkFactory.CreateWithoutRoot(),CallerNumber);
+			foreach(var item in objects) {
+				if(item.GetType().Name == "Counterparty")
+					clients.Add((Counterparty)item);
+				else if(item.GetType().Name == "DeliveryPoint")
+					deliveryPoints.Add((DeliveryPoint)item);
+				else if(item.GetType().Name == "Employee")
+					employee = (Employee)item;
+			}
+		}
+
 		#endregion
 		#region Работа с сообщениями
 
@@ -185,7 +209,8 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			if(message.State == CallState.Appeared) {
 				AddNewIncome(message);
-				FoundByPhoneItemsConfigure();
+				//Point!
+				//FoundByPhoneItemsConfigureTest();
 				if(CurrentPage == null) {
 					CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
 					CurrentPage.PageClosed += CurrentPage_PageClosed;
@@ -214,14 +239,18 @@ namespace Vodovoz.Infrastructure.Mango
 			{
 				FoundByPhoneItemsConfigure();
 				if(message.CallFrom.Type == CallerType.Internal) {
-					CurrentPage = navigation.OpenViewModel<InternalCallViewModel, MangoManager>(null,this);
-				 }
+					CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, MangoManager>(null,this);
+					CurrentPage.PageClosed += CurrentPage_PageClosed;
+				}
 				else
 				{
-					if(clients != null)
+					if(clients != null) {
 						CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<Counterparty>>(null, this, clients);
-					else
+						CurrentPage.PageClosed += CurrentPage_PageClosed;
+					} else {
 						CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, MangoManager>(null, this);
+						CurrentPage.PageClosed += CurrentPage_PageClosed;
+					}
 				}
 			}
 
@@ -244,14 +273,25 @@ namespace Vodovoz.Infrastructure.Mango
 			return false;
 		}
 
+		public void AddedCounterpartyToCall(Counterparty client , bool changeCallState)
+		{
+			if(clients == null)
+				clients = new List<Counterparty>();
+			clients.Add(client);
+			if(changeCallState) {
+				CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<Counterparty>>(null, this, clients);
+				CurrentPage.PageClosed += CurrentPage_PageClosed;
+				//if(LastMessage != null && CurrentPage == null)
+					//HandleMessage(LastMessage);
+			}
+		}
+
 		#endregion
 		#region MangoController_Methods
 
 		public void HangUp()
 		{
 			mangoController.HangUp(LastMessage.CallId);
-			//mangoController.HangUp("100500");
-
 		}
 
 		public IEnumerable<ClientMangoService.DTO.Group.Group> GetAllVPBXGroups()

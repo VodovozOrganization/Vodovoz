@@ -32,6 +32,8 @@ namespace Vodovoz.ViewModels.Mango
 		{
 			this.MangoManager = manager ?? throw new ArgumentNullException(nameof(manager));
 
+
+			//if(manager.IsTransfer && manager.PrimaryCaller != null)
 			if(manager.Clients != null) {
 				counterpartyOrdersModels = new List<CounterpartyOrderViewModel>();
 				foreach(Counterparty client in manager.Clients) {
@@ -50,7 +52,7 @@ namespace Vodovoz.ViewModels.Mango
 		public void DeclineCall()
 		{
 			MangoManager.HangUp();
-			NavigationManager.AskClosePage(NavigationManager.FindPage(this));
+			Close(false, CloseSource.Self);
 		}
 
 		#endregion

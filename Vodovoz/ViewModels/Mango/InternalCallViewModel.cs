@@ -12,77 +12,59 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class InternalCallViewModel : UowDialogViewModelBase
+	public class InternalCallViewModel : WindowDialogViewModelBase
 	{
+		private MangoManager MangoManager;
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ITdiCompatibilityNavigation tdiCompatibilityNavigation;
 		private readonly IInteractiveQuestion interactive;
-		private Phone phone;
-		public Phone Phone 
+
+		public InternalCallViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
+			ITdiCompatibilityNavigation navigation, 
+			IInteractiveQuestion interactive,
+			MangoManager manager) : base(navigation)
 		{
-			get => phone;
-			private set { }
-		}
-		public InternalCallViewModel(Phone phone, IUnitOfWorkFactory unitOfWorkFactory, ITdiCompatibilityNavigation navigation, IInteractiveQuestion interactive) : base(unitOfWorkFactory,navigation)
-		{
+			this.MangoManager = manager;
+			this.unitOfWorkFactory = unitOfWorkFactory;
 			this.tdiCompatibilityNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			Title = "Входящий новый номер";
-
-			this.phone = phone;
 		}
 
 		#region Действия View
-
-		public void CreateComplaint()
+		public string GetPhoneNumber()
 		{
-			var parameters = new Dictionary<string, object> {
-				{"uowBuilder", EntityUoWBuilder.ForCreate()},
-				{"employeeSelectorFactory", new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices)},
-				{"counterpartySelectorFactory", new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices)},
-				{"phone", "не реализовано"}//FIXME
-			};
-			tdiCompatibilityNavigation.OpenTdiTabNamedArgs<CreateComplaintViewModel>(null, parameters);
+			return MangoManager.CallerNumber;
 		}
 
-		public void SelectNewConterparty()
+		public string GetCallerName()
 		{
-			var page = tdiCompatibilityNavigation.OpenTdiTab<CounterpartyDlg>(null);
-			var tab = page.TdiTab as CounterpartyDlg;
-			tab.Entity.Phones.First().Number = "+7-000-000-00-00"; //FIXME
-			page.PageClosed += NewCounerpatry_PageClosed;
+			return MangoManager.CallerName;
+		}
+		#endregion
+
+		#region CallEvents
+		public void FinishCallCommand()
+		{
+			MangoManager.HangUp();
+			Close(false, CloseSource.Self);
 		}
 
-		void NewCounerpatry_PageClosed(object sender, PageClosedEventArgs e)
+		public void ForwardCallCommand()
 		{
-			if(e.CloseSource == CloseSource.Save) 
-				{ }
-		}
-
-		public void SelectExistConterparty()
-		{
-			var page = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
-			page.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
-			page.ViewModel.OnEntitySelectedResult += ExistingCounterparty_PageClosed;
-		}
-
-		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
-		{
-			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
-			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
-			Counterparty firstClient = clients.First();
-			if(interactive.Question($"Доабать телефон к контагенту {firstClient.Name} ?","Телефон контрагента")) 
-			{
-				firstClient.Phones.Add(phone);
-				UoW.Save<Counterparty>(firstClient);
-				NavigationManager.OpenViewModel<FullInternalCallViewModel, IEnumerable<Counterparty>,Phone>(null, clients,phone);
-				this.Close(false, CloseSource.Self);
-			}
+			Action action =  () => { Close(false, CloseSource.Self); };
+			IPage page = NavigationManager.OpenViewModelNamedArgs<SubscriberSelectionViewModel>
+			(this, new Dictionary<string, object>()
+				{ {"manager",MangoManager },{"dialogType", SubscriberSelectionViewModel.DialogType.AdditionalCall },
+				{"exitAction", action}
+			});
 		}
 
 		#endregion

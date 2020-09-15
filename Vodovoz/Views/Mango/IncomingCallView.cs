@@ -28,7 +28,6 @@ namespace Vodovoz.Views.Mango
 
 			ViewModel.MangoManager.PropertyChanged += MangoManager_PropertyChanged;
 			RefreshIncomings();
-
 			if(ViewModel.CounterpartyOrdersModels != null) {
 				WidgetPlace.Visible = true;
 				foreach(var item in ViewModel.CounterpartyOrdersModels) {

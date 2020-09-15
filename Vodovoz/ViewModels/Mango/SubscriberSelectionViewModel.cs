@@ -13,6 +13,8 @@ namespace Vodovoz.ViewModels.Mango
 {
 	public class SubscriberSelectionViewModel : WindowDialogViewModelBase
 	{
+		private Action SuccessfulForward { get; set; }
+
 		#region InnerTypes
 
 		public enum DialogType
@@ -48,6 +50,31 @@ namespace Vodovoz.ViewModels.Mango
 			}
 		}
 
+		public SubscriberSelectionViewModel(INavigationManager navigation,
+			MangoManager manager,
+			DialogType dialogType,
+			Action exitAction) : base(navigation)
+		{
+
+			this.dialogType = dialogType;
+			Manager = manager;
+
+			LocalEntities = new List<SearchTableEntity>();
+
+			SearchTableEntities = new List<SearchTableEntity>();
+			List<User> users = Manager.GetAllVPBXEmploies().ToList();
+			foreach(var user in users) {
+				SearchTableEntities.Add(new SearchTableEntity(user));
+			}
+
+			List<Group> groups = Manager.GetAllVPBXGroups().ToList();
+			foreach(var group in groups) {
+				SearchTableEntities.Add(new SearchTableEntity(group));
+			}
+
+			this.SuccessfulForward = exitAction;
+		}
+
 		public void MakeCall(string extension)
 		{
 			Manager.MakeCall(extension);
@@ -55,9 +82,9 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void ForwardCall(string extension,ForwardingMethod method)
 		{
-			NavigationManager.AskClosePage(NavigationManager.FindPage(this));
+			Close(false, CloseSource.Self);
 			Manager.ForwardCall(extension, method);
-
+			SuccessfulForward();
 		}
 
 	}
