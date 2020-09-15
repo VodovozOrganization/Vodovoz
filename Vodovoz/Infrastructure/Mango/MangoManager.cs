@@ -105,6 +105,12 @@ namespace Vodovoz.Infrastructure.Mango
 					return;
 				}
 
+				//На случай переподключения закрываем текущий диалог.
+				if(CurrentPage != null) {
+					navigation.ForceClosePage(CurrentPage);
+					LastMessage = null;
+				}
+
 				extension = employee.InnerPhone.Value;
 				ConnectionState = ConnectionState.Disconnected;
 				notificationClient = new MangoNotificationClient(extension, notificationCancellation.Token);
