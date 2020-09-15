@@ -45,7 +45,14 @@ namespace Vodovoz.Views.Complaints
 				if(ViewModel.Entity.Counterparty != null) {
 					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
 				}
-				return new OrderJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+				return new OrderJournalViewModel(filter, 
+												UnitOfWorkFactory.GetDefaultFactory, 
+												ServicesConfig.CommonServices,
+												ViewModel.EmployeeService,
+												ViewModel.NomenclatureSelectorFactory,
+												ViewModel.CounterpartySelectorFactory,
+												ViewModel.NomenclatureRepository,
+												ViewModel.UserRepository);
 			});
 
 			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);

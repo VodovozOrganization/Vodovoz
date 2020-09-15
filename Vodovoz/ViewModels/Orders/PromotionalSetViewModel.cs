@@ -5,21 +5,43 @@ using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewModels.Orders
 {
 	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult
 	{
-		public PromotionalSetViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uowBuilder, unitOfWorkFactory, commonServices)
+		private readonly IEmployeeService employeeService;
+		private readonly INomenclatureRepository nomenclatureRepository;
+		private readonly IUserRepository userRepository;
+		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		
+		public PromotionalSetViewModel(IEntityUoWBuilder uowBuilder, 
+		                               IUnitOfWorkFactory unitOfWorkFactory, 
+		                               ICommonServices commonServices,
+		                               IEmployeeService employeeService,
+		                               IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+		                               IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+		                               INomenclatureRepository nomenclatureRepository,
+		                               IUserRepository userRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			
 			if(!CanRead)
 				AbortOpening("У вас недостаточно прав для просмотра");
 
@@ -111,7 +133,9 @@ namespace Vodovoz.ViewModels.Orders
 					x => x.SelectCategory = NomenclatureCategory.water,
 					x => x.SelectSaleCategory = SaleCategory.forSale);
 
-				var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory, CommonServices) {
+				var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory, 
+					CommonServices, employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory,
+					nomenclatureRepository, userRepository) {
 					SelectionMode = JournalSelectionMode.Single
 				};
 
@@ -153,7 +177,8 @@ namespace Vodovoz.ViewModels.Orders
 		{
 			AddActionCommand = new DelegateCommand<PromotionalSetActionType>(
 			(actionType) => {
-				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver(UoW);
+				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver(UoW, 
+					counterpartySelectorFactory, nomenclatureRepository, userRepository);
 				SelectedActionViewModel = resolver.Resolve(Entity, actionType);
 
 				if(SelectedActionViewModel is ICreationControl) {

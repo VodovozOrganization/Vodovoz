@@ -8,6 +8,8 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 
@@ -15,9 +17,13 @@ namespace Vodovoz.ViewModels.Complaints
 {
 	public class CreateComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
-		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 
-		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
+		public IEmployeeService EmployeeService { get; }
+		public INomenclatureRepository NomenclatureRepository { get; }
+		public IUserRepository UserRepository { get; }
 
 		public CreateComplaintViewModel(
 			IEntityUoWBuilder uoWBuilder, 
@@ -26,12 +32,18 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
-			ICommonServices commonServices
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository
 			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.Checking);
@@ -43,7 +55,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public Employee CurrentEmployee {
 			get {
 				if(currentEmployee == null) {
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+					currentEmployee = EmployeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
 				return currentEmployee;
 			}
@@ -55,7 +67,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 
 		private List<ComplaintSource> complaintSources;
-		private readonly IEmployeeService employeeService;
 		private readonly ISubdivisionRepository subdivisionRepository;
 
 		public IEnumerable<ComplaintSource> ComplaintSources {

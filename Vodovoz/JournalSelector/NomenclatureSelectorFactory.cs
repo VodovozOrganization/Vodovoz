@@ -1,35 +1,45 @@
 ﻿using System;
-using System.Reflection;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Filter;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
-using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Journals.JournalViewModels;
 
 namespace Vodovoz.JournalSelector
 {
 	public class NomenclatureSelectorFactory<Nomenclature, NomenclaturesJournalViewModel> : IEntitySelectorFactory
 		where NomenclaturesJournalViewModel : JournalViewModelBase, IEntitySelector
 	{
-		public NomenclatureSelectorFactory(ICommonServices commonServices, NomenclatureFilterViewModel filterViewModel)
+		public NomenclatureSelectorFactory(ICommonServices commonServices, 
+		                                   NomenclatureFilterViewModel filterViewModel,
+		                                   IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+		                                   INomenclatureRepository nomenclatureRepository,
+		                                   IUserRepository userRepository)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			filter = filterViewModel;
 		}
 
-		private readonly ICommonServices commonServices;
-		private NomenclatureFilterViewModel filter;
+		protected readonly ICommonServices commonServices;
+		protected readonly INomenclatureRepository nomenclatureRepository;
+		protected readonly IUserRepository userRepository;
+		protected readonly NomenclatureFilterViewModel filter;
+		protected readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 
 		public Type EntityType => typeof(Nomenclature);
 
 		public IEntitySelector CreateSelector(bool multipleSelect = false)
 		{
 			NomenclaturesJournalViewModel selectorViewModel = (NomenclaturesJournalViewModel)Activator
-				.CreateInstance(typeof(NomenclaturesJournalViewModel), new object[] { filter, UnitOfWorkFactory.GetDefaultFactory, commonServices });
+				.CreateInstance(typeof(NomenclaturesJournalViewModel), new object[] { filter, 
+					UnitOfWorkFactory.GetDefaultFactory, commonServices, VodovozGtkServicesConfig.EmployeeService, 
+					this, counterpartySelectorFactory, nomenclatureRepository, userRepository});
+			
 			selectorViewModel.SelectionMode = JournalSelectionMode.Single;
 			return selectorViewModel;
 		}

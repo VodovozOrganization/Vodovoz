@@ -14,11 +14,10 @@ namespace Vodovoz.Domain.Goods
 		public virtual int Id { get; set; }
 
 		Nomenclature nomenclature;
-
 		[Display(Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
-			set { SetField(ref nomenclature, value, () => Nomenclature); }
+			get => nomenclature;
+			set => SetField(ref nomenclature, value);
 		}
 
 		[Display(Name = "Размер картинки")]
@@ -28,19 +27,16 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		private byte[] image;
-
 		[Display(Name = "Изображение")]
 		public virtual byte[] Image {
-			get { return image; }
-			set { SetField(ref image, value, () => Image); }
+			get => image;
+			set => SetField(ref image, value);
 		}
 
 		#endregion
 
-		public NomenclatureImage()
-		{
-		}
-
+		public NomenclatureImage() { }
+		
 		public NomenclatureImage(Nomenclature nomenclature, byte[] image)
 		{
 			Nomenclature = nomenclature;
