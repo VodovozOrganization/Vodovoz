@@ -193,21 +193,6 @@ namespace Vodovoz.Infrastructure.Mango
 			}
 		}
 
-
-		//Point!
-		private void FoundByPhoneItemsConfigureTest()
-		{
-			object[] objects = phoneRepository.GetObjectByPhone(unitOfWorkFactory.CreateWithoutRoot(),CallerNumber);
-			foreach(var item in objects) {
-				if(item.GetType().Name == "Counterparty")
-					Clients.Add((Counterparty)item);
-				else if(item.GetType().Name == "DeliveryPoint")
-					DeliveryPoints.Add((DeliveryPoint)item);
-				else if(item.GetType().Name == "Employee")
-					Employee = (Employee)item;
-			}
-		}
-
 		#endregion
 		#region Работа с сообщениями
 
