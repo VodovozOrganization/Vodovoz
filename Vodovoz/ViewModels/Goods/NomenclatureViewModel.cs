@@ -70,9 +70,6 @@ namespace Vodovoz.ViewModels.Goods
 		public bool VisibilityDepositCategoryItems =>
 			Entity.Category == NomenclatureCategory.deposit;
 
-		public bool VisibilityAdditionalCategoryItems =>
-			Entity.Category == NomenclatureCategory.additional;
-
 		public bool VisibilityFuelCategoryItems =>
 			Entity.Category == NomenclatureCategory.fuel;
 
@@ -91,6 +88,8 @@ namespace Vodovoz.ViewModels.Goods
 			!(Entity.Category == NomenclatureCategory.service || Entity.Category == NomenclatureCategory.deposit);
 		
 		public bool IsEshopNomenclature => Entity?.ProductGroup?.ExportToOnlineStore ?? false;
+		
+		public bool IsOnlineStoreProductGroup => Entity?.ProductGroup?.IsOnlineStore ?? false;
 
 		public bool SensitivityRadioPriceButton => Entity.DependsOnNomenclature == null;
 
@@ -102,7 +101,6 @@ namespace Vodovoz.ViewModels.Goods
 				() => VisibilitySalesCategoriesItems,
 				() => VisibilityMasterCategoryItems,
 				() => VisibilityDepositCategoryItems,
-				() => VisibilityAdditionalCategoryItems,
 				() => VisibilityFuelCategoryItems,
 				() => VisibilityBottleCategoryItems,
 				() => SensitivityEquipmentCategoryItems,
@@ -116,7 +114,8 @@ namespace Vodovoz.ViewModels.Goods
 			
 			SetPropertyChangeRelation(
 				e => e.ProductGroup,
-				() => IsEshopNomenclature
+				() => IsEshopNomenclature,
+				() => IsOnlineStoreProductGroup
 			);
 
 			SetPropertyChangeRelation(

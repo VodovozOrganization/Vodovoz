@@ -7,6 +7,7 @@ using QS.BusinessCommon.Domain;
 using QS.Helpers;
 using QS.Navigation;
 using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
 using QS.Views.GtkUI;
 using QSOrmProject;
@@ -15,7 +16,9 @@ using Vodovoz.Additions.Store;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Goods;
 
@@ -127,13 +130,16 @@ namespace Vodovoz.Views.Goods
 			lblFuelType.Binding.AddBinding(ViewModel, vm => vm.VisibilityFuelCategoryItems, w => w.Visible).InitializeFromSource();
 
 			ylblOnlineStore.Text = ViewModel.Entity.OnlineStore?.Name;
-			ylblOnlineStore.Binding.AddBinding(ViewModel, vm => vm.VisibilityAdditionalCategoryItems, w => w.Visible).InitializeFromSource();
-			ylblOnlineStoreStr.Binding.AddBinding(ViewModel, vm => vm.VisibilityAdditionalCategoryItems, w => w.Visible).InitializeFromSource();
+			ylblOnlineStore.Binding.AddBinding(ViewModel, vm => vm.IsOnlineStoreProductGroup, w => w.Visible).InitializeFromSource();
+			ylblOnlineStoreStr.Binding.AddBinding(ViewModel, vm => vm.IsOnlineStoreProductGroup, w => w.Visible).InitializeFromSource();
 
 			yentryFolder1c.SubjectType = typeof(Folder1c);
 			yentryFolder1c.Binding.AddBinding(ViewModel.Entity, e => e.Folder1C, w => w.Subject).InitializeFromSource();
-			yentryProductGroup.SubjectType = typeof(ProductGroup);
+			
+			yentryProductGroup.JournalButtons = Buttons.Add | Buttons.Edit;
+			yentryProductGroup.RepresentationModel = new ProductGroupVM(ViewModel.UoW, new ProductGroupFilterViewModel());
 			yentryProductGroup.Binding.AddBinding(ViewModel.Entity, e => e.ProductGroup, w => w.Subject).InitializeFromSource();
+			
 			referenceUnit.SubjectType = typeof(MeasurementUnits);
 			referenceUnit.Binding.AddBinding(ViewModel.Entity, n => n.Unit, w => w.Subject).InitializeFromSource();
 			
