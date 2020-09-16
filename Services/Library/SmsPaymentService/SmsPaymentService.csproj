@@ -81,6 +81,7 @@
         <Compile Include="SmsPaymentService.cs" />
         <Compile Include="IDriverPaymentService.cs" />
         <Compile Include="SmsPaymentServiceSetting.cs" />
+        <Compile Include="OverduePaymentsWorker.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />
