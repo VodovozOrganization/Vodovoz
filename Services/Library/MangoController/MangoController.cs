@@ -34,7 +34,6 @@ namespace MangoService
 		private string baseURL = "https://app.mango-office.ru/";
 		private string vpbx_api_key;
 		private string sign;
-		private string json;
 		private string vpbx_api_salt;
 		private JsonSerializerSettings settings = new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore };
 
@@ -48,7 +47,6 @@ namespace MangoService
 
 		private string PerformCommand(string command, string json = "")
 		{
-			this.json = json;
 			sign = MangoSignHelper.GetSign(vpbx_api_key, json, vpbx_api_salt);
 			string result = String.Empty;
 			using(var request = new HttpRequest(baseURL)) {
