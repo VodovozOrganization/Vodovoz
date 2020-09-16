@@ -104,8 +104,17 @@ namespace VodovozSmsPaymentService
 				);
 				IDriverPaymentService driverPaymentService = new DriverPaymentService(channelFactory);
 				var paymentSender = new BitrixPaymentWorker(baseAddress);
+				
+				var fileProvider = new FileProvider("/tmp/VodovozSmsPaymentServiceTemp.txt");
+				var unsavedPaymentsWorker = new UnsavedPaymentsWorker(fileProvider);
 
-				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(paymentSender, driverPaymentService, new BaseParametersProvider());
+				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
+					paymentSender, 
+					driverPaymentService,
+					new BaseParametersProvider(),
+					fileProvider,
+					unsavedPaymentsWorker
+				);
 
 				ServiceHost smsPaymentServiceHost = new SmsPaymentServiceHost(smsPaymentServiceInstanceProvider);
 				
@@ -129,6 +138,7 @@ namespace VodovozSmsPaymentService
 
 				(smsPaymentServiceInstanceProvider.GetInstance(null) as ISmsPaymentService)?.SynchronizePaymentStatuses();
 				
+				unsavedPaymentsWorker.Start();
 				var overduePaymentsWorker = new OverduePaymentsWorker();
 				overduePaymentsWorker.Start();
 

@@ -12,19 +12,30 @@ namespace VodovozSmsPaymentService
 		private readonly IPaymentWorker paymentWorker;
 		private readonly IDriverPaymentService driverPaymentService;
 		private readonly ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider;
+		private readonly FileProvider fileProdiver;
+		private readonly UnsavedPaymentsWorker unsavedPaymentsWorker;
 
-		public SmsPaymentServiceInstanceProvider(IPaymentWorker paymentWorker, IDriverPaymentService driverPaymentService, ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider)
+		public SmsPaymentServiceInstanceProvider(
+			IPaymentWorker paymentWorker, 
+			IDriverPaymentService driverPaymentService, 
+			ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider,
+			FileProvider fileProdiver,
+			UnsavedPaymentsWorker unsavedPaymentsWorker
+			)
 		{
 			this.paymentWorker = paymentWorker ?? throw new ArgumentNullException(nameof(paymentWorker));
 			this.driverPaymentService = driverPaymentService ?? throw new ArgumentNullException(nameof(driverPaymentService));
 			this.smsPaymentServiceParametersProvider = smsPaymentServiceParametersProvider ?? throw new ArgumentNullException(nameof(smsPaymentServiceParametersProvider));
+			this.fileProdiver = fileProdiver ?? throw new ArgumentNullException(nameof(fileProdiver));
+			this.unsavedPaymentsWorker = unsavedPaymentsWorker ?? throw new ArgumentNullException(nameof(unsavedPaymentsWorker));
+
 		}
 
 		#region IInstanceProvider implementation
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new SmsPaymentService.SmsPaymentService(paymentWorker, driverPaymentService, smsPaymentServiceParametersProvider);
+			return new SmsPaymentService.SmsPaymentService(paymentWorker, driverPaymentService, smsPaymentServiceParametersProvider, fileProdiver, unsavedPaymentsWorker);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

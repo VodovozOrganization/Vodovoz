@@ -1,7 +1,9 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain
@@ -61,9 +63,9 @@ namespace Vodovoz.Domain
             set => SetField(ref creationDate, value, () => CreationDate);
         }
         
-        private DateTime paidDate;
+        private DateTime? paidDate;
         [Display(Name = "Дата оплаты")]
-        public virtual DateTime PaidDate {
+        public virtual DateTime? PaidDate {
             get => paidDate;
             set => SetField(ref paidDate, value, () => PaidDate);
         }
@@ -72,13 +74,19 @@ namespace Vodovoz.Domain
 
         #region Функции
 
-        public virtual SmsPayment SetPaid(DateTime datePaid, PaymentFrom paymentFrom)
+        public virtual SmsPayment SetPaid(IUnitOfWork uow, DateTime datePaid, PaymentFrom paymentFrom)
         {
             SmsPaymentStatus = SmsPaymentStatus.Paid;
             PaidDate = datePaid;
             Order.OnlineOrder = ExternalId;
             Order.PaymentType = PaymentType.ByCard;    
             Order.PaymentByCardFrom = paymentFrom;
+            
+            foreach (var routeListItem in uow.Session.QueryOver<RouteListItem>().Where(x => x.Order.Id == Order.Id).List<RouteListItem>()) {
+                routeListItem.RecalculateTotalCash();
+                uow.Save(routeListItem);
+            }
+            
             return this;
         }
         
@@ -93,6 +101,12 @@ namespace Vodovoz.Domain
             SmsPaymentStatus = SmsPaymentStatus.WaitingForPayment;
             return this;
         }
+        
+        public virtual SmsPayment SetReadyToSend()
+        {
+            SmsPaymentStatus = SmsPaymentStatus.ReadyToSend;
+            return this;
+        }
 
         #endregion
         
@@ -101,11 +115,13 @@ namespace Vodovoz.Domain
     public enum SmsPaymentStatus
     {
         [Display(Name = "Ожидание оплаты")]
-        WaitingForPayment,
+        WaitingForPayment = 0,
         [Display(Name = "Оплачен")]
-        Paid,
+        Paid = 1,
         [Display(Name = "Оплата отменена")]
-        Cancelled
+        Cancelled = 2,
+        [Display(Name = "Готов к отправке")]
+        ReadyToSend = 3,
     }
 	
     public class SmsPaymentStatusStringType : NHibernate.Type.EnumStringType
