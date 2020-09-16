@@ -130,6 +130,7 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using Vodovoz.Core.DataService;
 using Vodovoz.Views.Mango.Talks;
+using Vodovoz.ViewModels.Mango.Talks;
 
 namespace Vodovoz
 {

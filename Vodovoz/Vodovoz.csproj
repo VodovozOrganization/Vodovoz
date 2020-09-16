@@ -1534,7 +1534,6 @@
     <Compile Include="JournalNodes\LateArrivalReasonsJournalNode.cs" />
     <Compile Include="ReportsParameters\Logistic\ScheduleOnLinePerShiftReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ScheduleOnLinePerShiftReport.cs" />
-    <Compile Include="ViewModels\Mango\InternalTalkViewModel.cs" />
     <Compile Include="Infrastructure\Mango\MangoManager.cs" />
     <Compile Include="Views\Mango\CounterpartyOrderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.CounterpartyOrderView.cs" />
@@ -1562,6 +1561,7 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Mango.HandsetView.cs" />
     <Compile Include="Views\Mango\Talks\InternalTalkView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.InternalTalkView.cs" />
+    <Compile Include="ViewModels\Mango\Talks\InternalTalkViewModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

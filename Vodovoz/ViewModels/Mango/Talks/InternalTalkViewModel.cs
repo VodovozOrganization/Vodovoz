@@ -19,7 +19,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Mango.Talks;
 
-namespace Vodovoz.ViewModels.Mango
+namespace Vodovoz.ViewModels.Mango.Talks
 {
 	public class InternalTalkViewModel : TalkViewModelBase
 	{
