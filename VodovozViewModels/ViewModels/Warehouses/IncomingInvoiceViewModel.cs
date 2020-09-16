@@ -73,6 +73,9 @@ namespace Vodovoz.ViewModels.Warehouses
         {
             SetPropertyChangeRelation(e => e.CanAddItem, () => CanAddItem, () => CanFillFromOrders);
             SetPropertyChangeRelation(e => e.CanDeleteItems, () => CanDeleteItems);
+            
+            SetPropertyChangeRelation(e => e.Warehouse, () => CanAddItem, () => CanFillFromOrders);
+            SetPropertyChangeRelation(e => e.Warehouse, () => CanCreate);
         }
         
         private void ReloadAllowedWarehousesFrom()
