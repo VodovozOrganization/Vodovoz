@@ -129,6 +129,9 @@ using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using Vodovoz.Core.DataService;
+using Vodovoz.Views.Mango.Talks;
+using Vodovoz.ViewModels.Mango.Talks;
+
 namespace Vodovoz
 {
 	partial class MainClass
@@ -597,7 +600,7 @@ namespace Vodovoz
 			builder.Register((ctx) => new AutofacViewModelsGtkPageFactory(AppDIContainer)).AsSelf();
 			builder.RegisterType<TdiNavigationManager>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>().SingleInstance();
 			//builder.RegisterType<BasedOnNameTDIResolver>().As<ITDIWidgetResolver>();
-			builder.Register(cc => new ClassNamesBaseGtkViewResolver(typeof(InternalCallView), typeof(DeletionView))).As<IGtkViewResolver>();
+			builder.Register(cc => new ClassNamesBaseGtkViewResolver(typeof(InternalTalkView), typeof(DeletionView))).As<IGtkViewResolver>();
 			#endregion
 
 			#region Главное окно
@@ -623,7 +626,7 @@ namespace Vodovoz
 			#region ViewModels
 			builder.Register(x => new AutofacViewModelResolver(AppDIContainer)).As<IViewModelResolver>();
 			builder.RegisterAssemblyTypes(
-					System.Reflection.Assembly.GetAssembly(typeof(InternalCallViewModel)),
+					System.Reflection.Assembly.GetAssembly(typeof(InternalTalkViewModel)),
 				 	System.Reflection.Assembly.GetAssembly(typeof(ComplaintViewModel)))
 				.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
 				.AsSelf();
