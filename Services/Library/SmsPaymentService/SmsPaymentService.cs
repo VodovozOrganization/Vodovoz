@@ -189,7 +189,6 @@ namespace SmsPaymentService
 
                     isSaveFailed = false;
                     exception = null;
-                    logger.Info($"Платеж(externalId: {payment.ExternalId}) успешно сохранён");
                 }
                 catch (Exception ex) {
                     i++;
@@ -360,11 +359,12 @@ namespace SmsPaymentService
                         count++;
                     }
 
-                    if(count == 0) {
+                    if(payments.Count == 0) {
                         logger.Info($"Не найдено ни одного платежа для синхронизации");
                     }
-                    else{
-                        uow.Commit();
+                    else {
+                        if(count != 0)
+                            uow.Commit();
                         logger.Info($"Синхронизировано {count} статусов платежей");
                     }
                 }
