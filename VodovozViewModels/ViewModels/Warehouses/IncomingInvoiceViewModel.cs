@@ -94,11 +94,20 @@ namespace Vodovoz.ViewModels.Warehouses
             if(!CanEdit)
                 return false;
             
+            if(UoW.IsNew) {
+                Entity.Author = CurrentEmployee;
+                Entity.TimeStamp = DateTime.Now;
+            }
+            else
+            {
+                if(Entity.LastEditor == null) {
+                    throw new InvalidOperationException("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+                }
+            }
+            
             Entity.LastEditor = CurrentEmployee;
             Entity.LastEditedTime = DateTime.Now;
-            if(Entity.LastEditor == null) {
-                throw new InvalidOperationException("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
-            }
+            
 
             return base.Save(close);
         }
