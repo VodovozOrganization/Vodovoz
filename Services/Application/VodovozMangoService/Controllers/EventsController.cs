@@ -40,10 +40,12 @@ namespace VodovozMangoService.Controllers
                     Calls.Remove(message.call_id);
                 
                 call.LastEvent = message;
-                if (!String.IsNullOrEmpty(message.from.taken_from_call_id) &&
-                    Calls.ContainsKey(message.from.taken_from_call_id))
-                    call.OnHoldCall = Calls[message.from.taken_from_call_id];
-            }
+                if (!String.IsNullOrEmpty(message.from.taken_from_call_id)) {
+                    if (Calls.ContainsKey(message.from.taken_from_call_id))
+                        call.OnHoldCall = Calls[message.from.taken_from_call_id];
+                    else
+                        logger.Warn($"Информация о звонке {message.from.taken_from_call_id} отсутствет, но на него ссылается текущий звонок как переадресация.")
+                }
             Program.NotificationServiceInstance.NewEvent(call);
         }
     }
