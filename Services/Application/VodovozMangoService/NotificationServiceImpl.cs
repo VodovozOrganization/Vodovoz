@@ -62,9 +62,15 @@ namespace VodovozMangoService
 
 		public void NewEvent(CallInfo info)
 		{
-			if(String.IsNullOrEmpty(info.LastEvent.to.extension))
-				return; //Не знаем кому прислать уведомление.
+			if (!String.IsNullOrEmpty(info.LastEvent.to.extension))
+				SendIncome(info);
 			
+			if (!String.IsNullOrEmpty(info.LastEvent.from.extension))
+				SendOutgoing(info);
+		}
+
+		private void SendIncome(CallInfo info)
+		{
 			//Вычисляем получателей
 			IList<Subscription> subscriptions;
 			lock (Subscribers)
@@ -95,13 +101,55 @@ namespace VodovozMangoService
 				caller = GetInternalCaller(from.extension);
 
 			logger.Debug($"Caller:{caller}");
+			var message = MakeMessage(info, caller);
+			message.Direction = CallDirection.Incoming;
+			SendNotification(subscriptions, message, info);
+		}
+		
+		private void SendOutgoing(CallInfo info)
+		{
+			//Вычисляем получателей
+			IList<Subscription> subscriptions;
+			lock (Subscribers)
+			{
+				var count = Subscribers.Count;
+				if(count == 0)
+					return;
+
+				subscriptions = Subscribers
+					.Where(x => x.Extension == info.LastEvent.from.Extension)
+					.ToList();
+			}
 			
+#if DEBUG
+			logger.Debug($"Для исходящего с {info.LastEvent.from.Extension} подходит {subscriptions.Count} из {Subscribers.Count} подписчиков.");
+#endif
+			
+			if(subscriptions.Count == 0)
+				return; //Не кого уведомлять.
+			
+			//Подготавливаем сообщение
+			var to = info.LastEvent.to;
+			Caller caller;
+			if (String.IsNullOrEmpty(to.extension))
+				caller = GetExternalCaller(to.number);
+			else
+				caller = GetInternalCaller(to.extension);
+
+			logger.Debug($"Caller:{caller}");
+			var message = MakeMessage(info, caller);
+			message.Direction = CallDirection.Outgoing;
+			SendNotification(subscriptions, message, info);
+		}
+
+		private NotificationMessage MakeMessage(CallInfo info, Caller caller)
+		{ 
 			var message = new NotificationMessage
 			{
-			 	CallId = info.LastEvent.call_id,
-			    Timestamp = Timestamp.FromDateTimeOffset(info.LastEvent.Time),
-			 	State = info.LastEvent.CallState,
-			    CallFrom = caller
+				CallId = info.LastEvent.call_id,
+				Timestamp = Timestamp.FromDateTimeOffset(info.LastEvent.Time),
+				State = info.LastEvent.CallState,
+				CallFrom = caller
 			};
 
 			if (info.OnHoldCall != null)
@@ -112,10 +160,14 @@ namespace VodovozMangoService
 				else
 					message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.from.extension);
 			}
-			
-#if DEBUG
+
+			return message;
+		}
+		private void SendNotification(IList<Subscription> subscriptions, NotificationMessage message, CallInfo info)
+		{
+			#if DEBUG
 			logger.Debug($"Отправляем {subscriptions.Count} подписчикам, сообщение: {message}.");
-#endif
+			#endif
 			
 			// Отправляем уведомление о поступлении входящего
 			foreach (var subscription in subscriptions)
@@ -129,15 +181,15 @@ namespace VodovozMangoService
 					}
 					continue;
 				}
-				switch (info.LastEvent.call_state)
+				switch (message.State)
 				{
-					case "Disconnected": subscription.CurrentCall = null; break; 
-					case "Connected": subscription.CurrentCall = info; break;
+					case CallState.Disconnected: subscription.CurrentCall = null; break; 
+					case CallState.Connected: subscription.CurrentCall = info; break;
 				}
 				subscription.Queue.Add(message);
 			}
 		}
-
+		
 		#region External call
 		private readonly List<CallerInfoCache> ExternalCallers = new List<CallerInfoCache>();
 		private Caller GetExternalCaller(string number)

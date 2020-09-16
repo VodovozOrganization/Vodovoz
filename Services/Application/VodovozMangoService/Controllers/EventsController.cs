@@ -48,6 +48,7 @@ namespace VodovozMangoService.Controllers
                     logger.Warn($"Информация о звонке {message.from.taken_from_call_id} отсутствет, но на него ссылается текущий звонок как переадресация.");
             }
             Program.NotificationServiceInstance.NewEvent(call);
+            logger.Debug($"Сервер отслеживает {Calls.Count} звонков");
         }
     }
 }

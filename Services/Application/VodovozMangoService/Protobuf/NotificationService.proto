@@ -14,9 +14,10 @@ message NotificationMessage {
   string call_id = 1;
   Caller call_from = 2;
   CallState state = 3;
-  google.protobuf.Timestamp timestamp = 4;
-  bool is_transfer = 5;
-  Caller primary_caller = 6;
+  CallDirection direction = 4;
+  google.protobuf.Timestamp timestamp = 5;
+  bool is_transfer = 6;
+  Caller primary_caller = 7;
 }
 
 message Caller{
@@ -35,6 +36,11 @@ enum CallState{
 enum CallerType {
     CALLER_TYPE_INTERNAL = 0;
     CALLER_TYPE_EXTERNAL = 1;
+}
+
+enum CallDirection{
+    CALL_DIRECTION_INCOMING = 0;
+    CALL_DIRECTION_OUTGOING = 1;
 }
 
 message CallerName{
