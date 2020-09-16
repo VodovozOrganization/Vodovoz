@@ -92,6 +92,8 @@ namespace OnlineStoreImportService
         {
             productGroup.Name = name;
             productGroup.Parent = parent;
+            if (!productGroup.IsOnlineStore)
+                productGroup.IsOnlineStore = true;
 
             uow.Save(productGroup);
         }
@@ -103,6 +105,7 @@ namespace OnlineStoreImportService
             newProductGroup.OnlineStore = onlineStore;
             newProductGroup.OnlineStoreExternalId = id;
             newProductGroup.Parent = parent;
+            newProductGroup.IsOnlineStore = true;
             productGroups.Add(id, newProductGroup);
             
             uow.Save(newProductGroup);
