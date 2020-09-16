@@ -128,6 +128,9 @@ namespace VodovozSmsPaymentService
 				logger.Info("Server started.");
 
 				(smsPaymentServiceInstanceProvider.GetInstance(null) as ISmsPaymentService)?.SynchronizePaymentStatuses();
+				
+				var overduePaymentsWorker = new OverduePaymentsWorker();
+				overduePaymentsWorker.Start();
 
 				UnixSignal[] signals = {
 					new UnixSignal (Signum.SIGINT),
