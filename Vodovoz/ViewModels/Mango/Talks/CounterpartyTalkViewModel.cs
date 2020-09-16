@@ -40,7 +40,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		private Counterparty currentCounterparty { get; set; }
 
-		//public delegate void GotTheNewCounterpartyOrderViewModel(object sender, EventArgs e);
 		public event System.Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
 		public CounterpartyTalkViewModel(IEnumerable<Counterparty> clients,
@@ -55,7 +54,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 			this.interactive = interactive;
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
-			Title = "Входящий звонок существующего контрагента";
 
 			if(clients != null) 
 			{

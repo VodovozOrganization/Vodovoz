@@ -82,14 +82,9 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public string CallerName => LastMessage.CallFrom.Names != null ? String.Join("\n", LastMessage.CallFrom.Names.Select(x => x.Name)) : null;
 		public string CallerNumber => LastMessage?.CallFrom.Number;
+		public bool IsOutgoing => LastMessage?.Direction == CallDirection.Outgoing;
 		public bool IsTransfer => LastMessage.IsTransfer;
 		public Caller PrimaryCaller => LastMessage?.PrimaryCaller;
-
-			//Point!
-		//FIXME Тестовая заглушка телефона и имени
-		//public string CallerNumber { get; set; }
-		//public string CallerName { get; set; }
-
 
 		public List<IncomingCall> IncomingCalls { get; set; } = new List<IncomingCall>();
 		#endregion

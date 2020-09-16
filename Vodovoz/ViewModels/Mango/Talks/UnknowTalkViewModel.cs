@@ -34,7 +34,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
-			Title = "Входящий новый номер";
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
 		}

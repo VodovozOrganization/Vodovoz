@@ -1,23 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
-using QS.ViewModels;
-using QS.ViewModels.Dialog;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Mango;
-using Vodovoz.JournalNodes;
-using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Mango.Talks;
 
 namespace Vodovoz.ViewModels.Mango.Talks
 {
