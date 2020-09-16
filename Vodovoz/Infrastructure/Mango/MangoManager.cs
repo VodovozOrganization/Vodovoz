@@ -240,7 +240,7 @@ namespace Vodovoz.Infrastructure.Mango
 				ConnectionState = ConnectionState.Talk;
 				FoundByPhoneItemsConfigure();
 				if(message.CallFrom.Type == CallerType.Internal) {
-					CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, MangoManager>(null,this);
+					CurrentPage = navigation.OpenViewModel<InternalTalkViewModel, MangoManager>(null,this);
 					CurrentPage.PageClosed += CurrentPage_PageClosed;
 				}
 				else
