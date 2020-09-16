@@ -21,6 +21,10 @@ namespace Vodovoz.ViewModels.Mango
 				counterpartyOrdersModels = value;
 			}
 		}
+
+		public readonly bool IsTransfer;
+		public string OnLine { get;private  set; }
+
 		private Counterparty currentCounterparty { get; set; }
 
 		public IncomingCallViewModel(
@@ -31,15 +35,21 @@ namespace Vodovoz.ViewModels.Mango
 		{
 			this.MangoManager = manager ?? throw new ArgumentNullException(nameof(manager));
 
-
-			//if(manager.IsTransfer && manager.PrimaryCaller != null)
-			if(manager.Clients != null) {
-				counterpartyOrdersModels = new List<CounterpartyOrderViewModel>();
-				foreach(Counterparty client in manager.Clients) {
-					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UoWFactory, tdinavigation);
-					CounterpartyOrdersModels.Add(model);
+			if(manager.IsTransfer && manager.PrimaryCaller != null) {
+				IsTransfer = manager.IsTransfer;
+				if(manager.PrimaryCaller != null) {
+					if(manager.Employee != null)
+						OnLine = manager.Employee.Name;
+					else OnLine = manager.PrimaryCaller.Number;
 				}
-				currentCounterparty = CounterpartyOrdersModels.First().Client;
+				if(manager.Clients != null) {
+					counterpartyOrdersModels = new List<CounterpartyOrderViewModel>();
+					foreach(Counterparty client in manager.Clients) {
+						CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UoWFactory, tdinavigation);
+						CounterpartyOrdersModels.Add(model);
+					}
+					currentCounterparty = CounterpartyOrdersModels.First().Client;
+				}
 			}
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
