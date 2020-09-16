@@ -200,7 +200,7 @@ namespace VodovozMangoService
 				return row.employee_name;
 			if (!string.IsNullOrWhiteSpace(row.address))
 				return $"{row.counterparty_name} ({row.address})";
-			return row.counterparty_name;
+			return row.counterparty_name ?? String.Empty;
 		}
 		#endregion
 

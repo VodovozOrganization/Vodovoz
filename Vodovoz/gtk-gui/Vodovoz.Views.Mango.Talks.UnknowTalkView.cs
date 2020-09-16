@@ -52,11 +52,12 @@ namespace Vodovoz.Views.Mango.Talks
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.Label1_Conversation = new global::Gtk.Label();
 			this.Label1_Conversation.Name = "Label1_Conversation";
-			this.Label1_Conversation.Xalign = 0F;
+			this.Label1_Conversation.Xalign = 1F;
 			this.Label1_Conversation.LabelProp = global::Mono.Unix.Catalog.GetString("Разговор:");
 			this.hbox1.Add(this.Label1_Conversation);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.Label1_Conversation]));
 			w1.Position = 0;
+			w1.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.CallNumberLabel = new global::Gamma.GtkWidgets.yLabel();
 			this.CallNumberLabel.Name = "CallNumberLabel";

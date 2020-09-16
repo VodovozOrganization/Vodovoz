@@ -172,9 +172,9 @@ namespace Vodovoz.Infrastructure.Mango
 		}
 		#endregion
 		#region Private
-		public List<Counterparty> Clients { get; private set; } = null;
+		public List<Counterparty> Clients { get; private set; } = new List<Counterparty>();
 		public Employee Employee { get; private set; } = null;
-		public List<DeliveryPoint> DeliveryPoints { get; private set; } = null;
+		public List<DeliveryPoint> DeliveryPoints { get; private set; } = new List<DeliveryPoint>();
 
 		private void FoundByPhoneItemsConfigure()
 		{

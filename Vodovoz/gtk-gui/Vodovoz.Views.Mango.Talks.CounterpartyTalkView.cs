@@ -67,6 +67,7 @@ namespace Vodovoz.Views.Mango.Talks
 			this.hbox1.Add(this.Label1_Conversation);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.Label1_Conversation]));
 			w1.Position = 0;
+			w1.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.CallNumberYLabel = new global::Gamma.GtkWidgets.yLabel();
 			this.CallNumberYLabel.Name = "CallNumberYLabel";
