@@ -53,7 +53,7 @@ namespace EmailService
 			workerTasksCreatedCounter++;
 			logger.Info("Запуск новой задачи по отправке писем");
 			Task workerTask = Task.Factory.StartNew(() => ProcessEmailMailjet(), cancellationToken.Token);
-			workerTask.ContinueWith((task) => StartNewWorker(), TaskContinuationOptions.OnlyOnFaulted);
+			workerTask.ContinueWith((task) => StartNewWorker());
 		}
 
 		public static void StopWorkers()
@@ -197,28 +197,27 @@ namespace EmailService
 				}
 
 				using(var uow = UnitOfWorkFactory.CreateForRoot<StoredEmail>(email.StoredEmailId, $"[ES]Задача отправки через Mailjet")) {
-
 					MailjetClient client = new MailjetClient(userId, userSecretKey) {
 						Version = ApiVersion.V3_1,
 					};
-
-					//формируем письмо в формате mailjet для отправки
-					var request = CreateMailjetRequest(email);
-					MailjetResponse response = null;
 					try {
-						logger.Debug("{0} Отправка запроса на сервер Mailjet", GetThreadInfo());
-						response = await client.PostAsync(request);
-					}
-					catch(Exception ex) {
-						logger.Error("{1} Не удалось отправить письмо: \n{0}", ex, GetThreadInfo());
-						SaveErrorInfo(uow, ex.ToString());
-						continue;
-					}
+						//формируем письмо в формате mailjet для отправки
+						var request = CreateMailjetRequest(email);
+						MailjetResponse response = null;
+						try {
+							logger.Debug("{0} Отправка запроса на сервер Mailjet", GetThreadInfo());
+							response = await client.PostAsync(request);
+						}
+						catch(Exception ex) {
+							logger.Error("{1} Не удалось отправить письмо: \n{0}", ex, GetThreadInfo());
+							SaveErrorInfo(uow, ex.ToString());
+							continue;
+						}
 
-					MailjetMessage[] messages = response.GetData().ToObject<MailjetMessage[]>();
+						MailjetMessage[] messages = response.GetData().ToObject<MailjetMessage[]>();
 
-					logger.Debug("{1} Получен ответ: Code {0}", response.StatusCode, GetThreadInfo());
-					try {
+						logger.Debug("{1} Получен ответ: Code {0}", response.StatusCode, GetThreadInfo());
+						
 						if(response.IsSuccessStatusCode) {
 							uow.Root.State = StoredEmailStates.SendingComplete;
 							foreach(var message in messages) {
