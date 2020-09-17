@@ -478,6 +478,9 @@
     <EmbeddedResource Include="icons\phone\phone-disable.png" />
     <EmbeddedResource Include="icons\phone\phone-connected.png" />
     <EmbeddedResource Include="icons\phone\decline-call.png" />
+    <EmbeddedResource Include="icons\phone\make-call.png" />
+    <EmbeddedResource Include="icons\phone\make-call-32.png" />
+    <EmbeddedResource Include="icons\phone\make-call-16.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\SmsSender.cs" />
@@ -2341,7 +2344,6 @@
     <None Include="Reports\Logistic\NonClosedRLByPeriodReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="icons\phone\make-call.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Reports\Logistic\ScheduleOnLinePerShiftReport.rdl">

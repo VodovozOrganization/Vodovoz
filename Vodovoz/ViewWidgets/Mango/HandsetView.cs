@@ -1,4 +1,6 @@
 ﻿using System;
+using Gdk;
+using Gtk;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Infrastructure.Mango;
 
@@ -16,6 +18,11 @@ namespace Vodovoz.ViewWidgets.Mango
 			Phone.Number = number;
 		}
 
+		public void SetPhone(string number)
+		{
+			Phone = new Phone();
+			Phone.Number = number;
+		}
 		protected void Clicked_buttonMakeCall(object sender, EventArgs e)
 		{
 			MainClass.MainWin.MangoManager.MakeCall("7"+Phone.DigitsNumber);

@@ -53,7 +53,10 @@ namespace Vodovoz.ViewModels.Mango
 			}
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
-			Title = "Входящий звонок";
+			if(MangoManager.IsOutgoing)
+				Title = "Исходящий звонок";
+			else
+				Title = "Входящий звонок";
 		}
 
 		#region Действия View

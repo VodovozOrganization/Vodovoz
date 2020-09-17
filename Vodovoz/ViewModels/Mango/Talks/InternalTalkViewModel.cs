@@ -21,6 +21,11 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.unitOfWorkFactory = unitOfWorkFactory;
 			this.tdiCompatibilityNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
+
+			if(manager.IsOutgoing)
+				Title = "Исходящий звонок";
+			else
+				Title = "Входящий звонок";
 		}
 
 		#region Действия View

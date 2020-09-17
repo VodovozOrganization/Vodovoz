@@ -31,7 +31,7 @@ namespace Vodovoz.ViewWidgets.Mango
 			this.buttonMakeCall.Name = "buttonMakeCall";
 			this.buttonMakeCall.UseUnderline = true;
 			global::Gtk.Image w3 = new global::Gtk.Image();
-			w3.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons8-телефон-16.png");
+			w3.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.make-call-16.png");
 			this.buttonMakeCall.Image = w3;
 			this.Add(this.buttonMakeCall);
 			if ((this.Child != null))

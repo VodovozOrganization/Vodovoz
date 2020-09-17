@@ -105,9 +105,6 @@ namespace Vodovoz.SidePanel.InfoViews
 				}
 			}
 			PhonesTable.ShowAll();
-			//labelPhone.LabelProp = String.Join(";\n", Counterparty.Phones.Select(ph => ph.LongText));
-			//if(Counterparty.Phones.Count <= 0)
-			//labelPhone.Text = "[+] чтоб добавить -->";
 		}
 
 		public bool VisibleOnPanel

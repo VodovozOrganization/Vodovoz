@@ -15,6 +15,7 @@ using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -59,7 +60,21 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 			buttonSaveComment.Sensitive = true;
 			labelAddress.Text = DeliveryPoint.CompiledAddress;
-			labelPhone.LabelProp = String.Join(";\n", DeliveryPoint.Phones.Select(ph => ph.LongText));
+
+			if(DeliveryPoint.Phones.Count > 0) {
+				uint rowsCount = Convert.ToUInt32(DeliveryPoint.Phones.Count);
+				PhonesTable.Resize(rowsCount, 2);
+				for(uint row = 0; row < rowsCount; row++) {
+					Label label = new Label();
+					label.Markup = $"<b>+7{DeliveryPoint.Phones[Convert.ToInt32(row)].DigitsNumber}</b>";
+					HandsetView handsetView = new HandsetView(DeliveryPoint.Phones[Convert.ToInt32(row)].Number);
+					PhonesTable.Attach(label, 0, 1, row, row + 1);
+					PhonesTable.Attach(handsetView, 1, 2, row, row + 1);
+				}
+			}
+			PhonesTable.ShowAll();
+
+			//labelPhone.LabelProp = String.Join(";\n", DeliveryPoint.Phones.Select(ph => ph.LongText));
 			if(DeliveryPoint.Phones.Count <= 0)
 				labelPhone.Text = "[+] чтоб добавить -->";
 
