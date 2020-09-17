@@ -29,7 +29,6 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -190,6 +189,12 @@ namespace Vodovoz
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, !(Entity.Status == RouteListStatus.Confirmed));
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments)e.ItemEnum);
 			CheckCarLoadDocuments();
+
+			//Телефон
+			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = MainClass.MainWin.MangoManager;
+			phoneLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
+			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
+			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 		}
 
 		void YspeccomboboxCashSubdivision_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
