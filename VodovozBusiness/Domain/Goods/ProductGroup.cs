@@ -125,7 +125,7 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual void SetIsOnlineStoreRecursively(bool value)
 		{
-			IsArchive = value;
+			IsOnlineStore = value;
 			foreach (var child in Childs) 
 				child.SetIsOnlineStoreRecursively(value);
 		}
