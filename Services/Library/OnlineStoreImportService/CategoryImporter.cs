@@ -41,10 +41,17 @@ namespace OnlineStoreImportService
 
         private void LoadProductGroup(int onlineStoreId)
         {
-            productGroups = uow.Session.QueryOver<ProductGroup>()
+             var tempProductGroups = uow.Session.QueryOver<ProductGroup>()
                 .Where(x => x.OnlineStore.Id == onlineStoreId)
                 .Where(Restrictions.IsNotNull(Projections.Property<ProductGroup>(x => x.OnlineStoreExternalId)))
-                .List().ToDictionary(x => x.OnlineStoreExternalId);
+                .List();
+             foreach (var productGroup in tempProductGroups)
+             {
+                 if (!productGroup.IsOnlineStore)
+                     productGroup.IsOnlineStore = true;
+             }
+            
+             productGroups = tempProductGroups.ToDictionary(x => x.OnlineStoreExternalId);;
         }
 
         private void ReadRoot(JObject childs, ProductGroup parent)
