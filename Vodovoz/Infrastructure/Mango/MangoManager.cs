@@ -82,7 +82,7 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public string CallerName => LastMessage.CallFrom.Names != null ? String.Join("\n", LastMessage.CallFrom.Names.Select(x => x.Name)) : null;
 		public string CallerNumber => LastMessage?.CallFrom.Number;
-		public bool IsOutgoing => LastMessage?.Direction == CallDirection.Outgoing;
+		public bool IsOutgoing => LastMessage?.Direction == CallDirection.Outgoing || IncomingCalls.Any(x => x.IsOutgoing);
 		public bool IsTransfer => LastMessage.IsTransfer;
 		public Caller PrimaryCaller => LastMessage?.PrimaryCaller;
 

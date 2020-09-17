@@ -19,5 +19,7 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public string CallerName => message.CallFrom?.Names != null ? String.Join("\n", message.CallFrom.Names.Select(x => x.Name)) : null;
 		public string CallerNumber => message.CallFrom?.Number;
+
+		public bool IsOutgoing => message?.Direction == CallDirection.Outgoing;
 	}
 }
