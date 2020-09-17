@@ -203,7 +203,6 @@ namespace Vodovoz
 
 			//Point!
 			//Заполняем телефоны
-			string phones = null;
 
 			if(Entity.Driver != null && Entity.Driver.Phones.Count > 0) {
 				uint rows = Convert.ToUInt32(Entity.Driver.Phones.Count + 1);
@@ -240,9 +239,6 @@ namespace Vodovoz
 
 			PhonesTable1.ShowAll();
 			PhonesTable2.ShowAll();
-			if(string.IsNullOrWhiteSpace(phones))
-				phones = "Нет телефонов";
-			//labelPhonesInfo.Markup = phones;
 
 			//Заполняем информацию о бутылях
 			UpdateBottlesSummaryInfo();
