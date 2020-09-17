@@ -8,7 +8,6 @@ using NHibernate.SqlCommand;
 using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
@@ -18,17 +17,27 @@ namespace SmsPaymentService
 {
     public class SmsPaymentService : ISmsPaymentService
     {
-        public SmsPaymentService(IPaymentWorker paymentWorker, IDriverPaymentService androidDriverService, ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider)
+        public SmsPaymentService(
+            IPaymentWorker paymentWorker, 
+            IDriverPaymentService androidDriverService, 
+            ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider,
+            FileProvider fileProvider,
+            UnsavedPaymentsWorker unsavedPaymentsWorker
+            )
         {
             this.paymentWorker = paymentWorker ?? throw new ArgumentNullException(nameof(paymentWorker));
             this.androidDriverService = androidDriverService ?? throw new ArgumentNullException(nameof(androidDriverService));
             this.smsPaymentServiceParametersProvider = smsPaymentServiceParametersProvider ?? throw new ArgumentNullException(nameof(smsPaymentServiceParametersProvider));
+            this.fileProvider = fileProvider ?? throw new ArgumentNullException(nameof(fileProvider));
+            this.unsavedPaymentsWorker = unsavedPaymentsWorker ?? throw new ArgumentNullException(nameof(unsavedPaymentsWorker));
         }
         
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IPaymentWorker paymentWorker;
 		private readonly IDriverPaymentService androidDriverService;
         private readonly ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider;
+        private readonly FileProvider fileProvider;
+        private readonly UnsavedPaymentsWorker unsavedPaymentsWorker;
         
 		public StatusCode ReceivePayment(RequestBody body)
         {
@@ -61,7 +70,7 @@ namespace SmsPaymentService
 
                     switch (status) {
                         case SmsPaymentStatus.Paid:
-                            payment.SetPaid(DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
+                            payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
                             break;
                         case SmsPaymentStatus.Cancelled:
                             payment.SetCancelled();
@@ -70,9 +79,8 @@ namespace SmsPaymentService
                             throw new ArgumentOutOfRangeException();
                     }
                     
-                    if(!TrySavePayment(payment, out Exception ex)) {
-                        throw ex;
-                    }
+                    uow.Save(payment);
+                    uow.Commit();
 					orderId = payment.Order.Id;
                     
                     logger.Info($"Статус платежа с externalId: {payment.ExternalId} изменён c {oldStatus} на {status}");
@@ -129,26 +137,35 @@ namespace SmsPaymentService
                         logger.Error( $"Запрос на отправку платежа пришёл со значением номера заказа, не существующем в базе (Id: {orderId})");
                         return resultMessage;
                     }
-                    var paymentDto = new SmsPaymentDTO {
-                        Recepient = order.Client.Name,
-                        RecepientId = order.Client.Id,
-                        PhoneNumber = phoneNumber,
-                        PaymentStatus = SmsPaymentStatus.WaitingForPayment,
-                        OrderId = order.Id,
-                        PaymentCreationDate = DateTime.Now,
+                    var newPayment = new SmsPayment {
                         Amount = order.OrderTotalSum,
-                        RecepientType = order.Client.PersonType
+                        Order = order,
+                        Recepient = order.Client,
+                        CreationDate = DateTime.Now,
+                        PhoneNumber = phoneNumber
                     };
+                    newPayment.SetReadyToSend();
+                    uow.Save(newPayment);
+                    uow.Commit();
+                    
+                    var paymentDto = CreateSmsPaymentDTOFromSmsPayment(newPayment);
                     
                     var sendResponse = paymentWorker.SendPayment(paymentDto);
-                    
+
                     if (sendResponse.HttpStatusCode == HttpStatusCode.OK) {
-                        var payment = CreateNewSmsPayment(uow, paymentDto, sendResponse.ExternalId);
+                        newPayment.SetWaitingForPayment();
+                        newPayment.ExternalId = sendResponse.ExternalId;
                         
-                        if(!TrySavePayment(payment, out Exception ex)) {
-                            throw ex;
+                        try {
+                            uow.Save(newPayment);
+                            uow.Commit();
+                            logger.Info($"Создан новый платеж с данными: ExternalId: {newPayment.ExternalId}, orderId: {newPayment.Order.Id}, phoneNumber: {newPayment.PhoneNumber}");
                         }
-                        logger.Info($"Создан новый платеж с данными: ExternalId: {payment.ExternalId}, orderId: {payment.Order.Id}, phoneNumber: {payment.PhoneNumber}");
+                        catch (Exception) {
+                            logger.Warn("Не получилось сохранить платёж с ExternalId, записываю данные во временный файл...");
+                            fileProvider.WriteExternalIdToFile(newPayment.Id, sendResponse.ExternalId);
+                            unsavedPaymentsWorker.Trigger();
+                        }
                     }
                     else {
                         resultMessage.ErrorDescription = $"Не получилось отправить платеж. Http код: {sendResponse}";
@@ -163,41 +180,6 @@ namespace SmsPaymentService
                 logger.Error(ex, $"Ошибка при отправке платежа (orderId: {orderId}, phoneNumber: {phoneNumber})");
             }
             return resultMessage;
-        }
-
-        private bool TrySavePayment(SmsPayment payment, out Exception exception)
-        {
-            exception = null;
-            bool isSaveFailed = true;
-            int i = 1;
-            int maxTries = 3;
-            do {
-                try {
-                    logger.Info($"Попытка({i}) сохранить платеж(externalId: {payment.ExternalId})...");
-
-                    using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-
-                        if(payment.SmsPaymentStatus == SmsPaymentStatus.Paid) {
-                            foreach (var routeListItem in uow.Session.QueryOver<RouteListItem>().Where(x => x.Order.Id == payment.Order.Id).List<RouteListItem>()) {
-                                routeListItem.RecalculateTotalCash();
-                                uow.Save(routeListItem);
-                            }
-                        }
-                        uow.Save(payment);
-                        uow.Commit();
-                    }
-
-                    isSaveFailed = false;
-                    exception = null;
-                }
-                catch (Exception ex) {
-                    i++;
-                    logger.Error(ex, $"Ошибка при сохранении платежа(externalId: {payment.ExternalId})");
-                    exception = ex;
-                }
-            } while (isSaveFailed && i <= maxTries);
-
-            return !isSaveFailed;
         }
 
         public PaymentResult RefreshPaymentStatus(int externalId)
@@ -226,10 +208,13 @@ namespace SmsPaymentService
                                 payment.SetWaitingForPayment();
                                 break;
                             case SmsPaymentStatus.Paid:
-                                payment.SetPaid(DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
+                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
                                 break;
                             case SmsPaymentStatus.Cancelled:
                                 payment.SetCancelled();
+                                break;
+                            case SmsPaymentStatus.ReadyToSend:
+                                payment.SetReadyToSend();
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();
@@ -341,12 +326,7 @@ namespace SmsPaymentService
                                 payment.SetWaitingForPayment();
                                 break;
                             case SmsPaymentStatus.Paid:
-                                payment.SetPaid(DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
-                                
-                                foreach (var routeListItem in uow.Session.QueryOver<RouteListItem>().Where(x => x.Order.Id == payment.Order.Id).List<RouteListItem>()) {
-                                    routeListItem.RecalculateTotalCash();
-                                    uow.Save(routeListItem);
-                                }
+                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
                                 break;
                             case SmsPaymentStatus.Cancelled:
                                 payment.SetCancelled();
@@ -373,20 +353,19 @@ namespace SmsPaymentService
                 logger.Error(ex,"При синхронизации произошла ошибка");
             }
         }
-        
-        private SmsPayment CreateNewSmsPayment(IUnitOfWork uow, SmsPaymentDTO dto, int externalId)
-        {
-            var payment = new SmsPayment {
-                ExternalId = externalId,
-                Amount = dto.Amount,
-                Order = uow.GetById<Order>(dto.OrderId),
-                Recepient = uow.GetById<Counterparty>(dto.RecepientId),
-                CreationDate = dto.PaymentCreationDate,
-                PhoneNumber = dto.PhoneNumber
-            };
-            payment.SetWaitingForPayment();
-            return payment;
-        }
 
+        private SmsPaymentDTO CreateSmsPaymentDTOFromSmsPayment(SmsPayment smsPayment)
+        {
+            return new SmsPaymentDTO {
+                Recepient = smsPayment.Recepient.Name,
+                RecepientId = smsPayment.Recepient.Id,
+                PhoneNumber = smsPayment.PhoneNumber,
+                PaymentStatus = SmsPaymentStatus.WaitingForPayment,
+                OrderId = smsPayment.Order.Id,
+                PaymentCreationDate = smsPayment.CreationDate,
+                Amount = smsPayment.Amount,
+                RecepientType = smsPayment.Recepient.PersonType
+            };
+        }
     }
 }

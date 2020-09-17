@@ -16,11 +16,11 @@ namespace SmsPaymentService
 
         public void Start()
         {
-            logger.Info("Запуск рутины закрытия просроченных платежей...");
+            logger.Info("Запуск процесса закрытия просроченных платежей...");
             timer = new Timer(startInterval);
             timer.Elapsed += TimerOnElapsed;
             timer.Start();
-            logger.Info("Рутина закрытия просроченных платежей запущена");
+            logger.Info("Процесс закрытия просроченных платежей запущен");
         }
 
         private void TimerOnElapsed(object sender, ElapsedEventArgs e)
