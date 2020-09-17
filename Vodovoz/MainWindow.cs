@@ -162,7 +162,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		MangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
 		MangoManager.Connect();
 
-		//BanksUpdater.CheckBanksUpdate(false);
+		BanksUpdater.CheckBanksUpdate(false);
 	}
 
 	#region IProgressBarDisplayable implementation

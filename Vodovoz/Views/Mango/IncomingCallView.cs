@@ -5,12 +5,6 @@ using QS.Views.Dialog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.ViewModels.Mango;
-using Vodovoz.Domain.Orders;
-using Gamma.GtkWidgets;
-using Gtk;
-using Vodovoz.Domain.Client;
-using FluentNHibernate.Data;
-using System.Collections.Generic;
 
 using Vodovoz.Views.Mango.Incoming;
 
@@ -44,8 +38,6 @@ namespace Vodovoz.Views.Mango
 			} else {
 				WidgetPlace.Visible = false;
 			}
-			//WidgetPlace.ChangeCurrentPage += ChangeCurrentPage_WidgetPlace;
-			//ViewModel.CounterpartyOrdersModelsUpdateEvent += Update_WidgetPlace;
 		}
 
 		void MangoManager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -63,7 +55,6 @@ namespace Vodovoz.Views.Mango
 		{
 			Notebook widget = (Notebook)sender;
 			Counterparty counterparty = (widget.CurrentPageWidget as CounterpartyOrderView).ViewModel.Client;
-			//ViewModel.UpadateCurrentCounterparty(counterparty);
 		}
 
 		protected void OnButtonDisconnectClicked(object sender, EventArgs e)
