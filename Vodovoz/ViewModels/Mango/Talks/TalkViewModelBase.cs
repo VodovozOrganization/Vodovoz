@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Infrastructure.Mango;
@@ -16,6 +17,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			manager.PropertyChanged += Manager_PropertyChanged;
 			SetTitle();
 			IsModal = false;
+			WindowPosition = WindowGravity.RightBottom;
 		}
 
 		void Manager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

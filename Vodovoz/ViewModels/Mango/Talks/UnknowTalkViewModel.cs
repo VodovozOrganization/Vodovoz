@@ -34,8 +34,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
-			IsModal = false;
-			WindowPosition = WindowGravity.RightBottom;
 		}
 
 		#region Действия View
