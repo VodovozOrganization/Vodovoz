@@ -266,7 +266,7 @@
                                                             ELSE ''
                                                         END
                                                     FROM order_equipment oe
-                                                    WHERE oe.order_id = orders.id
+                                                    WHERE oe.order_id = orders.id LIMIT 1
                                                    ), ''
                                             ),
                                             ': ',
