@@ -284,9 +284,9 @@ namespace Vodovoz.ViewModels.Warehouses
                                             continue;
                                         moveItem.Amount = count;
                                     }
-                                    
-                                   
-								}
+                                }
+                                
+                                OnPropertyChanged(nameof(TotalSum));
 							};
 							TabParent.AddSlaveTab(this, orderSelector);
 						},
