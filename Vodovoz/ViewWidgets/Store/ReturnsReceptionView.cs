@@ -49,10 +49,6 @@ namespace Vodovoz
 					.AddSetter((cell, node) => cell.Editable = node.EquipmentId == 0)
 				.AddColumn("Ожидаемое кол-во")
 					.AddNumericRenderer(node => node.ExpectedAmount, false)
-				.AddColumn("Цена закупки").AddNumericRenderer(node => node.PrimeCost).Digits(2).Editing()
-					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
-					.AddTextRenderer(i => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 				.AddColumn("")
 				.Finish();
 

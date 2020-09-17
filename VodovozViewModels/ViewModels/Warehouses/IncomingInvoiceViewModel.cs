@@ -21,6 +21,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.PrintableDocuments;
+using Vodovoz.Repositories;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Warehouses
@@ -222,6 +223,7 @@ namespace Vodovoz.ViewModels.Warehouses
         
                                 foreach(var nomenclature in selectedNomenclatures) {
                                     Entity.AddItem(new IncomingInvoiceItem(){Nomenclature = nomenclature, Amount = 1});
+                                    OnPropertyChanged(nameof(TotalSum));
                                 }
                                 
                             };
@@ -257,13 +259,33 @@ namespace Vodovoz.ViewModels.Warehouses
 								if (nomIds != null && nomIds.Any()) 
                                 {
 									nomIds = nomIds.Distinct().ToList();
-									// nomsAmount = StockRepository.NomenclatureInStock(UoW, Entity.Warehouse.Id, nomIds.ToArray());
+									nomsAmount = StockRepository.NomenclatureInStock(UoW, Entity.Warehouse.Id, nomIds.ToArray());
 								}
+                                //Если такие уже добавлены, то только увеличить их количество
 								foreach (var item in orderItems) {
-                                    if (item.Nomenclature.Category == NomenclatureCategory.service || item.Nomenclature.Category == NomenclatureCategory.master)
-                                        continue;
+                                    var moveItem = Entity.Items.FirstOrDefault(x => x.Nomenclature.Id == item.Nomenclature.Id);
+                                    if (moveItem == null)
+                                    {
+                                        var count = item.Count > nomsAmount[item.Nomenclature.Id]
+                                            ? nomsAmount[item.Nomenclature.Id]
+                                            : item.Count;
+                                        if (count == 0)
+                                            continue;
+                                        
+                                        if (item.Nomenclature.Category == NomenclatureCategory.service || item.Nomenclature.Category == NomenclatureCategory.master)
+                                            continue;
 									
-                                    Entity.AddItem( new IncomingInvoiceItem(){Nomenclature = item.Nomenclature, Amount = item.Count, PrimeCost = item.Price} );
+                                        Entity.AddItem( new IncomingInvoiceItem(){Nomenclature = item.Nomenclature, Amount = item.Count, PrimeCost = item.Price} );
+                                    } else {
+                                        var count = (moveItem.Amount + item.Count) > nomsAmount[item.Nomenclature.Id] ?
+                                            nomsAmount[item.Nomenclature.Id] :
+                                            (moveItem.Amount + item.Count);
+                                        if(count == 0)
+                                            continue;
+                                        moveItem.Amount = count;
+                                    }
+                                    
+                                   
 								}
 							};
 							TabParent.AddSlaveTab(this, orderSelector);
