@@ -8,8 +8,8 @@ using QS.Report;
 using QS.Services;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Complaints;
 
@@ -17,9 +17,9 @@ namespace Vodovoz.FilterViewModels
 {
 	public class ComplaintFilterViewModel : FilterViewModelBase<ComplaintFilterViewModel>
 	{
+		private readonly ICommonServices commonServices;
 		public ISubdivisionService SubdivisionService { get; set; }
-
-		public IEmployeeRepository EmployeeRepository { get; set; }
+		public IEmployeeService EmployeeService { get; set; }
 
 		public ComplaintFilterViewModel()
 		{
@@ -39,8 +39,9 @@ namespace Vodovoz.FilterViewModels
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory
-		)
-		{
+		) {
+			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices)); 
+			
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
 				commonServices,
@@ -133,15 +134,15 @@ namespace Vodovoz.FilterViewModels
 
 		public void SelectMyComplaint()
 		{
-			if(EmployeeRepository == null)
-				throw new NullReferenceException("Отсутствует ссылка на EmployeeRepository");
+			if(EmployeeService == null)
+				throw new NullReferenceException("Отсутствует ссылка на EmployeeService");
 
 			Subdivision = null;
 			ComplaintStatus = null;
 			ComplaintType = null;
 			StartDate = DateTime.Now.AddMonths(-3);
 			EndDate = DateTime.Now.AddMonths(3);
-			Employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Employee = EmployeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
 		}
 
 		List<ComplaintKind> complaintKindSorce;
@@ -174,11 +175,12 @@ namespace Vodovoz.FilterViewModels
 		}
 	}
 
-
 	public enum DateFilterType
 	{
 		[Display(Name = "план. завершения")]
 		PlannedCompletionDate,
+		[Display(Name = "факт. завершения")]
+		ActualCompletionDate,
 		[Display(Name = "создания")]
 		CreationDate
 	}

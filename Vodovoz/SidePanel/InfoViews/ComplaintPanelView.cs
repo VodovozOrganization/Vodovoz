@@ -180,21 +180,28 @@ namespace Vodovoz.SidePanel.InfoViews
 					.And(() => discussionAlias.Complaint.Id == complaintAlias.Id);
 			}
 
-			if(filter.FilterDateType == DateFilterType.CreationDate && filter.StartDate.HasValue) {
-				query = query.Where(() => complaintAlias.CreationDate <= filter.EndDate)
-							.And(() => filter.StartDate == null || complaintAlias.CreationDate >= filter.StartDate.Value);
-
-				if(dicussionQuery != null)
-					query.WithSubquery.WhereExists(dicussionQuery);
-
-			} else if(filter.FilterDateType == DateFilterType.PlannedCompletionDate && filter.StartDate.HasValue) {
-				if(dicussionQuery == null) {
-					query = query.Where(() => complaintAlias.PlannedCompletionDate <= filter.EndDate)
+			if(filter.StartDate.HasValue) {
+				switch (filter.FilterDateType) {
+					case DateFilterType.PlannedCompletionDate:
+						if(dicussionQuery == null) {
+							query = query.Where(() => complaintAlias.PlannedCompletionDate <= filter.EndDate)
 								.And(() => filter.StartDate == null || complaintAlias.PlannedCompletionDate >= filter.StartDate.Value);
-				} else {
-					dicussionQuery = dicussionQuery
-									.And(() => filter.StartDate == null || discussionAlias.PlannedCompletionDate >= filter.StartDate.Value)
-									.And(() => discussionAlias.PlannedCompletionDate <= filter.EndDate);
+						} else {
+							dicussionQuery = dicussionQuery
+								.And(() => filter.StartDate == null || discussionAlias.PlannedCompletionDate >= filter.StartDate.Value)
+								.And(() => discussionAlias.PlannedCompletionDate <= filter.EndDate);
+						}
+						break;
+					case DateFilterType.ActualCompletionDate:
+						query = query.Where(() => complaintAlias.ActualCompletionDate <= filter.EndDate)
+								.And(() => filter.StartDate == null || complaintAlias.ActualCompletionDate >= filter.StartDate.Value);
+						break;
+					case DateFilterType.CreationDate:
+						query = query.Where(() => complaintAlias.CreationDate <= filter.EndDate)
+							.And(() => filter.StartDate == null || complaintAlias.CreationDate >= filter.StartDate.Value);
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
 				}
 			}
 

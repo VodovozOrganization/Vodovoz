@@ -132,7 +132,7 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref nomenclatures, value, () => Nomenclatures);
 		}
 
-		IList<RouteListItem> routeListItems;
+		IList<RouteListItem> routeListItems = new List<RouteListItem>();
 		[Display(Name = "Адрес МЛ")]
 		public virtual IList<RouteListItem> RouteListItems {
 			get => routeListItems;

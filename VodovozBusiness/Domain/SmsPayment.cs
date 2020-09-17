@@ -1,20 +1,24 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain
 {
     public class SmsPayment : PropertyChangedBase, IDomainObject
     {
+        #region Свойства
+
         public virtual int Id { get; set; }
         
         private SmsPaymentStatus smsPaymentStatus;
         [Display(Name = "Статус оплаты")]
         public virtual SmsPaymentStatus SmsPaymentStatus {
             get => smsPaymentStatus;
-            set => SetField(ref smsPaymentStatus, value, () => SmsPaymentStatus);
+            protected set => SetField(ref smsPaymentStatus, value, () => SmsPaymentStatus);
         }
         
         private int externalId;
@@ -59,22 +63,65 @@ namespace Vodovoz.Domain
             set => SetField(ref creationDate, value, () => CreationDate);
         }
         
-        private DateTime paidDate;
+        private DateTime? paidDate;
         [Display(Name = "Дата оплаты")]
-        public virtual DateTime PaidDate {
+        public virtual DateTime? PaidDate {
             get => paidDate;
             set => SetField(ref paidDate, value, () => PaidDate);
         }
+
+        #endregion
+
+        #region Функции
+
+        public virtual SmsPayment SetPaid(IUnitOfWork uow, DateTime datePaid, PaymentFrom paymentFrom)
+        {
+            SmsPaymentStatus = SmsPaymentStatus.Paid;
+            PaidDate = datePaid;
+            Order.OnlineOrder = ExternalId;
+            Order.PaymentType = PaymentType.ByCard;    
+            Order.PaymentByCardFrom = paymentFrom;
+            
+            foreach (var routeListItem in uow.Session.QueryOver<RouteListItem>().Where(x => x.Order.Id == Order.Id).List<RouteListItem>()) {
+                routeListItem.RecalculateTotalCash();
+                uow.Save(routeListItem);
+            }
+            
+            return this;
+        }
+        
+        public virtual SmsPayment SetCancelled()
+        {
+            SmsPaymentStatus = SmsPaymentStatus.Cancelled;
+            return this;
+        }
+        
+        public virtual SmsPayment SetWaitingForPayment()
+        {
+            SmsPaymentStatus = SmsPaymentStatus.WaitingForPayment;
+            return this;
+        }
+        
+        public virtual SmsPayment SetReadyToSend()
+        {
+            SmsPaymentStatus = SmsPaymentStatus.ReadyToSend;
+            return this;
+        }
+
+        #endregion
+        
     }
     
     public enum SmsPaymentStatus
     {
         [Display(Name = "Ожидание оплаты")]
-        WaitingForPayment,
+        WaitingForPayment = 0,
         [Display(Name = "Оплачен")]
-        Paid,
+        Paid = 1,
         [Display(Name = "Оплата отменена")]
-        Cancelled
+        Cancelled = 2,
+        [Display(Name = "Готов к отправке")]
+        ReadyToSend = 3,
     }
 	
     public class SmsPaymentStatusStringType : NHibernate.Type.EnumStringType

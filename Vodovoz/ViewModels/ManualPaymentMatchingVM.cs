@@ -79,16 +79,17 @@ namespace Vodovoz.ViewModels
 		public IJournalSearch Search { get; set; }
 
 		private IList<ManualPaymentMatchingVMNode> listNodes { get; set; } = new List<ManualPaymentMatchingVMNode>();
-
-		readonly ICommonServices commonServices;
-		readonly SearchHelper searchHelper;
+		
+		private readonly SearchHelper searchHelper;
+		private readonly IOrderRepository orderRepository;
 
 		public ManualPaymentMatchingVM(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
-			ICommonServices commonServices) : base(uowBuilder, uowFactory, commonServices)
+			ICommonServices commonServices,
+			IOrderRepository orderRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
 			if(uowBuilder.IsNewEntity) {
 				AbortOpening("Невозможно создать новую загрузку выписки из текущего диалога, необходимо использовать диалоги создания");
@@ -111,7 +112,7 @@ namespace Vodovoz.ViewModels
 			GetCounterpatyDebt();
 		}
 
-		private void GetLastBalance()
+		public void GetLastBalance()
 		{
 			if(Entity.Counterparty != null)
 				LastBalance = PaymentsRepository.GetCounterpartyLastBalance(UoW, Entity.Counterparty.Id);
@@ -296,7 +297,7 @@ namespace Vodovoz.ViewModels
 						return;
 					}
 
-					if(SumToAllocate == 0)
+					if(SumToAllocate == 0 || Entity.Status == PaymentState.completed)
 						return;
 
 					if(CurrentBalance > 0) {
@@ -307,12 +308,24 @@ namespace Vodovoz.ViewModels
 
 					AllocateOrders();
 					CreateOperations();
-					Entity.Status = PaymentState.completed;
+					UoW.Commit();
 
-					if(Save()) { 
-						UoW.Commit();
-						Close(false, QS.Navigation.CloseSource.Self);
+					foreach (var item in Entity.PaymentItems) {
+						if(item.Order.OrderPaymentStatus == OrderPaymentStatus.Paid)
+							continue;
+						
+						var totalSum = orderRepository.GetPaymentItemsForOrder(UoW, item.Order.Id)
+						                              .Sum(x => x.Sum);
+						
+						item.Order.OrderPaymentStatus = item.Order.ActualTotalSum > totalSum
+							? OrderPaymentStatus.PartiallyPaid
+							: OrderPaymentStatus.Paid;
+						
+						UoW.Save(item.Order);
 					}
+					
+					Entity.Status = PaymentState.completed;
+					SaveAndClose();
 				},
 				() => true
 			);
@@ -353,7 +366,6 @@ namespace Vodovoz.ViewModels
 			UoW.Save(Entity.CashlessMovementOperation);
 
 			foreach(PaymentItem item in Entity.ObservableItems) {
-
 				item.CreateExpenseOperation();
 				UoW.Save(item.CashlessMovementOperation);
 			}
@@ -364,17 +376,8 @@ namespace Vodovoz.ViewModels
 			var list = listNodes.Where(x => x.CurrentPayment > 0);
 
 			foreach(var node in list) {
-
 				var order = UoW.GetById<VodOrder>(node.Id);
-				var sum = node.CurrentPayment + node.LastPayments;
 				Entity.AddPaymentItem(order, node.CurrentPayment);
-
-				if(order.ActualTotalSum > sum)
-					order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
-				else
-					order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-
-				UoW.Save(order);
 			}
 		}
 
@@ -402,7 +405,7 @@ namespace Vodovoz.ViewModels
 				incomePaymentQuery.Where(x => x.Client == Entity.Counterparty);
 
 			if(StartDate.HasValue && EndDate.HasValue)
-				incomePaymentQuery.Where(x => x.BillDate >= StartDate && x.BillDate <= EndDate);
+				incomePaymentQuery.Where(x => x.DeliveryDate >= StartDate && x.DeliveryDate <= EndDate);
 
 			if(OrderStatusVM != null)
 				incomePaymentQuery.Where(x => x.OrderStatus == OrderStatusVM);
@@ -438,7 +441,7 @@ namespace Vodovoz.ViewModels
 				   	.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 				   	.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
 				    .Select(() => orderAlias.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
-				   	.Select(() => orderAlias.BillDate).WithAlias(() => resultAlias.OrderDate)
+				   	.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.OrderDate)
 					.SelectSubQuery(totalSum).WithAlias(() => resultAlias.ActualOrderSum)
 					.SelectSubQuery(lastPayment).WithAlias(() => resultAlias.LastPayments)
 				)
@@ -450,9 +453,10 @@ namespace Vodovoz.ViewModels
 			return resultQuery;
 		}
 
-		private void GetCounterpatyDebt()
+		public void GetCounterpatyDebt()
 		{
-			CounterpartyDebt = OrderSingletonRepository.GetInstance().GetCounterpartyDebt(UoW, Entity.Counterparty.Id);
+			if(Entity.Counterparty != null)
+				CounterpartyDebt = OrderSingletonRepository.GetInstance().GetCounterpartyDebt(UoW, Entity.Counterparty.Id);
 		}
 
 		private string TryGetOrganizationType(string name)

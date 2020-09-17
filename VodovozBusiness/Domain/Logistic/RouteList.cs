@@ -20,6 +20,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.HumanResources;
@@ -675,7 +676,8 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 
-		public virtual List<Discrepancy> GetDiscrepancies(IList<RouteListControlNotLoadedNode> itemsLoaded, List<EntityRepositories.Logistic.ReturnsNode> allReturnsToWarehouse)
+		public virtual List<Discrepancy> GetDiscrepancies(IList<RouteListControlNotLoadedNode> itemsLoaded,
+		                                                  List<ReturnsNode> allReturnsToWarehouse)
 		{
 			List<Discrepancy> result = new List<Discrepancy>();
 
@@ -687,12 +689,37 @@ namespace Vodovoz.Domain.Logistic
 										 .ToList();
 
 			foreach(var orderItem in orderClosingItems) {
-				var discrepancy = new Discrepancy {
-					Nomenclature = orderItem.Nomenclature,
-					ClientRejected = orderItem.ReturnedCount,
-					Name = orderItem.Nomenclature.Name
-				};
+				var address = Addresses.SingleOrDefault(x => x.Order.Id == orderItem.Order.Id);
+				var discrepancy = new Discrepancy();
+				
+				if (address?.TransferedTo != null && address.TransferedTo.NeedToReload) {
+					discrepancy.ClientRejected = orderItem.Count;
+				}
+				else {
+					discrepancy.ClientRejected = orderItem.ReturnedCount;
+				}
+
+				discrepancy.Nomenclature = orderItem.Nomenclature;
+				discrepancy.Name = orderItem.Nomenclature.Name;
+				
 				AddDiscrepancy(result, discrepancy);
+			}
+			
+			//Терминал для оплаты
+			var needTerminal = Addresses.Any(x => x.Order.NeedTerminal);
+
+			if (needTerminal) {
+				var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+				var driverTerminalBalance =
+					new EmployeeNomenclatureMovementRepository().GetDriverTerminalBalance(UoW, Driver.Id, terminalId);
+				var terminal = UoW.GetById<Nomenclature>(terminalId);
+
+				var discrepancyTerminal = new Discrepancy {
+					Nomenclature = terminal,
+					PickedUpFromClient = driverTerminalBalance,
+					Name = terminal.Name
+				};
+				AddDiscrepancy(result, discrepancyTerminal);
 			}
 
 			//ОБОРУДОВАНИЕ
@@ -768,7 +795,7 @@ namespace Vodovoz.Domain.Logistic
 				returnedBottlesNom)
 			.Sum(item => item.Amount);
 
-			var notloadedNomenclatures = NotLoadedNomenclatures();
+			var notloadedNomenclatures = NotLoadedNomenclatures(true);
 			var allReturnsToWarehouse = new RouteListRepository().GetReturnsToWarehouse(UoW, Id, Nomenclature.GetCategoriesForShipment());
 			var discrepancies = GetDiscrepancies(notloadedNomenclatures, allReturnsToWarehouse);
 
@@ -1593,13 +1620,18 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Нода с номенклатурами и различными количествами после погрузки МЛ на складе
 		/// </summary>
-		public virtual List<RouteListControlNotLoadedNode> NotLoadedNomenclatures()
+		public virtual List<RouteListControlNotLoadedNode> NotLoadedNomenclatures(bool needTerminalAccounting, int? terminalId = null)
 		{
 			List<RouteListControlNotLoadedNode> notLoadedNomenclatures = new List<RouteListControlNotLoadedNode>();
 			if(Id > 0) {
 				var loadedNomenclatures = new RouteListRepository().AllGoodsLoaded(UoW, this);
 				var nomenclaturesToLoad = new RouteListRepository().GetGoodsAndEquipsInRL(UoW, this);
+				
 				foreach(var n in nomenclaturesToLoad) {
+					
+					if(!needTerminalAccounting && n.NomenclatureId == terminalId)
+						continue;
+					
 					var loaded = loadedNomenclatures.FirstOrDefault(x => x.NomenclatureId == n.NomenclatureId);
 					decimal loadedAmount = 0;
 					if(loaded != null)

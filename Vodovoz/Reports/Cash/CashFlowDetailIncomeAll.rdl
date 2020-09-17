@@ -14,7 +14,7 @@
   <DataSets>
   </DataSets>
   <PageHeader>
-    <Height>25.2pt</Height>
+    <Height>71.3pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -31,6 +31,49 @@
           <BorderWidth />
           <FontSize>16pt</FontSize>
           <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>16.52pt</Height>
+        <Width>558.58pt</Width>
+        <Value>="Выбранные фильтры:"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>3.3pt</Left>
+        <Top>24.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <VerticalAlign>Middle</VerticalAlign>
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.29pt</Height>
+        <Width>548.87pt</Width>
+        <Value>= {?cash_subdivisions_name}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>4.0pt</Left>
+        <Top>41.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.99pt</Height>
+        <Width>555.56pt</Width>
+        <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
+        <ZIndex>1</ZIndex>
+        <Left>4.4pt</Left>
+        <Top>57.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
         </Style>
       </Textbox>
     </ReportItems>
@@ -67,11 +110,11 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Subreport Name="SubreportIncome">
+      <Subreport Name="Subreport2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>47.48pt</Height>
         <Width>561.04pt</Width>
-        <Left>0.00pt</Left>
-        <Top>34.10pt</Top>
+        <Left>0.0pt</Left>
+        <Top>26.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -81,20 +124,32 @@
         <NoRows>За период нет прихода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate">
+          <Parameter Name="StartDate" >
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate">
+          <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="IncomeCategory">
+          <Parameter Name="IncomeCategory" >
             <Value>=Parameters!IncomeCategory</Value>
           </Parameter>
-          <Parameter Name="Casher">
+          <Parameter Name="Casher" >
             <Value>=Parameters!Casher</Value>
           </Parameter>
-          <Parameter Name="Employee">
+          <Parameter Name="Employee" >
             <Value>=Parameters!Employee</Value>
+          </Parameter>
+          <Parameter Name="CasherName" >
+            <Value>=Parameters!CasherName</Value>
+          </Parameter>
+          <Parameter Name="EmployeeName" >
+            <Value>=Parameters!EmployeeName</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions" >
+            <Value>=Parameters!cash_subdivisions</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions_name" >
+            <Value>=Parameters!cash_subdivisions_name</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -102,33 +157,45 @@
         <Height>47.48pt</Height>
         <Width>561.04pt</Width>
         <Left>0.0pt</Left>
-        <Top>110.9pt</Top>
+        <Top>111.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
         </Style>
         <ReportName>CashFlowDetailIncomeReturn</ReportName>
-        <NoRows>За период небыло сдачи.</NoRows>
+        <NoRows>За период нет возвратов денег.</NoRows>
         <MergeTransactions>true</MergeTransactions>
-        <Parameters>
+        <Parameters >
+          <Parameter Name="Casher">
+            <Value>=Parameters!Casher</Value>
+          </Parameter>
           <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
-          </Parameter>
-          <Parameter Name="EndDate">
-            <Value>=Parameters!EndDate</Value>
           </Parameter>
           <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed">
-            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          <Parameter Name="cash_subdivisions_name">
+            <Value>=Parameters!cash_subdivisions_name</Value>
           </Parameter>
-          <Parameter Name="Casher">
-            <Value>=Parameters!Casher</Value>
+          <Parameter Name="CasherName">
+            <Value>=Parameters!CasherName</Value>
           </Parameter>
           <Parameter Name="Employee">
             <Value>=Parameters!Employee</Value>
+          </Parameter>
+          <Parameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategoryUsed">
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </Parameter>
+          <Parameter Name="EmployeeName">
+            <Value>=Parameters!EmployeeName</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -168,7 +235,7 @@
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -237,7 +304,40 @@
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CasherName">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EmployeeName">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="cash_subdivisions">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="cash_subdivisions_name">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

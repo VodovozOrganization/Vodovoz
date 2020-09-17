@@ -46,27 +46,6 @@
         <Reference Include="System.Transactions" />
         <Reference Include="System.Web" />
         <Reference Include="System.Xml" />
-        <Reference Include="Newtonsoft.Json">
-          <HintPath>..\..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-        </Reference>
-        <Reference Include="NLog">
-          <HintPath>..\..\..\packages\NLog.4.7.2\lib\net45\NLog.dll</HintPath>
-        </Reference>
-        <Reference Include="Antlr3.Runtime">
-          <HintPath>..\..\..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
-        </Reference>
-        <Reference Include="Iesi.Collections">
-          <HintPath>..\..\..\packages\Iesi.Collections.4.0.4\lib\net461\Iesi.Collections.dll</HintPath>
-        </Reference>
-        <Reference Include="Remotion.Linq">
-          <HintPath>..\..\..\packages\Remotion.Linq.2.2.0\lib\net45\Remotion.Linq.dll</HintPath>
-        </Reference>
-        <Reference Include="Remotion.Linq.EagerFetching">
-          <HintPath>..\..\..\packages\Remotion.Linq.EagerFetching.2.2.0\lib\net45\Remotion.Linq.EagerFetching.dll</HintPath>
-        </Reference>
-        <Reference Include="NHibernate">
-          <HintPath>..\..\..\packages\NHibernate.5.2.7\lib\net461\NHibernate.dll</HintPath>
-        </Reference>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="BitrixPaymentWorker.cs" />
@@ -75,14 +54,15 @@
         <Compile Include="DTO\SendResponse.cs" />
         <Compile Include="DTO\SmsPaymentDTO.cs" />
         <Compile Include="DTO\StatusCode.cs" />
+        <Compile Include="FileProvider.cs" />
         <Compile Include="IPaymentWorker.cs" />
         <Compile Include="ISmsPaymentService.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="SmsPaymentService.cs" />
         <Compile Include="IDriverPaymentService.cs" />
-    </ItemGroup>
-    <ItemGroup>
-      <None Include="packages.config" />
+        <Compile Include="SmsPaymentServiceSetting.cs" />
+        <Compile Include="OverduePaymentsWorker.cs" />
+        <Compile Include="UnsavedPaymentsWorker.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\InstantSmsService\InstantSmsService.csproj">
@@ -101,6 +81,15 @@
         <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
         <Name>QS.Banks</Name>
       </ProjectReference>
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
+      <PackageReference Include="Iesi.Collections" Version="4.0.4" />
+      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+      <PackageReference Include="NHibernate" Version="5.3.3" />
+      <PackageReference Include="NLog" Version="4.7.4" />
+      <PackageReference Include="Remotion.Linq" Version="2.2.0" />
+      <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

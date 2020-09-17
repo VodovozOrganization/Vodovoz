@@ -35,6 +35,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.NoDelivey).Column("no_delivery");
 			Map(x => x.IsNewBottle).Column("is_new_bottle");
 			Map(x => x.IsDefectiveBottle).Column("is_defective_bottle");
+			Map(x => x.IsShabbyBottle).Column("is_shabby_bottle");
 			Map(x => x.IsDiler).Column("is_diler");
 			Map(x => x.PercentForMaster).Column("percent_for_master");
 			Map(x => x.TypeOfDepositCategory).Column("type_of_deposit").CustomType<TypeOfDepositCategoryStringType>();
@@ -43,6 +44,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.MinStockCount).Column("min_stock_count");
 			Map(x => x.MobileCatalog).Column("mobile_catalog").CustomType<MobileCatalogStringType>();
 			Map(x => x.Description).Column("description");
+			Map(x => x.BottleCapColor).Column("bottle_cap_color");
+			Map(x => x.OnlineStoreExternalId).Column("online_store_external_id");
 
 			//Характеристики товара
 			Map(x => x.Color).Column("color");
@@ -78,6 +81,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.Folder1C).Column("folder_1c_id");
 			References(x => x.ProductGroup).Column("group_id");
 			References(x => x.FuelType).Column("fuel_type_id");
+			References(x => x.OnlineStore).Column("online_store_id");
 
 			HasMany(x => x.NomenclaturePrice).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.Images).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");

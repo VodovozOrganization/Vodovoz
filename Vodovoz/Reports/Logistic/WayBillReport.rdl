@@ -53,10 +53,10 @@
       <Textbox Name="Textbox21">
         <Height>12.00pt</Height>
         <Width>33.18pt</Width>
-        <Value>='« ' + Format(CDate({?date}), "dd") + ' »'</Value>
+        <Value>= Iif({?need_date}, '« ' + Format(CDate({?date}), "dd") + ' »', ' ')</Value>
         <ZIndex>1</ZIndex>
-        <Left>126.9pt</Left>
-        <Top>36.0pt</Top>
+        <Left>126.90pt</Left>
+        <Top>36.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -66,7 +66,7 @@
       <Textbox Name="Textbox30">
         <Height>12pt</Height>
         <Width>1in</Width>
-        <Value>= Format(CDate({?date}), "yyyy") + ' г.'</Value>
+        <Value>= Iif({?need_date}, Format(CDate({?date}), "yyyy") + ' г.', ' ') </Value>
         <ZIndex>1</ZIndex>
         <Left>230.0pt</Left>
         <Top>36.0pt</Top>
@@ -447,7 +447,8 @@
       <Textbox Name="Textbox14">
         <Height>12.00pt</Height>
         <Width>76.02pt</Width>
-        <Value>=switch(
+        <Value>= 
+Iif({?need_date}, switch(
 Month(CDate({?date})) = 1, 'января',
 Month(CDate({?date})) = 2, 'февраля',
 Month(CDate({?date})) = 3, 'марта',
@@ -460,7 +461,8 @@ Month(CDate({?date})) = 9, 'сентября',
 Month(CDate({?date})) = 10, 'октября',
 Month(CDate({?date})) = 11, 'ноября',
 Month(CDate({?date})) = 12, 'декабря'
-)</Value>
+), ' ')
+</Value>
         <ZIndex>1</ZIndex>
         <Left>154.5pt</Left>
         <Top>35.9pt</Top>
@@ -839,7 +841,7 @@ Month(CDate({?date})) = 12, 'декабря'
       <Textbox Name="Textbox60">
         <Height>13.25pt</Height>
         <Width>82.07pt</Width>
-        <Value>=' ' + Format(CDate({?date}), "dd.MM.yy") + ', ' + {?time}</Value>
+        <Value>=  Iif({?need_date}, ' ' + Format(CDate({?date}), "dd.MM.yy") + ', ' + {?time}, ' ')</Value>
         <ZIndex>1</ZIndex>
         <Left>127.5pt</Left>
         <Top>273.1pt</Top>
@@ -8386,7 +8388,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="fakeDataSet">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	car.model as car_model
@@ -8394,7 +8396,7 @@ FROM
 	cars car
 LIMIT 1;</CommandText>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="car_model">
           <DataField>car_model</DataField>
           <TypeName>System.String</TypeName>
@@ -8449,6 +8451,14 @@ LIMIT 1;</CommandText>
           <Value>7:15</Value>
         </Values>
       </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="need_date">
+      <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

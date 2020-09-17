@@ -8,10 +8,13 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Services;
@@ -22,23 +25,36 @@ namespace Vodovoz.JournalViewModels.Suppliers
 {
 	public class RequestsToSuppliersJournalViewModel : FilterableSingleEntityJournalViewModelBase<RequestToSupplier, RequestToSupplierViewModel, RequestToSupplierJournalNode, RequestsToSuppliersFilterViewModel>
 	{
-		readonly RequestsToSuppliersFilterViewModel filterViewModel;
+		private readonly RequestsToSuppliersFilterViewModel filterViewModel;
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
-		readonly IEmployeeService employeeService;
+		private readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
+		private readonly IEmployeeService employeeService;
+		private readonly INomenclatureRepository nomenclatureRepository;
+		private readonly IUserRepository userRepository;
+		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 
 		public RequestsToSuppliersJournalViewModel(
 			RequestsToSuppliersFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			ISupplierPriceItemsRepository supplierPriceItemsRepository
+			ISupplierPriceItemsRepository supplierPriceItemsRepository,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			this.filterViewModel = filterViewModel;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			
 			TabName = "Журнал заявок поставщикам";
 
 			var threadLoader = DataLoader as ThreadDataLoader<RequestToSupplierJournalNode>;
@@ -107,7 +123,11 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			unitOfWorkFactory,
 			commonServices,
 			employeeService,
-			supplierPriceItemsRepository
+			supplierPriceItemsRepository,
+			counterpartySelectorFactory,
+			nomenclatureSelectorFactory,
+			nomenclatureRepository,
+			userRepository
 		);
 
 		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n => new RequestToSupplierViewModel(
@@ -115,7 +135,11 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			unitOfWorkFactory,
 			commonServices,
 			employeeService,
-			supplierPriceItemsRepository
+			supplierPriceItemsRepository,
+			counterpartySelectorFactory,
+			nomenclatureSelectorFactory,
+			nomenclatureRepository,
+			userRepository
 		);
 
 		protected override void CreatePopupActions()
@@ -135,7 +159,11 @@ namespace Vodovoz.JournalViewModels.Suppliers
 								unitOfWorkFactory,
 								commonServices,
 								employeeService,
-								supplierPriceItemsRepository
+								supplierPriceItemsRepository,
+								counterpartySelectorFactory,
+								nomenclatureSelectorFactory,
+								nomenclatureRepository,
+								userRepository
 							);
 							newRequestVM.Entity.Name = currentRequest.Name;
 							newRequestVM.Entity.WithDelayOnly = currentRequest.WithDelayOnly;

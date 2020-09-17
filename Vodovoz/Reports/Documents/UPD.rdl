@@ -95,7 +95,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
@@ -176,7 +176,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -307,6 +307,71 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="Image">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>/*
+SET @id1 = 3; #VodovozLogo
+SET @id2 = 4; #VISA
+SET @id3 = 5; #MasterCard
+SET @id4 = 6; #Пожалуйся директору
+SET @id5 = 7; #рекламный баннер
+SET @id6 = 8; #телефон
+SET @id7 = 9; #VIP
+SET @id8 = 10; #Договор оферты
+SET @id9 = 13; #Безконтактная доставка
+SET @id10 = 14; #Оплата по SMS
+SET @id11 = 15; #Печать
+SET @id12 = 16; #Подпись
+*/
+
+SELECT
+    R11.id as ID11 ,
+    R11.binary_file as IM11,
+
+    R12.id as ID12 ,
+    R12.binary_file as IM12
+
+FROM stored_resource
+
+
+         LEFT JOIN
+     (
+         SELECT
+             stored_resource.id,
+             stored_resource.binary_file
+         FROM stored_resource
+         WHERE stored_resource.id = @id11
+     ) as R11 ON R11.id = @id11
+
+         LEFT JOIN
+     (
+         SELECT
+             stored_resource.id,
+             stored_resource.binary_file
+         FROM stored_resource
+         WHERE stored_resource.id = @id12
+     ) as R12 ON R12.id = @id12</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id11">
+            <Value>15</Value>
+          </QueryParameter>
+          <QueryParameter Name="id12">
+            <Value>16</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="IM11">
+          <DataField>IM11</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM12">
+          <DataField>IM12</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -314,7 +379,7 @@ WHERE
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>539.0pt</Height>
+    <Height>549.7pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List2">
@@ -367,12 +432,12 @@ WHERE
             </Style>
           </Textbox>
           <Textbox Name="Textbox8">
-            <Height>12pt</Height>
-            <Width>1in</Width>
+            <Height>12.00pt</Height>
+            <Width>72.27pt</Width>
             <Value>Адрес:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>40.2pt</Top>
+            <Left>0.00pt</Left>
+            <Top>40.20pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2526,8 +2591,8 @@ WHERE
             <Width>603.77pt</Width>
             <Value>(транспортная накладная, поручение экспедитору, экспедиторская / складская расписка и др. / масса нетто / брутто груза, если не приведены ссылки на транспортные документы, содержащие эти сведения)</Value>
             <ZIndex>1</ZIndex>
-            <Left>173.3pt</Left>
-            <Top>72.5pt</Top>
+            <Left>173.30pt</Left>
+            <Top>72.50pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2597,9 +2662,9 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
-              <Format >d</Format>
-              <TextAlign >Center</TextAlign>
-              <VerticalAlign >Middle</VerticalAlign>
+              <Format>d</Format>
+              <TextAlign>Center</TextAlign>
+              <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
           <Textbox Name="Textbox145">
@@ -2865,8 +2930,8 @@ WHERE
             <Width>338.00pt</Width>
             <Value>Товар (груз) получил / услуги, результаты работ, права принял</Value>
             <ZIndex>1</ZIndex>
-            <Left>404.2pt</Left>
-            <Top>101.9pt</Top>
+            <Left>404.20pt</Left>
+            <Top>101.90pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2966,8 +3031,8 @@ WHERE
             <Width>365.16pt</Width>
             <Value>(информация о наличии/отсутствии претензии; ссылки на неотъемлимые приложения, и другие документы и т.п.)</Value>
             <ZIndex>1</ZIndex>
-            <Left>405.6pt</Left>
-            <Top>159.5pt</Top>
+            <Left>405.60pt</Left>
+            <Top>159.50pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3619,6 +3684,99 @@ WHERE
               <TextAlign>Right</TextAlign>
             </Style>
           </Textbox>
+          <Image Name="Image4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>20.46pt</Height>
+            <Width>30.78pt</Width>
+            <Left>149.3pt</Left>
+            <Top>171.5pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=First( {IM12} , "Image" )</Value>
+            <Sizing>Fit</Sizing>
+            <MIMEType>image/jpeg</MIMEType>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+          </Image>
+          <Image Name="Image6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>20.46pt</Height>
+            <Width>30.78pt</Width>
+            <Left>141.3pt</Left>
+            <Top>103.3pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=First( {IM12} , "Image" )</Value>
+            <Sizing>Fit</Sizing>
+            <MIMEType>image/jpeg</MIMEType>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+          </Image>
+          <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>20.21pt</Height>
+            <Width>30.53pt</Width>
+            <Left>599.5pt</Left>
+            <Top>0.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=First( {IM12} , "Image" )</Value>
+            <Sizing>Fit</Sizing>
+            <MIMEType>image/jpeg</MIMEType>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+            <ZIndex >0</ZIndex>
+          </Image>
+          <Image Name="Image3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>20.21pt</Height>
+            <Width>30.53pt</Width>
+            <Left>275.8pt</Left>
+            <Top>0.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=First( {IM12} , "Image" )</Value>
+            <Sizing>Fit</Sizing>
+            <MIMEType>image/jpeg</MIMEType>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+            <ZIndex >0</ZIndex>
+          </Image>
+          <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>102.39pt</Height>
+            <Width>112.93pt</Width>
+            <Left>242.6pt</Left>
+            <Top>114.5pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=First( {IM11} , "Image" )</Value>
+            <Sizing>Fit</Sizing>
+            <MIMEType>image/jpeg</MIMEType>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+            <ZIndex>20</ZIndex>
+          </Image>
         </ReportItems>
         <Style>
           <BorderStyle />
@@ -3727,6 +3885,15 @@ WHERE
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
@@ -3749,14 +3916,17 @@ WHERE
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="hide_signature">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>true</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru;SslMode=none;</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

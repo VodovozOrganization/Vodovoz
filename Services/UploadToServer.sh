@@ -10,9 +10,10 @@ echo "6) ModulKassa (SalesReceipts)"
 echo "7) InstantSms"
 echo "8) DeliveryRules"
 echo "9) SmsPayment"
-echo "m) Mango"
-echo "0) Old server DriverMobileGroup"
-echo "Можно вызывать вместе, например Driver+Email=12"
+echo "10) OnlineStoreImport"
+echo "11) Mango"
+
+echo "Можно вызывать вместе, перечислив номера через запятую, например Driver+Email=1,2"
 read service;
 
 echo "Какую сборку использовать?"
@@ -46,6 +47,9 @@ deliveryRulesServiceName="vodovoz-delivery-rules.service"
 
 smsPaymentServiceFolder="VodovozSmsPaymentService"
 smsPaymentServiceName="vodovoz-sms-payment.service"
+
+onlineStoreImportServiceFolder="VodovozOnlineStoreImportService"
+onlineStoreImportServiceName="vodovoz-online-store-import.service"
 
 mangoServiceFolder="VodovozMangoService"
 mangoServiceName="vodovoz-mango.service"
@@ -212,13 +216,27 @@ function UpdateSmsPaymentService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $smsPaymentServiceName
 }
 
+function UpdateOnlineStoreImportService {
+	printf "\nОбновление службы импорта из интернет магазина\n"
+
+	echo "-- Stoping $onlineStoreImportServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl stop $onlineStoreImportServiceName
+
+	echo "-- Copying $onlineStoreImportServiceName files"
+	DeleteHttpDll $onlineStoreImportServiceFolder
+	CopyFiles $onlineStoreImportServiceFolder
+	echo "-- Starting $onlineStoreImportServiceName"
+
+	ssh $serverAddress -p$serverPort sudo systemctl start $onlineStoreImportServiceName
+}
+
 function UpdateMangoService {
 	printf "\nОбновление службы работы с Mango\n"
 
   PublishProject $mangoServiceFolder
 
-	echo "-- Stoping $mangoServiceName"
 	ssh $serverAddress -p$serverPort sudo systemctl stop $mangoServiceName
+	echo "-- Stoping $mangoServiceName"
 
 	echo "-- Copying $mangoServiceName files"
 	
@@ -228,35 +246,40 @@ function UpdateMangoService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $mangoServiceName
 }
 
-case $service in
-	*1*)
+service2="$service,"
+case $service2 in
+	*1,*)
 		UpdateDriverService
 	;;&
-	*2*)
+	*2,*)
 		UpdateEmailService
 	;;&
-	*3*)
+	*3,*)
 		UpdateMobileService
 	;;&
-	*4*)
+	*4,*)
 		UpdateOSMService
 	;;&
-	*5*)
+	*5,*)
 		UpdateSMSInformerService
 	;;&
-	*6*)
+	*6,*)
 		UpdateSalesReceiptsService
 	;;&
-	*7*)
+	*7,*)
 		UpdateInstantSmsService
 	;;&
-	*8*)
+	*8,*)
 		UpdateDeliveryRulesService
 	;;&
-	*9*)
+	*9,*)
 		UpdateSmsPaymentService
 	;;&
-	*m*)
+    *10,*)
+        UpdateOnlineStoreImportService
+    ;;
+	;;&
+	*11,*)
 		UpdateMangoService
 	;;
 esac

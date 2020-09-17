@@ -49,7 +49,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 			var filterDriver = new EmployeeFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			entryDriver.RepresentationModel = new EmployeesVM(filterDriver);

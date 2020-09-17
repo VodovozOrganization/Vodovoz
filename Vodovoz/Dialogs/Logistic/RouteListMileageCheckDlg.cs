@@ -24,7 +24,12 @@ using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using QS.Osm;
 using QS.Osm.Osrm;
+using QS.Tdi;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Parameters;
+using RouteListRepository = Vodovoz.EntityRepositories.Logistic.RouteListRepository;
 
 namespace Vodovoz
 {
@@ -32,7 +37,7 @@ namespace Vodovoz
 	{
 		#region Поля
 
-		private bool editing = true;
+		bool editing = true;
 
 		List<RouteListKeepingItemNode> items;
 
@@ -77,6 +82,8 @@ namespace Vodovoz
 				HasChanges = false;
 				vbxMain.Sensitive = false;
 			}
+			
+			buttonAcceptFine.Clicked += ButtonAcceptFineOnClicked;	
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
@@ -101,19 +108,19 @@ namespace Vodovoz
 
 			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
 				.AddColumn("Заказ")
-				.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())
+					.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())
 				.AddColumn("Адрес")
-				.AddTextRenderer(node => String.Format("{0} д.{1}", node.RouteListItem.Order.DeliveryPoint.Street, node.RouteListItem.Order.DeliveryPoint.Building))
+					.AddTextRenderer(node => String.Format("{0} д.{1}", node.RouteListItem.Order.DeliveryPoint.Street, node.RouteListItem.Order.DeliveryPoint.Building))
 				.AddColumn("Время")
-				.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
+					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Статус")
-				.AddEnumRenderer(node => node.Status).Editing(false)
+					.AddEnumRenderer(node => node.Status).Editing(false)
 				.AddColumn("Последнее редактирование")
-				.AddTextRenderer(node => node.LastUpdate)
+					.AddTextRenderer(node => node.LastUpdate)
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.RowColor)
 				.Finish();
-
+			
 			items = new List<RouteListKeepingItemNode>();
 			foreach(var item in Entity.Addresses)
 				items.Add(new RouteListKeepingItemNode { RouteListItem = item });
@@ -128,7 +135,7 @@ namespace Vodovoz
 
 			ytreeviewAddresses.ItemsDataSource = items;
 			ytextviewMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Buffer.Text).InitializeFromSource();
-
+			
 			if(Entity.Status == RouteListStatus.Closed) {
 
 				vboxRouteList.Sensitive = table2.Sensitive = false;
@@ -141,6 +148,16 @@ namespace Vodovoz
 			phoneLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
 			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
+		}
+
+		private void ButtonAcceptFineOnClicked(object sender, EventArgs e)
+		{
+			string fineReason = "Перерасход топлива";
+
+			var fineDlg = new FineDlg(0, Entity, fineReason, Entity.Date, Entity.Driver);
+			fineDlg.Entity.FineType = FineTypes.FuelOverspending;
+			
+			TabParent.AddSlaveTab(this, fineDlg);
 		}
 
 		#endregion

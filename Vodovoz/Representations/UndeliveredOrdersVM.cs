@@ -131,7 +131,7 @@ namespace Vodovoz.Representations
 											.Left.JoinQueryOver(g => g.GuiltyDepartment, () => subdivisionAlias)
 											.Select(
 				                                Projections.SqlFunction(
-					                                new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(CONCAT(CASE ?1 WHEN 'Client' THEN 'Клиент' WHEN 'Driver' THEN 'Водитель' WHEN 'Department' THEN 'Отд' WHEN 'ServiceMan' THEN 'Мастер СЦ' WHEN 'None' THEN 'Нет (не недовоз)' ELSE 'Неизвестно' END, IF(?1 = 'Department' AND ?2 = '', ':Неизвестно', IF(?1 = 'Department' AND ?2 != '', CONCAT(':', ?2), ''))) SEPARATOR '\n')"),
+					                                new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(CONCAT(CASE ?1 WHEN 'Client' THEN 'Клиент' WHEN 'Driver' THEN 'Водитель' WHEN 'Department' THEN 'Отд' WHEN 'ServiceMan' THEN 'Мастер СЦ' WHEN 'ForceMajor' THEN 'Форс-мажор' WHEN 'None' THEN 'Нет (не недовоз)' ELSE 'Неизвестно' END, IF(?1 = 'Department' AND ?2 = '', ':Неизвестно', IF(?1 = 'Department' AND ?2 != '', CONCAT(':', ?2), ''))) SEPARATOR '\n')"),
 					                                NHibernateUtil.String,
 					                                Projections.Property(() => guiltyInUndeliveryAlias.GuiltySide),
 					                                Projections.Property(() => subdivisionAlias.ShortName)

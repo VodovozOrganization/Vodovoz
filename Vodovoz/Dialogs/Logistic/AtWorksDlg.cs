@@ -83,13 +83,10 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("")
 				.AddColumn("Комментарий")
 					.AddTextRenderer(x => x.Comment)
-						.AddSetter((c, d) =>
-						{
-							d.PropertyChanged += (sender, args) => driversWithCommentChanged.Add(d);
-						})
 						.Editable(true)
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Status == AtWorkDriver.DriverStatus.NotWorking? "gray": "black")
 				.Finish();
+
 			ytreeviewAtWorkDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 
 			ytreeviewAtWorkDrivers.Selection.Changed += YtreeviewDrivers_Selection_Changed;
@@ -102,7 +99,6 @@ namespace Vodovoz.Dialogs.Logistic
 
 			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
 			
-
 			ydateAtWorks.Date = DateTime.Today;
 		}
 		
@@ -127,6 +123,7 @@ namespace Vodovoz.Dialogs.Logistic
 				driversAtDay = value;
 				observableDriversAtDay = new GenericObservableList<AtWorkDriver>(driversAtDay);
 				ytreeviewAtWorkDrivers.SetItemsSource(observableDriversAtDay);
+				observableDriversAtDay.PropertyOfElementChanged += (sender, args) => driversWithCommentChanged.Add(sender as AtWorkDriver);
 			}
 			get => driversAtDay;
 		}
@@ -215,12 +212,20 @@ namespace Vodovoz.Dialogs.Logistic
 		public bool Save()
 		{
 			// В случае, если вкладка сохраняется, а в списке есть Снятые водители, сделать проверку, что у каждого из них заполнена причина.
-			foreach (var atWorkDriver in DriversAtDay.ToList().Where(driver => driver.Status == AtWorkDriver.DriverStatus.NotWorking))
-			{
-				if (!String.IsNullOrEmpty(atWorkDriver.Reason)) continue;
-				MessageDialogHelper.RunWarningDialog("Не у всех снятых водителей указаны причины!");
-				return false;
-			}
+			var NotWorkingDrivers = DriversAtDay.ToList()
+				.Where(driver => driver.Status == AtWorkDriver.DriverStatus.NotWorking);
+			
+			if (NotWorkingDrivers.Count() != 0)
+				foreach (var atWorkDriver in NotWorkingDrivers)
+				{
+					if (!String.IsNullOrEmpty(atWorkDriver.Reason)) continue;
+					MessageDialogHelper.RunWarningDialog("Не у всех снятых водителей указаны причины!");
+					return false;
+				}
+			
+			else
+				DriversAtDay.ToList().ForEach(x => UoW.Save(x));
+			
 			
 			// Сохранение изменившихся за этот раз авторов и дат комментариев
 			foreach (var atWorkDriver in driversWithCommentChanged)
@@ -228,7 +233,7 @@ namespace Vodovoz.Dialogs.Logistic
 				atWorkDriver.CommentLastEditedAuthor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 				atWorkDriver.CommentLastEditedDate = DateTime.Now;
 			}
-
+			driversWithCommentChanged.Clear();
 			ForwardersAtDay.ToList().ForEach(x => UoW.Save(x));
 			UoW.Commit();
 			FillDialogAtDay();

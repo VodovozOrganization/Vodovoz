@@ -164,6 +164,5 @@ namespace Vodovoz
 					item.Amount = item.AmountInStock;
 			}
 		}
-
 	}
 }

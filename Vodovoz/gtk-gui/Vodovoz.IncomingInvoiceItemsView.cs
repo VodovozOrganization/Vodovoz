@@ -4,7 +4,7 @@ namespace Vodovoz
 {
 	public partial class IncomingInvoiceItemsView
 	{
-		private global::Gtk.VBox vbox1;
+		private global::Gtk.VBox vboxItemsView;
 
 		private global::Gtk.Label label2;
 
@@ -29,20 +29,20 @@ namespace Vodovoz
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.IncomingInvoiceItemsView";
 			// Container child Vodovoz.IncomingInvoiceItemsView.Gtk.Container+ContainerChild
-			this.vbox1 = new global::Gtk.VBox();
-			this.vbox1.Name = "vbox1";
-			this.vbox1.Spacing = 6;
-			// Container child vbox1.Gtk.Box+BoxChild
+			this.vboxItemsView = new global::Gtk.VBox();
+			this.vboxItemsView.Name = "vboxItemsView";
+			this.vboxItemsView.Spacing = 6;
+			// Container child vboxItemsView.Gtk.Box+BoxChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 0F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Список номенклатур");
-			this.vbox1.Add(this.label2);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.label2]));
+			this.vboxItemsView.Add(this.label2);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vboxItemsView[this.label2]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
+			// Container child vboxItemsView.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -51,10 +51,10 @@ namespace Vodovoz
 			this.treeItemsList.CanFocus = true;
 			this.treeItemsList.Name = "treeItemsList";
 			this.GtkScrolledWindow.Add(this.treeItemsList);
-			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			this.vboxItemsView.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxItemsView[this.GtkScrolledWindow]));
 			w3.Position = 1;
-			// Container child vbox1.Gtk.Box+BoxChild
+			// Container child vboxItemsView.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
@@ -113,12 +113,12 @@ namespace Vodovoz
 			w10.Position = 3;
 			w10.Expand = false;
 			w10.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			this.vboxItemsView.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxItemsView[this.hbox1]));
 			w11.Position = 2;
 			w11.Expand = false;
 			w11.Fill = false;
-			this.Add(this.vbox1);
+			this.Add(this.vboxItemsView);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

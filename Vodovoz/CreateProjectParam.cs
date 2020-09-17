@@ -128,6 +128,28 @@ using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
+using Vodovoz.Views.Contacts;
+using Vodovoz.ViewModels.Users;
+using Vodovoz.Views.Users;
+using Vodovoz.ViewModels.Permissions;
+using Vodovoz.ViewWidgets.Permissions;
+using Vodovoz.ViewModels.Reports;
+using Vodovoz.ReportsParameters;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.ViewModels.BusinessTasks;
+using Vodovoz.Views.BusinessTasks;
+using Vodovoz.Footers.ViewModels;
+using Vodovoz.Footers.Views;
+using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
+using Vodovoz.Views.Orders.OrdersWithoutShipment;
+using Vodovoz.Dialogs.Email;
+using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Goods;
+using Vodovoz.Views.Cash;
+using Vodovoz.Views.Goods;
+using Vodovoz.Views.Orders;
 using Vodovoz.Core.DataService;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
@@ -187,6 +209,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
 				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
+				.RegisterWidgetForTabViewModel<IncomingInvoiceViewModel, IncomingInvoiceView>()
 				.RegisterWidgetForTabViewModel<PhoneTypeViewModel, PhoneTypeView>()
 				.RegisterWidgetForTabViewModel<EmailTypeViewModel, EmailTypeView>()
 				.RegisterWidgetForTabViewModel<UserSettingsViewModel, UserSettingsView>()
@@ -204,6 +227,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PaymentByCardViewModel, PaymentByCardView>()
 				.RegisterWidgetForTabViewModel<RouteListAnalysisViewModel, RouteListAnalysisView>()
 				.RegisterWidgetForTabViewModel<LateArrivalReasonViewModel, LateArrivalReasonView>()
+				.RegisterWidgetForTabViewModel<NomenclatureViewModel, NomenclatureView>()
 				;
 
 			//Регистрация виджетов
@@ -218,6 +242,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<OrderJournalFilterViewModel, OrderFilterView>()
 				.RegisterWidgetForWidgetViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
 				.RegisterWidgetForWidgetViewModel<ResidueFilterViewModel, ResidueFilterView>()
+				.RegisterWidgetForWidgetViewModel<ProductGroupFilterViewModel, ProductGroupFilterView>()
 				.RegisterWidgetForWidgetViewModel<FineFilterViewModel, FineFilterView>()
 				.RegisterWidgetForWidgetViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureFilterViewModel, NomenclaturesFilterView>()
@@ -253,22 +278,29 @@ namespace Vodovoz
 			QSMain.ConnectionString += ";ConnectionTimeout=120";
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-											.Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-						 					.ConnectionString(QSMain.ConnectionString)
-											.AdoNetBatchSize(100)
-											.ShowSql()
-											.FormatSql();
-
+				.Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
+				.ConnectionString(QSMain.ConnectionString)
+				.AdoNetBatchSize(100)
+				.Driver<LoggedMySqlClientDriver>();
+			
 			// Настройка ORM
-			OrmConfig.ConfigureOrm(db_config, new System.Reflection.Assembly[] {
-				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
-				System.Reflection.Assembly.GetAssembly (typeof(HibernateMapping.OrganizationMap)),
-				System.Reflection.Assembly.GetAssembly (typeof(Bank)),
-				System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
-			},
-								  (cnf) => cnf.DataBaseIntegration(
-									  dbi => { dbi.BatchSize = 100; dbi.Batcher<MySqlClientBatchingBatcherFactory>(); }
-									 ));
+			OrmConfig.ConfigureOrm(
+				db_config, 
+				new System.Reflection.Assembly[] {
+					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					System.Reflection.Assembly.GetAssembly (typeof(HibernateMapping.OrganizationMap)),
+					System.Reflection.Assembly.GetAssembly (typeof(Bank)),
+					System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
+				},
+			(cnf) => {
+					cnf.DataBaseIntegration(
+						dbi => {
+							dbi.BatchSize = 100;
+							dbi.Batcher<MySqlClientBatchingBatcherFactory>();
+						}
+					);
+				}
+			);
 			#region Dialogs mapping
 
 			OrmMain.ClassMappingList = new List<IOrmObjectMapping> {
@@ -285,6 +317,7 @@ namespace Vodovoz
 				//Остальные справочники
 				OrmObjectMapping<CarProxyDocument>.Create().Dialog<CarProxyDlg>(),
 				OrmObjectMapping<M2ProxyDocument>.Create().Dialog<M2ProxyDlg>(),
+				OrmObjectMapping<ProductGroup>.Create().Dialog<ProductGroupDlg>(),
 				OrmObjectMapping<CommentTemplate>.Create().Dialog<CommentTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Comment).End(),
 				OrmObjectMapping<FineTemplate>.Create().Dialog<FineTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Reason).End(),
 				OrmObjectMapping<PremiumTemplate>.Create().Dialog<PremiumTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Reason).End(),
@@ -345,7 +378,6 @@ namespace Vodovoz
 			};
 
 			#region Складские документы
-			OrmMain.AddObjectDescription<IncomingInvoice>().Dialog<IncomingInvoiceDlg>();
 			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
 			OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentDlg>();
 			OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentDlg>();
@@ -357,9 +389,18 @@ namespace Vodovoz
 			#endregion
 
 			#region Goods
-			OrmMain.AddObjectDescription<Nomenclature>().Dialog<NomenclatureDlg>().JournalFilter<NomenclatureFilter>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).Column("Тип", x => x.CategoryString).End();
-			OrmMain.AddObjectDescription<Folder1c>().Dialog<Folder1cDlg>().DefaultTableView().SearchColumn("Код 1С", x => x.Code1c).SearchColumn("Название", x => x.Name).TreeConfig(new RecursiveTreeConfig<Folder1c>(x => x.Parent, x => x.Childs)).End();
-			OrmMain.AddObjectDescription<ProductGroup>().Dialog<ProductGroupDlg>().EditPermision("can_edit_online_store").DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).TreeConfig(new RecursiveTreeConfig<ProductGroup>(x => x.Parent, x => x.Childs)).End();
+			OrmMain.AddObjectDescription<Nomenclature>().Dialog<NomenclatureDlg>().JournalFilter<NomenclatureFilter>().
+				DefaultTableView()
+				.SearchColumn("Код", x => x.Id.ToString())
+				.SearchColumn("Название", x => x.Name)
+				.Column("Тип", x => x.CategoryString)
+				.SearchColumn("Номер в ИМ", x => x.OnlineStoreExternalId)
+				.End();
+			OrmMain.AddObjectDescription<Folder1c>().Dialog<Folder1cDlg>()
+				.DefaultTableView()
+				.SearchColumn("Код 1С", x => x.Code1c)
+				.SearchColumn("Название", x => x.Name)
+				.TreeConfig(new RecursiveTreeConfig<Folder1c>(x => x.Parent, x => x.Childs)).End();
 			#endregion
 
 			#region Простые справочники

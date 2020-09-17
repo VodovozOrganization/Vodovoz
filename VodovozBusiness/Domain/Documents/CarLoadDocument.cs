@@ -86,7 +86,7 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref comment, value, () => Comment);
 		}
 
-		public virtual string Title => string.Format("Талон погрузки №{0} от {1:d}", Id, TimeStamp);
+		public virtual string Title => $"Талон погрузки №{Id} от {TimeStamp:d}";
 
 		#region IValidatableObject implementation
 
@@ -109,19 +109,15 @@ namespace Vodovoz.Domain.Documents
 				if(item.Equipment != null && !(item.Amount == 0 || item.Amount == 1)
 				   && item.Equipment.Nomenclature.IsSerial // I-407
 				  )
-					yield return new ValidationResult(string.Format("Оборудование <{0}> сн: {1} нельзя отгружать в количестве отличном от 0 или 1", item.Nomenclature.Name, item.Equipment.Serial),
+					yield return new ValidationResult(
+						$"Оборудование <{item.Nomenclature.Name}> сн: {item.Equipment.Serial} нельзя отгружать в количестве отличном от 0 или 1",
 						new[] { this.GetPropertyName(o => o.Items) });
 				if(item.Amount + item.AmountLoaded > item.AmountInRouteList)
 					yield return new ValidationResult(
-										string.Format(
-													"Номенклатура <{0}> отгружается в большем количестве чем указано в маршрутном листе. Отгружается:{1}, По другим документам:{2}, Всего нужно отгрузить:{3}",
-													item.Nomenclature.Name,
-													item.Amount,
-													item.AmountLoaded,
-													item.AmountInRouteList
-												),
-										new[] { this.GetPropertyName(o => o.Items) }
-									);
+						$"Номенклатура <{item.Nomenclature.Name}> отгружается в большем количестве чем указано в маршрутном листе. " +
+						$"Отгружается:{item.Amount}, По другим документам:{item.AmountLoaded}, Всего нужно отгрузить:{item.AmountInRouteList}",
+						new[] { this.GetPropertyName(o => o.Items) }
+					);
 			}
 		}
 
@@ -210,7 +206,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateOperations(IUnitOfWork uow)
+		public virtual void UpdateOperations(IUnitOfWork uow, int terminalId)
 		{
 			foreach(var item in Items) {
 				if(item.Amount == 0 && item.MovementOperation != null) {
@@ -223,6 +219,9 @@ namespace Vodovoz.Domain.Documents
 					} else {
 						item.CreateOperation(Warehouse, TimeStamp);
 					}
+					
+					if(item.Nomenclature.Id == terminalId && item.EmployeeNomenclatureMovementOperation == null)
+						item.CreateEmployeeNomenclatureIncomeOperation(TimeStamp);
 				}
 			}
 		}

@@ -5,6 +5,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -62,6 +63,11 @@ namespace Vodovoz.EntityRepositories.Logistic
 			result.AddRange(GetGoodsInRLWithoutEquipments(uow, routeList, warehouse).ToList());
 			result.AddRange(GetEquipmentsInRL(uow, routeList, warehouse).ToList());
 
+			var terminal = GetTerminalInRL(uow, routeList, warehouse);
+			
+			if(terminal != null)
+				result.Add(terminal);
+
 			return result.GroupBy(x => x.NomenclatureId, x => x.Amount)
 						 .Select(
 							 x => new GoodsInRouteListResult {
@@ -80,7 +86,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			Nomenclature OrderItemNomenclatureAlias = null;
 			Warehouse warehouseAlias = null;
 
-			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
+			var ordersQuery = QueryOver.Of(() => orderAlias);
 
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
@@ -97,10 +103,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 							   .Where(() => warehouseAlias.Id == warehouse.Id);
 
 			return orderitemsQuery.SelectList(list => list
-			   .SelectGroup(() => OrderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-			   .SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount)
-				)
-				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
+				.SelectGroup(() => OrderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+				.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
+			    .TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();
 		}
 
@@ -136,6 +141,33 @@ namespace Vodovoz.EntityRepositories.Logistic
 				)
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();
+		}
+		
+		public GoodsInRouteListResult GetTerminalInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
+		{
+			var needTerminal = routeList.Addresses.Any(x => x.Order.NeedTerminal);
+			
+			if (needTerminal) {
+				var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+				var terminal = uow.GetById<Nomenclature>(terminalId);
+				int amount = 1;
+
+				if (warehouse == null) {
+					return new GoodsInRouteListResult {
+						NomenclatureId = terminalId,
+						Amount = amount
+					};
+				}
+
+				if (terminal.Warehouses.Contains(warehouse)) {
+					return new GoodsInRouteListResult {
+						NomenclatureId = terminalId,
+						Amount = amount
+					};
+				}
+			}
+
+			return null;
 		}
 
 		public IList<GoodsLoadedListResult> AllGoodsLoaded(IUnitOfWork UoW, RouteList routeList, CarLoadDocument excludeDoc = null)

@@ -6,11 +6,12 @@ using Gamma.GtkWidgets;
 using QS.Dialog;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Tdi;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
 
 namespace Vodovoz
 {
@@ -19,6 +20,7 @@ namespace Vodovoz
 		#region Поля
 
 		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
+		private readonly IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository;
 
 		IColumnsConfig colConfigFrom = ColumnsConfigFactory.Create<CarUnloadDocumentNode>()
 			.AddColumn("Номенклатура").AddTextRenderer(d => d.Nomenclature)
@@ -37,14 +39,18 @@ namespace Vodovoz
 
 		#region Конструкторы
 
-		public TransferGoodsBetweenRLDlg()
+		public TransferGoodsBetweenRLDlg(IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository)
 		{
 			this.Build();
+			this.employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository ??
+			                                              throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
 			this.TabName = "Перенос разгрузок";
 			ConfigureDlg();
 		}
 
-		public TransferGoodsBetweenRLDlg(RouteList routeList, OpenParameter param) : this()
+		public TransferGoodsBetweenRLDlg(RouteList routeList, 
+		                                 OpenParameter param, 
+		                                 IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository) : this(employeeNomenclatureMovementRepository)
 		{
 			switch(param) {
 				case OpenParameter.Sender:
@@ -167,8 +173,7 @@ namespace Vodovoz
 			RouteList routeList = (RouteList)yentryreferenceRouteListTo.Subject;
 
 			var unloadDocs = UoW.Session.QueryOver<CarUnloadDocument>()
-								.Where(cud => cud.RouteList.Id == routeList.Id)
-								.List();
+				.Where(cud => cud.RouteList.Id == routeList.Id).List();
 
 			ylistcomboReceptionTicketTo.ItemsList = unloadDocs;
 			if(unloadDocs.Count == 1)
@@ -181,13 +186,7 @@ namespace Vodovoz
 		{
 			CarUnloadDocument selectedItem = (CarUnloadDocument)e.SelectedItem;
 
-			var result = new List<CarUnloadDocumentNode>();
-
-			foreach(var item in selectedItem.Items) {
-				result.Add(new CarUnloadDocumentNode { DocumentItem = item });
-			}
-
-			ytreeviewFrom.SetItemsSource(result);
+			ytreeviewFrom.SetItemsSource(GetNodesWithoutDriverBalanceNomenclatures(selectedItem));
 
 			CheckSensitivities();
 		}
@@ -195,17 +194,29 @@ namespace Vodovoz
 		void YlistcomboReceptionTicketTo_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			CarUnloadDocument selectedItem = (CarUnloadDocument)e.SelectedItem;
-
-			var result = new List<CarUnloadDocumentNode>();
-
-			foreach(var item in selectedItem.Items) {
-				result.Add(new CarUnloadDocumentNode { DocumentItem = item });
-			}
-
-			ytreeviewTo.SetItemsSource(result);
+			
+			ytreeviewTo.SetItemsSource(GetNodesWithoutDriverBalanceNomenclatures(selectedItem));
 
 			CheckSensitivities();
 		}
+
+		private IList<CarUnloadDocumentNode> GetNodesWithoutDriverBalanceNomenclatures(CarUnloadDocument selectedItem) {
+			var result = new List<CarUnloadDocumentNode>();
+
+			var driverBalanceNomenclatures =
+				employeeNomenclatureMovementRepository.GetNomenclaturesFromDriverBalance(UoW, selectedItem.RouteList.Driver.Id);
+
+			foreach(var item in selectedItem.Items) {
+				var nomenclature = driverBalanceNomenclatures.SingleOrDefault(x =>
+					x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+				
+				if (nomenclature == null) {
+					result.Add(new CarUnloadDocumentNode {DocumentItem = item});
+				}
+			}
+
+			return result;
+		} 
 
 		protected void OnButtonTransferClicked(object sender, EventArgs e)
 		{
@@ -224,7 +235,8 @@ namespace Vodovoz
 					.FirstOrDefault(i => i.DocumentItem.MovementOperation.Nomenclature.Id == nomenclature.Id);
 
 				if(to == null) {
-					toDoc.AddItem(receiveType, nomenclature, null, transfer, null);
+					var terminalId = -1;
+					toDoc.AddItem(receiveType, nomenclature, null, transfer, null, terminalId);
 
 					foreach(var item in toDoc.Items) {
 						var exist = itemsTo.FirstOrDefault(i => i.DocumentItem.Id == item.Id);

@@ -28,7 +28,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private global::Gamma.GtkWidgets.yLabel ylabel7;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentry1;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityViewModelEntryCounterparty;
 
 		private global::Gtk.Label label9;
 
@@ -45,6 +45,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 		private global::Gtk.VSeparator vseparator2;
 
 		private global::Gamma.GtkWidgets.yButton ybtnOpenBill;
+
+		private global::Gamma.GtkWidgets.yCheckButton yCheckBtnHideSignature;
 
 		private global::Gtk.HBox hboxSendDocuments;
 
@@ -156,12 +158,12 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.entityviewmodelentry1 = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentry1.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentry1.Name = "entityviewmodelentry1";
-			this.entityviewmodelentry1.CanEditReference = false;
-			this.hbox2.Add(this.entityviewmodelentry1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityviewmodelentry1]));
+			this.entityViewModelEntryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityViewModelEntryCounterparty.Events = ((global::Gdk.EventMask)(256));
+			this.entityViewModelEntryCounterparty.Name = "entityViewModelEntryCounterparty";
+			this.entityViewModelEntryCounterparty.CanEditReference = false;
+			this.hbox2.Add(this.entityViewModelEntryCounterparty);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityViewModelEntryCounterparty]));
 			w11.Position = 1;
 			this.vbox1.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
@@ -240,18 +242,30 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			w20.Position = 4;
 			w20.Expand = false;
 			w20.Fill = false;
-			this.vbox1.Add(this.hbox11);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox11]));
+			// Container child hbox11.Gtk.Box+BoxChild
+			this.yCheckBtnHideSignature = new global::Gamma.GtkWidgets.yCheckButton();
+			this.yCheckBtnHideSignature.CanFocus = true;
+			this.yCheckBtnHideSignature.Name = "yCheckBtnHideSignature";
+			this.yCheckBtnHideSignature.Label = global::Mono.Unix.Catalog.GetString("Счет без печати и подписей");
+			this.yCheckBtnHideSignature.DrawIndicator = true;
+			this.yCheckBtnHideSignature.UseUnderline = true;
+			this.hbox11.Add(this.yCheckBtnHideSignature);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.yCheckBtnHideSignature]));
 			w21.Position = 5;
 			w21.Expand = false;
 			w21.Fill = false;
+			this.vbox1.Add(this.hbox11);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox11]));
+			w22.Position = 5;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxSendDocuments = new global::Gtk.HBox();
 			this.hboxSendDocuments.Name = "hboxSendDocuments";
 			this.hboxSendDocuments.Spacing = 6;
 			this.vbox1.Add(this.hboxSendDocuments);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSendDocuments]));
-			w22.Position = 6;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSendDocuments]));
+			w23.Position = 6;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

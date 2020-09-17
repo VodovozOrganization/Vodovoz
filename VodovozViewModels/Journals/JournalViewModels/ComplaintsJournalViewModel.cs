@@ -16,7 +16,9 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels;
@@ -39,13 +41,15 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly IEmployeeService employeeService;
 		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IRouteListItemRepository routeListItemRepository;
 		private readonly ISubdivisionService subdivisionService;
-		private readonly IEmployeeRepository employeeRepository;
 		private readonly IReportViewOpener reportViewOpener;
 		private readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkDlgOpener;
+		private readonly INomenclatureRepository nomenclatureRepository;
+		private readonly IUserRepository userRepository;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -60,14 +64,16 @@ namespace Vodovoz.Journals.JournalViewModels
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionService subdivisionService,
-			IEmployeeRepository employeeRepository,
 			ComplaintFilterViewModel filterViewModel,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
 			IReportViewOpener reportViewOpener,
-			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener
+			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -76,13 +82,15 @@ namespace Vodovoz.Journals.JournalViewModels
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			this.subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
-			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			this.gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
+			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			TabName = "Журнал рекламаций";
 
@@ -94,9 +102,9 @@ namespace Vodovoz.Journals.JournalViewModels
 			FinishJournalConfiguration();
 
 			FilterViewModel.SubdivisionService = subdivisionService;
-			FilterViewModel.EmployeeRepository = employeeRepository;
+			FilterViewModel.EmployeeService = employeeService;
 
-			var currentEmployeeSubdivision = employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision;
+			var currentEmployeeSubdivision = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
 			if(currentEmployeeSubdivision != null) {
 				if(FilterViewModel.SubdivisionService.GetOkkId() != currentEmployeeSubdivision.Id)
 					FilterViewModel.Subdivision = currentEmployeeSubdivision;
@@ -265,21 +273,28 @@ namespace Vodovoz.Journals.JournalViewModels
 						.And(() => discussionAlias.Complaint.Id == complaintAlias.Id);
 				}
 
-				if(FilterViewModel.FilterDateType == DateFilterType.CreationDate && FilterViewModel.StartDate.HasValue) {
-					query = query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate)
-								.And(() => FilterViewModel.StartDate == null || complaintAlias.CreationDate >= FilterViewModel.StartDate.Value);
-
-					if(dicussionQuery != null)
-						query.WithSubquery.WhereExists(dicussionQuery);
-
-				} else if(FilterViewModel.FilterDateType == DateFilterType.PlannedCompletionDate && FilterViewModel.StartDate.HasValue) {
-					if(dicussionQuery == null) {
-						query = query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate)
+				if(FilterViewModel.StartDate.HasValue) {
+					switch (FilterViewModel.FilterDateType) {
+						case DateFilterType.PlannedCompletionDate:
+							if(dicussionQuery == null) {
+								query = query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate)
 									.And(() => FilterViewModel.StartDate == null || complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value);
-					} else {
-						dicussionQuery = dicussionQuery
-										.And(() => FilterViewModel.StartDate == null || discussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
-										.And(() => discussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
+							} else {
+								dicussionQuery = dicussionQuery
+									.And(() => FilterViewModel.StartDate == null || discussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
+									.And(() => discussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
+							}
+							break;
+						case DateFilterType.ActualCompletionDate:
+							query = query.Where(() => complaintAlias.ActualCompletionDate <= FilterViewModel.EndDate)
+								.And(() => FilterViewModel.StartDate == null || complaintAlias.ActualCompletionDate >= FilterViewModel.StartDate.Value);
+							break;
+						case DateFilterType.CreationDate:
+							query = query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate)
+								.And(() => FilterViewModel.StartDate == null || complaintAlias.CreationDate >= FilterViewModel.StartDate.Value);
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
 					}
 				}
 
@@ -368,7 +383,10 @@ namespace Vodovoz.Journals.JournalViewModels
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						subdivisionRepository,
-						commonServices
+						commonServices,
+						nomenclatureSelectorFactory,
+						nomenclatureRepository,
+						userRepository
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -380,7 +398,10 @@ namespace Vodovoz.Journals.JournalViewModels
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						filePickerService,
-						subdivisionRepository
+						subdivisionRepository,
+						nomenclatureSelectorFactory,
+						nomenclatureRepository,
+						userRepository
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -409,7 +430,10 @@ namespace Vodovoz.Journals.JournalViewModels
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						filePickerService,
-						subdivisionRepository
+						subdivisionRepository,
+						nomenclatureSelectorFactory,
+						nomenclatureRepository,
+						userRepository
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -496,7 +520,10 @@ namespace Vodovoz.Journals.JournalViewModels
 								employeeSelectorFactory,
 								counterpartySelectorFactory,
 								filePickerService,
-								subdivisionRepository
+								subdivisionRepository,
+								nomenclatureSelectorFactory,
+								nomenclatureRepository,
+								userRepository
 							);
 							currentComplaintVM.AddFineCommand.Execute(this);
 						}
@@ -522,7 +549,10 @@ namespace Vodovoz.Journals.JournalViewModels
 								employeeSelectorFactory,
 								counterpartySelectorFactory,
 								filePickerService,
-								subdivisionRepository
+								subdivisionRepository,
+								nomenclatureSelectorFactory,
+								nomenclatureRepository,
+								userRepository
 							);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))

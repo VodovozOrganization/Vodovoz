@@ -21,6 +21,7 @@ using Vodovoz.Tools;
 using QS.Osm;
 using QS.Permissions;
 using QS.Tools;
+using SmsPaymentService;
 
 namespace Vodovoz
 {
@@ -205,6 +206,12 @@ namespace Vodovoz
 			if(ParametersProvider.Instance.ContainsParameter("instant_sms_enabled_database") && ParametersProvider.Instance.ContainsParameter("sms_service_address")) {
 				if(ParametersProvider.Instance.GetParameterValue("instant_sms_enabled_database") == loginDialogName) {
 					InstantSmsServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("sms_service_address"));
+				}
+			}
+			
+			if(ParametersProvider.Instance.ContainsParameter("sms_payment_send_enabled_database") && ParametersProvider.Instance.ContainsParameter("sms_payment_send_service_address")) {
+				if(ParametersProvider.Instance.GetParameterValue("sms_payment_send_enabled_database") == loginDialogName) {
+					SmsPaymentServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("sms_payment_send_service_address"));
 				}
 			}
 

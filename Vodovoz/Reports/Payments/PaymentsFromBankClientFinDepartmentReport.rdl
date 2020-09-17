@@ -31,7 +31,7 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox23" >
+      <Textbox Name="Textbox23">
         <Height>36.72pt</Height>
         <Width>801.63pt</Width>
         <Value>В отчет попадают завершенные платежи, которые:
@@ -48,7 +48,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>69.5pt</Height>
+    <Height>89.5pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>payments</DataSetName>
@@ -92,7 +92,7 @@
             <Width>43.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>112.3pt</Width>
+            <Width>119.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -298,7 +298,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>13.6pt</Height>
+              <Height>36.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -314,6 +314,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -332,6 +333,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -423,6 +425,7 @@
                         <FontSize>8pt</FontSize>
                         <Format>#,##0.00</Format>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -481,6 +484,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -497,7 +501,10 @@
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>17pt</PaddingTop>
+                        <PaddingBottom>17pt</PaddingBottom>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -531,46 +538,46 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="payments">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	MAX(date(payments.payment_date)) as payment_date,
+    MAX(date(payments.payment_date)) as payment_date,
     date(orders.create_date) as orderdate,
     orders.id AS order_id,
-	counterparty.full_name AS client,
-	CASE
-		WHEN orders.order_payment_status = 'Paid' THEN 'Оплачен'
-		WHEN orders.order_status = 'PartiallyPaid' THEN 'Частично оплачен'
-	ELSE ''
-	END AS order_payment_status,
+    client.full_name AS client,
+    CASE
+        WHEN orders.order_payment_status = 'Paid' THEN 'Оплачен'
+        WHEN orders.order_payment_status = 'PartiallyPaid' THEN 'Частично оплачен'
+        ELSE ''
+        END AS order_payment_status,
     IFNULL(deposit.dep, 0) as depositsum,
     IFNULL(SUM(o_items.price * IFNULL(o_items.actual_count, o_items.count) - o_items.discount_money), 0) AS ordersum,
-	IF(payments.counterparty_id != orders.client_id, CONCAT(payments.counterparty_name, '\n', payments.counterparty_inn),'') AS payer,
+    IF(payments.counterparty_inn != client.inn, CONCAT(payments.counterparty_name, '\n', payments.counterparty_inn),'') AS payer,
     IFNULL(p_items.total, 0) as allocatedsum,
     CONCAT_WS('\n', payments.payment_purpose) as payment_purpose,
-    CASE 
-    	WHEN deposit.dep != 0 THEN 1
-    	WHEN payments.counterparty_id != orders.client_id THEN 2
-    END AS ordering_col
+    CASE
+        WHEN deposit.dep != 0 THEN 1
+        WHEN payments.counterparty_id != orders.client_id THEN 2
+        END AS ordering_col
 FROM orders
-LEFT JOIN counterparty ON counterparty.id = orders.client_id
-LEFT JOIN (
-	SELECT IF(SUM(count * deposit_sum) &gt; 0, SUM(count * deposit_sum), 0) as dep, order_id
+         LEFT JOIN (
+    SELECT IF(SUM(count * deposit_sum) &gt; 0, SUM(count * deposit_sum), 0) as dep, order_id
     FROM order_deposit_items
     GROUP BY order_id
 ) deposit ON deposit.order_id = orders.id
-LEFT JOIN employees ON employees.id = orders.author_employee_id
-LEFT JOIN order_items o_items ON o_items.order_id = orders.id
-LEFT JOIN (
-	SELECT SUM(payment_items.sum) as total, order_id, payment_id
+         LEFT JOIN employees ON employees.id = orders.author_employee_id
+         LEFT JOIN order_items o_items ON o_items.order_id = orders.id
+         LEFT JOIN (
+    SELECT SUM(payment_items.sum) as total, order_id, payment_id
     FROM payment_items
     GROUP BY order_id
 ) p_items ON p_items.order_id = orders.id
-LEFT JOIN payments_from_bank_client payments ON payments.id = p_items.payment_id
+         LEFT JOIN payments_from_bank_client payments ON payments.id = p_items.payment_id
+         LEFT JOIN counterparty client ON client.id = payments.counterparty_id
 WHERE
-	payments.status = 'completed'
-	AND (deposit.dep != 0 OR payments.counterparty_id != orders.client_id)
-	AND payment_date BETWEEN @start_date AND @end_date
+        payments.status = 'completed'
+  AND (deposit.dep != 0 OR payments.counterparty_inn != client.inn)
+  AND payment_date BETWEEN @start_date AND @end_date
 GROUP BY orders.id
 ORDER BY ordering_col, payment_date DESC, orderdate DESC, orders.id DESC;</CommandText>
         <QueryParameters>
@@ -582,7 +589,7 @@ ORDER BY ordering_col, payment_date DESC, orderdate DESC, orders.id DESC;</Comma
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>

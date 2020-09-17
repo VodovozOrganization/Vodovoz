@@ -18,11 +18,11 @@
         <CommandText>SELECT
 	M.*,
 	# Заявка на производство
-	IF((M.norm + M.sold - M.total) &gt;= 0, M.norm + M.sold - M.total, 0) as request,
+	IF((M.norm - M.total) &gt;= 0, M.norm - M.total, 0) as request,
 	# Остаток на завтра
-	M.total + IF((M.norm + M.sold - M.total) &gt;= 0, M.norm + M.sold - M.total, 0) as balance,
+	M.total + IF((M.norm - M.total) &gt;= 0, M.norm - M.total, 0) as balance,
 	# Разница
-	M.total + IF((M.norm + M.sold - M.total) &gt;= 0, M.norm + M.sold - M.total, 0) - M.norm as difference
+	M.total + IF((M.norm - M.total) &gt;= 0, M.norm - M.total, 0) - M.norm as difference
 FROM
 (
 	SELECT
@@ -35,6 +35,7 @@ FROM
 	(
 		SELECT 
 			n.name as nomenclature_name,
+			n.bottle_cap_color,
 			# Остаток на складе
 			IFNULL
 			(
@@ -74,6 +75,7 @@ FROM
 					LEFT JOIN store_self_delivery_document_item ON store_self_delivery_document_item.warehouse_movement_operation_id = wmo.id 
 					WHERE
 						wmo.writeoff_warehouse_id = @warehouse_id
+						AND (store_self_delivery_document_item.id is not null OR store_car_load_document_items.id is not null)
 						AND wmo.nomenclature_id = n.id
 						AND wmo.operation_time BETWEEN @today AND @currently),
 			0) AS shipped,
@@ -206,6 +208,10 @@ HAVING store_balance &gt; 0 OR sold &gt; 0 OR shipped &gt; 0</CommandText>
         <Field Name="total">
           <DataField>total</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="bottle_cap_color">
+          <DataField>bottle_cap_color</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -532,6 +538,7 @@ WHERE
                         <BorderWidth />
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -552,6 +559,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -572,6 +580,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -592,6 +601,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -612,6 +622,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -631,6 +642,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -650,6 +662,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -670,6 +683,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -689,6 +703,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -708,6 +723,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>

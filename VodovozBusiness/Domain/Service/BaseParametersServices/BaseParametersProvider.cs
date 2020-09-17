@@ -28,6 +28,7 @@ namespace Vodovoz.Core.DataService
 		ISmsPaymentServiceParametersProvider,
 		IMailjetParametersProvider,
 		IVpbxSettings
+		ITerminalNomenclatureProvider
 	{
 		public string GetDefaultBaseForErrorSend()
 		{
@@ -447,6 +448,24 @@ namespace Vodovoz.Core.DataService
 					throw new InvalidProgramException("В параметрах базы не указаны настройки подключения к серверу отправки почты Mailjet (MailjetSecretKey)");
 				}
 				return ParametersProvider.Instance.GetParameterValue("MailjetSecretKey");
+			}
+		}
+		
+		public int GetNomenclatureIdForTerminal
+		{
+			get
+			{
+				if(!ParametersProvider.Instance.ContainsParameter("terminal_nomenclature_id")) {
+					throw new InvalidProgramException("В параметрах базы не заполнено значение ключа номенклатуры терминал для оплаты (terminal_nomenclature_id)");
+				}
+
+				string value = ParametersProvider.Instance.GetParameterValue("terminal_nomenclature_id");
+
+				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
+					throw new InvalidProgramException("В параметрах базы неверно заполнено значение ключа номенклатуры терминал для оплаты (terminal_nomenclature_id)");
+				}
+
+				return result;
 			}
 		}
 

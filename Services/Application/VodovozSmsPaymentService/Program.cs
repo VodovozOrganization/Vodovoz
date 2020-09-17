@@ -15,6 +15,7 @@ using QS.Project.DB;
 using QSProjectsLib;
 using QSSupportLib;
 using SmsPaymentService;
+using Vodovoz.Core.DataService;
 
 namespace VodovozSmsPaymentService
 {
@@ -99,12 +100,21 @@ namespace VodovozSmsPaymentService
 
 				ChannelFactory<IAndroidDriverService> channelFactory = new ChannelFactory<IAndroidDriverService>(
 					new BasicHttpBinding(),
-					string.Format("http://{0}:{1}/AndroidDriverService", driverServiceHostName, driverServicePort)
+					$"http://{driverServiceHostName}:{driverServicePort}/AndroidDriverService"
 				);
 				IDriverPaymentService driverPaymentService = new DriverPaymentService(channelFactory);
 				var paymentSender = new BitrixPaymentWorker(baseAddress);
+				
+				var fileProvider = new FileProvider("/tmp/VodovozSmsPaymentServiceTemp.txt");
+				var unsavedPaymentsWorker = new UnsavedPaymentsWorker(fileProvider);
 
-				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(paymentSender, driverPaymentService);
+				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
+					paymentSender, 
+					driverPaymentService,
+					new BaseParametersProvider(),
+					fileProvider,
+					unsavedPaymentsWorker
+				);
 
 				ServiceHost smsPaymentServiceHost = new SmsPaymentServiceHost(smsPaymentServiceInstanceProvider);
 				
@@ -127,6 +137,10 @@ namespace VodovozSmsPaymentService
 				logger.Info("Server started.");
 
 				(smsPaymentServiceInstanceProvider.GetInstance(null) as ISmsPaymentService)?.SynchronizePaymentStatuses();
+				
+				unsavedPaymentsWorker.Start();
+				var overduePaymentsWorker = new OverduePaymentsWorker();
+				overduePaymentsWorker.Start();
 
 				UnixSignal[] signals = {
 					new UnixSignal (Signum.SIGINT),

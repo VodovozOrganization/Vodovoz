@@ -8,6 +8,6 @@ namespace Vodovoz.TempAdapters
 {
 	public interface IOrderSelectorFactory
 	{
-		IEntitySelector CreateOrderSelectorForMovementDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses);
+		IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses);
 	}
 }

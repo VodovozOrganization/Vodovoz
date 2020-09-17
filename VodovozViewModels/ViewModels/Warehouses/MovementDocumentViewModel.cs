@@ -20,6 +20,7 @@ using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.PrintableDocuments;
 using Vodovoz.Repositories;
 using Vodovoz.TempAdapters;
 
@@ -413,8 +414,8 @@ namespace Vodovoz.ViewModels.Warehouses
 					fillFromOrdersCommand = new DelegateCommand(
 						() => {
 							bool IsOnlineStoreOrders = true;
-							IEnumerable<OrderStatus> orderStatuses = new OrderStatus[] { OrderStatus.Accepted, OrderStatus.InTravelList };
-							var orderSelector = orderSelectorFactory.CreateOrderSelectorForMovementDocument(IsOnlineStoreOrders, orderStatuses);
+							IEnumerable<OrderStatus> orderStatuses = new OrderStatus[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading };
+							var orderSelector = orderSelectorFactory.CreateOrderSelectorForDocument(IsOnlineStoreOrders, orderStatuses);
 							orderSelector.OnEntitySelectedResult += (sender, e) => {
 								IEnumerable<OrderForMovDocJournalNode> selectedNodes = e.SelectedNodes.Cast<OrderForMovDocJournalNode>();
 								if(!selectedNodes.Any()) {
@@ -425,15 +426,15 @@ namespace Vodovoz.ViewModels.Warehouses
 								var nomIds = orderItems.Where(x => x.Nomenclature != null).Select(x => x.Nomenclature.Id).ToList();
 
 								var nomsAmount = new Dictionary<int, decimal>();
-								if(nomIds != null && nomIds.Any()) {
+								if (nomIds != null && nomIds.Any()) {
 									nomIds = nomIds.Distinct().ToList();
 									nomsAmount = StockRepository.NomenclatureInStock(UoW, Entity.FromWarehouse.Id, nomIds.ToArray());
 								}
-								foreach(var item in orderItems) {
+								foreach (var item in orderItems) {
 									var moveItem = Entity.Items.FirstOrDefault(x => x.Nomenclature.Id == item.Nomenclature.Id);
-									if(moveItem == null) {
+									if (moveItem == null) {
 										var count = item.Count > nomsAmount[item.Nomenclature.Id] ? nomsAmount[item.Nomenclature.Id] : item.Count;
-										if(count == 0)
+										if (count == 0)
 											continue;
 										Entity.AddItem(item.Nomenclature, count, nomsAmount[item.Nomenclature.Id]);
 									} else {

@@ -15,7 +15,6 @@ using QS.Commands;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using fyiReporting.RdlGtkViewer;
 using QS.Dialog;
 using QS.Project.Services;
 using QS.Services;
@@ -130,14 +129,14 @@ namespace Vodovoz.Dialogs.Email
 		{
 			RefreshEmailListCommand = new DelegateCommand(
 				UpdateEmails,
-				() =>
-				{
-					if (Document.Type == OrderDocumentType.Bill)
-					{
+				() => {
+					if(Document == null) {
+						return false;
+					}
+					if (Document.Type == OrderDocumentType.Bill) {
 						return Document?.Order != null;
 					}
-					else
-					{
+					else {
 						return Document?.Id != 0;
 					}
 				}
@@ -233,10 +232,6 @@ namespace Vodovoz.Dialogs.Email
 			if(Document.Type == OrderDocumentType.Bill && Document.Order?.Id == 0) {
 				interactiveService.ShowMessage(ImportanceLevel.Warning,"Для отправки необходимо сохранить заказ."); 
 				return;
-				
-				/*if(!(DialogHelper.FindParentUowDialog(this) as OrderDlg).Save()) {
-					return;
-				}*/
 			}
 
 			if(Document.Type == OrderDocumentType.Bill && client == null) {

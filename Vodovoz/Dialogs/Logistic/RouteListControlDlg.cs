@@ -7,18 +7,29 @@ using Gamma.Utilities;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalSelector;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Goods;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -27,6 +38,44 @@ namespace Vodovoz.Dialogs.Logistic
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
+		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
+		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
+		
+		private  INomenclatureRepository nomenclatureRepository;
+		public virtual INomenclatureRepository NomenclatureRepository {
+			get {
+				if (nomenclatureRepository == null) {
+					nomenclatureRepository = new NomenclatureRepository();
+				}
+				return nomenclatureRepository;
+			}
+		}
+		
+		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
+			get {
+				if(counterpartySelectorFactory == null) {
+					counterpartySelectorFactory =
+						new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+							CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+				};
+				return counterpartySelectorFactory;
+			}
+		}
+		
+		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory {
+			get {
+				if(nomenclatureSelectorFactory == null) {
+					nomenclatureSelectorFactory =
+						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
+							NomenclatureRepository, userRepository);
+				}
+				return nomenclatureSelectorFactory;
+			}
+		}
+		
 		public GenericObservableList<RouteListControlNotLoadedNode> ObservableNotLoadedList { get; set; }
 			= new GenericObservableList<RouteListControlNotLoadedNode>();
 
@@ -102,7 +151,8 @@ namespace Vodovoz.Dialogs.Logistic
 		private void UpdateLists()
 		{
 			var goods = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(UoW, Entity);
-			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures();
+			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures(true);
+			
 			ObservableNotLoadedList = new GenericObservableList<RouteListControlNotLoadedNode>(notLoadedNomenclatures);
 
 			var notAttachedNomenclatures = UoW.Session.QueryOver<Nomenclature>()
@@ -118,7 +168,9 @@ namespace Vodovoz.Dialogs.Logistic
 		void YtreeviewNotAttached_RowActivated(object o, Gtk.RowActivatedArgs args)
 		{
 			if(ytreeviewNotAttached.GetSelectedObject() is Nomenclature notAttachedNomenclature)
-				TabParent.AddTab(new NomenclatureDlg(notAttachedNomenclature), this);
+				TabParent.AddTab(new NomenclatureViewModel(EntityUoWBuilder.ForOpen(notAttachedNomenclature.Id), 
+					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, employeeService, NomenclatureSelectorFactory, 
+					CounterpartySelectorFactory, NomenclatureRepository, userRepository), this);
 		}
 
 		protected void OnBtnSendEnRouteClicked(object sender, EventArgs e)

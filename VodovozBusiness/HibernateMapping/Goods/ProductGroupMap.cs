@@ -14,10 +14,13 @@ namespace Vodovoz.HibernateMapping.Goods
 			Map(x => x.Name).Column("name");
 			Map(x => x.OnlineStoreGuid).Column("online_store_guid");
 			Map(x => x.ExportToOnlineStore).Column("export_to_store");
-			Map(x => x.MappedIsOnlineStore).Column("is_online_store");
+			Map(x => x.IsOnlineStore).Column("is_online_store");
+			Map(x => x.IsArchive).Column("is_archived");
 			Map(x => x.CharacteristicsText).Column("characteristics");
+			Map(x => x.OnlineStoreExternalId).Column("online_store_external_id");
 
-			References(x => x.MappedParent).Column("parent_id");
+			References(x => x.Parent).Column("parent_id");
+			References(x => x.OnlineStore).Column("online_store_id");
 			HasMany(x => x.Childs).Inverse().Cascade.All().LazyLoad().KeyColumn("parent_id");
 		}
 	}

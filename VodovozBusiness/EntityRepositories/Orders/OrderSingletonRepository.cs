@@ -627,9 +627,11 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
-				.Where(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
+				.And(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
 				.And(() => orderAlias.OrderStatus != OrderStatus.Canceled)
 				.And(() => orderAlias.OrderStatus != OrderStatus.DeliveryCanceled)
+				.And(() => orderAlias.OrderStatus != OrderStatus.NotDelivered)
+				.And(() => orderAlias.PaymentType == PaymentType.cashless)
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.Select(
 					Projections.Sum(
@@ -647,15 +649,26 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
-				.Where(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
+				.And(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
 				.And(() => orderAlias.OrderStatus != OrderStatus.Canceled)
 				.And(() => orderAlias.OrderStatus != OrderStatus.DeliveryCanceled)
+				.And(() => orderAlias.OrderStatus != OrderStatus.NotDelivered)
+				.And(() => orderAlias.PaymentType == PaymentType.cashless)
 				.And(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
 				.Select(
 					Projections.Sum(() => cashlessMovOperationAlias.Expense)
 				).SingleOrDefault<decimal>();
 
 			return total - totalPayPartiallyPaidOrders;
+		}
+
+		public IList<PaymentItem> GetPaymentItemsForOrder(IUnitOfWork uow, int orderId)
+		{
+			var paymentItems = uow.Session.QueryOver<PaymentItem>()
+				.Where(x => x.Order.Id == orderId)
+				.List();
+
+			return paymentItems;
 		}
 	}
 }

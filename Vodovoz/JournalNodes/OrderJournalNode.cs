@@ -36,7 +36,7 @@ namespace Vodovoz.JournalNodes
 
 		public OrderStatus StatusEnum { get; set; }
 		
-		public OrderPaymentStatus? OrderPaymentStatus { get; set; }
+		public OrderPaymentStatus OrderPaymentStatus { get; set; }
 
 		public string ViewType { get; set; }
 

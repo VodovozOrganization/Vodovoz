@@ -3,7 +3,7 @@ using QS.Print;
 using QS.Report;
 using Vodovoz.Domain.Documents;
 
-namespace Vodovoz.ViewModels.Warehouses
+namespace Vodovoz.PrintableDocuments
 {
 	public class MovementDocumentRdl : IPrintableRDLDocument
 	{
