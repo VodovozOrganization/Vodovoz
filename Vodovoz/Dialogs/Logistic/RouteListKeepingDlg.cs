@@ -12,7 +12,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
@@ -27,7 +26,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
@@ -213,7 +211,7 @@ namespace Vodovoz
 
 				for(uint i = 1; i < rows; i++) {
 					Label l = new Label();
-					l.LabelProp = Entity.Driver.Phones[Convert.ToInt32(i-1)].Number;
+					l.LabelProp = "+7 " + Entity.Driver.Phones[Convert.ToInt32(i-1)].Number;
 					PhonesTable1.Attach(l, 0, 1, i, i + 1);
 
 					HandsetView h = new HandsetView(Entity.Driver.Phones[Convert.ToInt32(i-1)].DigitsNumber);
@@ -229,7 +227,7 @@ namespace Vodovoz
 
 				for(uint i = 1; i < rows; i++) {
 					Label l = new Label();
-					l.LabelProp = Entity.Forwarder.Phones[Convert.ToInt32(i-1)].Number;
+					l.LabelProp = "+7 " + Entity.Forwarder.Phones[Convert.ToInt32(i-1)].Number;
 					PhonesTable2.Attach(l, 0, 1, i, i + 1);
 
 					HandsetView h = new HandsetView(Entity.Forwarder.Phones[Convert.ToInt32(i-1)].DigitsNumber);
