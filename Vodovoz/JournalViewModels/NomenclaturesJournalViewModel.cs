@@ -77,9 +77,7 @@ namespace Vodovoz.JournalViewModels
 					   || orderAlias.OrderStatus == OrderStatus.OnLoading)
 				.Select(Projections.Sum(() => orderItemsAlias.Count));
 
-			var itemsQuery = uow.Session.QueryOver(() => nomenclatureAlias)
-								.Where(() => !nomenclatureAlias.IsArchive)
-								;
+			var itemsQuery = uow.Session.QueryOver(() => nomenclatureAlias);
 
 			if(!FilterViewModel.RestrictArchive)
 				itemsQuery.Where(() => !nomenclatureAlias.IsArchive);
