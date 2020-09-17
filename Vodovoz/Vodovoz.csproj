@@ -1565,6 +1565,7 @@
     <Compile Include="Views\Mango\Talks\InternalTalkView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.InternalTalkView.cs" />
     <Compile Include="ViewModels\Mango\Talks\InternalTalkViewModel.cs" />
+    <Compile Include="ViewWidgets\Mango\EmployeePhone.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
