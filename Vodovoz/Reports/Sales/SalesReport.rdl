@@ -466,7 +466,7 @@
       <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>13.51pt</Height>
         <Width>223.58pt</Width>
-        <Value>="Количество заказов: " + Countdistinct({order_id}, "Sales")</Value>
+        <Value>="Количество заказов: " + First({count}, "orders_count")</Value>
         <ZIndex>1</ZIndex>
         <Left>335.5pt</Left>
         <Top>135.7pt</Top>
@@ -514,6 +514,7 @@
 	T.counterparty,
 	T.delivery_point,
 	T.order_id,
+	COUNT(DISTINCT T.order_id) as orders_count,
 	T.name,
 	SUM(T.total_count) AS total_count,
 	SUM(T.total_sum) AS total_sum,
@@ -746,6 +747,10 @@ GROUP BY nomenclature_id
         <Field Name="is_disposable_tare">
           <DataField>is_disposable_tare</DataField>
           <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="orders_count">
+          <DataField>orders_count</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1211,6 +1216,196 @@ FROM
         </Field>
         <Field Name="fact">
           <DataField>fact</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="orders_count">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    COUNT(DISTINCT orders.id) as count
+FROM
+    order_items
+        LEFT JOIN
+    orders ON order_id = orders.id
+        LEFT JOIN
+    nomenclature ON order_items.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    nomenclature_groups ON nomenclature.group_id = nomenclature_groups.id
+        LEFT JOIN
+    counterparty ON orders.client_id = counterparty.id
+        LEFT JOIN
+    delivery_points ON orders.delivery_point_id = delivery_points.id
+        LEFT JOIN
+    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+        LEFT JOIN
+    employees ON orders.author_employee_id = employees.id
+        LEFT JOIN
+    districts distr ON delivery_points.district_id = distr.id
+        LEFT JOIN
+    geographic_groups gg ON gg.id = distr.geographic_group_id
+WHERE
+    (order_status = 'Accepted'
+        OR order_status = 'InTravelList'
+        OR order_status = 'OnLoading'
+        OR order_status = 'OnTheWay'
+        OR order_status = 'Shipped'
+        OR order_status = 'UnloadingOnStock'
+        OR order_status = 'Closed'
+        OR (order_status = 'WaitForPayment' AND self_delivery AND pay_after_shipment)
+        )
+  AND (delivery_date &gt;= @start_date
+    AND delivery_date &lt;= @end_date)
+  AND (@need_terminal = 0 OR need_terminal = @need_terminal)
+  AND !orders.is_contract_closer
+  AND (
+             ((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
+                 OR
+              (nomenclature.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
+             OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
+        )
+   AND (
+         ((nomenclature.category IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude) )
+             OR
+          (nomenclature.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
+         OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
+    )
+   AND (
+         ((orders.client_id IN (@counterparty_include) AND 0 IN (@counterparty_exclude) )
+             OR
+          (orders.client_id NOT IN (@counterparty_exclude) AND 0 IN (@counterparty_include)))
+         OR (0 IN (@counterparty_include) AND 0 IN (@counterparty_exclude))
+     )
+   AND (
+         ((counterparty_contract.organization_id IN (@organization_include) AND 0 IN (@organization_exclude) )
+             OR
+          (counterparty_contract.organization_id NOT IN (@organization_exclude) AND 0 IN (@organization_include)))
+         OR (0 IN (@organization_include) AND 0 IN (@organization_exclude))
+     )
+   AND (
+         ((order_items.discount_reason_id IN (@discount_reason_include) AND 0 IN (@discount_reason_exclude) )
+             OR
+          (order_items.discount_reason_id NOT IN (@discount_reason_exclude) AND 0 IN (@discount_reason_include)))
+         OR (0 IN (@discount_reason_include) AND 0 IN (@discount_reason_exclude))
+     )
+   AND (
+         ((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
+             OR
+          (IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) NOT IN (@subdivision_exclude) AND 0 IN (@subdivision_include)))
+         OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
+     )
+   AND (
+         ((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@order_author_include) AND 0 IN (@order_author_exclude) )
+             OR
+          (IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@order_author_exclude) AND 0 IN (@order_author_include)))
+         OR (0 IN (@order_author_include) AND 0 IN (@order_author_exclude))
+     )
+   AND (
+         ((IFNULL(gg.id, 0) IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
+             OR
+          (IFNULL(gg.id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
+         OR (0 IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
+     )
+   AND (
+         ((orders.payment_type IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
+             OR
+          (orders.payment_type NOT IN (@payment_type_exclude) AND '0' IN (@payment_type_include)))
+         OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
+     )
+   AND (
+         ((IFNULL(order_items.promotional_set_id, 0) IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
+             OR
+          (IFNULL(order_items.promotional_set_id, 0) NOT IN (@promotional_set_exclude) AND 0 IN (@promotional_set_include)))
+         OR (0 IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
+     )
+   AND (
+         ((IFNULL(nomenclature_groups.id , 0) IN (@product_group_include) AND 0 IN (@product_group_exclude))
+             OR
+          (IFNULL(nomenclature_groups.id , 0) NOT IN (@product_group_exclude) AND 0 IN (@product_group_include)))
+         OR (0 IN (@product_group_include) AND 0 IN (@product_group_exclude))
+     );</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_include">
+            <Value>=Parameters!nomenclature_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_exclude">
+            <Value>=Parameters!nomenclature_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_include">
+            <Value>=Parameters!nomenclature_type_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_exclude">
+            <Value>=Parameters!nomenclature_type_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="discount_reason_include">
+            <Value>=Parameters!discount_reason_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="discount_reason_exclude">
+            <Value>=Parameters!discount_reason_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_include">
+            <Value>=Parameters!organization_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_exclude">
+            <Value>=Parameters!organization_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_include">
+            <Value>=Parameters!counterparty_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_exclude">
+            <Value>=Parameters!counterparty_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_author_include">
+            <Value>=Parameters!order_author_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_author_exclude">
+            <Value>=Parameters!order_author_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_include">
+            <Value>=Parameters!subdivision_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_exclude">
+            <Value>=Parameters!subdivision_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_group_include">
+            <Value>=Parameters!geographic_group_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_group_exclude">
+            <Value>=Parameters!geographic_group_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_type_include">
+            <Value>={?payment_type_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_type_exclude">
+            <Value>={?payment_type_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promotional_set_include">
+            <Value>={?promotional_set_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promotional_set_exclude">
+            <Value>={?promotional_set_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_include">
+            <Value>={?product_group_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_exclude">
+            <Value>={?product_group_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="need_terminal">
+            <Value>=Parameters!need_terminal</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
