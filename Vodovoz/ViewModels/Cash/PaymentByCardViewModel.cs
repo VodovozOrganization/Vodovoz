@@ -1,6 +1,7 @@
 using System;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Tools.CallTasks;
@@ -21,6 +22,10 @@ namespace Vodovoz.ViewModels.Cash
         
         protected override void BeforeSave() {
             Entity.ChangePaymentTypeToByCard(callTaskWorker);
+            if (!Entity.PayAfterShipment)
+            {
+                Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService, callTaskWorker);
+            }
         }
     }
 }
