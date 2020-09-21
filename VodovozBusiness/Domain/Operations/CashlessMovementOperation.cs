@@ -1,13 +1,13 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 using QS.HistoryLog;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Operations
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "передвижения безнала",
 		Nominative = "передвижение безнала")]
-	[HistoryTrace]
 	public class CashlessMovementOperation : OperationBase
 	{
 		decimal income;
@@ -24,6 +24,12 @@ namespace Vodovoz.Domain.Operations
 			set => SetField(ref expense, value);
 		}
 
+		Counterparty counterparty;
+		public virtual Counterparty Counterparty {
+			get => counterparty;
+			set => SetField(ref counterparty, value);
+		}
+		
 		public CashlessMovementOperation()
 		{
 		}

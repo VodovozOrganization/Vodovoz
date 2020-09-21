@@ -141,13 +141,13 @@ namespace Vodovoz.JournalViewModels
 			var complaintConfig = RegisterEntity<Payment>(GetPaymentQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new PaymentLoaderVM(
+					() => new PaymentLoaderViewModel(
 						unitOfWorkFactory,
 						commonServices,
 						navigationManager
 					),
 					//функция диалога открытия документа
-					(PaymentJournalNode node) => new ManualPaymentMatchingVM(
+					(PaymentJournalNode node) => new ManualPaymentMatchingViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						unitOfWorkFactory,
 						commonServices,
