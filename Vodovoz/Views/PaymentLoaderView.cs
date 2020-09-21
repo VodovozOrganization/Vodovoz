@@ -10,15 +10,13 @@ using QSProjectsLib;
 namespace Vodovoz.Views
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class PaymentLoaderView : TabViewBase<PaymentLoaderVM>
+	public partial class PaymentLoaderView : TabViewBase<PaymentLoaderViewModel>
 	{
 		static Gdk.Color colorPink = new Gdk.Color(0xff, 0xc0, 0xc0);
 		static Gdk.Color colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 		static Gdk.Color colorLightGreen = new Gdk.Color(0xc0, 0xff, 0xc0);
-	
-		IUnitOfWork UoW => ViewModel.UoW;
 
-		public PaymentLoaderView(PaymentLoaderVM paymentLoaderVM) : base(paymentLoaderVM)
+		public PaymentLoaderView(PaymentLoaderViewModel paymentLoaderViewModel) : base(paymentLoaderViewModel)
 		{
 			this.Build();
 			ViewModel.TabName = "Выгрузка выписки из банк-клиента";
@@ -59,7 +57,7 @@ namespace Vodovoz.Views
 				.AddColumn("Категория дохода/расхода")
 					.AddComboRenderer(x => x.ProfitCategory)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(UoW.GetAll<CategoryProfit>().ToList())
+					.FillItems(ViewModel.ProfitCategories)
 					.Editing()
 				.AddColumn("")
 				.RowCells().AddSetter<CellRenderer>(

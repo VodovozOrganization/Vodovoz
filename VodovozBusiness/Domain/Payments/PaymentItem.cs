@@ -46,7 +46,11 @@ namespace Vodovoz.Domain.Payments
 		{
 			if (CashlessMovementOperation == null)
 			{
-				CashlessMovementOperation = new CashlessMovementOperation {Expense = sum, OperationTime = DateTime.Now};
+				CashlessMovementOperation = new CashlessMovementOperation {
+					Expense = sum, 
+					Counterparty = Payment.Counterparty,
+					OperationTime = DateTime.Now
+				};
 			}
 			else
 			{
@@ -56,10 +60,20 @@ namespace Vodovoz.Domain.Payments
 
 		public virtual void UpdateExpenseOperation()
 		{
-			if (CashlessMovementOperation.Expense < sum)
+			if (CashlessMovementOperation.Expense != sum)
 			{
 				CashlessMovementOperation.Expense = sum;
+				CashlessMovementOperation.Counterparty = Payment.Counterparty;
 				CashlessMovementOperation.OperationTime = DateTime.Now;
+			}
+		}
+		
+		public virtual void UpdateSum(decimal newSum) {
+			Sum = newSum;
+			
+			if (CashlessMovementOperation != null)
+			{
+				UpdateExpenseOperation();
 			}
 		}
 	}

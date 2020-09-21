@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -15,12 +16,8 @@ using Vodovoz.Repositories;
 
 namespace Vodovoz.ViewModels
 {
-	public class PaymentLoaderVM : DialogTabViewModelBase
+	public class PaymentLoaderViewModel : DialogTabViewModelBase
 	{
-		public TransferDocumentsFromBankParser Parser { get; private set; }
-
-		public GenericObservableList<Payment> ObservablePayments { get; set; }
-
 		private Logger logger = LogManager.GetCurrentClassLogger();
 		double progress;
 
@@ -29,10 +26,12 @@ namespace Vodovoz.ViewModels
 			get => isNotAutoMatchingMode;
 			set => SetField(ref isNotAutoMatchingMode, value);
 		}
-
+		public TransferDocumentsFromBankParser Parser { get; private set; }
+		public GenericObservableList<Payment> ObservablePayments { get; set; }
+		public IList<CategoryProfit> ProfitCategories { get; private set; }
 		public event Action<string, double> UpdateProgress;
 
-		public PaymentLoaderVM(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigationManager) 
+		public PaymentLoaderViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigationManager) 
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
@@ -40,13 +39,17 @@ namespace Vodovoz.ViewModels
 			ObservablePayments = new GenericObservableList<Payment>();
 
 			CreateCommands();
+			GetProfitCategories();
 		}
 
-		private void CreateCommands()
-		{
+		private void CreateCommands() {
 			CreateSaveCommand();
 			CreateCloseViewModelCommand();
 			CreateParseCommand();
+		}
+		
+		private void GetProfitCategories() {
+			ProfitCategories = UoW.GetAll<CategoryProfit>().ToList();
 		}
 
 		public DelegateCommand<GenericObservableList<Payment>> SaveCommand { get; private set; }
