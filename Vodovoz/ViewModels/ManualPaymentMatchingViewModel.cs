@@ -219,12 +219,12 @@ namespace Vodovoz.ViewModels
 			UpdateCurrentBalance();
 		}
 		
-		public void TreeViewAllocatedSumChangedByUser(ManualPaymentMatchingViewModelAllocatedNode node, decimal newValue) {
-			if (newValue > node.LastPayments)
+		public void TreeViewAllocatedSumChangedByUser(ManualPaymentMatchingViewModelAllocatedNode node) {
+			if (node.AllocatedSum > node.LastPayments)
 				node.AllocatedSum = node.LastPayments;
 			
-			if(newValue < 0) {
-				node.AllocatedSum = default(int);
+			if(node.AllocatedSum < 0) {
+				node.AllocatedSum = default(decimal);
 			}
 		}
 
@@ -487,7 +487,7 @@ namespace Vodovoz.ViewModels
 
 		public void ClearProperties()
 		{
-			AllocatedSum = default(int);
+			AllocatedSum = default(decimal);
 			CurrentBalance = SumToAllocate;
 		}
 

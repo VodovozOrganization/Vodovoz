@@ -53,8 +53,8 @@ namespace Vodovoz.Views
 			yenumcomboOrderPaymentStatus.ChangedByUser += (sender, e) => ViewModel.UpdateNodes();
 
 			labelTotalSum.Text = ViewModel.Entity.Total.ToString();
-			labelLastBalance.Binding.AddFuncBinding(ViewModel, vm => vm.LastBalance.ToString(), w => w.Text).InitializeFromSource();
-			labelToAllocate.Binding.AddFuncBinding(ViewModel, vm => vm.SumToAllocate.ToString(), w => w.Text).InitializeFromSource();
+			labelLastBalance.Binding.AddBinding(ViewModel, vm => vm.LastBalance, w => w.Text, new DecimalToStringConverter()).InitializeFromSource();
+			labelToAllocate.Binding.AddBinding(ViewModel, vm => vm.SumToAllocate, w => w.Text, new DecimalToStringConverter()).InitializeFromSource();
 
 			ylabelCurBalance.Binding.AddBinding(ViewModel, vm => vm.CurrentBalance, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
 			ylabelAllocated.Binding.AddBinding(ViewModel, vm => vm.AllocatedSum, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
@@ -171,9 +171,8 @@ namespace Vodovoz.Views
 				return;
 
 			var node = selectedObj as ManualPaymentMatchingViewModelAllocatedNode;
-			var newValue = decimal.Parse(args.NewText);
-
-			ViewModel.TreeViewAllocatedSumChangedByUser(node, newValue);
+			
+			ViewModel.TreeViewAllocatedSumChangedByUser(node);
 		}
 		
 		private void UseFine_Toggled(object o, ToggledArgs args) =>
