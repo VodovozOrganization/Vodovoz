@@ -24,7 +24,7 @@ namespace Vodovoz.Views.Mango.Talks
 				WidgetPlace.AppendPage(widget, label);
 				WidgetPlace.ShowAll();
 			}
-			WidgetPlace.ChangeCurrentPage += ChangeCurrentPage_WidgetPlace;
+			WidgetPlace.SwitchPage += ChangeCurrentPage_WidgetPlace;
 			ViewModel.CounterpartyOrdersModelsUpdateEvent += Update_WidgetPlace;
 		}
 
@@ -85,7 +85,14 @@ namespace Vodovoz.Views.Mango.Talks
 
 		private void Clicked_CostAndDeliveryIntervalButton(object sender, EventArgs e)
 		{
-			ViewModel.CostAndDeliveryIntervalCommand();
+			Gtk.Menu popupMenu = new Menu();
+			foreach(var point in ViewModel.currentCounterparty.DeliveryPoints) {
+				MenuItem item = new MenuItem($"{point.ShortAddress}");
+				item.ButtonPressEvent += delegate(object s, ButtonPressEventArgs _e) { ViewModel.CostAndDeliveryIntervalCommand(point); };
+				popupMenu.Add(item);
+			}
+			popupMenu.ShowAll();
+			popupMenu.Popup();
 		}
 
 		#region MangoEvents

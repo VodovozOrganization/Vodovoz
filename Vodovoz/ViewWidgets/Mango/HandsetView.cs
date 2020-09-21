@@ -25,7 +25,8 @@ namespace Vodovoz.ViewWidgets.Mango
 		}
 		protected void Clicked_buttonMakeCall(object sender, EventArgs e)
 		{
-			MainClass.MainWin.MangoManager.MakeCall("7"+Phone.DigitsNumber);
+			if(Phone.DigitsNumber.Length == 10)
+				MainClass.MainWin.MangoManager.MakeCall("7"+Phone.DigitsNumber);
 		}
 	}
 }

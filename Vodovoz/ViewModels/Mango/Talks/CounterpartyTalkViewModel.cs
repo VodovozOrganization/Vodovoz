@@ -38,7 +38,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		}
 
 
-		private Counterparty currentCounterparty { get; set; }
+		public Counterparty currentCounterparty { get;private set; }
 
 		public event System.Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public string GetPhoneNumber()
 		{
-			return MangoManager.CallerNumber;
+			return "+7"+MangoManager.CallerNumber;
 		}
 
 		public IDictionary<string, CounterpartyOrderView> GetCounterpartyViewModels()
@@ -161,21 +161,23 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		{
 			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits();
 			parameters.SetCounterparty(currentCounterparty);
-			tdiNavigation.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, parameters);
+			ReportViewDlg dialog = tdiNavigation.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, parameters) as ReportViewDlg;
+			parameters.OnUpdate(true);
+			
 		}
 
 		public void StockBalanceCommand()
 		{
 			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
 		new WarehouseRepository()
-	);
+		);
 			NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, NomenclatureStockFilterViewModel>(null, filter);
 
 		}
 
-		public void CostAndDeliveryIntervalCommand()
+		public void CostAndDeliveryIntervalCommand(DeliveryPoint point)
 		{
-			tdiNavigation.OpenTdiTab<DeliveryPriceDlg>(null);
+			tdiNavigation.OpenTdiTab<DeliveryPriceDlg, DeliveryPoint>(null, point);
 		}
 
 		#endregion
