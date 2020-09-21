@@ -182,7 +182,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yEntry yentryOfficialName;
 
-		private global::Gamma.Widgets.yEntryReference yentryProductGroup;
+		private global::QS.Widgets.GtkUI.RepresentationEntry yentryProductGroup;
 
 		private global::Gamma.GtkWidgets.yEntry yentryStorageCell;
 
@@ -410,7 +410,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 2;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -1318,7 +1318,7 @@ namespace Vodovoz
 			w89.XOptions = ((global::Gtk.AttachOptions)(4));
 			w89.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.yentryProductGroup = new global::Gamma.Widgets.yEntryReference();
+			this.yentryProductGroup = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.yentryProductGroup.Events = ((global::Gdk.EventMask)(256));
 			this.yentryProductGroup.Name = "yentryProductGroup";
 			this.datatable1.Add(this.yentryProductGroup);

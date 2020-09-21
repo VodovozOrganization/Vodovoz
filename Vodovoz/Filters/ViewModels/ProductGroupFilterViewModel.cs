@@ -2,7 +2,7 @@ using QS.Project.Filter;
 
 namespace Vodovoz.Filters.ViewModels
 {
-    public class ProductGroupFilterViewModel: FilterViewModelBase<ProductGroupFilterViewModel> 
+    public class ProductGroupFilterViewModel: RepresentationFilterViewModelBase<ProductGroupFilterViewModel> 
     {
         private bool hideArchive;
         public bool HideArchive {

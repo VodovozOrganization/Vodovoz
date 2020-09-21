@@ -63,7 +63,7 @@ namespace Vodovoz.ReportsParameters
 					{ "driver_id", (entryDriver?.Subject  as Employee)?.Id ?? -1 },
 					{ "car_id", (entryCar?.Subject as Car)?.Id ?? -1 },
 					{ "time", timeHourEntry.Text + ":" + timeMinuteEntry.Text },
-					{ "need_date", ycheckneedDate.Active}
+					{ "need_date", !datepicker.IsEmpty }
 				}
 			};
 		}
@@ -75,13 +75,6 @@ namespace Vodovoz.ReportsParameters
 
 		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
 		{
-			string errorString = string.Empty;
-			if(datepicker.Date == DateTime.MinValue)
-				errorString += "Не заполнена дата\n";
-			if(!string.IsNullOrWhiteSpace(errorString)) {
-				MessageDialogHelper.RunErrorDialog(errorString);
-				return;
-			}
 			OnUpdate(true);
 		}
 	}

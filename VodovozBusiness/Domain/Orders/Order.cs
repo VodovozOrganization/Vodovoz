@@ -824,7 +824,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			Comment = string.Empty;
 			OrderStatus = OrderStatus.NewOrder;
-			OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+			OrderPaymentStatus = OrderPaymentStatus.None;
 			SumDifferenceReason = string.Empty;
 			ClientPhone = string.Empty;
 		}
@@ -4091,7 +4091,7 @@ namespace Vodovoz.Domain.Orders
 			if(!EShopOrder.HasValue
 			   && OrderItems
 				   .Where(x => x.Nomenclature.ProductGroup != null)
-				   .Select(x => DomainTreeNodeBase<ProductGroup>.GetRootParent(x.Nomenclature.ProductGroup))
+				   .Select(x => ProductGroup.GetRootParent(x.Nomenclature.ProductGroup))
 				   .Any(x => x.Id == new NomenclatureParametersProvider().RootProductGroupForOnlineStoreNomenclatures))
 				yield return new ValidationResult(
 					"При добавлении в заказ номенклатур с группой товаров интернет-магазиа необходимо указать номер заказа интернет-магазина.",

@@ -13,7 +13,10 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.Project.Dialogs.GtkUI;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Representations;
 
 namespace Vodovoz
 {
@@ -63,8 +66,11 @@ namespace Vodovoz
 
 			yenumcomboboxNomType.ItemsEnum = typeof(NomenclatureCategory);
 			yenumcomboboxNomType.Binding.AddBinding(Entity, e => e.NomenclatureCategory, w => w.SelectedItemOrNull).InitializeFromSource();
-			yentryreferenceNomGroup.SubjectType = typeof(ProductGroup);
+			
+			yentryreferenceNomGroup.JournalButtons = Buttons.Add | Buttons.Edit;
+			yentryreferenceNomGroup.RepresentationModel = new ProductGroupVM(UoW, new ProductGroupFilterViewModel());
 			yentryreferenceNomGroup.Binding.AddBinding(Entity, e => e.ProductGroup, w => w.Subject).InitializeFromSource();
+			
 			yentryreferenceNom.SubjectType = typeof(Nomenclature);
 			yentryreferenceNom.Binding.AddBinding(Entity, e => e.Nomenclature, w => w.Subject).InitializeFromSource();
 

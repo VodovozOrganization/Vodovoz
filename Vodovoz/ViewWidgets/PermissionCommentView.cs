@@ -55,6 +55,11 @@ namespace Vodovoz.ViewWidgets
 			return true;
 		}
 
+		public void Save()
+		{
+			OnButtonSaveCloseCommentClicked(buttonSaveComment, EventArgs.Empty);
+		}
+
 		protected void OnButtonSaveCloseCommentClicked(object sender, EventArgs e)
 		{
 			if(!CheckPermissions())

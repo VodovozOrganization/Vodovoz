@@ -22,12 +22,7 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 
 		private void ConfigureDlg()
 		{
-			var filter = new NomenclatureFilterViewModel();
-			filter.RestrictCategory = NomenclatureCategory.water;
-
-			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices, filter)
-			);
+			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
 			entityviewmodelentryNomenclature.Binding.AddBinding(ViewModel, vm => vm.Nomenclature, w => w.Subject);
 			entityviewmodelentryNomenclature.CanEditReference = true;
 

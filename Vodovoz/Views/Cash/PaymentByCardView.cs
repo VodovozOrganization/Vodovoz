@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using QS.Navigation;
 using QS.Views.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Domain.Orders;
@@ -15,14 +16,24 @@ namespace Vodovoz.Views.Cash
 		}
 
 		private void Configure() {
-			ybuttonSave.Binding.AddFuncBinding(ViewModel.Entity, e => e.OnlineOrder.HasValue, w => w.Sensitive).InitializeFromSource();
-			ybuttonSave.Clicked += (s, ea) => ViewModel.SaveAndClose();
+			ybuttonSave.Binding.AddFuncBinding(ViewModel.Entity,
+				e => e.OnlineOrder.HasValue,
+				w => w.Sensitive).InitializeFromSource();
 			
-			entryOnlineOrder.ValidationMode = ValidationType.numeric;
-			entryOnlineOrder.Binding.AddBinding(ViewModel.Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			ybuttonSave.Clicked += (s, ea) => ViewModel.SaveAndClose();
+			ybuttonCancel.Clicked += (s, ea) => ViewModel.Close(false,CloseSource.Cancel);
+			
+			entryOnlineOrder.ValidationMode = (QS.Widgets.ValidationType)ValidationType.numeric;
+			entryOnlineOrder.Binding.AddBinding(ViewModel.Entity,
+				e => e.OnlineOrder,
+				w => w.Text,
+				new IntToStringConverter()).InitializeFromSource();
 			
 			comboPaymentFrom.SetRenderTextFunc<PaymentFrom>(x => x.Name);
-			comboPaymentFrom.Binding.AddBinding(ViewModel.Entity, vm => vm.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
+			comboPaymentFrom.Binding.AddBinding(ViewModel.Entity,
+				vm => vm.PaymentByCardFrom,
+				w => w.SelectedItem).InitializeFromSource();
+			
 			comboPaymentFrom.ItemsList = ViewModel.UoW.GetAll<PaymentFrom>();
 		}
 	}

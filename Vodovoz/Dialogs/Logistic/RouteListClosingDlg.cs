@@ -143,6 +143,7 @@ namespace Vodovoz
 			permissioncommentview.PermissionName = "can_edit_cashier_review_comment";
 			permissioncommentview.Comment = Entity.CashierReviewComment;
 			permissioncommentview.CommentChanged += (comment) => Entity.CashierReviewComment = comment;
+			
 			canCloseRoutelist = PermissionRepository.HasAccessToClosingRoutelist();
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
@@ -678,7 +679,7 @@ namespace Vodovoz
 			if(!TrySetCashier()) {
 				return false;
 			}
-
+			permissioncommentview.Save();
 			UoW.Save();
 
 			return true;

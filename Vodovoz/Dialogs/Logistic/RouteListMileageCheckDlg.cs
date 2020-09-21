@@ -146,7 +146,7 @@ namespace Vodovoz
 
 		private void ButtonAcceptFineOnClicked(object sender, EventArgs e)
 		{
-			string fineReason = "Недосдача";
+			string fineReason = "Перерасход топлива";
 
 			var fineDlg = new FineDlg(0, Entity, fineReason, Entity.Date, Entity.Driver);
 			fineDlg.Entity.FineType = FineTypes.FuelOverspending;

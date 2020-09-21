@@ -7,6 +7,7 @@ using Vodovoz.Domain.Client;
 using QS.Banks.Domain;
 using System.Linq;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -230,6 +231,26 @@ namespace Vodovoz.Domain.Payments
 				item.Sum += sum;
 		}
 
+		public virtual void UpdateAllocatedSum(IUnitOfWork uow, int orderId, decimal sum) {
+			var item = ObservableItems.SingleOrDefault(x => x.Order.Id == orderId);
+
+			if (sum != 0) {
+				item?.UpdateSum(sum);
+			}
+			else {
+				RemovePaymentItem(uow, item);
+			}
+		}
+
+		private void RemovePaymentItem(IUnitOfWork uow, PaymentItem item) {
+			if (item.CashlessMovementOperation != null) {
+				uow.Delete(item.CashlessMovementOperation);
+				item.CashlessMovementOperation = null;
+			}
+
+			ObservableItems.Remove(item);
+		}
+
 		public virtual void CreateIncomeOperation()
 		{
 			if (CashlessMovementOperation == null)
@@ -237,8 +258,20 @@ namespace Vodovoz.Domain.Payments
 				CashlessMovementOperation = new CashlessMovementOperation
 				{
 					Income = Total,
+					Counterparty = Counterparty,
 					OperationTime = DateTime.Now
 				};
+			}
+		}
+		
+		public virtual void UpdateIncomeOperation(bool sumFromPayment, decimal sum = 0M) {
+			if (CashlessMovementOperation == null) {
+				CreateIncomeOperation();
+			}
+			else {
+				CashlessMovementOperation.Income = sumFromPayment ? Total : sum;
+				CashlessMovementOperation.Counterparty = Counterparty;
+				CashlessMovementOperation.OperationTime = DateTime.Now;
 			}
 		}
 		

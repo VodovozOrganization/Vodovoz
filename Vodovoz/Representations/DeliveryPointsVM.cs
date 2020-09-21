@@ -1,5 +1,8 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
@@ -30,7 +33,19 @@ namespace Vodovoz.ViewModel
 			if(Filter.RestrictOnlyNotFoundOsm)
 				pointsQuery.Where(x => x.FoundOnOsm == false);
 			if(Filter.RestrictOnlyWithoutStreet)
-				pointsQuery.Where(p => string.IsNullOrEmpty(p.Street));
+				pointsQuery
+					.Where(new Disjunction()
+						.Add(() => deliveryPointAlias.Street == null)
+						.Add(Restrictions.Eq(
+							Projections.SqlFunction(
+								new SQLFunctionTemplate(
+									NHibernateUtil.Boolean, "TRIM(?1)"),
+								NHibernateUtil.Boolean,
+								Projections.Property(() => deliveryPointAlias.Street)
+								),
+							"")
+						)
+					);
 			if(Filter.Client != null)
 				pointsQuery.Where(p => p.Counterparty.Id == Filter.Client.Id);
 

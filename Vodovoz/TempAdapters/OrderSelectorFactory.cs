@@ -14,7 +14,7 @@ namespace Vodovoz.TempAdapters
 {
 	public class OrderSelectorFactory : IOrderSelectorFactory
 	{
-		public IEntitySelector CreateOrderSelectorForMovementDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses)
+		public IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses)
 		{
 			OrderForMovDocJournalFilterViewModel orderFilterVM = new OrderForMovDocJournalFilterViewModel();
 			orderFilterVM.IsOnlineStoreOrders = IsOnlineStoreOrders;

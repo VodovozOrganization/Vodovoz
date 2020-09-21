@@ -94,11 +94,12 @@ using Vodovoz.Footers.Views;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.Views.Orders.OrdersWithoutShipment;
 using Vodovoz.Dialogs.Email;
-using Vodovoz.JournalFilters;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Goods;
 using Vodovoz.Views.Cash;
+using Vodovoz.Views.Goods;
 using Vodovoz.Views.Orders;
 
 namespace Vodovoz
@@ -156,11 +157,12 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
 				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
+				.RegisterWidgetForTabViewModel<IncomingInvoiceViewModel, IncomingInvoiceView>()
 				.RegisterWidgetForTabViewModel<PhoneTypeViewModel, PhoneTypeView>()
 				.RegisterWidgetForTabViewModel<EmailTypeViewModel, EmailTypeView>()
 				.RegisterWidgetForTabViewModel<UserSettingsViewModel, UserSettingsView>()
-				.RegisterWidgetForTabViewModel<PaymentLoaderVM, PaymentLoaderView>()
-				.RegisterWidgetForTabViewModel<ManualPaymentMatchingVM, ManualPaymentMatchingView>()
+				.RegisterWidgetForTabViewModel<PaymentLoaderViewModel, PaymentLoaderView>()
+				.RegisterWidgetForTabViewModel<ManualPaymentMatchingViewModel, ManualPaymentMatchingView>()
 				.RegisterWidgetForTabViewModel<ClientTaskViewModel, ClientTaskView>()
 				.RegisterWidgetForTabViewModel<PaymentTaskViewModel, PaymentTaskView>()
 				.RegisterWidgetForTabViewModel<DistrictsSetViewModel, DistrictsSetView>()
@@ -173,6 +175,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PaymentByCardViewModel, PaymentByCardView>()
 				.RegisterWidgetForTabViewModel<RouteListAnalysisViewModel, RouteListAnalysisView>()
 				.RegisterWidgetForTabViewModel<LateArrivalReasonViewModel, LateArrivalReasonView>()
+				.RegisterWidgetForTabViewModel<NomenclatureViewModel, NomenclatureView>()
 				;
 
 			//Регистрация виджетов
@@ -187,6 +190,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<OrderJournalFilterViewModel, OrderFilterView>()
 				.RegisterWidgetForWidgetViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
 				.RegisterWidgetForWidgetViewModel<ResidueFilterViewModel, ResidueFilterView>()
+				.RegisterWidgetForWidgetViewModel<ProductGroupFilterViewModel, ProductGroupFilterView>()
 				.RegisterWidgetForWidgetViewModel<FineFilterViewModel, FineFilterView>()
 				.RegisterWidgetForWidgetViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureFilterViewModel, NomenclaturesFilterView>()
@@ -261,6 +265,7 @@ namespace Vodovoz
 				//Остальные справочники
 				OrmObjectMapping<CarProxyDocument>.Create().Dialog<CarProxyDlg>(),
 				OrmObjectMapping<M2ProxyDocument>.Create().Dialog<M2ProxyDlg>(),
+				OrmObjectMapping<ProductGroup>.Create().Dialog<ProductGroupDlg>(),
 				OrmObjectMapping<CommentTemplate>.Create().Dialog<CommentTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Comment).End(),
 				OrmObjectMapping<FineTemplate>.Create().Dialog<FineTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Reason).End(),
 				OrmObjectMapping<PremiumTemplate>.Create().Dialog<PremiumTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Reason).End(),
@@ -321,7 +326,6 @@ namespace Vodovoz
 			};
 
 			#region Складские документы
-			OrmMain.AddObjectDescription<IncomingInvoice>().Dialog<IncomingInvoiceDlg>();
 			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
 			OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentDlg>();
 			OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentDlg>();
@@ -340,15 +344,11 @@ namespace Vodovoz
 				.Column("Тип", x => x.CategoryString)
 				.SearchColumn("Номер в ИМ", x => x.OnlineStoreExternalId)
 				.End();
-			OrmMain.AddObjectDescription<Folder1c>().Dialog<Folder1cDlg>().DefaultTableView().SearchColumn("Код 1С", x => x.Code1c).SearchColumn("Название", x => x.Name).TreeConfig(new RecursiveTreeConfig<Folder1c>(x => x.Parent, x => x.Childs)).End();
-			OrmMain.AddObjectDescription<ProductGroup>()
-				.Dialog<ProductGroupDlg>()
-				.EditPermision("can_edit_online_store")
+			OrmMain.AddObjectDescription<Folder1c>().Dialog<Folder1cDlg>()
 				.DefaultTableView()
-				.SearchColumn("Код", x => x.Id.ToString())
+				.SearchColumn("Код 1С", x => x.Code1c)
 				.SearchColumn("Название", x => x.Name)
-				.TreeConfig(new RecursiveTreeConfig<ProductGroup>(x => x.Parent, x => x.Childs))
-				.End();
+				.TreeConfig(new RecursiveTreeConfig<Folder1c>(x => x.Parent, x => x.Childs)).End();
 			#endregion
 
 			#region Простые справочники

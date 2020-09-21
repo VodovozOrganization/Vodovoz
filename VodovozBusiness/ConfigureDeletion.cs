@@ -172,7 +172,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<NomenclatureImage>();
 
 			DeleteConfig.AddHibernateDeleteInfo<ProductGroup>()
-				.AddDeleteDependence<ProductGroup>(x => x.MappedParent)
+				.AddDeleteDependence<ProductGroup>(x => x.Parent)
 				.AddClearDependence<Nomenclature>(x => x.ProductGroup);
 
 			DeleteConfig.AddHibernateDeleteInfo<Certificate>()

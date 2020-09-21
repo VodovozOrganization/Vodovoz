@@ -152,6 +152,7 @@
     <Compile Include="Infrastructure\AdvancedWageWidgetFactory.cs" />
     <Compile Include="Infrastructure\IAdvancedWageWidgetFactory.cs" />
     <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModel.cs" />
+    <Compile Include="ViewModels\Warehouses\IncomingInvoiceViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\MovementDocumentViewModel.cs" />
     <Compile Include="Infrastructure\Services\IWarehousePermissionService.cs" />
     <Compile Include="Infrastructure\Permissions\IWarehousePermissionValidator.cs" />
@@ -161,7 +162,6 @@
     <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
     <Compile Include="TempAdapters\INomenclatureSelectorFactory.cs" />
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
-    <Compile Include="ViewModels\Warehouses\MovementDocumentRDL.cs" />
     <Compile Include="Infrastructure\Print\IRDLPreviewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintKindViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\IWageParameterViewModel.cs" />
