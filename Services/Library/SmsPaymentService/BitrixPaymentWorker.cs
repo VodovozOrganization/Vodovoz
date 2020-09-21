@@ -33,28 +33,33 @@ namespace SmsPaymentService
 
         private async Task<SendResponse> SendPaymentAsync(SmsPaymentDTO smsPaymentDto)
         {
-            //Битриксу необходимо всегда передавать имя и фамилию для физических клиентов
-            var clientName = smsPaymentDto.Recepient.Trim();
-            if (smsPaymentDto.RecepientType == PersonType.natural && !clientName.Contains(' '))
-                smsPaymentDto.Recepient = clientName + " -";
+            try {
+                //Битриксу необходимо всегда передавать имя и фамилию для физических клиентов
+                var clientName = smsPaymentDto.Recepient.Trim();
+                if (smsPaymentDto.RecepientType == PersonType.natural && !clientName.Contains(' '))
+                    smsPaymentDto.Recepient = clientName + " -";
 
-            string content = JsonConvert.SerializeObject(smsPaymentDto, new JsonSerializerSettings { DateFormatString = dateFormat });
-            logger.Info($"Передаём в битрикс данные: {content}");
+                string content = JsonConvert.SerializeObject(smsPaymentDto, new JsonSerializerSettings { DateFormatString = dateFormat });
+                logger.Info($"Передаём в битрикс данные: {content}");
             
-            using (HttpClient httpClient = new HttpClient())
-            {
-                httpClient.DefaultRequestHeaders.Accept.Clear();
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
-                HttpResponseMessage httpResponse = await httpClient.PostAsync($"{baseAddress}/vodovoz/handler.php", httpContent);
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Accept.Clear();
+                    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+                    HttpResponseMessage httpResponse = await httpClient.PostAsync($"{baseAddress}/vodovoz/handler.php", httpContent);
                 
-                var responseContent = httpResponse.Content.ReadAsStringAsync().Result;
-                logger.Info($"Битрикс вернул http код: {httpResponse.StatusCode} Content: {responseContent}");
+                    var responseContent = httpResponse.Content.ReadAsStringAsync().Result;
+                    logger.Info($"Битрикс вернул http код: {httpResponse.StatusCode} Content: {responseContent}");
 
-                JObject obj = JObject.Parse(responseContent);
-                var externalId = (int)obj["dealId"];
+                    JObject obj = JObject.Parse(responseContent);
+                    var externalId = (int)obj["dealId"];
 
-                return new SendResponse { HttpStatusCode = httpResponse.StatusCode, ExternalId = externalId };
+                    return new SendResponse { HttpStatusCode = httpResponse.StatusCode, ExternalId = externalId };
+                }
+            }
+            catch (Exception ex) {
+                return new SendResponse { Exception = ex };
             }
         }
         
@@ -67,26 +72,32 @@ namespace SmsPaymentService
         
         private async Task<SmsPaymentStatus?> GetPaymentStatusAsync(int externalId)
         {
-            logger.Info($"Запрос статуса платежа от битрикса с externalId: {externalId}");
+            try {
+                logger.Info($"Запрос статуса платежа от битрикса с externalId: {externalId}");
             
-            using (HttpClient httpClient = new HttpClient())
-            {
-                httpClient.DefaultRequestHeaders.Accept.Clear();
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                HttpResponseMessage httpResponse = await httpClient.GetAsync($"{baseAddress}/vodovoz/status.php?id={externalId}");
-                var responseContent = httpResponse.Content.ReadAsStringAsync().Result;
-                logger.Info($"Битрикс вернул http код: {httpResponse.StatusCode}, Content: {responseContent}");
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Accept.Clear();
+                    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    HttpResponseMessage httpResponse = await httpClient.GetAsync($"{baseAddress}/vodovoz/status.php?id={externalId}");
+                    var responseContent = httpResponse.Content.ReadAsStringAsync().Result;
+                    logger.Info($"Битрикс вернул http код: {httpResponse.StatusCode}, Content: {responseContent}");
                 
-                JObject obj = JObject.Parse(responseContent);
-                if (!obj.TryGetValue("status", out JToken value)) {
-                    logger.Info("Не получилось прочитать ответ Битрикса");
+                    JObject obj = JObject.Parse(responseContent);
+                    if (!obj.TryGetValue("status", out JToken value)) {
+                        logger.Info("Не получилось прочитать ответ Битрикса");
+                        return null;
+                    }
+                    var status = (int)value;
+                    if (Enum.GetValues(typeof(SmsPaymentStatus)).Cast<int>().Contains(status)) {
+                        return (SmsPaymentStatus)status;
+                    }
+                    logger.Info($"В базе Битрикса не найден платеж с externalId: {externalId} (Код {status})");
                     return null;
                 }
-                var status = (int)value;
-                if (Enum.GetValues(typeof(SmsPaymentStatus)).Cast<int>().Contains(status)) {
-                    return (SmsPaymentStatus)status;
-                }
-                logger.Info($"В базе Битрикса не найден платеж с externalId: {externalId} (Код {status})");
+            }
+            catch (Exception ex) {
+                logger.Error(ex, "Ошибка при получение статуса платежа");
                 return null;
             }
         }
