@@ -224,7 +224,7 @@ namespace Vodovoz.ViewModels
 				node.AllocatedSum = node.LastPayments;
 			
 			if(newValue < 0) {
-				node.AllocatedSum = default;
+				node.AllocatedSum = default(int);
 			}
 		}
 
