@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Dapper;
 using QS.DomainModel.UoW;
-using QS.Utilities.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;

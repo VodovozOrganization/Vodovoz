@@ -27,7 +27,7 @@ namespace Vodovoz.Core.DataService
 		IOrganisationParametersProvider,
 		ISmsPaymentServiceParametersProvider,
 		IMailjetParametersProvider,
-		IVpbxSettings
+		IVpbxSettings,
 		ITerminalNomenclatureProvider
 	{
 		public string GetDefaultBaseForErrorSend()
