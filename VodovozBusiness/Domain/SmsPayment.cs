@@ -2,12 +2,18 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain
 {
+    [Appellative(
+            Gender = GrammaticalGender.Masculine,
+            NominativePlural = "платежи по Sms",
+            Nominative = "платёж по Sms")]
+    [HistoryTrace]
     public class SmsPayment : PropertyChangedBase, IDomainObject
     {
         #region Свойства

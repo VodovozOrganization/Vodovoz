@@ -167,6 +167,9 @@ namespace SmsPaymentService
                             unsavedPaymentsWorker.Trigger();
                         }
                     }
+                    else if(sendResponse.Exception != null && !sendResponse.HttpStatusCode.HasValue) {
+                        throw sendResponse.Exception;
+                    }
                     else {
                         resultMessage.ErrorDescription = $"Не получилось отправить платеж. Http код: {sendResponse}";
                         logger.Error(resultMessage.ErrorDescription, $"Не получилось отправить платеж.  Http код: {sendResponse}." +

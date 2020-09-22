@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Vodovoz.Domain.Payments;
-using Vodovoz.Repository;
 using QS.DomainModel.UoW;
 using System.Text.RegularExpressions;
 using Vodovoz.Domain.Orders;
@@ -39,9 +38,6 @@ namespace Vodovoz.ViewModels
 					orders.Add(order);
 				}
 
-				/*if(!orders.Any())
-					return false;*/
-
 				var result = orders.Sum(x => x.ActualTotalSum);
 
 				if(payment.Total != result)
@@ -70,7 +66,6 @@ namespace Vodovoz.ViewModels
 
 		private string[] CheckPaymentPurpose(Payment payment)
 		{
-			//string pattern = @"\b([0-9]{6,7})\b";
 			string pattern = @"([0-9]{6,7})";
 
 			var matches = Regex.Matches(payment.PaymentPurpose, pattern);
