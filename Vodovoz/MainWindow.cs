@@ -1429,6 +1429,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new IncomeBalanceReport())
 		);
 	}
+	
+	protected void OnCashBoolReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<CashBookReport>(),
+			() => new QSReport.ReportViewDlg(new CashBookReport())
+		);
+	}
 
 	protected void OnActionProfitabilityBottlesByStockActivated(object sender, EventArgs e)
 	{
