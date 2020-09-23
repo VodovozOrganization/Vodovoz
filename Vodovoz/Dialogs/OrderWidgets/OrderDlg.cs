@@ -184,6 +184,12 @@ namespace Vodovoz
 		public OrderDlg(Order sub) : this(sub.Id)
 		{ }
 
+		public OrderDlg(Order copiedOrder, bool NeedCopy) : this()
+		{
+			if(NeedCopy)
+				CopyOrderFrom(copiedOrder.Id);
+		}
+
 		public void CopyOrderFrom(int id)
 		{
 			templateOrder = UoW.GetById<Order>(id);
