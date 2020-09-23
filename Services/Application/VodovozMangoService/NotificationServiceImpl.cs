@@ -274,8 +274,14 @@ namespace VodovozMangoService
 				Type = CallerType.Internal,
 				Number = number,
 			};
-			if(user != null)
-				caller.Names.Add(new CallerName{Name = user.general.name});
+			if (user != null)
+			{
+				string name = user.general.name;
+				if (String.IsNullOrWhiteSpace(user.general.department))
+					name += "("+user.general.department+")";
+				caller.Names.Add(new CallerName {Name = name});
+			}
+
 			return caller;
 		}
 
