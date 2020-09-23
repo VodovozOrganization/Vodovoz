@@ -13,6 +13,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly ITdiCompatibilityNavigation tdiCompatibilityNavigation;
 		private readonly IInteractiveQuestion interactive;
 
+		public readonly bool IsTransfer;
+		public string OnLine { get; private set; }
+
 		public InternalTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
 			IInteractiveQuestion interactive,
@@ -21,6 +24,15 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.unitOfWorkFactory = unitOfWorkFactory;
 			this.tdiCompatibilityNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
+
+			if(manager.IsTransfer && manager.PrimaryCaller != null) {
+				IsTransfer = manager.IsTransfer;
+				if(manager.PrimaryCaller != null) {
+					if(manager.Employee != null)
+						OnLine = manager.Employee.Name;
+					else OnLine = manager.PrimaryCaller.Number;
+				}
+			}
 
 			if(manager.IsOutgoing)
 				Title = "Исходящий звонок";

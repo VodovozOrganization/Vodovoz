@@ -105,7 +105,6 @@ namespace Vodovoz.Views.Mango
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.ySearchTable.SelectCursorRow += new global::Gtk.SelectCursorRowHandler(this.SelectCursorRow_OrderYTreeView);
 			this.FilterEntry.Changed += new global::System.EventHandler(this.Changed_FilterEntry);
 			this.FilterEntry.Activated += new global::System.EventHandler(this.OnFilterEntryActivated);
 		}

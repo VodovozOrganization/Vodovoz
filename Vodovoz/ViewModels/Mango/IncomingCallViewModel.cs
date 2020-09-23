@@ -13,19 +13,10 @@ namespace Vodovoz.ViewModels.Mango
 	public class IncomingCallViewModel : WindowDialogViewModelBase
 	{
 		public readonly MangoManager MangoManager;
-
-		private List<CounterpartyOrderViewModel> counterpartyOrdersModels = null;
-		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels {
-			get => counterpartyOrdersModels;
-			private set {
-				counterpartyOrdersModels = value;
-			}
-		}
-
 		public readonly bool IsTransfer;
-		public string OnLine { get;private  set; }
+		private string onLine = null;
+		public string OnLine { get => onLine; private set => onLine = value; }
 
-		private Counterparty currentCounterparty { get; set; }
 
 		public IncomingCallViewModel(
 			IUnitOfWorkFactory UoWFactory, 
@@ -39,16 +30,8 @@ namespace Vodovoz.ViewModels.Mango
 				IsTransfer = manager.IsTransfer;
 				if(manager.PrimaryCaller != null) {
 					if(manager.Employee != null)
-						OnLine = manager.Employee.Name;
-					else OnLine = manager.PrimaryCaller.Number;
-				}
-				if(manager.Clients != null) {
-					counterpartyOrdersModels = new List<CounterpartyOrderViewModel>();
-					foreach(Counterparty client in manager.Clients) {
-						CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UoWFactory, tdinavigation);
-						CounterpartyOrdersModels.Add(model);
-					}
-					currentCounterparty = CounterpartyOrdersModels.First().Client;
+						onLine = manager.Employee.Name;
+					else onLine = manager.PrimaryCaller.Number;
 				}
 			}
 			IsModal = false;

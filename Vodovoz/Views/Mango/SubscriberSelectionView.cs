@@ -9,6 +9,8 @@ namespace Vodovoz.Views.Mango
 {
 	public partial class SubscriberSelectionView : DialogViewBase<SubscriberSelectionViewModel>
 	{
+		private string Number;
+
 		public SubscriberSelectionView(SubscriberSelectionViewModel model) : base(model)
 		{
 			this.Build();
@@ -38,14 +40,44 @@ namespace Vodovoz.Views.Mango
 				.AddTextRenderer(entity => entity.Status ? "<span foreground=\"green\">☎</span>" : "<span foreground=\"red\">☎</span>", useMarkup: true)
 				.Finish();
 			ySearchTable.SetItemsSource<SearchTableEntity>(ViewModel.SearchTableEntities);
-			ySearchTable.Selection.Changed += Selection_Changed;
 			ySearchTable.RowActivated += SelectCursorRow_OrderYTreeView;
 		}
 
 		void Selection_Changed(object sender, EventArgs e)
 		{
+			CheckSensetive();
+		}
+
+		void CheckSensetive()
+		{
+			Number = String.Copy(FilterEntry.Text);
 			var row = ySearchTable.GetSelectedObject<SearchTableEntity>();
-			ForwardingButton.Sensitive = ForwardingToConsultationButton.Sensitive = row?.Status == true;
+			ForwardingButton.Sensitive = ForwardingToConsultationButton.Sensitive = row?.Status == true 
+				|| IsNumber(ref Number);
+		}
+
+		bool IsNumber(ref string s)
+		{
+			if(String.IsNullOrWhiteSpace(s))
+				return false;
+
+			s = s.Replace("+7", "").Replace("(", "").Replace(")", "").Replace(" ", "").Replace("-", "");
+
+			if(s.Length > 11)
+				return false;
+			else if(s.Length == 10)
+				s = "7" + s;
+			else if(s.Length < 10 && s.Length > 3)
+				return false;
+			else if(s.Length < 3)
+				return false;
+				
+			for(int i = 0; i < s.Length; i++) {
+				if(s[i] < '0' || s[i] > '9')
+					return false;
+			}
+
+			return true;
 		}
 
 		private void SelectCursorRow_OrderYTreeView(object sender, EventArgs e)
@@ -55,11 +87,12 @@ namespace Vodovoz.Views.Mango
 
 		protected void Clicked_MakeCall(object sender, EventArgs e)
 		{
-			var row = ySearchTable.GetSelectedObject<SearchTableEntity>();
-			ViewModel.MakeCall(row);
-
+			var row = ySearchTable.GetSelectedObject<SearchTableEntity>();	
+			if(row != null)
+				ViewModel.MakeCall(row);
+			else 
+				ViewModel.MakeCall(Number);
 		}
-
 		protected void Clicked_ForwardingButton(object sender, EventArgs e)
 		{
 			var row = ySearchTable.GetSelectedObject<SearchTableEntity>();
@@ -85,14 +118,14 @@ namespace Vodovoz.Views.Mango
 						|| (x.Department?.ToLower().Contains(input) ?? false)
 				).ToList());
 			}
+			CheckSensetive();
  		}
 
 		protected void OnFilterEntryActivated(object sender, EventArgs e)
 		{
 			ySearchTable.Selection.SelectPath(new Gtk.TreePath("0"));
-			if(ySearchTable.Selection.CountSelectedRows() > 0)
-				ForwardingButton.Click();
-
+			ForwardingButton.Click();
 		}
+
 	}
 }

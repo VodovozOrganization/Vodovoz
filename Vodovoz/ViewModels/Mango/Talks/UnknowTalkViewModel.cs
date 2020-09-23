@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public string GetPhoneNumber()
 		{
-			return MangoManager.CallerNumber;
+			return "+7"+MangoManager.CallerNumber;
 		}
 
 		public void SelectNewConterparty()

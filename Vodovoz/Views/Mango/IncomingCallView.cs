@@ -27,17 +27,6 @@ namespace Vodovoz.Views.Mango
 
 			ViewModel.MangoManager.PropertyChanged += MangoManager_PropertyChanged;
 			RefreshIncomings();
-			if(ViewModel.CounterpartyOrdersModels != null) {
-				WidgetPlace.Visible = true;
-				foreach(var item in ViewModel.CounterpartyOrdersModels) {
-					var label = new Gtk.Label(item.Client.Name);
-					var widget = new CounterpartyOrderView(item);
-					WidgetPlace.AppendPage(widget, label);
-					WidgetPlace.ShowAll();
-				}
-			} else {
-				WidgetPlace.Visible = false;
-			}
 		}
 
 		void MangoManager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
