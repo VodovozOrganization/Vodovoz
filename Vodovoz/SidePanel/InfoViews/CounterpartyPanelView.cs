@@ -92,17 +92,26 @@ namespace Vodovoz.SidePanel.InfoViews
 			var currentOrders = OrderRepository.GetCurrentOrders(InfoProvider.UoW, Counterparty);
 			ytreeCurrentOrders.SetItemsSource<Order>(currentOrders);
 			vboxCurrentOrders.Visible = currentOrders.Count > 0;
-			Button btn = btnAddPhone;
 			if(Counterparty.Phones.Count > 0) {
-				uint rowsCount = Convert.ToUInt32(Counterparty.Phones.Count);
+				uint rowsCount = Convert.ToUInt32(Counterparty.Phones.Count)+1;
 				PhonesTable.Resize(rowsCount, 2);
-				for(uint row = 0; row < rowsCount; row++) {
+				for(uint row = 0; row < rowsCount - 1; row++) {
 					Label label = new Label();
 					label.Markup = $"<b>+7{Counterparty.Phones[Convert.ToInt32(row)].DigitsNumber}</b>";
 					HandsetView handsetView = new HandsetView(Counterparty.Phones[Convert.ToInt32(row)].Number);
 					PhonesTable.Attach(label, 0, 1, row, row + 1);
 					PhonesTable.Attach(handsetView, 1, 2, row, row + 1);
 				}
+
+				Label labelAddPhone = new Label() { LabelProp = "Щёлкните чтоб\n добавить телефон-->" };
+				PhonesTable.Attach(labelAddPhone, 0, 1, rowsCount - 1, rowsCount);
+
+				Image addIcon = new Image();
+				addIcon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-add", IconSize.Menu);
+				Button btn = new Button();
+				btn.Image = addIcon;
+				btn.ClientEvent += OnBtnAddPhoneClicked;
+				PhonesTable.Attach(btn, 1, 2, rowsCount - 1, rowsCount);
 			}
 			PhonesTable.ShowAll();
 		}

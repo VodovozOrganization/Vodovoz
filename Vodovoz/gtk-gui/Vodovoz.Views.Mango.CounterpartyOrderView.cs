@@ -12,15 +12,17 @@ namespace Vodovoz.Views.Mango
 
 		private global::Gtk.Button CounterpartyYButton;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.GtkWidgets.yEntry CommYEntry;
-
-		private global::Gtk.ScrolledWindow LatestOrdersBox;
-
-		private global::Gamma.GtkWidgets.yTreeView OrderYTreeView;
+		private global::Gtk.TextView CommTextView;
 
 		private global::Gtk.Label OrderLabel;
+
+		private global::Gtk.EventBox TreeViewEventBox;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+
+		private global::Gamma.GtkWidgets.yTreeView OrderYTreeView;
 
 		protected virtual void Build()
 		{
@@ -69,51 +71,49 @@ namespace Vodovoz.Views.Mango
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
-			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
-			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			global::Gtk.Viewport w4 = new global::Gtk.Viewport();
-			w4.ShadowType = ((global::Gtk.ShadowType)(0));
-			// Container child GtkViewport.Gtk.Container+ContainerChild
-			this.CommYEntry = new global::Gamma.GtkWidgets.yEntry();
-			this.CommYEntry.CanFocus = true;
-			this.CommYEntry.Name = "CommYEntry";
-			this.CommYEntry.IsEditable = false;
-			this.CommYEntry.InvisibleChar = '●';
-			w4.Add(this.CommYEntry);
-			this.GtkScrolledWindow1.Add(w4);
-			this.table3.Add(this.GtkScrolledWindow1);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table3[this.GtkScrolledWindow1]));
-			w7.TopAttach = ((uint)(2));
-			w7.BottomAttach = ((uint)(4));
-			w7.RightAttach = ((uint)(3));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table3.Gtk.Table+TableChild
-			this.LatestOrdersBox = new global::Gtk.ScrolledWindow();
-			this.LatestOrdersBox.Name = "LatestOrdersBox";
-			this.LatestOrdersBox.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child LatestOrdersBox.Gtk.Container+ContainerChild
-			this.OrderYTreeView = new global::Gamma.GtkWidgets.yTreeView();
-			this.OrderYTreeView.CanFocus = true;
-			this.OrderYTreeView.Name = "OrderYTreeView";
-			this.LatestOrdersBox.Add(this.OrderYTreeView);
-			this.table3.Add(this.LatestOrdersBox);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table3[this.LatestOrdersBox]));
-			w9.TopAttach = ((uint)(5));
-			w9.BottomAttach = ((uint)(6));
-			w9.RightAttach = ((uint)(3));
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.CommTextView = new global::Gtk.TextView();
+			this.CommTextView.CanFocus = true;
+			this.CommTextView.Name = "CommTextView";
+			this.GtkScrolledWindow.Add(this.CommTextView);
+			this.table3.Add(this.GtkScrolledWindow);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table3[this.GtkScrolledWindow]));
+			w5.TopAttach = ((uint)(2));
+			w5.BottomAttach = ((uint)(4));
+			w5.RightAttach = ((uint)(3));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.OrderLabel = new global::Gtk.Label();
 			this.OrderLabel.Name = "OrderLabel";
 			this.OrderLabel.Xalign = 1F;
 			this.OrderLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Заказы:");
 			this.table3.Add(this.OrderLabel);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table3[this.OrderLabel]));
-			w10.TopAttach = ((uint)(4));
-			w10.BottomAttach = ((uint)(5));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table3[this.OrderLabel]));
+			w6.TopAttach = ((uint)(4));
+			w6.BottomAttach = ((uint)(5));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table3.Gtk.Table+TableChild
+			this.TreeViewEventBox = new global::Gtk.EventBox();
+			this.TreeViewEventBox.Name = "TreeViewEventBox";
+			// Container child TreeViewEventBox.Gtk.Container+ContainerChild
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
+			this.OrderYTreeView = new global::Gamma.GtkWidgets.yTreeView();
+			this.OrderYTreeView.CanFocus = true;
+			this.OrderYTreeView.Name = "OrderYTreeView";
+			this.GtkScrolledWindow1.Add(this.OrderYTreeView);
+			this.TreeViewEventBox.Add(this.GtkScrolledWindow1);
+			this.table3.Add(this.TreeViewEventBox);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table3[this.TreeViewEventBox]));
+			w9.TopAttach = ((uint)(5));
+			w9.BottomAttach = ((uint)(6));
+			w9.RightAttach = ((uint)(3));
 			this.Add(this.table3);
 			if ((this.Child != null))
 			{

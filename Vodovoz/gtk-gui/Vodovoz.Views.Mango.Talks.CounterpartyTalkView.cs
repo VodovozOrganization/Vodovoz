@@ -117,7 +117,6 @@ namespace Vodovoz.Views.Mango.Talks
 			this.WidgetPlaceBox.Spacing = 6;
 			// Container child WidgetPlaceBox.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -165,7 +164,6 @@ namespace Vodovoz.Views.Mango.Talks
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table5[this.BottleButton]));
 			w11.LeftAttach = ((uint)(1));
 			w11.RightAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
 			this.ComplaintButton = new global::Gtk.Button();
@@ -175,7 +173,6 @@ namespace Vodovoz.Views.Mango.Talks
 			this.ComplaintButton.Label = global::Mono.Unix.Catalog.GetString("+Жалоба");
 			this.table5.Add(this.ComplaintButton);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table5[this.ComplaintButton]));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
 			this.CostAndDeliveryIntervalButton = new global::Gtk.Button();
@@ -198,7 +195,6 @@ namespace Vodovoz.Views.Mango.Talks
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table5[this.StockBalanceButton]));
 			w14.LeftAttach = ((uint)(2));
 			w14.RightAttach = ((uint)(3));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox6.Add(this.table5);
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.table5]));

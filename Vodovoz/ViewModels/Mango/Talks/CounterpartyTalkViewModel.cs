@@ -12,6 +12,7 @@ using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
@@ -27,7 +28,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 	{
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private readonly IInteractiveQuestion interactive;
-
+		private readonly RouteListRepository routedListRepository;
 		private IUnitOfWork UoW;
 		private List<CounterpartyOrderViewModel> counterpartyOrdersModels = new List<CounterpartyOrderViewModel>();
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels {
@@ -38,8 +39,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		}
 
 
-		private Counterparty currentCounterparty { get; set; }
-
+		public Counterparty currentCounterparty { get;private set; }
 		public event System.Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
 		public CounterpartyTalkViewModel(IEnumerable<Counterparty> clients,
@@ -47,19 +47,21 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			ITdiCompatibilityNavigation tdinavigation,
 			IInteractiveQuestion interactive,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			RouteListRepository routedListRepository,
 			MangoManager manager) : base(navigation, manager)
 		{
 			this.NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(navigation));
 
 			this.interactive = interactive;
+			this.routedListRepository = routedListRepository;
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 
 			if(clients != null) 
 			{
 				foreach(Counterparty client in clients) 
 				{
-					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, tdinavigation);
+					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, tdinavigation,routedListRepository);
 					CounterpartyOrdersModels.Add(model);
 				}
 				currentCounterparty = CounterpartyOrdersModels.First().Client;
@@ -70,7 +72,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public string GetPhoneNumber()
 		{
-			return MangoManager.CallerNumber;
+			return "+7"+MangoManager.CallerNumber;
 		}
 
 		public IDictionary<string, CounterpartyOrderView> GetCounterpartyViewModels()
@@ -111,7 +113,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				client.Phones.Add(phone);
 				clients.Add(client);
 				UoW.Save<Counterparty>(client);
-				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation);
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository);
 				counterpartyOrdersModels.Add(model);
 				currentCounterparty = client;
 				CounterpartyOrdersModelsUpdateEvent();
@@ -129,7 +131,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				firstClient.Phones.Add(phone);
 				UoW.Save<Counterparty>(firstClient);
 				UoW.Commit();
-				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory,tdiNavigation);
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory,tdiNavigation, routedListRepository);
 				counterpartyOrdersModels.Add(model);
 				currentCounterparty = firstClient;
 				CounterpartyOrdersModelsUpdateEvent();
@@ -140,8 +142,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void NewOrderCommand()
 		{
-
-			tdiNavigation.OpenTdiTab<OrderDlg, Counterparty>(null, currentCounterparty);
+			var model = CounterpartyOrdersModels.Find(m => m.Client.Id == currentCounterparty.Id);
+			IPage page = tdiNavigation.OpenTdiTab<OrderDlg, Counterparty>(null, currentCounterparty);
+			page.PageClosed += (sender, e) => { model.RefreshOrders(); };
 		}
 
 
@@ -161,21 +164,23 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		{
 			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits();
 			parameters.SetCounterparty(currentCounterparty);
-			tdiNavigation.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, parameters);
+			ReportViewDlg dialog = tdiNavigation.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, parameters) as ReportViewDlg;
+			parameters.OnUpdate(true);
+			
 		}
 
 		public void StockBalanceCommand()
 		{
 			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
 		new WarehouseRepository()
-	);
+		);
 			NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, NomenclatureStockFilterViewModel>(null, filter);
 
 		}
 
-		public void CostAndDeliveryIntervalCommand()
+		public void CostAndDeliveryIntervalCommand(DeliveryPoint point)
 		{
-			tdiNavigation.OpenTdiTab<DeliveryPriceDlg>(null);
+			tdiNavigation.OpenTdiTab<DeliveryPriceDlg, DeliveryPoint>(null, point);
 		}
 
 		#endregion

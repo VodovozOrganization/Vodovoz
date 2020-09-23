@@ -10,6 +10,12 @@ namespace Vodovoz.Views.Mango.Talks
 
 		private global::Gtk.Label label6;
 
+		private global::Gtk.Table OnLinePlace;
+
+		private global::Gtk.Label label1;
+
+		private global::Gamma.GtkWidgets.yLabel LinePhone;
+
 		private global::Gtk.Table table4;
 
 		private global::Gamma.GtkWidgets.yButton FinishButton;
@@ -23,7 +29,7 @@ namespace Vodovoz.Views.Mango.Talks
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Mango.Talks.InternalTalkView";
 			// Container child Vodovoz.Views.Mango.Talks.InternalTalkView.Gtk.Container+ContainerChild
-			this.table5 = new global::Gtk.Table(((uint)(2)), ((uint)(3)), false);
+			this.table5 = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
 			this.table5.Name = "table5";
 			this.table5.RowSpacing = ((uint)(6));
 			this.table5.ColumnSpacing = ((uint)(6));
@@ -46,6 +52,35 @@ namespace Vodovoz.Views.Mango.Talks
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
+			this.OnLinePlace = new global::Gtk.Table(((uint)(1)), ((uint)(3)), false);
+			this.OnLinePlace.Name = "OnLinePlace";
+			this.OnLinePlace.RowSpacing = ((uint)(6));
+			this.OnLinePlace.ColumnSpacing = ((uint)(6));
+			// Container child OnLinePlace.Gtk.Table+TableChild
+			this.label1 = new global::Gtk.Label();
+			this.label1.Name = "label1";
+			this.label1.Xalign = 1F;
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("На линии :");
+			this.OnLinePlace.Add(this.label1);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.OnLinePlace[this.label1]));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child OnLinePlace.Gtk.Table+TableChild
+			this.LinePhone = new global::Gamma.GtkWidgets.yLabel();
+			this.LinePhone.Name = "LinePhone";
+			this.LinePhone.LabelProp = global::Mono.Unix.Catalog.GetString("Телефон");
+			this.OnLinePlace.Add(this.LinePhone);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.OnLinePlace[this.LinePhone]));
+			w4.LeftAttach = ((uint)(1));
+			w4.RightAttach = ((uint)(3));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.table5.Add(this.OnLinePlace);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table5[this.OnLinePlace]));
+			w5.TopAttach = ((uint)(1));
+			w5.BottomAttach = ((uint)(2));
+			w5.RightAttach = ((uint)(3));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table5.Gtk.Table+TableChild
 			this.table4 = new global::Gtk.Table(((uint)(1)), ((uint)(6)), false);
 			this.table4.Name = "table4";
 			this.table4.RowSpacing = ((uint)(6));
@@ -57,11 +92,11 @@ namespace Vodovoz.Views.Mango.Talks
 			this.FinishButton.UseUnderline = true;
 			this.FinishButton.Label = global::Mono.Unix.Catalog.GetString("Завершить");
 			this.table4.Add(this.FinishButton);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table4[this.FinishButton]));
-			w3.LeftAttach = ((uint)(5));
-			w3.RightAttach = ((uint)(6));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table4[this.FinishButton]));
+			w6.LeftAttach = ((uint)(5));
+			w6.RightAttach = ((uint)(6));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
 			this.ForwardingButton = new global::Gamma.GtkWidgets.yButton();
 			this.ForwardingButton.CanFocus = true;
@@ -69,16 +104,16 @@ namespace Vodovoz.Views.Mango.Talks
 			this.ForwardingButton.UseUnderline = true;
 			this.ForwardingButton.Label = global::Mono.Unix.Catalog.GetString("|| Переадресация");
 			this.table4.Add(this.ForwardingButton);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table4[this.ForwardingButton]));
-			w4.RightAttach = ((uint)(3));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table4[this.ForwardingButton]));
+			w7.RightAttach = ((uint)(3));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.table5.Add(this.table4);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table5[this.table4]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
-			w5.RightAttach = ((uint)(3));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table5[this.table4]));
+			w8.TopAttach = ((uint)(2));
+			w8.BottomAttach = ((uint)(3));
+			w8.RightAttach = ((uint)(3));
+			w8.XOptions = ((global::Gtk.AttachOptions)(0));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table5);
 			if ((this.Child != null))
 			{

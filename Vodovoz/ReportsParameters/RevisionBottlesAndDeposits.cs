@@ -45,11 +45,10 @@ namespace Vodovoz.Reports
 
 		#endregion
 
-		void OnUpdate(bool hide = false)
+		public void OnUpdate(bool hide = false)
 		{
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
-
 		protected void OnButtonRunClicked(object sender, EventArgs e)
 		{
 			OnUpdate(true);

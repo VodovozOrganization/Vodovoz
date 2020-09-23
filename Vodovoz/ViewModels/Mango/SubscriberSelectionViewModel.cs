@@ -52,6 +52,12 @@ namespace Vodovoz.ViewModels.Mango
 			Close(false, CloseSource.Self);
 		}
 
+		public void MakeCall(string number)
+		{
+			Manager.MakeCall(number);
+			Close(false, CloseSource.Self);
+		}
+
 		public void ForwardCall(SearchTableEntity extension, ForwardingMethod method)
 		{
 			Manager.ForwardCall(extension.Extension, method);

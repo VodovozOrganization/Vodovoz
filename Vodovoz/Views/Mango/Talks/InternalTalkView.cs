@@ -14,6 +14,13 @@ namespace Vodovoz.Views.Mango.Talks
 
 		private void Configure()
 		{
+			if(ViewModel.IsTransfer) {
+				OnLinePlace.Visible = true;
+				LinePhone.Binding.AddBinding(ViewModel, v => v.OnLine, l => l.LabelProp).InitializeFromSource();
+				ForwardingButton.Sensitive = false;
+			} else
+				OnLinePlace.Visible = false;
+
 			CallNumberLabel.Text = ViewModel.GetCallerName();
 		}
 

@@ -176,6 +176,13 @@ namespace Vodovoz.Infrastructure.Mango
 			if(LastMessage?.CallFrom?.Names == null)
 				return;
 
+			if(Clients != null)
+				Clients = new List<Counterparty>();
+			if(Employee != null)
+				Employee = null;
+			if(DeliveryPoints != null)
+				DeliveryPoints = new List<DeliveryPoint>();
+
 			using (var uow = unitOfWorkFactory.CreateWithoutRoot())
 			{
 				foreach (var item in LastMessage.CallFrom.Names)
