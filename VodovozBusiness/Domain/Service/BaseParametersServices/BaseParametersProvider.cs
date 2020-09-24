@@ -472,7 +472,7 @@ namespace Vodovoz.Core.DataService
 		public string VpbxApiKey { 
 			get {
 				if(!ParametersProvider.Instance.ContainsParameter("vpbx_api_key")) {
-					throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
+					throw new InvalidProgramException("В параметрах базы не настроены ключи доступа к Манго(vpbx_api_key).");
 				}
 				return ParametersProvider.Instance.GetParameterValue("vpbx_api_key");
 			}
@@ -481,7 +481,7 @@ namespace Vodovoz.Core.DataService
 		public string VpbxApiSalt {
 			get {
 				if(!ParametersProvider.Instance.ContainsParameter("vpbx_api_salt")) {
-					throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
+					throw new InvalidProgramException("В параметрах базы не настроены ключи доступа к Манго(vpbx_api_salt).");
 				}
 				return ParametersProvider.Instance.GetParameterValue("vpbx_api_salt");
 			}
