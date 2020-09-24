@@ -246,40 +246,39 @@ function UpdateMangoService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $mangoServiceName
 }
 
-service2="$service,"
+service2=",$service,"
 case $service2 in
-	*1,*)
+	*,1,*)
 		UpdateDriverService
 	;;&
-	*2,*)
+	*,2,*)
 		UpdateEmailService
 	;;&
-	*3,*)
+	*,3,*)
 		UpdateMobileService
 	;;&
-	*4,*)
+	*,4,*)
 		UpdateOSMService
 	;;&
-	*5,*)
+	*,5,*)
 		UpdateSMSInformerService
 	;;&
-	*6,*)
+	*,6,*)
 		UpdateSalesReceiptsService
 	;;&
-	*7,*)
+	*,7,*)
 		UpdateInstantSmsService
 	;;&
-	*8,*)
+	*,8,*)
 		UpdateDeliveryRulesService
 	;;&
-	*9,*)
+	*,9,*)
 		UpdateSmsPaymentService
 	;;&
-    *10,*)
-        UpdateOnlineStoreImportService
-    ;;
+	*,10,*)
+		UpdateOnlineStoreImportService
 	;;&
-	*11,*)
+	*,11,*)
 		UpdateMangoService
 	;;
 esac
