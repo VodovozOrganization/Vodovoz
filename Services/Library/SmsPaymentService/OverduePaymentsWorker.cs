@@ -33,7 +33,7 @@ namespace SmsPaymentService
                     
                     var paymentsToCancel = uow.Session.QueryOver<SmsPayment>()
                         .Where(x => x.SmsPaymentStatus == SmsPaymentStatus.WaitingForPayment)
-                        .And(x => x.CreationDate < DateTime.Now.AddDays(-1))
+                        .And(x => x.CreationDate < DateTime.Now.AddDays(-2))
                         .List();
                     
                     foreach (var payment in paymentsToCancel) {
