@@ -12,9 +12,9 @@ using Vodovoz.Domain.Client;
 
 namespace SmsPaymentService
 {
-    public class BitrixPaymentWorker : IPaymentWorker
+    public class BitrixPaymentController : IPaymentController
     {
-        public BitrixPaymentWorker(string baseAddress)
+        public BitrixPaymentController(string baseAddress)
         {
             this.baseAddress = baseAddress;
         }
@@ -53,13 +53,17 @@ namespace SmsPaymentService
                     logger.Info($"Битрикс вернул http код: {httpResponse.StatusCode} Content: {responseContent}");
 
                     JObject obj = JObject.Parse(responseContent);
-                    var externalId = (int)obj["dealId"];
-
+                    
+                    if(!Int32.TryParse(obj["dealId"]?.ToString(), out int externalId)) {
+                        logger.Error($"Не получилось прочитать номер сделки");
+                        return new SendResponse();
+                    }
                     return new SendResponse { HttpStatusCode = httpResponse.StatusCode, ExternalId = externalId };
                 }
             }
             catch (Exception ex) {
-                return new SendResponse { Exception = ex };
+                logger.Error(ex, "Ошибка при передачи данных платежа в битрикс");
+                return new SendResponse();
             }
         }
         
@@ -85,15 +89,18 @@ namespace SmsPaymentService
                 
                     JObject obj = JObject.Parse(responseContent);
                     if (!obj.TryGetValue("status", out JToken value)) {
-                        logger.Info("Не получилось прочитать ответ Битрикса");
+                        logger.Error("Не получилось прочитать ответ Битрикса");
                         return null;
                     }
-                    var status = (int)value;
-                    if (Enum.GetValues(typeof(SmsPaymentStatus)).Cast<int>().Contains(status)) {
-                        return (SmsPaymentStatus)status;
+                    if(!Int32.TryParse(value.ToString(), out int status)) {
+                        logger.Error($"Не получилось прочитать статус платежа");
+                        return null;
                     }
-                    logger.Info($"В базе Битрикса не найден платеж с externalId: {externalId} (Код {status})");
-                    return null;
+                    if (!Enum.GetValues(typeof(SmsPaymentStatus)).Cast<int>().Contains(status)) {
+                        logger.Error($"Битрикс вернул неверный статус платежа (status: {status})");
+                        return null;
+                    }
+                    return (SmsPaymentStatus)status;
                 }
             }
             catch (Exception ex) {
