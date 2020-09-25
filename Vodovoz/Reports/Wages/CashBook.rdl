@@ -12,7 +12,7 @@
   <RightMargin>5mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
   <PageHeader>
-    <Height>56.1pt</Height>
+    <Height>29.1pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -34,32 +34,6 @@
         <CanGrow>true</CanGrow>
         <CanShrink>true</CanShrink>
       </Textbox>
-      <Textbox Name="Textbox27">
-        <Height>12pt</Height>
-        <Width>1in</Width>
-        <Value>= "Касса за " + Format(CDate({?StartDate}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>4.4pt</Left>
-        <Top>35.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox28">
-        <Height>12pt</Height>
-        <Width>1in</Width>
-        <Value>= "Лист " + {@PageNumber}</Value>
-        <ZIndex>1</ZIndex>
-        <Left>468.8pt</Left>
-        <Top>34.3pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
@@ -67,7 +41,7 @@
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table2">
-        <DataSetName>OrdersIncome</DataSetName>
+        <DataSetName>Income</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
           <BorderStyle>
@@ -81,23 +55,134 @@
             <Width>34.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>128.9pt</Width>
+            <Width>119.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>1in</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>140.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>1in</Width>
           </TableColumn>
           <TableColumn>
-            <Width>90.3pt</Width>
+            <Width>75.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
+            <TableRow >
+              <Height>16.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox76">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox77">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox78">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox79">
+                      <Value>Остаток на начало периода:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox80">
+                      <Value>=First(Fields!balance,'StartBalance')</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox81">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
             <TableRow>
               <Height>38.1pt</Height>
               <TableCells>
@@ -225,6 +310,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -232,7 +319,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>=Fields!category.Value</Value>
+                      <Value>=Fields!doc_date.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -247,7 +334,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>=Fields!plan.Value</Value>
+                      <Value>=Fields!doc_id.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -255,6 +342,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -262,27 +351,33 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>
-                      </Value>
+                      <Value>=Fields!name.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Left</TextAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>=Fields!fact.Value</Value>
+                      <Value>=Iif(Fields!income.Value = 0, " ", Fields!income.Value)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -290,13 +385,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>={dif}</Value>
+                      <Value>=Iif(Fields!expance.Value = 0, " ", Fields!expance.Value)</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -305,8 +402,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>19.7pt</Left>
-        <Top>16.8pt</Top>
+        <Left>18.9pt</Left>
+        <Top>39.2pt</Top>
         <PageBreakAtEnd>false</PageBreakAtEnd>
         <Footer>
           <TableRows>
@@ -374,7 +471,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>Итого за день:</Value>
+                      <Value>Итого:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -404,14 +501,14 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>=Sum({fact})</Value>
+                      <Value>=Sum(Fields!income.Value)</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26">
-                      <Value>=Sum({dif})</Value>
+                      <Value>=Sum(Fields!expance.Value, "Income")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -428,12 +525,12 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow>
+            <TableRow >
               <Height>.2in</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox3">
+                    <Textbox Name="Textbox70">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -452,109 +549,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox4">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value>Остаток на конец дня:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>2</ColSpan>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox8">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox9">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox10">
+                    <Textbox Name="Textbox71">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -574,27 +569,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value>Перенос:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>2</ColSpan>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox32">
+                    <Textbox Name="Textbox72">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -613,7 +588,46 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox33">
+                    <Textbox Name="Textbox73">
+                      <Value>Остаток на конец периода:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox74">
+                      <Value>=First(Fields!balance,'EndBalance')</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox75">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -634,6 +648,108 @@
             </TableRow>
           </TableRows>
         </Footer>
+        <TableGroups >
+          <TableGroup>
+            <Grouping Name="by_day">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression>=Day({doc_date})</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox5">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox7">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox8">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox9">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                          </Style>
+                          <Value>Итого за день:</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox10">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
+                          <Value>=Sum(Fields!income.Value)</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox11">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+          </TableGroup>
+        </TableGroups>
       </Table>
       <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.74pt</Height>
@@ -647,7 +763,7 @@
           <BorderColor />
           <BorderWidth />
           <FontSize>8pt</FontSize>
-          <FontWeight >Bold</FontWeight>
+          <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
       <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -696,24 +812,7 @@
           <BorderColor />
           <BorderWidth />
           <FontSize>8pt</FontSize>
-          <FontWeight >Normal</FontWeight>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox37" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>9.75pt</Height>
-        <Width>79.81pt</Width>
-        <Value>(подпись)</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0pt</Left>
-        <Top>0pt</Top>
-        <Style>
-          <BorderStyle>
-            <Top>Solid</Top>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-          <FontSize>7pt</FontSize>
-          <TextAlign>Center</TextAlign>
+          <FontWeight>Normal</FontWeight>
         </Style>
       </Textbox>
       <Textbox Name="Textbox38" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -763,7 +862,7 @@
           <BorderColor />
           <BorderWidth />
           <FontSize>8pt</FontSize>
-          <FontWeight >Normal</FontWeight>
+          <FontWeight>Normal</FontWeight>
         </Style>
       </Textbox>
       <Textbox Name="Textbox41" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -795,7 +894,7 @@
           <BorderColor />
           <BorderWidth />
           <FontSize>8pt</FontSize>
-          <FontWeight >Normal</FontWeight>
+          <FontWeight>Normal</FontWeight>
         </Style>
       </Textbox>
       <Textbox Name="Textbox43" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -810,7 +909,7 @@
           <BorderColor />
           <BorderWidth />
           <FontSize>8pt</FontSize>
-          <FontWeight >Normal</FontWeight>
+          <FontWeight>Normal</FontWeight>
         </Style>
       </Textbox>
       <Textbox Name="Textbox44" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -825,7 +924,7 @@
           <BorderColor />
           <BorderWidth />
           <FontSize>8pt</FontSize>
-          <FontWeight >Bold</FontWeight>
+          <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
       <Textbox Name="Textbox45" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -862,6 +961,34 @@
           <FontSize>7pt</FontSize>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>16.50pt</Height>
+        <Width>234.02pt</Width>
+        <Value>= "Касса " + First(Fields!name,'SubdivisionName') + " за " + Format(CDate({?StartDate}), "dd.MM.yyyy")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2.1pt</Left>
+        <Top>9.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <CanGrow >true</CanGrow>
+        <CanShrink >true</CanShrink>
+      </Textbox>
+      <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>= "Лист " + {@PageNumber}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>469.7pt</Left>
+        <Top>9.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -884,30 +1011,74 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>75</Timeout>
-        <CommandText>SELECT
-    cash_income_category.name as category_name,
-    SUM(cash_income.money) AS fact_income,
-    cash_income_category.id
-FROM 
-    cash_income
-    JOIN cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
-WHERE
-    DATE(cash_income.date) &gt;= DATE(@start_date) AND
-    DATE(cash_income.date) &lt;= DATE(@end_date) AND
-    cash_income_category.id NOT IN 
-        (
-            SELECT
-                str_value
-            FROM
-                base_parameters
-            WHERE
-                base_parameters.name = 'selfdelivery_cash_income_category' OR
-                base_parameters.name = 'route_list_cash_income_category' 
-        )
-GROUP BY cash_income_category.id</CommandText>
+        <CommandText>SELECT this_.date as doc_date,
+       this_.id as doc_id,
+       CONCAT_WS
+       (
+           '.',
+           NULLIF(LEFT(employeeal1_.name, 1), ''),
+           NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
+           employeeal1_.last_name
+        ) as name,
+       this_.money as income,
+       0 as expance
+#        this_.description as y3_,
+#        coalesce(incomecate3_.name, expensecat4_.name) as y10_
+#        this_.type_document as y11_ 
+FROM cash_income this_ 
+    left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id 
+    left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id 
+    left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id 
+    left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
+WHERE this_.related_to_subdivision_id = @Cash 
+  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate
+
+UNION 
+##EXPENCE
+SELECT this_.date as doc_date,
+       this_.id as doc_id,
+       CONCAT_WS(
+           '.',
+           NULLIF(LEFT(employeeal1_.name, 1), ''),
+           NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
+           employeeal1_.last_name
+        ) as name,
+       0 as income,
+       this_.money as expance
+#        this_.description as y3_,
+#        expensecat3_.name as y10_
+#        this_.type_document as y11_ 
+FROM cash_expense this_ 
+    left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
+    left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id 
+    left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
+WHERE this_.related_to_subdivision_id = @Cash 
+  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate
+
+UNION 
+#Advanced
+SELECT this_.date as doc_date,
+       this_.id as doc_id,
+       CONCAT_WS(
+           '.',
+           NULLIF(LEFT(employeeal1_.name, 1), ''),
+           NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
+           employeeal1_.last_name
+       ) as name,
+       0 as income,
+       this_.money as expance
+#        this_.description as y3_,
+#        expensecat3_.name as y10_ 
+FROM cash_advance_report this_
+    left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id 
+    left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
+    left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
+WHERE this_.related_to_subdivision_id = @Cash
+  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate
+ORDER BY doc_date; </CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -915,207 +1086,140 @@ GROUP BY cash_income_category.id</CommandText>
           <QueryParameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
           </QueryParameter>
+          <QueryParameter Name="Cash">
+            <Value>=Parameters!Cash</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
-        <Field Name="category_name">
-          <DataField>category_name</DataField>
+      <Fields >
+        <Field Name="doc_date">
+          <DataField>doc_date</DataField>
         </Field>
-        <Field Name="fact_income">
-          <DataField>fact_income</DataField>
+        <Field Name="doc_id">
+          <DataField>doc_id</DataField>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
+        </Field>
+        <Field Name="income">
+          <DataField>income</DataField>
+        </Field>
+        <Field Name="expance">
+          <DataField>expance</DataField>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="OrdersIncome">
-      <Query>
+    <DataSet Name="SubdivisionName">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>75</Timeout>
-        <CommandText>SELECT
-    res1.*,
-    (res1.fact - res1.plan) as dif
-FROM
-(
-SELECT
-    SUM(t.PlanedIncome) as plan,
-    SUM(t.FactIncome) as fact,
-    category
-FROM
-    (SELECT 
-            (
-            SUM(CAST(IFNULL(money_movement_operations.money, 0) AS DECIMAL(10, 2)) 
-            * IF(route_list_addresses.status = 'Completed', 1, 0) )
-            ) AS FactIncome,
-            SUM(Orders.TotalOrdersSum) AS PlanedIncome ,
-            CI.category
-    FROM
-        route_lists
-    LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-    LEFT JOIN orders ON route_list_addresses.order_id = orders.id
-    LEFT JOIN money_movement_operations ON money_movement_operations.order_id = orders.id
-    LEFT JOIN deposit_operations ON deposit_operations.order_id = orders.id
-    LEFT JOIN (SELECT 
-        T.route_list_id, 0 - COUNT(T.qty_addr) * 2 AS Sum
-    FROM
-        (SELECT 
-        route_list_addresses.route_list_id,
-            COUNT(route_list_addresses.id) AS qty_addr
-    FROM
-        route_list_addresses
-    LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
-    LEFT JOIN orders ON route_list_addresses.order_id = orders.id
-    WHERE
-        route_list_addresses.status = 'Completed'
-    GROUP BY route_list_addresses.route_list_id , orders.delivery_point_id) AS T
-    GROUP BY T.route_list_id) AS PhoneSums ON PhoneSums.route_list_id = route_lists.id
-    LEFT JOIN (SELECT 
-        orders.id AS order_id,
-            IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) + IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0) AS TotalOrdersSum
-    FROM
-        orders
-    LEFT JOIN order_items ON order_items.order_id = orders.id
-        AND orders.payment_type = 'cash'
-    LEFT JOIN deposit_operations ON deposit_operations.order_id = order_items.order_id
-    LEFT JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
-    WHERE
-        route_list_addresses.transfered_to_id IS NULL
-            AND route_list_addresses.was_transfered = 0
-    GROUP BY orders.id) AS Orders ON Orders.order_id = route_list_addresses.order_id
-    LEFT JOIN (SELECT 
-        route_list_addresses.route_list_id,
-            0 - SUM(order_items.price * (order_items.count - IFNULL(order_items.actual_count, 0))) AS nedovoz_sum
-    FROM
-        route_list_addresses
-    LEFT JOIN orders ON orders.id = route_list_addresses.order_id
-    LEFT JOIN order_items ON order_items.order_id = orders.id
-    LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-    LEFT JOIN order_equipment ON order_equipment.order_id = orders.id
-    WHERE
-        orders.payment_type = 'cash'
-            AND order_items.price &gt; 0
-            AND ((orders.order_status IN ('Canceled' , 'NotDelivered', 'DeliveryCanceled')
-            AND route_list_addresses.status != 'transfered')
-            OR (route_list_addresses.status = 'Completed'
-            AND ((nomenclature.category IN ('water' , 'equipment', 'additional', 'bottle')
-            AND nomenclature.serial = FALSE
-            AND order_items.count != IFNULL(order_items.actual_count, 0))
-            OR order_equipment.confirmed = FALSE)))
-    GROUP BY route_list_addresses.route_list_id) AS nedovoz ON nedovoz.route_list_id = route_lists.id
-    LEFT JOIN (SELECT 
-        internal_trans.route_list_id,
-            SUM(internal_trans.TotalOrdersSum) AS TotalOrdersSum
-    FROM
-        (SELECT 
-        route_list_addresses.id,
-            route_list_addresses.route_list_id,
-            route_list_addresses.status,
-            ROUND(IFNULL(IF(status = 'transfered', 0 - order_items.price * order_items.count * (1 - (order_items.discount / 100)), order_items.price * order_items.count * (1 - (order_items.discount / 100))), 0), 2) AS TotalOrdersSum
-    FROM
-        route_list_addresses
-    LEFT JOIN orders ON orders.id = route_list_addresses.order_id
-    LEFT JOIN order_items ON order_items.order_id = orders.id
-        AND orders.payment_type = 'cash'
-    WHERE
-        (status = 'transfered'
-            OR was_transfered = TRUE)) AS internal_trans
-    GROUP BY internal_trans.route_list_id
-    HAVING TotalOrdersSum != 0) AS Transfered ON Transfered.route_list_id = route_lists.id
-    LEFT JOIN (SELECT 
-            route_list_id,
-            cash_income_category.name as category,
-            SUM(IFNULL(cash_income.money, 0)) AS MoneyIncome,
-            GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y')
-                SEPARATOR ', ') AS CashIncomeDates
-    FROM
-        cash_income
-        LEFT JOIN cash_income_category ON cash_income.cash_income_category_id = cash_income_category.id
-    GROUP BY route_list_id) AS CI ON CI.route_list_id = route_lists.id
-    LEFT JOIN (SELECT 
-        route_list_id,
-            SUM(IFNULL(cash_expense.money, 0)) AS MoneyExpence
-    FROM
-        cash_expense
-    WHERE
-        type_operation NOT IN ('EmployeeAdvance' , 'Advance')
-    GROUP BY route_list_id) AS CE ON CE.route_list_id = route_lists.id
-    WHERE
-        route_lists.status IN ('Closed' , 'MileageCheck')
-            AND route_lists.date &gt;= @StartDate
-            AND route_lists.date &lt;= @EndDate
-    GROUP BY route_lists.id) AS t
-) as res1
-
-UNION
-
-SELECT
-    res2.*,
-    (res2.fact - res2.plan) as dif
-FROM
-(
-SELECT
-    SUM(res.TotalOrdersSum) AS plan,
-    SUM(res.fact_income) AS fact,
-    res.category
-FROM
-(
-SELECT 
-     ROUND(IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) + IFNULL(deposit_operations.received_deposit, 0)) AS TotalOrdersSum ,
-     ROUND(inc.fact_income) AS fact_income,
-     inc.category,
-     orders.id
-FROM 
-    orders
-    LEFT JOIN deposit_operations ON deposit_operations.order_id = orders.id
-    JOIN 
+        <CommandText>SELECT  subdivisions.short_name as name
+FROM subdivisions
+WHERE id = @Cash;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="Cash">
+            <Value>={?Cash}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="name">
+          <DataField>name</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="StartBalance" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>Select
+    s.id,
+    s.name,
     (
-        SELECT
-            SUM(cash_income.money) as fact_income,
-            cash_income.order_id,
-            cash_income_category.name as category
-        FROM
-            cash_income
-            LEFT JOIN cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
-        WHERE
-            DATE(cash_income.date) &gt;= DATE(@StartDate) AND
-            DATE(cash_income.date) &lt;= DATE(@EndDate)
-        GROUP BY
-            order_id
-    ) as inc ON inc.order_id = orders.id
-    LEFT JOIN order_items ON order_items.order_id = orders.id
-WHERE
-    orders.self_delivery = true AND
-    orders.order_status = 'Closed' 
-GROUP BY
-    orders.id
-) as res
-) as res2
-</CommandText>
+        Select IFNULL(sum(ci.money), 0)as money
+        From cash_income ci
+        Where ci.related_to_subdivision_id = s.id
+          AND ci.date &lt; @StartDate
+    )
+        -
+    (
+        Select IFNULL(sum(ce.money), 0) as money
+        From cash_expense ce
+        Where ce.related_to_subdivision_id = s.id
+          AND ce.date &lt; @StartDate
+    ) as balance
+From subdivisions s
+WHERE s.id IN (@Cash)
+GROUP BY s.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
-            <Value>={?StartDate}</Value>
+            <Value>=Parameters!StartDate</Value>
           </QueryParameter>
-          <QueryParameter Name="EndDate">
-            <Value>={?EndDate}</Value>
+          <QueryParameter Name="Cash">
+            <Value>=Parameters!Cash</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields>
-        <Field Name="plan">
-          <DataField>plan</DataField>
+        <Field Name="balance">
+          <DataField>balance</DataField>
         </Field>
-        <Field Name="fact">
-          <DataField>fact</DataField>
+        <Field Name="name">
+          <DataField>name</DataField>
         </Field>
-        <Field Name="category">
-          <DataField>category</DataField>
+      </Fields>
+    </DataSet>
+    <DataSet Name="EndBalance" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>Select
+    s.id,
+    s.name,
+    (
+        Select IFNULL(sum(ci.money), 0)as money
+        From cash_income ci
+        Where ci.related_to_subdivision_id = s.id
+          AND ci.date &lt; @EndDate
+    )
+        -
+    (
+        Select IFNULL(sum(ce.money), 0) as money
+        From cash_expense ce
+        Where ce.related_to_subdivision_id = s.id
+          AND ce.date &lt; @EndDate
+    ) as balance
+From subdivisions s
+WHERE s.id IN (@Cash)
+GROUP BY s.id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="Cash">
+            <Value>=Parameters!Cash</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="balance">
+          <DataField>balance</DataField>
         </Field>
-        <Field Name="dif">
-          <DataField>dif</DataField>
+        <Field Name="name">
+          <DataField>name</DataField>
         </Field>
       </Fields>
     </DataSet>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>System.String</DataType>
@@ -1133,14 +1237,13 @@ GROUP BY
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="Cash">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

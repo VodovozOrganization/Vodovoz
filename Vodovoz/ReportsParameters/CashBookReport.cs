@@ -64,7 +64,7 @@ namespace Vodovoz.ReportsParameters
 			var parameters = new Dictionary<string, object> {
 				{ "StartDate", startDate },
 				{ "EndDate", endDate },
-				{ "CashBox", ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem).Id }
+				{ "Cash", ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem).Id }
 			};
 
 			return new ReportInfo {
