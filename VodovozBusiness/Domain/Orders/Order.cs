@@ -3399,17 +3399,10 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, ReturnedTare ?? 0, forfeitQuantity ?? 0);
 		}
 
-		public virtual void ChangePaymentTypeToByCard (CallTaskWorker callTaskWorker) {
+		public virtual void ChangePaymentTypeToByCard (CallTaskWorker callTaskWorker)
+		{
 			PaymentType = PaymentType.ByCard;
-			if (!PayAfterShipment)
-			{
-				ChangeStatus(OrderStatus.Accepted, callTaskWorker);
-				OrderPaymentStatus = OrderPaymentStatus.Paid;
-			}
-			else
-			{
-				OrderStatus = OrderStatus.Closed;
-			}
+			ChangeStatus(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
 		}
 
 		#region Работа с документами
