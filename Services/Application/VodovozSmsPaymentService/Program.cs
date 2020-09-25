@@ -70,7 +70,8 @@ namespace VodovozSmsPaymentService
 				return;
 			}
 
-			logger.Info("Запуск службы оплаты заказов по sms");
+			logger.Info("Запуск службы оплаты заказов по sms...");
+
 			try {
 				var conStrBuilder = new MySqlConnectionStringBuilder
 				{
@@ -103,17 +104,15 @@ namespace VodovozSmsPaymentService
 					$"http://{driverServiceHostName}:{driverServicePort}/AndroidDriverService"
 				);
 				IDriverPaymentService driverPaymentService = new DriverPaymentService(channelFactory);
-				var paymentSender = new BitrixPaymentWorker(baseAddress);
+				var paymentSender = new BitrixPaymentController(baseAddress);
 				
-				var fileProvider = new FileProvider("/tmp/VodovozSmsPaymentServiceTemp.txt");
-				var unsavedPaymentsWorker = new UnsavedPaymentsWorker(fileProvider);
+				var smsPaymentFileCache = new SmsPaymentFileCache("/tmp/VodovozSmsPaymentServiceTemp.txt");
 
 				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
 					paymentSender, 
 					driverPaymentService,
 					new BaseParametersProvider(),
-					fileProvider,
-					unsavedPaymentsWorker
+					smsPaymentFileCache
 				);
 
 				ServiceHost smsPaymentServiceHost = new SmsPaymentServiceHost(smsPaymentServiceInstanceProvider);
@@ -136,10 +135,12 @@ namespace VodovozSmsPaymentService
 				smsPaymentServiceHost.Open();
 				logger.Info("Server started.");
 
-				(smsPaymentServiceInstanceProvider.GetInstance(null) as ISmsPaymentService)?.SynchronizePaymentStatuses();
+				var serviceInstance = smsPaymentServiceInstanceProvider.GetInstance(null) as ISmsPaymentService;
+				serviceInstance?.SynchronizePaymentStatuses();
 				
-				unsavedPaymentsWorker.Start();
+				var unsavedPaymentsWorker = new CachePaymentsWorker(smsPaymentFileCache, serviceInstance);
 				var overduePaymentsWorker = new OverduePaymentsWorker();
+				unsavedPaymentsWorker.Start();
 				overduePaymentsWorker.Start();
 
 				UnixSignal[] signals = {
