@@ -34,7 +34,7 @@
         <CanGrow>true</CanGrow>
         <CanShrink>true</CanShrink>
       </Textbox>
-      <Textbox Name="Textbox27" >
+      <Textbox Name="Textbox27">
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>= "Касса за " + Format(CDate({?StartDate}), "dd.MM.yyyy")</Value>
@@ -47,7 +47,7 @@
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox28" >
+      <Textbox Name="Textbox28">
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>= "Лист " + {@PageNumber}</Value>
@@ -86,7 +86,7 @@
           <TableColumn>
             <Width>1in</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>1in</Width>
           </TableColumn>
           <TableColumn>
@@ -113,7 +113,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -130,7 +130,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -147,12 +147,12 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>От кого получено и кому выдано</Value>
@@ -164,7 +164,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -183,7 +183,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -200,7 +200,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -259,7 +259,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value>
@@ -371,7 +371,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
                       <Value>Итого за день:</Value>
@@ -385,7 +385,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -428,7 +428,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>.2in</Height>
               <TableCells>
                 <TableCell>
@@ -484,7 +484,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -530,7 +530,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>.2in</Height>
               <TableCells>
                 <TableCell>
@@ -586,7 +586,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -635,6 +635,233 @@
           </TableRows>
         </Footer>
       </Table>
+      <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.74pt</Height>
+        <Width>40.69pt</Width>
+        <Value>Кассир</Value>
+        <ZIndex>1</ZIndex>
+        <Left>12.5pt</Left>
+        <Top>176.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+          <FontWeight >Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>9.75pt</Height>
+        <Width>79.81pt</Width>
+        <Value>(подпись)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>48.5pt</Left>
+        <Top>186.8pt</Top>
+        <Style>
+          <BorderStyle>
+            <Top>Solid</Top>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>7pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox35" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>8.99pt</Height>
+        <Width>128.61pt</Width>
+        <Value>(расшифровка подписи)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>138.8pt</Left>
+        <Top>186.6pt</Top>
+        <Style>
+          <BorderStyle>
+            <Top>Solid</Top>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontSize>7pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox36" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.45pt</Height>
+        <Width>264.19pt</Width>
+        <Value>Записи в кассовой книге проверил и документы в количестве</Value>
+        <ZIndex>1</ZIndex>
+        <Left>8.0pt</Left>
+        <Top>200.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+          <FontWeight >Normal</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox37" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>9.75pt</Height>
+        <Width>79.81pt</Width>
+        <Value>(подпись)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0pt</Left>
+        <Top>0pt</Top>
+        <Style>
+          <BorderStyle>
+            <Top>Solid</Top>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>7pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox38" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>10.50pt</Height>
+        <Width>37.67pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>249.6pt</Left>
+        <Top>211.1pt</Top>
+        <Style>
+          <BorderStyle>
+            <Top>Solid</Top>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>7pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox39" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>9.75pt</Height>
+        <Width>216.72pt</Width>
+        <Value>(прописью)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>8.0pt</Left>
+        <Top>231.8pt</Top>
+        <Style>
+          <BorderStyle>
+            <Top>Solid</Top>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontSize>7pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox40" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.94pt</Height>
+        <Width>56.42pt</Width>
+        <Value>приходных и</Value>
+        <ZIndex>1</ZIndex>
+        <Left>227.3pt</Left>
+        <Top>221.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+          <FontWeight >Normal</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox41" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>9.75pt</Height>
+        <Width>216.72pt</Width>
+        <Value>(прописью)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>7.7pt</Left>
+        <Top>248.8pt</Top>
+        <Style>
+          <BorderStyle>
+            <Top>Solid</Top>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontSize>7pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox42" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.94pt</Height>
+        <Width>56.42pt</Width>
+        <Value>расходных</Value>
+        <ZIndex>1</ZIndex>
+        <Left>227.0pt</Left>
+        <Top>238.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+          <FontWeight >Normal</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox43" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.94pt</Height>
+        <Width>56.42pt</Width>
+        <Value>получил.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>6.7pt</Left>
+        <Top>259.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+          <FontWeight >Normal</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox44" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.74pt</Height>
+        <Width>48.94pt</Width>
+        <Value>Бухгалтер</Value>
+        <ZIndex>1</ZIndex>
+        <Left>6.00pt</Left>
+        <Top>277.60pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+          <FontWeight >Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox45" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>9.75pt</Height>
+        <Width>79.81pt</Width>
+        <Value>(подпись)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>53.9pt</Left>
+        <Top>285.7pt</Top>
+        <Style>
+          <BorderStyle>
+            <Top>Solid</Top>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>7pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox46" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>8.99pt</Height>
+        <Width>128.61pt</Width>
+        <Value>(расшифровка подписи)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>144.2pt</Left>
+        <Top>285.5pt</Top>
+        <Style>
+          <BorderStyle>
+            <Top>Solid</Top>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontSize>7pt</FontSize>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>

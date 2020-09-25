@@ -1434,7 +1434,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CashBookReport>(),
-			() => new QSReport.ReportViewDlg(new CashBookReport())
+			() => new QSReport.ReportViewDlg(new CashBookReport(new SubdivisionRepository(), ServicesConfig.CommonServices))
 		);
 	}
 
