@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -24,7 +25,7 @@ namespace Vodovoz.Domain.Orders.Documents
 					{ "hide_signature", HideSignature },
 					{ "contactless_delivery", Order.ContactlessDelivery },
 					{ "payment_by_sms", Order.PaymentBySms },
-					{ "need_terminal", Order.NeedTerminal }
+					{ "need_terminal", Order.PaymentType == PaymentType.Terminal }
 			}
 			};
 		}

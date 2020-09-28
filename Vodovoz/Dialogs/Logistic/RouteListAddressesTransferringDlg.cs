@@ -13,6 +13,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -577,7 +578,7 @@ namespace Vodovoz
 
 		public RouteListItem RouteListItem { get; set; }
 		public string DalyNumber => RouteListItem.Order.DailyNumber.ToString();
-		public bool NeedTerminal => RouteListItem.Order.NeedTerminal;
+		public bool NeedTerminal => RouteListItem.Order.PaymentType == PaymentType.Terminal;
 	}
 }
 

@@ -483,7 +483,10 @@ namespace Vodovoz
 
 		public bool CanClose()
 		{
-			var orderValidator = new QSValidator<Order>(routeListItem.Order);
+			var orderValidator = new QSValidator<Order>(routeListItem.Order,
+				new Dictionary<object, object> {
+				{ "NewStatus", OrderStatus.Closed },
+				{ "AddressStatus", routeListItem.Status }});
 			routeListItem.AddressIsValid = orderValidator.IsValid;
 			orderValidator.RunDlgIfNotValid((Window)this.Toplevel);
 			routeListItem.Order.CheckAndSetOrderIsService();
@@ -497,9 +500,10 @@ namespace Vodovoz
 			OnlineOrderVisible();
 		}
 
-		private void OnlineOrderVisible()
-		{
-			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (routeListItem.Order.PaymentType == PaymentType.ByCard);
+		private void OnlineOrderVisible() {
+			labelOnlineOrder.Visible = entryOnlineOrder.Visible =
+				(routeListItem.Order.PaymentType == PaymentType.ByCard 
+				 || routeListItem.Order.PaymentType == PaymentType.Terminal);
 		}
 
 		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)

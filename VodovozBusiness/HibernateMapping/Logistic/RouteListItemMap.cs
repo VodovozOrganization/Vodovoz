@@ -19,7 +19,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OldEquipmentDepositsCollected)			.Column("equipment_deposits_collected");
 			Map(x => x.ExtraCash)								.Column("extra_cash");
 			Map(x => x.TotalCash)								.Column("total_cash");
-			Map(x => x.TerminalPaymentNumber)					.Column("terminal_payment_number");
 			Map(x => x.DriverWage)								.Column("driver_wage");
             Map(x => x.DriverWageSurcharge)    					.Column("driver_wage_surcharge");
 			Map(x => x.ForwarderWage)							.Column("forwarder_wage");
