@@ -12,12 +12,16 @@ using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
+using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.Views.Mango;
@@ -31,6 +35,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly RouteListRepository routedListRepository;
 		private IUnitOfWork UoW;
 		private List<CounterpartyOrderViewModel> counterpartyOrdersModels = new List<CounterpartyOrderViewModel>();
+		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels {
 			get => counterpartyOrdersModels;
 			private set {
@@ -57,7 +63,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.routedListRepository = routedListRepository;
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 
-			if(clients != null) 
+			if(clients.Count<Counterparty>() > 0) 
 			{
 				foreach(Counterparty client in clients) 
 				{
@@ -150,12 +156,34 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void AddComplainCommand()
 		{
+			var nomenclatureRepository = new NomenclatureRepository();
+
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory =
+				new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					ServicesConfig.CommonServices);
+
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+					CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
+					.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
+					nomenclatureRepository, UserSingletonRepository.GetInstance());
+
+
 			var parameters = new Dictionary<string, object> {
 				{"client", currentCounterparty},
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
-				{"employeeSelectorFactory", new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices)},
-				{"counterpartySelectorFactory", new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices)},
-				{"phone", "не реализовано"}//FIXME
+				//Autofac: IEmployeeService 
+				{"employeeSelectorFactory", employeeSelectorFactory},
+				{"counterpartySelectorFactory", counterpartySelectorFactory},
+				//Autofac: ISubdivisionRepository
+				//Autofac: ICommonServices
+				{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
+				{"nomenclatureRepository",nomenclatureRepository},
+				//Autofac: IUserRepository
+				{"phone", "7"+MangoManager.CallerNumber }
 			};
 			tdiNavigation.OpenTdiTabNamedArgs<CreateComplaintViewModel>(null,parameters);
 		}

@@ -75,6 +75,7 @@ using Vodovoz.JournalSelector;
 using Vodovoz.Repository;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using Vodovoz.JournalViewModels;
+using fyiReporting.RdlGtkViewer;
 
 namespace Vodovoz
 {
