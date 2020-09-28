@@ -72,7 +72,7 @@ namespace Vodovoz.FilterViewModels.Goods
 			get => restrictArchive;
 			set {
 				UpdateFilterField(ref restrictArchive, value);
-				CanChangeShowArchive = false;
+				CanChangeShowArchive = true;
 			}
 		}
 		public bool CanChangeShowArchive { get; private set; } = true;
