@@ -14,9 +14,8 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CashBookReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private string reportPath = "Wages.CashBook";
+		private string reportPath = "Cash.CashBook";
 		private List<Subdivision> UserSubdivisions { get; }
-		
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly ICommonServices commonServices;
 		public CashBookReport(ISubdivisionRepository subdivisionRepository, ICommonServices commonServices)
@@ -46,14 +45,13 @@ namespace Vodovoz.ReportsParameters
 			yspeccomboboxCashSubdivision.SelectedItem = UserSubdivisions.First();
 			#endregion
 			
-			
 			buttonCreateRepot.Clicked += OnButtonCreateRepotClicked;
 		}
 		
 		private List<Subdivision> GetSubdivisionsForUser()
 		{
-			var availableSubdivisionsForUser = subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, commonServices.UserService.GetCurrentUser(UoW));
-
+			var availableSubdivisionsForUser = subdivisionRepository.GetCashSubdivisionsAvailableForUser
+				(UoW, commonServices.UserService.GetCurrentUser(UoW));
 			return new List<Subdivision>(availableSubdivisionsForUser);
 		}
 		
