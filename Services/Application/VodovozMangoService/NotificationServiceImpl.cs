@@ -214,9 +214,10 @@ namespace VodovozMangoService
 				var digits = number.Substring(number.Length - Math.Min(10, number.Length));
 				var sql =
 					"SELECT counterparty.name as counterparty_name, delivery_points.compiled_address_short as address, CONCAT_WS(\" \", employees.last_name, employees.name, employees.patronymic) as employee_name, " + 
-					"phones.employee_id, phones.delivery_point_id, counterparty.id as counterparty_id " +
+					"phones.employee_id, phones.delivery_point_id, counterparty.id as counterparty_id, subdivisions.short_name as subdivision_name " +
 					"FROM phones " +
 					"LEFT JOIN employees ON employees.id = phones.employee_id " +
+					"LEFT JOIN subdivisions ON subdivisions.id = employees.subdivision_id " +
 					"LEFT JOIN delivery_points ON delivery_points.id = phones.delivery_point_id " +
 					"LEFT JOIN counterparty ON counterparty.id = phones.counterparty_id OR counterparty.id = delivery_points.counterparty_id " +
 					"WHERE phones.digits_number = @digits;";
@@ -249,7 +250,7 @@ namespace VodovozMangoService
 		private string TitleExternalName(dynamic row)
 		{
 			if (!string.IsNullOrWhiteSpace(row.employee_name))
-				return row.employee_name;
+				return row.subdivision_name == null ? row.employee_name : $"{row.employee_name} ({row.subdivision_name})";
 			if (!string.IsNullOrWhiteSpace(row.address))
 				return $"{row.counterparty_name} ({row.address})";
 			return row.counterparty_name ?? String.Empty;
