@@ -408,6 +408,8 @@
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
+    <Compile Include="ReportsParameters\CashBookReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CashBookReport.cs" />
     <Compile Include="Representations\ProductGroupVM.cs" />
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
@@ -1718,6 +1720,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bottles\ReturnedTareReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Cash\CashBook.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\BillWithoutShipmentForDebt.rdl">
