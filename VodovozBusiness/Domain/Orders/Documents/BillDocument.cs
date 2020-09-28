@@ -89,7 +89,7 @@ namespace Vodovoz.Domain.Orders.Documents
 						"Спасибо, что Вы с нами.\n\n" +
 						"С Уважением,\n" +
 						"Команда компании  \"Веселый Водовоз\"\n" +
-						"тел.: +7(812) 493-50-93\n" +
+						"тел.: +7(812) 317-00-00\n" +
 						"P.S.И помни, мы тебя любим!\n\n" +
 						"Мы ВКонтакте: vk.com/vodovoz_spb\n" +
 						"Мы в Instagram: @vodovoz_lifestyle\n" +
@@ -103,7 +103,7 @@ namespace Vodovoz.Domain.Orders.Documents
 						"<p>Спасибо, что Вы с нами.</p>\n" +
 						"<p>С Уважением,</p>\n" +
 						"<p>Команда компании  \"Веселый Водовоз\"</p>\n" +
-						"<p>тел.: +7 (812) 493-50-93</p>\n" +
+						"<p>тел.: +7 (812) 317-00-00</p>\n" +
 						"<p>P.S. И помни, мы тебя любим!</p>\n" +
 						"<p>______________</p>\n" +
 						"<p>Мы ВКонтакте: <a href=\"https://vk.com/vodovoz_spb\" target=\"_blank\">vk.com/vodovoz_spb</a></p>\n" +
