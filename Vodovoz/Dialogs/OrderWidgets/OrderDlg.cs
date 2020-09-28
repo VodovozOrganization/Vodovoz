@@ -101,6 +101,7 @@ namespace Vodovoz
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
 		private IEmailRepository emailRepository { get; set; } = new EmailRepository();
+		private ICashRepository cashRepository { get; } = new CashRepository();
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
 		private  INomenclatureRepository nomenclatureRepository;
@@ -2223,8 +2224,18 @@ namespace Vodovoz
 			ControlsActionBottleAccessibility();
 		}
 
-		protected void OnButtonCancelOrderClicked(object sender, EventArgs e)
-		{
+		protected void OnButtonCancelOrderClicked(object sender, EventArgs e) {
+			
+			bool isShipped = !orderRepository.IsSelfDeliveryOrderWithoutShipment(UoW, Entity.Id);
+			bool isFullyPaid = Entity.SelfDeliveryIsFullyPaid(cashRepository);
+
+			if (Entity.SelfDelivery && (isFullyPaid || isShipped)) {
+				MessageDialogHelper.RunErrorDialog(
+					"Вы не можете отменить отгруженный или оплаченный самовывоз. " +
+					"Для продолжения необходимо удалить отгрузку или приходник.");
+				return;
+			}
+			
 			var valid = new QSValidator<Order>(Entity,
 				new Dictionary<object, object> {
 				{ "NewStatus", OrderStatus.Canceled },

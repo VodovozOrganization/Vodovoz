@@ -651,5 +651,16 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return paymentItems;
 		}
+		
+		public bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId)
+		{
+			var selfDeliveryDocument = uow.Session.QueryOver<SelfDeliveryDocument>()
+			                              .Where(x => x.Order.Id == orderId)
+			                              .Take(1).List()?.FirstOrDefault();
+			if(selfDeliveryDocument != null)
+				return false;
+
+			return true;
+		}
 	}
 }
