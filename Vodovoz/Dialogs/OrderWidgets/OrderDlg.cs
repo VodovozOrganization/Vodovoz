@@ -499,9 +499,6 @@ namespace Vodovoz
 			dataSumDifferenceReason.Hide();
 			labelSumDifferenceReason.Hide();
 
-			yCheckBtnNeedTerminal.Binding.AddBinding(Entity, e => e.NeedTerminal, w => w.Active).InitializeFromSource();
-			yCheckBtnNeedTerminal.Toggled += YCheckBtnNeedTerminalOnToggled;
-
 			UpdateUIState();
 
 			yChkActionBottle.Toggled += (sender, e) => {
@@ -511,8 +508,7 @@ namespace Vodovoz
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
-			ycheckPaymentBySms.Toggled += YCheckPaymentBySmsOnToggled;
-
+			
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
 		}
 
@@ -2163,17 +2159,19 @@ namespace Vodovoz
 			
 			if (Entity.PaymentType != PaymentType.cash) {
 				ycheckPaymentBySms.Visible = ycheckPaymentBySms.Active = false;
-				yCheckBtnNeedTerminal.Visible = yCheckBtnNeedTerminal.Active = false;
 			}
 			else {
-				ycheckPaymentBySms.Visible = yCheckBtnNeedTerminal.Visible = true;
+				ycheckPaymentBySms.Visible = true;
 			}
 
 			enumSignatureType.Visible = labelSignatureType.Visible =
 				(Entity.Client != null &&
 				 (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)
 				);
-			hbxOnlineOrder.Visible = Entity.PaymentType == PaymentType.ByCard;
+			
+			hbxOnlineOrder.Visible = UpdateVisibilityHboxOnlineOrder();
+			ySpecPaymentFrom.Visible = Entity.PaymentType == PaymentType.ByCard;
+			
 			if(treeItems.Columns.Any())
 				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
@@ -2183,6 +2181,17 @@ namespace Vodovoz
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 			UpdateUIState();
+		}
+
+		private bool UpdateVisibilityHboxOnlineOrder() {
+			switch (Entity.PaymentType) {
+				case PaymentType.ByCard:
+					return true;
+				case PaymentType.Terminal:
+					return Entity.OnlineOrder != null;
+				default:
+					return false;
+			}
 		}
 
 		protected void OnPickerDeliveryDateDateChanged(object sender, EventArgs e)
@@ -2392,24 +2401,6 @@ namespace Vodovoz
 					hboxReasons.Visible = true;
 
 				yCmbReturnTareReasons.ItemsList = category.ChildReasons;
-			}
-		}
-		
-		private void YCheckBtnNeedTerminalOnToggled(object sender, EventArgs e) {
-			if (Entity.NeedTerminal) {
-				Entity.PaymentBySms = ycheckPaymentBySms.Sensitive = false;
-			}
-			else {
-				ycheckPaymentBySms.Sensitive = true;
-			}
-		}
-		
-		private void YCheckPaymentBySmsOnToggled(object sender, EventArgs e) {
-			if (Entity.PaymentBySms) {
-				Entity.NeedTerminal = yCheckBtnNeedTerminal.Sensitive = false;
-			}
-			else {
-				yCheckBtnNeedTerminal.Sensitive = true;
 			}
 		}
 
@@ -2724,7 +2715,6 @@ namespace Vodovoz
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer") && val && !Entity.SelfDelivery;
 			hbxTareNonReturnReason.Sensitive = val;
-			yCheckBtnNeedTerminal.Sensitive = val;
 
 			if(Entity != null)
 				yCmbPromoSets.Sensitive = val;

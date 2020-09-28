@@ -494,7 +494,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			VodovozOrder orderAlias = null;
 			ReceiptForOrderNode resultAlias = null;
 
-			var orderPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.ByCard };
+			var orderPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.ByCard, PaymentType.Terminal };
 			var orderStatusesForReceipts = new OrderStatus[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
 			var result = uow.Session.QueryOver<CashReceipt>()

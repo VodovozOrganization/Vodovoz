@@ -12,6 +12,7 @@ using QS.Tools;
 using QS.Validation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -706,7 +707,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 			
 			//Терминал для оплаты
-			var needTerminal = Addresses.Any(x => x.Order.NeedTerminal);
+			var needTerminal = Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
 			if (needTerminal) {
 				var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
@@ -956,7 +957,8 @@ namespace Vodovoz.Domain.Logistic
 										address.Order,
 										null,
 										new Dictionary<object, object> {
-											{ "NewStatus", OrderStatus.Closed }
+											{ "NewStatus", OrderStatus.Closed },
+											{ "AddressStatus", address.Status}
 										}
 									)
 								);
