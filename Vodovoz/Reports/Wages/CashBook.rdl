@@ -72,7 +72,7 @@
         </TableColumns>
         <Header>
           <TableRows>
-            <TableRow >
+            <TableRow>
               <Height>16.2pt</Height>
               <TableCells>
                 <TableCell>
@@ -154,6 +154,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Right >None</Right>
                         </BorderStyle>
                         <FontWeight>Normal</FontWeight>
                         <BorderColor />
@@ -172,6 +173,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Left >None</Left>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -327,6 +329,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -359,6 +362,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -373,6 +377,7 @@
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Right >None</Right>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -389,6 +394,8 @@
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Right >Solid</Right>
+                          <Left >None</Left>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -483,6 +490,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -500,6 +508,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum(Fields!income.Value)</Value>
                     </Textbox>
@@ -519,13 +529,15 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>.2in</Height>
               <TableCells>
                 <TableCell>
@@ -601,6 +613,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -621,6 +634,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -648,7 +663,7 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <TableGroups >
+        <TableGroups>
           <TableGroup>
             <Grouping Name="by_day">
               <PageBreakAtStart>false</PageBreakAtStart>
@@ -712,6 +727,7 @@
                             <BorderColor />
                             <BorderWidth />
                             <TextAlign>Right</TextAlign>
+                            <VerticalAlign >Middle</VerticalAlign>
                           </Style>
                           <Value>Итого за день:</Value>
                         </Textbox>
@@ -723,9 +739,12 @@
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
+                              <Right >None</Right>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
+                            <TextAlign >Center</TextAlign>
+                            <VerticalAlign >Middle</VerticalAlign>
                           </Style>
                           <Value>=Sum(Fields!income.Value)</Value>
                         </Textbox>
@@ -737,10 +756,14 @@
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
+                              <Left >None</Left>
                             </BorderStyle>
+                            <BorderColor  />
+                            <BorderWidth  />
+                            <TextAlign >Center</TextAlign>
+                            <VerticalAlign >Middle</VerticalAlign>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value>=Sum(Fields!expance.Value)</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -973,8 +996,8 @@
           <BorderColor />
           <BorderWidth />
         </Style>
-        <CanGrow >true</CanGrow>
-        <CanShrink >true</CanShrink>
+        <CanGrow>true</CanGrow>
+        <CanShrink>true</CanShrink>
       </Textbox>
       <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12pt</Height>
@@ -1056,29 +1079,7 @@ FROM cash_expense this_
     left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id 
     left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
 WHERE this_.related_to_subdivision_id = @Cash 
-  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate
-
-UNION 
-#Advanced
-SELECT this_.date as doc_date,
-       this_.id as doc_id,
-       CONCAT_WS(
-           '.',
-           NULLIF(LEFT(employeeal1_.name, 1), ''),
-           NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
-           employeeal1_.last_name
-       ) as name,
-       0 as income,
-       this_.money as expance
-#        this_.description as y3_,
-#        expensecat3_.name as y10_ 
-FROM cash_advance_report this_
-    left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id 
-    left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-    left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
-WHERE this_.related_to_subdivision_id = @Cash
-  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate
-ORDER BY doc_date; </CommandText>
+  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate;</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -1110,7 +1111,7 @@ ORDER BY doc_date; </CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="SubdivisionName">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>75</Timeout>
         <CommandText>SELECT  subdivisions.short_name as name
@@ -1122,13 +1123,13 @@ WHERE id = @Cash;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="StartBalance" >
+    <DataSet Name="StartBalance">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>Select
@@ -1168,7 +1169,7 @@ GROUP BY s.id;</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="EndBalance" >
+    <DataSet Name="EndBalance">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>Select
