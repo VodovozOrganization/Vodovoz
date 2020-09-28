@@ -78,7 +78,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public string GetPhoneNumber()
 		{
-			return "+7"+MangoManager.CallerNumber;
+			return "+"+MangoManager.CallerNumber;
 		}
 
 		public IDictionary<string, CounterpartyOrderView> GetCounterpartyViewModels()
