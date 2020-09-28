@@ -43,7 +43,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		#region Действия View
 		public string GetPhoneNumber()
 		{
-			return MangoManager.CallerNumber;
+			return "+"+MangoManager.CallerNumber;
 		}
 
 		public string GetCallerName()
