@@ -61,6 +61,10 @@ namespace Vodovoz.ViewModels.Goods
 		public bool VisibilityWaterCategoryItems =>
 			Entity.Category == NomenclatureCategory.water;
 		
+		public bool VisibilityWaterOrBottleCategoryItems =>
+			Entity.Category == NomenclatureCategory.water 
+			|| Entity.Category == NomenclatureCategory.bottle;
+		
 		public bool VisibilitySalesCategoriesItems =>
 			Nomenclature.GetCategoriesWithSaleCategory().Contains(Entity.Category);
 		
@@ -97,6 +101,7 @@ namespace Vodovoz.ViewModels.Goods
 			SetPropertyChangeRelation(
 				e => e.Category,
 				() => VisibilityWaterInNotDisposableTareCategoryItems,
+				() => VisibilityWaterOrBottleCategoryItems,
 				() => VisibilityWaterCategoryItems,
 				() => VisibilitySalesCategoriesItems,
 				() => VisibilityMasterCategoryItems,
