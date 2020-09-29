@@ -1138,9 +1138,9 @@ GROUP BY s.id;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="StartDate">
-      <DataType>System.String</DataType>
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1148,7 +1148,7 @@ GROUP BY s.id;</CommandText>
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="EndDate">
-      <DataType>System.String</DataType>
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

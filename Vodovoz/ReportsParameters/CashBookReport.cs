@@ -57,11 +57,11 @@ namespace Vodovoz.ReportsParameters
 		
 		private ReportInfo GetReportInfo()
 		{
-			string startDate = $"{dateperiodpicker.StartDate:yyyy-MM-dd}";
-			string endDate = $"{dateperiodpicker.EndDate:yyyy-MM-dd}";
+			string startDate = $"{dateperiodpicker.StartDate}";
+			string endDate = $"{dateperiodpicker.EndDate}";
 			var parameters = new Dictionary<string, object> {
-				{ "StartDate", startDate },
-				{ "EndDate", endDate },
+				{ "StartDate", dateperiodpicker.StartDateOrNull.Value},
+				{ "EndDate", dateperiodpicker.EndDateOrNull.Value.AddHours(23).AddMinutes(59).AddSeconds(59) },
 				{ "Cash", ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem).Id }
 			};
 
