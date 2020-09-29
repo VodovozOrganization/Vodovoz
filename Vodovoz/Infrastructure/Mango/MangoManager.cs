@@ -263,6 +263,8 @@ namespace Vodovoz.Infrastructure.Mango
 
 		private void AddNewIncome(NotificationMessage message)
 		{
+			if(IncomingCalls.Any(x => x.Message == message))
+				return;
 			IncomingCalls.Add(new IncomingCall(message));
 			OnPropertyChanged(nameof(IncomingCalls));
 		}
