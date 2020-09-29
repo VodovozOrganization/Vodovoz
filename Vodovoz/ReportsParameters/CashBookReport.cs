@@ -42,7 +42,7 @@ namespace Vodovoz.ReportsParameters
 			
 			yspeccomboboxCashSubdivision.SetRenderTextFunc<Subdivision>(s => s.Name);
 			yspeccomboboxCashSubdivision.ItemsList = subdivisions;
-			yspeccomboboxCashSubdivision.SelectedItem = UserSubdivisions.First();
+			yspeccomboboxCashSubdivision.SelectedItem = UserSubdivisions.Count != 0 ? UserSubdivisions?.First() : subdivisions.First();
 			#endregion
 			
 			buttonCreateRepot.Clicked += OnButtonCreateRepotClicked;

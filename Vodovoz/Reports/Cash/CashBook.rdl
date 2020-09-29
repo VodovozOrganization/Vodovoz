@@ -73,119 +73,6 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>16.2pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox76">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox77">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox78">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox79">
-                      <Value>Остаток на начало периода:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Right</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Normal</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox80">
-                      <Value>=First(Fields!balance,'StartBalance')</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Right >None</Right>
-                        </BorderStyle>
-                        <FontWeight>Normal</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox81">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left >None</Left>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
               <Height>38.1pt</Height>
               <TableCells>
                 <TableCell>
@@ -329,7 +216,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -362,7 +249,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -377,7 +264,7 @@
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Right >None</Right>
+                          <Right>None</Right>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -394,8 +281,8 @@
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Right >Solid</Right>
-                          <Left >None</Left>
+                          <Right>Solid</Right>
+                          <Left>None</Left>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -410,7 +297,7 @@
           </TableRows>
         </Details>
         <Left>18.9pt</Left>
-        <Top>39.2pt</Top>
+        <Top>48.8pt</Top>
         <PageBreakAtEnd>false</PageBreakAtEnd>
         <Footer>
           <TableRows>
@@ -490,7 +377,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -508,8 +395,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum(Fields!income.Value)</Value>
                     </Textbox>
@@ -529,8 +416,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -613,7 +500,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -634,8 +521,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -727,7 +614,7 @@
                             <BorderColor />
                             <BorderWidth />
                             <TextAlign>Right</TextAlign>
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>Итого за день:</Value>
                         </Textbox>
@@ -739,12 +626,12 @@
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Right >None</Right>
+                              <Right>None</Right>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign >Center</TextAlign>
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>=Sum(Fields!income.Value)</Value>
                         </Textbox>
@@ -756,12 +643,12 @@
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Left >None</Left>
+                              <Left>None</Left>
                             </BorderStyle>
-                            <BorderColor  />
-                            <BorderWidth  />
-                            <TextAlign >Center</TextAlign>
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>=Sum(Fields!expance.Value)</Value>
                         </Textbox>
@@ -985,12 +872,12 @@
         </Style>
       </Textbox>
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>16.50pt</Height>
-        <Width>234.02pt</Width>
-        <Value>= "Касса " + First(Fields!name,'SubdivisionName') + " за " + Format(CDate({?StartDate}), "dd.MM.yyyy")</Value>
+        <Height>16.49pt</Height>
+        <Width>372.43pt</Width>
+        <Value>= "Касса " + First(Fields!name,'SubdivisionName') + " за " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " - " + Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>2.1pt</Left>
-        <Top>9.8pt</Top>
+        <Left>2.10pt</Left>
+        <Top>9.80pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1010,6 +897,36 @@
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox27" >
+        <Height>14.25pt</Height>
+        <Width>139.91pt</Width>
+        <Value>Остаток на начало периода:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>245.40pt</Left>
+        <Top>34.30pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox28" >
+        <Height>12.75pt</Height>
+        <Width>148.32pt</Width>
+        <Value>=First(Fields!balance,'StartBalance')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>385.20pt</Left>
+        <Top>35.80pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Left</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
     </ReportItems>
@@ -1034,7 +951,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>75</Timeout>
         <CommandText>SELECT this_.date as doc_date,
@@ -1092,7 +1009,7 @@ WHERE this_.related_to_subdivision_id = @Cash
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="doc_date">
           <DataField>doc_date</DataField>
         </Field>
