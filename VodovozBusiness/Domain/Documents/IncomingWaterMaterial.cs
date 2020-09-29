@@ -10,8 +10,8 @@ using Vodovoz.Domain.Store;
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "сырьё",
-		Nominative = "сырьё")]
+		NominativePlural = "Строки производства (сырьё)",
+		Nominative = "Строка производства (сырьё)")]
 	[HistoryTrace]
 	public class IncomingWaterMaterial : PropertyChangedBase, IDomainObject
 	{
