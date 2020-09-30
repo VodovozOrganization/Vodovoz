@@ -44,7 +44,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			}
 		}
 
-
 		public Counterparty currentCounterparty { get;private set; }
 		public event System.Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
@@ -73,12 +72,11 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				currentCounterparty = CounterpartyOrdersModels.First().Client;
 			} else
 				throw new ArgumentNullException(nameof(clients));
-
 		}
 
 		public string GetPhoneNumber()
 		{
-			return "+"+MangoManager.CallerNumber;
+			return "+7" + Phone.Number;
 		}
 
 		public IDictionary<string, CounterpartyOrderView> GetCounterpartyViewModels()
@@ -115,8 +113,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			if(e.CloseSource == CloseSource.Save) {
 				List<Counterparty> clients = new List<Counterparty>();
 				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
-				Phone phone = new Phone() { Number = MangoManager.CallerNumber };
-				client.Phones.Add(phone);
+				client.Phones.Add(Phone);
 				clients.Add(client);
 				UoW.Save<Counterparty>(client);
 				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository);
@@ -132,17 +129,18 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
 			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
 			Counterparty firstClient = clients.First();
-			if(interactive.Question($"Доабать телефон к контагенту {firstClient.Name} ?", "Телефон контрагента")) {
-				Phone phone = new Phone() { Number = MangoManager.CallerNumber };
-				firstClient.Phones.Add(phone);
-				UoW.Save<Counterparty>(firstClient);
-				UoW.Commit();
-				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory,tdiNavigation, routedListRepository);
-				counterpartyOrdersModels.Add(model);
-				currentCounterparty = firstClient;
-				CounterpartyOrdersModelsUpdateEvent();
+			if(counterpartyOrdersModels.FirstOrDefault(c => c.Client.Id == firstClient.Id) == null) {
+				if(interactive.Question($"Доабать телефон к контагенту {firstClient.Name} ?", "Телефон контрагента")) {
+					firstClient.Phones.Add(Phone);
+					UoW.Save<Counterparty>(firstClient);
+					UoW.Commit();
+					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository);
+					counterpartyOrdersModels.Add(model);
+					currentCounterparty = firstClient;
+					CounterpartyOrdersModelsUpdateEvent();
 
-			}
+				}
+			} else return;
 			(sender as CounterpartyJournalViewModel).OnEntitySelectedResult -= ExistingCounterparty_PageClosed;
 		}
 
@@ -175,6 +173,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			var parameters = new Dictionary<string, object> {
 				{"client", currentCounterparty},
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
+				//Autofac: IUnitOfWorkFactory
+				//{"unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory},
 				//Autofac: IEmployeeService 
 				{"employeeSelectorFactory", employeeSelectorFactory},
 				{"counterpartySelectorFactory", counterpartySelectorFactory},

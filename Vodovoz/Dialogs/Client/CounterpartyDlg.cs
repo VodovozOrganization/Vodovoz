@@ -116,11 +116,11 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public CounterpartyDlg(string phoneNumber)
+		public CounterpartyDlg(Phone phone)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
-			Entity.Phones.Add(new Phone() { Number = phoneNumber });
+			Entity.Phones.Add(phone);
 			ConfigureDlg();
 		}
 		void ConfigureDlg()

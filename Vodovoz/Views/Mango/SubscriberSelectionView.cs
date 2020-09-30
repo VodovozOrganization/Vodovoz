@@ -65,7 +65,10 @@ namespace Vodovoz.Views.Mango
 
 			if(s.Length > 11)
 				return false;
-			else if(s.Length == 10)
+			else if(s.Length == 11 && s.First() == '8') {
+				s = s.Remove(0, 1);
+				s = "7" + s;
+			} else if(s.Length == 10)
 				s = "7" + s;
 			else if(s.Length < 10 && s.Length > 3)
 				return false;

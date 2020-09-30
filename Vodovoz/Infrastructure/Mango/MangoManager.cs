@@ -5,6 +5,7 @@ using System.Threading;
 using ClientMangoService;
 using Gtk;
 using MangoService;
+using NHibernate.Util;
 using NLog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
@@ -12,8 +13,10 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.Utilities;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
@@ -82,8 +85,9 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public string CallerName => LastMessage.CallFrom.Names != null ? String.Join("\n", LastMessage.CallFrom.Names.Select(x => x.Name)) : null;
 		public string CallerNumber => LastMessage?.CallFrom.Number;
+		public Phone Phone => new Phone(CallerNumber, CallerName); 
 		public bool IsOutgoing => LastMessage?.Direction == CallDirection.Outgoing || IncomingCalls.Any(x => x.IsOutgoing);
-		public bool IsTransfer => LastMessage.IsTransfer;
+		public bool IsTransfer => LastMessage?.IsTransfer ?? false;
 		public Caller PrimaryCaller => LastMessage?.PrimaryCaller;
 
 		public List<IncomingCall> IncomingCalls { get; set; } = new List<IncomingCall>();
@@ -163,11 +167,13 @@ namespace Vodovoz.Infrastructure.Mango
 				OnPropertyChanged(nameof(StageDuration));
 			if(IncomingCalls.Any())
 				OnPropertyChanged("IncomingCalls.Time");
+
+
+			IncomingCalls.RemoveAll(x => x.StageDuration.Value.TotalSeconds > 120d);
 			return true;
 		}
 		#endregion
-		#region Private
-		public List<Counterparty> Clients { get; private set; } = new List<Counterparty>();
+		public IList<Counterparty> Clients { get; private set; } = new List<Counterparty>();
 		public Employee Employee { get; private set; } = null;
 		public List<DeliveryPoint> DeliveryPoints { get; private set; } = new List<DeliveryPoint>();
 
@@ -185,27 +191,20 @@ namespace Vodovoz.Infrastructure.Mango
 
 			using (var uow = unitOfWorkFactory.CreateWithoutRoot())
 			{
-				foreach (var item in LastMessage.CallFrom.Names)
+				var counterpartyIds = LastMessage.CallFrom.Names.Select(x => x.CounterpartyId).Where(x => x != 0).Distinct().ToArray();
+				List<int> cIds = new List<int>();
+				foreach (var id in counterpartyIds)
 				{
-					int id = Convert.ToInt32(item.CounterpartyId);
-					Counterparty client = uow.GetById<Counterparty>(id);
-					if (client != null)
-						Clients.Add(client);
-
-					id = Convert.ToInt32(item.EmployeeId);
-					Employee employee = uow.GetById<Employee>(id);
-					if (employee != null)
-						this.Employee = employee;
-
-					id = Convert.ToInt32(item.DeliveryPointId);
-					DeliveryPoint deliveryPoint = uow.GetById<DeliveryPoint>(id);
-					if (deliveryPoint != null)
-						DeliveryPoints.Add(deliveryPoint);
+					int i = Convert.ToInt32(id);
+					cIds.Add(i);
 				}
+				Clients = uow.GetById<Counterparty>(cIds);
+				var employeeId = LastMessage.CallFrom.Names.Select(x => x.EmployeeId).FirstOrDefault();
+				if(employeeId != null)
+					Employee = uow.GetById<Employee>(Convert.ToInt32(employeeId));
 			}
 		}
 
-		#endregion
 		#region Работа с сообщениями
 
 		private void HandleMessage(NotificationMessage message)
@@ -214,7 +213,7 @@ namespace Vodovoz.Infrastructure.Mango
 				ConnectionState = ConnectionState.Ring;
 				AddNewIncome(message);
 				if(CurrentPage == null) {
-					CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
+					CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this , OpenPageOptions.IgnoreHash);
 					CurrentPage.PageClosed += CurrentPage_PageClosed;
 				}
 				return;
@@ -260,11 +259,11 @@ namespace Vodovoz.Infrastructure.Mango
 			if(CurrentPage != null)
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
 		}
-
 		private void AddNewIncome(NotificationMessage message)
 		{
-			if(IncomingCalls.Any(x => x.Message == message))
+			if(IncomingCalls.Any(x => x.Message == message)) {
 				return;
+			}
 			IncomingCalls.Add(new IncomingCall(message));
 			OnPropertyChanged(nameof(IncomingCalls));
 		}
@@ -297,6 +296,8 @@ namespace Vodovoz.Infrastructure.Mango
 		public void HangUp()
 		{
 			mangoController.HangUp(LastMessage.CallId);
+			IncomingCalls.Clear();
+			CurrentPage = null;
 		}
 
 		public IEnumerable<MangoService.DTO.Group.Group> GetAllVPBXGroups()

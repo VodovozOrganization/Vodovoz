@@ -40,12 +40,12 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public string GetPhoneNumber()
 		{
-			return "+"+MangoManager.CallerNumber;
+			return "+7"+Phone.Number;
 		}
 
 		public void SelectNewConterparty()
 		{
-			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg,string>(this,MangoManager.CallerNumber);
+			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg,Phone>(this,Phone);
 			var tab = page.TdiTab as CounterpartyDlg;
 			page.PageClosed += NewCounerpatry_PageClosed;
 		}
@@ -76,8 +76,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
 			Counterparty firstClient = clients.First();
 			if(interactive.Question($"Доабать телефон к контагенту {firstClient.Name} ?", "Телефон контрагента")) {
-				Phone phone = new Phone(){Number = MangoManager.CallerNumber};
-				firstClient.Phones.Add(phone);
+				firstClient.Phones.Add(Phone);
 				UoW.Save<Counterparty>(firstClient);
 				UoW.Commit();
 
@@ -92,7 +91,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
 				{"employeeSelectorFactory", new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices)},
 				{"counterpartySelectorFactory", new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices)},
-				{"phone", "не реализовано"}//FIXME
+				{"phone", "+7"+Phone.Number}
 			};
 			tdiNavigation.OpenTdiTabNamedArgs<CreateComplaintViewModel>(null, parameters);
 		}

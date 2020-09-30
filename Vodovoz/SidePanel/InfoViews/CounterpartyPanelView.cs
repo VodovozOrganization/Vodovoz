@@ -97,8 +97,10 @@ namespace Vodovoz.SidePanel.InfoViews
 				PhonesTable.Resize(rowsCount, 2);
 				for(uint row = 0; row < rowsCount - 1; row++) {
 					Label label = new Label();
-					label.Markup = $"<b>+7{Counterparty.Phones[Convert.ToInt32(row)].DigitsNumber}</b>";
-					HandsetView handsetView = new HandsetView(Counterparty.Phones[Convert.ToInt32(row)].Number);
+					label.Markup = $"<b>+{Counterparty.Phones[Convert.ToInt32(row)].Number}</b>";
+
+					HandsetView handsetView = new HandsetView(Counterparty.Phones[Convert.ToInt32(row)].DigitsNumber);
+
 					PhonesTable.Attach(label, 0, 1, row, row + 1);
 					PhonesTable.Attach(handsetView, 1, 2, row, row + 1);
 				}

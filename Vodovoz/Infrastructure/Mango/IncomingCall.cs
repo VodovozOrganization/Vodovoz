@@ -5,21 +5,21 @@ namespace Vodovoz.Infrastructure.Mango
 {
 	public class IncomingCall
 	{
-		private readonly NotificationMessage message;
+		public readonly NotificationMessage Message;
 
 		public IncomingCall(NotificationMessage message)
 		{
-			this.message = message ?? throw new ArgumentNullException(nameof(message));
+			this.Message = message ?? throw new ArgumentNullException(nameof(message));
 		}
 
-		public string CallId => message.CallId;
+		public string CallId => Message.CallId;
 
-		public DateTime? StageBegin => message.Timestamp.ToDateTime();
-		public TimeSpan? StageDuration => DateTime.Now - StageBegin;
+		public DateTime? StageBegin => Message.Timestamp.ToDateTime();
+		public TimeSpan? StageDuration => DateTime.UtcNow - StageBegin;
 
-		public string CallerName => message.CallFrom?.Names != null ? String.Join("\n", message.CallFrom.Names.Select(x => x.Name)) : null;
-		public string CallerNumber => message.CallFrom?.Number;
+		public string CallerName => Message.CallFrom?.Names != null ? String.Join("\n", Message.CallFrom.Names.Select(x => x.Name)) : null;
+		public string CallerNumber => Message.CallFrom?.Number;
 
-		public bool IsOutgoing => message?.Direction == CallDirection.Outgoing;
+		public bool IsOutgoing => Message?.Direction == CallDirection.Outgoing;
 	}
 }

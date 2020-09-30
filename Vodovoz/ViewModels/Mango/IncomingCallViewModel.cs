@@ -4,6 +4,7 @@ using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Utilities.Numeric;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure.Mango;
@@ -31,7 +32,11 @@ namespace Vodovoz.ViewModels.Mango
 				if(manager.PrimaryCaller != null) {
 					if(manager.Employee != null)
 						onLine = manager.Employee.Name;
-					else onLine = manager.PrimaryCaller.Number;
+					else {
+						var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
+						string loc = "+7"+formatter.FormatString(manager.PrimaryCaller.Number);
+						onLine = loc;
+					}
 				}
 			}
 			IsModal = false;

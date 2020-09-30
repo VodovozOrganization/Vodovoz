@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using QS.Dialog;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Infrastructure.Mango;
 
 namespace Vodovoz.ViewModels.Mango.Talks
 {
 	public class TalkViewModelBase : WindowDialogViewModelBase
 	{
+		public readonly Phone Phone; 
 		protected readonly MangoManager MangoManager;
 
 		public TalkViewModelBase(INavigationManager navigation, MangoManager manager) : base(navigation)
@@ -18,6 +20,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			SetTitle();
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
+			Phone = manager.Phone;
 		}
 
 		void Manager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

@@ -62,21 +62,30 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelAddress.Text = DeliveryPoint.CompiledAddress;
 
 			if(DeliveryPoint.Phones.Count > 0) {
-				uint rowsCount = Convert.ToUInt32(DeliveryPoint.Phones.Count);
+				uint rowsCount = Convert.ToUInt32(DeliveryPoint.Phones.Count) + 1;
 				PhonesTable.Resize(rowsCount, 2);
-				for(uint row = 0; row < rowsCount; row++) {
+				for(uint row = 0; row < rowsCount - 1; row++) {
 					Label label = new Label();
-					label.Markup = $"<b>+7{DeliveryPoint.Phones[Convert.ToInt32(row)].DigitsNumber}</b>";
-					HandsetView handsetView = new HandsetView(DeliveryPoint.Phones[Convert.ToInt32(row)].Number);
+					label.Markup = $"<b>+{DeliveryPoint.Phones[Convert.ToInt32(row)].Number}</b>";
+
+					HandsetView handsetView = new HandsetView(DeliveryPoint.Phones[Convert.ToInt32(row)].DigitsNumber);
+
 					PhonesTable.Attach(label, 0, 1, row, row + 1);
 					PhonesTable.Attach(handsetView, 1, 2, row, row + 1);
 				}
-			}
-			PhonesTable.ShowAll();
 
-			//labelPhone.LabelProp = String.Join(";\n", DeliveryPoint.Phones.Select(ph => ph.LongText));
-			if(DeliveryPoint.Phones.Count <= 0)
-				labelPhone.Text = "[+] чтоб добавить -->";
+				Label labelAddPhone = new Label() { LabelProp = "Щёлкните чтоб\n добавить телефон-->" };
+				PhonesTable.Attach(labelAddPhone, 0, 1, rowsCount - 1, rowsCount);
+
+				Image addIcon = new Image();
+				addIcon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-add", IconSize.Menu);
+				Button btn = new Button();
+				btn.Image = addIcon;
+				btn.ClientEvent += OnBtnAddPhoneClicked;
+				PhonesTable.Attach(btn, 1, 2, rowsCount - 1, rowsCount);
+			}
+
+			PhonesTable.ShowAll();
 
 			var bottlesAtDeliveryPoint = BottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			var bottlesAvgDeliveryPoint = DeliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);

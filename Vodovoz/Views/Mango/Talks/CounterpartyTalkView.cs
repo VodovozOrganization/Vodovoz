@@ -26,6 +26,9 @@ namespace Vodovoz.Views.Mango.Talks
 			}
 			WidgetPlace.SwitchPage += ChangeCurrentPage_WidgetPlace;
 			ViewModel.CounterpartyOrdersModelsUpdateEvent += Update_WidgetPlace;
+			CostAndDeliveryIntervalButton.Sensitive =
+				ViewModel.currentCounterparty.DeliveryPoints != null ||
+				ViewModel.currentCounterparty.DeliveryPoints.Count > 0 ? true : false;
 		}
 
 		#region Events
@@ -49,6 +52,9 @@ namespace Vodovoz.Views.Mango.Talks
 				WidgetPlace.AppendPage(widget, label);
 				WidgetPlace.ShowAll();
 			}
+			CostAndDeliveryIntervalButton.Sensitive =
+				ViewModel.currentCounterparty.DeliveryPoints != null ||
+				ViewModel.currentCounterparty.DeliveryPoints.Count > 0 ? true : false;
 		}
 
 		protected void Clicked_NewClientButton(object sender, EventArgs e)
@@ -85,14 +91,17 @@ namespace Vodovoz.Views.Mango.Talks
 
 		private void Clicked_CostAndDeliveryIntervalButton(object sender, EventArgs e)
 		{
-			Gtk.Menu popupMenu = new Menu();
-			foreach(var point in ViewModel.currentCounterparty.DeliveryPoints) {
-				MenuItem item = new MenuItem($"{point.ShortAddress}");
-				item.ButtonPressEvent += delegate(object s, ButtonPressEventArgs _e) { ViewModel.CostAndDeliveryIntervalCommand(point); };
-				popupMenu.Add(item);
+			if(ViewModel.currentCounterparty.DeliveryPoints != null || ViewModel.currentCounterparty.DeliveryPoints.Count > 0) {
+				Gtk.Menu popupMenu = new Menu();
+				foreach(var point in ViewModel.currentCounterparty.DeliveryPoints) {
+					MenuItem item = new MenuItem($"{point.ShortAddress}");
+					item.ButtonPressEvent += delegate (object s, ButtonPressEventArgs _e) { ViewModel.CostAndDeliveryIntervalCommand(point); };
+					popupMenu.Add(item);
+				}
+
+				popupMenu.ShowAll();
+				popupMenu.Popup();
 			}
-			popupMenu.ShowAll();
-			popupMenu.Popup();
 		}
 
 		#region MangoEvents
