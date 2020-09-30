@@ -1,7 +1,6 @@
 ﻿using System;
 using Gtk;
 using QS.Tdi;
-using QS.Tdi.Gtk;
 using System.Reflection;
 using QS.HistoryLog;
 using QS.Banks.Domain;
@@ -10,6 +9,7 @@ namespace Vodovoz.Core
 {
 	public class BasedOnNameViewModelWidgetResolver : ViewModelWidgetResolver
 	{
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private Assembly[] usedAssemblies;
 
 		public BasedOnNameViewModelWidgetResolver()
@@ -29,11 +29,12 @@ namespace Vodovoz.Core
 			try {
 				return base.Resolve(tab);
 			} catch(Exception ex) {
+				logger.Debug(ex);
 				try {
 					var baseOnNameResolver = new BasedOnNameTDIResolver(usedAssemblies);
 					return baseOnNameResolver.Resolve(tab);
 				} catch(Exception e) {
-					throw new InvalidProgramException("Невозможно найти View для ViewModel вкладки. Имя класса ViewModel не соответствует шаблону именования или не настроено правильное сопоставление");
+					throw new InvalidProgramException("Невозможно найти View для ViewModel вкладки. Имя класса ViewModel не соответствует шаблону именования или не настроено правильное сопоставление", e);
 				}
 			}
 		}
