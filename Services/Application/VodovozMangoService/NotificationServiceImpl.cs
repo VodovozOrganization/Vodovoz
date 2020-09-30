@@ -278,8 +278,8 @@ namespace VodovozMangoService
 			if (user != null)
 			{
 				string name = user.general.name;
-				if (String.IsNullOrWhiteSpace(user.general.department))
-					name += "("+user.general.department+")";
+				if (!String.IsNullOrWhiteSpace(user.general.department))
+					name += $" ({user.general.department})";
 				caller.Names.Add(new CallerName {Name = name});
 			}
 
