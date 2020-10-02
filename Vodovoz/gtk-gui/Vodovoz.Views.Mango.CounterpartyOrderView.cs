@@ -20,8 +20,6 @@ namespace Vodovoz.Views.Mango
 
 		private global::Gtk.EventBox TreeViewEventBox;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
-
 		private global::Gamma.GtkWidgets.yTreeView OrderYTreeView;
 
 		protected virtual void Build()
@@ -78,6 +76,8 @@ namespace Vodovoz.Views.Mango
 			this.CommTextView = new global::Gtk.TextView();
 			this.CommTextView.CanFocus = true;
 			this.CommTextView.Name = "CommTextView";
+			this.CommTextView.Editable = false;
+			this.CommTextView.CursorVisible = false;
 			this.GtkScrolledWindow.Add(this.CommTextView);
 			this.table3.Add(this.GtkScrolledWindow);
 			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table3[this.GtkScrolledWindow]));
@@ -100,20 +100,15 @@ namespace Vodovoz.Views.Mango
 			this.TreeViewEventBox = new global::Gtk.EventBox();
 			this.TreeViewEventBox.Name = "TreeViewEventBox";
 			// Container child TreeViewEventBox.Gtk.Container+ContainerChild
-			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
-			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
 			this.OrderYTreeView = new global::Gamma.GtkWidgets.yTreeView();
 			this.OrderYTreeView.CanFocus = true;
 			this.OrderYTreeView.Name = "OrderYTreeView";
-			this.GtkScrolledWindow1.Add(this.OrderYTreeView);
-			this.TreeViewEventBox.Add(this.GtkScrolledWindow1);
+			this.TreeViewEventBox.Add(this.OrderYTreeView);
 			this.table3.Add(this.TreeViewEventBox);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table3[this.TreeViewEventBox]));
-			w9.TopAttach = ((uint)(5));
-			w9.BottomAttach = ((uint)(6));
-			w9.RightAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table3[this.TreeViewEventBox]));
+			w8.TopAttach = ((uint)(5));
+			w8.BottomAttach = ((uint)(6));
+			w8.RightAttach = ((uint)(3));
 			this.Add(this.table3);
 			if ((this.Child != null))
 			{

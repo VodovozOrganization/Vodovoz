@@ -22,10 +22,21 @@ namespace Vodovoz.Views.Mango.Talks
 				var label = new Gtk.Label(item.Client.Name);
 				var widget = new CounterpartyOrderView(item);
 				WidgetPlace.AppendPage(widget, label);
-				WidgetPlace.ShowAll();
 			}
-			WidgetPlace.SwitchPage += ChangeCurrentPage_WidgetPlace;
+			var p_label = new Gtk.Label("+ Новый контргагент");
+			var p_widget = new Button() { Name = "New" };
+			WidgetPlace.AppendPage(p_widget, p_label);
+
+			var ex_label = new Gtk.Label("Существующий контрагент");
+			var ex_widget = new Button() { Name = "Exi" };
+			WidgetPlace.AppendPage(ex_widget, ex_label);
+
+			WidgetPlace.ShowAll();
+
+
+			WidgetPlace.SwitchPage += SwitchPage_WidgetPlace;
 			ViewModel.CounterpartyOrdersModelsUpdateEvent += Update_WidgetPlace;
+
 			CostAndDeliveryIntervalButton.Sensitive =
 				ViewModel.currentCounterparty.DeliveryPoints != null ||
 				ViewModel.currentCounterparty.DeliveryPoints.Count > 0 ? true : false;
@@ -33,25 +44,48 @@ namespace Vodovoz.Views.Mango.Talks
 
 		#region Events
 
-		private void ChangeCurrentPage_WidgetPlace(object sender, EventArgs e)
+		uint lastPage;
+
+		private void SwitchPage_WidgetPlace(object sender, SwitchPageArgs args)
 		{
-			Notebook widget = (Notebook)sender;
-			Counterparty counterparty = (widget.CurrentPageWidget as CounterpartyOrderView).ViewModel.Client;
-			ViewModel.UpadateCurrentCounterparty(counterparty);
+			Notebook place = (Notebook)sender;
+			Console.WriteLine($"Текущая страница: {args.PageNum} , {place.GetTabLabelText(place.CurrentPageWidget)}");
+			if(args.PageNum == place.NPages - 1 && place.GetTabLabelText(place.CurrentPageWidget) == "Существующий контрагент") {
+				ViewModel.ExistingClientCommand();
+				place.Page = Convert.ToInt32(lastPage);
+			}
+			else if(args.PageNum == place.NPages - 2 && place.GetTabLabelText(place.CurrentPageWidget) == "+ Новый контргагент") {
+				ViewModel.NewClientCommand();
+				place.Page = Convert.ToInt32(lastPage);
+
+			} else {
+				Counterparty counterparty = (place.CurrentPageWidget as CounterpartyOrderView).ViewModel.Client;
+				ViewModel.UpadateCurrentCounterparty(counterparty);
+				lastPage = args.PageNum;
+			}
 		}
 
 		public void Update_WidgetPlace()
 		{
-			int count = WidgetPlace.Children.GetLength(0);
+			int count = WidgetPlace.NPages;
 			for(int i = 0; i < count; i++) {
-				WidgetPlace.RemovePage(i);
+				WidgetPlace.RemovePage(0);
 			}
 			foreach(var item in ViewModel.CounterpartyOrdersModels) {
 				var label = new Gtk.Label(item.Client.Name);
 				var widget = new CounterpartyOrderView(item);
 				WidgetPlace.AppendPage(widget, label);
-				WidgetPlace.ShowAll();
 			}
+			var p_label = new Gtk.Label("+ Новый контргагент");
+			var p_widget = new Button() { Name = "New" };
+			WidgetPlace.AppendPage(p_widget, p_label);
+
+			var ex_label = new Gtk.Label("Существующий контрагент");
+			var ex_widget = new Button() { Name = "Exit" };
+			WidgetPlace.AppendPage(ex_widget, ex_label);
+
+			WidgetPlace.ShowAll();
+
 			CostAndDeliveryIntervalButton.Sensitive =
 				ViewModel.currentCounterparty.DeliveryPoints != null ||
 				ViewModel.currentCounterparty.DeliveryPoints.Count > 0 ? true : false;

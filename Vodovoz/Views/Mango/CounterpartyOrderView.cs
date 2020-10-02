@@ -57,8 +57,22 @@ namespace Vodovoz.Views.Mango
 				popupMenu.Add(item2);
 
 				MenuItem item3 = new MenuItem("Перейти в МЛ");
-				item3.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.OpenRoutedList(selectedOrder); };
-				popupMenu.Add(item3);
+				if(
+					selectedOrder.OrderStatus == OrderStatus.NewOrder ||
+					selectedOrder.OrderStatus == OrderStatus.Accepted ||
+					selectedOrder.OrderStatus == OrderStatus.OnLoading ||
+					//FIXME WaitForPayment?
+					//FIXME UnloadingOnStock?
+					selectedOrder.OrderStatus == OrderStatus.OnTheWay ||
+					selectedOrder.OrderStatus == OrderStatus.InTravelList ||
+					//FIXME NotDelivered?
+					selectedOrder.OrderStatus == OrderStatus.Closed ||
+					selectedOrder.OrderStatus == OrderStatus.Shipped )
+					{
+
+					item3.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.OpenRoutedList(selectedOrder); };
+					popupMenu.Add(item3);
+				}
 
 				if(selectedOrder.OrderStatus == OrderStatus.NotDelivered) {
 					MenuItem item4 = new MenuItem("Перейти в недовоз");
@@ -77,7 +91,8 @@ namespace Vodovoz.Views.Mango
 
 				MenuItem item6 = new MenuItem("Создать жалобу");
 				item6.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.CreateComplaint(selectedOrder); };
-
+				popupMenu.Add(item6);
+				
 				popupMenu.ShowAll();
 				popupMenu.Popup();
 			}

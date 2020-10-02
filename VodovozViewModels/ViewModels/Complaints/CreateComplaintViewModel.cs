@@ -9,6 +9,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -67,7 +68,27 @@ namespace Vodovoz.ViewModels.Complaints
 			IUserRepository userRepository,
 			string phone = null) : this(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,nomenclatureSelectorFactory,nomenclatureRepository,userRepository,phone)
 		{
-			Entity.Counterparty = client;
+			Counterparty _client = UoW.GetById<Counterparty>(client.Id);
+			Entity.Counterparty = _client;
+			Entity.Phone = phone;
+		}
+		
+		public CreateComplaintViewModel(Order order,
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IEmployeeService employeeService,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			ISubdivisionRepository subdivisionRepository,
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository,
+			string phone = null) : this(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,nomenclatureSelectorFactory,nomenclatureRepository,userRepository,phone)
+		{
+			Order _order = UoW.GetById<Order>(order.Id);
+			Entity.Order = _order;
+			Entity.Counterparty = _order.Client;
 			Entity.Phone = phone;
 		}
 
