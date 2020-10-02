@@ -2920,7 +2920,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(!SelfDelivery)
 				return;
-			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard || PaymentType != PaymentType.Terminal)
+			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard)
 				return;
 			if(OrderStatus != OrderStatus.WaitForPayment)
 				return;
@@ -4149,6 +4149,13 @@ namespace Vodovoz.Domain.Orders
 			if(SelfDelivery && PaymentType == PaymentType.ContractDoc) {
 				yield return new ValidationResult(
 					"Тип оплаты - контрактная документация невозможен для самовывоза",
+					new[] { this.GetPropertyName(o => o.PaymentType) }
+				);
+			}
+			
+			if(SelfDelivery && PaymentType == PaymentType.Terminal) {
+				yield return new ValidationResult(
+					"Тип оплаты - терминал невозможен для самовывоза",
 					new[] { this.GetPropertyName(o => o.PaymentType) }
 				);
 			}
