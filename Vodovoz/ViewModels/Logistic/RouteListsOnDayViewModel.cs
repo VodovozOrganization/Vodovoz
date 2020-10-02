@@ -1074,7 +1074,7 @@ namespace Vodovoz.ViewModels.Logistic
 				ShowWarningMessage(string.Join("\n", warnings));
 		}
 
-		public void InitializeData(IProgressBarDisplayable progressBar = null)
+		public void InitializeData()
 		{
 			UoW.Session.Clear();
 			if(OrdersOnDay == null) {
@@ -1183,7 +1183,6 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			logger.Info("Загружаем МЛ на {0:d}...", DateForRouting);
-			progressBar?.ProgressAdd();
 
 			var routesQuery1 = new RouteListRepository().GetRoutesAtDay(DateForRouting)
 														.GetExecutableQueryOver(UoW.Session);
@@ -1206,15 +1205,12 @@ namespace Vodovoz.ViewModels.Logistic
 			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
 			RoutesOnDay.ToList().ForEach(rl => rl.CheckAddressOrder());
 
-			progressBar?.ProgressAdd();
 			logger.Info("Загружаем водителей на {0:d}...", DateForRouting);
 			ObservableDriversOnDay.Clear();
 			atWorkRepository.GetDriversAtDay(UoW, DateForRouting, AtWorkDriver.DriverStatus.IsWorking).ToList().ForEach(x => ObservableDriversOnDay.Add(x));
-			progressBar?.ProgressAdd();
 			logger.Info("Загружаем экспедиторов на {0:d}...", DateForRouting);
 			ObservableForwardersOnDay.Clear();
 			atWorkRepository.GetForwardersAtDay(UoW, DateForRouting).ToList().ForEach(x => ObservableForwardersOnDay.Add(x));
-			progressBar?.ProgressAdd();
 		}
 
 		public string GetOrdersInfo(int addressesWithoutCoordinats, int addressesWithoutRoutes, int totalBottlesCountAtDay, int bottlesWithoutRL)

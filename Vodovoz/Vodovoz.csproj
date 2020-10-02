@@ -931,7 +931,6 @@
     <Compile Include="ReportsParameters\Store\DefectiveItemsReport.cs" />
     <Compile Include="DriverTerminal\DriverTerminalWindow.cs" />
     <Compile Include="gtk-gui\Vodovoz.DriverTerminal.DriverTerminalWindow.cs" />
-    <Compile Include="IProgressBarDisplayable.cs" />
     <Compile Include="Dialogs\Logistic\RouresAtDayInfoWnd.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.RouresAtDayInfoWnd.cs" />
     <Compile Include="Dialogs\Employees\TraineeDlg.cs" />
