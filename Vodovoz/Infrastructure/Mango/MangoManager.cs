@@ -85,7 +85,7 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public string CallerName => LastMessage.CallFrom.Names != null ? String.Join("\n", LastMessage.CallFrom.Names.Select(x => x.Name)) : null;
 		public string CallerNumber => LastMessage?.CallFrom.Number;
-		public Phone Phone => new Phone(CallerNumber, CallerName); 
+		public Phone Phone => new Phone(CallerNumber); 
 		public bool IsOutgoing => LastMessage?.Direction == CallDirection.Outgoing || IncomingCalls.Any(x => x.IsOutgoing);
 		public bool IsTransfer => LastMessage?.IsTransfer ?? false;
 		public Caller PrimaryCaller => LastMessage?.PrimaryCaller;
@@ -173,39 +173,21 @@ namespace Vodovoz.Infrastructure.Mango
 			return true;
 		}
 		#endregion
-		public IList<Counterparty> Clients { get; private set; } = new List<Counterparty>();
-		public Employee Employee { get; private set; } = null;
-		public List<DeliveryPoint> DeliveryPoints { get; private set; } = new List<DeliveryPoint>();
+
+		private IEnumerable<int> callerClients => LastMessage.CallFrom.Names.Select(n => Convert.ToInt32(n.CounterpartyId));
+		public List<int> Clients { get; private set; } = new List<int>();
+		public int Employee => LastMessage.CallFrom.Names.Select(n => Convert.ToInt32(n.EmployeeId)).FirstOrDefault();
+		#region Работа с сообщениями
 
 		private void FoundByPhoneItemsConfigure()
 		{
-			if(LastMessage?.CallFrom?.Names == null)
-				return;
-
-			if(Clients != null)
-				Clients = new List<Counterparty>();
-			if(Employee != null)
-				Employee = null;
-			if(DeliveryPoints != null)
-				DeliveryPoints = new List<DeliveryPoint>();
-
-			using (var uow = unitOfWorkFactory.CreateWithoutRoot())
+			if (Clients != null)
 			{
-				var counterpartyIds = LastMessage.CallFrom.Names.Select(x => x.CounterpartyId).Where(x => x != 0).Distinct().ToArray();
-				List<int> cIds = new List<int>();
-				foreach (var id in counterpartyIds)
-				{
-					int i = Convert.ToInt32(id);
-					cIds.Add(i);
-				}
-				Clients = uow.GetById<Counterparty>(cIds);
-				var employeeId = LastMessage.CallFrom.Names.Select(x => x.EmployeeId).FirstOrDefault();
-				if(employeeId != null)
-					Employee = uow.GetById<Employee>(Convert.ToInt32(employeeId));
+				Clients = new List<int>();
+				if(callerClients.Count() > 1)
+					Clients.AddRange(callerClients);
 			}
 		}
-
-		#region Работа с сообщениями
 
 		private void HandleMessage(NotificationMessage message)
 		{
@@ -246,8 +228,8 @@ namespace Vodovoz.Infrastructure.Mango
 				}
 				else
 				{
-					if(Clients.Count() > 0) {
-						CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<Counterparty>>(null, this, Clients);
+					if(Clients != null && Clients.Count() > 0) {
+						CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<int>>(null, this, Clients);
 						CurrentPage.PageClosed += CurrentPage_PageClosed;
 					} else {
 						CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, MangoManager>(null, this);
@@ -279,11 +261,11 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void AddedCounterpartyToCall(Counterparty client , bool changeCallState)
 		{
-			if(Clients == null)
-				Clients = new List<Counterparty>();
-			Clients.Add(client);
+			if (Clients == null)
+				Clients = new List<int>();
+			Clients.Add(client.Id);
 			if(changeCallState) {
-				CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<Counterparty>>(null, this, Clients);
+				CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<int>>(null, this, Clients);
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
 				//if(LastMessage != null && CurrentPage == null)
 					//HandleMessage(LastMessage);

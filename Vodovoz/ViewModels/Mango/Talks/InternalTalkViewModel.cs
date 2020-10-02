@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Utilities.Numeric;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Mango;
 
 namespace Vodovoz.ViewModels.Mango.Talks
@@ -10,11 +12,13 @@ namespace Vodovoz.ViewModels.Mango.Talks
 	public class InternalTalkViewModel : TalkViewModelBase
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+		private readonly IUnitOfWork UoW;
 		private readonly ITdiCompatibilityNavigation tdiCompatibilityNavigation;
 		private readonly IInteractiveQuestion interactive;
 
-		public readonly bool IsTransfer;
-		public string OnLine { get; private set; }
+		public readonly bool IsTransfer = false;
+		private string onLine = null;
+		public string OnLine { get => onLine; private set => onLine = value; }
 
 		public InternalTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
@@ -24,13 +28,20 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.unitOfWorkFactory = unitOfWorkFactory;
 			this.tdiCompatibilityNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
-
+			this.UoW = unitOfWorkFactory.CreateWithoutRoot();
 			if(manager.IsTransfer && manager.PrimaryCaller != null) {
 				IsTransfer = manager.IsTransfer;
 				if(manager.PrimaryCaller != null) {
-					if(manager.Employee != null)
-						OnLine = manager.Employee.Name;
-					else OnLine = manager.PrimaryCaller.Number;
+					if(manager.Employee != 0) {
+						Employee employee = UoW.GetById<Employee>(manager.Employee);
+						onLine = employee.Name;
+					} else {
+						if(MangoManager.PrimaryCaller.Number.Length == 11) {
+							var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
+							string loc = "+7" + formatter.FormatString(manager.PrimaryCaller.Number);
+							onLine = loc;
+						} else onLine = manager.PrimaryCaller.Number;
+					}
 				}
 			}
 
@@ -48,7 +59,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public string GetCallerName()
 		{
-			return Phone.Name;
+			return MangoManager.CallerName;
 		}
 		#endregion
 

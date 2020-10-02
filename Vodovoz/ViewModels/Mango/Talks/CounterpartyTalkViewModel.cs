@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
@@ -47,7 +48,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		public Counterparty currentCounterparty { get;private set; }
 		public event System.Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
-		public CounterpartyTalkViewModel(IEnumerable<Counterparty> clients,
+		public CounterpartyTalkViewModel(IEnumerable<int> clientsIds,
 			INavigationManager navigation,
 			ITdiCompatibilityNavigation tdinavigation,
 			IInteractiveQuestion interactive,
@@ -62,16 +63,17 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.routedListRepository = routedListRepository;
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 
-			if(clients.Count<Counterparty>() > 0) 
+			if(clientsIds.Count() > 0) 
 			{
-				foreach(Counterparty client in clients) 
+				var clients = UoW.GetById<Counterparty>(clientsIds);
+				foreach(Counterparty client in clients)
 				{
-					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, tdinavigation,routedListRepository);
+					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, tdinavigation,routedListRepository,this.MangoManager);
 					CounterpartyOrdersModels.Add(model);
 				}
 				currentCounterparty = CounterpartyOrdersModels.First().Client;
 			} else
-				throw new ArgumentNullException(nameof(clients));
+				throw new ArgumentNullException(nameof(clientsIds));
 		}
 
 		public string GetPhoneNumber()
@@ -116,7 +118,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				client.Phones.Add(Phone);
 				clients.Add(client);
 				UoW.Save<Counterparty>(client);
-				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository);
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager);
 				counterpartyOrdersModels.Add(model);
 				currentCounterparty = client;
 				CounterpartyOrdersModelsUpdateEvent();
@@ -134,7 +136,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 					firstClient.Phones.Add(Phone);
 					UoW.Save<Counterparty>(firstClient);
 					UoW.Commit();
-					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository);
+					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager);
 					counterpartyOrdersModels.Add(model);
 					currentCounterparty = firstClient;
 					CounterpartyOrdersModelsUpdateEvent();
@@ -169,23 +171,23 @@ namespace Vodovoz.ViewModels.Mango.Talks
 					.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
 					nomenclatureRepository, UserSingletonRepository.GetInstance());
 
+			ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 
 			var parameters = new Dictionary<string, object> {
 				{"client", currentCounterparty},
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
-				//Autofac: IUnitOfWorkFactory
-				//{"unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory},
+				{ "unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory },
 				//Autofac: IEmployeeService 
 				{"employeeSelectorFactory", employeeSelectorFactory},
 				{"counterpartySelectorFactory", counterpartySelectorFactory},
-				//Autofac: ISubdivisionRepository
+				{"subdivisionService",subdivisionRepository},
 				//Autofac: ICommonServices
 				{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
 				{"nomenclatureRepository",nomenclatureRepository},
 				//Autofac: IUserRepository
-				{"phone", "7"+MangoManager.CallerNumber }
+				{"phone", "+7" +MangoManager.Phone.Number }
 			};
-			tdiNavigation.OpenTdiTabNamedArgs<CreateComplaintViewModel>(null,parameters);
+			tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null,parameters);
 		}
 
 		public void BottleActCommand()

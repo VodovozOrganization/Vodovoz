@@ -6,22 +6,35 @@ using QS.Dialog;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Validation;
 using QS.ViewModels;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalFilters;
+using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Mango
 {
@@ -35,10 +48,11 @@ namespace Vodovoz.ViewModels.Mango
 
 		private Counterparty client;
 		public Counterparty Client {
-			get { return client;}
+			get { return client; }
 			private set { client = value; }
 		}
 		private ITdiCompatibilityNavigation tdiNavigation;
+		private MangoManager MangoManager { get; set; }
 
 		private readonly RouteListRepository routedListRepository;
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
@@ -47,7 +61,7 @@ namespace Vodovoz.ViewModels.Mango
 
 		private IUnitOfWork UoW;
 
-		public List<Order> LatestOrder {get;private set;}
+		public List<Order> LatestOrder { get; private set; }
 		public Order Order { get; set; }
 
 		public Action RefreshOrders { get; private set; }
@@ -59,16 +73,18 @@ namespace Vodovoz.ViewModels.Mango
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ITdiCompatibilityNavigation tdinavigation,
 			RouteListRepository routedListRepository,
+			MangoManager mangoManager,
 			//IInteractiveMessage interactive,
-			int count = 5) 
+			int count = 5)
 		: base()
 		{
 			this.client = client;
 			this.tdiNavigation = tdinavigation;
 			this.routedListRepository = routedListRepository;
+			this.MangoManager = mangoManager;
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			OrderSingletonRepository orderRepos = OrderSingletonRepository.GetInstance();
-			LatestOrder = orderRepos.GetLatestOrdersForCounterparty(UoW,client,count).ToList();
+			LatestOrder = orderRepos.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
 			RefreshOrders = _RefreshOrders;
 			NotifyConfiguration.Instance.BatchSubscribe(_RefreshCounterparty)
@@ -78,6 +94,8 @@ namespace Vodovoz.ViewModels.Mango
 				.AndWhere(d => client.DeliveryPoints.Any(cd => cd.Id == d.Id));
 
 		}
+
+
 		#endregion
 
 		#region Функции
@@ -102,7 +120,7 @@ namespace Vodovoz.ViewModels.Mango
 		}
 		public void OpenMoreInformationAboutOrder(int id)
 		{
-			var page = tdiNavigation.OpenTdiTab<OrderDlg,int>(null, id,OpenPageOptions.IgnoreHash);
+			var page = tdiNavigation.OpenTdiTab<OrderDlg, int>(null, id, OpenPageOptions.IgnoreHash);
 		}
 
 		public void RepeatOrder(Order order)
@@ -113,14 +131,30 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void OpenRoutedList(Order order)
 		{
-			if(order.OrderStatus == OrderStatus.OnLoading) { 
+			if(order.OrderStatus == OrderStatus.NewOrder ||
+				order.OrderStatus == OrderStatus.Accepted ||
+				order.OrderStatus == OrderStatus.OnLoading
+				//FIXME WaitForPayment?
+				//FIXME UnloadingOnStock?
+				) {
+				tdiNavigation.OpenTdiTab<RouteListCreateDlg>(null);
 
-			} else if(order.OrderStatus == OrderStatus.OnTheWay) {
+			} else if(order.OrderStatus == OrderStatus.OnTheWay ||
+				order.OrderStatus == OrderStatus.InTravelList ||
+				order.OrderStatus == OrderStatus.Closed
+				//FIXME NotDelivered?
+				) {
+
 				RouteList routeList = routedListRepository.GetRouteListByOrder(UoW, order);
 				if(routeList != null)
 					tdiNavigation.OpenTdiTab<RouteListKeepingDlg, RouteList>(null, routeList);
-			} else if (order.OrderStatus == OrderStatus.UnloadingOnStock) {
-			
+
+
+			} else if (order.OrderStatus == OrderStatus.Shipped) {
+
+				RouteList routeList = routedListRepository.GetRouteListByOrder(UoW, order);
+				if(routeList != null)
+					tdiNavigation.OpenTdiTab<RouteListClosingDlg,RouteList>(null, routeList);
 			}
 
 		}
@@ -180,6 +214,41 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void CreateComplaint(Order order)
 		{
+			if (order != null)
+			{
+				var nomenclatureRepository = new NomenclatureRepository();
+
+				IEntityAutocompleteSelectorFactory employeeSelectorFactory =
+					new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						ServicesConfig.CommonServices);
+
+				IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+					new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+						CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+				IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
+							.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
+						nomenclatureRepository, UserSingletonRepository.GetInstance());
+
+				ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+				
+				var parameters = new Dictionary<string, object> {
+					{"order", order},
+					{"uowBuilder", EntityUoWBuilder.ForCreate()},
+					{ "unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory },
+					//Autofac: IEmployeeService 
+					{"employeeSelectorFactory", employeeSelectorFactory},
+					{"counterpartySelectorFactory", counterpartySelectorFactory},
+					{"subdivisionService",subdivisionRepository},
+					//Autofac: ICommonServices
+					{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
+					{"nomenclatureRepository",nomenclatureRepository},
+					//Autofac: IUserRepository
+					{"phone", "+7" +this.MangoManager.Phone.Number }
+				};
+				tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
+			}
 		}
 		#endregion
 

@@ -12,12 +12,6 @@ namespace Vodovoz.Views.Mango.Talks
 
 		private global::Gamma.GtkWidgets.yLabel CallNumberYLabel;
 
-		private global::Gtk.HBox hbox3;
-
-		private global::Gamma.GtkWidgets.yButton NewClientButton;
-
-		private global::Gamma.GtkWidgets.yButton ExistingClientButton;
-
 		private global::Gtk.HBox WidgetPlaceBox;
 
 		private global::Gtk.Table table1;
@@ -86,54 +80,29 @@ namespace Vodovoz.Views.Mango.Talks
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child MainVbox.Gtk.Box+BoxChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.NewClientButton = new global::Gamma.GtkWidgets.yButton();
-			this.NewClientButton.CanFocus = true;
-			this.NewClientButton.Name = "NewClientButton";
-			this.NewClientButton.UseUnderline = true;
-			this.NewClientButton.Label = global::Mono.Unix.Catalog.GetString("Новый контрагент");
-			this.hbox3.Add(this.NewClientButton);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.NewClientButton]));
-			w4.Position = 0;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.ExistingClientButton = new global::Gamma.GtkWidgets.yButton();
-			this.ExistingClientButton.CanFocus = true;
-			this.ExistingClientButton.Name = "ExistingClientButton";
-			this.ExistingClientButton.UseUnderline = true;
-			this.ExistingClientButton.Label = "Существующий контрагент";
-			this.hbox3.Add(this.ExistingClientButton);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ExistingClientButton]));
-			w5.Position = 1;
-			this.MainVbox.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.MainVbox[this.hbox3]));
-			w6.Position = 1;
-			w6.Expand = false;
-			// Container child MainVbox.Gtk.Box+BoxChild
 			this.WidgetPlaceBox = new global::Gtk.HBox();
 			this.WidgetPlaceBox.Name = "WidgetPlaceBox";
 			this.WidgetPlaceBox.Spacing = 6;
 			// Container child WidgetPlaceBox.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
 			this.WidgetPlace = new global::Gtk.Notebook();
 			this.WidgetPlace.CanFocus = true;
 			this.WidgetPlace.Name = "WidgetPlace";
-			this.WidgetPlace.CurrentPage = 0;
+			this.WidgetPlace.CurrentPage = 1;
 			this.table1.Add(this.WidgetPlace);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.WidgetPlace]));
-			w7.BottomAttach = ((uint)(3));
-			w7.RightAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.WidgetPlace]));
+			w4.BottomAttach = ((uint)(3));
+			w4.RightAttach = ((uint)(3));
 			this.WidgetPlaceBox.Add(this.table1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.WidgetPlaceBox[this.table1]));
-			w8.Position = 0;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.WidgetPlaceBox[this.table1]));
+			w5.Position = 0;
 			this.MainVbox.Add(this.WidgetPlaceBox);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.MainVbox[this.WidgetPlaceBox]));
-			w9.Position = 2;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.MainVbox[this.WidgetPlaceBox]));
+			w6.Position = 1;
 			// Container child MainVbox.Gtk.Box+BoxChild
 			this.vbox6 = new global::Gtk.VBox();
 			this.vbox6.Name = "vbox6";
@@ -145,10 +114,10 @@ namespace Vodovoz.Views.Mango.Talks
 			this.NewOrderButton.UseUnderline = true;
 			this.NewOrderButton.Label = global::Mono.Unix.Catalog.GetString("+Новый заказ");
 			this.vbox6.Add(this.NewOrderButton);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.NewOrderButton]));
-			w10.Position = 0;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.NewOrderButton]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child vbox6.Gtk.Box+BoxChild
 			this.table5 = new global::Gtk.Table(((uint)(1)), ((uint)(4)), false);
 			this.table5.Name = "table5";
@@ -161,10 +130,10 @@ namespace Vodovoz.Views.Mango.Talks
 			this.BottleButton.UseUnderline = true;
 			this.BottleButton.Label = global::Mono.Unix.Catalog.GetString("Акт по бутылям и залогам");
 			this.table5.Add(this.BottleButton);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table5[this.BottleButton]));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table5[this.BottleButton]));
+			w8.LeftAttach = ((uint)(1));
+			w8.RightAttach = ((uint)(2));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
 			this.ComplaintButton = new global::Gtk.Button();
 			this.ComplaintButton.CanFocus = true;
@@ -172,8 +141,8 @@ namespace Vodovoz.Views.Mango.Talks
 			this.ComplaintButton.UseUnderline = true;
 			this.ComplaintButton.Label = global::Mono.Unix.Catalog.GetString("+Жалоба");
 			this.table5.Add(this.ComplaintButton);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table5[this.ComplaintButton]));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table5[this.ComplaintButton]));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
 			this.CostAndDeliveryIntervalButton = new global::Gtk.Button();
 			this.CostAndDeliveryIntervalButton.CanFocus = true;
@@ -181,10 +150,10 @@ namespace Vodovoz.Views.Mango.Talks
 			this.CostAndDeliveryIntervalButton.UseUnderline = true;
 			this.CostAndDeliveryIntervalButton.Label = global::Mono.Unix.Catalog.GetString("  Стоимость и \n интервалы доставки");
 			this.table5.Add(this.CostAndDeliveryIntervalButton);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table5[this.CostAndDeliveryIntervalButton]));
-			w13.LeftAttach = ((uint)(3));
-			w13.RightAttach = ((uint)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table5[this.CostAndDeliveryIntervalButton]));
+			w10.LeftAttach = ((uint)(3));
+			w10.RightAttach = ((uint)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
 			this.StockBalanceButton = new global::Gtk.Button();
 			this.StockBalanceButton.CanFocus = true;
@@ -192,15 +161,15 @@ namespace Vodovoz.Views.Mango.Talks
 			this.StockBalanceButton.UseUnderline = true;
 			this.StockBalanceButton.Label = global::Mono.Unix.Catalog.GetString("Складские остатки");
 			this.table5.Add(this.StockBalanceButton);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table5[this.StockBalanceButton]));
-			w14.LeftAttach = ((uint)(2));
-			w14.RightAttach = ((uint)(3));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table5[this.StockBalanceButton]));
+			w11.LeftAttach = ((uint)(2));
+			w11.RightAttach = ((uint)(3));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox6.Add(this.table5);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.table5]));
-			w15.Position = 1;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.table5]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vbox6.Gtk.Box+BoxChild
 			this.table4 = new global::Gtk.Table(((uint)(1)), ((uint)(6)), false);
 			this.table4.Name = "table4";
@@ -213,11 +182,11 @@ namespace Vodovoz.Views.Mango.Talks
 			this.FinishButton.UseUnderline = true;
 			this.FinishButton.Label = global::Mono.Unix.Catalog.GetString("Завершить");
 			this.table4.Add(this.FinishButton);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table4[this.FinishButton]));
-			w16.LeftAttach = ((uint)(5));
-			w16.RightAttach = ((uint)(6));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table4[this.FinishButton]));
+			w13.LeftAttach = ((uint)(5));
+			w13.RightAttach = ((uint)(6));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
 			this.ForwardingButton = new global::Gamma.GtkWidgets.yButton();
 			this.ForwardingButton.CanFocus = true;
@@ -225,27 +194,25 @@ namespace Vodovoz.Views.Mango.Talks
 			this.ForwardingButton.UseUnderline = true;
 			this.ForwardingButton.Label = global::Mono.Unix.Catalog.GetString("|| Переадресация");
 			this.table4.Add(this.ForwardingButton);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table4[this.ForwardingButton]));
-			w17.RightAttach = ((uint)(3));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table4[this.ForwardingButton]));
+			w14.RightAttach = ((uint)(3));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox6.Add(this.table4);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.table4]));
-			w18.Position = 2;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.table4]));
+			w15.Position = 2;
+			w15.Expand = false;
+			w15.Fill = false;
 			this.MainVbox.Add(this.vbox6);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.MainVbox[this.vbox6]));
-			w19.Position = 3;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.MainVbox[this.vbox6]));
+			w16.Position = 2;
+			w16.Expand = false;
+			w16.Fill = false;
 			this.Add(this.MainVbox);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.NewClientButton.Clicked += new global::System.EventHandler(this.Clicked_NewClientButton);
-			this.ExistingClientButton.Clicked += new global::System.EventHandler(this.Clicked_ExistingClientButton);
 			this.NewOrderButton.Clicked += new global::System.EventHandler(this.Clicked_NewOrderButton);
 			this.StockBalanceButton.Clicked += new global::System.EventHandler(this.Clicked_StockBalnceButton);
 			this.CostAndDeliveryIntervalButton.Clicked += new global::System.EventHandler(this.Clicked_CostAndDeliveryIntervalButton);
