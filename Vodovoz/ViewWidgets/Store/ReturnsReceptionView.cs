@@ -13,6 +13,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -163,7 +164,7 @@ namespace Vodovoz
 		        .TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
 		        .List<ReceptionItemNode>();
 
-			var needTerminal = RouteList.Addresses.Any(x => x.Order.NeedTerminal);
+			var needTerminal = RouteList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 			
 			var returnableTerminal = uow.Session.QueryOver<EmployeeNomenclatureMovementOperation>()
 			                            .Left.JoinAlias(x => x.Nomenclature, () => nomenclatureAlias)
