@@ -423,7 +423,16 @@ namespace Vodovoz
 				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
 				lblDeliveryPoint.Sensitive = referenceDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
+
+				Enum[] hideEnums = { PaymentType.Terminal };
+				
+				if(Entity.SelfDelivery)
+					enumPaymentType.AddEnumToHideList(hideEnums);
+				else
+					enumPaymentType.ClearEnumHideList();
+				
 				Entity.UpdateClientDefaultParam();
+				enumPaymentType.SelectedItem = Entity.PaymentType;
 				
 				if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 					OnFormOrderActions();
@@ -2162,6 +2171,13 @@ namespace Vodovoz
 			}
 			else {
 				ycheckPaymentBySms.Visible = true;
+			}
+			
+			if (Entity.PaymentType == PaymentType.Terminal) {
+				checkSelfDelivery.Visible = checkSelfDelivery.Active = false;
+			}
+			else {
+				checkSelfDelivery.Visible = true;
 			}
 
 			enumSignatureType.Visible = labelSignatureType.Visible =

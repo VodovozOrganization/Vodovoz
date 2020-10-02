@@ -731,7 +731,7 @@
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox34" >
+      <Textbox Name="Textbox34">
         <Height>14.25pt</Height>
         <Width>182.66pt</Width>
         <Value>="Количество заказов: " + Countdistinct({order_id}, "Sales")</Value>
@@ -774,7 +774,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     T.counterparty,
@@ -850,7 +850,6 @@ FROM
              )
        AND (delivery_date &gt;= @start_date
          AND delivery_date &lt;= @end_date)
-       AND (@need_terminal = 0 OR need_terminal = @need_terminal)
        AND !orders.is_contract_closer
        AND (
              ((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
@@ -995,12 +994,9 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           <QueryParameter Name="product_group_exclude">
             <Value>={?product_group_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="need_terminal">
-            <Value>=Parameters!need_terminal</Value>
-          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -1319,7 +1315,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="bottles">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     SUM(t.plan) AS plan,
@@ -1367,7 +1363,6 @@ FROM
                 orders.delivery_date &gt;= @start_date
           AND orders.delivery_date &lt;= @end_date
           AND !orders.is_contract_closer
-          AND (@need_terminal = 0 OR need_terminal = @need_terminal)
           AND ( (0 IN (@counterparty_include) AND 0 IN (@counterparty_exclude)) OR EXISTS
             (
                 SELECT * FROM order_items
@@ -1490,12 +1485,9 @@ FROM
           <QueryParameter Name="product_group_exclude">
             <Value>={?product_group_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="need_terminal">
-            <Value>=Parameters!need_terminal</Value>
-          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="plan">
           <DataField>plan</DataField>
         </Field>
@@ -1517,7 +1509,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -1717,13 +1709,6 @@ FROM
       <MultiValue>true</MultiValue>
       <Prompt>
       </Prompt>
-    </ReportParameter>
-    <ReportParameter Name="need_terminal">
-      <DataType>Boolean</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

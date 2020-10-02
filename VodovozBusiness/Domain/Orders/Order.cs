@@ -4152,13 +4152,6 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.PaymentType) }
 				);
 			}
-			
-			if(SelfDelivery && PaymentType == PaymentType.Terminal) {
-				yield return new ValidationResult(
-					"Тип оплаты - терминал невозможен для самовывоза",
-					new[] { this.GetPropertyName(o => o.PaymentType) }
-				);
-			}
 		}
 
 		#endregion
