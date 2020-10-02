@@ -20,6 +20,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			SetTitle();
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
+			EnableMinimizeMaximize = true;
 			Phone = manager.Phone;
 		}
 
