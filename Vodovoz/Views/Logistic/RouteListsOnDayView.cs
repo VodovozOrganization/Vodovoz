@@ -448,18 +448,13 @@ namespace Vodovoz.Views.Logistic
 			TurnOffCheckShowOnlyDriverOrders();
 
 			logger.Info("Загружаем заказы на {0:d}...", ViewModel.DateForRouting);
-			MainClass.progressBarWin.ProgressStart(5);
-			ViewModel.InitializeData(MainClass.progressBarWin);
+			ViewModel.InitializeData();
 			UpdateRoutesPixBuf();
 			UpdateRoutesButton();
-			MainClass.progressBarWin.ProgressAdd();
 			UpdateAddressesOnMap();
 
-			MainClass.progressBarWin.ProgressAdd();
 			var levels = LevelConfigFactory.FirstLevel<RouteList, RouteListItem>(x => x.Addresses).LastLevel(c => c.RouteList).EndConfig();
 			ytreeRoutes.YTreeModel = new LevelTreeModel<RouteList>(ViewModel.RoutesOnDay, levels);
-
-			MainClass.progressBarWin.ProgressClose();
 		}
 
 		void UpdateAddressesOnMap()
@@ -841,7 +836,6 @@ namespace Vodovoz.Views.Logistic
 				ViewModel.IsAutoroutingModeActive = true;
 			}
 			UpdateWarningButton();
-			MainClass.progressBarWin.ProgressClose();
 			creatingInProgress = false;
 			buttonAutoCreate.Label = "Создать маршруты";
 		}

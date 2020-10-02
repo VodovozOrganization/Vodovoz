@@ -29,7 +29,6 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		public static MainWindow MainWin;
-		public static IProgressBarDisplayable progressBarWin;
 
 		[STAThread]
 		public static void Main (string[] args)
@@ -216,7 +215,6 @@ namespace Vodovoz
 
 			//Запускаем программу
 			MainWin = new MainWindow();
-			progressBarWin = MainWin;
 			MainWin.Title += string.Format(" (БД: {0})", loginDialogName);
 			QSMain.ErrorDlgParrent = MainWin;
 			MainWin.Show();

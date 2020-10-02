@@ -40,17 +40,14 @@ namespace Vodovoz.Additions.Logistic
 
 		static void StartProgress(int length)
 		{
-			Gtk.Application.Invoke((sender, args) => MainClass.progressBarWin.ProgressStart(length));
 		}
 
 		static void UpdateProgress(uint value, uint max)
 		{
-			Gtk.Application.Invoke((sender, args) => MainClass.progressBarWin.ProgressUpdate(value));
 		}
 
 		static void CloseProgress()
 		{
-			Gtk.Application.Invoke((sender, args) => MainClass.progressBarWin.ProgressClose());
 		}
 
 		public static void DrawAddressesOfRoute(GMapOverlay overlay, RouteList routeList)

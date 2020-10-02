@@ -658,7 +658,6 @@ namespace Vodovoz
 		void FillDialogAtDay()
 		{
 			logger.Info("Загружаем заказы на {0:d}...", ydateForRoutes.Date);
-			MainClass.progressBarWin.ProgressStart(5);
 			UoW.Session.Clear();
 
 			DeliveryPoint deliveryPointAlias = null;
@@ -714,7 +713,6 @@ namespace Vodovoz
 													+ string.Join(", ", outLogisticAreas.Select(x => x.Id.ToString())));
 
 			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
-			MainClass.progressBarWin.ProgressAdd();
 
 			var routesQuery1 = new RouteListRepository().GetRoutesAtDay(ydateForRoutes.Date)
 				.GetExecutableQueryOver(UoW.Session);
@@ -738,22 +736,16 @@ namespace Vodovoz
 			UpdateRoutesPixBuf();
 			UpdateRoutesButton();
 
-			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем водителей на {0:d}...", ydateForRoutes.Date);
 			DriversAtDay = new AtWorkRepository().GetDriversAtDay(UoW, ydateForRoutes.Date, AtWorkDriver.DriverStatus.IsWorking);
 
-			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем экспедиторов на {0:d}...", ydateForRoutes.Date);
 			ForwardersAtDay = new AtWorkRepository().GetForwardersAtDay(UoW, ydateForRoutes.Date);
 
-			MainClass.progressBarWin.ProgressAdd();
 			UpdateAddressesOnMap();
 
-			MainClass.progressBarWin.ProgressAdd();
 			var levels = LevelConfigFactory.FirstLevel<RouteList, RouteListItem>(x => x.Addresses).LastLevel(c => c.RouteList).EndConfig();
 			ytreeRoutes.YTreeModel = new LevelTreeModel<RouteList>(routesAtDay, levels);
-
-			MainClass.progressBarWin.ProgressClose();
 		}
 
 		void UpdateAddressesOnMap()
@@ -1231,10 +1223,8 @@ namespace Vodovoz
 		{
 			var addDrivers = e.GetEntities<Employee>().ToList();
 			logger.Info("Получаем авто для водителей...");
-			MainClass.progressBarWin.ProgressStart(2);
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
 			var allCars = Repository.Logistics.CarRepository.GetCarsbyDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
-			MainClass.progressBarWin.ProgressAdd();
 
 			foreach(var driver in addDrivers) {
 				driversAtDay.Add(
@@ -1245,10 +1235,8 @@ namespace Vodovoz
 					)
 				);
 			}
-			MainClass.progressBarWin.ProgressAdd();
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 			logger.Info("Ок");
-			MainClass.progressBarWin.ProgressClose();
 		}
 
 		protected void OnButtonAddForwarderClicked(object sender, EventArgs e)
@@ -1367,7 +1355,6 @@ namespace Vodovoz
 			UpdateAddressesOnMap();
 			RoutesWasUpdated();
 			UpdateWarningButton();
-			MainClass.progressBarWin.ProgressClose();
 			creatingInProgress = false;
 			buttonAutoCreate.Label = "Создать маршруты";
 		}
