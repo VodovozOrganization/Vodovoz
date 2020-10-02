@@ -228,7 +228,7 @@ namespace Vodovoz.Infrastructure.Mango
 				}
 				else
 				{
-					if(Clients != null && Clients.Count() > 0) {
+					if(Clients != null && Clients.Count() > 1) {
 						CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<int>>(null, this, Clients);
 						CurrentPage.PageClosed += CurrentPage_PageClosed;
 					} else {
