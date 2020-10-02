@@ -18,10 +18,6 @@ namespace Vodovoz.Reports
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonDetail;
 
-		private global::Gtk.HBox hbox3;
-
-		private global::Gtk.CheckButton yNeedTerminalCheckButton;
-
 		private global::Gtk.VBox vboxParameters;
 
 		private global::Gtk.Button buttonCreateReport;
@@ -88,37 +84,18 @@ namespace Vodovoz.Reports
 			w5.Position = 0;
 			w5.Expand = false;
 			w5.Fill = false;
-			// Container child vbox4.Gtk.Box+BoxChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.yNeedTerminalCheckButton = new global::Gtk.CheckButton();
-			this.yNeedTerminalCheckButton.CanFocus = true;
-			this.yNeedTerminalCheckButton.Name = "yNeedTerminalCheckButton";
-			this.yNeedTerminalCheckButton.Label = global::Mono.Unix.Catalog.GetString("Tолько заказы с терминалами оплаты");
-			this.yNeedTerminalCheckButton.DrawIndicator = true;
-			this.yNeedTerminalCheckButton.UseUnderline = true;
-			this.hbox3.Add(this.yNeedTerminalCheckButton);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yNeedTerminalCheckButton]));
-			w6.Position = 0;
-			this.vbox4.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox3]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
 			this.vbox2.Add(this.vbox4);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vbox4]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vbox4]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.vboxParameters = new global::Gtk.VBox();
 			this.vboxParameters.Name = "vboxParameters";
 			this.vboxParameters.Spacing = 6;
 			this.vbox2.Add(this.vboxParameters);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vboxParameters]));
-			w9.Position = 1;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vboxParameters]));
+			w7.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -126,10 +103,10 @@ namespace Vodovoz.Reports
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox2.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateReport]));
-			w10.Position = 3;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateReport]));
+			w8.Position = 3;
+			w8.Expand = false;
+			w8.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
