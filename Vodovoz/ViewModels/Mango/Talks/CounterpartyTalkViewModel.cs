@@ -71,7 +71,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, tdinavigation,routedListRepository,this.MangoManager);
 					CounterpartyOrdersModels.Add(model);
 				}
-				currentCounterparty = CounterpartyOrdersModels.First().Client;
+				currentCounterparty = CounterpartyOrdersModels.FirstOrDefault().Client;
 			} else
 				throw new ArgumentNullException(nameof(clientsIds));
 		}

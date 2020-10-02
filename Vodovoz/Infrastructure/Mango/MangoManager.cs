@@ -174,9 +174,9 @@ namespace Vodovoz.Infrastructure.Mango
 		}
 		#endregion
 
-		private IEnumerable<int> callerClients => LastMessage.CallFrom.Names.Select(n => Convert.ToInt32(n.CounterpartyId));
+		private IEnumerable<int> callerClients => LastMessage.CallFrom.Names.Where(n => n.CounterpartyId > 0).Select(n => Convert.ToInt32(n.CounterpartyId)).Distinct();
 		public List<int> Clients { get; private set; } = new List<int>();
-		public int Employee => LastMessage.CallFrom.Names.Select(n => Convert.ToInt32(n.EmployeeId)).FirstOrDefault();
+		public int Employee => LastMessage.CallFrom.Names.Where(n => n.EmployeeId > 0).Select(n => Convert.ToInt32(n.EmployeeId)).FirstOrDefault();
 		#region Работа с сообщениями
 
 		private void FoundByPhoneItemsConfigure()
@@ -184,7 +184,7 @@ namespace Vodovoz.Infrastructure.Mango
 			if (Clients != null)
 			{
 				Clients = new List<int>();
-				if(callerClients.Count() > 1)
+				if(callerClients.Count() > 0)
 					Clients.AddRange(callerClients);
 			}
 		}
@@ -228,7 +228,7 @@ namespace Vodovoz.Infrastructure.Mango
 				}
 				else
 				{
-					if(Clients != null && Clients.Count() > 1) {
+					if(Clients != null && Clients.Count() > 0) {
 						CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<int>>(null, this, Clients);
 						CurrentPage.PageClosed += CurrentPage_PageClosed;
 					} else {
@@ -238,8 +238,6 @@ namespace Vodovoz.Infrastructure.Mango
 				}
 			}
 
-			if(CurrentPage != null)
-				CurrentPage.PageClosed += CurrentPage_PageClosed;
 		}
 		private void AddNewIncome(NotificationMessage message)
 		{
@@ -279,7 +277,8 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			mangoController.HangUp(LastMessage.CallId);
 			IncomingCalls.Clear();
-			CurrentPage = null;
+			if(CurrentPage != null)
+				navigation.ForceClosePage(CurrentPage);
 		}
 
 		public IEnumerable<MangoService.DTO.Group.Group> GetAllVPBXGroups()
