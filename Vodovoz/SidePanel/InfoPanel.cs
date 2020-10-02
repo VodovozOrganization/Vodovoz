@@ -38,14 +38,17 @@ namespace Vodovoz.SidePanel
 
 		public void OnCurrentObjectChanged(object sender, CurrentObjectChangedArgs args)
 		{
-			var provider = sender as IInfoProvider;
-			var views = GetListeners(provider);
-			foreach (var viewContainer in views)
+			Application.Invoke((s, arg) =>
 			{
-				(viewContainer.Widget as IPanelView)?.OnCurrentObjectChanged(args.ChangedObject);
-				viewContainer.Visible = viewContainer.VisibleOnPanel;
-			}
-			UpdatePanelVisibility();
+				var provider = sender as IInfoProvider;
+				var views = GetListeners(provider);
+				foreach (var viewContainer in views) {
+					(viewContainer.Widget as IPanelView)?.OnCurrentObjectChanged(args.ChangedObject);
+					viewContainer.Visible = viewContainer.VisibleOnPanel;
+				}
+
+				UpdatePanelVisibility();
+			});
 		}
 
 		protected IEnumerable<PanelViewContainer> GetListeners(IInfoProvider provider)
