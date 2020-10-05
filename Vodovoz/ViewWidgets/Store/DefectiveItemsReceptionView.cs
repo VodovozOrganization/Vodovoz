@@ -149,7 +149,7 @@ namespace Vodovoz.ViewWidgets.Store
 										.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 				                        .Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 				                        .Select(() => carUnloadDocumentItemAlias.MovementOperation).WithAlias(() => resultAlias.MovementOperation)
-				                        .Select(() => carUnloadDocumentItemAlias.Source).WithAlias(() => resultAlias.Source)
+				                        .Select(() => carUnloadDocumentItemAlias.DefectSource).WithAlias(() => resultAlias.Source)
 				                        .Select(() => carUnloadDocumentItemAlias.TypeOfDefect).WithAlias(() => resultAlias.TypeOfDefect)
 									   )
 									.TransformUsing(Transformers.AliasToBean<DefectiveItemNode>())

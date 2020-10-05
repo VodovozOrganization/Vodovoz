@@ -32,7 +32,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		QueryOver<Nomenclature> NomenclatureOfItemsForService();
 		QueryOver<Nomenclature> NomenclatureOfPartsForService();
 		QueryOver<Nomenclature> NomenclatureOfServices();
-		IList<Nomenclature> NomenclatureOfDefectiveGoods(IUnitOfWork uow);
+		IList<Nomenclature> GetNomenclatureOfDefectiveGoods(IUnitOfWork uow);
 		string GetNextCode1c(IUnitOfWork uow);
 		QueryOver<Nomenclature> NomenclatureInGroupsQuery(int[] groupsIds);
 		Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow);

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Dialog.GtkUI;
@@ -65,6 +66,7 @@ namespace Vodovoz
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 
 		List<ReturnsNode> allReturnsToWarehouse;
+		private IEnumerable<DefectSource> defectiveReasons;
 		int bottlesReturnedToWarehouse;
 		int bottlesReturnedTotal;
 		int defectiveBottlesReturnedToWarehouse;
@@ -628,8 +630,11 @@ namespace Vodovoz
 				lblQtyOfDefectiveGoods.Markup = string.Format(
 					"Единиц брака: <b>{0}</b> шт.",
 						defectiveBottlesReturnedToWarehouse);
+				var namesOfDefectiveReasons = defectiveReasons.Select(x => x.GetEnumTitle());
+				DefectSourceLabel.Text = " Причины: " + String.Join(", ", namesOfDefectiveReasons);
 			} else {
 				lblQtyOfDefectiveGoods.Visible = false;
+				DefectSourceLabel.Visible = false;
 			}
 
 			var bottleDifference = bottlesReturnedToWarehouse - bottlesReturnedTotal;
@@ -994,12 +999,24 @@ namespace Vodovoz
 				Entity.Id,
 				returnedBottlesNom)
 			.Sum(item => item.Amount);
+			
+			var rlRepository = new RouteListRepository();
+			var nomenclatureRepository = new NomenclatureRepository();
+			
+			var defectiveNomenclaturesIds = nomenclatureRepository
+				.GetNomenclatureOfDefectiveGoods(UoW)
+				.Select(n => n.Id)
+				.ToArray();
 
-			defectiveBottlesReturnedToWarehouse = (int)new RouteListRepository().GetReturnsToWarehouse(
+			var returnedDefectiveItems = rlRepository.GetReturnsToWarehouse(
 				UoW,
 				Entity.Id,
-				new EntityRepositories.Goods.NomenclatureRepository().NomenclatureOfDefectiveGoods(UoW).Select(n => n.Id).ToArray())
-			.Sum(item => item.Amount);
+				defectiveNomenclaturesIds);
+
+			defectiveReasons = returnedDefectiveItems
+				.Select(x => x.DefectSource).Distinct();
+			
+			defectiveBottlesReturnedToWarehouse = (int)returnedDefectiveItems.Sum(item => item.Amount);
 		}
 
 		public override void Destroy()

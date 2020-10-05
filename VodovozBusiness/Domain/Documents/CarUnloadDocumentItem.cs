@@ -64,11 +64,11 @@ namespace Vodovoz.Domain.Documents
 			set { SetField(ref typeOfDefect, value, () => TypeOfDefect); }
 		}
 
-		DefectSource source;
+		DefectSource defectSource;
 		[Display(Name = "Источник брака")]
-		public virtual DefectSource Source {
-			get { return source; }
-			set { SetField(ref source, value, () => Source); }
+		public virtual DefectSource DefectSource {
+			get { return defectSource; }
+			set { SetField(ref defectSource, value, () => DefectSource); }
 		}
 
 		public virtual string Title =>
