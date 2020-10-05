@@ -11,11 +11,16 @@ using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
+using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
 
@@ -87,20 +92,44 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void CreateComplaintCommand()
 		{
+			var nomenclatureRepository = new NomenclatureRepository();
+
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory =
+				new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					ServicesConfig.CommonServices);
+
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+					CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
+					.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
+					nomenclatureRepository, UserSingletonRepository.GetInstance());
+
+			ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+
 			var parameters = new Dictionary<string, object> {
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
-				{"employeeSelectorFactory", new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices)},
-				{"counterpartySelectorFactory", new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices)},
-				{"phone", "+7"+Phone.Number}
+				{ "unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory },
+				//Autofac: IEmployeeService 
+				{"employeeSelectorFactory", employeeSelectorFactory},
+				{"counterpartySelectorFactory", counterpartySelectorFactory},
+				{"subdivisionService",subdivisionRepository},
+				//Autofac: ICommonServices
+				{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
+				{"nomenclatureRepository",nomenclatureRepository},
+				//Autofac: IUserRepository
+				{"phone", "+7" +MangoManager.Phone.Number }
 			};
-			tdiNavigation.OpenTdiTabNamedArgs<CreateComplaintViewModel>(null, parameters);
+			tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
 		}
 
 		public void StockBalanceCommand()
 		{
 			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
 			new WarehouseRepository()
-);
+			);
 			NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, NomenclatureStockFilterViewModel>(null, filter);
 
 		}
