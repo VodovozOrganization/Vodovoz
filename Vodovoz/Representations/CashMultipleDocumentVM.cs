@@ -427,9 +427,9 @@ namespace Vodovoz.Representations
 
 		[UseForSearch]
 		public string Description { get; set; }
-
+		[UseForSearch]
 		public decimal Money { get; set; }
-
+		[UseForSearch]
 		public decimal MoneySigned {
 			get {
 				switch(DocTypeEnum) {
