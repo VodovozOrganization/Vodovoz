@@ -20,11 +20,11 @@ namespace Vodovoz
 
 		private global::Gtk.Table table1;
 
-		private global::Gamma.Widgets.ySpecComboBox comboExpense;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryExpenseCategory;
 
 		private global::Gamma.Widgets.yEnumComboBox enumcomboOperation;
 
-		private global::Gtk.HBox hbox5;
+		private global::Gtk.HBox hbox6;
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinMoney;
 
@@ -141,14 +141,12 @@ namespace Vodovoz
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.comboExpense = new global::Gamma.Widgets.ySpecComboBox();
-			this.comboExpense.Name = "comboExpense";
-			this.comboExpense.AddIfNotExist = false;
-			this.comboExpense.DefaultFirst = false;
-			this.comboExpense.ShowSpecialStateAll = false;
-			this.comboExpense.ShowSpecialStateNot = true;
-			this.table1.Add(this.comboExpense);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.comboExpense]));
+			this.entityVMEntryExpenseCategory = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityVMEntryExpenseCategory.Events = ((global::Gdk.EventMask)(256));
+			this.entityVMEntryExpenseCategory.Name = "entityVMEntryExpenseCategory";
+			this.entityVMEntryExpenseCategory.CanEditReference = false;
+			this.table1.Add(this.entityVMEntryExpenseCategory);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryExpenseCategory]));
 			w10.TopAttach = ((uint)(1));
 			w10.BottomAttach = ((uint)(2));
 			w10.LeftAttach = ((uint)(1));
@@ -168,10 +166,10 @@ namespace Vodovoz
 			w11.RightAttach = ((uint)(2));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.hbox5 = new global::Gtk.HBox();
-			this.hbox5.Name = "hbox5";
-			this.hbox5.Spacing = 6;
-			// Container child hbox5.Gtk.Box+BoxChild
+			this.hbox6 = new global::Gtk.HBox();
+			this.hbox6.Name = "hbox6";
+			this.hbox6.Spacing = 6;
+			// Container child hbox6.Gtk.Box+BoxChild
 			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 100D);
 			this.yspinMoney.CanFocus = true;
 			this.yspinMoney.Name = "yspinMoney";
@@ -181,20 +179,20 @@ namespace Vodovoz
 			this.yspinMoney.Numeric = true;
 			this.yspinMoney.ValueAsDecimal = 0m;
 			this.yspinMoney.ValueAsInt = 0;
-			this.hbox5.Add(this.yspinMoney);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.yspinMoney]));
+			this.hbox6.Add(this.yspinMoney);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.yspinMoney]));
 			w12.Position = 0;
-			// Container child hbox5.Gtk.Box+BoxChild
+			// Container child hbox6.Gtk.Box+BoxChild
 			this.currencylabel1 = new global::QSProjectsLib.CurrencyLabel();
 			this.currencylabel1.Name = "currencylabel1";
 			this.currencylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("currencylabel1");
-			this.hbox5.Add(this.currencylabel1);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.currencylabel1]));
+			this.hbox6.Add(this.currencylabel1);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.currencylabel1]));
 			w13.Position = 1;
 			w13.Expand = false;
 			w13.Fill = false;
-			this.table1.Add(this.hbox5);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox5]));
+			this.table1.Add(this.hbox6);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox6]));
 			w14.TopAttach = ((uint)(3));
 			w14.BottomAttach = ((uint)(4));
 			w14.LeftAttach = ((uint)(1));

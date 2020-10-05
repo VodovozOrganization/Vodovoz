@@ -113,6 +113,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId);
 
 		IList<PaymentItem> GetPaymentItemsForOrder(IUnitOfWork uow, int orderId);
+		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 	}
 
 	public class ClientEquipmentNode

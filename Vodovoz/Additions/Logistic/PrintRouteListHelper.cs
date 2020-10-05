@@ -11,6 +11,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
@@ -222,13 +223,16 @@ namespace Vodovoz.Additions.Logistic
 #endif
 
 			string printDatestr = string.Format("Дата печати: {0}", DateTime.Now.ToString("g"));
+			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+			
 			return new ReportInfo {
 				Title = String.Format("Маршрутный лист № {0}", routeList.Id),
 				Path = TempFile,
 				Parameters = new Dictionary<string, object> {
 					{ "RouteListId", routeList.Id },
 					{ "Print_date", printDatestr},
-					{ "RouteListDate", routeList.Date}
+					{ "RouteListDate", routeList.Date},
+					{ "need_terminal", needTerminal }
 				}
 			};
 		}

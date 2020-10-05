@@ -52,6 +52,7 @@
 		WHEN 'cash' THEN 'НАЛ'
 		WHEN 'cashless' THEN 'БЕЗНАЛ'
 		WHEN 'ByCard' THEN 'ПО КАРТЕ'
+		WHEN 'Terminal' THEN 'ТЕРМИНАЛ'
 		ELSE orders.payment_type
 	END AS pay_type,
 	orders.payment_type AS order_payment_type,

@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -145,7 +146,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		
 		public GoodsInRouteListResult GetTerminalInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
 		{
-			var needTerminal = routeList.Addresses.Any(x => x.Order.NeedTerminal);
+			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 			
 			if (needTerminal) {
 				var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;

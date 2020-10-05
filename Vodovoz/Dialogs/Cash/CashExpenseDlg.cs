@@ -12,6 +12,10 @@ using QS.Services;
 using Vodovoz.EntityRepositories;
 using System.Linq;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.Dialogs.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
 
@@ -111,10 +115,31 @@ namespace Vodovoz
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
-			OrmMain.GetObjectDescription<ExpenseCategory> ().ObjectUpdated += OnExpenseCategoryUpdated;
-			OnExpenseCategoryUpdated (null, null);
-			comboExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
-
+			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
+				() => {
+					var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
+						x => x.Name,
+						() => new ExpenseCategoryViewModel(
+							EntityUoWBuilder.ForCreate(),
+							UnitOfWorkFactory.GetDefaultFactory,
+							QS.Project.Services.ServicesConfig.CommonServices
+						),
+						(node) => new ExpenseCategoryViewModel(
+							EntityUoWBuilder.ForOpen(node.Id),
+							UnitOfWorkFactory.GetDefaultFactory,
+							QS.Project.Services.ServicesConfig.CommonServices
+						),
+						UnitOfWorkFactory.GetDefaultFactory,
+						QS.Project.Services.ServicesConfig.CommonServices
+					) {
+						SelectionMode = JournalSelectionMode.Single
+					};
+					return expenseCategoryJournalViewModel;
+				}
+			);
+			entityVMEntryExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategorySelectorFactory);
+			entityVMEntryExpenseCategory.Binding.AddBinding(Entity, e => e.ExpenseCategory, w => w.Subject).InitializeFromSource();
+			
 			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
 
 			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
@@ -132,11 +157,6 @@ namespace Vodovoz
 				buttonSave.Sensitive = false;
 				ytextviewDescription.Editable = false;
 			}
-		}
-
-		void OnExpenseCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
-		{
-			comboExpense.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories (UoW);
 		}
 
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)

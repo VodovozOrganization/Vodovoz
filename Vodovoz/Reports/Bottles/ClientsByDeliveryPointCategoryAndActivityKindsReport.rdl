@@ -23,6 +23,7 @@
 		WHEN 'cash' THEN 'Наличная'
 		WHEN 'cashless' THEN 'Безналичная'
 		WHEN 'ByCard' THEN 'По карте'
+		WHEN 'Terminal' THEN 'Терминал'
 		WHEN 'barter' THEN 'Бартер'
 		WHEN 'BeveragesWorld' THEN 'Мир напитков'
 		WHEN 'ContractDoc' THEN 'Контрактная документация'

@@ -90,6 +90,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -112,22 +114,22 @@
             <Width>97.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>90.0pt</Width>
+            <Width>95.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.2pt</Width>
+            <Width>45.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35.2pt</Width>
+            <Width>39.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>40.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>41.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.4pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>43.5pt</Width>
+            <Width>42.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -991,6 +993,8 @@
     'Bold',
     'Normal'
 )</FontWeight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1135,9 +1139,9 @@
                   </ReportItems>
                 </TableCell>
                 <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox51">
-                      <Value>=Iif({Total} = 0, "", {Total})</Value>
+                  <ReportItems >
+                    <Textbox Name="Textbox91" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>=Iif({terminals_sum} != 0, {terminals_sum}, Iif({Total} = 0, "", {Total}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1147,6 +1151,7 @@
                         <TextAlign>Center</TextAlign>
                         <Format>0.00</Format>
                         <BackgroundColor>=Iif(({Status} = "EnRoute") or ({Status} = "Completed"), White, Lightgrey)</BackgroundColor>
+                        <FontSize>9pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1399,8 +1404,8 @@
                   </ReportItems>
                 </TableCell>
                 <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox82">
+                  <ReportItems >
+                    <Textbox Name="Textbox72">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1410,13 +1415,14 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox72">
+                  <ReportItems >
+                    <Textbox Name="Textbox92" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>=Iif(Sum({Total}) = 0, "", Sum({Total}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1425,6 +1431,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1455,7 +1462,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value><!--table_cell_total_without_stock--></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1472,14 +1480,14 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox77">
-                      <Value>Сумма:</Value>
+                      <Value>Сумма наличных:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
@@ -1505,6 +1513,81 @@
                 </TableCell>
               </TableCells>
             </TableRow>
+            <TableRow >
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox93">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>5</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox94">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <Format>0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <!--colspan-->
+                </TableCell>
+                <TableCell>
+                  <ColSpan>3</ColSpan>
+                  <ReportItems>
+                    <Textbox Name="Textbox97" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>Сумма терминальных чеков:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ColSpan>4</ColSpan>
+                  <ReportItems>
+                    <Textbox Name="Textbox98" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>=Sum({terminals_sum})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
@@ -1527,8 +1610,8 @@
       <List Name="List1">
         <Height>36.12pt</Height>
         <Width>660.98pt</Width>
-        <Left>0.00pt</Left>
-        <Top>139.60pt</Top>
+        <Left>0.0pt</Left>
+        <Top>149.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1712,7 +1795,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
 SELECT 
@@ -1725,6 +1808,12 @@ route_list_addresses.status AS Status,
  #orders.bottles_return AS EmptyBottles,
  route_list_addresses.bottles_returned AS EmptyBottles,
  route_list_addresses.total_cash AS Total,
+IF(orders.payment_type = 'Terminal' AND route_list_addresses.status != 'Transfered',
+        (
+            SELECT SUM(IFNULL(actual_count, count) * price - discount_money)
+            FROM order_items
+            WHERE order_id = orders.id), 
+        0) as terminals_sum,
 CONCAT_WS(' ', IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address), 
 	IF(route_list_addresses.status = 'Transfered',CONCAT_WS('','(Перенесен в МЛ №',TransferedAddresses.route_list_id,')'),'')) AS Address,
 CONCAT_WS(
@@ -1876,7 +1965,7 @@ ORDER BY route_list_addresses.order_in_route;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="DeliveryTime">
           <DataField>DeliveryTime</DataField>
           <TypeName>System.String</TypeName>
@@ -1924,6 +2013,10 @@ ORDER BY route_list_addresses.order_in_route;
         <Field Name="payment_type">
           <DataField>payment_type</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="terminals_sum">
+          <DataField>terminals_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <!--fields-->
       </Fields>
@@ -1992,6 +2085,15 @@ WHERE
       </Fields>
     </DataSet>
   </DataSets>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="RouteListId">
       <DataType>Integer</DataType>
@@ -2008,17 +2110,11 @@ WHERE
     </ReportParameter>
     <ReportParameter Name="Print_date">
       <DataType>String</DataType>
-      <Nullable>False</Nullable>
-      <AllowBlank>False</AllowBlank>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

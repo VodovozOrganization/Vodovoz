@@ -9,8 +9,8 @@ using Vodovoz.Domain.Operations;
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки накладной",
-		Nominative = "строка накладной")]
+		NominativePlural = "строки входящей накладной",
+		Nominative = "строка входящей накладной")]
 	[HistoryTrace]
 	public class IncomingInvoiceItem : PropertyChangedBase, IDomainObject
 	{

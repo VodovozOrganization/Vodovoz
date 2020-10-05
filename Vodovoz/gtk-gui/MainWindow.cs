@@ -413,6 +413,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionOrderStatisticByWeekReport;
 
+	private global::Gtk.Action ActionCashBook;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -434,8 +436,6 @@ public partial class MainWindow
 	private global::Gtk.Label labelUser;
 
 	private global::Gtk.Label labelStatus;
-
-	private global::Gtk.ProgressBar progressStatus;
 
 	private global::Vodovoz.SidePanel.InfoPanel infopanel;
 
@@ -489,7 +489,7 @@ public partial class MainWindow
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчеты");
 		w1.Add(this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction("ActionArchive", global::Mono.Unix.Catalog.GetString("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionServices.Group;
+		this.ActionArchive.Group = this.ActionReports.Group;
 		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString("Архив");
 		w1.Add(this.ActionArchive, null);
 		this.ActionOrg = new global::Gtk.Action("ActionOrg", global::Mono.Unix.Catalog.GetString("Организации"), null, null);
@@ -623,7 +623,7 @@ public partial class MainWindow
 		this.ActionToolBarIcon.ShortLabel = global::Mono.Unix.Catalog.GetString("Только иконки");
 		w1.Add(this.ActionToolBarIcon, null);
 		this.ActionToolBarBoth = new global::Gtk.RadioAction("ActionToolBarBoth", global::Mono.Unix.Catalog.GetString("Иконки и Текст"), null, null, 0);
-		this.ActionToolBarBoth.Group = this.ActionToolBarIcon.Group;
+		this.ActionToolBarBoth.Group = this.ActionToolBarText.Group;
 		this.ActionToolBarBoth.ShortLabel = global::Mono.Unix.Catalog.GetString("Иконки и Текст");
 		w1.Add(this.ActionToolBarBoth, null);
 		this.ActionIconsExtraSmall = new global::Gtk.RadioAction("ActionIconsExtraSmall", global::Mono.Unix.Catalog.GetString("Очень маленькие иконки"), null, null, 0);
@@ -703,7 +703,7 @@ public partial class MainWindow
 		this.ActionForwarderWageReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Зарплаты экспедиторов");
 		w1.Add(this.ActionForwarderWageReport, null);
 		this.ActionStaff = new global::Gtk.RadioAction("ActionStaff", global::Mono.Unix.Catalog.GetString("Кадры"), null, "employees", 0);
-		this.ActionStaff.Group = this.ActionServices.Group;
+		this.ActionStaff.Group = this.ActionReports.Group;
 		this.ActionStaff.ShortLabel = global::Mono.Unix.Catalog.GetString("Кадры");
 		w1.Add(this.ActionStaff, null);
 		this.ActionDriversWageBalance = new global::Gtk.Action("ActionDriversWageBalance", global::Mono.Unix.Catalog.GetString("Баланс водителей"), null, null);
@@ -917,7 +917,7 @@ public partial class MainWindow
 		this.ActionNotFullyLoadedRouteLists.ShortLabel = global::Mono.Unix.Catalog.GetString("Недопогруженные МЛ");
 		w1.Add(this.ActionNotFullyLoadedRouteLists, null);
 		this.ActionCRM = new global::Gtk.RadioAction("ActionCRM", global::Mono.Unix.Catalog.GetString("Работа с кл."), null, "CRM", 0);
-		this.ActionCRM.Group = this.ActionServices.Group;
+		this.ActionCRM.Group = this.ActionReports.Group;
 		this.ActionCRM.ShortLabel = global::Mono.Unix.Catalog.GetString("Работа с кл.");
 		w1.Add(this.ActionCRM, null);
 		this.ActionForShipment = new global::Gtk.Action("ActionForShipment", global::Mono.Unix.Catalog.GetString("Товары для отгрузки"), null, null);
@@ -986,7 +986,7 @@ public partial class MainWindow
 		this.Action62 = new global::Gtk.Action("Action62", global::Mono.Unix.Catalog.GetString("Переотправка почты"), null, null);
 		this.Action62.ShortLabel = global::Mono.Unix.Catalog.GetString("Переотправка почты");
 		w1.Add(this.Action62, null);
-		this.ActionComplaints = new global::Gtk.Action("ActionComplaints", global::Mono.Unix.Catalog.GetString("Рекламации"), null, "complaints");
+		this.ActionComplaints = new global::Gtk.Action("ActionComplaints", global::Mono.Unix.Catalog.GetString("рекламации"), null, "complaints");
 		this.ActionComplaints.ShortLabel = global::Mono.Unix.Catalog.GetString("Рекламации");
 		w1.Add(this.ActionComplaints, null);
 		this.ActionComplaintSources = new global::Gtk.Action("ActionComplaintSources", global::Mono.Unix.Catalog.GetString("Источники рекламаций"), null, null);
@@ -996,7 +996,7 @@ public partial class MainWindow
 		this.ActionComplaintResult.ShortLabel = global::Mono.Unix.Catalog.GetString("Результаты рассмотрения рекламаций");
 		w1.Add(this.ActionComplaintResult, null);
 		this.ActionSuppliers = new global::Gtk.RadioAction("ActionSuppliers", global::Mono.Unix.Catalog.GetString("Закупки"), null, "suppliers", 0);
-		this.ActionSuppliers.Group = this.ActionCRM.Group;
+		this.ActionSuppliers.Group = this.ActionReports.Group;
 		this.ActionSuppliers.ShortLabel = global::Mono.Unix.Catalog.GetString("Закупки");
 		w1.Add(this.ActionSuppliers, null);
 		this.ActionWarehouses = new global::Gtk.Action("ActionWarehouses", global::Mono.Unix.Catalog.GetString("Склады"), null, null);
@@ -1077,6 +1077,9 @@ public partial class MainWindow
 		this.ActionOrderStatisticByWeekReport = new global::Gtk.Action("ActionOrderStatisticByWeekReport", global::Mono.Unix.Catalog.GetString("Статистика по дням недели"), null, null);
 		this.ActionOrderStatisticByWeekReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Статистика по дням недели");
 		w1.Add(this.ActionOrderStatisticByWeekReport, null);
+		this.ActionCashBook = new global::Gtk.Action("ActionCashBook", global::Mono.Unix.Catalog.GetString("Кассовая книга"), null, null);
+		this.ActionCashBook.ShortLabel = global::Mono.Unix.Catalog.GetString("Кассовая книга");
+		w1.Add(this.ActionCashBook, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -1234,22 +1237,22 @@ public partial class MainWindow
 				"ame=\'ActionDriversWageBalance\' action=\'ActionDriversWageBalance\'/><menuitem name" +
 				"=\'ActionFuelReport\' action=\'ActionFuelReport\'/><menuitem name=\'ActionForwarderWa" +
 				"geReport\' action=\'ActionForwarderWageReport\'/><menuitem name=\'ActionWagesOperati" +
-				"ons\' action=\'ActionWagesOperations\'/></menu></menu><menu name=\'ActionAdministrat" +
-				"ion\' action=\'ActionAdministration\'><menuitem name=\'ActionTypesOfEntities\' action" +
-				"=\'ActionTypesOfEntities\'/><menuitem name=\'ActionUsers\' action=\'ActionUsers\'/><me" +
-				"nuitem name=\'ActionParameters\' action=\'ActionParameters\'/><menu name=\'ActionServ" +
-				"ice\' action=\'ActionService\'><menuitem name=\'Action45\' action=\'Action45\'/><menuit" +
-				"em name=\'ActionAddressDuplicetes\' action=\'ActionAddressDuplicetes\'/><menuitem na" +
-				"me=\'ActionDistanceFromCenter\' action=\'ActionDistanceFromCenter\'/><menuitem name=" +
-				"\'ActionOrdersWithoutBottlesOperation\' action=\'ActionOrdersWithoutBottlesOperatio" +
-				"n\'/><menuitem name=\'ActionLoad1cCounterpartyAndDeliveryPoints\' action=\'ActionLoa" +
-				"d1cCounterpartyAndDeliveryPoints\'/><menuitem name=\'ActionToOnlineStore\' action=\'" +
-				"ActionToOnlineStore\'/><menuitem name=\'Action62\' action=\'Action62\'/></menu><separ" +
-				"ator/><menuitem name=\'ActionDocTemplates\' action=\'ActionDocTemplates\'/><menuitem" +
-				" name=\'ActionGeographicGroups\' action=\'ActionGeographicGroups\'/><menuitem name=\'" +
-				"ActionImages\' action=\'ActionImages\'/></menu><menu name=\'ActionAbout\' action=\'Act" +
-				"ionAbout\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></menu></menubar></" +
-				"ui>");
+				"ons\' action=\'ActionWagesOperations\'/><menuitem name=\'ActionCashBook\' action=\'Act" +
+				"ionCashBook\'/></menu></menu><menu name=\'ActionAdministration\' action=\'ActionAdmi" +
+				"nistration\'><menuitem name=\'ActionTypesOfEntities\' action=\'ActionTypesOfEntities" +
+				"\'/><menuitem name=\'ActionUsers\' action=\'ActionUsers\'/><menuitem name=\'ActionPara" +
+				"meters\' action=\'ActionParameters\'/><menu name=\'ActionService\' action=\'ActionServ" +
+				"ice\'><menuitem name=\'Action45\' action=\'Action45\'/><menuitem name=\'ActionAddressD" +
+				"uplicetes\' action=\'ActionAddressDuplicetes\'/><menuitem name=\'ActionDistanceFromC" +
+				"enter\' action=\'ActionDistanceFromCenter\'/><menuitem name=\'ActionOrdersWithoutBot" +
+				"tlesOperation\' action=\'ActionOrdersWithoutBottlesOperation\'/><menuitem name=\'Act" +
+				"ionLoad1cCounterpartyAndDeliveryPoints\' action=\'ActionLoad1cCounterpartyAndDeliv" +
+				"eryPoints\'/><menuitem name=\'ActionToOnlineStore\' action=\'ActionToOnlineStore\'/><" +
+				"menuitem name=\'Action62\' action=\'Action62\'/></menu><separator/><menuitem name=\'A" +
+				"ctionDocTemplates\' action=\'ActionDocTemplates\'/><menuitem name=\'ActionGeographic" +
+				"Groups\' action=\'ActionGeographicGroups\'/><menuitem name=\'ActionImages\' action=\'A" +
+				"ctionImages\'/></menu><menu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem nam" +
+				"e=\'aboutAction\' action=\'aboutAction\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1331,31 +1334,24 @@ public partial class MainWindow
 		w9.Position = 2;
 		w9.Expand = false;
 		w9.Fill = false;
-		// Container child statusbarMain.Gtk.Box+BoxChild
-		this.progressStatus = new global::Gtk.ProgressBar();
-		this.progressStatus.Name = "progressStatus";
-		this.statusbarMain.Add(this.progressStatus);
-		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.progressStatus]));
-		w10.PackType = ((global::Gtk.PackType)(1));
-		w10.Position = 3;
 		this.vbox1.Add(this.statusbarMain);
-		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
-		w11.PackType = ((global::Gtk.PackType)(1));
-		w11.Position = 4;
-		w11.Expand = false;
-		w11.Fill = false;
+		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
+		w10.PackType = ((global::Gtk.PackType)(1));
+		w10.Position = 4;
+		w10.Expand = false;
+		w10.Fill = false;
 		this.hbox1.Add(this.vbox1);
-		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox1]));
-		w12.Position = 0;
+		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox1]));
+		w11.Position = 0;
 		// Container child hbox1.Gtk.Box+BoxChild
 		this.infopanel = new global::Vodovoz.SidePanel.InfoPanel();
 		this.infopanel.Events = ((global::Gdk.EventMask)(256));
 		this.infopanel.Name = "infopanel";
 		this.hbox1.Add(this.infopanel);
-		global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.infopanel]));
-		w13.Position = 1;
-		w13.Expand = false;
-		w13.Fill = false;
+		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.infopanel]));
+		w12.Position = 1;
+		w12.Expand = false;
+		w12.Fill = false;
 		this.Add(this.hbox1);
 		if ((this.Child != null))
 		{
@@ -1363,7 +1359,6 @@ public partial class MainWindow
 		}
 		this.DefaultWidth = 1040;
 		this.DefaultHeight = 542;
-		this.progressStatus.Hide();
 		this.Show();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler(this.OnDeleteEvent);
 		this.dialogAuthenticationAction.Activated += new global::System.EventHandler(this.OnDialogAuthenticationActionActivated);
@@ -1538,6 +1533,7 @@ public partial class MainWindow
 		this.ActionLateArrivalReasons.Activated += new global::System.EventHandler(this.OnActionLateArrivalReasonsActivated);
 		this.ActionFuelConsumptionReport1.Activated += new global::System.EventHandler(this.OnActionScheduleOnLinePerShiftReportActivated);
 		this.ActionOrderStatisticByWeekReport.Activated += new global::System.EventHandler(this.OnActionOrderStatisticByWeekReportActivated);
+		this.ActionCashBook.Activated += new global::System.EventHandler(this.OnCashBoolReportActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
