@@ -44,10 +44,10 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>233.4pt</Width>
+            <Width>226.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>211.0pt</Width>
+            <Width>209.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>31.4pt</Width>
@@ -219,7 +219,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
+        <Left>4.8pt</Left>
         <Top>28.9pt</Top>
         <TableGroups>
           <TableGroup>
