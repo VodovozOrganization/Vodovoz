@@ -190,6 +190,10 @@ namespace Vodovoz
 						.EditedEvent(YTreeViewItemsOnlineOrderEdited)
 				.AddColumn("Итого\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.TotalCash)
+				.AddColumn("Итого\n(терм.)").HeaderAlignment(0.5f).EnterToNextCell()
+					.AddNumericRenderer(node => 
+						(node.Status != RouteListItemStatus.Transfered && 
+						node.Order.PaymentType == PaymentType.Terminal) ? node.Order.ActualTotalSum : 0)
 				.AddColumn ("Комментарий\nкассира")
 					.AddTextRenderer (node => node.CashierComment).EditedEvent(CommentCellEdited).Editable()
 				// Комментарий менеджера ответственного за водительский телефон
