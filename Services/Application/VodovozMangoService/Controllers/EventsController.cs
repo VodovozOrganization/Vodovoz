@@ -47,6 +47,7 @@ namespace VodovozMangoService.Controllers
 #endif
 
                     Calls[message.call_id] = call = new CallInfo();
+                    call.LastEvent = message;
                 }
                 if (call.Seq > message.seq) //Пришло старое сообщение
                     return;
