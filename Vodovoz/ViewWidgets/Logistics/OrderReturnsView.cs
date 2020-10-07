@@ -366,7 +366,7 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) => {
-				routeListItem.UpdateStatus(UoW, RouteListItemStatus.Overdue, CallTaskWorker);
+				routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Overdue, CallTaskWorker);
 				routeListItem.FillCountsOnCanceled();
 				UpdateButtonsState();
 				this.OnCloseTab(false);
@@ -378,7 +378,7 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) => {
-				routeListItem.UpdateStatus(UoW, RouteListItemStatus.Canceled, CallTaskWorker);
+				routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Canceled, CallTaskWorker);
 				routeListItem.FillCountsOnCanceled();
 				UpdateButtonsState();
 				this.OnCloseTab(false);
@@ -387,7 +387,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Completed, CallTaskWorker);
+			routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Completed, CallTaskWorker);
 			routeListItem.RestoreOrder();
 			routeListItem.FirstFillClosing(UoW, wageParameterService);
 			UpdateListsSentivity();

@@ -343,7 +343,7 @@ namespace Vodovoz
 						return;
 					}
 
-					Entity.ChangeStatus(RouteListStatus.Confirmed, callTaskWorker);
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, callTaskWorker);
 					//Строим маршрут для МЛ.
 					if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
@@ -368,7 +368,7 @@ namespace Vodovoz
 
 					if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck) {
 						if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle())) {
-							Entity.CompleteRoute(wageParameterService, callTaskWorker);
+							Entity.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker);
 						}
 					} else {
 						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
@@ -383,9 +383,9 @@ namespace Vodovoz
 									});
 								if(!valid.IsValid)
 									return;
-								Entity.ChangeStatus(valid.RunDlgIfNotValid((Window)this.Toplevel) ? RouteListStatus.New : RouteListStatus.EnRoute, callTaskWorker);
+								Entity.ChangeStatusAndCreateTask(valid.RunDlgIfNotValid((Window)this.Toplevel) ? RouteListStatus.New : RouteListStatus.EnRoute, callTaskWorker);
 							} else {
-								Entity.ChangeStatus(RouteListStatus.New, callTaskWorker);
+								Entity.ChangeStatusAndCreateTask(RouteListStatus.New, callTaskWorker);
 							}
 						}
 					}
@@ -397,7 +397,7 @@ namespace Vodovoz
 					if(new RouteListRepository().GetCarLoadDocuments(UoW, Entity.Id).Any()) {
 						MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
 					} else {
-						Entity.ChangeStatus(RouteListStatus.New, callTaskWorker);
+						Entity.ChangeStatusAndCreateTask(RouteListStatus.New, callTaskWorker);
 					}
 					UpdateButtonStatus();
 					return;

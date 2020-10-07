@@ -196,7 +196,7 @@ namespace Vodovoz.Dialogs.Logistic
 					)
 				)
 			) {
-				Entity.ChangeStatus(RouteListStatus.EnRoute, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTask(RouteListStatus.EnRoute, CallTaskWorker);
 				Entity.NotFullyLoaded = true;
 			} else if(!fullyLoaded && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_send_not_loaded_route_lists_en_route")) {
 				MessageDialogHelper.RunWarningDialog(
