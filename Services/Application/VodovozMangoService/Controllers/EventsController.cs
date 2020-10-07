@@ -66,7 +66,7 @@ namespace VodovozMangoService.Controllers
                 }
                 var longerCallIds = Calls.Where(c => c.Value.LastEvent.Time.Minute > 60)
                     .Select(e => e.Value.LastEvent.call_id).ToList();
-                if (longerCallIds != null)
+                if (longerCallIds != null && longerCallIds.Count > 0)
                 {
                     debugParseMessage += "Эти звонки не закрыты больше 1 часа:\n";
                     longerCallIds.ForEach(str => debugParseMessage += "| Call Id:" + str + "\n");
@@ -111,7 +111,7 @@ namespace VodovozMangoService.Controllers
                         using (StreamWriter streamWriter = new StreamWriter(file.OpenWrite()))
                         {
                             streamWriter.WriteLine(debugParseMessage);
-                            streamWriter.Write("------------------------------");
+                            streamWriter.WriteLine("------------------------------");
                         }
                     }
                 }
