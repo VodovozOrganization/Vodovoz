@@ -493,7 +493,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		public virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status, CallTaskWorker callTaskWorker)
+		public virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, CallTaskWorker callTaskWorker)
 		{
 			if(Status == status)
 				return;
@@ -503,22 +503,55 @@ namespace Vodovoz.Domain.Logistic
 
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
-					Order.ChangeStatus(OrderStatus.DeliveryCanceled, callTaskWorker);
+					Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
 					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
-					Order.ChangeStatus(OrderStatus.Shipped, callTaskWorker);
+					Order.ChangeStatusAndCreateTasks(OrderStatus.Shipped, callTaskWorker);
 					Order.TimeDelivered = DateTime.Now;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.EnRoute:
-					Order.ChangeStatus(OrderStatus.OnTheWay, callTaskWorker);
+					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
 					Order.TimeDelivered = null;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.Overdue:
-					Order.ChangeStatus(OrderStatus.NotDelivered, callTaskWorker);
+					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
+					Order.TimeDelivered = null;
+					FillCountsOnCanceled();
+					break;
+			}
+			uow.Save(Order);
+		}
+		
+		public virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status)
+		{
+			if(Status == status)
+				return;
+
+			Status = status;
+			StatusLastUpdate = DateTime.Now;
+
+			switch(Status) {
+				case RouteListItemStatus.Canceled:
+					Order.ChangeStatus(OrderStatus.DeliveryCanceled);
+					Order.TimeDelivered = null;
+					FillCountsOnCanceled();
+					break;
+				case RouteListItemStatus.Completed:
+					Order.ChangeStatus(OrderStatus.Shipped);
+					Order.TimeDelivered = DateTime.Now;
+					RestoreOrder();
+					break;
+				case RouteListItemStatus.EnRoute:
+					Order.ChangeStatus(OrderStatus.OnTheWay);
+					Order.TimeDelivered = null;
+					RestoreOrder();
+					break;
+				case RouteListItemStatus.Overdue:
+					Order.ChangeStatus(OrderStatus.NotDelivered);
 					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;

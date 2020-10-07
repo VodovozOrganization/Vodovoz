@@ -47,24 +47,6 @@ namespace Android
 			this.driverNotificator = driverNotificator ?? throw new ArgumentNullException(nameof(driverNotificator));
 		}
 
-		private CallTaskWorker callTaskWorker;
-		public virtual CallTaskWorker CallTaskWorker {
-			get {
-				if(callTaskWorker == null) {
-					callTaskWorker = new CallTaskWorker(
-						CallTaskSingletonFactory.GetInstance(),
-						new CallTaskRepository(),
-						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
-						new BaseParametersProvider(),
-						null,
-						null);
-				}
-				return callTaskWorker;
-			}
-			set { callTaskWorker = value; }
-		}
-
 		/// <summary>
 		/// Const value, equals to android code version on AndroidManifest.xml
 		/// Needed for version checking. Increment this value on each API change.
@@ -354,11 +336,11 @@ namespace Android
 					}
 
 					switch(status) {
-					case "EnRoute": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.EnRoute, CallTaskWorker); break;
-					case "Completed": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Completed, CallTaskWorker); break;
-					case "Canceled": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Canceled, CallTaskWorker); break;
-					case "Overdue": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Overdue, CallTaskWorker); break;
-					default: return false;
+						case "EnRoute": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.EnRoute); break;
+						case "Completed": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Completed); break;
+						case "Canceled": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Canceled); break;
+						case "Overdue": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Overdue); break;
+						default: return false;
 					}
 
 					int bottles;
@@ -453,7 +435,7 @@ namespace Android
 						return false;
 					}
 
-					routeList.CompleteRoute(wageParameterService, CallTaskWorker);
+					routeList.CompleteRoute(wageParameterService);
 					uow.Save(routeList);
 					uow.Commit();
 					return true;
