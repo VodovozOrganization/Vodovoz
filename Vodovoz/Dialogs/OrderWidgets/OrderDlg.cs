@@ -964,7 +964,7 @@ namespace Vodovoz
 				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository(), new CashRepository());
 				Entity.UpdateDepositOperations(UoW);
 
-				Entity.ChangeStatus(OrderStatus.Closed, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTasks(OrderStatus.Closed, CallTaskWorker);
 				foreach(OrderItem i in Entity.ObservableOrderItems) {
 					i.ActualCount = i.Count;
 				}
@@ -980,7 +980,7 @@ namespace Vodovoz
 				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите вернуть заказ в статус \"Принят\"?")) {
 					return;
 				}
-				Entity.ChangeStatus(OrderStatus.Accepted, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTasks(OrderStatus.Accepted, CallTaskWorker);
 			}
 			UpdateUIState();
 		}
@@ -2318,7 +2318,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
 
-			Entity.ChangeStatus(OrderStatus.WaitForPayment, CallTaskWorker);
+			Entity.ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, CallTaskWorker);
 			UpdateUIState();
 		}
 
