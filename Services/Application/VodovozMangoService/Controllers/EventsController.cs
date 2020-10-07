@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Grpc.Core.Logging;
 using Microsoft.AspNetCore.Mvc;
+using NLog.Fluent;
 using VodovozMangoService.Calling;
 using VodovozMangoService.DTO;
 
@@ -17,14 +18,9 @@ namespace VodovozMangoService.Controllers
     [Route("mango/[controller]")]
     public class EventsController : ControllerBase
     {
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 #if DEBUG
-        private FileInfo file =new FileInfo("/var/log/VodovozMangoService/DebugReport.txt");
-        private StreamWriter stream = null;
-        EventsController()
-        {
-            stream = new StreamWriter(file.Open(FileMode.Append,FileAccess.Write));
-        }
+        private static FileInfo file = new FileInfo("/var/log/VodovozMangoService/DebugReport.txt");
 
         ~EventsController()
         {
@@ -59,7 +55,6 @@ namespace VodovozMangoService.Controllers
                     if (message.CallState == CallState.Disconnected)
                         debugParseMessage += "У звонка не было Appeared/Connect"+ $"|{message.call_id}|"+eventRequest.Json + "\n";
 #endif
-
                     Calls[message.call_id] = call = new CallInfo();
                     call.LastEvent = message;
                 }
@@ -115,15 +110,18 @@ namespace VodovozMangoService.Controllers
             if (!String.IsNullOrEmpty(debugParseMessage))
             {
                 try
-                {
-                    lock (stream)
+                { 
+                    lock (file)    
                     {
-                        stream.Write(debugParseMessage);
+                        using (var stream = new StreamWriter(file.Open(FileMode.Append,FileAccess.Write)))
+                        {
+                            stream.Write(debugParseMessage);    
+                        }
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    logger.Warn(e.Message);
                     throw;
                 }
             }
