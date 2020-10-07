@@ -940,9 +940,9 @@
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign >Left</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
-          <FontSize >8pt</FontSize>
+          <TextAlign>Left</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <FontSize>8pt</FontSize>
         </Style>
       </Textbox>
     </ReportItems>
@@ -967,7 +967,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>75</Timeout>
         <CommandText>##INCOME
@@ -981,42 +981,44 @@ SELECT this_.date as doc_date,
                employeeal1_.last_name
            ) as name,
        this_.money as income,
-       0 as expance
-#        count(*) as income_count
-#        this_.description as y3_,
-#        coalesce(incomecate3_.name, expensecat4_.name) as y10_
-#        this_.type_document as y11_ 
+       0 as expance,
+       this_.related_to_subdivision_id
+
 FROM cash_income this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
          left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
          left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id
          left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
-WHERE this_.related_to_subdivision_id = @Cash
-  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate
+#если выбран пункт Все кассы
+WHERE IF(@Cash != -1,
+         (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
+         (this_.date &gt;= @StartDate and this_.date &lt; @EndDate))
 
 UNION
+
 ##EXPENCE
 SELECT this_.date as doc_date,
        this_.id as doc_id,
        CONCAT_WS
-        (
+           (
                '.',
                NULLIF(LEFT(employeeal1_.name, 1), ''),
                NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
                employeeal1_.last_name
-        ) as name,
+           ) as name,
        0 as income,
-       this_.money as expance
-#        count(*) as expance_count
-#        this_.description as y3_,
-#        expensecat3_.name as y10_
-#        this_.type_document as y11_ 
+       this_.money as expance,
+       this_.related_to_subdivision_id
+
+
 FROM cash_expense this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
          left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
          left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
-WHERE this_.related_to_subdivision_id = @Cash
-  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate;</CommandText>
+WHERE IF(@Cash != -1,
+    (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
+    (this_.date &gt;= @StartDate and this_.date &lt; @EndDate));
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -1029,7 +1031,7 @@ WHERE this_.related_to_subdivision_id = @Cash
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="doc_date">
           <DataField>doc_date</DataField>
         </Field>
@@ -1067,12 +1069,10 @@ WHERE id = @Cash;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="StartBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>Select
-    s.id,
-    s.name,
-    (
+    SUM( (
         Select IFNULL(sum(ci.money), 0)as money
         From cash_income ci
         Where ci.related_to_subdivision_id = s.id
@@ -1084,10 +1084,9 @@ WHERE id = @Cash;</CommandText>
         From cash_expense ce
         Where ce.related_to_subdivision_id = s.id
           AND ce.date &lt; @StartDate
-    ) as balance
+    )) as balance
 From subdivisions s
-WHERE s.id IN (@Cash)
-GROUP BY s.id;</CommandText>
+WHERE IF(@Cash != -1, s.id IN (@Cash), 1=1);</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -1097,22 +1096,17 @@ GROUP BY s.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
-        </Field>
-        <Field Name="name">
-          <DataField>name</DataField>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="EndBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>Select
-    s.id,
-    s.name,
-    (
+    SUM( (
         Select IFNULL(sum(ci.money), 0)as money
         From cash_income ci
         Where ci.related_to_subdivision_id = s.id
@@ -1124,10 +1118,9 @@ GROUP BY s.id;</CommandText>
         From cash_expense ce
         Where ce.related_to_subdivision_id = s.id
           AND ce.date &lt; @EndDate
-    ) as balance
+    )) as balance
 From subdivisions s
-WHERE s.id IN (@Cash)
-GROUP BY s.id;</CommandText>
+WHERE IF(@Cash != -1, s.id IN (@Cash), 1=1);</CommandText>
         <QueryParameters>
           <QueryParameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
@@ -1137,27 +1130,25 @@ GROUP BY s.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
-        </Field>
-        <Field Name="name">
-          <DataField>name</DataField>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="CountIncome">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-       count(*) as income_count
+        <CommandText>SELECT
+    count(*) as income_count
 FROM cash_income this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
          left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
          left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id
          left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
-WHERE this_.related_to_subdivision_id = @Cash
-  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate;</CommandText>
+WHERE IF(@Cash != -1,
+         (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
+         (this_.date &gt;= @StartDate and this_.date &lt; @EndDate));</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -1170,7 +1161,7 @@ WHERE this_.related_to_subdivision_id = @Cash
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="income_count">
           <DataField>income_count</DataField>
         </Field>
@@ -1179,15 +1170,16 @@ WHERE this_.related_to_subdivision_id = @Cash
     <DataSet Name="CountExpance">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-       count(*) as expance_count
+        <CommandText>SELECT
+    count(*) as expance_count
 
 FROM cash_expense this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
          left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
          left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
-WHERE this_.related_to_subdivision_id = @Cash
-  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate;</CommandText>
+WHERE IF(@Cash != -1,
+         (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
+         (this_.date &gt;= @StartDate and this_.date &lt; @EndDate));</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -1210,26 +1202,29 @@ WHERE this_.related_to_subdivision_id = @Cash
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT count(T.count) as count_all From (
-SELECT
+    SELECT
         this_.id as count
-FROM cash_income this_
-         left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
-         left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-         left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id
-         left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
-WHERE this_.related_to_subdivision_id = @Cash
-  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate
-
-UNION
-SELECT 
-       this_.id as count
-
-FROM cash_expense this_
-         left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
-         left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-         left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
-WHERE this_.related_to_subdivision_id = @Cash
-  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate) as T;</CommandText>
+    FROM cash_income this_
+             left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
+             left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
+             left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id
+             left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
+    WHERE IF(@Cash != -1,
+             (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
+             (this_.date &gt;= @StartDate and this_.date &lt; @EndDate))
+    
+    UNION
+    SELECT
+        this_.id as count
+    
+    FROM cash_expense this_
+             left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
+             left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
+             left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
+    WHERE IF(@Cash != -1,
+             (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
+             (this_.date &gt;= @StartDate and this_.date &lt; @EndDate))
+) as T;</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>

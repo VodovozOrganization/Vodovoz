@@ -31,18 +31,20 @@ namespace Vodovoz.ReportsParameters
 
 			#region Выбор кассы
 			var subdivisions = subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income), typeof(Income) });
+			var itemsList = subdivisions.ToList();
 			{
-				IEnumerable<int> fromTypes = subdivisions.Select(x => x.Id);
+				IEnumerable<int> fromTypes = itemsList.Select(x => x.Id);
 				IEnumerable<int> fromUser = UserSubdivisions.Select(x => x.Id);
 				if (! new HashSet<int>(fromTypes).IsSupersetOf(fromUser))
 				{
-					subdivisions.Concat(UserSubdivisions);
+					subdivisions = itemsList.Concat(UserSubdivisions);
 				}
 			}
-			
+			itemsList.Add(new Subdivision{Name = "Все"});
+
 			yspeccomboboxCashSubdivision.SetRenderTextFunc<Subdivision>(s => s.Name);
-			yspeccomboboxCashSubdivision.ItemsList = subdivisions;
-			yspeccomboboxCashSubdivision.SelectedItem = UserSubdivisions.Count != 0 ? UserSubdivisions?.First() : subdivisions.First();
+			yspeccomboboxCashSubdivision.ItemsList = itemsList;
+			yspeccomboboxCashSubdivision.SelectedItem = UserSubdivisions.Count != 0 ? UserSubdivisions?.First() : itemsList.First();
 			#endregion
 			
 			buttonCreateRepot.Clicked += OnButtonCreateRepotClicked;
@@ -59,10 +61,11 @@ namespace Vodovoz.ReportsParameters
 		{
 			string startDate = $"{dateperiodpicker.StartDate}";
 			string endDate = $"{dateperiodpicker.EndDate}";
+			bool allCashes = ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem).Name == "Все";
 			var parameters = new Dictionary<string, object> {
 				{ "StartDate", dateperiodpicker.StartDateOrNull.Value},
 				{ "EndDate", dateperiodpicker.EndDateOrNull.Value.AddHours(23).AddMinutes(59).AddSeconds(59) },
-				{ "Cash", ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem).Id }
+				{ "Cash",  allCashes?-1:((Subdivision) yspeccomboboxCashSubdivision.SelectedItem).Id }
 			};
 
 			return new ReportInfo {
