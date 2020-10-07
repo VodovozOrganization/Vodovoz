@@ -55,6 +55,14 @@ namespace VodovozMangoService.Controllers
                     Calls.Remove(message.call_id);
                 }
 #if DEBUG
+                foreach (var item in Calls)
+                {
+                    Console.Write("Item" + item + "\n" );
+                    Console.Write("Key" + item.Key + "\n");
+                    Console.Write("Value" + item.Value + "\n");
+                    Console.Write("LastEvent" + item.Value.LastEvent + "\n" );
+                    Console.Write("Time" + item.Value.LastEvent.Time.Minute + "\n");
+                }
                 var longerCallIds = Calls.Where(c => c.Value.LastEvent.Time.Minute > 60)
                     .Select(e => e.Value.LastEvent.call_id).ToList();
                 if (longerCallIds != null)
