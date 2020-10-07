@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -17,7 +18,20 @@ namespace VodovozMangoService.Controllers
     public class EventsController : ControllerBase
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+#if DEBUG
+        private FileInfo file =new FileInfo("/var/log/VodovozMangoService/DebugReport.txt");
+        private StreamWriter stream = null;
+        EventsController()
+        {
+            stream = new StreamWriter(file.Open(FileMode.Append,FileAccess.Write));
+        }
 
+        ~EventsController()
+        {
+            if(file.Exists)
+                file.Delete();
+        }
+#endif
         public static Dictionary<string, CallInfo> Calls = new Dictionary<string, CallInfo>();
 
         [HttpPost("call")]
@@ -102,17 +116,9 @@ namespace VodovozMangoService.Controllers
             {
                 try
                 {
-                    DirectoryInfo dir = new DirectoryInfo("/var/log/VodovozMangoService");
-                    if(!dir.Exists)
-                        dir.Create();
-                    FileInfo file = new FileInfo(dir.FullName+@"/DebugReport.txt");
-                    lock (file)
+                    lock (stream)
                     {
-                        using (StreamWriter streamWriter = new StreamWriter(file.OpenWrite()))
-                        {
-                            streamWriter.WriteLine(debugParseMessage);
-                            streamWriter.WriteLine("------------------------------");
-                        }
+                        stream.Write(debugParseMessage);
                     }
                 }
                 catch (Exception e)
