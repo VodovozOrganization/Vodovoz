@@ -264,7 +264,7 @@
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Right>None</Right>
+                          <Right>Solid</Right>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -626,7 +626,7 @@
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Right>None</Right>
+                              <Right>Solid</Right>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
@@ -763,9 +763,9 @@
       <Textbox Name="Textbox40" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.94pt</Height>
         <Width>56.42pt</Width>
-        <Value>приходных и</Value>
+        <Value>=First(Fields!income_count,'CountIncome') + ' приходных и'</Value>
         <ZIndex>1</ZIndex>
-        <Left>227.3pt</Left>
+        <Left>228.1pt</Left>
         <Top>221.5pt</Top>
         <Style>
           <BorderStyle />
@@ -795,10 +795,10 @@
       <Textbox Name="Textbox42" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.94pt</Height>
         <Width>56.42pt</Width>
-        <Value>расходных</Value>
+        <Value>=First(Fields!expance_count,'CountExpance') + ' расходных'</Value>
         <ZIndex>1</ZIndex>
-        <Left>227.0pt</Left>
-        <Top>238.6pt</Top>
+        <Left>227.8pt</Left>
+        <Top>239.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -899,13 +899,13 @@
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox27" >
-        <Height>14.25pt</Height>
-        <Width>139.91pt</Width>
+      <Textbox Name="Textbox27">
+        <Height>15.75pt</Height>
+        <Width>160.17pt</Width>
         <Value>Остаток на начало периода:</Value>
         <ZIndex>1</ZIndex>
-        <Left>245.40pt</Left>
-        <Top>34.30pt</Top>
+        <Left>225.14pt</Left>
+        <Top>30.35pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -914,19 +914,35 @@
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox28" >
+      <Textbox Name="Textbox28">
         <Height>12.75pt</Height>
         <Width>148.32pt</Width>
         <Value>=First(Fields!balance,'StartBalance')</Value>
         <ZIndex>1</ZIndex>
-        <Left>385.20pt</Left>
-        <Top>35.80pt</Top>
+        <Left>385.2pt</Left>
+        <Top>32.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <TextAlign>Left</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox33">
+        <Height>12.00pt</Height>
+        <Width>72.27pt</Width>
+        <Value>=First(Fields!count_all,'CountAll')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>252.3pt</Left>
+        <Top>198.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign >Left</TextAlign>
+          <VerticalAlign >Middle</VerticalAlign>
+          <FontSize >8pt</FontSize>
         </Style>
       </Textbox>
     </ReportItems>
@@ -954,48 +970,52 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>75</Timeout>
-        <CommandText>SELECT this_.date as doc_date,
+        <CommandText>##INCOME
+SELECT this_.date as doc_date,
        this_.id as doc_id,
        CONCAT_WS
-       (
-           '.',
-           NULLIF(LEFT(employeeal1_.name, 1), ''),
-           NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
-           employeeal1_.last_name
-        ) as name,
+           (
+               '.',
+               NULLIF(LEFT(employeeal1_.name, 1), ''),
+               NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
+               employeeal1_.last_name
+           ) as name,
        this_.money as income,
        0 as expance
+#        count(*) as income_count
 #        this_.description as y3_,
 #        coalesce(incomecate3_.name, expensecat4_.name) as y10_
 #        this_.type_document as y11_ 
-FROM cash_income this_ 
-    left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id 
-    left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id 
-    left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id 
-    left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
-WHERE this_.related_to_subdivision_id = @Cash 
+FROM cash_income this_
+         left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
+         left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
+         left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id
+         left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
+WHERE this_.related_to_subdivision_id = @Cash
   and this_.date &gt;= @StartDate and this_.date &lt; @EndDate
 
-UNION 
+UNION
 ##EXPENCE
 SELECT this_.date as doc_date,
        this_.id as doc_id,
-       CONCAT_WS(
-           '.',
-           NULLIF(LEFT(employeeal1_.name, 1), ''),
-           NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
-           employeeal1_.last_name
+       CONCAT_WS
+        (
+               '.',
+               NULLIF(LEFT(employeeal1_.name, 1), ''),
+               NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
+               employeeal1_.last_name
         ) as name,
        0 as income,
        this_.money as expance
+#        count(*) as expance_count
 #        this_.description as y3_,
 #        expensecat3_.name as y10_
 #        this_.type_document as y11_ 
-FROM cash_expense this_ 
-    left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
-    left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id 
-    left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
-WHERE this_.related_to_subdivision_id = @Cash 
+FROM cash_expense this_
+         left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
+         left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
+         left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
+WHERE this_.related_to_subdivision_id = @Cash
   and this_.date &gt;= @StartDate and this_.date &lt; @EndDate;</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
@@ -1126,6 +1146,108 @@ GROUP BY s.id;</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="CountIncome">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+       count(*) as income_count
+FROM cash_income this_
+         left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
+         left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
+         left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id
+         left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
+WHERE this_.related_to_subdivision_id = @Cash
+  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="StartDate">
+            <Value>=Parameters!StartDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="Cash">
+            <Value>=Parameters!Cash</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="income_count">
+          <DataField>income_count</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="CountExpance">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+       count(*) as expance_count
+
+FROM cash_expense this_
+         left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
+         left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
+         left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
+WHERE this_.related_to_subdivision_id = @Cash
+  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="StartDate">
+            <Value>=Parameters!StartDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="Cash">
+            <Value>=Parameters!Cash</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="expance_count">
+          <DataField>expance_count</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="CountAll">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT count(T.count) as count_all From (
+SELECT
+        this_.id as count
+FROM cash_income this_
+         left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
+         left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
+         left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id
+         left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
+WHERE this_.related_to_subdivision_id = @Cash
+  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate
+
+UNION
+SELECT 
+       this_.id as count
+
+FROM cash_expense this_
+         left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
+         left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
+         left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
+WHERE this_.related_to_subdivision_id = @Cash
+  and this_.date &gt;= @StartDate and this_.date &lt; @EndDate) as T;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="StartDate">
+            <Value>=Parameters!StartDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="Cash">
+            <Value>=Parameters!Cash</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="count_all">
+          <DataField>count_all</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
@@ -1138,7 +1260,7 @@ GROUP BY s.id;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
