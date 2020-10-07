@@ -1,6 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
+using Grpc.Core.Logging;
 using Microsoft.AspNetCore.Mvc;
 using VodovozMangoService.Calling;
 using VodovozMangoService.DTO;
@@ -29,15 +34,42 @@ namespace VodovozMangoService.Controllers
             //Обработка события.
             var message = eventRequest.CallEvent;
             CallInfo call;
+#if DEBUG
+            string debugParseMessage = null;   
+#endif
             lock (Calls)
             {
                 if (!Calls.TryGetValue(message.call_id, out call))
-                    Calls[message.call_id] = call = new CallInfo();
+                {
+#if DEBUG
+                    if (message.CallState == CallState.Disconnected)
+                        debugParseMessage += "У звонка не было Appeared/Connect"+ $"|{message.call_id}|"+eventRequest.Json + "\n";
+#endif
 
+                    Calls[message.call_id] = call = new CallInfo();
+                }
                 if (call.Seq > message.seq) //Пришло старое сообщение
                     return;
                 if (message.CallState == CallState.Disconnected)
+                {
                     Calls.Remove(message.call_id);
+                }
+#if DEBUG
+                var longerCallIds = Calls.Where(c => c.Value.LastEvent.Time.Minute > 60)
+                    .Select(e => e.Value.LastEvent.call_id).ToList();
+                if (longerCallIds != null)
+                {
+                    debugParseMessage += "Эти звонки не закрыты больше 1 часа:\n";
+                    longerCallIds.ForEach(str => debugParseMessage += "| Call Id:" + str + "\n");
+                    debugParseMessage += "Всего таких звонков: " + longerCallIds.Count + "\n";
+                    debugParseMessage += "Удаляем их!" + "\n";
+                    foreach (string id in longerCallIds)
+                    {
+                        Calls.Remove(id);
+                    }
+                }
+#endif
+
             }
             call.LastEvent = message;
             if (!String.IsNullOrEmpty(message.from.taken_from_call_id))
@@ -45,10 +77,42 @@ namespace VodovozMangoService.Controllers
                 if (Calls.ContainsKey(message.from.taken_from_call_id))
                     call.OnHoldCall = Calls[message.from.taken_from_call_id];
                 else
+                {
                     logger.Warn($"Информация о звонке {message.from.taken_from_call_id} отсутствет, но на него ссылается текущий звонок как переадресация.");
+#if DEBUG
+                    debugParseMessage += "Попытка перевода звонка, первоначального события которого нет:" +
+                                         eventRequest.Json +"\n";
+#endif
+
+                }
             }
             Program.NotificationServiceInstance.NewEvent(call);
             logger.Debug($"Сервер отслеживает {Calls.Count} звонков");
+#if DEBUG
+            if (!String.IsNullOrEmpty(debugParseMessage))
+            {
+                try
+                {
+                    DirectoryInfo dir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory() +@"\Debug");
+                    if(!dir.Exists)
+                        dir.Create();
+                    FileInfo file = new FileInfo(dir.FullName+@"\DebugReport.txt");
+                    lock (file)
+                    {
+                        using (StreamWriter streamWriter = new StreamWriter(file.OpenWrite()))
+                        {
+                            streamWriter.WriteLine(debugParseMessage);
+                            streamWriter.Write("------------------------------");
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+            }
+#endif
         }
     }
 }
