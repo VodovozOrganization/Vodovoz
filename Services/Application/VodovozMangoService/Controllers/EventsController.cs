@@ -93,10 +93,10 @@ namespace VodovozMangoService.Controllers
             {
                 try
                 {
-                    DirectoryInfo dir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory() +@"\Debug");
+                    DirectoryInfo dir = new DirectoryInfo("/var/log/VodovozMangoService");
                     if(!dir.Exists)
                         dir.Create();
-                    FileInfo file = new FileInfo(dir.FullName+@"\DebugReport.txt");
+                    FileInfo file = new FileInfo(dir.FullName+@"/DebugReport.txt");
                     lock (file)
                     {
                         using (StreamWriter streamWriter = new StreamWriter(file.OpenWrite()))
