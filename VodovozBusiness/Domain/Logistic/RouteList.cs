@@ -707,12 +707,17 @@ namespace Vodovoz.Domain.Logistic
 			}
 			
 			//Терминал для оплаты
-			var needTerminal = Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
-			if (needTerminal) {
-				var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
-				var driverTerminalBalance =
-					new EmployeeNomenclatureMovementRepository().GetDriverTerminalBalance(UoW, Driver.Id, terminalId);
+			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var loadDocs = new RouteListRepository().GetCarLoadDocuments(UoW, Id);
+			var isTerminalLoaded =
+				loadDocs.SelectMany(x => x.ObservableItems)
+				        .Any(x => x.Nomenclature.Id == terminalId);
+
+			var driverTerminalBalance =
+				new EmployeeNomenclatureMovementRepository().GetDriverTerminalBalance(UoW, Driver.Id, terminalId);
+
+			if (isTerminalLoaded && driverTerminalBalance >= 0) {
 				var terminal = UoW.GetById<Nomenclature>(terminalId);
 
 				var discrepancyTerminal = new Discrepancy {
