@@ -137,14 +137,14 @@ ORDER BY employee , date</CommandText>
     </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>.5in</Height>
+    <Height>98.0pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Top>7.2pt</Top>
         <Left>8.8pt</Left>
         <Width>567.61pt</Width>
         <Height>17.31pt</Height>
-        <Value>=Iif({?showbottom} = true,  "Штраф на " + Format(CDate({?startDate}), "d") ,  "Штрафы сотрудников c " + Format(CDate({?startDate}), "d") +" по " +  Format(CDate({?endDate}), "d"))</Value>
+        <Value>=Iif({?showbottom} = true,  "Штраф на " + Format(CDate({?startDate}), "d") ,  "Штрафы сотрудников" + {?driverName} +  " c " + Format(CDate({?startDate}), "d") +" по " +  Format(CDate({?endDate}), "d"))</Value>
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
@@ -535,7 +535,7 @@ ORDER BY employee , date</CommandText>
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -595,6 +595,14 @@ ORDER BY employee , date</CommandText>
       </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="driverName">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>
