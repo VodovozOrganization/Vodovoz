@@ -19,15 +19,7 @@ namespace VodovozMangoService.Controllers
     public class EventsController : ControllerBase
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-#if DEBUG
-        private static FileInfo file = new FileInfo("/var/log/VodovozMangoService/DebugReport.txt");
-
-        ~EventsController()
-        {
-            if(file.Exists)
-                file.Delete();
-        }
-#endif
+        private static NLog.Logger loggerLostEvents = NLog.LogManager.GetLogger("LostEvents");
         public static Dictionary<string, CallInfo> Calls = new Dictionary<string, CallInfo>();
 
         [HttpPost("call")]
@@ -44,17 +36,12 @@ namespace VodovozMangoService.Controllers
             //Обработка события.
             var message = eventRequest.CallEvent;
             CallInfo call;
-#if DEBUG
-            string debugParseMessage = null;   
-#endif
             lock (Calls)
             {
                 if (!Calls.TryGetValue(message.call_id, out call))
                 {
-#if DEBUG
                     if (message.CallState == CallState.Disconnected)
-                        debugParseMessage += "У звонка не было Appeared/Connect"+ $"|{message.call_id}|"+eventRequest.Json + "\n";
-#endif
+                        loggerLostEvents.Error( $"У звонка не было Appeared/Connect |{message.call_id}|{eventRequest.Json}");
                     Calls[message.call_id] = call = new CallInfo();
                     call.LastEvent = message;
                 }
@@ -64,68 +51,31 @@ namespace VodovozMangoService.Controllers
                 {
                     Calls.Remove(message.call_id);
                 }
-#if DEBUG
-                foreach (var item in Calls)
-                {
-                    Console.Write("Item" + item + "\n" );
-                    Console.Write("Key" + item.Key + "\n");
-                    Console.Write("Value" + item.Value + "\n");
-                    Console.Write("LastEvent" + item.Value.LastEvent + "\n" );
-                    Console.Write("Time" + item.Value.LastEvent.Time.Minute + "\n");
-                }
+
                 var longerCallIds = Calls.Where(c => c.Value.LastEvent.Time.Minute > 60)
                     .Select(e => e.Value.LastEvent.call_id).ToList();
-                if (longerCallIds != null && longerCallIds.Count > 0)
+                if (longerCallIds.Count > 0)
                 {
-                    debugParseMessage += "Эти звонки не закрыты больше 1 часа:\n";
-                    longerCallIds.ForEach(str => debugParseMessage += "| Call Id:" + str + "\n");
-                    debugParseMessage += "Всего таких звонков: " + longerCallIds.Count + "\n";
-                    debugParseMessage += "Удаляем их!" + "\n";
+                    var text = "Эти звонки не получили события Desconnected более 1 часа:\n";
+                    longerCallIds.ForEach(str => text += "| Call Id:" + str + "\n");
+                    text += "Всего таких звонков: " + longerCallIds.Count + "\n";
+                    text += "Удаляем их!";
+                    loggerLostEvents.Error(text);
                     foreach (string id in longerCallIds)
                     {
                         Calls.Remove(id);
                     }
                 }
-#endif
-
             }
             call.LastEvent = message;
             if (!String.IsNullOrEmpty(message.from.taken_from_call_id))
             {
-                if (Calls.ContainsKey(message.from.taken_from_call_id))
+                //Если звонок не нашли это нормально, так как он может ссылаться на IVR который был уже удланен.
+                if (Calls.ContainsKey(message.from.taken_from_call_id) && Calls[message.from.taken_from_call_id].LastEvent.location != "ivr")
                     call.OnHoldCall = Calls[message.from.taken_from_call_id];
-                else
-                {
-                    logger.Warn($"Информация о звонке {message.from.taken_from_call_id} отсутствет, но на него ссылается текущий звонок как переадресация.");
-#if DEBUG
-                    debugParseMessage += "Попытка перевода звонка, первоначального события которого нет:" +
-                                         eventRequest.Json +"\n";
-#endif
-
-                }
             }
             Program.NotificationServiceInstance.NewEvent(call);
             logger.Debug($"Сервер отслеживает {Calls.Count} звонков");
-#if DEBUG
-            if (!String.IsNullOrEmpty(debugParseMessage))
-            {
-                try
-                { 
-                    lock (file)    
-                    {
-                        using (var stream = new StreamWriter(file.Open(FileMode.Append,FileAccess.Write)))
-                        {
-                            stream.Write(debugParseMessage);    
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    logger.Warn(e.Message);
-                    throw;
-                }
-            }
-#endif
         }
     }
 }
