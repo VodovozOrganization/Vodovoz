@@ -237,7 +237,6 @@ namespace Vodovoz.Infrastructure.Mango
 					}
 				}
 			}
-
 		}
 		private void AddNewIncome(NotificationMessage message)
 		{
