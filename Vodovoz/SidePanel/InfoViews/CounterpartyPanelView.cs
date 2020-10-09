@@ -112,7 +112,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				addIcon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-add", IconSize.Menu);
 				Button btn = new Button();
 				btn.Image = addIcon;
-				btn.ClientEvent += OnBtnAddPhoneClicked;
+				btn.Clicked += OnBtnAddPhoneClicked;
 				PhonesTable.Attach(btn, 1, 2, rowsCount - 1, rowsCount);
 			}
 			PhonesTable.ShowAll();
