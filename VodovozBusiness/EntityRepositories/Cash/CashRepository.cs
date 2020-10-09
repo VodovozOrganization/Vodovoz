@@ -1,4 +1,5 @@
-﻿using NHibernate.Criterion;
+﻿using System.Linq;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
@@ -8,7 +9,6 @@ namespace Vodovoz.EntityRepositories.Cash
 {
 	public class CashRepository : ICashRepository
 	{
-
 		public decimal GetIncomePaidSumForOrder(IUnitOfWork uow, int orderId, int? excludedIncomeDoc = null)
 		{
 			var query = uow.Session.QueryOver<Income>().Where(x => x.Order.Id == orderId);
@@ -25,6 +25,14 @@ namespace Vodovoz.EntityRepositories.Cash
 				query.Where(x => x.Id != excludedExpenseDoc);
 			}
 			return query.Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
+		}
+		
+		public bool OrderHasIncome(IUnitOfWork uow, int orderId) {
+			var query = uow.Session.QueryOver<Income>()
+			               .Where(x => x.Order.Id == orderId)
+			               .List();
+
+			return query.Any();
 		}
 
 		public decimal CurrentCash (IUnitOfWork uow)

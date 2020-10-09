@@ -2252,9 +2252,9 @@ namespace Vodovoz
 		protected void OnButtonCancelOrderClicked(object sender, EventArgs e) {
 			
 			bool isShipped = !orderRepository.IsSelfDeliveryOrderWithoutShipment(UoW, Entity.Id);
-			bool isFullyPaid = Entity.SelfDeliveryIsFullyPaid(cashRepository);
+			bool orderHasIncome = cashRepository.OrderHasIncome(UoW, Entity.Id);
 
-			if (Entity.SelfDelivery && (isFullyPaid || isShipped)) {
+			if (Entity.SelfDelivery && (orderHasIncome || isShipped)) {
 				MessageDialogHelper.RunErrorDialog(
 					"Вы не можете отменить отгруженный или оплаченный самовывоз. " +
 					"Для продолжения необходимо удалить отгрузку или приходник.");
