@@ -251,8 +251,10 @@ namespace Vodovoz
 		/// <param name="NeedCopy"><c>true</c> копировать заказ, <c>false</c> работает как обычный конструктор.</param>
 		public OrderDlg(Order copiedOrder, bool NeedCopy) : this()
 		{
-			if(NeedCopy)
+			if(NeedCopy) {
 				CopyOrderFrom(copiedOrder.Id);
+				FillOrderItems(copiedOrder);
+			}
 		}
 
 		public void CopyOrderFrom(int id)

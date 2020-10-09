@@ -33,7 +33,6 @@ namespace Vodovoz.Views.Mango
 			//OrderYTreeView.Selection.Mode = SelectionMode.Multiple;
 			OrderYTreeView.RowActivated += RowActivated_OrderYTreeView;
 			OrderYTreeView.CursorChanged += CursorChanged_OrderYTreeView;
-
 			CounterpartyYButton.Clicked += PressEvent_CounterpartyYButton;
 			CounterpartyYButton.Label = ViewModel.Client.Name;
 			CommTextView.Buffer.Text = ViewModel.Client.Comment;
