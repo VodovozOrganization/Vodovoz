@@ -146,12 +146,12 @@ namespace Vodovoz.Infrastructure.Mango
 		void ToolbarIcon_Activated(object sender, EventArgs e)
 		{
 			if(CurrentPage == null) {
-				if(LastMessage != null)
-					HandleMessage(LastMessage);
-				else {
-					CurrentPage = navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>(null, this, SubscriberSelectionViewModel.DialogType.Telephone);
-					CurrentPage.PageClosed += CurrentPage_PageClosed;
-				}
+				//if(LastMessage != null)
+				//	HandleMessage(LastMessage);
+				//else {
+				CurrentPage = navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>(null, this, SubscriberSelectionViewModel.DialogType.Telephone);
+				CurrentPage.PageClosed += CurrentPage_PageClosed;
+				//}
 			} 
 		}
 
@@ -275,6 +275,7 @@ namespace Vodovoz.Infrastructure.Mango
 		public void HangUp()
 		{
 			mangoController.HangUp(LastMessage.CallId);
+			LastMessage = null;
 			IncomingCalls.Clear();
 			if(CurrentPage != null)
 				navigation.ForceClosePage(CurrentPage);
