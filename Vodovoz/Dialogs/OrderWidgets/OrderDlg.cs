@@ -243,6 +243,12 @@ namespace Vodovoz
 		public OrderDlg(Order sub) : this(sub.Id)
 		{ }
 
+		/// <summary>
+		/// Конструктор создан изначально для Mango-Интеграции, 
+		/// т.к. Mango-интеграция сделана уже на MVVM и нет возможности вызывать метод CopyOrderFrom(...)
+		/// </summary>
+		/// <param name="copiedOrder">Конструктор копирует заказ по Id заказа</param>
+		/// <param name="NeedCopy"><c>true</c> копировать заказ, <c>false</c> работает как обычный конструктор.</param>
 		public OrderDlg(Order copiedOrder, bool NeedCopy) : this()
 		{
 			if(NeedCopy)
