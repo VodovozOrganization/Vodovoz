@@ -22,7 +22,9 @@ namespace VodovozMangoService.DTO
         public CallState CallState => Enum.Parse<CallState>(call_state);
 
         public DateTimeOffset Time => DateTimeOffset.FromUnixTimeSeconds(timestamp);
-        
+
+        public TimeSpan Duration => DateTime.UtcNow - Time;
+
         #endregion
     }
 }

@@ -52,7 +52,7 @@ namespace VodovozMangoService.Controllers
                     Calls.Remove(message.call_id);
                 }
 
-                var longerCallIds = Calls.Where(c => c.Value.LastEvent.Time.Minute > 60)
+                var longerCallIds = Calls.Where(c => c.Value.LastEvent.Duration.TotalHours > 1)
                     .Select(e => e.Value.LastEvent.call_id).ToList();
                 if (longerCallIds.Count > 0)
                 {
