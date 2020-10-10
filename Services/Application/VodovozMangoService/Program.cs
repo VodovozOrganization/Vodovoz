@@ -3,6 +3,7 @@ using System.Net;
 using Grpc.Core;
 using MangoService;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
@@ -104,6 +105,9 @@ namespace VodovozMangoService
                         })
                         .UseStartup<Startup>();
                 })
+	            .ConfigureServices(services => 
+		            services.AddHostedService<CallsHostedService>()
+		            )
 	            .UseNLog();
 
         private static void InitNotifacationService(MySqlConnectionStringBuilder stringBuilder)

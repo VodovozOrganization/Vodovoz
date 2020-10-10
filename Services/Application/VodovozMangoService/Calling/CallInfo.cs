@@ -1,20 +1,29 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using VodovozMangoService.DTO;
 
 namespace VodovozMangoService.Calling
 {
     public class CallInfo
     {
+        private DateTime created = DateTime.Now;
         public CallInfo(CallEvent callEvent)
         {
-            LastEvent = callEvent;
+            Events[callEvent.seq] = callEvent;
         }
 
-        public CallInfo()
-        {
-        }
-
-        public uint Seq => LastEvent?.seq ?? 0;
-        public CallEvent LastEvent;
+        public readonly SortedDictionary<uint, CallEvent> Events = new SortedDictionary<uint, CallEvent>();
         public CallInfo OnHoldCall;
+
+        #region Расчетные
+
+        public uint Seq => Events.Keys.Last();
+        public CallEvent LastEvent => Events.Last().Value;
+
+        public TimeSpan LiveTime => DateTime.Now - created;
+
+        #endregion
+
     }
 }

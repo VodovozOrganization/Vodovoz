@@ -35,6 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\QSProjects\QS.Utilities\QS.Utilities.dotnet.csproj" />
       <ProjectReference Include="..\..\Library\MangoController\MangoController.csproj" />
     </ItemGroup>
 
