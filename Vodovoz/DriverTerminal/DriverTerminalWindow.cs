@@ -11,7 +11,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.DriverTerminal
 {
-	public partial class DriverTerminalWindow : Gtk.Window, IProgressBarDisplayable
+	public partial class DriverTerminalWindow : Gtk.Window
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -99,55 +99,5 @@ namespace Vodovoz.DriverTerminal
 			ShowAll();
 			entryRouteListNumber.Text = "";
 		}
-
-		#region IProgressBarDisplayable implementation
-
-		public void ProgressStart(double maxValue, double minValue = 0, string text = null, double startValue = 0)
-		{
-			progressStatus.Adjustment = new Adjustment(startValue, minValue, maxValue, 1, 1, 1);
-			progressStatus.Text = text;
-			progressStatus.Visible = true;
-			QSMain.WaitRedraw();
-		}
-
-		public void ProgressUpdate(double curValue)
-		{
-			if(progressStatus == null || progressStatus.Adjustment == null)
-				return;
-			progressStatus.Adjustment.Value = curValue;
-			QSMain.WaitRedraw();
-		}
-
-		public void ProgressUpdate(string curText)
-		{
-			if(progressStatus == null || progressStatus.Adjustment == null)
-				return;
-			progressStatus.Text = curText;
-			QSMain.WaitRedraw();
-		}
-
-		public void ProgressAdd(double addValue = 1, string text = null)
-		{
-			if(progressStatus == null)
-				return;
-			progressStatus.Adjustment.Value += addValue;
-			if(text != null)
-				progressStatus.Text = text;
-			if(progressStatus.Adjustment.Value > progressStatus.Adjustment.Upper)
-				logger.Warn("Значение ({0}) прогресс бара в статусной строке больше максимального ({1})",
-							(int)progressStatus.Adjustment.Value,
-							(int)progressStatus.Adjustment.Upper
-						   );
-			QSMain.WaitRedraw();
-		}
-
-		public void ProgressClose()
-		{
-			progressStatus.Text = null;
-			progressStatus.Visible = false;
-			QSMain.WaitRedraw();
-		}
-
-		#endregion
 	}
 }

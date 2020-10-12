@@ -513,7 +513,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			VodovozOrder orderAlias = null;
 			ReceiptForOrderNode resultAlias = null;
 
-			var orderPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.ByCard };
+			var orderPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.ByCard, PaymentType.Terminal };
 			var orderStatusesForReceipts = new OrderStatus[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
 			var result = uow.Session.QueryOver<CashReceipt>()
@@ -669,6 +669,17 @@ namespace Vodovoz.EntityRepositories.Orders
 				.List();
 
 			return paymentItems;
+		}
+		
+		public bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId)
+		{
+			var selfDeliveryDocument = uow.Session.QueryOver<SelfDeliveryDocument>()
+			                              .Where(x => x.Order.Id == orderId)
+			                              .Take(1).List()?.FirstOrDefault();
+			if(selfDeliveryDocument != null)
+				return false;
+
+			return true;
 		}
 	}
 }

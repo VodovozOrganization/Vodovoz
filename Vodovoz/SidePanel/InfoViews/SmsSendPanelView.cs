@@ -19,8 +19,6 @@ namespace Vodovoz.SidePanel.InfoViews
 		public SmsSendPanelView()
 		{
 			this.Build();
-			// this.personProvider = personProvider;
-			// this.employeeRepository = employeeRepository;
 			validatedPhoneEntry.WidthRequest = 135;
 			validatedPhoneEntry.ValidationMode = QSWidgetLib.ValidationType.phone;
 			yPhonesListTreeView.ColumnsConfig = ColumnsConfigFactory.Create<Phone>()
@@ -48,7 +46,6 @@ namespace Vodovoz.SidePanel.InfoViews
 					return false;
 				});
 				
-				// Console.Out.WriteLine(validatedPhoneEntry.Text);
 				var smsSender = new SmsPaymentSender();
 				var result = smsSender.SendSmsPaymentToNumber(Order.Id, validatedPhoneEntry.Text);
 				switch (result.Status)
@@ -71,10 +68,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		Counterparty Counterparty{ get; set; }
 		Order Order { get; set; }
 		
-		// private IPersonProvider personProvider { get; set; }
-		// private IEmployeeRepository employeeRepository { get; set; }
-		
-		
+
 		public IInfoProvider InfoProvider { get; set; }
 		public void Refresh()
 		{

@@ -299,13 +299,6 @@ namespace Vodovoz.Reports
 
 			}
 
-			if (yNeedTerminalCheckButton.Active) {
-				parameters["need_terminal"] = true;
-			}
-			else {
-				parameters["need_terminal"] = false;
-			}
-			
 			return new ReportInfo {
 				Identifier = ycheckbuttonDetail.Active ? "Sales.SalesReportDetail" : "Sales.SalesReport",
 				Parameters = parameters

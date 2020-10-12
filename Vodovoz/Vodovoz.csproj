@@ -421,6 +421,8 @@
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
+    <Compile Include="ReportsParameters\CashBookReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CashBookReport.cs" />
     <Compile Include="Representations\ProductGroupVM.cs" />
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
@@ -942,7 +944,6 @@
     <Compile Include="ReportsParameters\Store\DefectiveItemsReport.cs" />
     <Compile Include="DriverTerminal\DriverTerminalWindow.cs" />
     <Compile Include="gtk-gui\Vodovoz.DriverTerminal.DriverTerminalWindow.cs" />
-    <Compile Include="IProgressBarDisplayable.cs" />
     <Compile Include="Dialogs\Logistic\RouresAtDayInfoWnd.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.RouresAtDayInfoWnd.cs" />
     <Compile Include="Dialogs\Employees\TraineeDlg.cs" />
@@ -1768,7 +1769,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="RdlEngineConfig.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -1777,6 +1778,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bottles\ReturnedTareReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Cash\CashBook.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\BillWithoutShipmentForDebt.rdl">

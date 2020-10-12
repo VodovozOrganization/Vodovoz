@@ -331,10 +331,20 @@ namespace Vodovoz.Domain.Orders
 			get => paymentType;
 			set {
 				if(value != paymentType && SetField(ref paymentType, value, () => PaymentType)) {
-					if(PaymentType != PaymentType.ByCard) {
-						OnlineOrder = null;
-						PaymentByCardFrom = null;
+					switch (PaymentType) {
+						case PaymentType.cash:
+						case PaymentType.barter:
+						case PaymentType.cashless:
+						case PaymentType.BeveragesWorld:
+						case PaymentType.ContractDoc:
+							OnlineOrder = null;
+							PaymentByCardFrom = null;
+							break;
+						case PaymentType.ByCard:
+						case PaymentType.Terminal:
+							break;
 					}
+					
 					//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
 					if(Client != null && orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
 						OnChangePaymentType();
@@ -670,13 +680,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual ReturnTareReasonCategory ReturnTareReasonCategory {
 			get => returnTareReasonCategory;
 			set => SetField(ref returnTareReasonCategory, value);
-		}
-		
-		bool needTerminal;
-		[Display(Name = "Нужен терминал для оплаты?")]
-		public virtual bool NeedTerminal {
-			get => needTerminal;
-			set => SetField(ref needTerminal, value);
 		}
 
 		#endregion
@@ -2744,7 +2747,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.Accepted:
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnLoading:
-					ChangeStatus(OrderStatus.Canceled, callTaskWorker);
+					ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
 					routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Overdue);
 					break;
 				case OrderStatus.OnTheWay:
@@ -2754,10 +2757,10 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.NotDelivered:
 				case OrderStatus.Closed:
 					if(guilty == GuiltyTypes.Client) {
-						ChangeStatus(OrderStatus.DeliveryCanceled, callTaskWorker);
+						ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
 						routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
 					} else {
-						ChangeStatus(OrderStatus.NotDelivered, callTaskWorker);
+						ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
 						routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Overdue);
 					}
 					break;
@@ -2765,11 +2768,16 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, 0);
 		}
 
-		public virtual void ChangeStatus(OrderStatus newStatus, CallTaskWorker callTaskWorker)
+		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, CallTaskWorker callTaskWorker)
+		{
+			ChangeStatus(newStatus);
+			callTaskWorker.CreateTasks(this);
+		}
+		
+		public virtual void ChangeStatus(OrderStatus newStatus)
 		{
 			var initialStatus = OrderStatus;
 			OrderStatus = newStatus;
-
 			switch(newStatus) {
 				case OrderStatus.NewOrder:
 					break;
@@ -2803,8 +2811,6 @@ namespace Vodovoz.Domain.Orders
 					break;
 			}
 
-			callTaskWorker.CreateTasks(this);
-
 			if(Id == 0
 			   || newStatus == OrderStatus.Canceled
 			   || newStatus == OrderStatus.NotDelivered
@@ -2823,6 +2829,7 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 		}
+		
 
 		public virtual void ChangeOrderPaymentStatus()
 		{
@@ -2893,7 +2900,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 			if(OrderStatus == OrderStatus.Accepted && permissionService.ValidatePresetPermission("allow_load_selfdelivery")) {
-				ChangeStatus(OrderStatus.OnLoading, callTaskWorker);
+				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 				LoadAllowedBy = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			}
 		}
@@ -2924,7 +2931,7 @@ namespace Vodovoz.Domain.Orders
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery"))
 				return;
 
-			ChangeStatus(PayAfterShipment ? OrderStatus.Closed : OrderStatus.Accepted, callTaskWorker);
+			ChangeStatusAndCreateTasks(PayAfterShipment ? OrderStatus.Closed : OrderStatus.Accepted, callTaskWorker);
 		}
 
 		/// <summary>
@@ -2973,16 +2980,16 @@ namespace Vodovoz.Domain.Orders
 
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
-					ChangeStatus(OrderStatus.Closed, callTaskWorker);
+					ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
 					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
 				} else
-					ChangeStatus(OrderStatus.OnLoading, callTaskWorker);
+					ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 
 				return;
 			}
 
 			if(OrderStatus == OrderStatus.OnLoading && isFullyLoad)
-				ChangeStatus(OrderStatus.Closed, callTaskWorker);
+				ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
 		}
 
 		/// <summary>
@@ -3038,9 +3045,9 @@ namespace Vodovoz.Domain.Orders
 				return;
 
 			if(PayAfterShipment || OrderTotalSum == 0)
-				ChangeStatus(OrderStatus.Accepted, callTaskWorker);
+				ChangeStatusAndCreateTasks(OrderStatus.Accepted, callTaskWorker);
 			else
-				ChangeStatus(OrderStatus.WaitForPayment, callTaskWorker);
+				ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, callTaskWorker);
 		}
 
 		/// <summary>
@@ -3060,7 +3067,7 @@ namespace Vodovoz.Domain.Orders
 			if(SelfDelivery)
 				AcceptSelfDeliveryOrder(callTaskWorker);
 			else if(CanSetOrderAsAccepted)
-				ChangeStatus(OrderStatus.Accepted, callTaskWorker);
+				ChangeStatusAndCreateTasks(OrderStatus.Accepted, callTaskWorker);
 
 			AcceptedOrderEmployee = currentEmployee;
 		}
@@ -3112,7 +3119,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 
 			if(CanSetOrderAsEditable)
-				ChangeStatus(OrderStatus.NewOrder, callTaskWorker);
+				ChangeStatusAndCreateTasks(OrderStatus.NewOrder, callTaskWorker);
 		}
 
 		/// <summary>
@@ -3299,15 +3306,15 @@ namespace Vodovoz.Domain.Orders
 			switch(PaymentType) {
 				case PaymentType.cash:
 				case PaymentType.BeveragesWorld:
-					ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
+					ChangeStatusAndCreateTasks(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
 					break;
 				case PaymentType.cashless:
 				case PaymentType.ByCard:
-					ChangeStatus(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed, callTaskWorker);
+					ChangeStatusAndCreateTasks(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed, callTaskWorker);
 					break;
 				case PaymentType.barter:
 				case PaymentType.ContractDoc:
-					ChangeStatus(OrderStatus.Closed, callTaskWorker);
+					ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
 					break;
 			}
 			//обновление актуальных кол-в из документов самовывоза, включая не сохранённый
@@ -3399,17 +3406,10 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, ReturnedTare ?? 0, forfeitQuantity ?? 0);
 		}
 
-		public virtual void ChangePaymentTypeToByCard (CallTaskWorker callTaskWorker) {
+		public virtual void ChangePaymentTypeToByCard (CallTaskWorker callTaskWorker)
+		{
 			PaymentType = PaymentType.ByCard;
-			if (!PayAfterShipment)
-			{
-				ChangeStatus(OrderStatus.Accepted, callTaskWorker);
-				OrderPaymentStatus = OrderPaymentStatus.Paid;
-			}
-			else
-			{
-				OrderStatus = OrderStatus.Closed;
-			}
+			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
 		}
 
 		#region Работа с документами
@@ -4051,8 +4051,8 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				if(IsService && PaymentType == PaymentType.cashless
-				   && newStatus == OrderStatus.Accepted
-				   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders")) {
+				             && newStatus == OrderStatus.Accepted
+				             && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders")) {
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.OrderStatus) }
@@ -4064,6 +4064,19 @@ namespace Vodovoz.Domain.Orders
 						"Недостаточно прав для подтверждения зыкрывашки по контракту. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.IsContractCloser) }
 					);
+				}
+
+				if (validationContext.Items.ContainsKey("AddressStatus")) {
+					RouteListItemStatus addressStatus = (RouteListItemStatus) validationContext.Items["AddressStatus"];
+					if (newStatus == OrderStatus.Closed &&
+                                     addressStatus != RouteListItemStatus.Transfered &&
+                                     PaymentType == PaymentType.Terminal &&
+                                     OrderStatus != OrderStatus.DeliveryCanceled &&
+                                     OrderStatus != OrderStatus.NotDelivered &&
+                                     OnlineOrder == null)
+						yield return new ValidationResult(
+							"Если в заказе выбран тип оплаты терминал, необходимо заполнить номер оплаты.",
+							new[] {this.GetPropertyName(o => o.OnlineOrder)});
 				}
 			}
 
@@ -4087,12 +4100,12 @@ namespace Vodovoz.Domain.Orders
 			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 					new[] { this.GetPropertyName(o => o.OnlineOrder) });
-			
+
 			if(!EShopOrder.HasValue
-			   && OrderItems
-				   .Where(x => x.Nomenclature.ProductGroup != null)
-				   .Select(x => ProductGroup.GetRootParent(x.Nomenclature.ProductGroup))
-				   .Any(x => x.Id == new NomenclatureParametersProvider().RootProductGroupForOnlineStoreNomenclatures))
+				&& OrderItems
+					.Where(x => x.Nomenclature.ProductGroup != null)
+					.Select(x => ProductGroup.GetRootParent(x.Nomenclature.ProductGroup))
+					.Any(x => x.Id == new NomenclatureParametersProvider().RootProductGroupForOnlineStoreNomenclatures)) 
 				yield return new ValidationResult(
 					"При добавлении в заказ номенклатур с группой товаров интернет-магазиа необходимо указать номер заказа интернет-магазина.",
 					new[] { nameof(EShopOrder) });

@@ -10,8 +10,6 @@ namespace SmsPaymentService
         /// <summary>
         /// ID платежа во внешней базе
         /// </summary>
-        public int ExternalId { get; set; }
-        
-        public Exception Exception { get; set; }
+        public int? ExternalId { get; set; }
     }
 }

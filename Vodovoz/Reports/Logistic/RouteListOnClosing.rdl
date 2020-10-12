@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="RouteLists">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	route_lists.id AS routeListId,
@@ -105,7 +105,7 @@ ORDER BY routeListDate, routeListId
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="routeListId">
           <DataField>routeListId</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -191,7 +191,7 @@ ORDER BY routeListDate, routeListId
             <Width>50.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.7pt</Width>
+            <Width>38.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>105.7pt</Width>
@@ -211,8 +211,8 @@ ORDER BY routeListDate, routeListId
           <TableColumn>
             <Width>126.0pt</Width>
           </TableColumn>
-          <TableColumn >
-            <Width>134.1pt</Width>
+          <TableColumn>
+            <Width>127.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>84.9pt</Width>
@@ -382,7 +382,7 @@ ORDER BY routeListDate, routeListId
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
                       <Value>Комментарий логиста</Value>
@@ -569,14 +569,15 @@ ORDER BY routeListDate, routeListId
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
                       <Value>={logisticians_comment}</Value>
@@ -586,8 +587,8 @@ ORDER BY routeListDate, routeListId
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -724,7 +725,7 @@ ORDER BY routeListDate, routeListId
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
                       <Value>
@@ -868,7 +869,7 @@ ORDER BY routeListDate, routeListId
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
                       <Value>

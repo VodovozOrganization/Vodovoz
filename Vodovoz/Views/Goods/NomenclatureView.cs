@@ -66,8 +66,8 @@ namespace Vodovoz.Views.Goods
 			enumTareVolume.Binding.AddBinding(ViewModel.Entity, e => e.TareVolume, w => w.SelectedItemOrNull).InitializeFromSource();
 			enumTareVolume.Binding.AddBinding(ViewModel, vm => vm.VisibilityWaterCategoryItems, w => w.Visible).InitializeFromSource();
 			ycheckDisposableTare.Binding.AddBinding(ViewModel.Entity, e => e.IsDisposableTare, w => w.Active).InitializeFromSource();
-			ycheckDisposableTare.Binding.AddBinding(ViewModel, vm => vm.VisibilityWaterCategoryItems, w => w.Visible).InitializeFromSource();
-			labelTypeTare.Binding.AddBinding(ViewModel, vm => vm.VisibilityWaterCategoryItems, w => w.Visible).InitializeFromSource();
+			ycheckDisposableTare.Binding.AddBinding(ViewModel, vm => vm.VisibilityWaterOrBottleCategoryItems, w => w.Visible).InitializeFromSource();
+			labelTypeTare.Binding.AddBinding(ViewModel, vm => vm.VisibilityWaterOrBottleCategoryItems, w => w.Visible).InitializeFromSource();
 			labelTareVolume.Binding.AddBinding(ViewModel, vm => vm.VisibilityWaterCategoryItems, w => w.Visible).InitializeFromSource();
 			
 			yСolorBtnBottleCapColor.Binding.AddBinding(ViewModel.Entity, e => e.BottleCapColor, w => w.Color, new ColorTextToGdkColorConverter()).InitializeFromSource();

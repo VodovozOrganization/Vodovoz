@@ -122,7 +122,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			logger.Info("Подготавливаем заказы...");
 			PerformanceHelper.StartMeasurement($"Строим оптимальные маршруты");
-			MainClass.progressBarWin.ProgressStart(4);
 
 			// Создаем список поездок всех водителей. Тут перебираем всех водителей с машинами
 			// и создаем поездки для них, в зависимости от выбранного режима работы.
@@ -192,7 +191,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			// и в фоновом режиме начинает считать недостающую матрицу.
 			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), StatisticsTxtAction);
 
-			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Развозка по {0} районам.", calculatedOrders.Select(x => x.District).Distinct().Count());
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
 
@@ -303,7 +301,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			var solver = routing.solver();
 
 			PerformanceHelper.AddTimePoint(logger, $"Настроили оптимизацию");
-			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Закрываем модель...");
 
 			if(
@@ -333,12 +330,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			PerformanceHelper.AddTimePoint(logger, $"Закрыли модель");
 			logger.Info("Поиск решения...");
-			MainClass.progressBarWin.ProgressAdd();
 
 			Assignment solution = routing.SolveWithParameters(search_parameters);
 			PerformanceHelper.AddTimePoint(logger, $"Получили решение.");
 			logger.Info("Готово. Заполняем.");
-			MainClass.progressBarWin.ProgressAdd();
 #if DEBUG
 			PrintMatrixCount(distanceCalculator.matrixcount);
 #endif
@@ -395,8 +390,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Debug("SLargusPenality:{0}", string.Join(", ", CallbackDistanceDistrict.SLargusPenality.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
 #endif
 
-			MainClass.progressBarWin.ProgressAdd();
-
 			if(ProposedRoutes.Count > 0)
 				logger.Info($"Предложено {ProposedRoutes.Count} маршрутов.");
 			PerformanceHelper.Main.PrintAllPoints(logger);
@@ -434,7 +427,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			logger.Info("Подготавливаем заказы...");
 			PerformanceHelper.StartMeasurement($"Строим маршрут");
-			MainClass.progressBarWin.ProgressStart(4);
 
 			List<CalculatedOrder> calculatedOrders = new List<CalculatedOrder>();
 
@@ -448,7 +440,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), StatisticsTxtAction);
 
-			MainClass.progressBarWin.ProgressAdd();
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
 
 			logger.Info("Создаем модель...");
@@ -491,7 +482,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			var solver = routing.solver();
 
 			PerformanceHelper.AddTimePoint(logger, $"Настроили оптимизацию");
-			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Закрываем модель...");
 			logger.Info("Рассчет расстояний между точками...");
 			routing.CloseModelWithParameters(search_parameters);
@@ -503,12 +493,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			PerformanceHelper.AddTimePoint(logger, $"Закрыли модель");
 			logger.Info("Поиск решения...");
-			MainClass.progressBarWin.ProgressAdd();
 
 			Assignment solution = routing.SolveWithParameters(search_parameters);
 			PerformanceHelper.AddTimePoint(logger, $"Получили решение.");
 			logger.Info("Готово. Заполняем.");
-			MainClass.progressBarWin.ProgressAdd();
 			Console.WriteLine("Status = {0}", routing.Status());
 			ProposedRoute proposedRoute = null;
 			if(solution != null) {
@@ -545,7 +533,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				}
 			}
 
-			MainClass.progressBarWin.ProgressAdd();
 			PerformanceHelper.Main.PrintAllPoints(logger);
 
 			if(distanceCalculator.ErrorWays.Count > 0) {

@@ -73,7 +73,7 @@ using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 
-public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
+public partial class MainWindow : Gtk.Window
 {
 	private static Logger logger = LogManager.GetCurrentClassLogger();
 	uint LastUiId;
@@ -163,56 +163,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 		BanksUpdater.CheckBanksUpdate(false);
 	}
-
-	#region IProgressBarDisplayable implementation
-
-	public void ProgressStart(double maxValue, double minValue = 0, string text = null, double startValue = 0)
-	{
-		progressStatus.Adjustment = new Adjustment(startValue, minValue, maxValue, 1, 1, 1);
-		progressStatus.Text = text;
-		progressStatus.Visible = true;
-		QSMain.WaitRedraw();
-	}
-
-	public void ProgressUpdate(double curValue)
-	{
-		if(progressStatus == null || progressStatus.Adjustment == null)
-			return;
-		progressStatus.Adjustment.Value = curValue;
-		QSMain.WaitRedraw();
-	}
-
-	public void ProgressUpdate(string curText)
-	{
-		if(progressStatus == null || progressStatus.Adjustment == null)
-			return;
-		progressStatus.Text = curText;
-		QSMain.WaitRedraw();
-	}
-
-	public void ProgressAdd(double addValue = 1, string text = null)
-	{
-		if(progressStatus == null)
-			return;
-		progressStatus.Adjustment.Value += addValue;
-		if(text != null)
-			progressStatus.Text = text;
-		if(progressStatus.Adjustment.Value > progressStatus.Adjustment.Upper)
-			logger.Warn("Значение ({0}) прогресс бара в статусной строке больше максимального ({1})",
-						(int)progressStatus.Adjustment.Value,
-						(int)progressStatus.Adjustment.Upper
-					   );
-		QSMain.WaitRedraw();
-	}
-
-	public void ProgressClose()
-	{
-		progressStatus.Text = null;
-		progressStatus.Visible = false;
-		QSMain.WaitRedraw();
-	}
-
-	#endregion
 
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
 	{
@@ -1435,6 +1385,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
 			() => new QSReport.ReportViewDlg(new IncomeBalanceReport())
+		);
+	}
+	
+	protected void OnCashBoolReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<CashBookReport>(),
+			() => new QSReport.ReportViewDlg(new CashBookReport(new SubdivisionRepository(), ServicesConfig.CommonServices))
 		);
 	}
 

@@ -15,6 +15,7 @@ using Vodovoz.Repositories.HumanResources;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
@@ -180,11 +181,21 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.ExtraCash).Editing()
 					.Adjustment(new Adjustment(0, -1000000, 1000000, 1, 1, 1))
 				.AddColumn("№ оплаты")
-					.AddTextRenderer(node => node.TerminalPaymentNumber).Editable()
+					.AddTextRenderer(node => node.Order.OnlineOrder.ToString())
+						.AddSetter((cell, node) => cell.Editable = 
+							(node.Order.PaymentType == PaymentType.Terminal || node.Order.PaymentType == PaymentType.ByCard) &&
+							node.Status != RouteListItemStatus.Transfered &&
+							node.Status != RouteListItemStatus.Canceled &&
+							node.Status != RouteListItemStatus.Overdue)
+						.EditedEvent(YTreeViewItemsOnlineOrderEdited)
 				.AddColumn("Итого\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.TotalCash)
+				.AddColumn("Итого\n(терм.)").HeaderAlignment(0.5f).EnterToNextCell()
+					.AddNumericRenderer(node => 
+						(node.Status != RouteListItemStatus.Transfered && 
+						node.Order.PaymentType == PaymentType.Terminal) ? node.Order.ActualTotalSum : 0)
 				.AddColumn ("Комментарий\nкассира")
-					.AddTextRenderer (node => node.CashierComment).EditedEvent (CommentCellEdited).Editable()
+					.AddTextRenderer (node => node.CashierComment).EditedEvent(CommentCellEdited).Editable()
 				// Комментарий менеджера ответственного за водительский телефон
 				.AddColumn("Вод. телефон").HeaderAlignment(0.5f)
 					.SetTag("DriverNumber")
@@ -216,26 +227,26 @@ namespace Vodovoz
 					var color = colorWhite;
 					if(!node.IsDelivered()) {
 						color = colorRed;
-					} else {
+					} else { 
 						var itemChanged = node.Order.OrderItems
-							.Where(item => !item.Nomenclature.IsSerial)
-							.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-						    .Any(item => !item.IsDelivered);
+					                               .Where(item => !item.Nomenclature.IsSerial)
+					                               .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+					                               .Any(item => !item.IsDelivered);
 						var equipmentChanged = node.Order.OrderEquipments.Any(eq => !eq.IsFullyDelivered);
 						if(itemChanged || equipmentChanged) {
 							color = colorLightBlue;
 						}
 					}
-					if(node.Status == RouteListItemStatus.Transfered) {
+					if(node.Status == RouteListItemStatus.Transfered) { 
 						color = colorYellow;
 					}
 					cell.CellBackgroundGdk = color;
 					//Выделение цветом ячейки с заказом, если валидация этого заказа не пройдет при сохранении
-					if(!node.AddressIsValid) {
+					if(!node.AddressIsValid) { 
 						var column = ytreeviewItems.Columns.FirstOrDefault(x => x.Title == "Заказ");
 						if(column != null) {
 							var renderer = column.CellRenderers.FirstOrDefault(x => x == cell);
-							if(renderer != null) {
+							if(renderer != null) { 
 								renderer.CellBackgroundGdk = colorDarkRed;
 							}
 						}
@@ -243,6 +254,16 @@ namespace Vodovoz
 				});
 
 			ytreeviewItems.ColumnsConfig = config.Finish();
+		}
+
+		private void YTreeViewItemsOnlineOrderEdited(object o, EditedArgs args) {
+			var node = ytreeviewItems.GetSelectedObject<RouteListItem>();
+
+			var isNumber = int.TryParse(args.NewText, out var res);
+
+			if (node != null && isNumber && res > 0) {
+				node.Order.OnlineOrder = res;
+			}
 		}
 
 		Gdk.Pixbuf GetRowIcon(RouteListItem item)

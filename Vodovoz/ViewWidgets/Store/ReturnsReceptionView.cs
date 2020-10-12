@@ -13,6 +13,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -163,7 +164,13 @@ namespace Vodovoz
 		        .TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
 		        .List<ReceptionItemNode>();
 
-			var needTerminal = RouteList.Addresses.Any(x => x.Order.NeedTerminal);
+			var loadDocs = uow.Session.QueryOver<CarLoadDocument>()
+			                  .Where(x => x.RouteList.Id == RouteList.Id)
+			                  .List();
+			
+			var isTerminalLoaded =
+				loadDocs.SelectMany(x => x.ObservableItems)
+				        .Any(x => x.Nomenclature.Id == terminalId);
 			
 			var returnableTerminal = uow.Session.QueryOver<EmployeeNomenclatureMovementOperation>()
 			                            .Left.JoinAlias(x => x.Nomenclature, () => nomenclatureAlias)
@@ -189,7 +196,7 @@ namespace Vodovoz
 					ReceptionReturnsList.Add(equipment);
 			}
 
-			if (returnableTerminal != null && needTerminal) {
+			if (returnableTerminal != null && isTerminalLoaded) {
 				if (ReceptionReturnsList.All(i => i.NomenclatureId != returnableTerminal.NomenclatureId))
 					ReceptionReturnsList.Add(returnableTerminal);
 			}

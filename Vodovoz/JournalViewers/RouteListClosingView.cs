@@ -123,7 +123,7 @@ namespace Vodovoz
 				if(rl == null) {
 					return;
 				}
-				rl.ChangeStatus(RouteListStatus.OnClosing, callTaskWorker);
+				rl.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, callTaskWorker);
 				UoW.Save(rl);
 				UoW.Commit();
 			}

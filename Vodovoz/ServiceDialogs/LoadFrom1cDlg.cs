@@ -1149,7 +1149,7 @@ namespace Vodovoz
 
 					if (loaded.DeliveryPoint != null && loaded.DeliverySchedule != null 
 						&& !String.IsNullOrWhiteSpace(loaded.DeliveryPoint.CompiledAddress))
-						loaded.ChangeStatus(OrderStatus.Accepted, CallTaskWorker);
+						loaded.ChangeStatusAndCreateTasks(OrderStatus.Accepted, CallTaskWorker);
 
 					uow.Save (loaded);
 				}
@@ -1191,7 +1191,7 @@ namespace Vodovoz
 				if((order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.NewOrder) 
 				   && !String.IsNullOrWhiteSpace(order.Code1c))
 				{
-					order.ChangeStatus (OrderStatus.Canceled, CallTaskWorker);
+					order.ChangeStatusAndCreateTasks (OrderStatus.Canceled, CallTaskWorker);
 					uow.Save (order);
 				}
 			}

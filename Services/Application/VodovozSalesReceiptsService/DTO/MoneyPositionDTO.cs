@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
 namespace VodovozSalesReceiptsService.DTO
@@ -28,10 +29,8 @@ namespace VodovozSalesReceiptsService.DTO
 			var card = "CARD";
 			
 			switch (order.PaymentType) {
-				case Vodovoz.Domain.Client.PaymentType.cash:
-					paymentType = order.NeedTerminal ? card : cash;
-					break;
-				case Vodovoz.Domain.Client.PaymentType.ByCard:
+				case PaymentType.Terminal:
+				case PaymentType.ByCard:
 					paymentType = card;
 					break;
 				default:

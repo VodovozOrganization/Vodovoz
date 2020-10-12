@@ -385,7 +385,7 @@ namespace Vodovoz
 				SetSensetivity(false);
 				if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute)) {
 					if(MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?")) {
-						Entity.CompleteRoute(wageParameterService, CallTaskWorker);
+						Entity.CompleteRouteAndCreateTask(wageParameterService, CallTaskWorker);
 					}
 				}
 
@@ -472,7 +472,7 @@ namespace Vodovoz
 			foreach(RouteListKeepingItemNode item in selectedObjects) {
 				if(item.Status == RouteListItemStatus.Transfered)
 					continue;
-				item.RouteListItem.UpdateStatus(UoW, RouteListItemStatus.Completed, CallTaskWorker);
+				item.RouteListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Completed, CallTaskWorker);
 			}
 		}
 
@@ -562,7 +562,7 @@ namespace Vodovoz
 		public void UpdateStatus(RouteListItemStatus value, CallTaskWorker callTaskWorker)
 		{
 			var uow = RouteListItem.RouteList.UoW;
-			RouteListItem.UpdateStatus(uow, value, callTaskWorker);
+			RouteListItem.UpdateStatusAndCreateTask(uow, value, callTaskWorker);
 			HasChanged = true;
 			OnPropertyChanged<RouteListItemStatus>(() => Status);
 		}

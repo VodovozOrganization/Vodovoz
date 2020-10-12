@@ -35,6 +35,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using QS.Tools;
+using Vodovoz.Domain.Client;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
@@ -393,9 +394,16 @@ namespace Vodovoz
 			ytreeviewFuelDocuments.ColumnsConfig = config.Finish();
 		}
 
-		private decimal GetCashOrder()
-		{
-			return Repository.Cash.CashRepository.CurrentRouteListCash(UoW, Entity.Id);
+		private decimal GetCashOrder() {
+			return CashRepository.CurrentRouteListCash(UoW, Entity.Id);
+		}
+
+		private decimal GetTerminalOrdersSum() {
+			var result = Entity.Addresses.Where(x => x.Order.PaymentType == PaymentType.Terminal &&
+																		x.Status != RouteListItemStatus.Transfered)
+												 .Sum(x => x.Order.ActualTotalSum);
+
+			return result;
 		}
 
 		void OnCalUnloadUpdated(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<CarUnloadDocument> e)
@@ -598,6 +606,7 @@ namespace Vodovoz
 				totalCollected - Entity.PhoneSum,
 				CurrencyWorks.CurrencyShortName
 			);
+			labelTerminalSum.Text = $"По терминалу: {GetTerminalOrdersSum()} {CurrencyWorks.CurrencyShortName}";
 			labelTotal.Markup = string.Format(
 				"Итого сдано: <b>{0:F2}</b> {1}",
 				GetCashOrder() - (decimal)advanceSpinbutton.Value,
@@ -666,10 +675,11 @@ namespace Vodovoz
 			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies) || Entity.DifferencesConfirmed;
 		}
 
-		public override bool Save()
-		{
-			var valid = new QSValidator<RouteList>(Entity,new Dictionary<object, object>() { { nameof(IRouteListItemRepository), new RouteListItemRepository() } });
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+		public override bool Save() {
+			var valid = new QSValidator<RouteList>(Entity,
+				new Dictionary<object, object>{{nameof(IRouteListItemRepository), new RouteListItemRepository()}});
+			
+			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
 
 			if(!ValidateOrders()) {
@@ -737,7 +747,7 @@ namespace Vodovoz
 			if(Entity.Total != cash) {
 				MessageDialogHelper.RunWarningDialog($"Невозможно подтвердить МЛ, сумма МЛ ({CurrencyWorks.GetShortCurrencyString(Entity.Total)}) не соответствует кассе ({CurrencyWorks.GetShortCurrencyString(cash)}).");
 				if(Entity.Status == RouteListStatus.OnClosing && Entity.ConfirmedDistance <= 0 && Entity.NeedMileageCheck && MessageDialogHelper.RunQuestionDialog("По МЛ не принят километраж, перевести в статус проверки километража?")) {
-					Entity.ChangeStatus(RouteListStatus.MileageCheck, CallTaskWorker);
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
 				}
 				return;
 			}

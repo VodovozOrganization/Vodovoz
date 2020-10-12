@@ -48,21 +48,22 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="BitrixPaymentWorker.cs" />
+        <Compile Include="BitrixPaymentController.cs" />
         <Compile Include="DTO\PaymentResult.cs" />
         <Compile Include="DTO\RequestBody.cs" />
         <Compile Include="DTO\SendResponse.cs" />
+        <Compile Include="DTO\SmsPaymentCacheDTO.cs" />
         <Compile Include="DTO\SmsPaymentDTO.cs" />
         <Compile Include="DTO\StatusCode.cs" />
-        <Compile Include="FileProvider.cs" />
-        <Compile Include="IPaymentWorker.cs" />
+        <Compile Include="SmsPaymentFileCache.cs" />
+        <Compile Include="IPaymentController.cs" />
         <Compile Include="ISmsPaymentService.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="SmsPaymentService.cs" />
         <Compile Include="IDriverPaymentService.cs" />
         <Compile Include="SmsPaymentServiceSetting.cs" />
         <Compile Include="OverduePaymentsWorker.cs" />
-        <Compile Include="UnsavedPaymentsWorker.cs" />
+        <Compile Include="CachePaymentsWorker.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\InstantSmsService\InstantSmsService.csproj">

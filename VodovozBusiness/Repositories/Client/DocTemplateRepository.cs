@@ -14,6 +14,7 @@ namespace Vodovoz.Repository.Client
 			switch(paymentType) {
 				case PaymentType.cash:
 				case PaymentType.ByCard:
+				case PaymentType.Terminal:
 					if(clientType == PersonType.legal) {
 						return ContractType.CashUL;
 					}else {

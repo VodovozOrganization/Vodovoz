@@ -61,6 +61,10 @@ namespace Vodovoz.ViewModels.Goods
 		public bool VisibilityWaterCategoryItems =>
 			Entity.Category == NomenclatureCategory.water;
 		
+		public bool VisibilityWaterOrBottleCategoryItems =>
+			Entity.Category == NomenclatureCategory.water 
+			|| Entity.Category == NomenclatureCategory.bottle;
+		
 		public bool VisibilitySalesCategoriesItems =>
 			Nomenclature.GetCategoriesWithSaleCategory().Contains(Entity.Category);
 		
@@ -97,6 +101,7 @@ namespace Vodovoz.ViewModels.Goods
 			SetPropertyChangeRelation(
 				e => e.Category,
 				() => VisibilityWaterInNotDisposableTareCategoryItems,
+				() => VisibilityWaterOrBottleCategoryItems,
 				() => VisibilityWaterCategoryItems,
 				() => VisibilitySalesCategoriesItems,
 				() => VisibilityMasterCategoryItems,
@@ -161,6 +166,9 @@ namespace Vodovoz.ViewModels.Goods
 		public void OnEnumTypeChangedByUser(object sender, EventArgs e) {
 			if(Entity.Id == 0 && Nomenclature.GetCategoriesWithSaleCategory().Contains(Entity.Category))
 				Entity.SaleCategory = SaleCategory.notForSale;
+
+			if (Entity.Category != NomenclatureCategory.water && Entity.Category != NomenclatureCategory.bottle)
+				Entity.IsDisposableTare = false;
 		}
 
 		protected override void BeforeValidation() {

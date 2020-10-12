@@ -366,7 +366,7 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) => {
-				routeListItem.UpdateStatus(UoW, RouteListItemStatus.Overdue, CallTaskWorker);
+				routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Overdue, CallTaskWorker);
 				routeListItem.FillCountsOnCanceled();
 				UpdateButtonsState();
 				this.OnCloseTab(false);
@@ -378,7 +378,7 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) => {
-				routeListItem.UpdateStatus(UoW, RouteListItemStatus.Canceled, CallTaskWorker);
+				routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Canceled, CallTaskWorker);
 				routeListItem.FillCountsOnCanceled();
 				UpdateButtonsState();
 				this.OnCloseTab(false);
@@ -387,7 +387,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Completed, CallTaskWorker);
+			routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Completed, CallTaskWorker);
 			routeListItem.RestoreOrder();
 			routeListItem.FirstFillClosing(UoW, wageParameterService);
 			UpdateListsSentivity();
@@ -483,7 +483,10 @@ namespace Vodovoz
 
 		public bool CanClose()
 		{
-			var orderValidator = new QSValidator<Order>(routeListItem.Order);
+			var orderValidator = new QSValidator<Order>(routeListItem.Order,
+				new Dictionary<object, object> {
+				{ "NewStatus", OrderStatus.Closed },
+				{ "AddressStatus", routeListItem.Status }});
 			routeListItem.AddressIsValid = orderValidator.IsValid;
 			orderValidator.RunDlgIfNotValid((Window)this.Toplevel);
 			routeListItem.Order.CheckAndSetOrderIsService();
@@ -497,9 +500,10 @@ namespace Vodovoz
 			OnlineOrderVisible();
 		}
 
-		private void OnlineOrderVisible()
-		{
-			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (routeListItem.Order.PaymentType == PaymentType.ByCard);
+		private void OnlineOrderVisible() {
+			labelOnlineOrder.Visible = entryOnlineOrder.Visible =
+				(routeListItem.Order.PaymentType == PaymentType.ByCard 
+				 || routeListItem.Order.PaymentType == PaymentType.Terminal);
 		}
 
 		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)

@@ -326,10 +326,10 @@ namespace Vodovoz.ViewModel
 
 							foreach(var address in routeList.Addresses) {
 								if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
-									address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading, callTaskWorker);
+									address.Order.ChangeStatusAndCreateTasks(Domain.Orders.OrderStatus.OnLoading, callTaskWorker);
 							}
 
-							routeList.ChangeStatus(RouteListStatus.InLoading, callTaskWorker);
+							routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, callTaskWorker);
 							UoW.Save(routeList);
 						});
 

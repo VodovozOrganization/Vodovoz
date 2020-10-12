@@ -16,5 +16,6 @@ namespace Vodovoz.EntityRepositories.Cash
 		/// Возвращает сумму находящуюся в перемещении между кассами
 		/// </summary>
 		decimal GetIncomePaidSumForOrder(IUnitOfWork uow, int orderId, int? excludedIncomeDoc = null);
+		bool OrderHasIncome(IUnitOfWork uow, int orderId);
 	}
 }
