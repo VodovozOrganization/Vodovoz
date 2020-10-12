@@ -1208,7 +1208,13 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>={address_monday} + {address_tuesday} + {address_wednesday} + {address_thursday} + {address_friday} + {address_saturday} + {address_sunday}</Value>
+                      <Value>=Iif(Fields!address_monday.IsMissing, 0, {address_monday}) +
+ Iif(Fields!address_tuesday.IsMissing, 0, {address_tuesday})  +
+ Iif(Fields!address_wednesday.IsMissing, 0, {address_wednesday})  +
+ Iif(Fields!address_thursday.IsMissing, 0, {address_thursday}) +
+ Iif(Fields!address_friday.IsMissing, 0, {address_friday}) +
+ Iif(Fields!address_saturday.IsMissing, 0, {address_saturday}) +
+ Iif(Fields!address_sunday.IsMissing, 0, {address_sunday})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2295,31 +2301,37 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     T.week_begin,
     T.week_end,
     SUM(T.bottles_monday) as bottles_monday,
-    COUNT(T.address_monday) as address_monday,
+    (COUNT(T.address_monday) * (SUM(T.address_monday) - SUM(T.address_monday) + 1) ) as address_monday,
 
     SUM(T.bottles_tuesday) as bottles_tuesday,
-    COUNT(T.address_tuesday) as address_tuesday,
+    (COUNT(T.address_tuesday) * (SUM(T.address_tuesday) - SUM(T.address_tuesday) + 1) ) as address_tuesday,
+
 
     SUM(T.bottles_wednesday) as bottles_wednesday,
-    COUNT(T.address_wednesday) as address_wednesday,
+    (COUNT(T.address_wednesday) * (SUM(T.address_wednesday) - SUM(T.address_wednesday) + 1) ) as address_wednesday,
+
 
     SUM(T.bottles_thursday) as bottles_thursday,
-    COUNT(T.address_thursday) as address_thursday,
+    (COUNT(T.address_thursday) * (SUM(T.address_thursday) - SUM(T.address_thursday) + 1) ) as address_thursday,
+
 
     SUM(T.bottles_friday) as bottles_friday,
-    COUNT(T.address_friday) as address_friday,
+    (COUNT(T.address_friday) * (SUM(T.address_friday) - SUM(T.address_friday) + 1) ) as address_friday,
+
 
     SUM(T.bottles_saturday) as bottles_saturday,
-    COUNT(T.address_saturday) as address_saturday,
+    (COUNT(T.address_saturday) * (SUM(T.address_saturday) - SUM(T.address_saturday) + 1) ) as address_saturday,
+
 
     SUM(T.bottles_sunday) as bottles_sunday,
-    COUNT(T.address_sunday) as address_sunday
+    (COUNT(T.address_sunday) * (SUM(T.address_sunday) - SUM(T.address_sunday) + 1) ) as address_sunday
+
 FROM
     (SELECT
          week_days.week_begin,
@@ -2399,7 +2411,7 @@ ORDER BY week_begin</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="week_begin">
           <DataField>week_begin</DataField>
           <TypeName>System.DateTime</TypeName>
