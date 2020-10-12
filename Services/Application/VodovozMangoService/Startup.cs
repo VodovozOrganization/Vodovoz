@@ -42,7 +42,7 @@ namespace VodovozMangoService
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
             #if DEBUG
             app.UseMiddleware<PerformanceMiddleware>();
             #endif
