@@ -37,7 +37,7 @@ namespace Vodovoz.Infrastructure.Mango
 		private ConnectionState connectionState;
 		private uint extension;
 		private MangoNotificationClient notificationClient;
-		private readonly CancellationTokenSource notificationCancellation = new CancellationTokenSource();
+		private CancellationTokenSource notificationCancellation;
 		private NotificationMessage LastMessage;
 		private IPage CurrentPage;
 		private uint timer;
@@ -112,6 +112,7 @@ namespace Vodovoz.Infrastructure.Mango
 
 				extension = employee.InnerPhone.Value;
 				ConnectionState = ConnectionState.Disconnected;
+				notificationCancellation = new CancellationTokenSource();
 				notificationClient = new MangoNotificationClient(extension, notificationCancellation.Token);
 				notificationClient.ChanalStateChanged+= NotificationClient_ChanalStateChanged;
 				ConnectionState = notificationClient.IsNotificationActive ? ConnectionState.Connected : ConnectionState.Disconnected;
@@ -124,9 +125,8 @@ namespace Vodovoz.Infrastructure.Mango
 		private void OnUserChanged(EntityChangeEvent[] changeevents)
 		{
 			logger.Info("Текущий сотрудник именён, мог поменятся номер привязки, переподключаемся...");
-			notificationCancellation.Cancel();
-			if(notificationClient != null)
-				notificationClient.Dispose();
+			notificationCancellation?.Cancel();
+			notificationClient?.Dispose();
 			Connect();
 		}
 
@@ -305,7 +305,7 @@ namespace Vodovoz.Infrastructure.Mango
 		public void Dispose()
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
-			notificationCancellation.Cancel();
+			notificationCancellation?.Cancel();
 			if(notificationClient != null)
 				notificationClient.Dispose();
 			GLib.Source.Remove(timer);
