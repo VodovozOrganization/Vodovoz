@@ -8,7 +8,7 @@ namespace VodovozMangoService
 {
     public class PerformanceMiddleware
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger ();
+        private static Logger logger = LogManager.GetLogger ("Requests");
         private readonly RequestDelegate _next;
 
         public PerformanceMiddleware(RequestDelegate requestDelegate)
@@ -28,7 +28,7 @@ namespace VodovozMangoService
             if (httpRequest.Form.TryGetValue("json", out values))
                 json = values.ToString();
             
-            logger.Debug($"####REQUEST: {requestString}\nJSON:{json}");
+            logger.Trace($"REQUEST: {requestString} JSON:{json}");
 
             var nextTask = _next.Invoke(httpContext);
             nextTask.ContinueWith(t =>
@@ -41,13 +41,13 @@ namespace VodovozMangoService
                 if (httpRequest.Form.TryGetValue("json", out values))
                     json = values.ToString();
 
-                    if (t.Status == TaskStatus.RanToCompletion)
+                if (t.Status == TaskStatus.RanToCompletion)
                 {
-                    logger.Debug($"{time}ms {requestString}\nJSON:{json}");
+                    logger.Info($"Time: {time}ms {requestString} JSON:{json}");
                 }
                 else
                 {
-                    logger.Debug($"{time}ms [{t.Status}] - {requestString}\nJSON:{json}", t.Exception?.InnerException);
+                    logger.Error(t.Exception?.InnerException, $"Time: {time}ms [{t.Status}] - {requestString} JSON:{json}");
                 }
             });
             return nextTask;
