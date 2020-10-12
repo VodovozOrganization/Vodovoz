@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace VodovozMangoService.DTO
 {
@@ -20,9 +21,11 @@ namespace VodovozMangoService.DTO
         #region Calculated
 
         public CallState CallState => Enum.Parse<CallState>(call_state);
-
+        
+        [JsonIgnore]
         public DateTimeOffset Time => DateTimeOffset.FromUnixTimeSeconds(timestamp);
-
+        
+        [JsonIgnore]
         public TimeSpan Duration => DateTime.UtcNow - Time;
 
         #endregion

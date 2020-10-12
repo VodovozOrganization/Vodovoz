@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using VodovozMangoService.DTO;
 
 namespace VodovozMangoService.Calling
@@ -25,7 +26,7 @@ namespace VodovozMangoService.Calling
 
         public string EventsToText()
         {
-            return String.Join("\n", Events.Values.Select(x => $"  - {x}"));
+            return String.Join("\n", Events.Values.Select(x => $"  - {JsonSerializer.Serialize(x)}"));
         }
         
         #endregion
