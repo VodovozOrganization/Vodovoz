@@ -105,9 +105,6 @@ namespace VodovozMangoService
                         })
                         .UseStartup<Startup>();
                 })
-	            .ConfigureServices(services => 
-		            services.AddHostedService<CallsHostedService>()
-		            )
 	            .UseNLog();
 
         private static void InitNotifacationService(MySqlConnectionStringBuilder stringBuilder)
