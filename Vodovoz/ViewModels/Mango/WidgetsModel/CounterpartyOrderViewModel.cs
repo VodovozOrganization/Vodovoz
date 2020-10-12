@@ -206,7 +206,7 @@ namespace Vodovoz.ViewModels.Mango
 					UoW.Commit();
 				};
 			} else {
-				order.ChangeStatus(OrderStatus.Canceled, callTaskWorker);
+				order.ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
 				UoW.Save(order);
 				UoW.Commit();
 			}
