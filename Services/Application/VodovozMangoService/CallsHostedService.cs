@@ -21,7 +21,7 @@ namespace VodovozMangoService
         
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            logger.Info("Сервис ведения завонков запущен.");
+            logger.Info("Сервис ведения звонков запущен.");
             timer = new Timer(CleanWorks, null, TimeSpan.Zero, 
                 TimeSpan.FromMinutes(1));
 
@@ -30,7 +30,7 @@ namespace VodovozMangoService
         
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            logger.Info("Сервис ведения завонков остановлен.");
+            logger.Info("Сервис ведения звонков остановлен.");
 
             timer?.Change(Timeout.Infinite, 0);
 
