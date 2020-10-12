@@ -13,28 +13,40 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	driver_call_id AS callN
-	,CASE
-		WHEN driver_call_type = 'CallFromAddress' THEN 'C адреса'
-		WHEN driver_call_type = 'CallFromAnywhere' THEN 'Не с адреса'
-	end AS called
-	,rl.id AS ML
-	,CONCAT(emp.last_name, ' ', emp.name, ' ', emp.patronymic) AS FIO
-	,TRIM(BOTH '\n' FROM orders.comment_manager) AS comment_manager
-	,TRIM(BOTH '\n' FROM orders.information_on_tara) AS information_on_tara
-	,TRIM(cli.full_name) AS client
-	,TRIM(orders.address_1c) AS address
+    driver_call_id AS callN
+     ,CASE
+          WHEN driver_call_type = 'CallFromAddress' THEN 'C адреса'
+          WHEN driver_call_type = 'CallFromAnywhere' THEN 'Не с адреса'
+    end AS called
+     ,rl.id AS ML
+     ,CONCAT(empdriver.last_name, ' ', empdriver.name, ' ', empdriver.patronymic) AS FIO
+     ,TRIM(BOTH '\n' FROM orders.comment_manager) AS comment_manager
+     ,TRIM(cli.full_name) AS client
+     ,s.name as subdivision_name
+     ,SUM(
+        IF(
+                    oi.discount_by_stock &gt; 0,
+                    IFNULL(oi.actual_count, oi.count) * oi.price,
+                    IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money
+            )
+    ) AS orderSum
+     ,CONCAT(empcash.last_name, ' ', empcash.name, ' ', empcash.patronymic) AS CasherFIO
+     ,rl.id as rlId
 FROM orders
-	LEFT JOIN route_list_addresses rla ON rla.order_id = orders.id
-	LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
-	LEFT JOIN employees emp ON emp.id = driver_id
-    LEFT JOIN counterparty cli ON cli.id = client_id
-WHERE driver_call_type &lt;&gt; 'NoCall' 
-	AND (@startDate = '' or delivery_date &gt;= @startDate) 
-	AND (@endDate = '' or delivery_date &lt;= @endDate)</CommandText>
+         LEFT JOIN route_list_addresses rla ON rla.order_id = orders.id
+         LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
+         LEFT JOIN employees empdriver ON empdriver.id = driver_id
+         LEFT JOIN employees empcash ON empcash.id = cashier_id
+         LEFT JOIN counterparty cli ON cli.id = client_id
+         LEFT JOIN order_items oi on orders.id = oi.order_id
+         LEFT JOIN subdivisions s on empcash.subdivision_id = s.id
+WHERE driver_call_type &lt;&gt; 'NoCall'
+  AND (@startDate = '' or delivery_date &gt;= @startDate)
+  AND (@endDate = '' or delivery_date &lt;= @endDate)
+GROUP BY oi.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>={?startDate}</Value>
@@ -44,7 +56,7 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="callN">
           <DataField>callN</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
@@ -65,17 +77,21 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
           <DataField>comment_manager</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="information_on_tara">
-          <DataField>information_on_tara</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
         <Field Name="client">
           <DataField>client</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="address">
-          <DataField>address</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
+        <Field Name="CasherFIO">
+          <DataField>CasherFIO</DataField>
+        </Field>
+        <Field Name="orderSum">
+          <DataField>orderSum</DataField>
+        </Field>
+        <Field Name="rlId">
+          <DataField>rlId</DataField>
+        </Field>
+        <Field Name="subdivision_name">
+          <DataField>subdivision_name</DataField>
         </Field>
       </Fields>
     </DataSet>
@@ -104,6 +120,9 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
           <TableColumn>
             <Width>34.2pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>43.8pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>106.0pt</Width>
           </TableColumn>
@@ -113,17 +132,20 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
           <TableColumn>
             <Width>47.6pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>66.9pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>66.9pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>160.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>174.0pt</Width>
-          </TableColumn>
-          <TableColumn>
             <Width>103.0pt</Width>
           </TableColumn>
-          <TableColumn>
-            <Width>126.9pt</Width>
+          <TableColumn >
+            <Width>103.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -152,6 +174,23 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                   <ReportItems>
                     <Textbox Name="Textbox8">
                       <Value>МЛ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>Отдел ВВ</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -218,10 +257,10 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox12">
-                      <Value>Водительский телефон</Value>
+                    <Textbox Name="Textbox27">
+                      <Value>Автор Реализации</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -231,14 +270,33 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>Номер реализации</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox18">
-                      <Value>Информация по таре</Value>
+                    <Textbox Name="Textbox12">
+                      <Value>Водительский телефон</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -269,10 +327,10 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox24">
-                      <Value>Адрес</Value>
+                    <Textbox Name="Textbox33">
+                      <Value>Сумма заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -332,6 +390,26 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>={subdivision_name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="FIO">
@@ -345,7 +423,9 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign >Left</TextAlign>
                       </Style>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -387,10 +467,35 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox13">
-                      <Value>=Fields!comment_manager.Value</Value>
+                    <Textbox Name="Textbox28">
+                      <Value>={CasherFIO}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Left</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>={rlId}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -400,15 +505,15 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox19">
-                      <Value>={information_on_tara}</Value>
+                    <Textbox Name="Textbox13">
+                      <Value>=Fields!comment_manager.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -432,20 +537,21 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox25">
-                      <Value>={address}</Value>
+                    <Textbox Name="Textbox34">
+                      <Value>={orderSum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -457,7 +563,6 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -486,6 +591,19 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -541,9 +659,26 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox17">
+                    <Textbox Name="Textbox29">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -560,7 +695,7 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox20">
+                    <Textbox Name="Textbox17">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -592,9 +727,9 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox26">
+                    <Textbox Name="Textbox35">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -614,7 +749,7 @@ WHERE driver_call_type &lt;&gt; 'NoCall'
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>57.9pt</Top>
+        <Top>57.1pt</Top>
       </Table>
       <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Top>29.09pt</Top>
