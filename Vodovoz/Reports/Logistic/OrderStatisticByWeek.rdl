@@ -144,7 +144,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -301,7 +301,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -319,7 +319,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -338,7 +338,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -381,7 +381,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -402,7 +402,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -423,7 +423,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -444,7 +444,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -465,7 +465,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -486,7 +486,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -507,7 +507,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -528,7 +528,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -570,7 +570,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -590,7 +590,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -610,7 +610,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -630,7 +630,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -650,7 +650,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -670,7 +670,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -690,7 +690,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -710,7 +710,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -730,7 +730,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -750,7 +750,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -770,7 +770,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -790,7 +790,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -810,7 +810,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -830,7 +830,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -850,7 +850,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -867,7 +867,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -895,7 +895,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -915,7 +915,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -934,7 +934,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -955,7 +955,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -974,7 +974,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -995,7 +995,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1014,7 +1014,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1035,7 +1035,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1054,7 +1054,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1075,7 +1075,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1094,7 +1094,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1115,7 +1115,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1134,7 +1134,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1155,7 +1155,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1174,7 +1174,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1184,7 +1184,13 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>={bottles_monday} + {bottles_tuesday} + {bottles_wednesday} + {bottles_thursday} + {bottles_friday} + {bottles_saturday} + {bottles_sunday}</Value>
+                      <Value>=Iif(Fields!bottles_monday.IsMissing, 0, {bottles_monday}) +
+ Iif(Fields!bottles_tuesday.IsMissing, 0, {bottles_tuesday})  +
+ Iif(Fields!bottles_wednesday.IsMissing, 0, {bottles_wednesday})  +
+ Iif(Fields!bottles_thursday.IsMissing, 0, {bottles_thursday}) +
+ Iif(Fields!bottles_friday.IsMissing, 0, {bottles_friday}) +
+ Iif(Fields!bottles_saturday.IsMissing, 0, {bottles_saturday}) +
+ Iif(Fields!bottles_sunday.IsMissing, 0, {bottles_sunday})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1194,7 +1200,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1212,7 +1218,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1241,7 +1247,7 @@
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1261,7 +1267,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1280,7 +1286,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1301,7 +1307,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1320,7 +1326,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1341,7 +1347,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1360,7 +1366,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1381,7 +1387,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1400,7 +1406,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1421,7 +1427,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1440,7 +1446,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1461,7 +1467,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1480,7 +1486,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1501,7 +1507,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1520,7 +1526,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1581,7 +1587,7 @@
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1601,7 +1607,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1620,7 +1626,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1641,7 +1647,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1660,7 +1666,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1681,7 +1687,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1700,7 +1706,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1721,7 +1727,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1740,7 +1746,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1761,7 +1767,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1780,7 +1786,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1801,7 +1807,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1820,7 +1826,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1841,7 +1847,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -1860,7 +1866,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -2250,7 +2256,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2269,7 +2275,7 @@
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                         <Format>0.00</Format>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2319,25 +2325,25 @@ FROM
          week_days.week_begin,
          week_days.week_end,
 
-         IF(dayofweek = 0, order_sum.count, 0)  AS bottles_monday,
+         IF(dayofweek = 0, order_sum.count, null)  AS bottles_monday,
          IF(dayofweek = 0, compiled_address, null)  AS address_monday,
 
-         IF(dayofweek = 1 , order_sum.count, 0)  AS bottles_tuesday,
+         IF(dayofweek = 1 , order_sum.count, null)  AS bottles_tuesday,
          IF(dayofweek = 1 , compiled_address, null)  AS address_tuesday,
 
-         IF(dayofweek = 2 , order_sum.count, 0)  AS bottles_wednesday,
+         IF(dayofweek = 2 , order_sum.count, null)  AS bottles_wednesday,
          IF(dayofweek = 2 , compiled_address, null)  AS address_wednesday,
 
-         IF(dayofweek = 3 , order_sum.count, 0)  AS bottles_thursday,
+         IF(dayofweek = 3 , order_sum.count, null)  AS bottles_thursday,
          IF(dayofweek = 3 , compiled_address, null)  AS address_thursday,
 
-         IF(dayofweek = 4 , order_sum.count, 0)  AS bottles_friday,
+         IF(dayofweek = 4 , order_sum.count, null)  AS bottles_friday,
          IF(dayofweek = 4 , compiled_address, null)  AS address_friday,
 
-         IF(dayofweek = 5 , order_sum.count, 0)  AS bottles_saturday,
+         IF(dayofweek = 5 , order_sum.count, null)  AS bottles_saturday,
          IF(dayofweek = 5 , compiled_address, null)  AS address_saturday,
 
-         IF(dayofweek = 6 , order_sum.count, 0)  AS bottles_sunday,
+         IF(dayofweek = 6 , order_sum.count, null)  AS bottles_sunday,
          IF(dayofweek = 6 , compiled_address, null)  AS address_sunday
      FROM
          orders
@@ -2383,8 +2389,7 @@ FROM
        AND orders.is_contract_closer = 0
        AND orders.service = 0) as T
 GROUP BY week_begin
-ORDER BY week_begin
-</CommandText>
+ORDER BY week_begin</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
