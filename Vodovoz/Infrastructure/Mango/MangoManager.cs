@@ -220,6 +220,7 @@ namespace Vodovoz.Infrastructure.Mango
 
 			if(message.State == CallState.Connected)
 			{
+				CleanIncomingCalls();
 				ConnectionState = ConnectionState.Talk;
 				FoundByPhoneItemsConfigure();
 				if(message.CallFrom.Type == CallerType.Internal) {
@@ -238,12 +239,22 @@ namespace Vodovoz.Infrastructure.Mango
 				}
 			}
 		}
+
 		private void AddNewIncome(NotificationMessage message)
 		{
 			if(IncomingCalls.Any(x => x.Message == message)) {
 				return;
 			}
 			IncomingCalls.Add(new IncomingCall(message));
+			OnPropertyChanged(nameof(IncomingCalls));
+		}
+
+		private void CleanIncomingCalls()
+		{
+			if(!IncomingCalls.Any()) {
+				return;
+			}
+			IncomingCalls.Clear();
 			OnPropertyChanged(nameof(IncomingCalls));
 		}
 
@@ -276,7 +287,7 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			mangoController.HangUp(LastMessage.CallId);
 			LastMessage = null;
-			IncomingCalls.Clear();
+			CleanIncomingCalls();
 			if(CurrentPage != null)
 				navigation.ForceClosePage(CurrentPage);
 		}
