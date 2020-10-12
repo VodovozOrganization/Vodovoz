@@ -23,6 +23,11 @@ namespace VodovozMangoService.Calling
 
         public TimeSpan LiveTime => DateTime.Now - created;
 
+        public string EventsToText()
+        {
+            return String.Join("\n", Events.Values.Select(x => $"  - {x}"));
+        }
+        
         #endregion
 
     }

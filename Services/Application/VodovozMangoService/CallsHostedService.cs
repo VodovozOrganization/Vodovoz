@@ -51,7 +51,7 @@ namespace VodovozMangoService
                     "Следующие {0} звонка не получили события Desconnected в течении 1 часа:\n",
                     "Следующие {0} звонков не получили события Desconnected в течении 1 часа:\n"
                     );
-                noDisconnected.ForEach(info => text += "- CallInfo: " + info + "\n");
+                noDisconnected.ForEach(info => text += $"* CallInfo {info.LastEvent.call_id}:\n{info.EventsToText()}\n");
                 loggerLostEvents.Error(text);
             }
             
@@ -63,7 +63,7 @@ namespace VodovozMangoService
                     "У следующих {0} звонков было только событие Desconnected:\n",
                     "У следующих {0} звонков было только событие Desconnected:\n"
                 );
-                lostIncome.ForEach(info => text += "- CallInfo: " + info + "\n");
+                lostIncome.ForEach(info => text += $"* CallInfo {info.LastEvent.call_id}:\n{info.EventsToText()}\n");
                 loggerLostEvents.Error(text);
             }
             //Удаляем
