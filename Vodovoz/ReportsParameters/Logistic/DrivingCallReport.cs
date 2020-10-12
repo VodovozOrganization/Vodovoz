@@ -22,7 +22,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		public string Title {
 			get {
-				return "Отчет по звонкам водителей";
+				return "Отчёт по водительскому телефону";
 			}
 		}
 
