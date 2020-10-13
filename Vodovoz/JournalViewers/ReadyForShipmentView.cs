@@ -29,7 +29,7 @@ namespace Vodovoz
 		public ReadyForShipmentView()
 		{
 			this.Build();
-			this.TabName = "Готовые к отправке";
+			this.TabName = "Готовые к погрузке";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			tableReadyForShipment.Selection.Changed += OnSelectionChanged;
 		}

@@ -32,7 +32,7 @@ namespace Vodovoz
 		public ReadyForReceptionView ()
 		{
 			this.Build ();
-			this.TabName = "Готовые к приему";
+			this.TabName = "Готовые к разгрузке";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			tableReadyForReception.Selection.Changed += OnSelectionChanged;
 		}
