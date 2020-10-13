@@ -13,7 +13,7 @@ using VodovozMangoService.Calling;
 
 namespace VodovozMangoService
 {
-	public class NotificationServiceImpl : NotificationService.NotificationServiceBase
+	public class NotificationHostedService : NotificationService.NotificationServiceBase
 	{
 		private readonly MySqlConnection connection;
 		private readonly MangoController mangoController;
@@ -21,7 +21,7 @@ namespace VodovozMangoService
 		
 		public readonly List<Subscription> Subscribers = new List<Subscription>();
 
-		public NotificationServiceImpl(MySqlConnection connection, MangoController mangoController)
+		public NotificationHostedService(MySqlConnection connection, MangoController mangoController)
 		{
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
 			this.mangoController = mangoController ?? throw new ArgumentNullException(nameof(mangoController));
