@@ -23,15 +23,15 @@ namespace VodovozMangoService.DTO
             }
         }
 
-        public bool ValidateSign()
+        public bool ValidateSign(VodovozMangoConfiguration configuration)
         {
-            if (Vpbx_Api_Key != Program.VpbxApiKey)
+            if (Vpbx_Api_Key != configuration.VpbxApiKey)
             {
-                logger.Error($"Сервис работает с VpbxApiKey={Program.VpbxApiKey}, а запрос пришел для VpbxApiKey={Vpbx_Api_Key}");
+                logger.Error($"Сервис работает с VpbxApiKey={configuration.VpbxApiKey}, а запрос пришел для VpbxApiKey={Vpbx_Api_Key}");
                 return false;
             }
             
-            var testSign = MangoService.MangoSignHelper.GetSign(Program.VpbxApiKey, Json, Program.VpbxApiSalt);
+            var testSign = MangoService.MangoSignHelper.GetSign(configuration.VpbxApiKey, Json, configuration.VpbxApiSalt);
             return testSign == Sign;
         }
     }

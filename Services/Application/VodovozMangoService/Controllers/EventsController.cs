@@ -12,10 +12,14 @@ namespace VodovozMangoService.Controllers
     public class EventsController : ControllerBase
     {
         private readonly CallsHostedService callsService;
+        private readonly NotificationHostedService notificationHostedService;
+        private readonly VodovozMangoConfiguration configuration;
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        public EventsController(CallsHostedService callsService)
+        public EventsController(CallsHostedService callsService, NotificationHostedService notificationHostedService, VodovozMangoConfiguration configuration)
         {
             this.callsService = callsService ?? throw new ArgumentNullException(nameof(callsService));
+            this.notificationHostedService = notificationHostedService ?? throw new ArgumentNullException(nameof(notificationHostedService));
+            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         [HttpPost("call")]
@@ -24,7 +28,7 @@ namespace VodovozMangoService.Controllers
 #if DEBUG
             logger.Debug($"message={eventRequest.Json}");
 #endif
-            if (!eventRequest.ValidateSign())
+            if (!eventRequest.ValidateSign(configuration))
             {
                 logger.Warn("Запрос с некорретной подписью пропускаем...");
                 return;
@@ -50,7 +54,7 @@ namespace VodovozMangoService.Controllers
                             call.OnHoldCall = callsService.Calls[message.from.taken_from_call_id];
                     }
                 }
-                Program.NotificationServiceInstance.NewEvent(call);
+                notificationHostedService.NewEvent(call);
             }
         }
     }

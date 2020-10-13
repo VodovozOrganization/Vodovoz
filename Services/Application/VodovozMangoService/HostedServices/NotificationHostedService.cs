@@ -1,30 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using MangoService;
 using MangoService.DTO.Users;
+using Microsoft.Extensions.Hosting;
 using MySql.Data.MySqlClient;
 using NLog;
 using VodovozMangoService.Calling;
 
-namespace VodovozMangoService
+namespace VodovozMangoService.HostedServices
 {
-	public class NotificationHostedService : NotificationService.NotificationServiceBase
+	public class NotificationHostedService : NotificationService.NotificationServiceBase, IHostedService
 	{
 		private readonly MySqlConnection connection;
 		private readonly MangoController mangoController;
+		private readonly VodovozMangoConfiguration configuration;
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		
 		public readonly List<Subscription> Subscribers = new List<Subscription>();
 
-		public NotificationHostedService(MySqlConnection connection, MangoController mangoController)
+		public NotificationHostedService(MySqlConnection connection, MangoController mangoController, VodovozMangoConfiguration configuration)
 		{
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
 			this.mangoController = mangoController ?? throw new ArgumentNullException(nameof(mangoController));
+			this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
 		public override async Task Subscribe(NotificationSubscribeRequest request, IServerStreamWriter<NotificationMessage> responseStream, ServerCallContext context)
@@ -290,6 +294,25 @@ namespace VodovozMangoService
 		{
 			Users = mangoController.GetAllVPBXEmploies().ToList();
 			lastUpdateUsers = DateTime.Now;
+		}
+		#endregion
+
+		#region IHostedService
+
+		private Server server;
+		public async Task StartAsync(CancellationToken cancellationToken)
+		{
+			server = new Server
+			{
+				Services = { NotificationService.BindService(this) },
+				Ports = { new ServerPort("0.0.0.0", configuration.NotficationServicePort, ServerCredentials.Insecure) }
+			};
+			server.Start();
+		}
+
+		public async Task StopAsync(CancellationToken cancellationToken)
+		{
+			await server.ShutdownAsync();
 		}
 		#endregion
 	}
