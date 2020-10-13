@@ -19,6 +19,9 @@ namespace Vodovoz.Filters.ViewModels
 
 		public int DaysToBack { get; }
 		public int DaysToForward { get; }
+		public int[] IncludeDistrictsIds { get; set; }
+		public int[] ExceptIds { get; set; }
+
 
 		IRepresentationModel counterpartyRepresentationModel;
 		public IRepresentationModel CounterpartyRepresentationModel {
