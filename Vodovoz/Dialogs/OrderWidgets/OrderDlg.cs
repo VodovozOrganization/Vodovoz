@@ -19,7 +19,6 @@ using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QS.Print;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
@@ -31,15 +30,18 @@ using QS.Report;
 using QS.Tdi;
 using QS.Validation;
 using QSDocTemplates;
+using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
-using Vodovoz.Parameters;
 using QSWidgetLib;
 using RdlEngine;
+using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
+using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -48,34 +50,31 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
-using Vodovoz.EntityRepositories;
-using Vodovoz.Repositories.Client;
+using Vodovoz.JournalSelector;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories;
+using Vodovoz.Repositories.Client;
+using Vodovoz.Repository;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.Core;
-using Vodovoz.Dialogs.Email;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalSelector;
-using Vodovoz.Repository;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
-using Vodovoz.JournalViewModels;
-using fyiReporting.RdlGtkViewer;
 
 namespace Vodovoz
 {
@@ -253,7 +252,8 @@ namespace Vodovoz
 		public OrderDlg(Order copiedOrder, bool NeedCopy) : this()
 		{
 			if(NeedCopy) {
-				CopyOrderFrom(copiedOrder.Id);
+				Entity.Client = copiedOrder.Client;
+				Entity.DeliveryPoint = copiedOrder.DeliveryPoint;
 				FillOrderItems(copiedOrder);
 			}
 		}
