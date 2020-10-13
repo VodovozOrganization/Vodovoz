@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 using QS.Utilities;
 using VodovozMangoService.Calling;
 
-namespace VodovozMangoService
+namespace VodovozMangoService.HostedServices
 {
     public class CallsHostedService : IHostedService, IDisposable
     {

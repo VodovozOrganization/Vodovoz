@@ -1,18 +1,9 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
-using Grpc.Core;
-using Grpc.Core.Logging;
 using Microsoft.AspNetCore.Mvc;
-using NLog.Fluent;
 using VodovozMangoService.Calling;
 using VodovozMangoService.DTO;
+using VodovozMangoService.HostedServices;
 
 namespace VodovozMangoService.Controllers
 {
