@@ -65,6 +65,7 @@ namespace Vodovoz.Views.Mango.Talks
 			this.CallNumberLabel.Yalign = 0F;
 			this.CallNumberLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Телефон");
 			this.CallNumberLabel.Justify = ((global::Gtk.Justification)(2));
+			this.CallNumberLabel.Selectable = true;
 			this.CallNumberLabel.WidthChars = 0;
 			this.CallNumberLabel.MaxWidthChars = 0;
 			this.hbox1.Add(this.CallNumberLabel);

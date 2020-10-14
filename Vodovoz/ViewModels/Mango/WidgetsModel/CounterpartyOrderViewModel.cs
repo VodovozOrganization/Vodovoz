@@ -168,6 +168,9 @@ namespace Vodovoz.ViewModels.Mango
 				x => x.RestrictOldOrderStartDate = order.DeliveryDate,
 				x => x.RestrictOldOrderEndDate = order.DeliveryDate
 			);
+			//tdiNavigation.OpenTdiTab<UndeliveriesView>
+			//MainClass.MainWin.
+			//UndeliveriesViewOpener opener = new UndeliveriesViewOpener();
 			IPage page = tdiNavigation.OpenTdiTab<UndeliveriesView, UndeliveredOrdersFilter>(null, undeliveredOrdersFilter);
 		}
 

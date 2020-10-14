@@ -66,9 +66,10 @@ namespace Vodovoz.SidePanel.InfoViews
 				PhonesTable.Resize(rowsCount, 2);
 				for(uint row = 0; row < rowsCount - 1; row++) {
 					Label label = new Label();
-					label.Markup = $"<b>+{DeliveryPoint.Phones[Convert.ToInt32(row)].Number}</b>";
+					label.Selectable = true;
+					label.Markup = $"{DeliveryPoint.Phones[Convert.ToInt32(row)].ToString()}";
 
-					HandsetView handsetView = new HandsetView(DeliveryPoint.Phones[Convert.ToInt32(row)].DigitsNumber);
+					HandsetView handsetView = new HandsetView(DeliveryPoint.Phones[Convert.ToInt32(row)].LongText);
 
 					PhonesTable.Attach(label, 0, 1, row, row + 1);
 					PhonesTable.Attach(handsetView, 1, 2, row, row + 1);
@@ -89,16 +90,18 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			var bottlesAtDeliveryPoint = BottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			var bottlesAvgDeliveryPoint = DeliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);
-			lblBottlesQty.Text = String.Format("{0} шт. (сред. зак.: {1:G3})", bottlesAtDeliveryPoint, bottlesAvgDeliveryPoint);
+			lblBottlesQty.LabelProp = String.Format("{0} шт. (сред. зак.: {1:G3})", bottlesAtDeliveryPoint, bottlesAvgDeliveryPoint);
 			var bottlesAtCounterparty = BottlesRepository.GetBottlesAtCounterparty(InfoProvider.UoW, DeliveryPoint.Counterparty);
-			debtByClientLabel.Text = String.Format("{0} шт.", bottlesAtCounterparty);
+			debtByClientLabel.LabelProp = String.Format("{0} шт.", bottlesAtCounterparty);
 			var depositsAtDeliveryPoint = DepositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
-			labelDeposits.Text = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
+			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
 
 			var currentOrders = OrderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
 			ytreeLastOrders.SetItemsSource<Order>(currentOrders);
 			vboxLastOrders.Visible = currentOrders.Any();
+
+			table2.ShowAll();
 		}
 
 		public bool VisibleOnPanel {

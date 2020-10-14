@@ -97,7 +97,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.PhonesTable]));
 			w4.Position = 3;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table2 = new global::Gtk.Table(((uint)(4)), ((uint)(3)), false);
+			this.table2 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
 			this.table2.Name = "table2";
 			this.table2.RowSpacing = ((uint)(6));
 			this.table2.ColumnSpacing = ((uint)(6));
@@ -111,7 +111,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			w5.BottomAttach = ((uint)(4));
 			w5.LeftAttach = ((uint)(1));
 			w5.RightAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.label4 = new global::Gtk.Label();
@@ -158,7 +157,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			w9.BottomAttach = ((uint)(3));
 			w9.LeftAttach = ((uint)(1));
 			w9.RightAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();

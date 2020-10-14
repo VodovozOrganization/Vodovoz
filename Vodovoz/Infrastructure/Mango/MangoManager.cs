@@ -146,13 +146,12 @@ namespace Vodovoz.Infrastructure.Mango
 		void ToolbarIcon_Activated(object sender, EventArgs e)
 		{
 			if(CurrentPage == null) {
-				//if(LastMessage != null)
-				//	HandleMessage(LastMessage);
-				//else {
+
 				CurrentPage = navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>(null, this, SubscriberSelectionViewModel.DialogType.Telephone);
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
-				//}
-			} 
+			} else
+				navigation.SwitchOn(CurrentPage);
+
 		}
 
 		void CurrentPage_PageClosed(object sender, PageClosedEventArgs e)
@@ -267,7 +266,7 @@ namespace Vodovoz.Infrastructure.Mango
 			return false;
 		}
 
-		public void AddedCounterpartyToCall(Counterparty client , bool changeCallState)
+		public void AddCounterpartyToCall(Counterparty client , bool changeCallState)
 		{
 			if (Clients == null)
 				Clients = new List<int>();
