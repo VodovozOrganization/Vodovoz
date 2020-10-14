@@ -1589,30 +1589,32 @@
     <DataSet Name="DriverBalance">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
-	SUM(wages_movement_operations.money) AS balance,
-	employees.category,
+        <CommandText>
+SELECT
+    CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+    SUM(wages_movement_operations.money) AS balance,
+    employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
-LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN cars ON employees.id = cars.driver_id
-LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
-LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
+         LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+         LEFT JOIN cars ON employees.id = cars.driver_id
+         LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+         LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE
-	wages_movement_operations.operation_time &lt;= @date
-	AND wages_movement_operations.employee_id IN (@drivers)
-	AND employees.category = 'driver'
-	AND EXISTS (
-		SELECT w.id FROM wage_parameters w
-		LEFT JOIN wage_parameter_items wpi ON wpi.id  = w.wage_parameter_item_id 
-		WHERE
-			w.employee_id = employees.id
-			AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
-			AND wpi.wage_parameter_item_type != 'Manual'
-	)
-	AND (employees.driver_of = 'DriverCar' OR driver_of IS NULL)
-	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
+        wages_movement_operations.operation_time &lt;= @date
+  AND wages_movement_operations.employee_id IN @drivers
+  AND employees.category = 'driver'
+  AND EXISTS (
+        SELECT w.id FROM wage_parameters w
+                             LEFT JOIN wage_parameter_items wpi ON wpi.id  = w.wage_parameter_item_id
+        WHERE
+                w.employee_id = employees.id
+          AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
+          AND wpi.wage_parameter_item_type != 'Manual'
+    )
+  AND (employees.driver_of = 'DriverCar' OR driver_of IS NULL)
+  AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
+  AND (cars.is_archive = false OR cars.is_archive IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
 ORDER BY driver
@@ -1646,7 +1648,7 @@ ORDER BY driver
       </Fields>
     </DataSet>
     <DataSet Name="ForwarderBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
@@ -1681,7 +1683,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1701,7 +1703,7 @@ ORDER BY driver
       </Fields>
     </DataSet>
     <DataSet Name="LargusDriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
@@ -1739,7 +1741,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1759,7 +1761,7 @@ ORDER BY driver
       </Fields>
     </DataSet>
     <DataSet Name="GAZelleDriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
@@ -1797,7 +1799,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1817,7 +1819,7 @@ ORDER BY driver
       </Fields>
     </DataSet>
     <DataSet Name="TotalBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	SUM(wages_movement_operations.money) AS balance,
@@ -1848,7 +1850,7 @@ HAVING balance &lt;&gt; 0
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1860,7 +1862,7 @@ HAVING balance &lt;&gt; 0
       </Fields>
     </DataSet>
     <DataSet Name="RaskatBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
@@ -1897,7 +1899,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1917,7 +1919,7 @@ ORDER BY driver
       </Fields>
     </DataSet>
     <DataSet Name="TruckBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
@@ -1955,7 +1957,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
