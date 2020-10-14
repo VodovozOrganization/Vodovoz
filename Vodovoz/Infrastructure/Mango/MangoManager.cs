@@ -284,12 +284,12 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void HangUp()
 		{
+			if(CurrentPage != null)
+				navigation.ForceClosePage(CurrentPage);
 			if(LastMessage != null)
 				mangoController.HangUp(LastMessage.CallId);
 			LastMessage = null;
 			CleanIncomingCalls();
-			if(CurrentPage != null)
-				navigation.ForceClosePage(CurrentPage);
 		}
 
 		public IEnumerable<MangoService.DTO.Group.Group> GetAllVPBXGroups()
