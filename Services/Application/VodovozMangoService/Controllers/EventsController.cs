@@ -51,7 +51,7 @@ namespace VodovozMangoService.Controllers
                 {
                     if (callsService.Calls.TryGetValue(message.from.taken_from_call_id, out var takenFrom))
                     {
-                        if(takenFrom.LastEvent.location == "abonent")
+                        if(takenFrom.LastEvent.call_state == "OnHold")
                             call.OnHoldCall = callsService.Calls[message.from.taken_from_call_id];
                     }
                 }
