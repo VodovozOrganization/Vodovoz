@@ -81,10 +81,11 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
 			Counterparty firstClient = clients.First();
 			if(interactive.Question($"Доабать телефон к контагенту {firstClient.Name} ?", "Телефон контрагента")) {
-				firstClient.Phones.Add(Phone);
-				UoW.Save<Counterparty>(firstClient);
-				UoW.Commit();
-
+				if(!firstClient.Phones.Any(phone => phone.DigitsNumber == Phone.DigitsNumber)) {
+					firstClient.Phones.Add(Phone);
+					UoW.Save<Counterparty>(firstClient);
+					UoW.Commit();
+				}
 				MangoManager.AddedCounterpartyToCall(firstClient, true);
 				this.Close(false, CloseSource.Self);
 			}
