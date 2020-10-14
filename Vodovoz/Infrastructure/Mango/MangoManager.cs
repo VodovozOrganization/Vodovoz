@@ -267,7 +267,7 @@ namespace Vodovoz.Infrastructure.Mango
 			return false;
 		}
 
-		public void AddedCounterpartyToCall(Counterparty client , bool changeCallState)
+		public void AddCounterpartyToCall(Counterparty client , bool changeCallState)
 		{
 			if (Clients == null)
 				Clients = new List<int>();

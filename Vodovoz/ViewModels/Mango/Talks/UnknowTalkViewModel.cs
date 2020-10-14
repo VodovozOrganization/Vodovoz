@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			if(e.CloseSource == CloseSource.Save) {
 				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
 				if(client != null) {
-					MangoManager.AddedCounterpartyToCall(client, true);
+					MangoManager.AddCounterpartyToCall(client, true);
 					this.Close(false, CloseSource.Self);
 
 				} else
@@ -86,7 +86,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 					UoW.Save<Counterparty>(firstClient);
 					UoW.Commit();
 				}
-				MangoManager.AddedCounterpartyToCall(firstClient, true);
+				MangoManager.AddCounterpartyToCall(firstClient, true);
 				this.Close(false, CloseSource.Self);
 			}
 		}
