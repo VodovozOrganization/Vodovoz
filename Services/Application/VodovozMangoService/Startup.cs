@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using LettuceEncrypt;
 using MangoService;
@@ -13,11 +14,8 @@ namespace VodovozMangoService
 {
 	public class Startup
     {
-        private readonly VodovozMangoConfiguration vodovozConfiguration;
-
-        public Startup(IConfiguration configuration, VodovozMangoConfiguration vodovozConfiguration)
+        public Startup(IConfiguration configuration)
         {
-            this.vodovozConfiguration = vodovozConfiguration;
             Configuration = configuration;
         }
 
@@ -26,10 +24,20 @@ namespace VodovozMangoService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var connectionStringBuilder = new MySqlConnectionStringBuilder();
+            connectionStringBuilder.Server = Configuration["Mysql:mysql_server_host_name"];
+            connectionStringBuilder.Port = UInt32.Parse(Configuration["Mysql:mysql_server_port"]);
+            connectionStringBuilder.Database = Configuration["Mysql:mysql_database"];;
+            connectionStringBuilder.UserID = Configuration["Mysql:mysql_user"];;
+            connectionStringBuilder.Password = Configuration["Mysql:mysql_password"];;
+            connectionStringBuilder.SslMode = MySqlSslMode.None;
+            
             services.AddSingleton(x =>
-                new MySqlConnection(vodovozConfiguration.ConnectionStringBuilder.GetConnectionString(true)));
+                new MySqlConnection(connectionStringBuilder.GetConnectionString(true)));
+     
             services.AddSingleton(x =>
-                new MangoController(vodovozConfiguration.VpbxApiKey, vodovozConfiguration.VpbxApiSalt));
+                new MangoController(Configuration["Mango:vpbx_api_key"], Configuration["Mango:vpbx_api_salt"]));
+            
             services.AddSingleton<NotificationHostedService>();
             services.AddHostedService<NotificationHostedService>(provider => provider.GetService<NotificationHostedService>());
 
@@ -45,6 +53,7 @@ namespace VodovozMangoService
                     options.EmailAddress = "fix@qsolution.ru";
                 })
                 .PersistDataToDirectory(new DirectoryInfo("/var/lib/letsencrypt"), "vodovoz");
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

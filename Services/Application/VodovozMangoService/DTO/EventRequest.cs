@@ -1,5 +1,6 @@
 using System;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace VodovozMangoService.DTO
 {
@@ -23,15 +24,15 @@ namespace VodovozMangoService.DTO
             }
         }
 
-        public bool ValidateSign(VodovozMangoConfiguration configuration)
+        public bool ValidateSign(IConfiguration configuration)
         {
-            if (Vpbx_Api_Key != configuration.VpbxApiKey)
+            if (Vpbx_Api_Key != configuration["Mango:vpbx_api_key"])
             {
-                logger.Error($"Сервис работает с VpbxApiKey={configuration.VpbxApiKey}, а запрос пришел для VpbxApiKey={Vpbx_Api_Key}");
+                logger.Error($"Сервис работает с VpbxApiKey={configuration["Mango:vpbx_api_key"]}, а запрос пришел для VpbxApiKey={Vpbx_Api_Key}");
                 return false;
             }
             
-            var testSign = MangoService.MangoSignHelper.GetSign(configuration.VpbxApiKey, Json, configuration.VpbxApiSalt);
+            var testSign = MangoService.MangoSignHelper.GetSign(configuration["Mango:vpbx_api_key"], Json, configuration["Mango:vpbx_api_salt"]);
             return testSign == Sign;
         }
     }

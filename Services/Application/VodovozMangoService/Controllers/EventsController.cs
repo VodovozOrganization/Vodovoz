@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using VodovozMangoService.Calling;
 using VodovozMangoService.DTO;
 using VodovozMangoService.HostedServices;
@@ -13,9 +14,9 @@ namespace VodovozMangoService.Controllers
     {
         private readonly CallsHostedService callsService;
         private readonly NotificationHostedService notificationHostedService;
-        private readonly VodovozMangoConfiguration configuration;
+        private readonly IConfiguration configuration;
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        public EventsController(CallsHostedService callsService, NotificationHostedService notificationHostedService, VodovozMangoConfiguration configuration)
+        public EventsController(CallsHostedService callsService, NotificationHostedService notificationHostedService, IConfiguration configuration)
         {
             this.callsService = callsService ?? throw new ArgumentNullException(nameof(callsService));
             this.notificationHostedService = notificationHostedService ?? throw new ArgumentNullException(nameof(notificationHostedService));

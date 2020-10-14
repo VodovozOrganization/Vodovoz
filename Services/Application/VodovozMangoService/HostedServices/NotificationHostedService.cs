@@ -8,6 +8,7 @@ using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using MangoService;
 using MangoService.DTO.Users;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using MySql.Data.MySqlClient;
 using NLog;
@@ -19,18 +20,20 @@ namespace VodovozMangoService.HostedServices
 	{
 		private readonly MySqlConnection connection;
 		private readonly MangoController mangoController;
-		private readonly VodovozMangoConfiguration configuration;
+		private readonly IConfiguration configuration;
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		
 		public readonly List<Subscription> Subscribers = new List<Subscription>();
 
-		public NotificationHostedService(MySqlConnection connection, MangoController mangoController, VodovozMangoConfiguration configuration)
+		public NotificationHostedService(MySqlConnection connection, MangoController mangoController, IConfiguration configuration)
 		{
+			logger.Info("Создание службы уведомлений");
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
 			this.mangoController = mangoController ?? throw new ArgumentNullException(nameof(mangoController));
 			this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
+		#region GRPC Requests
 		public override async Task Subscribe(NotificationSubscribeRequest request, IServerStreamWriter<NotificationMessage> responseStream, ServerCallContext context)
 		{
 			var subscription = new Subscription(request.Extension);
@@ -63,7 +66,9 @@ namespace VodovozMangoService.HostedServices
 				logger.Debug($"Добавочный {request.Extension} отвалился.");
 			}
 		}
+		#endregion
 
+		#region Отправка уведомления
 		public void NewEvent(CallInfo info)
 		{
 			if (!String.IsNullOrEmpty(info.LastEvent.to.extension))
@@ -193,6 +198,7 @@ namespace VodovozMangoService.HostedServices
 				subscription.Queue.Add(message);
 			}
 		}
+		#endregion
 		
 		#region External call
 		private readonly List<CallerInfoCache> ExternalCallers = new List<CallerInfoCache>();
@@ -302,16 +308,18 @@ namespace VodovozMangoService.HostedServices
 		private Server server;
 		public async Task StartAsync(CancellationToken cancellationToken)
 		{
+			logger.Info("Запуск сервера службы уведомлений");
 			server = new Server
 			{
 				Services = { NotificationService.BindService(this) },
-				Ports = { new ServerPort("0.0.0.0", configuration.NotficationServicePort, ServerCredentials.Insecure) }
+				Ports = { new ServerPort("0.0.0.0", Int32.Parse(configuration["MangoService:grps_client_port"]), ServerCredentials.Insecure) }
 			};
 			server.Start();
 		}
 
 		public async Task StopAsync(CancellationToken cancellationToken)
 		{
+			logger.Info("Остановка сервера службы уведомлений");
 			await server.ShutdownAsync();
 		}
 		#endregion

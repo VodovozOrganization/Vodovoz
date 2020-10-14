@@ -1,48 +1,46 @@
 using System;
 using System.Net;
-using Grpc.Core;
-using MangoService;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
-using Nini.Config;
 using NLog.Web;
-using VodovozMangoService.HostedServices;
 
 namespace VodovozMangoService
 {
 	public class Program
     {
 	    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+	    private static readonly string configFile = "/etc/vodovoz-mango-service.conf";
 	    public static void Main(string[] args)
         {
-	       var configuration = new VodovozMangoConfiguration();
-	       CreateHostBuilder(args, configuration).Build().Run();
+	        CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args, VodovozMangoConfiguration configuration) =>
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+	            .ConfigureAppConfiguration((context, builder) =>
+	            {
+		            builder.AddIniFile(configFile);
+	            })
 	            .ConfigureLogging(logging =>
 	            {
 		            logging.ClearProviders();
 		            logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
 	            })
-	            .ConfigureServices(servises => servises.AddSingleton(configuration))
-                .ConfigureWebHostDefaults(webBuilder =>
+	            .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
-                        .UseKestrel(k =>
+                        .UseKestrel( (context, k) =>
                         {
                             var appServices = k.ApplicationServices;
                             k.Listen(
-                                IPAddress.Any, configuration.MangoServiceHttpsPort,
+                                IPAddress.Any, Int32.Parse(context.Configuration["MangoService:https_port"]),
                                 o => o.UseHttps(h =>
                                 {
                                     h.UseLettuceEncrypt(appServices);
                                 }));
-                            k.Listen(IPAddress.Any, configuration.MangoServiceHttpPort);
+                            k.Listen(IPAddress.Any, Int32.Parse(context.Configuration["MangoService:http_port"]));
                         })
                         .UseStartup<Startup>();
                 })
