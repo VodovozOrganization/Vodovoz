@@ -650,7 +650,7 @@ namespace Vodovoz
 
 			#region Старые диалоги
 			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyDlg)))
-				.Where(t => t.IsAssignableTo<ITdiTab>() && t.Name.EndsWith("Dlg"))
+				.Where(t => t.IsAssignableTo<ITdiTab>())
 				.AsSelf();
 			#endregion
 
