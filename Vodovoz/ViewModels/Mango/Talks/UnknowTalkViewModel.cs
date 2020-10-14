@@ -88,6 +88,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				}
 				MangoManager.AddCounterpartyToCall(firstClient, true);
 				this.Close(false, CloseSource.Self);
+			} else {
+				MangoManager.AddCounterpartyToCall(firstClient, true);
+				this.Close(false, CloseSource.Self);
 			}
 		}
 
