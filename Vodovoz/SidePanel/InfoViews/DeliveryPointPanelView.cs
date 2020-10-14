@@ -66,7 +66,8 @@ namespace Vodovoz.SidePanel.InfoViews
 				PhonesTable.Resize(rowsCount, 2);
 				for(uint row = 0; row < rowsCount - 1; row++) {
 					Label label = new Label();
-					label.Markup = $"<b>+{DeliveryPoint.Phones[Convert.ToInt32(row)].Number}</b>";
+					label.Selectable = true;
+					label.Markup = $"{DeliveryPoint.Phones[Convert.ToInt32(row)].ToString()}";
 
 					HandsetView handsetView = new HandsetView(DeliveryPoint.Phones[Convert.ToInt32(row)].DigitsNumber);
 
