@@ -3,6 +3,7 @@ using QS.Views.Dialog;
 using Gtk;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModels.Mango.Talks;
+using System.Linq;
 
 namespace Vodovoz.Views.Mango.Talks
 {
@@ -126,15 +127,20 @@ namespace Vodovoz.Views.Mango.Talks
 		private void Clicked_CostAndDeliveryIntervalButton(object sender, EventArgs e)
 		{
 			if(ViewModel.currentCounterparty.DeliveryPoints != null || ViewModel.currentCounterparty.DeliveryPoints.Count > 0) {
-				Gtk.Menu popupMenu = new Menu();
-				foreach(var point in ViewModel.currentCounterparty.DeliveryPoints) {
-					MenuItem item = new MenuItem($"{point.ShortAddress}");
-					item.ButtonPressEvent += delegate (object s, ButtonPressEventArgs _e) { ViewModel.CostAndDeliveryIntervalCommand(point); };
-					popupMenu.Add(item);
-				}
+				if(ViewModel.currentCounterparty.DeliveryPoints.Count > 1) {
 
-				popupMenu.ShowAll();
-				popupMenu.Popup();
+					Gtk.Menu popupMenu = new Menu();
+					foreach(var point in ViewModel.currentCounterparty.DeliveryPoints) {
+						MenuItem item = new MenuItem($"{point.ShortAddress}");
+						item.ButtonPressEvent += delegate (object s, ButtonPressEventArgs _e) { ViewModel.CostAndDeliveryIntervalCommand(point); };
+						popupMenu.Add(item);
+					}
+
+					popupMenu.ShowAll();
+					popupMenu.Popup();
+				}
+			} else {
+				ViewModel.CostAndDeliveryIntervalCommand(ViewModel.currentCounterparty.DeliveryPoints.First());
 			}
 		}
 
