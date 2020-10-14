@@ -1,15 +1,19 @@
 using System.Collections.Concurrent;
+using System.Threading.Channels;
 
 namespace VodovozMangoService.Calling
 {
     public class Subscription
     {
-        public readonly BlockingCollection<NotificationMessage> Queue = new BlockingCollection<NotificationMessage>();
+        public readonly Channel<NotificationMessage> Queue;
         public readonly uint Extension;
         public CallInfo CurrentCall;
 
         public Subscription(uint extension)
         {
+            var options = new UnboundedChannelOptions();
+            options.SingleReader = true;
+            Queue = Channel.CreateUnbounded<NotificationMessage>(options);
             Extension = extension;
         }
     }

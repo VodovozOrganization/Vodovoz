@@ -45,9 +45,11 @@ namespace VodovozMangoService.HostedServices
 
 			try
 			{
+				var reader = subscription.Queue.Reader;
 				while (!context.CancellationToken.IsCancellationRequested)
 				{
-					var message = subscription.Queue.Take(context.CancellationToken);
+					var message = await reader.ReadAsync(context.CancellationToken);
+					logger.Debug("Сообщение в очереди");
 					if (message != null)
 						await responseStream.WriteAsync(message);
 				}
@@ -181,9 +183,9 @@ namespace VodovozMangoService.HostedServices
 			// Отправляем уведомление о поступлении входящего
 			foreach (var subscription in subscriptions)
 			{
-				if (subscription.Queue.Count > 5)
+				if (subscription.Queue.Reader.CanCount && subscription.Queue.Reader.Count > 5)
 				{
-					logger.Warn($"Подписчик {subscription.Extension} не читает уведомления, видимо сломался, удаляем его.");
+					logger.Error($"Подписчик {subscription.Extension} не читает уведомления, видимо сломался, удаляем его.");
 					lock (Subscribers)
 					{
 						Subscribers.Remove(subscription);
@@ -195,7 +197,7 @@ namespace VodovozMangoService.HostedServices
 					case CallState.Disconnected: subscription.CurrentCall = null; break; 
 					case CallState.Connected: subscription.CurrentCall = info; break;
 				}
-				subscription.Queue.Add(message);
+				subscription.Queue.Writer.WriteAsync(message);
 			}
 		}
 		#endregion
