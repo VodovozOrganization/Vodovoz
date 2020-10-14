@@ -98,7 +98,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				for(uint row = 0; row < rowsCount - 1; row++) {
 					Label label = new Label();
 					label.Selectable = true;
-					label.Markup = $"{Counterparty.Phones[Convert.ToInt32(row)].ToString()}";
+					label.Markup = $"{Counterparty.Phones[Convert.ToInt32(row)].LongText}";
 
 					HandsetView handsetView = new HandsetView(Counterparty.Phones[Convert.ToInt32(row)].DigitsNumber);
 
