@@ -161,17 +161,15 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void OpenUnderlivery(Order order)
 		{
-			UndeliveredOrdersFilter undeliveredOrdersFilter = new UndeliveredOrdersFilter();
-			undeliveredOrdersFilter.SetAndRefilterAtOnce(
+			var page = tdiNavigation.OpenTdiTab<UndeliveriesView>(null);
+			var dlg = page.TdiTab as UndeliveriesView;
+			dlg.HideFilterAndControls();
+			dlg.UndeliveredOrdersFilter.SetAndRefilterAtOnce(
 				x => x.ResetFilter(),
 				x => x.RestrictOldOrder = order,
 				x => x.RestrictOldOrderStartDate = order.DeliveryDate,
 				x => x.RestrictOldOrderEndDate = order.DeliveryDate
 			);
-			//tdiNavigation.OpenTdiTab<UndeliveriesView>
-			//MainClass.MainWin.
-			//UndeliveriesViewOpener opener = new UndeliveriesViewOpener();
-			IPage page = tdiNavigation.OpenTdiTab<UndeliveriesView, UndeliveredOrdersFilter>(null, undeliveredOrdersFilter);
 		}
 
 		public void CancelOrder(Order order)
