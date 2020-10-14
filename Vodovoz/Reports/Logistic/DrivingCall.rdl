@@ -33,16 +33,16 @@
                     IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money
             )
     ) AS orderSum
-     ,CONCAT(empcash.last_name, ' ', empcash.name, ' ', empcash.patronymic) AS CasherFIO
-     ,rl.id as rlId
+     ,CONCAT(author.last_name, ' ', author.name, ' ', author.patronymic) AS AuthorFIO
+     ,orders.id as orderId
 FROM orders
          LEFT JOIN route_list_addresses rla ON rla.order_id = orders.id
          LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
          LEFT JOIN employees empdriver ON empdriver.id = driver_id
-         LEFT JOIN employees empcash ON empcash.id = cashier_id
+         LEFT JOIN employees author ON author.id = orders.author_employee_id
          LEFT JOIN counterparty cli ON cli.id = client_id
          LEFT JOIN order_items oi on orders.id = oi.order_id
-         LEFT JOIN subdivisions s on empcash.subdivision_id = s.id
+         LEFT JOIN subdivisions s on author.subdivision_id = s.id
 WHERE driver_call_type &lt;&gt; 'NoCall'
   AND (@startDate = '' or delivery_date &gt;= @startDate)
   AND (@endDate = '' or delivery_date &lt;= @endDate)
@@ -81,14 +81,14 @@ GROUP BY oi.id</CommandText>
           <DataField>client</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="CasherFIO">
-          <DataField>CasherFIO</DataField>
+        <Field Name="AuthorFIO">
+          <DataField>AuthorFIO</DataField>
         </Field>
         <Field Name="orderSum">
           <DataField>orderSum</DataField>
         </Field>
-        <Field Name="rlId">
-          <DataField>rlId</DataField>
+        <Field Name="orderId">
+          <DataField>orderId</DataField>
         </Field>
         <Field Name="subdivision_name">
           <DataField>subdivision_name</DataField>
@@ -120,8 +120,8 @@ GROUP BY oi.id</CommandText>
           <TableColumn>
             <Width>34.2pt</Width>
           </TableColumn>
-          <TableColumn >
-            <Width>43.8pt</Width>
+          <TableColumn>
+            <Width>59.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>106.0pt</Width>
@@ -132,10 +132,10 @@ GROUP BY oi.id</CommandText>
           <TableColumn>
             <Width>47.6pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>66.9pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>66.9pt</Width>
           </TableColumn>
           <TableColumn>
@@ -144,7 +144,7 @@ GROUP BY oi.id</CommandText>
           <TableColumn>
             <Width>103.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>103.0pt</Width>
           </TableColumn>
         </TableColumns>
@@ -187,7 +187,7 @@ GROUP BY oi.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
                       <Value>Отдел ВВ</Value>
@@ -257,7 +257,7 @@ GROUP BY oi.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
                       <Value>Автор Реализации</Value>
@@ -275,7 +275,7 @@ GROUP BY oi.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value>Номер реализации</Value>
@@ -327,7 +327,7 @@ GROUP BY oi.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
                       <Value>Сумма заказа</Value>
@@ -390,7 +390,7 @@ GROUP BY oi.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
                       <Value>={subdivision_name}</Value>
@@ -398,12 +398,14 @@ GROUP BY oi.id</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingTop >6pt</PaddingTop>
+                        <PaddingBottom >2pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -423,9 +425,9 @@ GROUP BY oi.id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign >Left</TextAlign>
+                        <TextAlign>Left</TextAlign>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -467,10 +469,10 @@ GROUP BY oi.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
-                      <Value>={CasherFIO}</Value>
+                      <Value>={AuthorFIO}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -479,23 +481,23 @@ GROUP BY oi.id</CommandText>
                         <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>={rlId}</Value>
+                      <Value>={orderId}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -544,11 +546,11 @@ GROUP BY oi.id</CommandText>
                         <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
                       <Value>={orderSum}</Value>
@@ -601,7 +603,7 @@ GROUP BY oi.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
                       <Value>
@@ -659,7 +661,7 @@ GROUP BY oi.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>
@@ -676,7 +678,7 @@ GROUP BY oi.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
                       <Value>
@@ -727,7 +729,7 @@ GROUP BY oi.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
                       <Value>
