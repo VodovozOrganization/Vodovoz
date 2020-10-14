@@ -285,7 +285,8 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void HangUp()
 		{
-			mangoController.HangUp(LastMessage.CallId);
+			if(LastMessage != null)
+				mangoController.HangUp(LastMessage.CallId);
 			LastMessage = null;
 			CleanIncomingCalls();
 			if(CurrentPage != null)
