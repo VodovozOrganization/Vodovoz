@@ -1450,7 +1450,6 @@
     <Compile Include="Views\Mango\Incoming\IncomingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Incoming.IncomingView.cs" />
     <Compile Include="Infrastructure\Mango\IncomingCall.cs" />
-    <Compile Include="ViewModels\Mango\TestMangoViewModel.cs" />
     <Compile Include="ViewModels\Mango\SubscriberSelectionViewModel.cs" />
     <Compile Include="Views\Mango\SubscriberSelectionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.SubscriberSelectionView.cs" />
