@@ -114,14 +114,6 @@ namespace VodovozMangoService.HostedServices
 			logger.Debug($"Caller:{caller}");
 			var message = MakeMessage(info, caller);
 			message.Direction = CallDirection.Incoming;
-			if (info.OnHoldCall != null)
-			{
-				message.IsTransfer = true;
-				if (String.IsNullOrEmpty(info.OnHoldCall.LastEvent.from.extension))
-					message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.from.number);
-				else
-					message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.from.extension);
-			}
 			SendNotification(subscriptions, message, info);
 		}
 		
@@ -170,6 +162,14 @@ namespace VodovozMangoService.HostedServices
 				State = info.LastEvent.CallState,
 				CallFrom = caller
 			};
+			if (info.OnHoldCall != null)
+			{
+				message.IsTransfer = true;
+				if (String.IsNullOrEmpty(info.OnHoldCall.LastEvent.from.extension))
+					message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.from.number);
+				else
+					message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.from.extension);
+			}
 			return message;
 		}
 		private void SendNotification(IList<Subscription> subscriptions, NotificationMessage message, CallInfo info)
