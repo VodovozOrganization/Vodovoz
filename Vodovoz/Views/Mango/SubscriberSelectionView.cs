@@ -127,7 +127,10 @@ namespace Vodovoz.Views.Mango
 		protected void OnFilterEntryActivated(object sender, EventArgs e)
 		{
 			ySearchTable.Selection.SelectPath(new Gtk.TreePath("0"));
-			ForwardingToConsultationButton.Click();
+			if(ViewModel.dialogType == SubscriberSelectionViewModel.DialogType.AdditionalCall)
+				ForwardingToConsultationButton.Click();
+			else
+				ForwardingButton.Click();
 		}
 
 	}
