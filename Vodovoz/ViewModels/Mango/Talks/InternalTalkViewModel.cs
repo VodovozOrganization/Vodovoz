@@ -17,8 +17,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IInteractiveQuestion interactive;
 
 		public readonly bool IsTransfer = false;
-		private string onLine = null;
-		public string OnLine { get => onLine; private set => onLine = value; }
+		public string OnLine { get; private set; }
 
 		public InternalTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
@@ -31,18 +30,12 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.UoW = unitOfWorkFactory.CreateWithoutRoot();
 			if(manager.IsTransfer && manager.PrimaryCaller != null) {
 				IsTransfer = manager.IsTransfer;
-				if(manager.PrimaryCaller != null) {
-					if(manager.Employee != 0) {
-						Employee employee = UoW.GetById<Employee>(manager.Employee);
-						onLine = employee.Name;
-					} else {
-						if(MangoManager.PrimaryCaller.Number.Length == 11) {
-							var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
-							string loc = "+7" + formatter.FormatString(manager.PrimaryCaller.Number);
-							onLine = loc;
-						} else onLine = manager.PrimaryCaller.Number;
-					}
-				}
+				string number;
+				if(MangoManager.PrimaryCaller.Number.Length == 11) {
+					var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
+					number = "+7 " + formatter.FormatString(manager.PrimaryCaller.Number);
+				} else number = manager.PrimaryCaller.Number;
+				OnLine = $"{number}\n{MangoManager.PrimaryCallerNames}";
 			}
 
 			if(manager.IsOutgoing)
