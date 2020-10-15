@@ -13,7 +13,6 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.Utilities;
-using QS.ViewModels.Control.EEVM;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -168,24 +167,21 @@ namespace Vodovoz.Infrastructure.Mango
 			if(IncomingCalls.Any())
 				OnPropertyChanged("IncomingCalls.Time");
 
-
 			IncomingCalls.RemoveAll(x => x.StageDuration.Value.TotalSeconds > 120d);
 			return true;
 		}
 		#endregion
 
-		private IEnumerable<int> callerClients => LastMessage.CallFrom.Names.Where(n => n.CounterpartyId > 0).Select(n => Convert.ToInt32(n.CounterpartyId)).Distinct();
+		private IEnumerable<int> callerClients => LastMessage?.CallFrom.Names?.Where(n => n.CounterpartyId > 0).Select(n => Convert.ToInt32(n.CounterpartyId)).Distinct();
 		public List<int> Clients { get; private set; } = new List<int>();
 		public int Employee => LastMessage.CallFrom.Names.Where(n => n.EmployeeId > 0).Select(n => Convert.ToInt32(n.EmployeeId)).FirstOrDefault();
 		#region Работа с сообщениями
 
 		private void FoundByPhoneItemsConfigure()
 		{
-			if (Clients != null)
+			if (Clients != null && callerClients != null)
 			{
-				Clients = new List<int>();
-				if(callerClients.Count() > 0)
-					Clients.AddRange(callerClients);
+				Clients = callerClients.ToList();
 			}
 		}
 
