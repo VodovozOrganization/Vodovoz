@@ -8,7 +8,7 @@ namespace Vodovoz.Views.Mango.Talks
 
 		private global::Gamma.GtkWidgets.yLabel CallNumberLabel;
 
-		private global::Gtk.HBox hbox1;
+		private global::Gtk.HBox hboxInfo;
 
 		private global::Gtk.Image image1421;
 
@@ -33,7 +33,7 @@ namespace Vodovoz.Views.Mango.Talks
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Mango.Talks.InternalTalkView";
 			// Container child Vodovoz.Views.Mango.Talks.InternalTalkView.Gtk.Container+ContainerChild
-			this.table5 = new global::Gtk.Table(((uint)(5)), ((uint)(2)), false);
+			this.table5 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
 			this.table5.Name = "table5";
 			this.table5.RowSpacing = ((uint)(6));
 			this.table5.ColumnSpacing = ((uint)(6));
@@ -48,31 +48,30 @@ namespace Vodovoz.Views.Mango.Talks
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
-			this.hbox1 = new global::Gtk.HBox();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.hboxInfo = new global::Gtk.HBox();
+			this.hboxInfo.Name = "hboxInfo";
+			this.hboxInfo.Spacing = 6;
+			// Container child hboxInfo.Gtk.Box+BoxChild
 			this.image1421 = new global::Gtk.Image();
 			this.image1421.Name = "image1421";
 			this.image1421.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-info", global::Gtk.IconSize.LargeToolbar);
-			this.hbox1.Add(this.image1421);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.image1421]));
+			this.hboxInfo.Add(this.image1421);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxInfo[this.image1421]));
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			// Container child hboxInfo.Gtk.Box+BoxChild
 			this.labelDescription = new global::Gtk.Label();
 			this.labelDescription.Name = "labelDescription";
 			this.labelDescription.LabelProp = global::Mono.Unix.Catalog.GetString("Для переадресации завершите\nразговор на телефонном аппарате");
-			this.hbox1.Add(this.labelDescription);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelDescription]));
+			this.hboxInfo.Add(this.labelDescription);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxInfo[this.labelDescription]));
 			w3.Position = 1;
 			w3.Expand = false;
-			w3.Fill = false;
-			this.table5.Add(this.hbox1);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table5[this.hbox1]));
-			w4.TopAttach = ((uint)(3));
-			w4.BottomAttach = ((uint)(4));
+			this.table5.Add(this.hboxInfo);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table5[this.hboxInfo]));
+			w4.TopAttach = ((uint)(2));
+			w4.BottomAttach = ((uint)(3));
 			w4.RightAttach = ((uint)(2));
 			w4.XOptions = ((global::Gtk.AttachOptions)(0));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -136,8 +135,8 @@ namespace Vodovoz.Views.Mango.Talks
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.table5.Add(this.table4);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table5[this.table4]));
-			w10.TopAttach = ((uint)(4));
-			w10.BottomAttach = ((uint)(5));
+			w10.TopAttach = ((uint)(3));
+			w10.BottomAttach = ((uint)(4));
 			w10.RightAttach = ((uint)(2));
 			w10.XOptions = ((global::Gtk.AttachOptions)(0));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
