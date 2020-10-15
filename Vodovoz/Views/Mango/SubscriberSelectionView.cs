@@ -85,7 +85,7 @@ namespace Vodovoz.Views.Mango
 
 		private void SelectCursorRow_OrderYTreeView(object sender, EventArgs e)
 		{
-			ForwardingButton.Click();
+			ForwardingToConsultationButton.Click();
 		}
 
 		protected void Clicked_MakeCall(object sender, EventArgs e)
@@ -127,7 +127,7 @@ namespace Vodovoz.Views.Mango
 		protected void OnFilterEntryActivated(object sender, EventArgs e)
 		{
 			ySearchTable.Selection.SelectPath(new Gtk.TreePath("0"));
-			ForwardingButton.Click();
+			ForwardingToConsultationButton.Click();
 		}
 
 	}
