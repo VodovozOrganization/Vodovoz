@@ -19,11 +19,9 @@ namespace Vodovoz.Views.Mango
 
 		}
 		void Configure() {
-			if(ViewModel.IsTransfer) {
-				OnLinePlace.Visible = true;
-				LinePhone.Binding.AddBinding(ViewModel, v => v.OnLine, l => l.LabelProp).InitializeFromSource();
-			} else
-				OnLinePlace.Visible = false;
+
+			OnLinePlace.Visible = ViewModel.ShowTransferCaller;
+			LinePhone.Binding.AddBinding(ViewModel, v => v.OnLineText, l => l.LabelProp).InitializeFromSource();
 
 			ViewModel.MangoManager.PropertyChanged += MangoManager_PropertyChanged;
 			RefreshIncomings();

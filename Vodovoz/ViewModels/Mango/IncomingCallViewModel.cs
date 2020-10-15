@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Utilities.Numeric;
 using QS.ViewModels.Dialog;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Mango;
 
@@ -16,10 +13,6 @@ namespace Vodovoz.ViewModels.Mango
 	{
 		public readonly MangoManager MangoManager;
 		public readonly IUnitOfWork UoW;
-		public readonly bool IsTransfer = false;
-		private string onLine = null;
-		public string OnLine { get => onLine; private set => onLine = value; }
-
 
 		public IncomingCallViewModel(
 			IUnitOfWorkFactory UoWFactory, 
@@ -30,20 +23,12 @@ namespace Vodovoz.ViewModels.Mango
 			this.MangoManager = manager ?? throw new ArgumentNullException(nameof(manager));
 			UoW = UoWFactory.CreateWithoutRoot() ?? throw new ArgumentNullException(nameof(UoWFactory));
 			if(manager.IsTransfer && manager.PrimaryCaller != null) {
-				IsTransfer = manager.IsTransfer;
-				if(manager.PrimaryCaller != null) {
-					if(manager.Employee != 0) {
-						Employee employee = UoW.GetById<Employee>(manager.Employee);
-						onLine = employee.Name;
-					}
-					else {
-						if(MangoManager.PrimaryCaller.Number.Length == 11) {
-							var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
-							string loc = "+7" + formatter.FormatString(manager.PrimaryCaller.Number);
-							onLine = loc;
-						} else onLine = manager.PrimaryCaller.Number;
-					}
-				}
+				string number;
+				if(MangoManager.PrimaryCaller.Number.Length == 11) {
+					var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
+					number = "+7 " + formatter.FormatString(manager.PrimaryCaller.Number);
+				} else number = manager.PrimaryCaller.Number;
+				OnLineText = $"{number}\n{MangoManager.PrimaryCallerNames}";
 			}
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
@@ -52,6 +37,13 @@ namespace Vodovoz.ViewModels.Mango
 			else
 				Title = "Входящий звонок";
 		}
+
+		#region Свойства View
+
+		public string OnLineText { get; private set; }
+		public bool ShowTransferCaller => MangoManager.IsTransfer;
+
+		#endregion
 
 		#region Действия View
 

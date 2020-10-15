@@ -145,7 +145,6 @@ namespace Vodovoz.Views.Mango.Talks
 			{
 				this.Child.ShowAll();
 			}
-			this.labelDescription.Hide();
 			this.labelOnLine.Hide();
 			this.LinePhone.Hide();
 			this.Hide();
