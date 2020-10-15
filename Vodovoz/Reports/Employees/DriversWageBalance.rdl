@@ -1602,7 +1602,7 @@ FROM wages_movement_operations
          LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE
         wages_movement_operations.operation_time &lt;= @date
-  AND wages_movement_operations.employee_id IN @drivers
+  AND wages_movement_operations.employee_id IN (@drivers)
   AND employees.category = 'driver'
   AND EXISTS (
         SELECT w.id FROM wage_parameters w
