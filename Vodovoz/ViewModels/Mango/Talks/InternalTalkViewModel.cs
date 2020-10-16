@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Utilities.Numeric;
 using Vodovoz.Infrastructure.Mango;
 
 namespace Vodovoz.ViewModels.Mango.Talks

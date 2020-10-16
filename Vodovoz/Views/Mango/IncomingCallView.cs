@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Gtk;
 using QS.Views.Dialog;
-using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.ViewModels.Mango;
 
