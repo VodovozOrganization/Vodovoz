@@ -77,8 +77,9 @@ namespace Vodovoz.Views.Mango
 		private void RefreshTimes()
 		{
 			int i = 0;
+			var incomings = ViewModel.MangoManager.IncomingCalls.ToArray();
 			foreach(IncomingView view in vboxIncomings.Children) {
-				view.Time = ViewModel.MangoManager.IncomingCalls[i].StageDuration.Value;
+				view.Time = incomings[i].StageDuration.Value;
 				i++;
 			}
 		}

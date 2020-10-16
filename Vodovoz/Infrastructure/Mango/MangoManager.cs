@@ -37,7 +37,6 @@ namespace Vodovoz.Infrastructure.Mango
 		private uint extension;
 		private MangoNotificationClient notificationClient;
 		private CancellationTokenSource notificationCancellation;
-		private NotificationMessage LastMessage;
 		private IPage CurrentPage;
 		private uint timer;
 		private MangoService.MangoController mangoController;
@@ -61,12 +60,12 @@ namespace Vodovoz.Infrastructure.Mango
 			timer = GLib.Timeout.Add (1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
 			toolbarIcon.Activated += ToolbarIcon_Activated;
 			var userId = this.userService.CurrentUserId;
-			QS.DomainModel.NotifyChange.NotifyConfiguration.Instance.BatchSubscribe(OnUserChanged).IfEntity<Employee>()
+			NotifyConfiguration.Instance.BatchSubscribe(OnUserChanged).IfEntity<Employee>()
 				.AndWhere(x => x.User.Id == userId);
 		}
 
+		#region Current State
 		public ConnectionState ConnectionState {
-			#region Current State
 			get => connectionState; private set {
 				connectionState = value;
 				var iconName = $"phone-{value.ToString().ToLower()}";
@@ -78,19 +77,21 @@ namespace Vodovoz.Infrastructure.Mango
 				GtkHelper.WaitRedraw();
 			}
 		}
+		
+		public TimeSpan? StageDuration => CurrentTalk?.StageDuration;
 
-		public DateTime? StageBegin => LastMessage?.Timestamp.ToDateTime();
-		public TimeSpan? StageDuration => DateTime.Now - StageBegin;
+		public string CallerName => CurrentTalk?.CallerName;
+		public Phone Phone => CurrentTalk != null ? new Phone(CurrentTalk.CallerNumber) : null; 
+		public bool IsOutgoing => CurrentTalk?.Message.Direction == CallDirection.Outgoing || IncomingCalls.Any(x => x.IsOutgoing);
+		public bool IsTransfer => CurrentTalk?.Message.IsTransfer ?? false;
+		public Caller PrimaryCaller => CurrentTalk?.Message.PrimaryCaller;
+		public string PrimaryCallerNames => CurrentTalk?.Message.PrimaryCaller?.Names != null ? String.Join("\n", CurrentTalk.Message.PrimaryCaller.Names.Select(x => x.Name)) : null;
 
-		public string CallerName => LastMessage.CallFrom.Names != null ? String.Join("\n", LastMessage.CallFrom.Names.Select(x => x.Name)) : null;
-		public string CallerNumber => LastMessage?.CallFrom.Number;
-		public Phone Phone => new Phone(CallerNumber); 
-		public bool IsOutgoing => LastMessage?.Direction == CallDirection.Outgoing || IncomingCalls.Any(x => x.IsOutgoing);
-		public bool IsTransfer => LastMessage?.IsTransfer ?? false;
-		public Caller PrimaryCaller => LastMessage?.PrimaryCaller;
-		public string PrimaryCallerNames => LastMessage?.PrimaryCaller?.Names != null ? String.Join("\n", LastMessage.PrimaryCaller.Names.Select(x => x.Name)) : null;
+		public List<ActiveCall> ActiveCalls { get; set; } = new List<ActiveCall>();
 
-		public List<IncomingCall> IncomingCalls { get; set; } = new List<IncomingCall>();
+		public IEnumerable<ActiveCall> IncomingCalls => ActiveCalls.Where(x => x.CallState == CallState.Appeared);
+		public ActiveCall CurrentTalk => ActiveCalls.FirstOrDefault(x => x.CallState == CallState.Connected);
+		public ActiveCall CurrentHold => ActiveCalls.FirstOrDefault(x => x.CallState == CallState.OnHold);
 		#endregion
 
 		#region Методы
@@ -107,7 +108,7 @@ namespace Vodovoz.Infrastructure.Mango
 				//На случай переподключения закрываем текущий диалог.
 				if(CurrentPage != null) {
 					navigation.ForceClosePage(CurrentPage);
-					LastMessage = null;
+					ActiveCalls.Clear();
 				}
 
 				extension = employee.InnerPhone.Value;
@@ -116,7 +117,7 @@ namespace Vodovoz.Infrastructure.Mango
 				notificationClient = new MangoNotificationClient(extension, notificationCancellation.Token);
 				notificationClient.ChanalStateChanged+= NotificationClient_ChanalStateChanged;
 				ConnectionState = notificationClient.IsNotificationActive ? ConnectionState.Connected : ConnectionState.Disconnected;
-				notificationClient.IncomeCall += NotificationClientOnIncomeCall;
+				notificationClient.AppearedMessage += NotificationClientOnAppearedMessage;
 			}
 		}
 
@@ -124,15 +125,14 @@ namespace Vodovoz.Infrastructure.Mango
 		#region Обработка событий
 		private void OnUserChanged(EntityChangeEvent[] changeevents)
 		{
-			logger.Info("Текущий сотрудник именён, мог поменятся номер привязки, переподключаемся...");
+			logger.Info("Текущий сотрудник изменён, мог поменятся номер привязки, переподключаемся...");
 			notificationCancellation?.Cancel();
 			notificationClient?.Dispose();
 			Connect();
 		}
 
-		private void NotificationClientOnIncomeCall(object sender, IncomeCallEventArgs e)
+		private void NotificationClientOnAppearedMessage(object sender, AppearedMessageEventArgs e)
 		{
-			LastMessage = e.Message;
 			Application.Invoke((s, arg) => HandleMessage(e.Message));
 		}
 
@@ -146,7 +146,6 @@ namespace Vodovoz.Infrastructure.Mango
 		void ToolbarIcon_Activated(object sender, EventArgs e)
 		{
 			if(CurrentPage == null) {
-
 				CurrentPage = navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>(null, this, SubscriberSelectionViewModel.DialogType.Telephone);
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
 			} else
@@ -162,131 +161,154 @@ namespace Vodovoz.Infrastructure.Mango
 
 		bool HandleTimeoutHandler()
 		{
-			if(LastMessage != null)
+			if(CurrentTalk != null)
 				OnPropertyChanged(nameof(StageDuration));
 			if(IncomingCalls.Any())
 				OnPropertyChanged("IncomingCalls.Time");
 
-			IncomingCalls.RemoveAll(x => x.StageDuration.Value.TotalSeconds > 120d);
+			ActiveCalls.RemoveAll(x => (x.CallState == CallState.Appeared && x.StageDuration?.TotalSeconds > 120d) ||
+			                           (x.CallState != CallState.Appeared && x.StageDuration?.TotalMinutes > 60));
 			return true;
 		}
 		#endregion
 
-		private IEnumerable<int> callerClients => LastMessage?.CallFrom.Names?.Where(n => n.CounterpartyId > 0).Select(n => Convert.ToInt32(n.CounterpartyId)).Distinct();
-		public List<int> Clients { get; private set; } = new List<int>();
-		public int Employee => LastMessage.CallFrom.Names.Where(n => n.EmployeeId > 0).Select(n => Convert.ToInt32(n.EmployeeId)).FirstOrDefault();
-		#region Работа с сообщениями
+		private List<int> AddedClients = new List<int>();
+		public IEnumerable<int> Clients => CurrentTalk?.CounterpartyIds.Concat(AddedClients);
 
-		private void FoundByPhoneItemsConfigure()
-		{
-			if (Clients != null && callerClients != null)
-			{
-				Clients = callerClients.ToList();
-			}
-		}
-
+		#region Обработка сообщения
 		private void HandleMessage(NotificationMessage message)
 		{
-			if(message.State == CallState.Appeared) {
-				ConnectionState = ConnectionState.Ring;
-				AddNewIncome(message);
-				if(CurrentPage == null) {
-					CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this , OpenPageOptions.IgnoreHash);
-					CurrentPage.PageClosed += CurrentPage_PageClosed;
-				}
+			switch(message.State) {
+				case CallState.Appeared:
+					HandleAppeared(message);
+					break;
+				case CallState.Connected:
+					HandleConnected(message);
+					break;
+				case CallState.Disconnected:
+					HandleDisconnected(message);
+					break;
+				case CallState.OnHold:
+					HandleOnHold(message);
+					break;
+			}
+		}
+
+		private void HandleAppeared(NotificationMessage message)
+		{
+			AddNewMessage(message);
+			//Не показывам информацию новом входящем звонке в момент разговора.
+			if(CurrentTalk != null) {
+				logger.Info("Звонок не показываем. Идет разговор.");
 				return;
 			}
+			if(CurrentPage?.ViewModel is IncomingCallViewModel)
+				return;
 
-			if(message.State == CallState.Disconnected) {
-				if(TryRemoveIncome(message)) { //HACK сожалению другие способы уменьшения окна с телефонами не сработали. Поэтому просто преотрываем окно.
-					if(CurrentPage != null)
-						navigation.ForceClosePage(CurrentPage);
-					if(IncomingCalls.Any()) {
-						CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this,OpenPageOptions.IgnoreHash);
-						CurrentPage.PageClosed += CurrentPage_PageClosed;
-					}
-					return;
-				}
-				LastMessage = null;
-			}
-
-			if(CurrentPage != null) {
+			ConnectionState = ConnectionState.Ring;
+			if(CurrentPage != null)
 				navigation.ForceClosePage(CurrentPage);
-			}
 
-			if(message.State == CallState.Connected)
+			if(CurrentPage == null) {
+				CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
+				CurrentPage.PageClosed += CurrentPage_PageClosed;
+			}
+		}
+
+		private void HandleConnected(NotificationMessage message)
+		{
+			CleanCalls(CallState.Appeared);
+			AddNewMessage(message);
+			if(CurrentPage != null)
+				navigation.ForceClosePage(CurrentPage);
+			ConnectionState = ConnectionState.Talk;
+			AddedClients.Clear();
+			if(message.CallFrom.Type == CallerType.Internal) {
+				CurrentPage = navigation.OpenViewModel<InternalTalkViewModel, MangoManager>(null, this);
+				CurrentPage.PageClosed += CurrentPage_PageClosed;
+			} else if(Clients != null && Clients.Count() > 0) {
+				CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<int>>(null, this, Clients);
+				CurrentPage.PageClosed += CurrentPage_PageClosed;
+			} else {
+				CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, MangoManager>(null, this);
+				CurrentPage.PageClosed += CurrentPage_PageClosed;
+			}
+		}
+
+		private void HandleDisconnected(NotificationMessage message)
+		{
+			if (CurrentTalk?.CallId == message.CallId)
 			{
-				CleanIncomingCalls();
-				ConnectionState = ConnectionState.Talk;
-				FoundByPhoneItemsConfigure();
-				if(message.CallFrom.Type == CallerType.Internal) {
-					CurrentPage = navigation.OpenViewModel<InternalTalkViewModel, MangoManager>(null,this);
+				if(CurrentPage != null)
+					navigation.ForceClosePage(CurrentPage);
+				ConnectionState = ConnectionState.Connected;
+			}
+			TryRemoveCall(message); 
+
+			if(ConnectionState == ConnectionState.Ring) {
+				//HACK сожалению другие способы уменьшения окна с телефонами не сработали. Поэтому просто преотрываем окно.
+				if(CurrentPage != null)
+					navigation.ForceClosePage(CurrentPage);
+				if(IncomingCalls.Any()) {
+					CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
 					CurrentPage.PageClosed += CurrentPage_PageClosed;
-				}
-				else
-				{
-					if(Clients != null && Clients.Count() > 0) {
-						CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<int>>(null, this, Clients);
-						CurrentPage.PageClosed += CurrentPage_PageClosed;
-					} else {
-						CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, MangoManager>(null, this);
-						CurrentPage.PageClosed += CurrentPage_PageClosed;
-					}
-				}
+				} else
+					ConnectionState = ConnectionState.Connected;
 			}
 		}
 
-		private void AddNewIncome(NotificationMessage message)
+		private void HandleOnHold(NotificationMessage message)
 		{
-			if(IncomingCalls.Any(x => x.Message == message)) {
-				return;
-			}
-			IncomingCalls.Add(new IncomingCall(message));
+			AddNewMessage(message);
+			if(CurrentPage != null)
+				navigation.ForceClosePage(CurrentPage);
+			ConnectionState = ConnectionState.Connected;
+		}
+		#endregion
+		#region Обработка коллекции сообщений
+		private void AddNewMessage(NotificationMessage message)
+		{
+			ActiveCalls.RemoveAll(x => x.CallId == message.CallId);
+			ActiveCalls.Add(new ActiveCall(message));
 			OnPropertyChanged(nameof(IncomingCalls));
 		}
 
-		private void CleanIncomingCalls()
+		private void CleanCalls(CallState forState)
 		{
-			if(!IncomingCalls.Any()) {
-				return;
-			}
-			IncomingCalls.Clear();
-			OnPropertyChanged(nameof(IncomingCalls));
+			ActiveCalls.RemoveAll(x => x.CallState == forState);
+			if(forState == CallState.Appeared)
+				OnPropertyChanged(nameof(IncomingCalls));
 		}
 
-		private bool TryRemoveIncome(NotificationMessage message)
+		private bool TryRemoveCall(NotificationMessage message)
 		{
-			if(IncomingCalls.RemoveAll(x => x.CallId == message.CallId) > 0) {
+			if(ActiveCalls.RemoveAll(x => x.CallId == message.CallId) > 0) {
 				OnPropertyChanged(nameof(IncomingCalls));
 				return true;
 			}
 			return false;
 		}
+		#endregion
 
 		public void AddCounterpartyToCall(Counterparty client , bool changeCallState)
 		{
-			if (Clients == null)
-				Clients = new List<int>();
-			Clients.Add(client.Id);
+			AddedClients.Add(client.Id);
 			if(changeCallState) {
 				CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<int>>(null, this, Clients);
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
-				//if(LastMessage != null && CurrentPage == null)
-					//HandleMessage(LastMessage);
 			}
 		}
 
-		#endregion
 		#region MangoController_Methods
 
 		public void HangUp()
 		{
-			if(CurrentPage != null)
-				navigation.ForceClosePage(CurrentPage);
-			if(LastMessage != null)
-				mangoController.HangUp(LastMessage.CallId);
-			LastMessage = null;
-			CleanIncomingCalls();
+			if (CurrentTalk != null)
+			{
+				mangoController.HangUp(CurrentTalk.CallId);
+				if(CurrentPage != null)
+					navigation.ForceClosePage(CurrentPage);
+			}
 		}
 
 		public IEnumerable<MangoService.DTO.Group.Group> GetAllVPBXGroups()
@@ -294,9 +316,9 @@ namespace Vodovoz.Infrastructure.Mango
 			return mangoController.GetAllVpbxGroups();
 		}
 
-		public IEnumerable<MangoService.DTO.Users.User> GetAllVPBXEmploies()
+		public IEnumerable<MangoService.DTO.Users.User> GetAllVpbxUsers()
 		{
-			return mangoController.GetAllVPBXEmploies();
+			return mangoController.GetAllVPBXUsers();
 		}
 
 		public void MakeCall(string to_extension)
@@ -306,7 +328,7 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void ForwardCall(string to_extension,ForwardingMethod method)
 		{
-			mangoController.ForwardCall(LastMessage.CallId,Convert.ToString(this.extension),to_extension, method);
+			mangoController.ForwardCall(CurrentTalk.CallId,Convert.ToString(this.extension),to_extension, method);
 		}
 
 		#endregion

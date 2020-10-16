@@ -47,7 +47,7 @@ namespace ClientMangoService
 						FailSince = null;
 						var message = response.ResponseStream.Current;
 						Console.WriteLine($"extension:{extension} Received:{message}");
-						OnIncomeCall(message);
+						OnAppearedMessage(message);
 					}
 					logger.Warn($"Соединение с NotificationService[{extension}] завершено.");
 				}, token).ContinueWith(task =>
@@ -73,11 +73,11 @@ namespace ClientMangoService
 				})
 				;
 		}
-		public event EventHandler<IncomeCallEventArgs> IncomeCall;
+		public event EventHandler<AppearedMessageEventArgs> AppearedMessage;
 
-		protected virtual void OnIncomeCall(NotificationMessage message)
+		protected virtual void OnAppearedMessage(NotificationMessage message)
 		{
-			IncomeCall?.Invoke(this, new IncomeCallEventArgs{Message = message});
+			AppearedMessage?.Invoke(this, new AppearedMessageEventArgs{Message = message});
 		}
 
 		public void Dispose()
@@ -91,7 +91,7 @@ namespace ClientMangoService
 		}
 	}
 	
-	public class IncomeCallEventArgs : EventArgs
+	public class AppearedMessageEventArgs : EventArgs
 	{
 		public NotificationMessage Message { get; set; }
 	}

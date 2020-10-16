@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.Mango
 			Manager = manager;
 
 			SearchTableEntities = new List<SearchTableEntity>();
-			List<User> users = Manager.GetAllVPBXEmploies().Where(x => !String.IsNullOrEmpty(x.telephony.extension)).ToList();
+			List<User> users = Manager.GetAllVpbxUsers().Where(x => !String.IsNullOrEmpty(x.telephony.extension)).ToList();
 			foreach(var user in users) {
 				SearchTableEntities.Add(new SearchTableEntity(user));
 			}
