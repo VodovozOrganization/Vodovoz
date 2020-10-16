@@ -112,7 +112,7 @@ namespace VodovozMangoService.HostedServices
 				caller = GetInternalCaller(from.extension);
 
 			logger.Debug($"Caller:{caller}");
-			var message = MakeMessage(info, caller);
+			var message = MakeMessage(info, caller, info.LastEvent.from.extension);
 			message.Direction = CallDirection.Incoming;
 			SendNotification(subscriptions, message, info);
 		}
@@ -148,12 +148,12 @@ namespace VodovozMangoService.HostedServices
 				caller = GetInternalCaller(to.extension);
 
 			logger.Debug($"Caller:{caller}");
-			var message = MakeMessage(info, caller);
+			var message = MakeMessage(info, caller, info.LastEvent.from.extension);
 			message.Direction = CallDirection.Outgoing;
 			SendNotification(subscriptions, message, info);
 		}
 
-		private NotificationMessage MakeMessage(CallInfo info, Caller caller)
+		private NotificationMessage MakeMessage(CallInfo info, Caller caller, string transferInitiator)
 		{ 
 			var message = new NotificationMessage
 			{
@@ -165,10 +165,20 @@ namespace VodovozMangoService.HostedServices
 			if (info.OnHoldCall != null)
 			{
 				message.IsTransfer = true;
-				if (String.IsNullOrEmpty(info.OnHoldCall.LastEvent.from.extension))
-					message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.from.number);
+				if (info.OnHoldCall.LastEvent.from.extension == transferInitiator)
+				{
+					if (String.IsNullOrEmpty(info.OnHoldCall.LastEvent.to.extension))
+						message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.to.number);
+					else
+						message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.to.extension);
+				}
 				else
-					message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.from.extension);
+				{
+					if (String.IsNullOrEmpty(info.OnHoldCall.LastEvent.from.extension))
+						message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.from.number);
+					else
+						message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.from.extension);	
+				}
 			}
 			return message;
 		}
