@@ -298,7 +298,7 @@ namespace VodovozMangoService.HostedServices
 
 		private void GetUsers()
 		{
-			Users = mangoController.GetAllVPBXEmploies().ToList();
+			Users = mangoController.GetAllVPBXUsers().ToList();
 			lastUpdateUsers = DateTime.Now;
 		}
 		#endregion
