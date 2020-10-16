@@ -1604,14 +1604,6 @@ WHERE
         wages_movement_operations.operation_time &lt;= @date
   AND wages_movement_operations.employee_id IN (@drivers)
   AND employees.category = 'driver'
-  AND EXISTS (
-        SELECT w.id FROM wage_parameters w
-                             LEFT JOIN wage_parameter_items wpi ON wpi.id  = w.wage_parameter_item_id
-        WHERE
-                w.employee_id = employees.id
-          AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
-          AND wpi.wage_parameter_item_type != 'Manual'
-    )
   AND (employees.driver_of = 'DriverCar' OR driver_of IS NULL)
   AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
   AND (cars.is_archive = false OR cars.is_archive IS NULL)
@@ -1661,14 +1653,6 @@ LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
 LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
-	AND EXISTS (
-		SELECT w.id FROM wage_parameters w
-		LEFT JOIN wage_parameter_items wpi ON wpi.id = w.wage_parameter_item_id 
-		WHERE
-			w.employee_id = employees.id
-			AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
-			AND wpi.wage_parameter_item_type != 'Manual'
-	)
 	AND employees.category = 'forwarder'
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
@@ -1718,14 +1702,6 @@ LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_gr
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
-	AND EXISTS (
-		SELECT w.id FROM wage_parameters w
-		LEFT JOIN wage_parameter_items wpi ON wpi.id = w.wage_parameter_item_id 
-		WHERE
-			w.employee_id = employees.id
-			AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
-			AND wpi.wage_parameter_item_type != 'Manual'
-	)
 	AND employees.driver_of = 'CompanyLargus'
 	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
@@ -1776,14 +1752,6 @@ LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_gr
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
-	AND EXISTS (
-		SELECT w.id FROM wage_parameters w
-		LEFT JOIN wage_parameter_items wpi ON wpi.id = w.wage_parameter_item_id 
-		WHERE
-			w.employee_id = employees.id
-			AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
-			AND wpi.wage_parameter_item_type != 'Manual'
-	)
 	AND employees.driver_of = 'CompanyGAZelle'
 	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
@@ -1830,14 +1798,6 @@ LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
 LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
-	AND EXISTS (
-		SELECT w.id FROM wage_parameters w
-		LEFT JOIN wage_parameter_items wpi ON wpi.id = w.wage_parameter_item_id 
-		WHERE
-			w.employee_id = employees.id
-			AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
-			AND wpi.wage_parameter_item_type != 'Manual'
-	)
 GROUP BY parent_subdivision
 HAVING balance &lt;&gt; 0
 ;</CommandText>
@@ -1876,15 +1836,7 @@ LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
 LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
-	AND employees.category = 'driver'  
-	AND EXISTS (
-		SELECT w.id FROM wage_parameters w
-		LEFT JOIN wage_parameter_items wpi ON wpi.id = w.wage_parameter_item_id 
-		WHERE
-			w.employee_id = employees.id
-			AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
-			AND wpi.wage_parameter_item_type != 'Manual'
-	)
+	AND employees.category = 'driver' 
 	AND cars.is_raskat = true
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
@@ -1934,14 +1886,6 @@ LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_gr
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
-	AND EXISTS (
-		SELECT w.id FROM wage_parameters w
-		LEFT JOIN wage_parameter_items wpi ON wpi.id = w.wage_parameter_item_id 
-		WHERE
-			w.employee_id = employees.id
-			AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
-			AND wpi.wage_parameter_item_type != 'Manual'
-	)
 	AND employees.driver_of = 'CompanyTruck'
 	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
