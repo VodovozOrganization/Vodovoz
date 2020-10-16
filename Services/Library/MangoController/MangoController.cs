@@ -161,12 +161,7 @@ namespace MangoService
 			ForwardCallRequest options = new ForwardCallRequest();
 			options.call_id = call_id;
 			options.command_id = commandId;
-
-			if(method == ForwardingMethod.blind)
-				options.method = "blind";
-			else
-				options.method = "hold";
-
+			options.method = method.ToString();
 			options.to_number = to_extension;
 			options.initiator = from_extension;
 			string json = JsonConvert.SerializeObject(options,settings);
