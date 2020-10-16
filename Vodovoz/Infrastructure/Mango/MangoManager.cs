@@ -82,12 +82,13 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public string CallerName => CurrentTalk?.CallerName;
 		public Phone Phone => CurrentTalk != null ? new Phone(CurrentTalk.CallerNumber) : null; 
-		public bool IsOutgoing => CurrentTalk?.Message.Direction == CallDirection.Outgoing || IncomingCalls.Any(x => x.IsOutgoing);
+		public bool IsOutgoing => CurrentTalk?.Message.Direction == CallDirection.Outgoing || RingingCalls.Any(x => x.IsOutgoing);
 		public List<ActiveCall> ActiveCalls { get; set; } = new List<ActiveCall>();
 
-		public IEnumerable<ActiveCall> IncomingCalls => ActiveCalls.Where(x => x.CallState == CallState.Appeared);
+		public IEnumerable<ActiveCall> RingingCalls => ActiveCalls.Where(x => x.CallState == CallState.Appeared);
 		public ActiveCall CurrentTalk => ActiveCalls.FirstOrDefault(x => x.CallState == CallState.Connected);
 		public ActiveCall CurrentHold => ActiveCalls.FirstOrDefault(x => x.CallState == CallState.OnHold);
+		public ActiveCall CurrentOutgoingRing => RingingCalls.FirstOrDefault(x => x.IsOutgoing);
 		#endregion
 
 		#region Методы
@@ -159,7 +160,7 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			if(CurrentTalk != null)
 				OnPropertyChanged(nameof(StageDuration));
-			if(IncomingCalls.Any())
+			if(RingingCalls.Any())
 				OnPropertyChanged("IncomingCalls.Time");
 
 			ActiveCalls.RemoveAll(x => (x.CallState == CallState.Appeared && x.StageDuration?.TotalSeconds > 120d) ||
@@ -245,7 +246,7 @@ namespace Vodovoz.Infrastructure.Mango
 				//HACK сожалению другие способы уменьшения окна с телефонами не сработали. Поэтому просто преотрываем окно.
 				if(CurrentPage != null)
 					navigation.ForceClosePage(CurrentPage);
-				if(IncomingCalls.Any()) {
+				if(RingingCalls.Any()) {
 					CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
 					CurrentPage.PageClosed += CurrentPage_PageClosed;
 				} else
@@ -266,20 +267,20 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			ActiveCalls.RemoveAll(x => x.CallId == message.CallId);
 			ActiveCalls.Add(new ActiveCall(message));
-			OnPropertyChanged(nameof(IncomingCalls));
+			OnPropertyChanged(nameof(RingingCalls));
 		}
 
 		private void CleanCalls(CallState forState)
 		{
 			ActiveCalls.RemoveAll(x => x.CallState == forState);
 			if(forState == CallState.Appeared)
-				OnPropertyChanged(nameof(IncomingCalls));
+				OnPropertyChanged(nameof(RingingCalls));
 		}
 
 		private bool TryRemoveCall(NotificationMessage message)
 		{
 			if(ActiveCalls.RemoveAll(x => x.CallId == message.CallId) > 0) {
-				OnPropertyChanged(nameof(IncomingCalls));
+				OnPropertyChanged(nameof(RingingCalls));
 				return true;
 			}
 			return false;
@@ -299,9 +300,10 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void HangUp()
 		{
-			if (CurrentTalk != null)
+			var toHangUpCall = CurrentTalk ?? CurrentOutgoingRing ?? ActiveCalls.FirstOrDefault();
+			if (toHangUpCall != null)
 			{
-				mangoController.HangUp(CurrentTalk.CallId);
+				mangoController.HangUp(toHangUpCall.CallId);
 				if(CurrentPage != null)
 					navigation.ForceClosePage(CurrentPage);
 			}

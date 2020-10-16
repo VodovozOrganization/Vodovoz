@@ -23,7 +23,7 @@ namespace Vodovoz.Views.Mango
 
 		void MangoManager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(MangoManager.IncomingCalls)) {
+			if(e.PropertyName == nameof(MangoManager.RingingCalls)) {
 				RefreshIncomings();
 			}
 
@@ -44,7 +44,7 @@ namespace Vodovoz.Views.Mango
 			var count = vboxIncomings.Children.Length;
 
 			int i = 0;
-			foreach(var incoming in ViewModel.MangoManager.IncomingCalls) {
+			foreach(var incoming in ViewModel.MangoManager.RingingCalls) {
 				if(i >= count) {
 					vboxIncomings.Add(new IncomingView());
 					vboxIncomings.ShowAll();
@@ -68,7 +68,7 @@ namespace Vodovoz.Views.Mango
 		private void RefreshTimes()
 		{
 			int i = 0;
-			var incomings = ViewModel.MangoManager.IncomingCalls.ToArray();
+			var incomings = ViewModel.MangoManager.RingingCalls.ToArray();
 			foreach(IncomingView view in vboxIncomings.Children) {
 				view.Time = incomings[i].StageDuration.Value;
 				i++;
