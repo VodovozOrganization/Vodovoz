@@ -31,6 +31,8 @@ namespace MangoService
 	/// </summary>
 	public class MangoController
 	{
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
 		private string baseURL = "https://app.mango-office.ru/";
 		private string vpbx_api_key;
 		private string sign;
@@ -60,9 +62,15 @@ namespace MangoService
 
 				result = request.Post(command).ToString();
 			}
+			logger.Debug($"Результат команты:{result}");
 			return result;
 		}
 
+		private CommandResult GetParseResult(string json)
+		{
+			JObject obj = JObject.Parse(json);
+			return obj.ToObject<CommandResult>();
+		}
 
 		private bool GetSimpleResult(string json)
 		{
@@ -75,8 +83,9 @@ namespace MangoService
 		/// Возвращает всех ВАТС сотрудников
 		/// </summary>
 		/// <returns>ClientMangoService.DTO.Users.User type</returns>
-		public IEnumerable<User> GetAllVPBXEmploies()
+		public IEnumerable<User> GetAllVPBXUsers()
 		{
+			logger.Info("Запрашиваем пользователей манго");
 			string command = "vpbx/config/users/request";
 			string response = PerformCommand(command);
 
@@ -88,6 +97,7 @@ namespace MangoService
 				User user = _result.ToObject<User>();
 				users.Add(user);
 			}
+			logger.Info($"Получено {users.Count} пользователей");
 			return users;
 		}
 		/// <summary>
@@ -96,19 +106,20 @@ namespace MangoService
 		/// <returns>ClientMangoService.DTO.Group.Group type</returns>
 		public IEnumerable<Group> GetAllVpbxGroups()
 		{
+			logger.Info("Запрашиваем группы манго");
 			string command = "vpbx/groups";
 			string response = PerformCommand(command);
 
 			JObject obj = JObject.Parse(response);
 			List<JToken> tokens = obj["groups"].Children().ToList();
 
-			IList<Group> users = new List<Group>();
+			IList<Group> groups = new List<Group>();
 			foreach(JToken _result in tokens) {
 				Group group = _result.ToObject<Group>();
-				users.Add(group);
+				groups.Add(group);
 			}
-			return users;
-
+			logger.Info($"Получено {groups.Count} групп");
+			return groups;
 		}
 
 		/// <summary>
@@ -120,6 +131,7 @@ namespace MangoService
 		/// <param name="commandId">Не обязательный параметр , обозначающий id комнды (может быть любым , по умолчанию : имя метода)</param>
 		public bool MakeCall(string from_extension, string to_extension, [CallerMemberName]string commandId = "")
 		{
+			logger.Info($"Выполняем звонок на {to_extension}");
 			string command = @"vpbx/commands/callback";
 			MakeCallRequest options = new MakeCallRequest();
 			options.command_id = commandId;
@@ -127,8 +139,10 @@ namespace MangoService
 			options.from.extension = from_extension;
 			options.to_number = to_extension;
 			string json = JsonConvert.SerializeObject(options,settings);
-
-			return GetSimpleResult(PerformCommand(command, json));
+			var result = PerformCommand(command, json);
+			var successfully = GetSimpleResult(result);
+			logger.Info(successfully ? "Ок" : $"Код ошибки: {GetParseResult(result).result}");
+			return successfully;
 		}
 
 		/// <summary>
@@ -142,6 +156,7 @@ namespace MangoService
 		/// <param name="commandId">Не обязательный параметр , обозначающий id комнды (может быть любым , по умолчанию : имя метода)</param>
 		public bool ForwardCall(string call_id, string from_extension, string to_extension, ForwardingMethod method, [CallerMemberName]string commandId = "")
 		{
+			logger.Info($"Выполняем переадресацию на {to_extension}");
 			string command = @"vpbx/commands/transfer";
 			ForwardCallRequest options = new ForwardCallRequest();
 			options.call_id = call_id;
@@ -156,8 +171,10 @@ namespace MangoService
 			options.initiator = from_extension;
 			string json = JsonConvert.SerializeObject(options,settings);
 
-			return GetSimpleResult(PerformCommand(command, json));
-
+			var result = PerformCommand(command, json);
+			var successfully = GetSimpleResult(result);
+			logger.Info(successfully ? "Ок" : $"Код ошибки: {GetParseResult(result).result}");
+			return successfully;
 		}
 
 		/// <summary>
@@ -168,6 +185,7 @@ namespace MangoService
 		/// <param name="commandId">Не обязательный параметр , обозначающий id комнды (может быть любым , по умолчанию : имя метода)</param>
 		public bool HangUp(string call_id, [CallerMemberName]string commandId = "")
 		{
+			logger.Info($"Выполняем завершение разговора.");
 			string command = "vpbx/commands/call/hangup";
 
 			HangUpRequest options = new HangUpRequest();
@@ -175,7 +193,10 @@ namespace MangoService
 			options.call_id = call_id;
 			string json = JsonConvert.SerializeObject(options,settings);
 
-			return GetSimpleResult(PerformCommand(command, json));
+			var result = PerformCommand(command, json);
+			var successfully = GetSimpleResult(result);
+			logger.Info(successfully ? "Ок" : $"Код ошибки: {GetParseResult(result).result}");
+			return successfully;
 		}
 	}
 }
