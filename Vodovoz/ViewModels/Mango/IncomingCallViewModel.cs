@@ -12,16 +12,11 @@ namespace Vodovoz.ViewModels.Mango
 	public class IncomingCallViewModel : WindowDialogViewModelBase
 	{
 		public readonly MangoManager MangoManager;
-		public readonly IUnitOfWork UoW;
 
-		public IncomingCallViewModel(
-			IUnitOfWorkFactory UoWFactory, 
-			INavigationManager navigation,
-			ITdiCompatibilityNavigation tdinavigation,
+		public IncomingCallViewModel(INavigationManager navigation,
 			MangoManager manager) : base(navigation)
 		{
 			this.MangoManager = manager ?? throw new ArgumentNullException(nameof(manager));
-			UoW = UoWFactory.CreateWithoutRoot() ?? throw new ArgumentNullException(nameof(UoWFactory));
 			if(manager.IsTransfer && manager.PrimaryCaller != null) {
 				string number;
 				if(MangoManager.PrimaryCaller.Number.Length == 11) {
