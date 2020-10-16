@@ -28,7 +28,7 @@ namespace Vodovoz.ViewModels.Mango
 					var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
 					number = "+7 " + formatter.FormatString(manager.PrimaryCaller.Number);
 				} else number = manager.PrimaryCaller.Number;
-				OnLineText = $"{number}\n{MangoManager.PrimaryCallerNames}";
+				OnLineText = $"{number}\n{MangoManager.PrimaryCallerNames}".TrimEnd();
 			}
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
