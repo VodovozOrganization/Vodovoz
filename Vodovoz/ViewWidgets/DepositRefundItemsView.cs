@@ -28,8 +28,7 @@ namespace Vodovoz.ViewWidgets
 			Order = order;
 			this.UoW = uow;
 
-			if(MyTab is OrderReturnsView) {
-				treeDepositRefundItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderDepositItem>()
+			treeDepositRefundItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderDepositItem>()
 				.AddColumn("Тип")
 					.AddTextRenderer(node => node.DepositTypeString)
 				.AddColumn("Название")
@@ -37,36 +36,18 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Кол-во")
 					.AddNumericRenderer(node => node.Count)
 						.Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1))
-						.Editing(false)
+						.Editing(!(MyTab is OrderReturnsView))
 				.AddColumn("Факт. кол-во")
 					.AddNumericRenderer(node => node.ActualCount, new NullValueToZeroConverter())
 						.Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1))
-						.Editing(true)
-				.AddColumn("Цена")
+						.Editing(MyTab is OrderReturnsView)
+						.AddColumn("Цена")
 					.AddNumericRenderer(node => node.Deposit)
 						.Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1))
 						.Editing(true)
 				.AddColumn("Сумма")
 					.AddNumericRenderer(node => node.Total)
 				.Finish();
-			} else {
-				treeDepositRefundItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderDepositItem>()
-				.AddColumn("Тип")
-					.AddTextRenderer(node => node.DepositTypeString)
-				.AddColumn("Название")
-					.AddTextRenderer(node => node.EquipmentNomenclature != null ? node.EquipmentNomenclature.Name : string.Empty)
-				.AddColumn("Кол-во")
-					.AddNumericRenderer(node => node.Count)
-						.Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1))
-						.Editing(true)
-				.AddColumn("Цена")
-					.AddNumericRenderer(node => node.Deposit)
-						.Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1))
-						.Editing(true)
-				.AddColumn("Сумма")
-					.AddNumericRenderer(node => node.Total)
-				.Finish();
-			}
 
 			treeDepositRefundItems.ItemsDataSource = Order.ObservableOrderDepositItems;
 			treeDepositRefundItems.Selection.Changed += TreeDepositRefundItems_Selection_Changed;
