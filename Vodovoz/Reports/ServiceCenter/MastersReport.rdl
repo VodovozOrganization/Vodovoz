@@ -1249,7 +1249,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox65">
-                      <Value>=First({premiums_advance}, "premiums_advance")</Value>
+                      <Value>=First({total_premiums}, "total_premiums")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1554,10 +1554,10 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="premiums_advance" >
+    <DataSet Name="total_premiums" >
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>select IFNULL(SUM(wmo.money), 0) as premiums_advance 
+        <CommandText>select IFNULL(SUM(wmo.money), 0) as total_premiums
 from wages_movement_operations wmo 
 where wmo.operation_type = 'PremiumWage'
 and wmo.employee_id = @driver_id
@@ -1576,16 +1576,16 @@ and wmo.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
         </QueryParameters>
       </Query>
       <Fields>
-        <Field Name="premiums_advance">
-          <DataField>premiums_advance</DataField>
+        <Field Name="total_premiums">
+          <DataField>total_premiums</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="fines_advance" >
+    <DataSet Name="total_fines" >
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT IFNULL(ABS(SUM(wmo.money)), 0) as fines_advance 
+        <CommandText>SELECT IFNULL(ABS(SUM(wmo.money)), 0) as total_fines
 from wages_movement_operations wmo 
 where wmo.operation_type = 'HoldedFine'
 and wmo.employee_id = @driver_id
@@ -1604,8 +1604,8 @@ and wmo.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
         </QueryParameters>
       </Query>
       <Fields>
-        <Field Name="fines_advance">
-          <DataField>fines_advance</DataField>
+        <Field Name="total_fines">
+          <DataField>total_fines</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
