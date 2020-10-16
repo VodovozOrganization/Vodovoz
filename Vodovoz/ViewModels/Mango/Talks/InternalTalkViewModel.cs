@@ -25,14 +25,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.tdiCompatibilityNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			this.UoW = unitOfWorkFactory.CreateWithoutRoot();
-			if(manager.IsTransfer && manager.PrimaryCaller != null) {
-				string number;
-				if(MangoManager.PrimaryCaller.Number.Length == 11) {
-					var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
-					number = "+7 " + formatter.FormatString(manager.PrimaryCaller.Number);
-				} else number = manager.PrimaryCaller.Number;
-				OnLineText = $"{number}\n{MangoManager.PrimaryCallerNames}".TrimEnd();
-			}
 
 			if(manager.IsOutgoing)
 				Title = "Исходящий звонок";
@@ -42,10 +34,10 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		#region Свойства View
 
-		public string OnLineText { get; private set; }
-		public bool ShowTransferCaller => MangoManager.IsTransfer;
-		public bool ShowReturnButton => MangoManager.IsTransfer && MangoManager.IsOutgoing;
-		public bool ShowTransferButton => !MangoManager.IsTransfer;
+		public string OnLineText => MangoManager.CurrentTalk?.OnHoldText;
+		public bool ShowTransferCaller => MangoManager.CurrentTalk.IsTransfer;
+		public bool ShowReturnButton => MangoManager.CurrentTalk.IsTransfer && MangoManager.IsOutgoing;
+		public bool ShowTransferButton => !MangoManager.CurrentTalk.IsTransfer;
 
 		#endregion
 

@@ -8,16 +8,6 @@ namespace Vodovoz.Views.Mango
 
 		private global::Gtk.VBox vboxIncomings;
 
-		private global::Gtk.Table OnLinePlace;
-
-		private global::Gtk.Label label1;
-
-		private global::Gamma.GtkWidgets.yLabel LinePhone;
-
-		private global::Gtk.HBox hbox2;
-
-		private global::Gtk.Notebook WidgetPlace;
-
 		private global::Gtk.HBox hbox1;
 
 		private global::Gamma.GtkWidgets.yButton buttonDisconnect;
@@ -40,48 +30,6 @@ namespace Vodovoz.Views.Mango
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxIncomings]));
 			w1.Position = 0;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.OnLinePlace = new global::Gtk.Table(((uint)(1)), ((uint)(3)), false);
-			this.OnLinePlace.Name = "OnLinePlace";
-			this.OnLinePlace.RowSpacing = ((uint)(6));
-			this.OnLinePlace.ColumnSpacing = ((uint)(6));
-			// Container child OnLinePlace.Gtk.Table+TableChild
-			this.label1 = new global::Gtk.Label();
-			this.label1.Name = "label1";
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("На линии :");
-			this.OnLinePlace.Add(this.label1);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.OnLinePlace[this.label1]));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child OnLinePlace.Gtk.Table+TableChild
-			this.LinePhone = new global::Gamma.GtkWidgets.yLabel();
-			this.LinePhone.Name = "LinePhone";
-			this.LinePhone.LabelProp = global::Mono.Unix.Catalog.GetString("Телефон");
-			this.OnLinePlace.Add(this.LinePhone);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.OnLinePlace[this.LinePhone]));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(3));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vbox1.Add(this.OnLinePlace);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.OnLinePlace]));
-			w4.Position = 1;
-			w4.Expand = false;
-			w4.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox2 = new global::Gtk.HBox();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.WidgetPlace = new global::Gtk.Notebook();
-			this.WidgetPlace.CanFocus = true;
-			this.WidgetPlace.Name = "WidgetPlace";
-			this.WidgetPlace.CurrentPage = 1;
-			this.hbox2.Add(this.WidgetPlace);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.WidgetPlace]));
-			w5.Position = 0;
-			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-			w6.Position = 2;
-			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
@@ -91,20 +39,20 @@ namespace Vodovoz.Views.Mango
 			this.buttonDisconnect.Name = "buttonDisconnect";
 			this.buttonDisconnect.UseUnderline = true;
 			this.buttonDisconnect.Label = global::Mono.Unix.Catalog.GetString("Завершить");
-			global::Gtk.Image w7 = new global::Gtk.Image();
-			w7.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.decline-call.png");
-			this.buttonDisconnect.Image = w7;
+			global::Gtk.Image w2 = new global::Gtk.Image();
+			w2.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.decline-call.png");
+			this.buttonDisconnect.Image = w2;
 			this.hbox1.Add(this.buttonDisconnect);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonDisconnect]));
-			w8.PackType = ((global::Gtk.PackType)(1));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonDisconnect]));
+			w3.PackType = ((global::Gtk.PackType)(1));
+			w3.Position = 0;
+			w3.Expand = false;
+			w3.Fill = false;
 			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w9.Position = 3;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

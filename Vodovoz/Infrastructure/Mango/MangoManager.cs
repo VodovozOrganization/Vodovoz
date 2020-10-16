@@ -83,10 +83,6 @@ namespace Vodovoz.Infrastructure.Mango
 		public string CallerName => CurrentTalk?.CallerName;
 		public Phone Phone => CurrentTalk != null ? new Phone(CurrentTalk.CallerNumber) : null; 
 		public bool IsOutgoing => CurrentTalk?.Message.Direction == CallDirection.Outgoing || IncomingCalls.Any(x => x.IsOutgoing);
-		public bool IsTransfer => CurrentTalk?.Message.IsTransfer ?? false;
-		public Caller PrimaryCaller => CurrentTalk?.Message.PrimaryCaller;
-		public string PrimaryCallerNames => CurrentTalk?.Message.PrimaryCaller?.Names != null ? String.Join("\n", CurrentTalk.Message.PrimaryCaller.Names.Select(x => x.Name)) : null;
-
 		public List<ActiveCall> ActiveCalls { get; set; } = new List<ActiveCall>();
 
 		public IEnumerable<ActiveCall> IncomingCalls => ActiveCalls.Where(x => x.CallState == CallState.Appeared);

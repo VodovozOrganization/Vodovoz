@@ -16,13 +16,9 @@ namespace Vodovoz.Views.Mango
 		{
 			this.Build();
 			Configure();
-
 		}
+
 		void Configure() {
-
-			OnLinePlace.Visible = ViewModel.ShowTransferCaller;
-			LinePhone.Binding.AddBinding(ViewModel, v => v.OnLineText, l => l.LabelProp).InitializeFromSource();
-
 			ViewModel.MangoManager.PropertyChanged += MangoManager_PropertyChanged;
 			RefreshIncomings();
 		}
@@ -36,12 +32,6 @@ namespace Vodovoz.Views.Mango
 			if(e.PropertyName == "IncomingCalls.Time") {
 				RefreshTimes();
 			}
-		}
-
-		private void ChangeCurrentPage_WidgetPlace(object sender, EventArgs e)
-		{
-			Notebook widget = (Notebook)sender;
-			Counterparty counterparty = (widget.CurrentPageWidget as CounterpartyOrderView).ViewModel.Client;
 		}
 
 		protected void OnButtonDisconnectClicked(object sender, EventArgs e)
@@ -64,7 +54,10 @@ namespace Vodovoz.Views.Mango
 				var view = (IncomingView)vboxIncomings.Children[i];
 				view.Number = incoming.CallerNumber;
 				view.Time = incoming.StageDuration.Value;
-				view.CallerName = incoming.CallerName;
+				var callerName = incoming.CallerName;
+				if (incoming.Message.IsTransfer)
+					callerName += $"\nНа линии: {incoming.OnHoldText}";
+				view.CallerName = callerName;
 				i++;
 				if(i > 10)
 					break;
