@@ -14,12 +14,17 @@ using QS.RepresentationModel.GtkUI;
 using Vodovoz.ViewModel;
 using Vodovoz.Domain.Employees;
 using NHibernate.Criterion;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
+using QS.Dialog;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class IncomeCashTransferDlg : TdiTabBase, IViewModelBasedDialog<IncomeCashTransferDocumentViewModel, IncomeCashTransferDocument>
+	public partial class IncomeCashTransferDlg : TdiTabBase, IViewModelBasedDialog<IncomeCashTransferDocumentViewModel, IncomeCashTransferDocument>, ISingleUoWDialog
 	{
 		private bool tabClosed = false;
 
@@ -55,14 +60,10 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			entryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 			entryDriver.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			var carVM = new EntityCommonRepresentationModelConstructor<Car>(ViewModel.UoW)
-				.AddColumn("Название", x => x.Title).AddSearch(x => x.Title)
-				.AddColumn("Номер", x => x.RegistrationNumber).AddSearch(x => x.RegistrationNumber)
-				.SetFixedRestriction(Restrictions.Where<Car>(x => !x.IsArchive))
-				.Finish();
-			entryCar.RepresentationModel = carVM;
-			entryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
-			entryCar.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, x => x.Car, x => x.Subject).InitializeFromSource();
+			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
 			comboboxCashSubdivisionFrom.SetRenderTextFunc<Subdivision>(s => s.Name);
 			comboboxCashSubdivisionFrom.Binding.AddBinding(ViewModel, vm => vm.SubdivisionsFrom, w => w.ItemsList).InitializeFromSource();
@@ -197,6 +198,8 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		}
 
 		public bool HasChanges => ViewModel.HasChanges;
+
+		public IUnitOfWork UoW => ViewModel.UoW;
 
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 

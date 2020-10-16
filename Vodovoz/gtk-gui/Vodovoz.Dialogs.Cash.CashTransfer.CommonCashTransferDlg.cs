@@ -38,7 +38,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private global::Gtk.Label labelCar;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry entryCar;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCar;
 
 		private global::Gtk.HBox hboxTransferInfo;
 
@@ -268,11 +268,12 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			w18.Expand = false;
 			w18.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.entryCar = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.entryCar.Events = ((global::Gdk.EventMask)(256));
-			this.entryCar.Name = "entryCar";
-			this.hbox2.Add(this.entryCar);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entryCar]));
+			this.entityviewmodelentryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
+			this.entityviewmodelentryCar.CanEditReference = true;
+			this.hbox2.Add(this.entityviewmodelentryCar);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityviewmodelentryCar]));
 			w19.Position = 3;
 			this.vboxDialog.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.hbox2]));
