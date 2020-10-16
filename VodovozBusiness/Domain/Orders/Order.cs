@@ -259,6 +259,20 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref previousOrder, value, () => PreviousOrder);
 		}
 
+		private string odzComment;
+		[Display(Name = "Комментарий ОДЗ")]
+		public virtual string ODZComment {
+			get => odzComment;
+			set => SetField(ref odzComment, value);
+		}
+		
+		private string opComment;
+		[Display(Name = "Комментарий ОП")]
+		public virtual string OPComment {
+			get => opComment;
+			set => SetField(ref opComment, value);
+		}
+
 		int? bottlesReturn;
 
 		[Display(Name = "Бутылей на возврат")]

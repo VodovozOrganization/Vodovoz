@@ -769,6 +769,28 @@ namespace Vodovoz
 		{
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
 			hbxTareComments.Visible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+
+			
+			if (Entity.Client != null)
+			{
+				if (Entity.Client.IsChainStore)
+				{
+					textODZComments.Binding.AddBinding(Entity, e => e.ODZComment, w => w.Buffer.Text)
+						.InitializeFromSource();
+					textOPComments.Binding.AddBinding(Entity, e => e.OPComment, w => w.Buffer.Text)
+						.InitializeFromSource();
+				}
+				else
+				{
+					hbxODZComments.Visible = false;
+					hbxOPComments.Visible = false;
+				}
+			}
+			
+			int currentUserId = userRepository.GetCurrentUser(UoW).Id;
+			bool canChangeCommentOdz = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_odz_op_comment", currentUserId);
+			textODZComments.Sensitive = canChangeCommentOdz;
+			textOPComments.Sensitive = canChangeCommentOdz;
 		}
 
 		void WaterSalesAgreement_ObjectUpdatedGeneric(EntityChangeEvent[] changeEvents)
