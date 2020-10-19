@@ -19,10 +19,10 @@
       <Textbox Name="Textbox20">
         <Height>23.34pt</Height>
         <Width>577.50pt</Width>
-        <Value>= "Отчёт по самовывозам за " + (Format(Cdate(Parameters!date), "dd/MM/yyyy"))</Value>
+        <Value>= "Отсрочка сети " + (Format(Cdate(Parameters!date), "dd/MM/yyyy"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.8pt</Left>
-        <Top>5.9pt</Top>
+        <Left>0.80pt</Left>
+        <Top>5.90pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
