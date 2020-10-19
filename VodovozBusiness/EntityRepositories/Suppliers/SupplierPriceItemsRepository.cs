@@ -22,7 +22,7 @@ namespace Vodovoz.EntityRepositories.Suppliers
 
 			if(withDelayOnly)
 				query.JoinAlias(i => i.Supplier, () => counterpartyAlias)
-					 .Where(() => counterpartyAlias.DelayDays > 0);
+					 .Where(() => counterpartyAlias.DelayDaysForProviders > 0);
 
 			switch(orderingType) {
 				case SupplierOrderingType.All:

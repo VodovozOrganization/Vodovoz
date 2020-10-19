@@ -330,13 +330,14 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionNomenclatureActivated(object sender, EventArgs e) {
+	protected void OnActionNomenclatureActivated(object sender, EventArgs e)
+	{
 		var nomenclatureRepository = new NomenclatureRepository();
-		
+
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
 				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-		
+
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
 				.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
@@ -674,22 +675,22 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
 		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
-		
+
 		var nomenclatureRepository = new NomenclatureRepository();
-		
+
 		IEntityAutocompleteSelectorFactory employeeSelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
 				ServicesConfig.CommonServices);
-		
+
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
 				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-		
+
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
 				.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
 				nomenclatureRepository, UserSingletonRepository.GetInstance());
-		
+
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFilePickerService filePickerService = new GtkFilePicker();
@@ -1291,18 +1292,19 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e) {
+	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e)
+	{
 		var nomenclatureRepository = new NomenclatureRepository();
-		
+
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
 				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-		
+
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
 				.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
 				UserSingletonRepository.GetInstance());
-		
+
 		tdiMain.AddTab(
 			new PromotionalSetsJournalViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
@@ -1379,7 +1381,7 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(new IncomeBalanceReport())
 		);
 	}
-	
+
 	protected void OnCashBoolReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1574,6 +1576,13 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(new PaymentsFromBankClientFinDepartmentReport())
 		);
 	}
+	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
+			() => new QSReport.ReportViewDlg(new ChainStoreDelayReport())
+		);
+	}
 
 	protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
 	{
@@ -1620,7 +1629,7 @@ public partial class MainWindow : Gtk.Window
 			)
 		);
 	}
-	
+
 	protected void OnActionScheduleOnLinePerShiftReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1628,7 +1637,7 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(new ScheduleOnLinePerShiftReport())
 		);
 	}
-	
+
 	protected void OnActionNonClosedRLByPeriodReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1636,4 +1645,6 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(new NonClosedRLByPeriodReport())
 		);
 	}
+
+	
 }

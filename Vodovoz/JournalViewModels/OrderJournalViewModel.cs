@@ -717,6 +717,26 @@ namespace Vodovoz.JournalViewModels
 					}
 				)
 			);
+			
+			PopupActionsList.Add(
+				new JournalAction(
+					"Повторить заказ",
+					IsOrder,
+					selectedItems => true,
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
+						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
+					
+						var dlg = new OrderDlg();
+						dlg.CopyLesserOrderFrom(order.Id);
+						var tdiMain = MainClass.MainWin.TdiMain;
+						tdiMain.OpenTab(
+							DialogHelper.GenerateDialogHashName<Domain.Orders.Order>(65656),
+							() => dlg
+						);
+					}
+				)
+			);
 		}
 
 		bool AccessToRouteListClosing(int orderId)

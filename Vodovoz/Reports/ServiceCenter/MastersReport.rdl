@@ -36,7 +36,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>172.6pt</Height>
+    <Height>207.1pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table1">
@@ -1174,6 +1174,102 @@
                 </TableCell>
               </TableCells>
             </TableRow>
+            <TableRow >
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>Штрафы за период, р:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign >Right</TextAlign>
+                        <FontSize >11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>10</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox67">
+                      <Value>=First({total_fines}, "total_fines")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize >11pt</FontSize>
+                        <TextAlign >Left</TextAlign>
+                        <Format >#,##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>Премии, р:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign >Right</TextAlign>
+                        <FontSize >11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>10</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox65">
+                      <Value>=First({total_premiums}, "total_premiums")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize >11pt</FontSize>
+                        <TextAlign >Left</TextAlign>
+                        <Format >#,##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
@@ -1454,6 +1550,62 @@ WHERE
         </Field>
         <Field Name="expense_advance">
           <DataField>expense_advance</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="total_premiums" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>select IFNULL(SUM(wmo.money), 0) as total_premiums
+from wages_movement_operations wmo 
+where wmo.operation_type = 'PremiumWage'
+and wmo.employee_id = @driver_id
+and wmo.operation_time &gt;= @start_date
+and wmo.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="driver_id">
+            <Value>={?driver_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="total_premiums">
+          <DataField>total_premiums</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="total_fines" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT IFNULL(ABS(SUM(wmo.money)), 0) as total_fines
+from wages_movement_operations wmo 
+where wmo.operation_type = 'HoldedFine'
+and wmo.employee_id = @driver_id
+and wmo.operation_time &gt;= @start_date
+and wmo.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="driver_id">
+            <Value>={?driver_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="total_fines">
+          <DataField>total_fines</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>

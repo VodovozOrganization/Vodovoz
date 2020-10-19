@@ -200,7 +200,7 @@ ORDER BY routeListDate, routeListId
             <Width>58.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.3pt</Width>
+            <Width>58.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.0pt</Width>
@@ -323,6 +323,8 @@ ORDER BY routeListDate, routeListId
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -341,6 +343,8 @@ ORDER BY routeListDate, routeListId
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -360,6 +364,8 @@ ORDER BY routeListDate, routeListId
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -424,7 +430,7 @@ ORDER BY routeListDate, routeListId
         <Details>
           <TableRows>
             <TableRow>
-              <Height>14.3pt</Height>
+              <Height>25.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -491,6 +497,7 @@ ORDER BY routeListDate, routeListId
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -570,10 +577,12 @@ ORDER BY routeListDate, routeListId
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
-                        <VerticalAlign>Top</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop >20pt</PaddingTop>
+                        <PaddingBottom >0pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -909,7 +918,7 @@ ORDER BY routeListDate, routeListId
         </Footer>
       </Table>
     </ReportItems>
-    <Height>82.7pt</Height>
+    <Height>165.7pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>

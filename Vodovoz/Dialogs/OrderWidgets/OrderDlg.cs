@@ -275,6 +275,23 @@ namespace Vodovoz
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
 		}
+		
+		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
+		public void CopyLesserOrderFrom(int id)
+		{
+			templateOrder = UoW.GetById<Order>(id);
+			Entity.Client = templateOrder.Client;
+			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
+			Entity.ClientPhone = templateOrder.ClientPhone;
+			Entity.BillDate = templateOrder.BillDate;
+			Entity.IsService = templateOrder.IsService;
+			Entity.CopyPromotionalSetsFrom(templateOrder);
+			Entity.CopyItemsFrom(templateOrder);
+			Entity.CopyDocumentsFrom(templateOrder);
+			Entity.CopyEquipmentFrom(templateOrder);
+			Entity.CopyDepositItemsFrom(templateOrder);
+			Entity.UpdateDocuments();
+		}
 
 		public void ConfigureDlg()
 		{
@@ -752,6 +769,28 @@ namespace Vodovoz
 		{
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
 			hbxTareComments.Visible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+
+			
+			if (Entity.Client != null)
+			{
+				if (Entity.Client.IsChainStore)
+				{
+					textODZComments.Binding.AddBinding(Entity, e => e.ODZComment, w => w.Buffer.Text)
+						.InitializeFromSource();
+					textOPComments.Binding.AddBinding(Entity, e => e.OPComment, w => w.Buffer.Text)
+						.InitializeFromSource();
+				}
+				else
+				{
+					hbxODZComments.Visible = false;
+					hbxOPComments.Visible = false;
+				}
+			}
+			
+			int currentUserId = userRepository.GetCurrentUser(UoW).Id;
+			bool canChangeCommentOdz = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_odz_op_comment", currentUserId);
+			textODZComments.Sensitive = canChangeCommentOdz;
+			textOPComments.Sensitive = canChangeCommentOdz;
 		}
 
 		void WaterSalesAgreement_ObjectUpdatedGeneric(EntityChangeEvent[] changeEvents)

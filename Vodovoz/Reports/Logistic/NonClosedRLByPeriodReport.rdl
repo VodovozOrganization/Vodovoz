@@ -298,8 +298,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -384,10 +384,11 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingTop>10pt</PaddingTop>
-                        <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -660,7 +661,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     rl.id,
@@ -723,7 +724,7 @@ ORDER BY rl.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>

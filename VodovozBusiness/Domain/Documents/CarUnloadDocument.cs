@@ -182,7 +182,7 @@ namespace Vodovoz.Domain.Documents
 				MovementOperation = operation,
 				ServiceClaim = serviceClaim,
 				Redhead = redhead,
-				Source = source,
+				DefectSource = source,
 				TypeOfDefect = typeOfDefect
 			};
 

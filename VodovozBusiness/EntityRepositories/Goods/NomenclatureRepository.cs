@@ -112,7 +112,7 @@ namespace Vodovoz.EntityRepositories.Goods
 							.Where(n => !n.IsArchive);
 		}
 
-		public IList<Nomenclature> NomenclatureOfDefectiveGoods(IUnitOfWork uow)
+		public IList<Nomenclature> GetNomenclatureOfDefectiveGoods(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<Nomenclature>()
 				.Where(n => n.IsDefectiveBottle).List();

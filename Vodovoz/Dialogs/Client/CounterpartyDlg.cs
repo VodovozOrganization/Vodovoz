@@ -176,6 +176,15 @@ namespace Vodovoz
 			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
 
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
+			if (Entity.IsChainStore)
+			{
+				DelayDaysForProviderValueLabel.LabelProp = Entity.DelayDaysForProviders.ToString();
+			}
+			else
+			{
+				DelayDaysForProvider.Visible = false;
+				DelayDaysForProviderValueLabel.Visible = false;
+			}
 			entryMainCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 			entryMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
 			entryPreviousCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));

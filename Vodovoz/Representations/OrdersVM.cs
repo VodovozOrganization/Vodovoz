@@ -240,7 +240,7 @@ namespace Vodovoz.ViewModel
 							);
 						}
 					},
-					(selectedItems) => selectedItems.Any(x => AccessRouteListKeeping((x as OrdersVMNode).Id))));
+					(selectedItems) => selectedItems.Any(x => CheckAccessRouteListKeeping((x as OrdersVMNode).Id))));
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Перейти в недовоз",
 					(selectedItems) => {
@@ -276,7 +276,7 @@ namespace Vodovoz.ViewModel
 							);
 						}
 					},
-					(selectedItems) => selectedItems.Any(x => AccessRouteListClosing(((OrdersVMNode)x).Id))
+					(selectedItems) => selectedItems.Any(x => CheckAccessRouteListClosing(((OrdersVMNode)x).Id))
 				));
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Открыть на Yandex картах(координаты)",
@@ -323,14 +323,14 @@ namespace Vodovoz.ViewModel
 						}
 					}
 				));
-
+				
 				return result;
 			}
 		}
 
 		#endregion
 
-		bool AccessRouteListClosing(int orderId)
+		bool CheckAccessRouteListClosing(int orderId)
 		{
 			var orderIdArr = new[] { orderId };
 			var routeListItems = UoW.Session.QueryOver<RouteListItem>()
@@ -347,7 +347,7 @@ namespace Vodovoz.ViewModel
 			return false;
 		}
 
-		bool AccessRouteListKeeping(int orderId)
+		bool CheckAccessRouteListKeeping(int orderId)
 		{
 			var orderIdArr = new[] { orderId };
 			var routeListItems = UoW.Session.QueryOver<RouteListItem>()

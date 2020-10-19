@@ -157,7 +157,7 @@ namespace Vodovoz.ViewModels.Suppliers
 											.SelectMany(r => r.Children.OfType<SupplierNode>())
 											;
 			foreach(var s in displayingSuppliers) {
-				if(updatedCounterparties.FirstOrDefault(c => c.Id == s.SupplierPriceItem.Supplier.Id)?.DelayDays != s.SupplierPriceItem.Supplier.DelayDays) {
+				if(updatedCounterparties.FirstOrDefault(c => c.Id == s.SupplierPriceItem.Supplier.Id)?.DelayDaysForProviders != s.SupplierPriceItem.Supplier.DelayDaysForProviders) {
 					NeedRefresh = true;
 					var response = AskQuestion(
 						"Отсрочка у некоторых поставщиков из заявки изменилась.\nЖелаете обновить список?",
@@ -173,7 +173,7 @@ namespace Vodovoz.ViewModels.Suppliers
 		public string GenerateDelayDaysString(ILevelingRequestNode n)
 		{
 			if(n is SupplierNode)
-				return n.SupplierPriceItem.Supplier.DelayDays > 0 ? string.Format("{0} дн.", n.SupplierPriceItem.Supplier.DelayDays) : "Нет";
+				return n.SupplierPriceItem.Supplier.DelayDaysForProviders > 0 ? string.Format("{0} дн.", n.SupplierPriceItem.Supplier.DelayDaysForProviders) : "Нет";
 			return string.Empty;
 		}
 

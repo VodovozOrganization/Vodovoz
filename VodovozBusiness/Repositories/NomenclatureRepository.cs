@@ -51,7 +51,7 @@ namespace Vodovoz.Repositories
 		public static QueryOver<Nomenclature> NomenclatureOfServices() => new NewNomenclatureRepository().NomenclatureOfServices();
 
 		[Obsolete]
-		public static IList<Nomenclature> NomenclatureOfDefectiveGoods(IUnitOfWork uow) => new NewNomenclatureRepository().NomenclatureOfDefectiveGoods(uow);
+		public static IList<Nomenclature> NomenclatureOfDefectiveGoods(IUnitOfWork uow) => new NewNomenclatureRepository().GetNomenclatureOfDefectiveGoods(uow);
 
 		[Obsolete]
 		public static string GetNextCode1c(IUnitOfWork uow) => new NewNomenclatureRepository().GetNextCode1c(uow);
