@@ -51,8 +51,6 @@ namespace Vodovoz.ReportsParameters
 			buttonRun.Sensitive = true;
 			buttonRun.Clicked += OnButtonCreateReportClicked;
 		}
-
-		// buttonRun.Sensitive = daterangepicker.EndDateOrNull.HasValue && daterangepicker.StartDateOrNull.HasValue;
 		
 		void OnButtonCreateReportClicked (object sender, EventArgs e)
 		{
@@ -69,10 +67,6 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			var ctrptyId = (entityviewmodelentryCounterparty.Subject as Counterparty)?.Id ?? -1;
-			var ctrptyId2 = (entityviewmodelentrySellManager.Subject as Employee)?.Id ?? -1;
-			var ctrptyId3 = (entityviewmodelentryOrderAuthor.Subject as Employee)?.Id ?? -1;
-			
 			return new ReportInfo {
 				Identifier = "Payments.PaymentsDelayNetwork",
 				Parameters = new Dictionary<string, object> {
