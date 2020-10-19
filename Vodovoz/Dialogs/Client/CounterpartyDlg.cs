@@ -213,18 +213,21 @@ namespace Vodovoz
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceAccountant.RepresentationModel = new EmployeesVM(filterAccountant);
+			referenceAccountant.Binding.AddBinding(Entity, e => e.Accountant, w => w.Subject).InitializeFromSource();
 			var filterSalesManager = new EmployeeFilterViewModel();
 			filterSalesManager.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceSalesManager.RepresentationModel = new EmployeesVM(filterSalesManager);
+			referenceSalesManager.Binding.AddBinding(Entity, e => e.SalesManager, w => w.Subject).InitializeFromSource();
 			var filterBottleManager = new EmployeeFilterViewModel();
 			filterBottleManager.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceBottleManager.RepresentationModel = new EmployeesVM(filterBottleManager);
+			referenceBottleManager.Binding.AddBinding(Entity, e => e.BottlesManager, w => w.Subject).InitializeFromSource();
 			proxiesview1.CounterpartyUoW = UoWGeneric;
 			dataentryMainContact.RepresentationModel = new ViewModel.ContactsVM(UoW, Entity);
 			dataentryMainContact.Binding.AddBinding(Entity, e => e.MainContact, w => w.Subject).InitializeFromSource();
