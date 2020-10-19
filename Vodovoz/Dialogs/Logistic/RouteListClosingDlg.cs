@@ -731,6 +731,8 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
+			PerformanceHelper.StartMeasurement();
+			
 			if(!TrySetCashier()) {
 				return;
 			}
@@ -744,8 +746,12 @@ namespace Vodovoz
 				return;
 			}
 
+			PerformanceHelper.AddTimePoint("Валидация МЛ");
+			
 			if(advanceCheckbox.Active && advanceSpinbutton.Value > 0) {
 				EmployeeAdvanceOrder((decimal)advanceSpinbutton.Value);
+				
+				PerformanceHelper.AddTimePoint("Создан расходный ордер");
 			}
 
 			var cash = CashRepository.CurrentRouteListCash(UoW, Entity.Id);
@@ -753,17 +759,27 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog($"Невозможно подтвердить МЛ, сумма МЛ ({CurrencyWorks.GetShortCurrencyString(Entity.Total)}) не соответствует кассе ({CurrencyWorks.GetShortCurrencyString(cash)}).");
 				if(Entity.Status == RouteListStatus.OnClosing && Entity.ConfirmedDistance <= 0 && Entity.NeedMileageCheck && MessageDialogHelper.RunQuestionDialog("По МЛ не принят километраж, перевести в статус проверки километража?")) {
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+					
+					PerformanceHelper.AddTimePoint("Статус сменен на 'проверка километража' и создано задание");
 				}
 				return;
 			}
 
 			Entity.UpdateMovementOperations();
 
+			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
+
 			if(Entity.Status == RouteListStatus.OnClosing) {
 				Entity.AcceptCash(CallTaskWorker);
+				
+				PerformanceHelper.AddTimePoint("Создано задание на обзвон");
 			}
-
+			
 			SaveAndClose();
+			
+			PerformanceHelper.AddTimePoint("Сохранение и закрытие завершено");
+			
+			PerformanceHelper.Main.PrintAllPoints(logger);
 		}
 
 		void PrintSelectedDocument(RouteListPrintDocuments choise)
