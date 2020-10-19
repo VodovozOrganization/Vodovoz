@@ -14,9 +14,9 @@ using Vodovoz.JournalViewModels;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class NetworkDelayReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class ChainStoreDelayReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public NetworkDelayReport()
+		public ChainStoreDelayReport()
 		{
 			this.Build();
 			
@@ -69,13 +69,17 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
+			var ctrptyId = (entityviewmodelentryCounterparty.Subject as Counterparty)?.Id ?? -1;
+			var ctrptyId2 = (entityviewmodelentrySellManager.Subject as Employee)?.Id ?? -1;
+			var ctrptyId3 = (entityviewmodelentryOrderAuthor.Subject as Employee)?.Id ?? -1;
+			
 			return new ReportInfo {
 				Identifier = "Payments.PaymentsDelayNetwork",
 				Parameters = new Dictionary<string, object> {
 					{ "date", ydatepicker.Date },
-					{ "counterparty_id", (entityviewmodelentryCounterparty.Subject as Counterparty)?.Id ?? 0},
-					{"sell_manager_id", (entityviewmodelentrySellManager.Subject as Employee)?.Id ?? 0},
-					{"order_author_id", (entityviewmodelentryOrderAuthor.Subject as Employee)?.Id ?? 0}
+					{ "counterparty_id", (entityviewmodelentryCounterparty.Subject as Counterparty)?.Id ?? -1},
+					{ "sell_manager_id", (entityviewmodelentrySellManager.Subject as Employee)?.Id ?? -1},
+					{ "order_author_id", (entityviewmodelentryOrderAuthor.Subject as Employee)?.Id ?? -1}
 				}
 			};
 		}

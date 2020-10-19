@@ -45,7 +45,7 @@
           </BorderStyle>
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>24.8pt</Width>
           </TableColumn>
           <TableColumn>
@@ -87,7 +87,7 @@
             <TableRow>
               <Height>28.7pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
                       <Value>№</Value>
@@ -313,7 +313,7 @@
             <TableRow>
               <Height>15.2pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
                       <Value>=RowNumber()</Value>
@@ -325,6 +325,7 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -358,7 +359,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -376,7 +377,7 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -464,7 +465,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -536,7 +537,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
                       <Value>
@@ -610,7 +611,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox17" >
+                    <Textbox Name="Textbox17">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -628,7 +629,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox32" >
+                    <Textbox Name="Textbox32">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -646,7 +647,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox26" >
+                    <Textbox Name="Textbox26">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -664,7 +665,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox39" >
+                    <Textbox Name="Textbox39">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -692,8 +693,8 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontWeight >Bold</FontWeight>
-                        <TextAlign >Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -862,7 +863,7 @@
               LEFT(employees.patronymic, 1),
               '.'),
        '') AS author,
-       
+
     CAST(IF(orders.sum_to_receive &lt;&gt; 0,
             orders.sum_to_receive,
             IFNULL((SELECT
@@ -901,10 +902,13 @@ FROM
         LEFT JOIN bills_without_shipment_for_debt bwsfd on counterparty.id = bwsfd.client_id
 WHERE
 
-  delivery_date &lt;= DATE(@date)
+        delivery_date &lt;= DATE(@date)
   AND orders.order_payment_status IN ('UnPaid', 'PartiallyPaid')
   AND counterparty.is_chain_store = 1
   AND orders.payment_type = 'cashless'
+  AND (@counterparty_id = -1 OR counterparty.id = @counterparty_id )
+  AND (@sell_manager_id = -1 OR counterparty.sales_manager_id = @sell_manager_id)
+  AND (@order_author_id = -1 OR orders.author_employee_id = @order_author_id)
 
 GROUP BY orders.id
 ORDER BY estimated_payment_date
@@ -912,6 +916,15 @@ ORDER BY estimated_payment_date
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_id">
+            <Value>=Parameters!counterparty_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="sell_manager_id">
+            <Value>=Parameters!sell_manager_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_author_id">
+            <Value>=Parameters!order_author_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -988,25 +1001,28 @@ ORDER BY estimated_payment_date
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="counterparty_id">
-      <DataType>Integer</DataType>
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="sell_manager_id">
-      <DataType>Integer</DataType>
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="order_author_id">
-      <DataType>Integer</DataType>
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

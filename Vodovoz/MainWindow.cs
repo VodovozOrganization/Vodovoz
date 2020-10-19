@@ -1579,8 +1579,8 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<NetworkDelayReport>(),
-			() => new QSReport.ReportViewDlg(new NetworkDelayReport())
+			QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
+			() => new QSReport.ReportViewDlg(new ChainStoreDelayReport())
 		);
 	}
 

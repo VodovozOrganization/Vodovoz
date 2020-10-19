@@ -1436,7 +1436,7 @@
     <Compile Include="ViewModels\Goods\NomenclatureViewModel.cs" />
     <Compile Include="Views\Goods\NomenclatureView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureView.cs" />
-    <Compile Include="ReportsParameters\NetworkDelayReport.cs" />
+    <Compile Include="ReportsParameters\ChainStoreDelay.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NetworkDelayReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
