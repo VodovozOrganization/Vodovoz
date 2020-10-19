@@ -1201,7 +1201,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox67">
-                      <Value>=First({fines_advance}, "fines_advance")</Value>
+                      <Value>=First({total_fines}, "total_fines")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
