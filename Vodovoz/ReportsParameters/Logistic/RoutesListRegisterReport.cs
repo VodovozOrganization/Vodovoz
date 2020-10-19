@@ -14,12 +14,9 @@ namespace Vodovoz.Reports.Logistic
 	{
 		GenericObservableList<GeographicGroup> geographicGroups;
 
-		bool orderById;
-
-		public RoutesListRegisterReport(bool orderById = false)
+		public RoutesListRegisterReport()
 		{
 			this.Build();
-			this.orderById = orderById;
 			ConfigureDlg();
 		}
 
@@ -55,7 +52,7 @@ namespace Vodovoz.Reports.Logistic
 		private ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Identifier = orderById ? "Bottles.RoutesListRegister" : "Logistic.RoutesListRegister" ,
+				Identifier = "Bottles.RoutesListRegister",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
