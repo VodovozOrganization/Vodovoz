@@ -178,12 +178,12 @@ namespace Vodovoz
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
 			if (Entity.IsChainStore)
 			{
-				DelayDaysForProviderValueLabel.LabelProp = Entity.DelayDaysForProviders.ToString();
+				DelayDaysForProviderValue.Binding.AddBinding(Entity, e => e.DelayDaysForProviders, w => w.ValueAsInt).InitializeFromSource();
 			}
 			else
 			{
 				DelayDaysForProvider.Visible = false;
-				DelayDaysForProviderValueLabel.Visible = false;
+				DelayDaysForProviderValue.Visible = false;
 			}
 			entryMainCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 			entryMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();

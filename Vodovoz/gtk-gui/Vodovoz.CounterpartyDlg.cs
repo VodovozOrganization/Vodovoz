@@ -58,7 +58,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label DelayDaysForProvider;
 
-		private global::Gamma.GtkWidgets.yLabel DelayDaysForProviderValueLabel;
+		private global::Gamma.GtkWidgets.ySpinButton DelayDaysForProviderValue;
 
 		private global::Gamma.GtkWidgets.yEntry entryFIO;
 
@@ -621,13 +621,16 @@ namespace Vodovoz
 			w30.XOptions = ((global::Gtk.AttachOptions)(4));
 			w30.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.DelayDaysForProviderValueLabel = new global::Gamma.GtkWidgets.yLabel();
-			this.DelayDaysForProviderValueLabel.Name = "DelayDaysForProviderValueLabel";
-			this.DelayDaysForProviderValueLabel.Xalign = 0F;
-			this.DelayDaysForProviderValueLabel.LabelProp = global::Mono.Unix.Catalog.GetString("00");
-			this.DelayDaysForProviderValueLabel.Selectable = true;
-			this.table1.Add(this.DelayDaysForProviderValueLabel);
-			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.table1[this.DelayDaysForProviderValueLabel]));
+			this.DelayDaysForProviderValue = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
+			this.DelayDaysForProviderValue.CanFocus = true;
+			this.DelayDaysForProviderValue.Name = "DelayDaysForProviderValue";
+			this.DelayDaysForProviderValue.Adjustment.PageIncrement = 10D;
+			this.DelayDaysForProviderValue.ClimbRate = 1D;
+			this.DelayDaysForProviderValue.Numeric = true;
+			this.DelayDaysForProviderValue.ValueAsDecimal = 0m;
+			this.DelayDaysForProviderValue.ValueAsInt = 0;
+			this.table1.Add(this.DelayDaysForProviderValue);
+			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.table1[this.DelayDaysForProviderValue]));
 			w31.TopAttach = ((uint)(2));
 			w31.BottomAttach = ((uint)(3));
 			w31.LeftAttach = ((uint)(1));
