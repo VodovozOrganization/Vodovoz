@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Tools;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -167,7 +168,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal BottleDepositsCollected {
 			get {
-				if(Order.PaymentType != Client.PaymentType.cash && Order.PaymentType != Client.PaymentType.BeveragesWorld) {
+				if(Order.PaymentType == PaymentType.ContractDoc || Order.PaymentType == PaymentType.cashless) {
 					return 0;
 				}
 
@@ -192,7 +193,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal EquipmentDepositsCollected {
 			get {
-				if(Order.PaymentType != Client.PaymentType.cash && Order.PaymentType != Client.PaymentType.BeveragesWorld) {
+				if(Order.PaymentType == PaymentType.ContractDoc || Order.PaymentType == PaymentType.cashless) {
 					return 0;
 				}
 
