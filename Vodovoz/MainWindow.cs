@@ -825,14 +825,22 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenRoutesListRegisterReport(false);
-	protected void OnActionOrderedByIdRoutesListRegisterActivated(object sender, EventArgs e) => OpenRoutesListRegisterReport(true);
+	protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenRoutesListRegisterReport();
+	protected void OnActionOrderedByIdRoutesListRegisterActivated(object sender, EventArgs e) => OpenDriverRoutesListRegisterReport();
 
-	protected void OpenRoutesListRegisterReport(bool orderById)
+	protected void OpenRoutesListRegisterReport()
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.RoutesListRegisterReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.RoutesListRegisterReport(orderById))
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.RoutesListRegisterReport())
+		);
+	}
+
+	protected void OpenDriverRoutesListRegisterReport()
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<DriverRoutesListRegisterReport>(),
+			() => new QSReport.ReportViewDlg(new DriverRoutesListRegisterReport())
 		);
 	}
 
