@@ -46,7 +46,7 @@ namespace ClientMangoService
 					{
 						FailSince = null;
 						var message = response.ResponseStream.Current;
-						Console.WriteLine($"extension:{extension} Received:{message}");
+						logger.Debug($"extension:{extension} Received:{message}");
 						OnAppearedMessage(message);
 					}
 					logger.Warn($"Соединение с NotificationService[{extension}] завершено.");
