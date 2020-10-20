@@ -144,7 +144,7 @@ namespace Vodovoz.Infrastructure.Mango
 		void ToolbarIcon_Activated(object sender, EventArgs e)
 		{
 			if(CurrentPage == null) {
-				CurrentPage = navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>(null, this, SubscriberSelectionViewModel.DialogType.Telephone);
+				navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>(null, this, SubscriberSelectionViewModel.DialogType.Telephone);
 			} else
 				navigation.SwitchOn(CurrentPage);
 		}
@@ -174,7 +174,6 @@ namespace Vodovoz.Infrastructure.Mango
 		#region Обработка сообщения
 		private void HandleMessage(NotificationMessage message)
 		{
-			logger.Trace("ActiveCalls=\n" + DebugPrint.Values(ActiveCalls));
 			switch(message.State) {
 				case CallState.Appeared:
 					HandleAppeared(message);
@@ -189,12 +188,13 @@ namespace Vodovoz.Infrastructure.Mango
 					HandleOnHold(message);
 					break;
 			}
+			logger.Trace("ActiveCalls=\n" + DebugPrint.Values(ActiveCalls));
 		}
 
 		private void HandleAppeared(NotificationMessage message)
 		{
 			AddNewMessage(message);
-			//Не показывам информацию новом входящем звонке в момент разговора.
+			//Не показывам информацию о новом входящем звонке в момент разговора.
 			if(CurrentTalk != null) {
 				logger.Info("Звонок не показываем. Идет разговор.");
 				return;
