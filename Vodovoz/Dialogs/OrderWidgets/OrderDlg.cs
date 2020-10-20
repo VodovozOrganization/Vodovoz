@@ -386,7 +386,7 @@ namespace Vodovoz
 			entryTrifle.ValidationMode = ValidationType.numeric;
 			entryTrifle.Binding.AddBinding(Entity, e => e.Trifle, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			referenceContract.Binding.AddBinding(Entity, e => e.Contract, w => w.Subject).InitializeFromSource();
+			ylabel3.Binding.AddFuncBinding(Entity, e => e.Contract != null ? e.Contract.Title : string.Empty, w => w.Text).InitializeFromSource();
 
 			OldFieldsConfigure();
 
@@ -2059,8 +2059,7 @@ namespace Vodovoz
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(entityVMEntryClient.Subject));
 			if(Entity.Client != null) {
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, Entity.Client);
-				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
-				referenceContract.RepresentationModel = new ViewModel.ContractsVM(UoW, Entity.Client);
+				referenceDeliveryPoint.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 
 				PaymentType? previousPaymentType = enumPaymentType.SelectedItem as PaymentType?;
 
@@ -2090,7 +2089,7 @@ namespace Vodovoz
 					}
 				}
 			} else {
-				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
+				referenceDeliveryPoint.Sensitive = false;
 			}
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
@@ -2765,7 +2764,7 @@ namespace Vodovoz
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
-			buttonAddForSale.Sensitive = referenceContract.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
+			buttonAddForSale.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer") && val && !Entity.SelfDelivery;
