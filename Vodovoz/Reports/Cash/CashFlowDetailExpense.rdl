@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataExpense">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense.id AS id,
@@ -85,7 +85,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="CategoryId">
           <DataField>CategoryId</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -202,10 +202,10 @@ ORDER BY Category;</CommandText>
             <Width>59.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>129.0pt</Width>
+            <Width>121.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>240.5pt</Width>
+            <Width>249.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65pt</Width>
@@ -381,6 +381,8 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -609,7 +611,7 @@ ORDER BY Category;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <DefaultValue>
