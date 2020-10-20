@@ -41,6 +41,7 @@ namespace Vodovoz.Views.Mango
 				.Finish();
 			ySearchTable.SetItemsSource<SearchTableEntity>(ViewModel.SearchTableEntities);
 			ySearchTable.RowActivated += SelectCursorRow_OrderYTreeView;
+			ySearchTable.Selection.Changed += Selection_Changed;
 		}
 
 		void Selection_Changed(object sender, EventArgs e)

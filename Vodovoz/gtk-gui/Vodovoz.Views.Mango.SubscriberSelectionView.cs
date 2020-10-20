@@ -47,6 +47,7 @@ namespace Vodovoz.Views.Mango
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ForwardingButton = new global::Gtk.Button();
+			this.ForwardingButton.Sensitive = false;
 			this.ForwardingButton.CanFocus = true;
 			this.ForwardingButton.Name = "ForwardingButton";
 			this.ForwardingButton.Label = global::Mono.Unix.Catalog.GetString("Переадресовать");
@@ -59,6 +60,7 @@ namespace Vodovoz.Views.Mango
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ForwardingToConsultationButton = new global::Gtk.Button();
+			this.ForwardingToConsultationButton.Sensitive = false;
 			this.ForwardingToConsultationButton.CanFocus = true;
 			this.ForwardingToConsultationButton.Name = "ForwardingToConsultationButton";
 			this.ForwardingToConsultationButton.Label = global::Mono.Unix.Catalog.GetString("Переадресация с консультацией");
