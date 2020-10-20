@@ -9,7 +9,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 {
 	public class TalkViewModelBase : WindowDialogViewModelBase
 	{
-		public readonly Phone Phone; 
 		protected readonly MangoManager MangoManager;
 
 		public TalkViewModelBase(INavigationManager navigation, MangoManager manager) : base(navigation)
@@ -20,7 +19,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
 			EnableMinimizeMaximize = true;
-			Phone = manager.Phone;
 		}
 
 		void Manager_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -28,6 +26,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			if(e.PropertyName == nameof(MangoManager.StageDuration))
 				SetTitle();
 		}
+
+		public Phone Phone => MangoManager.Phone;
 
 		private void SetTitle()
 		{
