@@ -13,6 +13,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.Utilities;
+using QS.Utilities.Debug;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -86,9 +87,9 @@ namespace Vodovoz.Infrastructure.Mango
 		public List<ActiveCall> ActiveCalls { get; set; } = new List<ActiveCall>();
 
 		public IEnumerable<ActiveCall> RingingCalls => ActiveCalls.Where(x => x.CallState == CallState.Appeared);
-		public ActiveCall CurrentTalk => ActiveCalls.FirstOrDefault(x => x.CallState == CallState.Connected);
-		public ActiveCall CurrentHold => ActiveCalls.FirstOrDefault(x => x.CallState == CallState.OnHold);
-		public ActiveCall CurrentOutgoingRing => RingingCalls.FirstOrDefault(x => x.IsOutgoing);
+		public ActiveCall CurrentTalk => ActiveCalls.LastOrDefault(x => x.CallState == CallState.Connected);
+		public ActiveCall CurrentHold => ActiveCalls.LastOrDefault(x => x.CallState == CallState.OnHold);
+		public ActiveCall CurrentOutgoingRing => RingingCalls.LastOrDefault(x => x.IsOutgoing);
 		#endregion
 
 		#region Методы
@@ -173,6 +174,7 @@ namespace Vodovoz.Infrastructure.Mango
 		#region Обработка сообщения
 		private void HandleMessage(NotificationMessage message)
 		{
+			logger.Trace("ActiveCalls=\n" + DebugPrint.Values(ActiveCalls));
 			switch(message.State) {
 				case CallState.Appeared:
 					HandleAppeared(message);
