@@ -144,10 +144,8 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			if(CurrentPage == null) {
 				CurrentPage = navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>(null, this, SubscriberSelectionViewModel.DialogType.Telephone);
-				CurrentPage.PageClosed += CurrentPage_PageClosed;
 			} else
 				navigation.SwitchOn(CurrentPage);
-
 		}
 
 		void CurrentPage_PageClosed(object sender, PageClosedEventArgs e)
