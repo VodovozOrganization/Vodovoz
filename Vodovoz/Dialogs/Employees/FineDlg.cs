@@ -56,6 +56,11 @@ namespace Vodovoz
 			Entity.Date = routeList.Date;
 		}
 
+		public FineDlg(RouteList routeList) : this(default(decimal), routeList.Driver)
+		{
+			Entity.RouteList = routeList;
+		}
+
 		public FineDlg(UndeliveredOrder undeliveredOrder) : this()
 		{
 			Entity.UndeliveredOrder = undeliveredOrder;
