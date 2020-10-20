@@ -244,7 +244,7 @@ namespace Vodovoz.ViewModels.Warehouses
 					fillFromOrdersCommand = new DelegateCommand(
 						() => {
 							bool IsOnlineStoreOrders = true;
-							IEnumerable<OrderStatus> orderStatuses = new OrderStatus[] { OrderStatus.Accepted };
+							IEnumerable<OrderStatus> orderStatuses = new OrderStatus[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading };
 							var orderSelector = orderSelectorFactory.CreateOrderSelectorForDocument(IsOnlineStoreOrders, orderStatuses);
 							orderSelector.OnEntitySelectedResult += (sender, e) => {
 								IEnumerable<OrderForMovDocJournalNode> selectedNodes = e.SelectedNodes.Cast<OrderForMovDocJournalNode>();
