@@ -434,7 +434,7 @@ namespace Vodovoz
 			switch((RouteListActions)e.ItemEnum) {
 				case RouteListActions.CreateNewFine:
 					this.TabParent.AddSlaveTab(
-						this, new FineDlg(default(decimal), Entity)
+						this, new FineDlg(Entity)
 					);
 					break;
 				case RouteListActions.TransferReceptionToAnotherRL:
