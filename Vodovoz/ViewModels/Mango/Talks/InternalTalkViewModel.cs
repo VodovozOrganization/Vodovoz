@@ -51,25 +51,5 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			return MangoManager.CallerName;
 		}
 		#endregion
-
-		#region CallEvents
-		public void FinishCallCommand()
-		{
-			MangoManager.HangUp();
-			Close(false, CloseSource.Self);
-		}
-
-		public void ForwardCallCommand()
-		{
-			Action action =  () => { Close(false, CloseSource.Self); };
-			IPage page = NavigationManager.OpenViewModelNamedArgs<SubscriberSelectionViewModel>
-			(this, new Dictionary<string, object>()
-				{ {"manager",MangoManager },{"dialogType", SubscriberSelectionViewModel.DialogType.AdditionalCall },
-				{"exitAction", action}
-			});
-		}
-
-		#endregion
-
 	}
 }

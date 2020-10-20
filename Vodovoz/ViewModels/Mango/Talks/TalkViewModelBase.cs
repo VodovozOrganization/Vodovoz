@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using QS.Dialog;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
@@ -44,11 +43,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		public void ForwardCallCommand()
 		{
 			Action action = () => { Close(false, CloseSource.Self); };
-			IPage page = NavigationManager.OpenViewModelNamedArgs<SubscriberSelectionViewModel>
-			(this, new Dictionary<string, object>()
-				{ {"manager",MangoManager },{"dialogType", SubscriberSelectionViewModel.DialogType.AdditionalCall },
-				{"exitAction", action}
-			});
+			IPage page = NavigationManager.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>
+			(this, MangoManager, SubscriberSelectionViewModel.DialogType.AdditionalCall);
 		}
 
 	}

@@ -35,15 +35,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IInteractiveQuestion interactive;
 		private readonly RouteListRepository routedListRepository;
 		private IUnitOfWork UoW;
-		private List<CounterpartyOrderViewModel> counterpartyOrdersModels = new List<CounterpartyOrderViewModel>();
-		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 
-		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels {
-			get => counterpartyOrdersModels;
-			private set {
-				counterpartyOrdersModels = value;
-			}
-		}
+		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels { get; private set; } = new List<CounterpartyOrderViewModel>();
 
 		public Counterparty currentCounterparty { get;private set; }
 		public event System.Action CounterpartyOrdersModelsUpdateEvent = () => { };
@@ -119,7 +112,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				clients.Add(client);
 				UoW.Save<Counterparty>(client);
 				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager);
-				counterpartyOrdersModels.Add(model);
+				CounterpartyOrdersModels.Add(model);
 				currentCounterparty = client;
 				CounterpartyOrdersModelsUpdateEvent();
 			}
@@ -131,13 +124,13 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
 			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
 			Counterparty firstClient = clients.First();
-			if(counterpartyOrdersModels.FirstOrDefault(c => c.Client.Id == firstClient.Id) == null) {
+			if(CounterpartyOrdersModels.FirstOrDefault(c => c.Client.Id == firstClient.Id) == null) {
 				if(interactive.Question($"Доабать телефон к контагенту {firstClient.Name} ?", "Телефон контрагента")) {
 					firstClient.Phones.Add(Phone);
 					UoW.Save<Counterparty>(firstClient);
 					UoW.Commit();
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager);
-					counterpartyOrdersModels.Add(model);
+					CounterpartyOrdersModels.Add(model);
 					currentCounterparty = firstClient;
 					CounterpartyOrdersModelsUpdateEvent();
 
