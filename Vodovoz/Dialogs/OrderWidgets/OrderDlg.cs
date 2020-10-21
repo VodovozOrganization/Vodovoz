@@ -294,6 +294,23 @@ namespace Vodovoz
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
 		}
+		
+		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
+		public void CopyLesserOrderFrom(int id)
+		{
+			templateOrder = UoW.GetById<Order>(id);
+			Entity.Client = templateOrder.Client;
+			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
+			Entity.ClientPhone = templateOrder.ClientPhone;
+			Entity.BillDate = templateOrder.BillDate;
+			Entity.IsService = templateOrder.IsService;
+			Entity.CopyPromotionalSetsFrom(templateOrder);
+			Entity.CopyItemsFrom(templateOrder);
+			Entity.CopyDocumentsFrom(templateOrder);
+			Entity.CopyEquipmentFrom(templateOrder);
+			Entity.CopyDepositItemsFrom(templateOrder);
+			Entity.UpdateDocuments();
+		}
 
 		public void ConfigureDlg()
 		{
@@ -388,7 +405,7 @@ namespace Vodovoz
 			entryTrifle.ValidationMode = ValidationType.numeric;
 			entryTrifle.Binding.AddBinding(Entity, e => e.Trifle, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			referenceContract.Binding.AddBinding(Entity, e => e.Contract, w => w.Subject).InitializeFromSource();
+			ylabel3.Binding.AddFuncBinding(Entity, e => e.Contract != null ? e.Contract.Title : string.Empty, w => w.Text).InitializeFromSource();
 
 			OldFieldsConfigure();
 
@@ -771,6 +788,28 @@ namespace Vodovoz
 		{
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
 			hbxTareComments.Visible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+
+			
+			if (Entity.Client != null)
+			{
+				if (Entity.Client.IsChainStore)
+				{
+					textODZComments.Binding.AddBinding(Entity, e => e.ODZComment, w => w.Buffer.Text)
+						.InitializeFromSource();
+					textOPComments.Binding.AddBinding(Entity, e => e.OPComment, w => w.Buffer.Text)
+						.InitializeFromSource();
+				}
+				else
+				{
+					hbxODZComments.Visible = false;
+					hbxOPComments.Visible = false;
+				}
+			}
+			
+			int currentUserId = userRepository.GetCurrentUser(UoW).Id;
+			bool canChangeCommentOdz = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_odz_op_comment", currentUserId);
+			textODZComments.Sensitive = canChangeCommentOdz;
+			textOPComments.Sensitive = canChangeCommentOdz;
 		}
 
 		void WaterSalesAgreement_ObjectUpdatedGeneric(EntityChangeEvent[] changeEvents)
@@ -2039,8 +2078,7 @@ namespace Vodovoz
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(entityVMEntryClient.Subject));
 			if(Entity.Client != null) {
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, Entity.Client);
-				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
-				referenceContract.RepresentationModel = new ViewModel.ContractsVM(UoW, Entity.Client);
+				referenceDeliveryPoint.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 
 				PaymentType? previousPaymentType = enumPaymentType.SelectedItem as PaymentType?;
 
@@ -2070,7 +2108,7 @@ namespace Vodovoz
 					}
 				}
 			} else {
-				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
+				referenceDeliveryPoint.Sensitive = false;
 			}
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
@@ -2745,7 +2783,7 @@ namespace Vodovoz
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
-			buttonAddForSale.Sensitive = referenceContract.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
+			buttonAddForSale.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer") && val && !Entity.SelfDelivery;

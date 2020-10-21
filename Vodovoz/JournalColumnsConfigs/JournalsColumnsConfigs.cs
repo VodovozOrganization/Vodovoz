@@ -87,6 +87,23 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
+			
+			//OrderForRouteListJournalViewModel
+			TreeViewColumnsConfigFactory.Register<OrderForRouteListJournalViewModel>(
+				() => FluentColumnsConfig<OrderForRouteListJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Район доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DistrictName)
+					.AddColumn("Адрес").AddTextRenderer(node => node.Address)
+					.AddColumn("Время").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
+					.AddColumn("Статус").AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
+					.AddColumn("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
+					.AddColumn("Кол-во с/о").AddTextRenderer(node => node.SanitisationAmount.ToString())
+					.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
+					.AddColumn("Клиент").AddTextRenderer(node => node.Counterparty)
+					.AddColumn("Автор").AddTextRenderer(node => node.Author)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
 
 			//OrderForMovDocJournalViewModel
 			TreeViewColumnsConfigFactory.Register<OrderForMovDocJournalViewModel>(

@@ -184,6 +184,15 @@ namespace Vodovoz
 			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
 
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
+			if (Entity.IsChainStore)
+			{
+				DelayDaysForProviderValue.Binding.AddBinding(Entity, e => e.DelayDaysForProviders, w => w.ValueAsInt).InitializeFromSource();
+			}
+			else
+			{
+				DelayDaysForProvider.Visible = false;
+				DelayDaysForProviderValue.Visible = false;
+			}
 			entryMainCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 			entryMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
 			entryPreviousCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
@@ -212,18 +221,21 @@ namespace Vodovoz
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceAccountant.RepresentationModel = new EmployeesVM(filterAccountant);
+			referenceAccountant.Binding.AddBinding(Entity, e => e.Accountant, w => w.Subject).InitializeFromSource();
 			var filterSalesManager = new EmployeeFilterViewModel();
 			filterSalesManager.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceSalesManager.RepresentationModel = new EmployeesVM(filterSalesManager);
+			referenceSalesManager.Binding.AddBinding(Entity, e => e.SalesManager, w => w.Subject).InitializeFromSource();
 			var filterBottleManager = new EmployeeFilterViewModel();
 			filterBottleManager.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceBottleManager.RepresentationModel = new EmployeesVM(filterBottleManager);
+			referenceBottleManager.Binding.AddBinding(Entity, e => e.BottlesManager, w => w.Subject).InitializeFromSource();
 			proxiesview1.CounterpartyUoW = UoWGeneric;
 			dataentryMainContact.RepresentationModel = new ViewModel.ContactsVM(UoW, Entity);
 			dataentryMainContact.Binding.AddBinding(Entity, e => e.MainContact, w => w.Subject).InitializeFromSource();

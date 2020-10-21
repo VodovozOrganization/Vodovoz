@@ -48,7 +48,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.CounterpartyType).Column("counterparty_type").CustomType<CounterpartyTypeStringType>();
 			Map(x => x.IsChainStore).Column("is_chain_store");
 			Map(x => x.CargoReceiverSource).Column("cargo_receiver_source").CustomType<CargoReceiverTypeStringType>();
-			Map(x => x.DelayDays).Column("delay_days");
+			Map(x => x.DelayDaysForProviders).Column("delay_days");
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
 			References(x => x.Accountant).Column("accountant_id");

@@ -24,13 +24,7 @@ namespace Vodovoz.Reports
 
 		#region IParametersWidget implementation
 
-		public string Title
-		{
-			get
-			{
-				return "Штрафы сотрудников";
-			}
-		}
+		public string Title => "Штрафы сотрудников";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
@@ -50,8 +44,11 @@ namespace Vodovoz.Reports
 		{
 			var parameters = new Dictionary<string, object>();
 
-			if(yentryDriver.Subject != null)
+			if(yentryDriver.Subject != null){
 				parameters.Add("drivers", (yentryDriver.Subject as Employee).Id);
+				parameters.Add("driverName",
+					(" " + (yentryDriver.Subject as Employee).FullName));
+			}
 			else {
 				parameters.Add("drivers", -1);
 			}
@@ -62,7 +59,7 @@ namespace Vodovoz.Reports
 				parameters.Add("startDate", 0);
 				parameters.Add("endDate", 0);
 			}
-
+			
 			parameters.Add("showbottom", false);
 			parameters.Add("routelist", 0);
 			parameters.Add("category", GetCategory());

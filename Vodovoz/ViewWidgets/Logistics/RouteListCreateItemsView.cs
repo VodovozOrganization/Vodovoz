@@ -20,8 +20,10 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.JournalViewModels;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -206,7 +208,8 @@ namespace Vodovoz
 
 		protected void AddOrders()
 		{
-			var filter = new OrdersFilter(RouteListUoW) {
+			var filter = new OrderJournalFilterViewModel
+			{
 				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
 			};
 
@@ -214,34 +217,33 @@ namespace Vodovoz
 			if(geoGrpIds.Any()) {
 				GeographicGroup geographicGroupAlias = null;
 				var districtIds = RouteListUoW.Session.QueryOver<District>()
-													  .Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
-													  .Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
-													  .Select(
-															  Projections.Distinct(
-															  Projections.Property<District>(x => x.Id)
-														  )
-													  )
-													  .List<int>()
-													  .ToArray();
+					.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
+					.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
+					.Select
+					  (
+						  Projections.Distinct(
+						  Projections.Property<District>(x => x.Id)
+					  )
+					)
+					.List<int>()
+					.ToArray();
 
 				filter.IncludeDistrictsIds = districtIds;
 			}
 
+			//Filter Creating
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictStartDate = RouteListUoW.Root.Date.Date,
 				x => x.RestrictEndDate = RouteListUoW.Root.Date.Date,
-				x => x.RestrictStatus = OrderStatus.Accepted,
-				x => x.RestrictSelfDelivery = false
+				x => x.RestrictStatus = OrderStatus.Accepted
 			);
-
-			ViewModel.OrdersVM vm = new ViewModel.OrdersVM(filter) {
-				CanToggleVisibilityOfColumns = true
-			};
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(vm, Buttons.None) {
-				Mode = JournalSelectMode.Multiple
-			};
-			SelectDialog.ObjectSelected += (s, ea) => {
-				var selectedIds = ea.GetSelectedIds();
+			
+			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter,UnitOfWorkFactory.GetDefaultFactory,ServicesConfig.CommonServices){SelectionMode = JournalSelectionMode.Single};
+			
+			//Selected Callback
+			orderSelectDialog.OnEntitySelectedResult += (sender, ea) =>
+			{
+				var selectedIds = ea.SelectedNodes.Select(x => x.Id);
 				if(!selectedIds.Any()) {
 					return;
 				}
@@ -250,7 +252,9 @@ namespace Vodovoz
 					RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};
-			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
+
+			//OpenTab
+			MyTab.TabParent.AddSlaveTab(MyTab, orderSelectDialog);
 		}
 
 		protected void AddOrdersFromRegion()

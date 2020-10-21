@@ -13,11 +13,12 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     nomenclature.name AS nomenclature,
     nomenclature.category,
+    nomenclature.tare_volume,
     measurement_units.name as unit,
     warehouse_movement_operations.amount
 FROM
@@ -37,7 +38,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -53,6 +54,10 @@ WHERE
         <Field Name="amount">
           <DataField>amount</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="tare_volume">
+          <DataField>tare_volume</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -360,7 +365,12 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>=Iif({amount} &gt;=48, "48", "")</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L' AND {amount} &gt;=48, "48",
+    {tare_volume} = 'Vol6L' AND {amount} &gt;=108, "108",
+    {tare_volume} = 'Vol600ml' AND {amount} &gt;=1152, "1152",
+    true, ""
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -377,7 +387,12 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>=Iif({amount} &gt;=96, "48", "")</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L' AND {amount} &gt;=96, "48",
+    {tare_volume} = 'Vol6L' AND {amount} &gt;=216, "108",
+    {tare_volume} = 'Vol600ml' AND {amount} &gt;=2304, "1152",
+    true, ""
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -394,7 +409,12 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>=Iif({amount} &gt;=144, "48", "")</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L' AND {amount} &gt;=144, "48",
+    {tare_volume} = 'Vol6L' AND {amount} &gt;=324, "108",
+    {tare_volume} = 'Vol600ml' AND {amount} &gt;=3456, "1152",
+    true, ""
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -412,7 +432,12 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>={amount} mod 48</Value>
+                      <Value>=Switch(
+    {tare_volume} = 'Vol19L', {amount} mod 48,
+    {tare_volume} = 'Vol6L', {amount} mod 108,
+    {tare_volume} = 'Vol600ml', {amount} mod 1152,
+    true, {amount}
+)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1087,7 +1112,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

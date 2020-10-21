@@ -293,7 +293,7 @@ namespace Vodovoz
 								NomenclatureId = item.MovementOperation.Nomenclature.Id,
 								Amount = (int)item.MovementOperation.Amount,
 								Name = item.MovementOperation.Nomenclature.Name,
-								Source = item.Source,
+								Source = item.DefectSource,
 								TypeOfDefect = item.TypeOfDefect
 							}
 						);
@@ -400,8 +400,8 @@ namespace Vodovoz
 						item.MovementOperation.Amount = tempItem.Amount;
 					if(item.TypeOfDefect != tempItem.TypeOfDefect)
 						item.TypeOfDefect = tempItem.TypeOfDefect;
-					if(item.Source != tempItem.Source)
-						item.Source = tempItem.Source;
+					if(item.DefectSource != tempItem.Source)
+						item.DefectSource = tempItem.Source;
 				}
 			}
 

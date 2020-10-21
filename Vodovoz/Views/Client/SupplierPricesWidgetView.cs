@@ -30,7 +30,7 @@ namespace Vodovoz.Views.Client
 			hboxSearch.Add(searchView);
 			searchView.Show();
 
-			spinDelayDays.Binding.AddBinding(ViewModel.Entity, s => s.DelayDays, w => w.ValueAsInt).InitializeFromSource();
+			spinDelayDays.Binding.AddBinding(ViewModel.Entity, s => s.DelayDaysForProviders, w => w.ValueAsInt).InitializeFromSource();
 			yTreePrices.ColumnsConfig = FluentColumnsConfig<ISupplierPriceNode>.Create()
 				.AddColumn("№")
 					.HeaderAlignment(0.5f)

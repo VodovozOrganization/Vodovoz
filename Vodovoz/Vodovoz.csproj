@@ -384,6 +384,8 @@
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
+    <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
+    <Compile Include="JournalViewModels\OrderForRouteListJournalViewModel.cs" />
     <Compile Include="LoggedMySqlClientDriver.cs" />
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringValuableConverter.cs" />
@@ -1473,6 +1475,10 @@
     <Compile Include="ViewModels\Goods\NomenclatureViewModel.cs" />
     <Compile Include="Views\Goods\NomenclatureView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureView.cs" />
+    <Compile Include="ReportsParameters\ChainStoreDelay.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NetworkDelayReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\DriverRoutesListRegisterReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DriverRoutesListRegisterReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1929,9 +1935,6 @@
     <None Include="Reports\Logistic\DeliveriesLate.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Logistic\RoutesListRegister.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Reports\Logistic\DeliveryTime.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -2006,6 +2009,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\ServiceCenter\MastersVisitReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Payments\PaymentsDelayNetwork.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Contracts\FizIPContract.rdl" />
@@ -2264,6 +2270,9 @@
     <None Include="Reports\Logistic\NonClosedRLByPeriodReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\Logistic\DriverRoutesListRegister.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Reports\Logistic\ScheduleOnLinePerShiftReport.rdl">
@@ -2303,6 +2312,9 @@
     <PackageReference Include="Autofac">
       <Version>5.2.0</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Reports\Payments\PaymentsDelayNetwork.rdl" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Dialog.GtkUI;
@@ -65,6 +66,7 @@ namespace Vodovoz
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 
 		List<ReturnsNode> allReturnsToWarehouse;
+		private IEnumerable<DefectSource> defectiveReasons;
 		int bottlesReturnedToWarehouse;
 		int bottlesReturnedTotal;
 		int defectiveBottlesReturnedToWarehouse;
@@ -628,8 +630,11 @@ namespace Vodovoz
 				lblQtyOfDefectiveGoods.Markup = string.Format(
 					"Единиц брака: <b>{0}</b> шт.",
 						defectiveBottlesReturnedToWarehouse);
+				var namesOfDefectiveReasons = defectiveReasons.Select(x => x.GetEnumTitle());
+				DefectSourceLabel.Text = " Причины: " + String.Join(", ", namesOfDefectiveReasons);
 			} else {
 				lblQtyOfDefectiveGoods.Visible = false;
+				DefectSourceLabel.Visible = false;
 			}
 
 			var bottleDifference = bottlesReturnedToWarehouse - bottlesReturnedTotal;
@@ -726,6 +731,8 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
+			PerformanceHelper.StartMeasurement();
+			
 			if(!TrySetCashier()) {
 				return;
 			}
@@ -739,8 +746,12 @@ namespace Vodovoz
 				return;
 			}
 
+			PerformanceHelper.AddTimePoint("Валидация МЛ");
+			
 			if(advanceCheckbox.Active && advanceSpinbutton.Value > 0) {
 				EmployeeAdvanceOrder((decimal)advanceSpinbutton.Value);
+				
+				PerformanceHelper.AddTimePoint("Создан расходный ордер");
 			}
 
 			var cash = CashRepository.CurrentRouteListCash(UoW, Entity.Id);
@@ -748,17 +759,27 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog($"Невозможно подтвердить МЛ, сумма МЛ ({CurrencyWorks.GetShortCurrencyString(Entity.Total)}) не соответствует кассе ({CurrencyWorks.GetShortCurrencyString(cash)}).");
 				if(Entity.Status == RouteListStatus.OnClosing && Entity.ConfirmedDistance <= 0 && Entity.NeedMileageCheck && MessageDialogHelper.RunQuestionDialog("По МЛ не принят километраж, перевести в статус проверки километража?")) {
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+					
+					PerformanceHelper.AddTimePoint("Статус сменен на 'проверка километража' и создано задание");
 				}
 				return;
 			}
 
 			Entity.UpdateMovementOperations();
 
+			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
+
 			if(Entity.Status == RouteListStatus.OnClosing) {
 				Entity.AcceptCash(CallTaskWorker);
+				
+				PerformanceHelper.AddTimePoint("Создано задание на обзвон");
 			}
-
+			
 			SaveAndClose();
+			
+			PerformanceHelper.AddTimePoint("Сохранение и закрытие завершено");
+			
+			PerformanceHelper.Main.PrintAllPoints(logger);
 		}
 
 		void PrintSelectedDocument(RouteListPrintDocuments choise)
@@ -994,12 +1015,24 @@ namespace Vodovoz
 				Entity.Id,
 				returnedBottlesNom)
 			.Sum(item => item.Amount);
+			
+			var rlRepository = new RouteListRepository();
+			var nomenclatureRepository = new NomenclatureRepository();
+			
+			var defectiveNomenclaturesIds = nomenclatureRepository
+				.GetNomenclatureOfDefectiveGoods(UoW)
+				.Select(n => n.Id)
+				.ToArray();
 
-			defectiveBottlesReturnedToWarehouse = (int)new RouteListRepository().GetReturnsToWarehouse(
+			var returnedDefectiveItems = rlRepository.GetReturnsToWarehouse(
 				UoW,
 				Entity.Id,
-				new EntityRepositories.Goods.NomenclatureRepository().NomenclatureOfDefectiveGoods(UoW).Select(n => n.Id).ToArray())
-			.Sum(item => item.Amount);
+				defectiveNomenclaturesIds);
+
+			defectiveReasons = returnedDefectiveItems
+				.Select(x => x.DefectSource).Distinct();
+			
+			defectiveBottlesReturnedToWarehouse = (int)returnedDefectiveItems.Sum(item => item.Amount);
 		}
 
 		public override void Destroy()

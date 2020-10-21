@@ -177,15 +177,16 @@ namespace Vodovoz.JournalViewModels
 											.Select(
 												Projections.Sum(
 													Projections.SqlFunction(
-														new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2 - IF(?3 IS NULL OR ?3 = 0, IFNULL(?4, 0), ?3)"),
+														new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2) * ?3 - IF(?4 IS NULL OR ?4 = 0, IFNULL(?5, 0), ?4)"),
 														NHibernateUtil.Decimal,
+														Projections.Property<OrderItem>(x => x.ActualCount),
 														Projections.Property<OrderItem>(x => x.Count),
 														Projections.Property<OrderItem>(x => x.Price),
 														Projections.Property<OrderItem>(x => x.DiscountMoney),
 														Projections.Property<OrderItem>(x => x.OriginalDiscountMoney)
-													   )
-												   )
-											   );
+													)
+												)
+											);
 
 			query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				 .Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
@@ -714,6 +715,26 @@ namespace Vodovoz.JournalViewModels
 
 							System.Diagnostics.Process.Start(string.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
 						}
+					}
+				)
+			);
+			
+			PopupActionsList.Add(
+				new JournalAction(
+					"Повторить заказ",
+					IsOrder,
+					selectedItems => true,
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
+						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
+					
+						var dlg = new OrderDlg();
+						dlg.CopyLesserOrderFrom(order.Id);
+						var tdiMain = MainClass.MainWin.TdiMain;
+						tdiMain.OpenTab(
+							DialogHelper.GenerateDialogHashName<Domain.Orders.Order>(65656),
+							() => dlg
+						);
 					}
 				)
 			);
