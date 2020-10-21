@@ -253,7 +253,7 @@ namespace Vodovoz
 			if(NeedCopy) {
 				Entity.Client = UoW.GetById<Counterparty>(copiedOrder.Client.Id);
 				Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(copiedOrder.DeliveryPoint.Id);
-				Entity.PaymentType = copiedOrder.PaymentType;
+				Entity.PaymentType = Entity.Client.PaymentMethod;
 				FillOrderItems(copiedOrder);
 			}
 		}
