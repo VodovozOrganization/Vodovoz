@@ -126,7 +126,7 @@ namespace Vodovoz.ViewModels.Mango
 		public void RepeatOrder(Order order)
 		{
 			if(order != null)
-				tdiNavigation.OpenTdiTab<OrderDlg, Order, bool>(null, order, true);
+				tdiNavigation.OpenTdiTab<OrderDlg, Order, bool>(null, order, true, OpenPageOptions.IgnoreHash);
 		}
 
 		public void OpenRoutedList(Order order)
