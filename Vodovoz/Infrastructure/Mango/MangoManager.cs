@@ -144,7 +144,12 @@ namespace Vodovoz.Infrastructure.Mango
 		void ToolbarIcon_Activated(object sender, EventArgs e)
 		{
 			if(CurrentPage == null) {
-				navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>(null, this, SubscriberSelectionViewModel.DialogType.Telephone);
+				if(CurrentTalk != null)
+					OpenTalkDlg();
+				else if(RingingCalls.Any())
+					OpenRingDlg();
+				else
+					navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>(null, this, SubscriberSelectionViewModel.DialogType.Telephone);
 			} else
 				navigation.SwitchOn(CurrentPage);
 		}
@@ -207,9 +212,14 @@ namespace Vodovoz.Infrastructure.Mango
 				navigation.ForceClosePage(CurrentPage);
 
 			if(CurrentPage == null) {
-				CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
-				CurrentPage.PageClosed += CurrentPage_PageClosed;
+				OpenRingDlg();
 			}
+		}
+
+		private void OpenRingDlg()
+		{
+			CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
+			CurrentPage.PageClosed += CurrentPage_PageClosed;
 		}
 
 		private void HandleConnected(NotificationMessage message)
@@ -220,7 +230,12 @@ namespace Vodovoz.Infrastructure.Mango
 				navigation.ForceClosePage(CurrentPage);
 			ConnectionState = ConnectionState.Talk;
 			AddedClients.Clear();
-			if(message.CallFrom.Type == CallerType.Internal) {
+			OpenTalkDlg();
+		}
+
+		private void OpenTalkDlg()
+		{
+			if(CurrentTalk.Message.CallFrom.Type == CallerType.Internal) {
 				CurrentPage = navigation.OpenViewModel<InternalTalkViewModel, MangoManager>(null, this);
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
 			} else if(Clients != null && Clients.Count() > 0) {
