@@ -125,16 +125,15 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
 			Counterparty firstClient = clients.First();
 			if(CounterpartyOrdersModels.FirstOrDefault(c => c.Client.Id == firstClient.Id) == null) {
-				if(interactive.Question($"Доабать телефон к контагенту {firstClient.Name} ?", "Телефон контрагента")) {
+				if(interactive.Question($"Добавить телефон к контрагенту {firstClient.Name} ?", "Телефон контрагента")) {
 					firstClient.Phones.Add(Phone);
 					UoW.Save<Counterparty>(firstClient);
 					UoW.Commit();
-					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager);
-					CounterpartyOrdersModels.Add(model);
-					currentCounterparty = firstClient;
-					CounterpartyOrdersModelsUpdateEvent();
-
 				}
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager);
+				CounterpartyOrdersModels.Add(model);
+				currentCounterparty = firstClient;
+				CounterpartyOrdersModelsUpdateEvent();
 			} else return;
 			(sender as CounterpartyJournalViewModel).OnEntitySelectedResult -= ExistingCounterparty_PageClosed;
 		}
