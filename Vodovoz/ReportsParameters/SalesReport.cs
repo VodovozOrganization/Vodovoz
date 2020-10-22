@@ -11,7 +11,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using QS.Dialog.GtkUI;
-using NHibernate.Util;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
@@ -189,8 +188,7 @@ namespace Vodovoz.Reports
 				"order_author",
 				new ParametersFactory(UoW, (filters) => {
 					SelectableEntityParameter<Employee> resultAlias = null;
-					var query = UoW.Session.QueryOver<Employee>()
-						.Where(x => x.Status != EmployeeStatus.IsFired);
+					var query = UoW.Session.QueryOver<Employee>();
 
 					if(filters != null && filters.Any()) {
 						foreach(var f in filters) {
