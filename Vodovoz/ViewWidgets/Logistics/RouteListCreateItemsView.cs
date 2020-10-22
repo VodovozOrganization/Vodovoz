@@ -238,7 +238,7 @@ namespace Vodovoz
 				x => x.RestrictStatus = OrderStatus.Accepted
 			);
 			
-			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter,UnitOfWorkFactory.GetDefaultFactory,ServicesConfig.CommonServices){SelectionMode = JournalSelectionMode.Single};
+			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter,UnitOfWorkFactory.GetDefaultFactory,ServicesConfig.CommonServices){SelectionMode = JournalSelectionMode.Multiple};
 			
 			//Selected Callback
 			orderSelectDialog.OnEntitySelectedResult += (sender, ea) =>
