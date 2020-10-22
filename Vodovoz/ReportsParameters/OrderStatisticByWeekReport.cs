@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.Report;
-using QSOrmProject;
 using QSReport;
 
 namespace Vodovoz.ReportsParameters
@@ -18,33 +17,18 @@ namespace Vodovoz.ReportsParameters
 
 		#region IParametersWidget implementation
 
-		public string Title {
-			get {
-				return "Статистика заказов по дням недели";
-			}
-		}
+		public string Title => "Статистика заказов по дням недели";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		#endregion
 
-		public object EntityObject {
-			get {
-				return null;
-			}
-		}
+		public object EntityObject => null;
 
-		void OnUpdate(bool hide = false)
-		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
-		}
+		void OnUpdate(bool hide = false) => 
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 
-		protected void OnButtonRunClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
-		}
+		protected void OnButtonRunClicked(object sender, EventArgs e) => OnUpdate(true);
 
 		private ReportInfo GetReportInfo()
 		{
@@ -53,14 +37,12 @@ namespace Vodovoz.ReportsParameters
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDate },
-					{ "end_date", dateperiodpicker.EndDate },
+					{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
 				}
 			};
 		}
 
-		protected void OnDateperiodpickerPeriodChanged(object sender, EventArgs e)
-		{
+		protected void OnDateperiodpickerPeriodChanged(object sender, EventArgs e) => 
 			buttonRun.Sensitive = dateperiodpicker.StartDateOrNull.HasValue && dateperiodpicker.EndDateOrNull.HasValue;
-		}
 	}
 }
