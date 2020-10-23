@@ -1440,6 +1440,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NetworkDelayReport.cs" />
     <Compile Include="ReportsParameters\Logistic\DriverRoutesListRegisterReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DriverRoutesListRegisterReport.cs" />
+    <Compile Include="ReportsParameters\Production\ProducedProductionReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Production.ProducedProductionReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1713,6 +1715,7 @@
     <Folder Include="Views\Cash\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Views\Goods\" />
+    <Folder Include="ReportsParameters\Production\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1779,6 +1782,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Cash\CashFlowDetailIncomeReturn.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Production\ProducedProduction.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\OrderStatisticByWeek.rdl">
@@ -2254,6 +2260,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Reports\Payments\PaymentsDelayNetwork.rdl" />
+    <Content Include="Reports\Prodaction\ProducedProdaction.rdl" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
