@@ -73,7 +73,7 @@ namespace Vodovoz.Views.Mango
 					popupMenu.Add(item3);
 				}
 
-				if(selectedOrder.OrderStatus == OrderStatus.NotDelivered || selectedOrder.OrderStatus == OrderStatus.DeliveryCanceled) {
+				if(selectedOrder.OrderStatus == OrderStatus.Canceled || selectedOrder.OrderStatus == OrderStatus.NotDelivered || selectedOrder.OrderStatus == OrderStatus.DeliveryCanceled) {
 					MenuItem item4 = new MenuItem("Перейти в недовоз");
 					item4.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.OpenUnderlivery(selectedOrder); };
 					popupMenu.Add(item4);
