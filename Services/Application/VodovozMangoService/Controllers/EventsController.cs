@@ -39,13 +39,13 @@ namespace VodovozMangoService.Controllers
             CallInfo call = callsService.Calls.GetOrAdd(message.call_id, id => new CallInfo(message));
             lock (call)
             {
+                call.Events[message.seq] = message;
                 if (call.Seq > message.seq) //Пришло старое сообщение
                 {
                     logger.Warn(
                         $"Пропускаем обработку сообщения с номером {message.seq} так как уже получили сообщение с номером {call.Seq}");
                     return;
                 }
-                call.Events[message.seq] = message;
                 
                 if (!String.IsNullOrEmpty(message.from.taken_from_call_id))
                 {
