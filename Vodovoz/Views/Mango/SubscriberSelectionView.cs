@@ -100,13 +100,15 @@ namespace Vodovoz.Views.Mango
 		protected void Clicked_ForwardingButton(object sender, EventArgs e)
 		{
 			var row = ySearchTable.GetSelectedObject<SearchTableEntity>();
-			ViewModel.ForwardCall(row, ForwardingMethod.blind);
+			if(row != null) //Перевод реализован только на внутрение
+				ViewModel.ForwardCall(row, ForwardingMethod.blind);
 		}
 
 		protected void Clicked_ForwardingToConsultationButton(object sender, EventArgs e)
 		{
 			var row = ySearchTable.GetSelectedObject<SearchTableEntity>();
-			ViewModel.ForwardCall(row, ForwardingMethod.hold);
+			if(row != null) //Перевод реализован только на внутрение
+				ViewModel.ForwardCall(row, ForwardingMethod.hold);
 		}
 
 		protected void Changed_FilterEntry(object sender, EventArgs args)
