@@ -16,7 +16,7 @@ namespace Vodovoz.ViewModels.Mango
 
 		public enum DialogType
 		{
-			AdditionalCall,
+			Transfer,
 			Telephone
 		}
 		#endregion

@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		{
 			Action action = () => { Close(false, CloseSource.Self); };
 			IPage page = NavigationManager.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>
-			(this, MangoManager, SubscriberSelectionViewModel.DialogType.AdditionalCall);
+			(this, MangoManager, SubscriberSelectionViewModel.DialogType.Transfer);
 		}
 
 	}

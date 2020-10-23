@@ -19,7 +19,7 @@ namespace Vodovoz.Views.Mango
 
 		void Configure()
 		{
-			if(ViewModel.dialogType == SubscriberSelectionViewModel.DialogType.AdditionalCall) {
+			if(ViewModel.dialogType == SubscriberSelectionViewModel.DialogType.Transfer) {
 				ForwardingToConsultationButton.Visible = true;
 				ForwardingToConsultationButton.Clicked += Clicked_ForwardingToConsultationButton;
 				ForwardingButton.Clicked += Clicked_ForwardingButton;
@@ -128,7 +128,7 @@ namespace Vodovoz.Views.Mango
 		protected void OnFilterEntryActivated(object sender, EventArgs e)
 		{
 			ySearchTable.Selection.SelectPath(new Gtk.TreePath("0"));
-			if(ViewModel.dialogType == SubscriberSelectionViewModel.DialogType.AdditionalCall)
+			if(ViewModel.dialogType == SubscriberSelectionViewModel.DialogType.Transfer)
 				ForwardingToConsultationButton.Click();
 			else
 				ForwardingButton.Click();
