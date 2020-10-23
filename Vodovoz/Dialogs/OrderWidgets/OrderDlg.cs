@@ -283,7 +283,6 @@ namespace Vodovoz
 			Entity.Client = templateOrder.Client;
 			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
 			Entity.ClientPhone = templateOrder.ClientPhone;
-			Entity.BillDate = templateOrder.BillDate;
 			Entity.IsService = templateOrder.IsService;
 			Entity.CopyPromotionalSetsFrom(templateOrder);
 			Entity.CopyItemsFrom(templateOrder);
