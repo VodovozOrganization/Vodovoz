@@ -237,9 +237,10 @@ namespace Vodovoz
 				x => x.RestrictEndDate = RouteListUoW.Root.Date.Date,
 				x => x.RestrictStatus = OrderStatus.Accepted,
 				x => x.RestrictWithoutSelfDelivery = true,
-				x => x.RestrictOnlySelfDelivery = false
+				x => x.RestrictOnlySelfDelivery = false,
+				x => x.RestrictHideService = true
 			);
-			filter.HideService = true;
+			
 
 			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter,UnitOfWorkFactory.GetDefaultFactory,ServicesConfig.CommonServices){SelectionMode = JournalSelectionMode.Multiple};
 			
