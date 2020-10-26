@@ -31,6 +31,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.EntityRepositories.Payments;
 
 namespace Vodovoz
 {
@@ -288,6 +289,7 @@ namespace Vodovoz
 				.Finish();
 
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
+			yenumcomboOrderPayment.Changed += (sender, e) => routeListItem.Order.CheckAndUpdateOrderPaymentStatus(uow, new CashlessPaymentRepository());
 			yenumcomboOrderPayment.Binding.AddBinding(routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
 
 			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().List();
