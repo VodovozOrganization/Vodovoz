@@ -85,6 +85,10 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.HideStatuses != null) {
 				query.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(FilterViewModel.HideStatuses);
 			}
+			
+			if(FilterViewModel.HideService != null) {
+				query.Where(o => o.IsService != FilterViewModel.HideService);
+			}
 
 			if(FilterViewModel.RestrictOnlySelfDelivery != null) {
 				query.Where(o => o.SelfDelivery == FilterViewModel.RestrictOnlySelfDelivery);
