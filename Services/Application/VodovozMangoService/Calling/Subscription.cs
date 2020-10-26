@@ -7,7 +7,6 @@ namespace VodovozMangoService.Calling
     {
         public readonly Channel<NotificationMessage> Queue;
         public readonly uint Extension;
-        public CallInfo CurrentCall;
 
         public Subscription(uint extension)
         {

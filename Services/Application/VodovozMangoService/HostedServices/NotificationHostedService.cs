@@ -91,8 +91,7 @@ namespace VodovozMangoService.HostedServices
 					return;
 
 				subscriptions = Subscribers
-					.Where(x => x.Extension == info.LastEvent.to.Extension 
-					            || x.CurrentCall == info || (x.Extension == 0 && x.CurrentCall == null))
+					.Where(x => x.Extension == info.LastEvent.to.Extension)
 					.ToList();
 			}
 			
@@ -199,11 +198,6 @@ namespace VodovozMangoService.HostedServices
 						Subscribers.Remove(subscription);
 					}
 					continue;
-				}
-				switch (message.State)
-				{
-					case CallState.Disconnected: subscription.CurrentCall = null; break; 
-					case CallState.Connected: subscription.CurrentCall = info; break;
 				}
 				subscription.Queue.Writer.WriteAsync(message);
 			}
