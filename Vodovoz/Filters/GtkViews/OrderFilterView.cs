@@ -44,7 +44,7 @@ namespace Vodovoz.Filters.GtkViews
 			ycheckOnlySelfdelivery.Binding.AddBinding(ViewModel, vm => vm.RestrictOnlySelfDelivery, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
 			ycheckWithoutSelfdelivery.Binding.AddBinding(ViewModel, vm => vm.RestrictWithoutSelfDelivery, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
 			ycheckOnlyServices.Binding.AddBinding(ViewModel, vm => vm.RestrictOnlyService, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
-			ycheckHideServices.Binding.AddBinding(ViewModel, vm => vm.RestrictHideService, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
+			ycheckHideServices.Binding.AddBinding(ViewModel, vm => vm.HideService, w => w.Active).InitializeFromSource();
 			ycheckLessThreeHours.Binding.AddBinding(ViewModel, vm => vm.RestrictLessThreeHours, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
 
 			yenumcomboboxPaymentOrder.ItemsEnum = typeof(PaymentOrder);
