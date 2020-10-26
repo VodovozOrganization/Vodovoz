@@ -221,8 +221,8 @@ namespace Vodovoz.Filters.ViewModels
 
 		#region Services
 
-		private bool hideService;
-		public virtual bool HideService {
+		private bool? hideService;
+		public virtual bool? HideService {
 			get => hideService;
 			set {
 				if(SetField(ref hideService, value)) {
