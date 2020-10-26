@@ -1676,7 +1676,4 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionXXXReportActivated(object sender, EventArgs e)
-	{
-	}
 }
