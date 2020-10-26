@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Mango
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Mango.CounterpartyOrderView";
 			// Container child Vodovoz.Views.Mango.CounterpartyOrderView.Gtk.Container+ContainerChild
-			this.table3 = new global::Gtk.Table(((uint)(6)), ((uint)(3)), false);
+			this.table3 = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
 			this.table3.WidthRequest = 0;
 			this.table3.HeightRequest = 0;
 			this.table3.ExtensionEvents = ((global::Gdk.ExtensionMode)(1));
@@ -66,7 +66,6 @@ namespace Vodovoz.Views.Mango
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table3[this.CounterpartyYButton]));
 			w3.LeftAttach = ((uint)(1));
 			w3.RightAttach = ((uint)(2));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
@@ -83,12 +82,12 @@ namespace Vodovoz.Views.Mango
 			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table3[this.GtkScrolledWindow]));
 			w5.TopAttach = ((uint)(2));
 			w5.BottomAttach = ((uint)(4));
-			w5.RightAttach = ((uint)(3));
+			w5.RightAttach = ((uint)(2));
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.OrderLabel = new global::Gtk.Label();
 			this.OrderLabel.Name = "OrderLabel";
-			this.OrderLabel.Xalign = 1F;
+			this.OrderLabel.Xalign = 0F;
 			this.OrderLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Заказы:");
 			this.table3.Add(this.OrderLabel);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table3[this.OrderLabel]));
@@ -108,7 +107,7 @@ namespace Vodovoz.Views.Mango
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table3[this.TreeViewEventBox]));
 			w8.TopAttach = ((uint)(5));
 			w8.BottomAttach = ((uint)(6));
-			w8.RightAttach = ((uint)(3));
+			w8.RightAttach = ((uint)(2));
 			this.Add(this.table3);
 			if ((this.Child != null))
 			{
