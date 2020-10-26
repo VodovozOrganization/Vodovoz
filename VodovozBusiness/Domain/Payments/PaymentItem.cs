@@ -38,33 +38,27 @@ namespace Vodovoz.Domain.Payments
 			set => SetField(ref sum, value);
 		}
 
+		public virtual decimal ActualSum => CashlessMovementOperation?.Expense ?? Sum;
+
 		public PaymentItem()
 		{
 		}
 
-		public virtual void CreateExpenseOperation()
+		public virtual void UpdateExpenseOperation()
 		{
-			if (CashlessMovementOperation == null)
-			{
+			if (CashlessMovementOperation == null) {
 				CashlessMovementOperation = new CashlessMovementOperation {
 					Expense = sum, 
 					Counterparty = Payment.Counterparty,
 					OperationTime = DateTime.Now
 				};
-			}
-			else
-			{
-				UpdateExpenseOperation();
-			}
-		}
-
-		public virtual void UpdateExpenseOperation()
-		{
-			if (CashlessMovementOperation.Expense != sum)
-			{
-				CashlessMovementOperation.Expense = sum;
-				CashlessMovementOperation.Counterparty = Payment.Counterparty;
-				CashlessMovementOperation.OperationTime = DateTime.Now;
+			} else {
+				if (CashlessMovementOperation.Expense != sum)
+				{
+					CashlessMovementOperation.Expense = sum;
+					CashlessMovementOperation.Counterparty = Payment.Counterparty;
+					CashlessMovementOperation.OperationTime = DateTime.Now;
+				}
 			}
 		}
 		

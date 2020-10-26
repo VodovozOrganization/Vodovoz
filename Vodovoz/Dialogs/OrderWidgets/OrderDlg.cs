@@ -75,6 +75,7 @@ using Vodovoz.JournalSelector;
 using Vodovoz.Repository;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using Vodovoz.JournalViewModels;
+using Vodovoz.EntityRepositories.Payments;
 
 namespace Vodovoz
 {
@@ -467,6 +468,7 @@ namespace Vodovoz
 
 			enumPaymentType.ItemsEnum = typeof(PaymentType);
 			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			enumPaymentType.Changed += (sender, e) => Order.CheckAndUpdateOrderPaymentStatus(UoW, new CashlessPaymentRepository()); // Is it normal?
 			SetSensitivityOfPaymentType();
 
 			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
@@ -864,6 +866,8 @@ namespace Vodovoz
 				}
 
 				logger.Info("Сохраняем заказ...");
+				
+				Entity.ReturnPaymentToTheClientBalanceIfNeeded(UoW, new CashlessPaymentRepository());
 				
 				if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(emailRepository)) {
 					bool sendEmail = true;
@@ -2800,6 +2804,7 @@ namespace Vodovoz
 		{
 			if(chkContractCloser.Active) {
 				Entity.PaymentType = PaymentType.cashless;
+				Entity.CheckAndUpdateOrderPaymentStatus(UoW, new CashlessPaymentRepository());
 				UpdateUIState();
 			} else {
 				UpdateUIState();

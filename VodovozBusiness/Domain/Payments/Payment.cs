@@ -274,22 +274,6 @@ namespace Vodovoz.Domain.Payments
 				CashlessMovementOperation.OperationTime = DateTime.Now;
 			}
 		}
-		
-		public virtual Payment CreatePaymentForReturnMoneyToClientBalance(decimal paymentSum, int orderId)
-		{
-			return new Payment
-			{
-				PaymentNum = this.PaymentNum,
-				Date = DateTime.Now,
-				Total = paymentSum,
-				ProfitCategory = this.ProfitCategory,
-				PaymentPurpose = $"Возврат суммы оплаты заказа №{orderId} на баланс клиента",
-				Organization = this.Organization,
-				Counterparty = this.Counterparty,
-				CounterpartyName = this.counterpartyName,
-				Status = PaymentState.completed
-			};
-		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
