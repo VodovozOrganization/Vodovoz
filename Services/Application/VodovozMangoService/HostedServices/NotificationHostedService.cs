@@ -78,6 +78,38 @@ namespace VodovozMangoService.HostedServices
 			
 			if (!String.IsNullOrEmpty(info.LastEvent.from.extension))
 				SendOutgoing(info);
+			
+			//В случае если разговор передан на другой внутренний адрес, в разговоре будут уже другие Extension, поэтому события закрытия разговора клиенту не придет....
+			//Здесь мы вручную отправляем удедомления тем Extension которые получили событие Connect, но уже не получат Disconnect обычным путем.
+			var toDisconnet = info.ConnectedExtensions
+					.Where(x => x != info.LastEvent.to.Extension && x != info.LastEvent.from.Extension).ToList();
+
+			if (toDisconnet.Any())
+			{
+				logger.Debug("toDisconnet:" + String.Join(",", info.ConnectedExtensions));
+				IList<Subscription> subscriptions = null;
+				lock (Subscribers)
+				{
+					foreach (var extension in toDisconnet)
+					{	
+						subscriptions = Subscribers
+							.Where(x => x.Extension == extension)
+							.ToList();
+					}
+				}
+
+				if (subscriptions != null && subscriptions.Any())
+				{
+					var message = new NotificationMessage
+					{
+						CallId = info.LastEvent.call_id,
+						Timestamp = Timestamp.FromDateTimeOffset(info.LastEvent.Time),
+						State = CallState.Disconnected,
+					};
+
+					SendNotification(subscriptions, message, info);
+				}
+			}
 		}
 
 		private void SendIncome(CallInfo info)
@@ -200,6 +232,10 @@ namespace VodovozMangoService.HostedServices
 					continue;
 				}
 				subscription.Queue.Writer.WriteAsync(message);
+				if(message.State != CallState.Disconnected)
+					info.ConnectedExtensions.Add(subscription.Extension);
+				else
+					info.ConnectedExtensions.Remove(subscription.Extension);
 			}
 		}
 		#endregion

@@ -17,6 +17,8 @@ namespace VodovozMangoService.Calling
         public readonly SortedDictionary<uint, CallEvent> Events = new SortedDictionary<uint, CallEvent>();
         public CallInfo OnHoldCall;
 
+        public readonly HashSet<uint> ConnectedExtensions = new HashSet<uint>();
+        
         #region Расчетные
 
         public uint Seq => Events.Keys.Last();
