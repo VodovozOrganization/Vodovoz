@@ -25,6 +25,8 @@ namespace VodovozSalesReceiptsService
 			string baseAddress;
 			string userNameForService;
 			string pwdForService;
+			
+			bool isWorkInProgress = false;
 
 			try {
 				serviceHostName = serviceConfig.GetString("service_host_name");
@@ -50,6 +52,10 @@ namespace VodovozSalesReceiptsService
 
 			orderRoutineTimer = new System.Timers.Timer(30000d);
 			orderRoutineTimer.Elapsed += (sender, e) => {
+				if(isWorkInProgress)
+					return;
+				isWorkInProgress = true;
+				
 				orderRoutineTimer.Interval = 180000d; //3 минуты
 				if(DateTime.Now.Hour >= 1 && DateTime.Now.Hour < 5) {
 					var fiveHrsOfToday = DateTime.Today.AddHours(5);
@@ -58,11 +64,17 @@ namespace VodovozSalesReceiptsService
 					return;
 				}
 
-				try {
+				try
+				{
 					Fiscalization.RunAsync(baseAddress, authentication).GetAwaiter().GetResult();
 				}
-				catch(Exception ex) {
+				catch (Exception ex)
+				{
 					logger.Error(ex, "Исключение при выполение фоновой задачи.");
+				}
+				finally
+				{
+					isWorkInProgress = false;
 				}
 			};
 			orderRoutineTimer.Start();
