@@ -143,33 +143,16 @@ namespace Vodovoz
 		#region Работа с боковыми панелями
 
 		public PanelViewType[] InfoWidgets {
-			get
-			{
-				if (Order.OrderStatus == OrderStatus.Accepted ||
-				    Order.OrderStatus == OrderStatus.OnTheWay ||
-				    Order.OrderStatus == OrderStatus.Shipped ||
-				    Order.OrderStatus == OrderStatus.InTravelList ||
-				    Order.OrderStatus == OrderStatus.OnLoading)
-					return new[]
-					{
-						PanelViewType.AdditionalAgreementPanelView,
-						PanelViewType.CounterpartyView,
-						PanelViewType.DeliveryPricePanelView,
-						PanelViewType.DeliveryPointView,
-						PanelViewType.EmailsPanelView,
-						PanelViewType.CallTaskPanelView,
-						PanelViewType.SmsSendPanelView
-					};
-				else
-					return new[]
-					{
-						PanelViewType.AdditionalAgreementPanelView,
-						PanelViewType.CounterpartyView,
-						PanelViewType.DeliveryPricePanelView,
-						PanelViewType.DeliveryPointView,
-						PanelViewType.EmailsPanelView,
-						PanelViewType.CallTaskPanelView
-					};
+			get {
+				return new[]{
+					PanelViewType.AdditionalAgreementPanelView,
+					PanelViewType.CounterpartyView,
+					PanelViewType.DeliveryPricePanelView,
+					PanelViewType.DeliveryPointView,
+					PanelViewType.EmailsPanelView,
+					PanelViewType.CallTaskPanelView,
+					PanelViewType.SmsSendPanelView
+				};
 			}
 		}
 
@@ -537,6 +520,14 @@ namespace Vodovoz
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
 			
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
+
+			Entity.PropertyChanged += (sender, args) =>
+			{
+				if (args.PropertyName == nameof(Order.OrderStatus))
+				{
+					CurrentObjectChanged?.Invoke(this,new CurrentObjectChangedArgs(Entity.OrderStatus));
+				}
+			};
 		}
 
 		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)

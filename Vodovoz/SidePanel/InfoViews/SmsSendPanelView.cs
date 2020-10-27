@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Cairo;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
@@ -82,10 +83,23 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			ySendSmsButton.Sensitive = true;
 			yPhonesListTreeView.ItemsDataSource = Counterparty.Phones;
+			
+			
 		}
 
 		public void OnCurrentObjectChanged(object changedObject) => Refresh();
 
-		public bool VisibleOnPanel => true;
+		// public bool VisibleOnPanel => Order.OrderStatus != OrderStatus.NewOrder;
+		public bool VisibleOnPanel =>
+			!(new OrderStatus[]
+			{
+				OrderStatus.NewOrder,
+				OrderStatus.Accepted,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading
+			}.Contains(Order.OrderStatus));
+		
 	}
 }
