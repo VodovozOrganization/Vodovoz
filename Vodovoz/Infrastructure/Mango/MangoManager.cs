@@ -302,13 +302,11 @@ namespace Vodovoz.Infrastructure.Mango
 		}
 		#endregion
 
-		public void AddCounterpartyToCall(Counterparty client , bool changeCallState)
+		public void AddCounterpartyToCall(Counterparty client)
 		{
 			AddedClients.Add(client.Id);
-			if(changeCallState) {
-				CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<int>>(null, this, Clients);
-				CurrentPage.PageClosed += CurrentPage_PageClosed;
-			}
+			CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<int>>(null, this, Clients);
+			CurrentPage.PageClosed += CurrentPage_PageClosed;
 		}
 
 		#region MangoController_Methods
