@@ -1167,7 +1167,6 @@ namespace Vodovoz.Domain.Orders
 			if(actualContract == null) {
 				actualContract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
 				Contract = actualContract;
-				AddContractDocument(actualContract);
 			}
 
 			if(actualContract != oldContract) {

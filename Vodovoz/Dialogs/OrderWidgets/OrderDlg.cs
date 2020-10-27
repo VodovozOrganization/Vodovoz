@@ -3046,5 +3046,10 @@ namespace Vodovoz
 			var promoSetColumn = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Entity.PromotionalSets)).FirstOrDefault();
 			promoSetColumn.Visible = Entity.PromotionalSets.Count > 0;
 		}
+
+		protected void OnYBtnAddCurrentContractClicked(object sender, EventArgs e)
+		{
+			Order.AddContractDocument(Order.Contract);
+		}
 	}
 }
