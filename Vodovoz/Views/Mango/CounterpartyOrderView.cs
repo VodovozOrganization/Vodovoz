@@ -19,18 +19,17 @@ namespace Vodovoz.Views.Mango
 		void Configure()
 		{
 			OrderYTreeView.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
-			.AddColumn("Номер")
-			.AddNumericRenderer(order => order.Id)
-			.AddColumn("Дата")
-			.AddTextRenderer(order => order.DeliveryDate.HasValue ? order.DeliveryDate.Value.ToString("dd.MM.yy") : String.Empty)
-			.AddColumn("Статус")
-			.AddTextRenderer(order => order.OrderStatus.GetEnumTitle())
-			.AddColumn("Адрес")
+			.AddColumn("Номер").HeaderAlignment(0.5f)
+			.AddNumericRenderer(order => order.Id).XAlign(0.5f)
+			.AddColumn("Дата").HeaderAlignment(0.5f)
+			.AddTextRenderer(order => order.DeliveryDate.HasValue ? order.DeliveryDate.Value.ToString("dd.MM.yy") : String.Empty).XAlign(0.5f)
+			.AddColumn("Статус").HeaderAlignment(0.5f)
+			.AddTextRenderer(order => order.OrderStatus.GetEnumTitle()).XAlign(0.5f)
+			.AddColumn("Адрес").HeaderAlignment(0.5f)
 			.AddTextRenderer(order => order.DeliveryPoint != null ? order.DeliveryPoint.CompiledAddress : null)
 			.Finish();
 
 			OrderYTreeView.ButtonReleaseEvent += ButtonReleaseEvent_OrderYTreeView;
-			//OrderYTreeView.Selection.Mode = SelectionMode.Multiple;
 			OrderYTreeView.RowActivated += RowActivated_OrderYTreeView;
 			OrderYTreeView.CursorChanged += CursorChanged_OrderYTreeView;
 			CounterpartyYButton.Clicked += PressEvent_CounterpartyYButton;
