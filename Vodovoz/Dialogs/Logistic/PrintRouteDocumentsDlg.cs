@@ -73,6 +73,7 @@ namespace Vodovoz.Dialogs.Logistic
 			ydatePrint.Date = DateTime.Today;
 
 			OrderDocumentType[] selectedByDefault = {
+				OrderDocumentType.Contract,
 				OrderDocumentType.Invoice,
 				OrderDocumentType.InvoiceBarter,
 				OrderDocumentType.InvoiceContractDoc,
