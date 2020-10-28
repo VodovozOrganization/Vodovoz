@@ -76,6 +76,15 @@ namespace Vodovoz.Domain.Logistic
             set => SetField(ref districts, value, () => Districts);
         }
 
+        private Decimal onlineStoreOrderSumForFreeDelivery;
+
+        [Display(Name = "Минимальная сумма заказа для бесплатной доставки")]
+        public virtual Decimal OnlineStoreOrderSumForFreeDelivery
+        {
+            get => onlineStoreOrderSumForFreeDelivery;
+            set => SetField(ref onlineStoreOrderSumForFreeDelivery, value);
+        }
+
         private GenericObservableList<District> observableDistricts;
         //FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
         public virtual GenericObservableList<District> ObservableDistricts => 
