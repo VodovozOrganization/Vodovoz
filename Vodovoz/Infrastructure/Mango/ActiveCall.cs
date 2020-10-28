@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.DomainModel.Entity;
 using QS.Utilities.Numeric;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Infrastructure.Mango
 {
-	public class ActiveCall
+	public class ActiveCall : PropertyChangedBase
 	{
-		public readonly NotificationMessage Message;
+		public NotificationMessage Message { get; private set; }
 
 		public ActiveCall(NotificationMessage message)
 		{
@@ -39,10 +41,39 @@ namespace Vodovoz.Infrastructure.Mango
 			}
 		}
 
+		public void NewMessage(NotificationMessage message)
+		{
+			Message = message;
+			OnPropertyChanged(nameof(CallState));
+		}
+
+		#region Clients
+		private List<int> AddedClients = new List<int>();
+		public void AddClientId(int id)
+		{
+			AddedClients.Add(id);
+		}
+		#endregion
+
+
 		#region Ids
-		public IEnumerable<int> CounterpartyIds => Message.CallFrom.Names?.Where(n => n.CounterpartyId > 0).Select(n => Convert.ToInt32(n.CounterpartyId)).Distinct();
+		public IEnumerable<int> CounterpartyIds => Message.CallFrom.Names?.Where(n => n.CounterpartyId > 0).Select(n => Convert.ToInt32(n.CounterpartyId)).Concat(AddedClients).Distinct();
 		public int EmployeeId => Message.CallFrom.Names.Where(n => n.EmployeeId > 0).Select(n => Convert.ToInt32(n.EmployeeId)).FirstOrDefault();
 		#endregion
+		#region Calculated
 		public bool IsOutgoing => Message?.Direction == CallDirection.Outgoing;
+
+		public Phone Phone => CallerNumber != null ? new Phone(CallerNumber) : null;
+
+		public string CallerNumberText { get {
+				if(CallerNumber.Length == 11) {
+					var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
+					return "+7 " + formatter.FormatString(CallerNumber);
+				} 
+				else 
+					return CallerNumber;
+			} }
+
+		#endregion
 	}
 }

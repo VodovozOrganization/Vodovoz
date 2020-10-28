@@ -14,8 +14,7 @@ namespace Vodovoz.Views.Mango.Talks
 
 		private void Configure()
 		{
-			//(this as IPage).PageClosed += ViewModel.SaveAndClose
-			CallNumberLabel.Text = ViewModel.GetPhoneNumber();
+			CallNumberLabel.Binding.AddBinding(ViewModel, v => v.PhoneText, w => w.LabelProp).InitializeFromSource();
 		}
 		#region Events
 		protected void Clicked_NewClientButton(object sender, EventArgs e)
@@ -56,8 +55,6 @@ namespace Vodovoz.Views.Mango.Talks
 		}
 
 		#endregion
-
-		//private void Close_View
 		#endregion
 	}
 }

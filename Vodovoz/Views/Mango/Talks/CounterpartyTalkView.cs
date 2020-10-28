@@ -17,7 +17,7 @@ namespace Vodovoz.Views.Mango.Talks
 
 		void Configure()
 		{
-			CallNumberYLabel.Text = ViewModel.GetPhoneNumber();
+			CallNumberYLabel.Binding.AddBinding(ViewModel, v => v.PhoneText, w => w.LabelProp).InitializeFromSource();
 
 			foreach(var item in ViewModel.CounterpartyOrdersModels) {
 				var label = new Gtk.Label(item.Client.Name);
@@ -99,7 +99,6 @@ namespace Vodovoz.Views.Mango.Talks
 
 		private void Clicked_ExistingClientButton(object sender, EventArgs e)
 		{
-
 			ViewModel.ExistingClientCommand();
 		}
 

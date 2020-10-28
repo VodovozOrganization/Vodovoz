@@ -14,13 +14,12 @@ namespace Vodovoz.Views.Mango.Talks
 
 		private void Configure()
 		{
+			CallNumberLabel.Binding.AddBinding(ViewModel, v => v.CallerNameText, w => w.LabelProp).InitializeFromSource();
 			LinePhone.Visible = labelOnLine.Visible = ViewModel.ShowTransferCaller;
 			LinePhone.Binding.AddBinding(ViewModel, v => v.OnLineText, l => l.LabelProp).InitializeFromSource();
 			ForwardingButton.Visible = ViewModel.ShowTransferButton;
 			hboxInfo.Visible = ViewModel.ShowReturnButton;
 			FinishButton.Label = ViewModel.ShowReturnButton ? "Вернуться к разговору" : "Завершить";
-
-			CallNumberLabel.Text = ViewModel.GetCallerName();
 		}
 
 		#region MangoEvents

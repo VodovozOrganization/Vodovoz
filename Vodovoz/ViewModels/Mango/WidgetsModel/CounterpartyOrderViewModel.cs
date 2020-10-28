@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gdk;
-using QS.Dialog;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -28,7 +26,6 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
-using Vodovoz.JournalFilters;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
@@ -38,19 +35,10 @@ using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class CounterpartyArguments
-	{
-
-	}
 	public class CounterpartyOrderViewModel : ViewModelBase
 	{
 		#region Свойства
-
-		private Counterparty client;
-		public Counterparty Client {
-			get { return client; }
-			private set { client = value; }
-		}
+		public Counterparty Client { get; private set; }
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private MangoManager MangoManager { get; set; }
 
@@ -74,11 +62,10 @@ namespace Vodovoz.ViewModels.Mango
 			ITdiCompatibilityNavigation tdinavigation,
 			RouteListRepository routedListRepository,
 			MangoManager mangoManager,
-			//IInteractiveMessage interactive,
 			int count = 5)
 		: base()
 		{
-			this.client = client;
+			this.Client = client;
 			this.tdiNavigation = tdinavigation;
 			this.routedListRepository = routedListRepository;
 			this.MangoManager = mangoManager;
@@ -94,8 +81,6 @@ namespace Vodovoz.ViewModels.Mango
 				.AndWhere(d => client.DeliveryPoints.Any(cd => cd.Id == d.Id));
 
 		}
-
-
 		#endregion
 
 		#region Функции
@@ -103,7 +88,7 @@ namespace Vodovoz.ViewModels.Mango
 		#region privates
 		private void _RefreshCounterparty(EntityChangeEvent[] entity)
 		{
-			client = UoW.GetById<Counterparty>(client.Id);
+			Client = UoW.GetById<Counterparty>(Client.Id);
 		}
 		private void _RefreshOrders()
 		{
@@ -115,7 +100,7 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void OpenMoreInformationAboutCounterparty()
 		{
-			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg, int>(null, client.Id, OpenPageOptions.IgnoreHash);
+			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg, int>(null, Client.Id, OpenPageOptions.IgnoreHash);
 			var tab = page.TdiTab as CounterpartyDlg;
 		}
 		public void OpenMoreInformationAboutOrder(int id)
@@ -246,7 +231,7 @@ namespace Vodovoz.ViewModels.Mango
 					{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
 					{"nomenclatureRepository",nomenclatureRepository},
 					//Autofac: IUserRepository
-					{"phone", "+7" +this.MangoManager.Phone.Number }
+					{"phone", "+7" +this.MangoManager.CurrentCall.Phone.Number }
 				};
 				tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
 			}

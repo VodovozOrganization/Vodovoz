@@ -10,7 +10,6 @@ using QS.Project.Services;
 using QSReport;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories;
@@ -41,7 +40,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		public Counterparty currentCounterparty { get;private set; }
 		public event System.Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
-		public CounterpartyTalkViewModel(IEnumerable<int> clientsIds,
+		public CounterpartyTalkViewModel(
 			INavigationManager navigation,
 			ITdiCompatibilityNavigation tdinavigation,
 			IInteractiveQuestion interactive,
@@ -56,9 +55,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.routedListRepository = routedListRepository;
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 
-			if(clientsIds.Count() > 0) 
+			if(ActiveCall.CounterpartyIds.Any())
 			{
-				var clients = UoW.GetById<Counterparty>(clientsIds);
+				var clients = UoW.GetById<Counterparty>(ActiveCall.CounterpartyIds);
 				foreach(Counterparty client in clients)
 				{
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, tdinavigation,routedListRepository,this.MangoManager);
@@ -66,12 +65,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				}
 				currentCounterparty = CounterpartyOrdersModels.FirstOrDefault().Client;
 			} else
-				throw new ArgumentNullException(nameof(clientsIds));
-		}
-
-		public string GetPhoneNumber()
-		{
-			return "+7" + Phone.Number;
+				throw new InvalidProgramException("Открыт диалог разговора с имеющимся контрагентом, но ни одного id контрагента не найдено.");
 		}
 
 		public IDictionary<string, CounterpartyOrderView> GetCounterpartyViewModels()
@@ -108,12 +102,13 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			if(e.CloseSource == CloseSource.Save) {
 				List<Counterparty> clients = new List<Counterparty>();
 				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
-				client.Phones.Add(Phone);
+				client.Phones.Add(ActiveCall.Phone);
 				clients.Add(client);
 				UoW.Save<Counterparty>(client);
 				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager);
 				CounterpartyOrdersModels.Add(model);
 				currentCounterparty = client;
+				MangoManager.AddCounterpartyToCall(client.Id);
 				CounterpartyOrdersModelsUpdateEvent();
 			}
 			(sender as IPage).PageClosed -= NewCounerpatry_PageClosed;
@@ -122,20 +117,19 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
-			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
-			Counterparty firstClient = clients.First();
-			if(CounterpartyOrdersModels.FirstOrDefault(c => c.Client.Id == firstClient.Id) == null) {
-				if(interactive.Question($"Добавить телефон к контрагенту {firstClient.Name} ?", "Телефон контрагента")) {
-					firstClient.Phones.Add(Phone);
-					UoW.Save<Counterparty>(firstClient);
+			Counterparty client = UoW.GetById<Counterparty>(counterpartyNode.Id);
+			if(!CounterpartyOrdersModels.Any(c => c.Client.Id == client.Id)) {
+				if(interactive.Question($"Добавить телефон к контрагенту {client.Name} ?", "Телефон контрагента")) {
+					client.Phones.Add(ActiveCall.Phone);
+					UoW.Save<Counterparty>(client);
 					UoW.Commit();
 				}
-				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager);
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager);
 				CounterpartyOrdersModels.Add(model);
-				currentCounterparty = firstClient;
+				currentCounterparty = client;
+				MangoManager.AddCounterpartyToCall(client.Id);
 				CounterpartyOrdersModelsUpdateEvent();
-			} else return;
-			(sender as CounterpartyJournalViewModel).OnEntitySelectedResult -= ExistingCounterparty_PageClosed;
+			}
 		}
 
 		public void NewOrderCommand()
@@ -177,7 +171,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
 				{"nomenclatureRepository",nomenclatureRepository},
 				//Autofac: IUserRepository
-				{"phone", "+7" +MangoManager.Phone.Number }
+				{"phone", "+7" + ActiveCall.Phone.Number }
 			};
 			tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null,parameters);
 		}

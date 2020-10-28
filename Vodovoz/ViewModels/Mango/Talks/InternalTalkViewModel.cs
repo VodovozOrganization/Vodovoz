@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -24,27 +23,18 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.tdiCompatibilityNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			this.UoW = unitOfWorkFactory.CreateWithoutRoot();
-
-			if(manager.IsOutgoing)
-				Title = "Исходящий звонок";
-			else
-				Title = "Входящий звонок";
 		}
 
 		#region Свойства View
 
 		public string OnLineText => MangoManager.CurrentTalk?.OnHoldText;
-		public bool ShowTransferCaller => MangoManager.CurrentTalk.IsTransfer;
-		public bool ShowReturnButton => MangoManager.CurrentTalk.IsTransfer && MangoManager.IsOutgoing;
-		public bool ShowTransferButton => !MangoManager.CurrentTalk.IsTransfer;
+		public bool ShowTransferCaller => MangoManager.CurrentTalk?.IsTransfer ?? false;
+		public bool ShowReturnButton => (MangoManager.CurrentTalk?.IsTransfer ?? false) && MangoManager.IsOutgoing;
+		public bool ShowTransferButton => !MangoManager.CurrentTalk?.IsTransfer ?? true;
 
 		#endregion
 
 		#region Действия View
-		public string GetPhoneNumber()
-		{
-			return "+7"+Phone.Number;
-		}
 
 		public string GetCallerName()
 		{

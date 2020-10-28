@@ -43,14 +43,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		#region Действия View
 
-		public string GetPhoneNumber()
-		{
-			return "+7"+Phone.Number;
-		}
-
 		public void SelectNewConterparty()
 		{
-			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg,Phone>(this,Phone);
+			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg,Phone>(this, ActiveCall.Phone);
 			var tab = page.TdiTab as CounterpartyDlg;
 			page.PageClosed += NewCounerpatry_PageClosed;
 		}
@@ -68,7 +63,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
 				if(client != null) {
 					this.Close(false, CloseSource.External);
-					MangoManager.AddCounterpartyToCall(client);
+					MangoManager.AddCounterpartyToCall(client.Id);
 				} else
 					throw new Exception("При сохранении контрагента произошла ошибка, попробуйте снова." + "\n Сообщение для поддержки : UnknowTalkViewModel.NewCounterparty_PageClose()");
 			}
@@ -77,17 +72,16 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
-			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
-			Counterparty firstClient = clients.First();
-			if(interactive.Question($"Добавить телефон к контрагенту {firstClient.Name} ?", "Телефон контрагента")) {
-				if(!firstClient.Phones.Any(phone => phone.DigitsNumber == Phone.DigitsNumber)) {
-					firstClient.Phones.Add(Phone);
-					UoW.Save<Counterparty>(firstClient);
+			Counterparty client = UoW.GetById<Counterparty>(counterpartyNode.Id);
+			if(interactive.Question($"Добавить телефон к контрагенту {client.Name} ?", "Телефон контрагента")) {
+				if(!client.Phones.Any(phone => phone.DigitsNumber == ActiveCall.Phone.DigitsNumber)) {
+					client.Phones.Add(ActiveCall.Phone);
+					UoW.Save<Counterparty>(client);
 					UoW.Commit();
 				}
 			}
 			this.Close(false, CloseSource.External);
-			MangoManager.AddCounterpartyToCall(firstClient);
+			MangoManager.AddCounterpartyToCall(client.Id);
 		}
 
 		public void CreateComplaintCommand()
@@ -120,7 +114,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
 				{"nomenclatureRepository",nomenclatureRepository},
 				//Autofac: IUserRepository
-				{"phone", "+7" +MangoManager.Phone.Number }
+				{"phone", "+7" + ActiveCall.Phone.Number }
 			};
 			tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
 		}
