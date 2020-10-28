@@ -145,12 +145,19 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.List<GoodsInRouteListResult>();
 		}
 		
-		public GoodsInRouteListResult GetTerminalInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
-		{
-			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+		public GoodsInRouteListResult GetTerminalInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null) {
+			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 			
-			if (needTerminal) {
-				var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+
+			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
+			                        .JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
+			                        .Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
+			                        .And(x => x.RouteList.Id == routeList.Id)
+			                        .List();
+			
+			if (needTerminal || loadedTerminal.Any()) {
 				var terminal = uow.GetById<Nomenclature>(terminalId);
 				int amount = 1;
 
