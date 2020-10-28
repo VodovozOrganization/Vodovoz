@@ -1668,6 +1668,7 @@ namespace Vodovoz.Domain.Orders
 												  || DeliveryPoint.AlwaysFreeDelivery
 												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
 												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != paidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any())
+												  || IsOnlineStoreFreeDeliverySumReached()
 												  ;
 
 			if(IsDeliveryForFree) {
@@ -1677,10 +1678,10 @@ namespace Vodovoz.Domain.Orders
 			}
 			#endregion
 
-			var districts = DeliveryPoint?.CalculateDistricts(UoW);
+			var district = DeliveryPoint?.District;
 
 			OrderStateKey orderKey = new OrderStateKey(this);
-			var price = districts != null && districts.Any() ? districts.Max(x => x.GetDeliveryPrice(orderKey)) : 0m;
+			var price = district?.GetDeliveryPrice(orderKey) ?? 0m;
 
 			if(price != 0) {
 				if(deliveryPriceItem == null) {
@@ -1713,6 +1714,17 @@ namespace Vodovoz.Domain.Orders
 			return false;
 		}
 
+		#region OnlineStoreRules
+
+		protected bool IsOnlineStoreFreeDeliverySumReached()
+		{
+			var SumToFreeDelivery = DeliveryPoint?.District?.DistrictsSet.OnlineStoreOrderSumForFreeDelivery ?? 0m;
+			var OnlineStoreItemsSum = ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m );
+			return SumToFreeDelivery < OnlineStoreItemsSum;
+		}
+
+		#endregion
+		
 		#region test_methods_for_sidebar
 
 		/// <summary>
