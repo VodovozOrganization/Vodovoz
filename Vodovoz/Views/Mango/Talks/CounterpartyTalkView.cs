@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Mango.Talks
 			WidgetPlace.AppendPage(p_widget, p_label);
 
 			var ex_label = new Gtk.Label("Существующий контрагент");
-			var ex_widget = new Button() { Name = "Exi" };
+			var ex_widget = new Button() { Name = "Exist" };
 			WidgetPlace.AppendPage(ex_widget, ex_label);
 
 			WidgetPlace.ShowAll();
@@ -46,9 +46,12 @@ namespace Vodovoz.Views.Mango.Talks
 		#region Events
 
 		uint lastPage;
+		bool falseSwitching = false;
 
 		private void SwitchPage_WidgetPlace(object sender, SwitchPageArgs args)
 		{
+			if(falseSwitching)
+				return;
 			Notebook place = (Notebook)sender;
 			Console.WriteLine($"Текущая страница: {args.PageNum} , {place.GetTabLabelText(place.CurrentPageWidget)}");
 			if(args.PageNum == place.NPages - 1 && place.GetTabLabelText(place.CurrentPageWidget) == "Существующий контрагент") {
@@ -69,6 +72,7 @@ namespace Vodovoz.Views.Mango.Talks
 		public void Update_WidgetPlace()
 		{
 			int count = WidgetPlace.NPages;
+			falseSwitching = true;//Потому что в процессе удаления срабатывают события переключения вкладок.
 			for(int i = 0; i < count; i++) {
 				WidgetPlace.RemovePage(0);
 			}
@@ -82,10 +86,12 @@ namespace Vodovoz.Views.Mango.Talks
 			WidgetPlace.AppendPage(p_widget, p_label);
 
 			var ex_label = new Gtk.Label("Существующий контрагент");
-			var ex_widget = new Button() { Name = "Exit" };
+			var ex_widget = new Button() { Name = "Exist" };
 			WidgetPlace.AppendPage(ex_widget, ex_label);
 
 			WidgetPlace.ShowAll();
+			WidgetPlace.Page = (int)lastPage;
+			falseSwitching = false;
 
 			CostAndDeliveryIntervalButton.Sensitive =
 				ViewModel.currentCounterparty.DeliveryPoints != null ||
