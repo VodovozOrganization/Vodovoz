@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Logistic
 		NominativePlural = "адреса маршрутного листа",
 		Nominative = "адрес маршрутного листа")]
 	[HistoryTrace]
-	public class RouteListItem : PropertyChangedBase, IDomainObject
+	public class RouteListItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -785,6 +785,14 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion Зарплата
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if (CommentForFine?.Length > 1000)
+			{
+				yield return new ValidationResult($"В адресе: '{Title}' превышена максимально допустимая длина комментария по штрафу ({CommentForFine.Length}/1000)");
+			}
+		}
 	}
 
 	public enum RouteListItemStatus
