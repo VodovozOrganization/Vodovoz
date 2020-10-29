@@ -127,6 +127,28 @@ public partial class MainWindow : Gtk.Window
 		ActionExportImportNomenclatureCatalog.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
 		ActionDistricts.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
 
+		Action.Visible = false;
+		Action60.Visible = false;
+		ActionAdministration.Visible = false;
+		ActionAbout.Visible = false;
+		
+		//Заказы
+		ActionCounterpartyHandbook.Visible = false;
+		ActionLoadOrders.Visible = false;
+		ActionWarehouseStock.Visible = false;
+		ActionDeliveryPrice.Visible = false;
+		ActionUndeliveredOrders.Visible = false;
+
+		ActionStock.Visible = false;
+		ActionCash.Visible = false;
+		ActionAccounting.Visible = false;
+		ActionReports.Visible = false;
+		ActionArchive.Visible = false;
+		ActionStaff.Visible = false;
+		ActionCRM.Visible = false;
+		ActionSuppliers.Visible = false;
+		ActionComplaints.Visible = false;
+		
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle) {
 			case ToolbarStyle.Both:
