@@ -20,6 +20,7 @@ using QS.Project.Services;
 using QS.Services;
 using RdlEngine;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using fyiReporting.RdlGtkViewer;
 
 namespace Vodovoz.Dialogs.Email
 {

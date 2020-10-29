@@ -417,6 +417,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action Action68;
 
+	private global::Gtk.Action MangoAction;
+
 	private global::Gtk.Action Action69;
 
 	private global::Gtk.Action Action70;
@@ -1091,6 +1093,9 @@ public partial class MainWindow
 		this.Action68 = new global::Gtk.Action("Action68", global::Mono.Unix.Catalog.GetString("Отсрочка сети"), null, null);
 		this.Action68.ShortLabel = global::Mono.Unix.Catalog.GetString("Отсрочка сети");
 		w1.Add(this.Action68, null);
+		this.MangoAction = new global::Gtk.Action("MangoAction", global::Mono.Unix.Catalog.GetString("Mango"), null, "phone-disable");
+		this.MangoAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Mango");
+		w1.Add(this.MangoAction, null);
 		this.Action69 = new global::Gtk.Action("Action69", global::Mono.Unix.Catalog.GetString("Производство"), null, null);
 		this.Action69.ShortLabel = global::Mono.Unix.Catalog.GetString("Производство");
 		w1.Add(this.Action69, null);
@@ -1298,7 +1303,8 @@ public partial class MainWindow
 		w3.Position = 0;
 		// Container child hbox2.Gtk.Box+BoxChild
 		this.UIManager.AddUiFromString("<ui><toolbar name=\'tlbComplaints\'><toolitem name=\'ActionComplaints\' action=\'Actio" +
-				"nComplaints\'/></toolbar></ui>");
+				"nComplaints\'/><toolitem name=\'MangoAction\' action=\'MangoAction\'/></toolbar></ui>" +
+				"");
 		this.tlbComplaints = ((global::Gtk.Toolbar)(this.UIManager.GetWidget("/tlbComplaints")));
 		this.tlbComplaints.Name = "tlbComplaints";
 		this.tlbComplaints.ShowArrow = false;

@@ -130,6 +130,9 @@ namespace Vodovoz
 
 			PerformanceHelper.AddTimePoint("Закончена загрузка параметров базы и проверка версии.");
 
+			AutofacClassConfig();
+			PerformanceHelper.AddTimePoint("Закончена настройка AutoFac.");
+
 			if(QSMain.User.Login == "root") {
 				string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
 				MessageDialog md = new MessageDialog(null, DialogFlags.Modal,

@@ -5,6 +5,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using QSWidgetLib;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz.Dialogs.Phones
 {
@@ -72,6 +73,10 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.Add(phoneDataEntry);
 			hBox.SetChildPacking(phoneDataEntry,true,true,0,PackType.Start);
 
+			HandsetView handset = new HandsetView(newPhone.DigitsNumber);
+			hBox.Add(handset);
+			hBox.SetChildPacking(handset, false, false, 0, PackType.Start);
+
 			var textAdditionalLabel = new Gtk.Label("доб.");
 			hBox.Add(textAdditionalLabel);
 			hBox.SetChildPacking(textAdditionalLabel, false, false, 0, PackType.Start);
@@ -103,7 +108,7 @@ namespace Vodovoz.Dialogs.Phones
 			deleteButton.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 			hBox.Add(deleteButton);
 			hBox.SetChildPacking(deleteButton, false, false, 0, PackType.Start);
-			
+
 			hBox.Data.Add("phone", newPhone); //Для свзяки виджета и телефона
 			hBox.ShowAll();
 

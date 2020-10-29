@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using QS.DomainModel.Entity;
+using QS.Utilities.Numeric;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Contacts
@@ -19,8 +20,10 @@ namespace Vodovoz.Domain.Contacts
 		public virtual string Number {
 			get => number;
 			set {
-				if(SetField(ref number, value, () => Number))
-					DigitsNumber = Regex.Replace(Number, "[^0-9]", "");
+				var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
+				string phone = formatter.FormatString(value);
+				SetField(ref number, phone, () => Number);
+				DigitsNumber = value;
 			}
 		}
 
@@ -28,7 +31,11 @@ namespace Vodovoz.Domain.Contacts
 		[Display(Name = "Только цифры")]
 		public virtual string DigitsNumber {
 			get => digitsNumber; 
-			protected set { SetField(ref digitsNumber, value, () => DigitsNumber); }
+			protected set {
+				var formatter = new PhoneFormatter(PhoneFormat.DigitsTen);
+				string phone = formatter.FormatString(value);
+				SetField(ref digitsNumber, phone, () => DigitsNumber);
+			}
 		}
 
 		public virtual string Additional { get; set; }
@@ -66,6 +73,28 @@ namespace Vodovoz.Domain.Contacts
 		/// </summary>
 		public Phone()
 		{
+		}
+		/// <summary>
+		/// Конструктор ,который преобразует любой вид телефона к стандартному виду
+		/// Формат:
+		/// 	Phone.Number = "(XXX) XXX - XX - XX" [здесь есть пробелы!]
+		/// 	Phone.DigitsNumber = "XXXXXXXXXX" [10 цифр , без пробелов и без +7/7 ]
+		/// 	Phone.Additional = [до 10 цифр]
+		/// 	Phone.Name = [понятно]
+		/// 	Phone.LonqText = [понятно]
+		/// </summary>
+		/// <param name="number">Number.</param>
+		public Phone(string number,string name = null)
+		{
+			var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
+			string phone = formatter.FormatString(number);
+			this.number = phone;
+
+			formatter = new PhoneFormatter(PhoneFormat.DigitsTen);
+			phone = formatter.FormatString(number);
+			this.digitsNumber = phone;
+
+			this.name = name;
 		}
 
 		public virtual Phone Init(IContactsParameters contactsParameters)

@@ -20,7 +20,7 @@ namespace Vodovoz.Views.Contacts
 			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.datatablePhones = new global::Gtk.Table(((uint)(1)), ((uint)(8)), false);
+			this.datatablePhones = new global::Gtk.Table(((uint)(1)), ((uint)(9)), false);
 			this.datatablePhones.Name = "datatablePhones";
 			this.datatablePhones.ColumnSpacing = ((uint)(6));
 			this.vbox1.Add(this.datatablePhones);

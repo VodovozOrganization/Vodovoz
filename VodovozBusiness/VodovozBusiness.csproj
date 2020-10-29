@@ -801,6 +801,7 @@
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItem.cs" />
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItem.cs" />
     <Compile Include="Domain\Logistic\LateArrivalReason.cs" />
+    <Compile Include="Services\IVpbxSettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -979,5 +980,8 @@
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
+    <PackageReference Include="Dapper">
+      <Version>2.0.35</Version>
+    </PackageReference>
   </ItemGroup>
 </Project>
