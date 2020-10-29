@@ -254,22 +254,20 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			var currentState = ConnectionState;
 
-			if(CurrentCall?.CallId == message.CallId) {
-				if(CurrentPage != null)
-					navigation.ForceClosePage(CurrentPage);
-				ConnectionState = ConnectionState.Connected;
+			if(CurrentPage != null && (CurrentCall?.CallId == message.CallId || ConnectionState == ConnectionState.Ring)){
+				navigation.ForceClosePage(CurrentPage);
 			}
 			TryRemoveCall(message);
 
-			if(currentState == ConnectionState.Ring) {
-				//HACK к сожалению другие способы уменьшения окна с телефонами не сработали. Поэтому просто преотрываем окно.
-				if(CurrentPage != null)
-					navigation.ForceClosePage(CurrentPage);
-				if(RingingCalls.Any()) {
-					OpenRingDlg();
-				} else
-					ConnectionState = ConnectionState.Connected;
-			}
+			//Если есть какие то другие текущие звонки, создаем соответсвующие диалоги в порядке приоритета.
+			if(CurrentTalk != null)
+				OpenTalkDlg();
+			else if(CurrentOutgoingRing != null)
+				OpenRingDlg();
+			else if(CurrentHold != null)
+				OpenTalkDlg();
+			else if(RingingCalls.Any())
+				OpenRingDlg();
 		}
 
 		private void HandleOnHold(NotificationMessage message)
