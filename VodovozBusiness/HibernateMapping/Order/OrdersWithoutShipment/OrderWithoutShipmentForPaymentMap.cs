@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping.Order.OrdersWithoutShipment
             Table("bills_without_shipment_for_payment");
 
             Id(x => x.Id).Column("id").GeneratedBy.Native();
-            Map(x => x.CreateDate).Column("create_date");
+            Map(x => x.CreateDate).Column("create_date").ReadOnly();
             Map (x => x.IsBillWithoutShipmentSent).Column ("is_bill_sent");
 
             References(x => x.Author).Column("author_id");
