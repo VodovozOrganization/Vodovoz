@@ -16,7 +16,6 @@ using QSProjectsLib;
 using QSSupportLib;
 using SmsPaymentService;
 using Vodovoz.Core.DataService;
-using Vodovoz.EntityRepositories.Payments;
 
 namespace VodovozSmsPaymentService
 {
@@ -109,14 +108,11 @@ namespace VodovozSmsPaymentService
 				
 				var smsPaymentFileCache = new SmsPaymentFileCache("/tmp/VodovozSmsPaymentServiceTemp.txt");
 
-				var cashlessPaymentRepository = new CashlessPaymentRepository();
-
 				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
 					paymentSender, 
 					driverPaymentService,
 					new BaseParametersProvider(),
-					smsPaymentFileCache,
-					cashlessPaymentRepository
+					smsPaymentFileCache
 				);
 
 				ServiceHost smsPaymentServiceHost = new SmsPaymentServiceHost(smsPaymentServiceInstanceProvider);

@@ -1,14 +1,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Payments;
 
 namespace Vodovoz.Domain
 {
@@ -83,13 +80,12 @@ namespace Vodovoz.Domain
 
         #region Функции
 
-        public virtual SmsPayment SetPaid(IUnitOfWork uow, DateTime datePaid, PaymentFrom paymentFrom, ICashlessPaymentRepository cashlessPaymentRepository)
+        public virtual SmsPayment SetPaid(IUnitOfWork uow, DateTime datePaid, PaymentFrom paymentFrom)
         {
             SmsPaymentStatus = SmsPaymentStatus.Paid;
             PaidDate = datePaid;
             Order.OnlineOrder = ExternalId;
-            Order.PaymentType = PaymentType.ByCard;
-            Order.CheckAndUpdateOrderPaymentStatus(uow, cashlessPaymentRepository);
+            Order.PaymentType = PaymentType.ByCard;    
             Order.PaymentByCardFrom = paymentFrom;
             
             foreach (var routeListItem in uow.Session.QueryOver<RouteListItem>().Where(x => x.Order.Id == Order.Id).List<RouteListItem>()) {

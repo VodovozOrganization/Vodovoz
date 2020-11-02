@@ -470,7 +470,7 @@ namespace Vodovoz.ViewModels
 			UoW.Save(Entity.CashlessMovementOperation);
 
 			foreach(PaymentItem item in Entity.ObservableItems) {
-				item.UpdateExpenseOperation();
+				item.CreateExpenseOperation();
 				UoW.Save(item.CashlessMovementOperation);
 			}
 		}

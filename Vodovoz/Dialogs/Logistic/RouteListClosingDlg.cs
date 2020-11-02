@@ -47,7 +47,6 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
-using Vodovoz.EntityRepositories.Payments;
 
 namespace Vodovoz
 {
@@ -686,7 +685,6 @@ namespace Vodovoz
 		}
 
 		public override bool Save() {
-			ReturnPaymentToClientIfNeeded();
 			var valid = new QSValidator<RouteList>(Entity,
 				new Dictionary<object, object>{{nameof(IRouteListItemRepository), new RouteListItemRepository()}});
 			
@@ -705,14 +703,6 @@ namespace Vodovoz
 			UoW.Save();
 
 			return true;
-		}
-
-		private void ReturnPaymentToClientIfNeeded()
-		{
-			var orderRepository =  OrderSingletonRepository.GetInstance();
-			foreach(var address in Entity.Addresses) {
-				address.Order.ReturnPaymentToTheClientBalanceIfNeeded(UoW, new CashlessPaymentRepository());
-			}
 		}
 
 		private bool ValidateOrders()
