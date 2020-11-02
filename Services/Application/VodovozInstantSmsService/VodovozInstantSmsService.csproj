@@ -30,6 +30,10 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c">
+      <HintPath>..\..\..\packages\NLog.4.7.5\lib\net45\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="Mono.Posix" />
@@ -42,9 +46,6 @@
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.ServiceModel.Web" />
-    <Reference Include="NLog">
-      <HintPath>..\..\..\packages\NLog.4.7.2\lib\net45\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="Nini">
       <HintPath>..\..\..\packages\Trove.Nini.1.1.0.0\lib\net20\Nini.dll</HintPath>
     </Reference>
@@ -57,11 +58,11 @@
     <Compile Include="InstantSmsServiceHost.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\..\VodovozInstantSmsService\packages.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Library\InstantSmsService\InstantSmsService.csproj">
