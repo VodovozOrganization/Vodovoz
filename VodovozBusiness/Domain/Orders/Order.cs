@@ -30,9 +30,11 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Client;
+using Vodovoz.Repositories.Payments;
 using Vodovoz.Repository.Client;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
@@ -53,7 +55,8 @@ namespace Vodovoz.Domain.Orders
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
-		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
+		private IOrderRepository innerOrderRepository { get; set; } = OrderSingletonRepository.GetInstance();
+		private ICashlessPaymentRepository innerCashlessPaymentRepository { get; set; } = new CashlessPaymentRepository();
 
 		public virtual IInteractiveQuestion TaskCreationQuestion { get; set; }
 
@@ -123,7 +126,7 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == client)
 					return;
-				if(orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
+				if(innerOrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
 					OnPropertyChanged(nameof(Client));
@@ -151,7 +154,7 @@ namespace Vodovoz.Domain.Orders
 			get => deliveryPoint;
 			set {
 				//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
-				if(orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)
+				if(innerOrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)
 				   //чтобы не обрабатывались действия при изменении только точки доставки
 				   //когда меняется клиент (так как вместе с ним обязательно будет менять еще и точка доставки)
 				   && deliveryPoint != null && Client.DeliveryPoints.Any(d => d.Id == deliveryPoint.Id)) {
@@ -360,7 +363,7 @@ namespace Vodovoz.Domain.Orders
 					}
 					
 					//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
-					if(Client != null && orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
+					if(Client != null && innerOrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
 						OnChangePaymentType();
 				}
 			}
@@ -1164,7 +1167,6 @@ namespace Vodovoz.Domain.Orders
 			if(actualContract == null) {
 				actualContract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
 				Contract = actualContract;
-				AddContractDocument(actualContract);
 			}
 
 			if(actualContract != oldContract) {
@@ -1614,6 +1616,7 @@ namespace Vodovoz.Domain.Orders
 				DeliveryPoint = Client.DeliveryPoints.FirstOrDefault();
 
 			PaymentType = Client.PaymentMethod;
+			CheckAndUpdateOrderPaymentStatus(UoW, innerCashlessPaymentRepository);
 			ChangeOrderContract();
 		}
 
@@ -1665,6 +1668,7 @@ namespace Vodovoz.Domain.Orders
 												  || DeliveryPoint.AlwaysFreeDelivery
 												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
 												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != paidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any())
+												  || IsOnlineStoreFreeDeliverySumReached()
 												  ;
 
 			if(IsDeliveryForFree) {
@@ -1674,10 +1678,10 @@ namespace Vodovoz.Domain.Orders
 			}
 			#endregion
 
-			var districts = DeliveryPoint?.CalculateDistricts(UoW);
+			var district = DeliveryPoint?.District;
 
 			OrderStateKey orderKey = new OrderStateKey(this);
-			var price = districts != null && districts.Any() ? districts.Max(x => x.GetDeliveryPrice(orderKey)) : 0m;
+			var price = district?.GetDeliveryPrice(orderKey) ?? 0m;
 
 			if(price != 0) {
 				if(deliveryPriceItem == null) {
@@ -1710,6 +1714,17 @@ namespace Vodovoz.Domain.Orders
 			return false;
 		}
 
+		#region OnlineStoreRules
+
+		protected bool IsOnlineStoreFreeDeliverySumReached()
+		{
+			var SumToFreeDelivery = DeliveryPoint?.District?.DistrictsSet.OnlineStoreOrderSumForFreeDelivery ?? 0m;
+			var OnlineStoreItemsSum = ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m );
+			return SumToFreeDelivery < OnlineStoreItemsSum;
+		}
+
+		#endregion
+		
 		#region test_methods_for_sidebar
 
 		/// <summary>
@@ -2819,7 +2834,8 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.DeliveryCanceled:
 				case OrderStatus.NotDelivered:
 				case OrderStatus.Canceled:
-					ChangeOrderPaymentStatus();
+					// FIXME Это должно делаться в другом месте
+					CheckAndUpdateOrderPaymentStatus(UoW, innerCashlessPaymentRepository);
 					break;
 				default:
 					break;
@@ -2844,38 +2860,98 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 		
-
-		public virtual void ChangeOrderPaymentStatus()
+		public virtual void CheckAndUpdateOrderPaymentStatus(IUnitOfWork uow, ICashlessPaymentRepository cashlessPaymentRepository)
 		{
-			var paymentItems = orderRepository.GetPaymentItemsForOrder(UoW, Id);
-
-			if (!paymentItems.Any()) 
+			if (PaymentType != PaymentType.cashless) {
+				orderPaymentStatus = OrderPaymentStatus.None;
 				return;
-			
-			var paymentSum = paymentItems.Select(x => x.CashlessMovementOperation).Sum(x => x.Expense);
+			}
 
-			if (paymentSum == 0)
+			if (Id == 0) {
 				return;
-			
-			if (OrderPaymentStatus != OrderPaymentStatus.UnPaid)
-			{
-				ReturnPaymentToTheClientBalance(paymentSum, paymentItems);
-				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+			}
+
+			var operationsSum = cashlessPaymentRepository.GetCashlessMovementOperationsSumForOrder(uow, Id);
+
+			if (operationsSum < 0) {
+				throw new InvalidOperationException("Сумма платежа меньше нуля");
+			}
+
+			if (operationsSum == 0) {
+				orderPaymentStatus = OrderPaymentStatus.UnPaid;
+				return;
+			}
+
+			if (operationsSum < ActualTotalSum) {
+				orderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+				return; 
+			}
+
+			if (operationsSum >= ActualTotalSum) {
+				orderPaymentStatus = OrderPaymentStatus.Paid;
+				return;
 			}
 		}
 
-		private void ReturnPaymentToTheClientBalance(decimal paymentSum, IList<PaymentItem> paymentItems)
+		public virtual void ReturnPaymentToTheClientBalanceIfNeeded(IUnitOfWork uow, ICashlessPaymentRepository cashlessPaymentRepository)
 		{
-			var payment = paymentItems.Select(x => x.Payment).FirstOrDefault();
+			if (uow == null) throw new ArgumentNullException(nameof(uow));
+			if (cashlessPaymentRepository == null) throw new ArgumentNullException(nameof(cashlessPaymentRepository));
 
-			if (payment == null)
+			if (orderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
+			{
 				return;
+			}
+
+			var paymentItems = cashlessPaymentRepository.GetPaymentItemsForOrder(uow, Id);
+			var operationsSum = cashlessPaymentRepository.GetCashlessMovementOperationsSumForOrder(uow, Id);
+
+			decimal returnPaymentSum = 0;
+
+			if (paymentType != PaymentType.cashless) {
+				returnPaymentSum = ActualTotalSum;
+			} else {
+				if(operationsSum > ActualTotalSum) {
+					returnPaymentSum = operationsSum - ActualTotalSum;
+				}
+			}
+
+			if (returnPaymentSum == 0)
+			{
+				return;
+			}
 			
-			var newPayment = payment.CreatePaymentForReturnMoneyToClientBalance(paymentSum, this.Id);
-			newPayment.CreateIncomeOperation();
+			foreach (var paymentItem in paymentItems.Reverse())
+			{
+				if (paymentItem.Payment == null)
+					continue;
+
+				if (paymentItem.ActualSum >= returnPaymentSum)
+				{
+					returnToClient(returnPaymentSum);
+
+					return;
+				}
+				else
+				{
+					returnToClient(paymentItem.ActualSum);
+
+					returnPaymentSum -= paymentItem.ActualSum;
+				}
+			}
+		}
+
+		protected void returnToClient(decimal sum)
+		{
+			var paymentReturn = new PaymentReturn()
+			{
+				Order = this,
+				Sum = sum
+			};
 			
-			UoW.Save(newPayment.CashlessMovementOperation);
-			UoW.Save(newPayment);
+			paymentReturn.UpdateOperation();
+			
+			UoW.Save(paymentReturn);
 		}
 
 		/// <summary>
@@ -3363,7 +3439,7 @@ namespace Vodovoz.Domain.Orders
 			bool isValidCondition = amountDelivered != 0;
 			isValidCondition |= returnByStock > 0;
 			isValidCondition |= forfeitQuantity > 0;
-			isValidCondition &= !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus);
+			isValidCondition &= !innerOrderRepository.GetUndeliveryStatuses().Contains(OrderStatus);
 
 			if(isValidCondition) {
 				if(BottlesMovementOperation == null) {
@@ -3423,6 +3499,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual void ChangePaymentTypeToByCard (CallTaskWorker callTaskWorker)
 		{
 			PaymentType = PaymentType.ByCard;
+			CheckAndUpdateOrderPaymentStatus(UoW, innerCashlessPaymentRepository);
 			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
 		}
 
@@ -4020,11 +4097,11 @@ namespace Vodovoz.Domain.Orders
 
 					//создание нескольких заказов на одну дату и точку доставки
 					if(!SelfDelivery && DeliveryPoint != null) {
-						var ordersForDeliveryPoints = orderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
+						var ordersForDeliveryPoints = innerOrderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
 																	 .Where(
 																		 o => o.Id != Id
 																		 && o.DeliveryDate == DeliveryDate
-																		 && !orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
+																		 && !innerOrderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
 																		 && !o.IsService
 																		);
 

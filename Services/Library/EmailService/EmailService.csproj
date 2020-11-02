@@ -27,6 +27,14 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NHibernate, Version=5.3.0.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4">
+      <HintPath>..\..\..\packages\NHibernate.5.3.4\lib\net461\NHibernate.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c">
+      <HintPath>..\..\..\packages\NLog.4.7.5\lib\net45\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="Microsoft.CSharp" />
@@ -40,9 +48,6 @@
     <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="NLog">
-      <HintPath>..\..\..\packages\NLog.4.7.2\lib\net45\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -60,9 +65,6 @@
     </Reference>
     <Reference Include="Remotion.Linq.EagerFetching">
       <HintPath>..\..\..\packages\Remotion.Linq.EagerFetching.2.2.0\lib\net45\Remotion.Linq.EagerFetching.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate">
-      <HintPath>..\..\..\packages\NHibernate.5.2.7\lib\net461\NHibernate.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

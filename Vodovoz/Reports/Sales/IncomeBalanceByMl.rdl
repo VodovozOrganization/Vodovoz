@@ -2525,22 +2525,33 @@ FROM
 
     LEFT JOIN # ПланПриход
     (
-        SELECT
-            orders.id AS order_id,
-            route_list_addresses.route_list_id as rl_id,
-            ROUND(
-                SUM(IFNULL(order_items.price * order_items.count - order_items.discount_money, 0))
-                - SUM(IFNULL(order_deposit_items.count * order_deposit_items.deposit_sum, 0)) + SUM(orders.extra_money)
-            , 2) AS TotalOrdersSum
+        SELECT rl_id, ROUND(SUM(TotalOrdersSum),2) AS TotalOrdersSum
+        FROM
+        (SELECT
+           route_list_addresses.route_list_id as rl_id,
+           SUM(IFNULL(order_items.price * order_items.count - order_items.discount_money, 0)) + SUM(orders.extra_money) AS TotalOrdersSum
         FROM
             orders
-            LEFT JOIN order_items ON order_items.order_id = orders.id
-            LEFT JOIN order_deposit_items ON order_deposit_items.order_id = orders.id
-            JOIN route_list_addresses ON route_list_addresses.order_id = orders.id
+        LEFT JOIN order_items ON order_items.order_id = orders.id
+        JOIN route_list_addresses ON route_list_addresses.order_id = orders.id
         WHERE
             orders.payment_type IN ('cash','BeveragesWorld')
             AND route_list_addresses.was_transfered = 0
         GROUP BY route_list_addresses.route_list_id
+        UNION
+        SELECT
+            route_list_addresses.route_list_id as rl_id,
+            - SUM(IFNULL(order_deposit_items.count * order_deposit_items.deposit_sum, 0)) AS TotalOrdersSum
+        FROM
+            orders
+        LEFT JOIN order_deposit_items ON order_deposit_items.order_id = orders.id
+        JOIN route_list_addresses ON route_list_addresses.order_id = orders.id
+        WHERE
+            orders.payment_type IN ('cash','BeveragesWorld')
+            AND route_list_addresses.was_transfered = 0
+        GROUP BY route_list_addresses.route_list_id
+        ) AS OrdersSum
+        GROUP BY rl_id
     ) AS Orders ON Orders.rl_id = route_lists.id
 
     LEFT JOIN # ПКО

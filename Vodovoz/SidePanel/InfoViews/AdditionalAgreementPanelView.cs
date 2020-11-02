@@ -159,7 +159,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public void OnCurrentObjectChanged(object changedObject)
 		{
-			if(changedObject is DeliveryPoint deliveryPoint)
+			if(changedObject is DeliveryPoint || changedObject is CounterpartyContract)
 				Refresh();
 		}
 

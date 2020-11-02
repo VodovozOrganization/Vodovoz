@@ -10,6 +10,8 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -21,9 +23,11 @@ namespace SmsPaymentService
             IPaymentController paymentController, 
             IDriverPaymentService androidDriverService, 
             ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider,
-            SmsPaymentFileCache smsPaymentFileCache
-        )
+            SmsPaymentFileCache smsPaymentFileCache,
+			ICashlessPaymentRepository cashlessPaymentRepository
+		)
         {
+            this.cashlessPaymentRepository = cashlessPaymentRepository;
             this.paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
             this.androidDriverService = androidDriverService ?? throw new ArgumentNullException(nameof(androidDriverService));
             this.smsPaymentServiceParametersProvider = smsPaymentServiceParametersProvider ?? throw new ArgumentNullException(nameof(smsPaymentServiceParametersProvider));
@@ -31,7 +35,8 @@ namespace SmsPaymentService
         }
         
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly IPaymentController paymentController;
+        private readonly ICashlessPaymentRepository cashlessPaymentRepository;
+        private readonly IPaymentController paymentController;
 		private readonly IDriverPaymentService androidDriverService;
         private readonly ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider;
         private readonly SmsPaymentFileCache smsPaymentFileCache;
@@ -143,7 +148,7 @@ namespace SmsPaymentService
 
                     switch (status) {
                         case SmsPaymentStatus.Paid:
-                            payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
+                            payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId), cashlessPaymentRepository);
                             break;
                         case SmsPaymentStatus.Cancelled:
                             payment.SetCancelled();
@@ -210,7 +215,7 @@ namespace SmsPaymentService
                                 payment.SetWaitingForPayment();
                                 break;
                             case SmsPaymentStatus.Paid:
-                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
+                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId), cashlessPaymentRepository);
                                 break;
                             case SmsPaymentStatus.Cancelled:
                                 payment.SetCancelled();
@@ -328,7 +333,7 @@ namespace SmsPaymentService
                                 payment.SetWaitingForPayment();
                                 break;
                             case SmsPaymentStatus.Paid:
-                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
+                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId), cashlessPaymentRepository);
                                 break;
                             case SmsPaymentStatus.Cancelled:
                                 payment.SetCancelled();

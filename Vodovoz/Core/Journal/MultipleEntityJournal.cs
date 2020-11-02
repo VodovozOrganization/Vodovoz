@@ -250,7 +250,7 @@ namespace Vodovoz.Core.Journal
 
 		public object[] SelectedNodes => tableview.GetSelectedObjects();
 
-		public void OnObjectSelected(params object[] nodes)
+		public void OnObjectSelected(params object[] selectedNodes)
 		{
 			throw new NotImplementedException("Не реализован выбор документов для журналов с документами различных типов");
 		}

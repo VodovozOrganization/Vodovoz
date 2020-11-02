@@ -455,7 +455,7 @@ namespace Vodovoz
 		{
 			this.TabParent.AddSlaveTab(
 				this,
-				new FineDlg(default(decimal), Entity)
+				new FineDlg(Entity)
 			);
 		}
 

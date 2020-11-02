@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using GeoAPI.Geometries;
 using GMap.NET;
 using NetTopologySuite.Geometries;
 using QS.Commands;
