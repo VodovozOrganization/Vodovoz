@@ -27,6 +27,8 @@ namespace Vodovoz.ViewWidgets
 		public PermissionCommentView()
 		{
 			this.Build();
+			ytextviewComment.Buffer.Changed += (sender, args) => 
+				CommentChanged?.Invoke(Comment);
 		}
 
 		public void UpdateUI()

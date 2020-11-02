@@ -146,7 +146,11 @@ namespace Vodovoz
 			permissioncommentview.Comment = Entity.CashierReviewComment;
 			permissioncommentview.PermissionName = "can_edit_cashier_review_comment";
 			permissioncommentview.Comment = Entity.CashierReviewComment;
-			permissioncommentview.CommentChanged += (comment) => Entity.CashierReviewComment = comment;
+			permissioncommentview.CommentChanged += (comment) => { 
+				Entity.CashierReviewComment = comment;
+				HasChanges = true;
+			};
+			
 			
 			canCloseRoutelist = PermissionRepository.HasAccessToClosingRoutelist();
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
@@ -686,6 +690,8 @@ namespace Vodovoz
 			var valid = new QSValidator<RouteList>(Entity,
 				new Dictionary<object, object>{{nameof(IRouteListItemRepository), new RouteListItemRepository()}});
 			
+			permissioncommentview.Save();
+
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
 
@@ -696,7 +702,6 @@ namespace Vodovoz
 			if(!TrySetCashier()) {
 				return false;
 			}
-			permissioncommentview.Save();
 			UoW.Save();
 
 			return true;
