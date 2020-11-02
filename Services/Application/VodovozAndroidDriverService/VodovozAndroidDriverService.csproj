@@ -50,8 +50,8 @@
       <HintPath>..\..\..\packages\K4os.Compression.LZ4.Streams.1.2.6\lib\net46\K4os.Compression.LZ4.Streams.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MySql.Data, Version=8.0.22.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
-      <HintPath>..\..\..\packages\MySql.Data.8.0.22\lib\net452\MySql.Data.dll</HintPath>
+    <Reference Include="MySql.Data, Version=8.0.19.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
+      <HintPath>..\..\..\packages\MySql.Data.8.0.19\lib\net452\MySql.Data.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NetTopologySuite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=f580a05016ebada1">
@@ -70,8 +70,8 @@
       <HintPath>..\..\..\packages\NHibernate.Spatial.6.0.0\lib\netstandard2.0\NHibernate.Spatial.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NHibernate.Spatial.MySQL, Version=6.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\packages\NHibernate.Spatial.MySQL.6.0.0\lib\netstandard2.0\NHibernate.Spatial.MySQL.dll</HintPath>
+    <Reference Include="NHibernate.Spatial.MySQL, Version=5.3.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\packages\NHibernate.Spatial.MySQL.5.3.0\lib\netstandard2.0\NHibernate.Spatial.MySQL.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c">
@@ -126,11 +126,7 @@
       <HintPath>..\..\..\packages\Iesi.Collections.4.0.4\lib\net461\Iesi.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Ubiety.Dns.Core, Version=2.2.1.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
-      <HintPath>..\..\..\packages\MySql.Data.8.0.22\lib\net452\Ubiety.Dns.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Zstandard.Net, Version=1.1.7.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
-      <HintPath>..\..\..\packages\MySql.Data.8.0.22\lib\net452\Zstandard.Net.dll</HintPath>
+      <HintPath>..\..\..\packages\MySql.Data.8.0.19\lib\net452\Ubiety.Dns.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
