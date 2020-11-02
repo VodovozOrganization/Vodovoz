@@ -123,7 +123,7 @@
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
-    <PackageReference Include="MySql.Data" Version="8.0.22" />
+    <PackageReference Include="MySql.Data" Version="8.0.19" />
     <PackageReference Include="NHibernate" Version="5.3.4" />
     <PackageReference Include="NLog" Version="4.7.5" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />

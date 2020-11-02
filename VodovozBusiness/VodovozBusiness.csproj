@@ -957,12 +957,12 @@
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
     <PackageReference Include="MySql.Data" Version="8.0.19" />
-    <PackageReference Include="NetTopologySuite" Version="2.1.0" />
+    <PackageReference Include="NetTopologySuite" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.IO" Version="1.14.0.1" />
     <PackageReference Include="NHibernate" Version="5.3.4" />
-    <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
+    <PackageReference Include="NHibernate.Spatial" Version="5.3.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="5.3.0" />
     <PackageReference Include="NLog" Version="4.7.5" />
     <PackageReference Include="Polylines" Version="1.0.0" />
