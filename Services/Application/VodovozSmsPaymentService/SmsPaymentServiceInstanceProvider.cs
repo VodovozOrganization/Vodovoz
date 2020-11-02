@@ -3,7 +3,6 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
 using SmsPaymentService;
-using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
 
 namespace VodovozSmsPaymentService
@@ -14,28 +13,26 @@ namespace VodovozSmsPaymentService
 		private readonly IDriverPaymentService driverPaymentService;
 		private readonly ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider;
 		private readonly SmsPaymentFileCache smsPaymentFileProdiver;
-		private readonly ICashlessPaymentRepository cashlessPaymentRepository;
 
 		public SmsPaymentServiceInstanceProvider(
 			IPaymentController paymentController, 
 			IDriverPaymentService driverPaymentService, 
 			ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider,
-			SmsPaymentFileCache smsPaymentFileProdiver,
-			ICashlessPaymentRepository cashlessPaymentRepository
+			SmsPaymentFileCache smsPaymentFileProdiver
 		)
 		{
 			this.paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
 			this.driverPaymentService = driverPaymentService ?? throw new ArgumentNullException(nameof(driverPaymentService));
 			this.smsPaymentServiceParametersProvider = smsPaymentServiceParametersProvider ?? throw new ArgumentNullException(nameof(smsPaymentServiceParametersProvider));
 			this.smsPaymentFileProdiver = smsPaymentFileProdiver ?? throw new ArgumentNullException(nameof(smsPaymentFileProdiver));
-			this.cashlessPaymentRepository = cashlessPaymentRepository;
+
 		}
 
 		#region IInstanceProvider implementation
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new SmsPaymentService.SmsPaymentService(paymentController, driverPaymentService, smsPaymentServiceParametersProvider, smsPaymentFileProdiver, cashlessPaymentRepository);
+			return new SmsPaymentService.SmsPaymentService(paymentController, driverPaymentService, smsPaymentServiceParametersProvider, smsPaymentFileProdiver);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

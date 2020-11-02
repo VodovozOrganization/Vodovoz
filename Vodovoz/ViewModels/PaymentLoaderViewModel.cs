@@ -170,7 +170,7 @@ namespace Vodovoz.ViewModels
 			UoW.Save(payment.CashlessMovementOperation);
 
 			foreach(PaymentItem item in payment.ObservableItems) {
-				item.UpdateExpenseOperation();
+				item.CreateExpenseOperation();
 				UoW.Save(item.CashlessMovementOperation);
 			}
 		}
