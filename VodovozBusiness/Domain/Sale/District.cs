@@ -5,7 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Gamma.Utilities;
-using NetTopologySuite.Geometries;
+using GeoAPI.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -39,9 +39,9 @@ namespace Vodovoz.Domain.Sale
 			set => SetField(ref tariffZone, value, () => TariffZone);
 		}
 
-		private Geometry districtBorder;
+		private IGeometry districtBorder;
 		[Display(Name = "Граница")]
-		public virtual Geometry DistrictBorder {
+		public virtual IGeometry DistrictBorder {
 			get => districtBorder;
 			set => SetField(ref districtBorder, value, () => DistrictBorder);
 		}
