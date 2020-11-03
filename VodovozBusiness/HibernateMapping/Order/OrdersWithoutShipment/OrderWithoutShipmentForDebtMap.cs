@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping.Order.OrdersWithoutShipment
             Table("bills_without_shipment_for_debt");
 
             Id(x => x.Id).Column("id").GeneratedBy.Native();
-            Map(x => x.CreateDate).Column("create_date");
+            Map(x => x.CreateDate).Column("create_date").ReadOnly();
             Map(x => x.DebtName).Column("debt_name");
             Map(x => x.DebtSum).Column("debt_sum");
             Map (x => x.IncludeNDS).Column ("include_nds");

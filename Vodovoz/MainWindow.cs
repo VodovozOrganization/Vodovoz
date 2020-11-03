@@ -74,6 +74,7 @@ using Vodovoz.JournalSelector;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ReportsParameters.Production;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -849,7 +850,28 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenRoutesListRegisterReport();
 	protected void OnActionOrderedByIdRoutesListRegisterActivated(object sender, EventArgs e) => OpenDriverRoutesListRegisterReport();
-
+	protected void OnActionProducedProductionReportActivated(object sender, EventArgs e)
+	{
+		#region DependencyCreation
+		var nomenclatureRepository = new NomenclatureRepository();
+		
+		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		
+		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
+				UserSingletonRepository.GetInstance());
+		
+		#endregion
+		
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ProducedProductionReport>(),
+			() => new QSReport.ReportViewDlg(new ProducedProductionReport(counterpartySelectorFactory, nomenclatureSelectorFactory, nomenclatureRepository))
+		);
+	}
+	
 	protected void OpenRoutesListRegisterReport()
 	{
 		tdiMain.OpenTab(
@@ -1676,5 +1698,4 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	
 }

@@ -120,6 +120,7 @@ namespace Vodovoz.Representations
 		public int SubdivisionId { get; set; }
 		public string SubdivisionName { get; set; }
 		public int? WarehouseId { get; set; }
+
 		public string WarehouseName { get; set; }
 		public bool IsArchiveWarehouse { get; set; }
 

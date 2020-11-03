@@ -1095,9 +1095,12 @@ namespace Vodovoz.Domain.Logistic
 
 			if(validationContext.Items.ContainsKey(nameof(IRouteListItemRepository))) {
 				IRouteListItemRepository rliRepository = (IRouteListItemRepository)validationContext.Items[nameof(IRouteListItemRepository)];
-				foreach(var item in Addresses) {
-					if(rliRepository.AnotherRouteListItemForOrderExist(UoW, item))
+				foreach(var address in Addresses) {
+					if(rliRepository.AnotherRouteListItemForOrderExist(UoW, address))
 						yield return new ValidationResult($"Один из адрессов, находится в другом МЛ");
+					
+					foreach (var result in address.Validate(new ValidationContext(address)))
+						yield return result;
 				}
 			} else {
 				throw new ArgumentException($"Для валидации МЛ должен быть доступен {typeof(IRouteListRepository)}");

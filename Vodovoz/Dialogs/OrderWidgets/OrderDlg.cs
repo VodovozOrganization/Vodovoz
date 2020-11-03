@@ -521,10 +521,12 @@ namespace Vodovoz
 
 			Entity.PropertyChanged += (sender, args) =>
 			{
-				if (args.PropertyName == nameof(Order.OrderStatus))
-				{
-					CurrentObjectChanged?.Invoke(this,new CurrentObjectChangedArgs(Entity.OrderStatus));
-				}
+				if(args.PropertyName == nameof(Order.OrderStatus)) {
+					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderStatus));
+				} 
+				else if(args.PropertyName == nameof(Order.Contract)) {
+					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
+				} 
 			};
 		}
 
@@ -3031,6 +3033,11 @@ namespace Vodovoz
 		{
 			var promoSetColumn = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Entity.PromotionalSets)).FirstOrDefault();
 			promoSetColumn.Visible = Entity.PromotionalSets.Count > 0;
+		}
+
+		protected void OnYBtnAddCurrentContractClicked(object sender, EventArgs e)
+		{
+			Order.AddContractDocument(Order.Contract);
 		}
 	}
 }
