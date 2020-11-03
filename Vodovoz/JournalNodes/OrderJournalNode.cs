@@ -40,7 +40,7 @@ namespace Vodovoz.JournalNodes
 
 		public string ViewType { get; set; }
 
-		public DateTime Date { get; set; }
+		public DateTime? Date { get; set; }
 		public DateTime CreateDate { get; set; }
 		public bool IsSelfDelivery { get; set; }
 		public string DeliveryTime { get; set; }
