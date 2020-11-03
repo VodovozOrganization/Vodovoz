@@ -1996,6 +1996,8 @@ namespace Vodovoz.Domain.Logistic
 		InLoading,
 		[Display(Name = "В пути")]
 		EnRoute,
+		[Display(Name = "Доставлен")]
+		Delivered,
 		[Display(Name = "Сдаётся")]
 		OnClosing,
 		[Display(Name = "Проверка километража")]
