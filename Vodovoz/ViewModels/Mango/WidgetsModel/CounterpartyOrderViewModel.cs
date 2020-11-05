@@ -96,8 +96,7 @@ namespace Vodovoz.ViewModels.Mango
 			OnPropertyChanged(nameof(LatestOrder));
 		}
 		#endregion
-
-
+		
 		public void OpenMoreInformationAboutCounterparty()
 		{
 			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg, int>(null, Client.Id, OpenPageOptions.IgnoreHash);
@@ -119,32 +118,24 @@ namespace Vodovoz.ViewModels.Mango
 			if(order.OrderStatus == OrderStatus.NewOrder ||
 				order.OrderStatus == OrderStatus.Accepted ||
 				order.OrderStatus == OrderStatus.OnLoading
-				//FIXME WaitForPayment?
-				//FIXME UnloadingOnStock?
-				) {
+			) {
 				tdiNavigation.OpenTdiTab<RouteListCreateDlg>(null);
-
 			} else if(order.OrderStatus == OrderStatus.OnTheWay ||
-				order.OrderStatus == OrderStatus.InTravelList ||
-				order.OrderStatus == OrderStatus.Closed
-				//FIXME NotDelivered?
-				) {
-
+			          order.OrderStatus == OrderStatus.InTravelList ||
+			          order.OrderStatus == OrderStatus.Closed
+			) {
 				RouteList routeList = routedListRepository.GetRouteListByOrder(UoW, order);
 				if(routeList != null)
 					tdiNavigation.OpenTdiTab<RouteListKeepingDlg, RouteList>(null, routeList);
-
-
+				
 			} else if (order.OrderStatus == OrderStatus.Shipped) {
-
 				RouteList routeList = routedListRepository.GetRouteListByOrder(UoW, order);
 				if(routeList != null)
 					tdiNavigation.OpenTdiTab<RouteListClosingDlg,RouteList>(null, routeList);
 			}
-
 		}
 
-		public void OpenUnderlivery(Order order)
+		public void OpenUndelivery(Order order)
 		{
 			var page = tdiNavigation.OpenTdiTab<UndeliveriesView>(null);
 			var dlg = page.TdiTab as UndeliveriesView;
@@ -223,21 +214,16 @@ namespace Vodovoz.ViewModels.Mango
 					{"order", order},
 					{"uowBuilder", EntityUoWBuilder.ForCreate()},
 					{ "unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory },
-					//Autofac: IEmployeeService 
 					{"employeeSelectorFactory", employeeSelectorFactory},
 					{"counterpartySelectorFactory", counterpartySelectorFactory},
 					{"subdivisionService",subdivisionRepository},
-					//Autofac: ICommonServices
 					{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
 					{"nomenclatureRepository",nomenclatureRepository},
-					//Autofac: IUserRepository
 					{"phone", "+7" +this.MangoManager.CurrentCall.Phone.Number }
 				};
 				tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
 			}
 		}
 		#endregion
-
-
 	}
 }
