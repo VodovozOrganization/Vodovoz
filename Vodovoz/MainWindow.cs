@@ -826,8 +826,8 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenRoutesListRegisterReport();
-	protected void OnActionOrderedByIdRoutesListRegisterActivated(object sender, EventArgs e) => OpenDriverRoutesListRegisterReport();
+	protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenDriverRoutesListRegisterReport();
+	protected void OnActionOrderedByIdRoutesListRegisterActivated(object sender, EventArgs e) => OpenRoutesListRegisterReport();
 	protected void OnActionProducedProductionReportActivated(object sender, EventArgs e)
 	{
 		#region DependencyCreation
