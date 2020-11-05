@@ -11,7 +11,6 @@ namespace ClientMangoService
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		
 		public static string ServiceAddress = "mango.vod.qsolution.ru";
-		//public static string ServiceAddress = "localhost";
 		public uint ServicePort = 7087;
 		private NotificationService.NotificationServiceClient client;
 		private Channel channel;
@@ -22,7 +21,7 @@ namespace ClientMangoService
 
 		public bool IsNotificationActive => channel.State == ChannelState.Ready;
 
-		public event EventHandler<ConnectionStateEventArgs> ChanalStateChanged;
+		public event EventHandler<ConnectionStateEventArgs> ChannelStateChanged;
 
 		public MangoNotificationClient(uint extension, CancellationToken token)
 		{
@@ -87,7 +86,7 @@ namespace ClientMangoService
 
 		protected virtual void OnChanalStateChanged(ChannelState state)
 		{
-			ChanalStateChanged?.Invoke(this, new ConnectionStateEventArgs(state));
+			ChannelStateChanged?.Invoke(this, new ConnectionStateEventArgs(state));
 		}
 	}
 	

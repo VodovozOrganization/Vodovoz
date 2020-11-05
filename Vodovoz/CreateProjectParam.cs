@@ -584,8 +584,6 @@ namespace Vodovoz
 			#region База
 			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
 			builder.RegisterType<BaseParametersProvider>().AsSelf();
-			//builder.RegisterType<DefaultSessionProvider>().As<ISessionProvider>();
-			//builder.Register<DbConnection>(c => Connection.ConnectionDB).AsSelf();
 			#endregion
 
 			#region Сервисы
@@ -593,19 +591,9 @@ namespace Vodovoz
 			builder.RegisterType<GtkMessageDialogsInteractive>().As<IInteractiveMessage>();
 			builder.RegisterType<GtkQuestionDialogsInteractive>().As<IInteractiveQuestion>();
 			builder.RegisterType<GtkInteractiveService>().As<IInteractiveService>();
-			//builder.RegisterType<GtkValidationViewFactory>().As<IValidationViewFactory>();
 			#endregion GtkUI
-			#region Удаление
-			//builder.RegisterModule(new DeletionAutofacModule());
-			//builder.RegisterType<DeleteEntityGUIService>().As<IDeleteEntityService>();
-			//builder.Register(x => DeleteConfig.Main).AsSelf();
-			#endregion
 			builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
 			builder.RegisterType<UserService>().As<IUserService>();
-			//builder.RegisterType<ObjectValidator>().As<IValidator>();
-			//FIXME Реализовать везде возможность отсутствия сервиса прав, чтобы не приходилось создавать то что не используется
-			//builder.RegisterType<DefaultAllowedPermissionService>().As<IPermissionService>();
-			//builder.RegisterType<CommonMessages>().AsSelf();
 			#endregion
 
 			#region Vodovoz
@@ -640,12 +628,7 @@ namespace Vodovoz
 			builder.Register((ctx) => new AutofacTdiPageFactory(AppDIContainer)).As<ITdiPageFactory>();
 			builder.Register((ctx) => new AutofacViewModelsGtkPageFactory(AppDIContainer)).AsSelf();
 			builder.RegisterType<TdiNavigationManager>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>().SingleInstance();
-			//builder.RegisterType<BasedOnNameTDIResolver>().As<ITDIWidgetResolver>();
 			builder.Register(cc => new ClassNamesBaseGtkViewResolver(typeof(InternalTalkView), typeof(DeletionView))).As<IGtkViewResolver>();
-			#endregion
-
-			#region Главное окно
-			//builder.Register((ctx) => MainWin.ProgressBar).As<IProgressBarDisplayable>();
 			#endregion
 
 			#region Старые диалоги
@@ -655,13 +638,7 @@ namespace Vodovoz
 			#endregion
 
 			#region Старые общие диалоги
-			//builder.RegisterType<OrmReference>().AsSelf();
-			//builder.RegisterType<ReferenceRepresentation>().AsSelf();
 			builder.RegisterType<ReportViewDlg>().AsSelf();
-			#endregion
-
-			#region Журналы
-			//builder.RegisterType<OneEntrySearchView>().Named<Gtk.Widget>("GtkJournalSearchView");
 			#endregion
 
 			#region ViewModels

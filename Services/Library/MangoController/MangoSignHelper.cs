@@ -10,8 +10,6 @@ namespace MangoService
         {
             if (String.IsNullOrEmpty(vpbx_api_key))
                 throw new ArgumentException($"{nameof(vpbx_api_key)} was empty");
-            //if (String.IsNullOrEmpty(json))
-                //throw new ArgumentException($"{nameof(json)} was empty");
             if (String.IsNullOrEmpty(vpbx_api_salt))
                 throw new ArgumentException($"{nameof(vpbx_api_salt)} was empty");
 			string common = null;
