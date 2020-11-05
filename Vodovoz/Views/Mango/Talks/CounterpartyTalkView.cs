@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Gtk;
 using QS.Views.Dialog;
@@ -24,7 +24,7 @@ namespace Vodovoz.Views.Mango.Talks
 				var widget = new CounterpartyOrderView(item);
 				WidgetPlace.AppendPage(widget, label);
 			}
-			var p_label = new Gtk.Label("+ Новый контргагент");
+			var p_label = new Gtk.Label("+ Новый контрагент");
 			var p_widget = new Button() { Name = "New" };
 			WidgetPlace.AppendPage(p_widget, p_label);
 
