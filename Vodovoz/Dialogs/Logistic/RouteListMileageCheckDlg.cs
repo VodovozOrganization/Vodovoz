@@ -142,6 +142,12 @@ namespace Vodovoz
 			}
 			else
 				RecountMileage();
+
+			//Телефон
+			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = MainClass.MainWin.MangoManager;
+			phoneLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
+			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
+			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 		}
 
 		private void ButtonAcceptFineOnClicked(object sender, EventArgs e)

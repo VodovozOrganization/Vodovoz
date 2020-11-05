@@ -52,6 +52,13 @@ namespace Vodovoz.Domain.Employees
 			get { return registration; }
 			set { SetField(ref registration, value, () => Registration); }
 		}
+		uint? innerPhone;
+
+		[Display(Name = "Внутренний номер")]
+		public virtual uint? InnerPhone {
+			get { return innerPhone; }
+			set { SetField(ref innerPhone, value, () => InnerPhone); }
+		}
 
 		string androidLogin;
 

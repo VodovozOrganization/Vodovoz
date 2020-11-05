@@ -27,6 +27,7 @@ namespace Vodovoz.Core.DataService
 		IOrganisationParametersProvider,
 		ISmsPaymentServiceParametersProvider,
 		IMailjetParametersProvider,
+		IVpbxSettings,
 		ITerminalNomenclatureProvider
 	{
 		public string GetDefaultBaseForErrorSend()
@@ -465,6 +466,24 @@ namespace Vodovoz.Core.DataService
 				}
 
 				return result;
+			}
+		}
+
+		public string VpbxApiKey { 
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("vpbx_api_key")) {
+					throw new InvalidProgramException("В параметрах базы не настроены ключи доступа к Манго(vpbx_api_key).");
+				}
+				return ParametersProvider.Instance.GetParameterValue("vpbx_api_key");
+			}
+		}
+
+		public string VpbxApiSalt {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("vpbx_api_salt")) {
+					throw new InvalidProgramException("В параметрах базы не настроены ключи доступа к Манго(vpbx_api_salt).");
+				}
+				return ParametersProvider.Instance.GetParameterValue("vpbx_api_salt");
 			}
 		}
 	}

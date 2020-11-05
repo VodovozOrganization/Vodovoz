@@ -32,6 +32,11 @@ namespace Vodovoz.Reports
 			referenceDeliveryPoint.Subject = deliveryPoint;
 		}
 
+		public void SetCounterparty(Counterparty counterparty)
+		{
+			entityViewModelEntryCounterparty.Subject = counterparty;
+		}
+
 		#region IParametersWidget implementation
 
 		public string Title => "Акт по бутылям-залогам";
@@ -40,11 +45,10 @@ namespace Vodovoz.Reports
 
 		#endregion
 
-		void OnUpdate(bool hide = false)
+		public void OnUpdate(bool hide = false)
 		{
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
-
 		protected void OnButtonRunClicked(object sender, EventArgs e)
 		{
 			OnUpdate(true);

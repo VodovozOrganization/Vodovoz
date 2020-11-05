@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -22,6 +22,8 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
+    <Commandlineparameters></Commandlineparameters>
+    <RunWithWarnings>true</RunWithWarnings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>none</DebugType>
@@ -31,6 +33,8 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
+    <RunWithWarnings>true</RunWithWarnings>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration.Contains('Win'))">
     <TargetOS>Win</TargetOS>
@@ -42,6 +46,7 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\DebugWin</OutputPath>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
@@ -148,7 +153,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="icons\map\GreenCar.png" />
     <EmbeddedResource Include="icons\map\BlueCar.png" />
-    <EmbeddedResource Include="icons\map\RedCar.png" />
     <EmbeddedResource Include="icons\map\BlackCar.png" />
     <EmbeddedResource Include="icons\buttons\window-new.png" />
     <EmbeddedResource Include="toolbars\archive.xml">
@@ -365,6 +369,15 @@
     <EmbeddedResource Include="icons\buttons\NullableCheckBox\blank-square.png" />
     <EmbeddedResource Include="icons\buttons\NullableCheckBox\check-symbol.png" />
     <EmbeddedResource Include="icons\buttons\NullableCheckBox\close-button.png" />
+    <EmbeddedResource Include="icons\phone\phone-talk.png" />
+    <EmbeddedResource Include="icons\phone\phone-ring.png" />
+    <EmbeddedResource Include="icons\phone\phone-disconnected.png" />
+    <EmbeddedResource Include="icons\phone\phone-disable.png" />
+    <EmbeddedResource Include="icons\phone\phone-connected.png" />
+    <EmbeddedResource Include="icons\phone\decline-call.png" />
+    <EmbeddedResource Include="icons\phone\make-call.png" />
+    <EmbeddedResource Include="icons\phone\make-call-32.png" />
+    <EmbeddedResource Include="icons\phone\make-call-16.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\SmsPaymentSender.cs" />
@@ -1425,6 +1438,32 @@
     <Compile Include="JournalNodes\LateArrivalReasonsJournalNode.cs" />
     <Compile Include="ReportsParameters\Logistic\ScheduleOnLinePerShiftReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ScheduleOnLinePerShiftReport.cs" />
+    <Compile Include="Infrastructure\Mango\MangoManager.cs" />
+    <Compile Include="Views\Mango\CounterpartyOrderView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.CounterpartyOrderView.cs" />
+    <Compile Include="ViewModels\Mango\IncomingCallViewModel.cs" />
+    <Compile Include="Views\Mango\IncomingCallView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.IncomingCallView.cs" />
+    <Compile Include="ViewModels\Mango\Talks\CounterpartyTalkViewModel.cs" />
+    <Compile Include="ViewModels\Mango\Talks\UnknowTalkViewModel.cs" />
+    <Compile Include="Views\Mango\Talks\CounterpartyTalkView.cs" />
+    <Compile Include="Views\Mango\Talks\UnknowTalkView.cs" />
+    <Compile Include="ViewModels\Mango\Talks\TalkViewModelBase.cs" />
+    <Compile Include="Views\Mango\Incoming\IncomingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.Incoming.IncomingView.cs" />
+    <Compile Include="Infrastructure\Mango\ActiveCall.cs" />
+    <Compile Include="ViewModels\Mango\SubscriberSelectionViewModel.cs" />
+    <Compile Include="Views\Mango\SubscriberSelectionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.SubscriberSelectionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.UnknowTalkView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.CounterpartyTalkView.cs" />
+    <Compile Include="ViewModels\Mango\WidgetsModel\CounterpartyOrderViewModel.cs" />
+    <Compile Include="ViewWidgets\Mango\HandsetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Mango.HandsetView.cs" />
+    <Compile Include="Views\Mango\Talks\InternalTalkView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.InternalTalkView.cs" />
+    <Compile Include="ViewModels\Mango\Talks\InternalTalkViewModel.cs" />
+    <Compile Include="ViewWidgets\Mango\EmployeePhone.cs" />
     <Compile Include="SidePanel\InfoViews\SmsSendPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.SmsSendPanelView.cs" />
     <Compile Include="Filters\GtkViews\ProductGroupFilterView.cs" />
@@ -1517,6 +1556,10 @@
       <Project>{efe73102-83bc-4036-8642-d3a4121e8351}</Project>
       <Name>SmsPaymentService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Services\Library\ClientMangoService\ClientMangoService.csproj">
+      <Project>{892519ba-d891-43b6-971c-6415ea4d14e5}</Project>
+      <Name>ClientMangoService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
@@ -1597,6 +1640,14 @@
       <Project>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Services\Library\MangoControllerForNet\MangoControllerForNet.csproj">
+      <Project>{322CC78B-9068-4E5B-87F1-5FED9B5AB5E0}</Project>
+      <Name>MangoControllerForNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSMachineConfig\QSMachineConfig.csproj">
+      <Project>{769710D2-BF98-4120-9E07-67BD740CFA1D}</Project>
+      <Name>QSMachineConfig</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />
@@ -1659,7 +1710,6 @@
     <Folder Include="Dialogs\Fuel\" />
     <Folder Include="Dialogs\OrderWidgets\" />
     <Folder Include="Infrastructure\" />
-    <Folder Include="Infrastructure\ViewModels\" />
     <Folder Include="Filters\" />
     <Folder Include="Filters\GtkViews\" />
     <Folder Include="Filters\ViewModels\" />
@@ -1713,6 +1763,14 @@
     <Folder Include="ViewModels\Orders\OrdersWithoutShipment\" />
     <Folder Include="Dialogs\Email\" />
     <Folder Include="Views\Cash\" />
+    <Folder Include="Views\Mango\" />
+    <Folder Include="ViewModels\Mango\" />
+    <Folder Include="Infrastructure\Mango\" />
+    <Folder Include="ViewModels\Mango\Talks\" />
+    <Folder Include="Views\Mango\Talks\" />
+    <Folder Include="Views\Mango\Incoming\" />
+    <Folder Include="ViewModels\Mango\WidgetsModel\" />
+    <Folder Include="ViewWidgets\Mango\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Views\Goods\" />
     <Folder Include="ReportsParameters\Production\" />
@@ -2260,6 +2318,9 @@
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="Autofac">
+      <Version>5.2.0</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Reports\Payments\PaymentsDelayNetwork.rdl" />
@@ -2275,4 +2336,5 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <Import Project="..\packages\Grpc.Core.2.31.0\build\net45\Grpc.Core.targets" Condition="Exists('..\packages\Grpc.Core.2.31.0\build\net45\Grpc.Core.targets')" />
 </Project>

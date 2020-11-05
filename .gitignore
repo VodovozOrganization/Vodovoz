@@ -1,6 +1,7 @@
 #User Specific
 *.userprefs
 *.usertasks
+*.DotSettings.user
 *~
 
 #Rider
@@ -12,6 +13,7 @@ bin/
 obj/
 packages/*
 .vs/
+.vscode/
 mono_crash.*.json
 
 #Workbench Backup Files
