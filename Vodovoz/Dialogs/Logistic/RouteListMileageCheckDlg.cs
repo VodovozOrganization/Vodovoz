@@ -66,7 +66,7 @@ namespace Vodovoz
 			this.Build();
 			editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
-			TabName = string.Format("Контроль за километражом маршрутного листа №{0}", Entity.Id);
+			TabName = string.Format("Контроль за километражем маршрутного листа №{0}", Entity.Id);
 			var canConfirmMileage = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_mileage_for_our_GAZelles_Larguses");
 			editing &= canConfirmMileage || !(Entity.Car.TypeOfUse.HasValue && Entity.Car.IsCompanyCar && new[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus }.Contains(Entity.Car.TypeOfUse.Value));
 
@@ -150,6 +150,7 @@ namespace Vodovoz
 
 			var fineDlg = new FineDlg(0, Entity, fineReason, Entity.Date, Entity.Driver);
 			fineDlg.Entity.FineType = FineTypes.FuelOverspending;
+			fineDlg.EntitySaved += OnFinesAdded;
 			
 			TabParent.AddSlaveTab(this, fineDlg);
 		}
@@ -167,6 +168,11 @@ namespace Vodovoz
 					}
 				}
 				Entity.UpdateFuelOperation();
+			}
+			
+			if (Entity.Status == RouteListStatus.Delivered && HasChanges)
+			{
+				Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
 			}
 
 			UoWGeneric.Save();
@@ -217,6 +223,15 @@ namespace Vodovoz
 		}
 
 		#endregion
+
+        #region Обработка добавления долгов
+
+        protected void OnFinesAdded(object sender, EventArgs e)
+        {
+	        HasChanges = true;
+        }
+        
+        #endregion
 
 		private void RecountMileage()
 		{

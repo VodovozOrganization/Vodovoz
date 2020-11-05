@@ -17,14 +17,14 @@ namespace Vodovoz
 			get {
 				return uow;
 			}
-			set {
+			set	{
 				if (uow == value)
 					return;
 				uow = value;
 				routelistsfilter1.UoW = uow;
-				viewModel = new ViewModel.RouteListsVM (value);
+				viewModel = new ViewModel.RouteListsVM(value);
 				viewModel.Filter = routelistsfilter1;
-				viewModel.Filter.SetAndRefilterAtOnce(x => x.RestrictStatus = RouteListStatus.MileageCheck);
+				viewModel.Filter.SetAndRefilterAtOnce(x => x.OnlyStatuses = new RouteListStatus[] {RouteListStatus.MileageCheck, RouteListStatus.Delivered});
 				treeRouteLists.RepresentationModel = viewModel;
 				treeRouteLists.RepresentationModel.UpdateNodes ();
 			}
