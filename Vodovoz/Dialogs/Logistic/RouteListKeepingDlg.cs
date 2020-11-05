@@ -358,10 +358,9 @@ namespace Vodovoz
 		{
 			try {
 				SetSensetivity(false);
-				if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute)) {
-					if(MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?")) {
-						Entity.CompleteRouteAndCreateTask(wageParameterService, CallTaskWorker);
-					}
+				if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute))
+				{
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.Delivered, CallTaskWorker);
 				}
 
 				UoWGeneric.Save();

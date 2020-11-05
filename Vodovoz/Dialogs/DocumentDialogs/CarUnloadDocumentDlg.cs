@@ -22,7 +22,13 @@ using Vodovoz.Repository.Store;
 using Vodovoz.ViewWidgets.Store;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz
 {
@@ -38,9 +44,21 @@ namespace Vodovoz
 
 		public override bool HasChanges => true;
 
+		private WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private CallTaskWorker callTaskWorker;
+
 		#region Конструкторы
 		public CarUnloadDocumentDlg()
 		{
+			callTaskWorker = new CallTaskWorker(
+				CallTaskSingletonFactory.GetInstance(),
+				new CallTaskRepository(),
+				OrderSingletonRepository.GetInstance(),
+				EmployeeSingletonRepository.GetInstance(),
+				new BaseParametersProvider(),
+				ServicesConfig.CommonServices.UserService,
+				SingletonErrorReporter.Instance);
+			
 			this.Build();
 			ConfigureNewDoc();
 			ConfigureDlg();
@@ -174,6 +192,11 @@ namespace Vodovoz
 				return false;
 			}
 
+			if (Entity.RouteList.Status == RouteListStatus.Delivered)
+			{
+				Entity.RouteList.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker);
+			}
+			
 			logger.Info("Сохраняем разгрузочный талон...");
 			UoWGeneric.Save();
 			logger.Info("Ok.");
