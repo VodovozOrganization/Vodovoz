@@ -380,7 +380,7 @@ FROM
            CONCAT(
                    'Перенесено от клиента ',
                    out_counterparty.name,
-                   ' с адреса ',
+                   ' на адрес ',
                    COMPILE_ADDRESS(inc_delivery_point.id)) AS doc_name,
            '' AS doc_status,
            transfer_operations.to_client_id AS doc_client_id,

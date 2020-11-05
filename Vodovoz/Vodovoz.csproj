@@ -1479,6 +1479,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NetworkDelayReport.cs" />
     <Compile Include="ReportsParameters\Logistic\DriverRoutesListRegisterReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DriverRoutesListRegisterReport.cs" />
+    <Compile Include="ReportsParameters\Production\ProducedProductionReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Production.ProducedProductionReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1771,6 +1773,7 @@
     <Folder Include="ViewWidgets\Mango\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Views\Goods\" />
+    <Folder Include="ReportsParameters\Production\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1837,6 +1840,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Cash\CashFlowDetailIncomeReturn.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Production\ProducedProduction.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\OrderStatisticByWeek.rdl">
@@ -2000,9 +2006,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\AddressesByDailyNumber.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\FuelReportSummary.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\ShipmentReport.rdl">
@@ -2273,6 +2276,12 @@
     <None Include="Reports\Logistic\DriverRoutesListRegister.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\Logistic\FuelReportSummaryBasic.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\FuelReportSummaryDetailed.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Reports\Logistic\ScheduleOnLinePerShiftReport.rdl">
@@ -2283,23 +2292,23 @@
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
     <PackageReference Include="BouncyCastle" Version="1.8.6.1" />
     <PackageReference Include="DiffPlex" Version="1.6.3" />
-    <PackageReference Include="FluentNHibernate" Version="2.1.2" />
+    <PackageReference Include="FluentNHibernate" Version="3.0.1" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
-    <PackageReference Include="Google.Protobuf" Version="3.12.3" />
+    <PackageReference Include="Google.Protobuf" Version="3.13.0" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
-    <PackageReference Include="K4os.Compression.LZ4" Version="1.1.11" />
-    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.1.11" />
+    <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
+    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
-    <PackageReference Include="MySql.Data" Version="8.0.20" />
+    <PackageReference Include="MySql.Data" Version="8.0.19" />
     <PackageReference Include="NetTopologySuite" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
-    <PackageReference Include="NHibernate" Version="5.2.7" />
+    <PackageReference Include="NHibernate" Version="5.3.4" />
     <PackageReference Include="NHibernate.Spatial" Version="5.3.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="5.3.0" />
-    <PackageReference Include="NLog" Version="4.7.2" />
+    <PackageReference Include="NLog" Version="4.7.5" />
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
@@ -2315,6 +2324,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Reports\Payments\PaymentsDelayNetwork.rdl" />
+    <Content Include="Reports\Prodaction\ProducedProdaction.rdl" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

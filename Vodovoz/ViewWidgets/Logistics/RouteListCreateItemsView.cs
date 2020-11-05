@@ -235,10 +235,14 @@ namespace Vodovoz
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictStartDate = RouteListUoW.Root.Date.Date,
 				x => x.RestrictEndDate = RouteListUoW.Root.Date.Date,
-				x => x.RestrictStatus = OrderStatus.Accepted
+				x => x.RestrictStatus = OrderStatus.Accepted,
+				x => x.RestrictWithoutSelfDelivery = true,
+				x => x.RestrictOnlySelfDelivery = false,
+				x => x.RestrictHideService = true
 			);
 			
-			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter,UnitOfWorkFactory.GetDefaultFactory,ServicesConfig.CommonServices){SelectionMode = JournalSelectionMode.Single};
+
+			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter,UnitOfWorkFactory.GetDefaultFactory,ServicesConfig.CommonServices){SelectionMode = JournalSelectionMode.Multiple};
 			
 			//Selected Callback
 			orderSelectDialog.OnEntitySelectedResult += (sender, ea) =>

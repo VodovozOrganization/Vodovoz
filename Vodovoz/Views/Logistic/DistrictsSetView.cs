@@ -146,6 +146,9 @@ namespace Vodovoz.Views.Logistic
 			entryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			entryName.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
+			yspinbuttonOnlineStoreOrderSumForFreeDelivery.Binding.AddBinding(ViewModel.Entity, vm => vm.OnlineStoreOrderSumForFreeDelivery, w => w.ValueAsDecimal);
+			yspinbuttonOnlineStoreOrderSumForFreeDelivery.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+
 			btnAddDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanCreateDistrict, w => w.Sensitive).InitializeFromSource();
 			btnAddDistrict.Clicked += (sender, args) => {
 				ViewModel.AddDistrictCommand.Execute();

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using Cairo;
 using Gamma.GtkWidgets;
+using NHibernate.Hql.Ast;
 using QS.Dialog.GtkUI;
 using SmsPaymentService;
 using Vodovoz.Additions;
@@ -31,21 +33,22 @@ namespace Vodovoz.SidePanel.InfoViews
 				selectedPhone = yPhonesListTreeView.GetSelectedObject() as Phone;
 				validatedPhoneEntry.Text = selectedPhone?.Number ?? "";
 			};
-			
+
 			ySendSmsButton.Pressed += (btn, args) =>
 			{
-				if (string.IsNullOrWhiteSpace(validatedPhoneEntry.Text) )
+				if (string.IsNullOrWhiteSpace(validatedPhoneEntry.Text))
 				{
 					MessageDialogHelper.RunErrorDialog("Вы забыли выбрать номер.", "Ошибка при отправке Sms");
 					return;
 				}
-				
+
 				ySendSmsButton.Sensitive = false;
-				GLib.Timeout.Add(10000, () => { 
+				GLib.Timeout.Add(10000, () =>
+				{
 					ySendSmsButton.Sensitive = true;
 					return false;
 				});
-				
+
 				var smsSender = new SmsPaymentSender();
 				var result = smsSender.SendSmsPaymentToNumber(Order.Id, validatedPhoneEntry.Text);
 				switch (result.Status)
@@ -65,27 +68,40 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private Phone selectedPhone;
 
-		Counterparty Counterparty{ get; set; }
+		Counterparty Counterparty { get; set; }
 		Order Order { get; set; }
-		
+
 
 		public IInfoProvider InfoProvider { get; set; }
+
 		public void Refresh()
 		{
-			if(InfoProvider is ISmsSendProvider smsSendProvider)
+			if (InfoProvider is ISmsSendProvider smsSendProvider)
 			{
 				Counterparty = smsSendProvider.Counterparty;
 				Order = smsSendProvider.Order;
 			}
-			if(Counterparty == null || Order == null)
+
+			if (Counterparty == null || Order == null)
 				return;
 
 			ySendSmsButton.Sensitive = true;
 			yPhonesListTreeView.ItemsDataSource = Counterparty.Phones;
+
+
 		}
 
 		public void OnCurrentObjectChanged(object changedObject) => Refresh();
+		
+		public bool VisibleOnPanel => 
+		(new OrderStatus[]
+		{
+			OrderStatus.Accepted,
+			OrderStatus.OnTheWay,
+			OrderStatus.Shipped,
+			OrderStatus.InTravelList,
+			OrderStatus.OnLoading
+		}.Contains(Order.OrderStatus));
 
-		public bool VisibleOnPanel => true;
 	}
 }

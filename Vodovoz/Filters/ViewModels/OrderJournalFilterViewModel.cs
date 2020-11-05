@@ -230,7 +230,6 @@ namespace Vodovoz.Filters.ViewModels
 						RestrictOnlyService = false;
 					}
 					Update();
-					CanChangeHideService = false;
 				}
 			}
 		}

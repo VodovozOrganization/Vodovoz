@@ -247,7 +247,10 @@ namespace Vodovoz.Tools.Orders
 
 		static bool GetConditionForUPD(OrderStateKey key) =>
 		(
-			GetConditionForBill(key)
+			(GetConditionForBill(key) ||
+			(key.Order.Client.UPDCount.HasValue &&
+			 key.Order.PaymentType == PaymentType.BeveragesWorld &&
+			 IsOrderWithOrderItemsAndWithoutDeposits(key)))
 			&& (key.OrderStatus >= OrderStatus.Accepted || (key.OrderStatus == OrderStatus.WaitForPayment && key.IsSelfDelivery && key.PayAfterShipment))
 		);
 
@@ -260,21 +263,26 @@ namespace Vodovoz.Tools.Orders
 		static bool GetConditionForBill(OrderStateKey key) =>
 		(
 			key.PaymentType == PaymentType.cashless
-			&& !key.IsPriceOfAllOrderItemsZero
-			&& !key.NeedToRefundDepositToClient
-			&& key.HasOrderItems
+			&& IsOrderWithOrderItemsAndWithoutDeposits(key)
 		);
 
 		static bool GetConditionForSpecialBill(OrderStateKey key) =>
-	(
-		GetConditionForBill(key)
-		&& key.HaveSpecialFields
-	);
+		(
+			GetConditionForBill(key)
+			&& key.HaveSpecialFields
+		);
 
 		static bool GetConditionForTORG12(OrderStateKey key) =>
 		(
 			GetConditionForUPD(key)
 			&& key.DefaultDocumentType == DefaultDocumentType.torg12
+		);
+
+		static bool IsOrderWithOrderItemsAndWithoutDeposits(OrderStateKey key) =>
+		(
+			!key.IsPriceOfAllOrderItemsZero
+			&& !key.NeedToRefundDepositToClient
+			&& key.HasOrderItems
 		);
 	}
 

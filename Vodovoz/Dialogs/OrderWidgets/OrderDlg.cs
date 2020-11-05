@@ -142,33 +142,16 @@ namespace Vodovoz
 		#region Работа с боковыми панелями
 
 		public PanelViewType[] InfoWidgets {
-			get
-			{
-				if (Order.OrderStatus == OrderStatus.Accepted ||
-				    Order.OrderStatus == OrderStatus.OnTheWay ||
-				    Order.OrderStatus == OrderStatus.Shipped ||
-				    Order.OrderStatus == OrderStatus.InTravelList ||
-				    Order.OrderStatus == OrderStatus.OnLoading)
-					return new[]
-					{
-						PanelViewType.AdditionalAgreementPanelView,
-						PanelViewType.CounterpartyView,
-						PanelViewType.DeliveryPricePanelView,
-						PanelViewType.DeliveryPointView,
-						PanelViewType.EmailsPanelView,
-						PanelViewType.CallTaskPanelView,
-						PanelViewType.SmsSendPanelView
-					};
-				else
-					return new[]
-					{
-						PanelViewType.AdditionalAgreementPanelView,
-						PanelViewType.CounterpartyView,
-						PanelViewType.DeliveryPricePanelView,
-						PanelViewType.DeliveryPointView,
-						PanelViewType.EmailsPanelView,
-						PanelViewType.CallTaskPanelView
-					};
+			get {
+				return new[]{
+					PanelViewType.AdditionalAgreementPanelView,
+					PanelViewType.CounterpartyView,
+					PanelViewType.DeliveryPricePanelView,
+					PanelViewType.DeliveryPointView,
+					PanelViewType.EmailsPanelView,
+					PanelViewType.CallTaskPanelView,
+					PanelViewType.SmsSendPanelView
+				};
 			}
 		}
 
@@ -302,7 +285,6 @@ namespace Vodovoz
 			Entity.Client = templateOrder.Client;
 			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
 			Entity.ClientPhone = templateOrder.ClientPhone;
-			Entity.BillDate = templateOrder.BillDate;
 			Entity.IsService = templateOrder.IsService;
 			Entity.CopyPromotionalSetsFrom(templateOrder);
 			Entity.CopyItemsFrom(templateOrder);
@@ -555,6 +537,16 @@ namespace Vodovoz
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
 			
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
+
+			Entity.PropertyChanged += (sender, args) =>
+			{
+				if(args.PropertyName == nameof(Order.OrderStatus)) {
+					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderStatus));
+				} 
+				else if(args.PropertyName == nameof(Order.Contract)) {
+					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
+				} 
+			};
 		}
 
 		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)
@@ -3060,6 +3052,11 @@ namespace Vodovoz
 		{
 			var promoSetColumn = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Entity.PromotionalSets)).FirstOrDefault();
 			promoSetColumn.Visible = Entity.PromotionalSets.Count > 0;
+		}
+
+		protected void OnYBtnAddCurrentContractClicked(object sender, EventArgs e)
+		{
+			Order.AddContractDocument(Order.Contract);
 		}
 	}
 }
