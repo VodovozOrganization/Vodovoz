@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using QS.Print;
 using QS.Report;
-using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -37,14 +36,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		int copiesToPrint = 2;
 		public override int CopiesToPrint {
-			get
-			{
-				if (Order.PaymentType == PaymentType.BeveragesWorld && Order.Client.UPDCount.HasValue)
-					return Order.Client.UPDCount.Value;
-
-				return copiesToPrint;
-			}
-			
+			get => copiesToPrint;
 			set => copiesToPrint = value;
 		}
 	}

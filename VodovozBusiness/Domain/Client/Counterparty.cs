@@ -492,13 +492,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref torg2Count, value, () => Torg2Count);
 		}
 
-		int? updCount;
-		[Display(Name = "Кол-во УПД(не для безнала)")]
-		public virtual int? UPDCount {
-			get => updCount;
-			set => SetField(ref updCount, value);
-		}
-
 		string okpo;
 		[Display(Name = "ОКПО")]
 		public virtual string OKPO {

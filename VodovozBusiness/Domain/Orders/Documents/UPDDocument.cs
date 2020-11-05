@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using QS.Print;
 using QS.Report;
-using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -37,23 +36,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override DocumentOrientation Orientation => DocumentOrientation.Landscape;
 
 		public virtual bool HideSignature { get; set; } = true;
-
-		private int copiesToPrint = -1;
-		public override int CopiesToPrint
-		{
-			get {
-				if (copiesToPrint < 0)
-				{
-					if (Order.PaymentType == PaymentType.BeveragesWorld && Order.Client.UPDCount.HasValue)
-						return Order.Client.UPDCount.Value;
-					
-					return Order.DocumentType.HasValue && Order.DocumentType.Value == DefaultDocumentType.torg12 ? 1 : 2;
-				}
-
-				return copiesToPrint;
-			}
-			set => copiesToPrint = value;
-		}
 	}
 }
 
