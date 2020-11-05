@@ -59,22 +59,18 @@ namespace Vodovoz.Views.Mango
 					selectedOrder.OrderStatus == OrderStatus.NewOrder ||
 					selectedOrder.OrderStatus == OrderStatus.Accepted ||
 					selectedOrder.OrderStatus == OrderStatus.OnLoading ||
-					//FIXME WaitForPayment?
-					//FIXME UnloadingOnStock?
 					selectedOrder.OrderStatus == OrderStatus.OnTheWay ||
 					selectedOrder.OrderStatus == OrderStatus.InTravelList ||
-					//FIXME NotDelivered?
 					selectedOrder.OrderStatus == OrderStatus.Closed ||
 					selectedOrder.OrderStatus == OrderStatus.Shipped )
-					{
-
+				{
 					item3.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.OpenRoutedList(selectedOrder); };
 					popupMenu.Add(item3);
 				}
 
 				if(selectedOrder.OrderStatus == OrderStatus.Canceled || selectedOrder.OrderStatus == OrderStatus.NotDelivered || selectedOrder.OrderStatus == OrderStatus.DeliveryCanceled) {
 					MenuItem item4 = new MenuItem("Перейти в недовоз");
-					item4.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.OpenUnderlivery(selectedOrder); };
+					item4.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.OpenUndelivery(selectedOrder); };
 					popupMenu.Add(item4);
 				}
 				if(selectedOrder.OrderStatus == OrderStatus.NewOrder ||
