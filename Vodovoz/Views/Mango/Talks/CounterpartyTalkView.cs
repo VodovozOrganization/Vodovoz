@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Gtk;
 using QS.Views.Dialog;
@@ -38,9 +38,7 @@ namespace Vodovoz.Views.Mango.Talks
 			WidgetPlace.SwitchPage += SwitchPage_WidgetPlace;
 			ViewModel.CounterpartyOrdersModelsUpdateEvent += Update_WidgetPlace;
 
-			CostAndDeliveryIntervalButton.Sensitive =
-				ViewModel.currentCounterparty.DeliveryPoints != null ||
-				ViewModel.currentCounterparty.DeliveryPoints.Count > 0 ? true : false;
+			CostAndDeliveryIntervalButton.Sensitive = ViewModel.currentCounterparty.DeliveryPoints?.Count > 0;
 		}
 
 		#region Events
@@ -93,9 +91,7 @@ namespace Vodovoz.Views.Mango.Talks
 			WidgetPlace.Page = (int)lastPage;
 			falseSwitching = false;
 
-			CostAndDeliveryIntervalButton.Sensitive =
-				ViewModel.currentCounterparty.DeliveryPoints != null ||
-				ViewModel.currentCounterparty.DeliveryPoints.Count > 0 ? true : false;
+			CostAndDeliveryIntervalButton.Sensitive = ViewModel.currentCounterparty.DeliveryPoints?.Count > 0;
 		}
 
 		protected void Clicked_NewClientButton(object sender, EventArgs e)
