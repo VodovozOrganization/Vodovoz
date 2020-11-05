@@ -68,6 +68,11 @@ namespace Vodovoz.JournalViewers
 			yTreeViewUndeliveries.Selection.Changed += OnYTreeViewUndeliveriesSelectionChanged;
 		}
 
+		public UndeliveriesView(UndeliveredOrdersFilter filter) : this()
+		{
+			undeliveredOrdersFilter = filter;
+
+		}
 		public virtual void HideFilterAndControls(){
 			undeliveredOrdersFilter.Visible = hbxDlgControls.Visible = false;
 		}

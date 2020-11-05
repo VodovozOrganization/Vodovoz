@@ -33,6 +33,7 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Dialogs.Phones;
 
 namespace Vodovoz
 {
@@ -115,6 +116,13 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
+		public CounterpartyDlg(Phone phone)
+		{
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			Entity.Phones.Add(phone);
+			ConfigureDlg();
+		}
 		void ConfigureDlg()
 		{
 			notebook1.CurrentPage = 0;

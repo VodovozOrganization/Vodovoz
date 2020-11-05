@@ -1,49 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using Gamma.Widgets;
+using InstantSmsService;
 using NLog;
 using QS.Banks.Domain;
-using Vodovoz.Domain.Contacts;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
+using QS.Project.Dialogs.GtkUI.ServiceDlg;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QS.Project.Services;
+using QS.Project.Services.GtkUI;
 using QS.Validation;
+using QS.Widgets.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Additions;
+using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.Employees;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.WageCalculation;
-using Vodovoz.Core.DataService;
-using QS.Project.Services;
-using Vodovoz.Infrastructure;
-using Vodovoz.EntityRepositories.Employees;
-using QS.Project.Dialogs.GtkUI.ServiceDlg;
-using QS.Project.Services.GtkUI;
-using InstantSmsService;
-using Vodovoz.Services;
-using Vodovoz.Domain.Service.BaseParametersServices;
-using Vodovoz.Domain.Permissions;
-using Vodovoz.EntityRepositories.Permissions;
-using System.Data.Bindings.Collections.Generic;
-using Gamma.Widgets;
-using QS.Project.Journal;
-using QS.Widgets.GtkUI;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Additions;
-using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Infrastructure;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Services;
+using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz
 {
@@ -91,7 +91,7 @@ namespace Vodovoz
 		private readonly List<EmployeeCategory> hiddenCategory = new List<EmployeeCategory>();
 		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence, EmployeeDocumentType.ForeignCitizenPassport };
 		private readonly EmployeeDocumentType[] hiddenForForeignCitizen = { EmployeeDocumentType.MilitaryID, EmployeeDocumentType.NavyPassport, EmployeeDocumentType.OfficerCertificate };
-		
+
 		private void ConfigureDlg()
 		{
 			canManageDriversAndForwarders = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_drivers_and_forwarders");
@@ -118,6 +118,7 @@ namespace Vodovoz
 			dataentryLastName.Binding.AddBinding(Entity, e => e.LastName, w => w.Text).InitializeFromSource();
 			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			dataentryPatronymic.Binding.AddBinding(Entity, e => e.Patronymic, w => w.Text).InitializeFromSource();
+			dataentryInnerPhone.Binding.AddBinding(Entity, e => e.InnerPhone, w => w.Text, new Gamma.Binding.Converters.UintToStringConverter()).InitializeFromSource();
 
 			entryAddressCurrent.Binding.AddBinding(Entity, e => e.AddressCurrent, w => w.Text).InitializeFromSource();
 			entryAddressRegistration.Binding.AddBinding(Entity, e => e.AddressRegistration, w => w.Text).InitializeFromSource();
@@ -402,6 +403,23 @@ namespace Vodovoz
 						}
 					} else
 						return false;
+				}
+			}
+			if(Entity.InnerPhone != null) {
+				var associatedEmployees = UoW.Session.Query<Employee>().Where(e => e.InnerPhone == Entity.InnerPhone);
+				if(associatedEmployees.Any(e => e.Id != Entity.Id && e.InnerPhone == Entity.InnerPhone)) {
+					string mes = String.Format("Внутренний номер {0} уже связан с сотрудником {1}, при привязке этого телефона к данному сотруднику , старая связь будет удалена. Продолжить?",
+						Entity.InnerPhone,
+						String.Join(", ", associatedEmployees.Select(e => e.Name))
+						);
+					if(MessageDialogHelper.RunQuestionDialog(mes)) {
+						foreach(var ae in associatedEmployees.Where(e => e.InnerPhone == Entity.InnerPhone)) {
+							ae.InnerPhone = null;
+							UoW.Save(ae);
+						}
+					} else {
+						return false;
+					}
 				}
 			}
 			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);

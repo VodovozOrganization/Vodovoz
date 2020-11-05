@@ -6,15 +6,16 @@ using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using QS.Dialog.GtkUI;
 using QS.Osm.DTO;
-using Vodovoz.Tools.Logistic;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Domain.Client;
+using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Dialogs.Sale
 {
 	public partial class DeliveryPriceDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
-
+	
 		readonly GMapOverlay addressOverlay = new GMapOverlay();
 		GMapMarker addressMarker;
 		decimal? latitude;
@@ -54,6 +55,11 @@ namespace Vodovoz.Dialogs.Sale
 			yenumcomboMapType.ChangedByUser += (sender, e) => MapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)yenumcomboMapType.SelectedItem);
 		}
 
+		public DeliveryPriceDlg(DeliveryPoint deliveryPoint) : this()
+		{
+			SetCoordinates(deliveryPoint.Latitude, deliveryPoint.Longitude);
+			deliverypriceview.DeliveryPrice = DeliveryPriceCalculator.Calculate(latitude, longitude, yspinBottles.ValueAsInt);
+		}
 		void EntryBuilding_Changed(object sender, EventArgs e)
 		{
 			if(entryBuilding.OsmCompletion.HasValue && entryBuilding.OsmCompletion.Value) {

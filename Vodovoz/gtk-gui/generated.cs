@@ -44,6 +44,16 @@ namespace Stetic
 				w1.Add("complaints", w16);
 				global::Gtk.IconSet w17 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.toolbar.suppliers.png"));
 				w1.Add("suppliers", w17);
+				global::Gtk.IconSet w18 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.phone-disable.png"));
+				w1.Add("phone-disable", w18);
+				global::Gtk.IconSet w19 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.phone-connected.png"));
+				w1.Add("phone-connected", w19);
+				global::Gtk.IconSet w20 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.phone-disconnected.png"));
+				w1.Add("phone-disconnected", w20);
+				global::Gtk.IconSet w21 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.phone-ring.png"));
+				w1.Add("phone-ring", w21);
+				global::Gtk.IconSet w22 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.phone-talk.png"));
+				w1.Add("phone-talk", w22);
 				w1.AddDefault();
 			}
 		}

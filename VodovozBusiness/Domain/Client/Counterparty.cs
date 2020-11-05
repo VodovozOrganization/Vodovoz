@@ -288,7 +288,7 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref isArchive, value, () => IsArchive);
 		}
 
-		IList<Phone> phones;
+		IList<Phone> phones = new List<Phone>();
 
 		[Display(Name = "Телефоны")]
 		public virtual IList<Phone> Phones {
