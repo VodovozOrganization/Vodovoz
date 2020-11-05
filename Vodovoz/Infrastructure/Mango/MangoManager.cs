@@ -114,7 +114,7 @@ namespace Vodovoz.Infrastructure.Mango
 				ConnectionState = ConnectionState.Disconnected;
 				notificationCancellation = new CancellationTokenSource();
 				notificationClient = new MangoNotificationClient(extension, notificationCancellation.Token);
-				notificationClient.ChanalStateChanged += NotificationClient_ChanalStateChanged;
+				notificationClient.ChannelStateChanged += NotificationClientChannelStateChanged;
 				ConnectionState = notificationClient.IsNotificationActive ? ConnectionState.Connected : ConnectionState.Disconnected;
 				notificationClient.AppearedMessage += NotificationClientOnAppearedMessage;
 			}
@@ -135,7 +135,7 @@ namespace Vodovoz.Infrastructure.Mango
 			Application.Invoke((s, arg) => HandleMessage(e.Message));
 		}
 
-		void NotificationClient_ChanalStateChanged(object sender, ConnectionStateEventArgs e)
+		void NotificationClientChannelStateChanged(object sender, ConnectionStateEventArgs e)
 		{
 			Gtk.Application.Invoke(delegate {
 				ConnectionState = notificationClient.IsNotificationActive ? ConnectionState.Connected : ConnectionState.Disconnected;

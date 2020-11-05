@@ -21,7 +21,7 @@ namespace ClientMangoService
 
 		public bool IsNotificationActive => channel.State == ChannelState.Ready;
 
-		public event EventHandler<ConnectionStateEventArgs> ChanalStateChanged;
+		public event EventHandler<ConnectionStateEventArgs> ChannelStateChanged;
 
 		public MangoNotificationClient(uint extension, CancellationToken token)
 		{
@@ -86,7 +86,7 @@ namespace ClientMangoService
 
 		protected virtual void OnChanalStateChanged(ChannelState state)
 		{
-			ChanalStateChanged?.Invoke(this, new ConnectionStateEventArgs(state));
+			ChannelStateChanged?.Invoke(this, new ConnectionStateEventArgs(state));
 		}
 	}
 	
