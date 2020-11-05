@@ -47,9 +47,9 @@ namespace VodovozMangoService.HostedServices
             if (noDisconnected.Count > 0)
             {
                 var text = NumberToTextRus.FormatCase(noDisconnected.Count, 
-                    "Следующие {0} звонок не получили события Desconnected в течении 2 часов:\n",
-                    "Следующие {0} звонка не получили события Desconnected в течении 2 часов:\n",
-                    "Следующие {0} звонков не получили события Desconnected в течении 2 часов:\n"
+                    "Следующие {0} звонок не получили события Disconnected в течении 2 часов:\n",
+                    "Следующие {0} звонка не получили события Disconnected в течении 2 часов:\n",
+                    "Следующие {0} звонков не получили события Disconnected в течении 2 часов:\n"
                     );
                 noDisconnected.ForEach(info => text += $"* CallInfo {info.LastEvent.call_id}:\n{info.EventsToText()}\n");
                 loggerLostEvents.Error(text);
@@ -59,9 +59,9 @@ namespace VodovozMangoService.HostedServices
             if (lostIncome.Count > 0)
             {
                 var text = NumberToTextRus.FormatCase(lostIncome.Count, 
-                    "У следующего {0} звонка было только событие Desconnected:\n",
-                    "У следующих {0} звонков было только событие Desconnected:\n",
-                    "У следующих {0} звонков было только событие Desconnected:\n"
+                    "У следующего {0} звонка было только событие Disconnected:\n",
+                    "У следующих {0} звонков было только событие Disconnected:\n",
+                    "У следующих {0} звонков было только событие Disconnected:\n"
                 );
                 lostIncome.ForEach(info => text += $"* CallInfo {info.LastEvent.call_id}:\n{info.EventsToText()}\n");
                 loggerLostEvents.Error(text);
