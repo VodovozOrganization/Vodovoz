@@ -296,7 +296,8 @@ namespace Vodovoz
 
 		private void UpdateSensitivity()
 		{
-			if(Entity.Status != RouteListStatus.OnClosing && Entity.Status != RouteListStatus.MileageCheck) {
+			if(Entity.Status != RouteListStatus.OnClosing && Entity.Status != RouteListStatus.MileageCheck
+			&& Entity.Status != RouteListStatus.Delivered) {
 				ytextviewFuelInfo.Sensitive = false;
 				ycheckHideCells.Sensitive = false;
 				vbxFuelTickets.Sensitive = false;
@@ -556,7 +557,8 @@ namespace Vodovoz
 		void UpdateButtonState()
 		{
 			buttonAccept.Sensitive = 
-				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck) 
+				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck
+				                                            || Entity.Status == RouteListStatus.Delivered) 
 				&& canCloseRoutelist;
 		}
 
@@ -700,6 +702,12 @@ namespace Vodovoz
 			if(!TrySetCashier()) {
 				return false;
 			}
+
+			if (HasChanges && Entity.Status == RouteListStatus.Delivered)
+			{
+				Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
+			}
+			
 			UoW.Save();
 
 			return true;
