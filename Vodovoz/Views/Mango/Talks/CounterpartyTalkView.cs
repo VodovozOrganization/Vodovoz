@@ -24,7 +24,7 @@ namespace Vodovoz.Views.Mango.Talks
 				var widget = new CounterpartyOrderView(item);
 				WidgetPlace.AppendPage(widget, label);
 			}
-			var p_label = new Gtk.Label("+ Новый контргагент");
+			var p_label = new Gtk.Label("+ Новый контрагент");
 			var p_widget = new Button() { Name = "New" };
 			WidgetPlace.AppendPage(p_widget, p_label);
 
@@ -38,9 +38,7 @@ namespace Vodovoz.Views.Mango.Talks
 			WidgetPlace.SwitchPage += SwitchPage_WidgetPlace;
 			ViewModel.CounterpartyOrdersModelsUpdateEvent += Update_WidgetPlace;
 
-			CostAndDeliveryIntervalButton.Sensitive =
-				ViewModel.currentCounterparty.DeliveryPoints != null ||
-				ViewModel.currentCounterparty.DeliveryPoints.Count > 0 ? true : false;
+			CostAndDeliveryIntervalButton.Sensitive = ViewModel.currentCounterparty.DeliveryPoints?.Count > 0;
 		}
 
 		#region Events
@@ -93,9 +91,7 @@ namespace Vodovoz.Views.Mango.Talks
 			WidgetPlace.Page = (int)lastPage;
 			falseSwitching = false;
 
-			CostAndDeliveryIntervalButton.Sensitive =
-				ViewModel.currentCounterparty.DeliveryPoints != null ||
-				ViewModel.currentCounterparty.DeliveryPoints.Count > 0 ? true : false;
+			CostAndDeliveryIntervalButton.Sensitive = ViewModel.currentCounterparty.DeliveryPoints?.Count > 0;
 		}
 
 		protected void Clicked_NewClientButton(object sender, EventArgs e)
