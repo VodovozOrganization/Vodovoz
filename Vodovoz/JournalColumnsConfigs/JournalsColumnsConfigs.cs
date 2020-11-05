@@ -64,7 +64,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			TreeViewColumnsConfigFactory.Register<OrderJournalViewModel>(
 				() => FluentColumnsConfig<OrderJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
-					.AddColumn("Дата").AddTextRenderer(node => node.Date != null ? ((DateTime)node.Date).ToString("d") : String.Empty)
+					.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
 					.AddColumn("Автор").AddTextRenderer(node => node.Author)
 					.AddColumn("Время").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
 					.AddColumn("Статус").AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
