@@ -15,9 +15,15 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.JournalSelector;
+using Vodovoz.JournalViewModels;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.ViewModels.Cash;
+using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz
 {
@@ -115,6 +121,9 @@ namespace Vodovoz
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
+			IFileChooserProvider fileChooserProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
+			var filterViewModel = new ExpenseCategoryJournalFilterViewModel();
+			
 			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
 				() => {
 					var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
@@ -122,15 +131,20 @@ namespace Vodovoz
 						() => new ExpenseCategoryViewModel(
 							EntityUoWBuilder.ForCreate(),
 							UnitOfWorkFactory.GetDefaultFactory,
-							QS.Project.Services.ServicesConfig.CommonServices
+							ServicesConfig.CommonServices,
+							fileChooserProvider,
+							filterViewModel
+							
 						),
 						(node) => new ExpenseCategoryViewModel(
 							EntityUoWBuilder.ForOpen(node.Id),
 							UnitOfWorkFactory.GetDefaultFactory,
-							QS.Project.Services.ServicesConfig.CommonServices
+							ServicesConfig.CommonServices,
+							fileChooserProvider,
+							filterViewModel
 						),
 						UnitOfWorkFactory.GetDefaultFactory,
-						QS.Project.Services.ServicesConfig.CommonServices
+						ServicesConfig.CommonServices
 					) {
 						SelectionMode = JournalSelectionMode.Single
 					};
