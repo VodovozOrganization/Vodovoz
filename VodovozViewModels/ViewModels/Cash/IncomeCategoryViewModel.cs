@@ -1,5 +1,3 @@
-using System;
-using FluentNHibernate.Cfg.Db;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
@@ -8,7 +6,6 @@ using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash

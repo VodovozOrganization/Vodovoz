@@ -70,41 +70,6 @@ namespace Vodovoz.Domain.Cash
 			set => SetField(ref numbering, value);
 		}
 
-
-        #region Levels
-
-        // private List<ExpenseCategory> expenseCategories = null;
-        
-        // private void fillExpenseCategoriesList()
-        // {
-	       //  expenseCategories = new List<ExpenseCategory>();
-	       //  
-	       //  ExpenseCategory iter = this;
-	       //  while (iter.Parent != null)
-	       //  {
-		      //   expenseCategories.Insert(0, iter);
-		      //   iter = iter.Parent;
-	       //  }
-        // }
-        
-        // public virtual string Level5 => GetLevel(5);
-        // public virtual string Level4 => GetLevel(4);
-        // public virtual string Level3 => GetLevel(3);
-        // public virtual string Level2 => GetLevel(2);
-        // public virtual string Level1 => GetLevel(1);
-
-        // private string GetLevel(int n)
-        // {
-	       //  if (expenseCategories == null) fillExpenseCategoriesList();
-	       //  
-	       //  if (expenseCategories.Count < n)
-		      //   return "";
-	       //  else
-		      //   return expenseCategories[n-1].Name;
-        // }
-
-        #endregion //Levels
-        
 		#region ParentChilds
 		private ExpenseCategory parent;
 		[Display(Name = "Родительская группа")]
