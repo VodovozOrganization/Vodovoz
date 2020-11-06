@@ -33,7 +33,6 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Dialogs.Phones;
 
 namespace Vodovoz
 {
@@ -326,6 +325,18 @@ namespace Vodovoz
 			enumcomboCargoReceiverSource.ItemsEnum = typeof(CargoReceiverSource);
 			enumcomboCargoReceiverSource.Binding.AddBinding(Entity, e => e.CargoReceiverSource, w => w.SelectedItem).InitializeFromSource();
 
+			lblTax.Binding.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Visible).InitializeFromSource();
+			enumTax.ItemsEnum = typeof(TaxType);
+			
+			if (Entity.CreateDate != null)
+			{
+				Enum[] hideEnums = { TaxType.None };
+				enumTax.AddEnumToHideList(hideEnums);
+			}
+			
+			enumTax.Binding.AddBinding(Entity, e => e.TaxType, w => w.SelectedItem).InitializeFromSource();
+			enumTax.Binding.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Visible).InitializeFromSource();
+			
 			UpdateCargoReceiver();
 
 			#endregion Особая печать
@@ -512,6 +523,9 @@ namespace Vodovoz
 					entryMainCounterparty.Visible = labelMainCounterparty.Visible =
 						radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible =
 							enumPayment.Visible = (Entity.PersonType == PersonType.legal);
+
+			if (Entity.PersonType != PersonType.legal && Entity.TaxType != TaxType.None)
+				Entity.TaxType = TaxType.None;
 		}
 
 		protected void OnEnumPaymentEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
