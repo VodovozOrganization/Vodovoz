@@ -185,9 +185,7 @@ namespace Vodovoz.Dialogs
 			this.table1.RowSpacing = ((uint)(10));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.ClientPhonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
-			this.ClientPhonesView.Events = ((global::Gdk.EventMask)(256));
-			this.ClientPhonesView.Name = "ClientPhonesView";
+			this.ClientPhonesView = null;
 			this.table1.Add(this.ClientPhonesView);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.ClientPhonesView]));
 			w8.TopAttach = ((uint)(3));
@@ -269,9 +267,7 @@ namespace Vodovoz.Dialogs
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.DeliveryPointPhonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
-			this.DeliveryPointPhonesView.Events = ((global::Gdk.EventMask)(256));
-			this.DeliveryPointPhonesView.Name = "DeliveryPointPhonesView";
+			this.DeliveryPointPhonesView = null;
 			this.table1.Add(this.DeliveryPointPhonesView);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.DeliveryPointPhonesView]));
 			w14.TopAttach = ((uint)(4));

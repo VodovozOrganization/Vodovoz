@@ -15,9 +15,11 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
+using VodovozInfrastructure.Interfaces;
 
-namespace Vodovoz.ViewModels.Journals.Cash
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
     public class FuelDocumentsJournalViewModel : MultipleEntityJournalViewModelBase<FuelDocumentJournalNode>
     {
@@ -30,6 +32,8 @@ namespace Vodovoz.ViewModels.Journals.Cash
 	    private readonly IEmployeeJournalFactory employeeJournalFactory;
 	    private readonly ICarJournalFactory carJournalFactory;
 	    private readonly IReportViewOpener reportViewOpener;
+	    private readonly IFileChooserProvider fileChooserProvider;
+	    private readonly ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel;
 
 	    public FuelDocumentsJournalViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
@@ -41,7 +45,9 @@ namespace Vodovoz.ViewModels.Journals.Cash
             INomenclatureSelectorFactory nomenclatureSelectorFactory,
             IEmployeeJournalFactory employeeJournalFactory,
             ICarJournalFactory carJournalFactory,
-            IReportViewOpener reportViewOpener
+            IReportViewOpener reportViewOpener,
+            IFileChooserProvider fileChooserProvider,
+            ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel
             ) :
             base(unitOfWorkFactory, commonServices)
         {
@@ -54,6 +60,9 @@ namespace Vodovoz.ViewModels.Journals.Cash
 	        this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 	        this.carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 	        this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
+	        this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
+	        this.expenseCategoryJournalFilterViewModel = expenseCategoryJournalFilterViewModel ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFilterViewModel));
+	        
 
 	        TabName = "Журнал учета топлива";
 
@@ -313,7 +322,9 @@ namespace Vodovoz.ViewModels.Journals.Cash
 					    subdivisionRepository,
 					    commonServices,
 					    employeeJournalFactory,
-					    reportViewOpener
+					    reportViewOpener,
+					    fileChooserProvider,
+					    expenseCategoryJournalFilterViewModel
 				    ),
 				    //функция диалога открытия документа
 				    (FuelDocumentJournalNode node) => new FuelWriteoffDocumentViewModel(
@@ -324,7 +335,9 @@ namespace Vodovoz.ViewModels.Journals.Cash
 					    subdivisionRepository,
 					    commonServices,
 					    employeeJournalFactory,
-					    reportViewOpener
+					    reportViewOpener,
+					    fileChooserProvider,
+					    expenseCategoryJournalFilterViewModel
 				    ),
 				    //функция идентификации документа 
 				    (FuelDocumentJournalNode node) => {

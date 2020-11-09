@@ -115,10 +115,7 @@ namespace Vodovoz.Dialogs.Cash
 			this.hboxSubdivision.Name = "hboxSubdivision";
 			this.hboxSubdivision.Spacing = 6;
 			// Container child hboxSubdivision.Gtk.Box+BoxChild
-			this.accessfilteredsubdivisionselectorwidget = new global::Vodovoz.Core.Permissions.AccessFilteredSubdivisionSelectorWidget();
-			this.accessfilteredsubdivisionselectorwidget.Events = ((global::Gdk.EventMask)(256));
-			this.accessfilteredsubdivisionselectorwidget.Name = "accessfilteredsubdivisionselectorwidget";
-			this.accessfilteredsubdivisionselectorwidget.NeedChooseSubdivision = false;
+			this.accessfilteredsubdivisionselectorwidget = null;
 			this.hboxSubdivision.Add(this.accessfilteredsubdivisionselectorwidget);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxSubdivision[this.accessfilteredsubdivisionselectorwidget]));
 			w7.PackType = ((global::Gtk.PackType)(1));
