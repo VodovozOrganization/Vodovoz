@@ -4066,6 +4066,15 @@ namespace Vodovoz.Domain.Orders
 							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
 							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
 					);
+					
+					// Хардкодим дату, чтобы отсечь старые заказы
+					var date = new DateTime(2020, 11, 09, 11, 0, 0);
+					if (Client.PersonType == PersonType.legal && 
+					    Client.TaxType == TaxType.None &&
+					    (!CreateDate.HasValue || CreateDate > date))
+						yield return new ValidationResult(
+							"Налогообложение не указано.",
+							new[] {nameof(Client.TaxType)});
 				}
 
 				if(newStatus == OrderStatus.Closed) {
