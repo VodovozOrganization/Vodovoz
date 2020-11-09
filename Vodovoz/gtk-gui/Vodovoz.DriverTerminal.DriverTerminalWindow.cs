@@ -30,8 +30,6 @@ namespace Vodovoz.DriverTerminal
 
 		private global::Gtk.Label labelUser;
 
-		private global::Gtk.Label labelStatus;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -147,20 +145,11 @@ namespace Vodovoz.DriverTerminal
 			w11.Position = 0;
 			w11.Expand = false;
 			w11.Fill = false;
-			// Container child statusbarMain.Gtk.Box+BoxChild
-			this.labelStatus = new global::Gtk.Label();
-			this.labelStatus.Name = "labelStatus";
-			this.statusbarMain.Add(this.labelStatus);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelStatus]));
-			w12.PackType = ((global::Gtk.PackType)(1));
+			this.vbox1.Add(this.statusbarMain);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
 			w12.Position = 2;
 			w12.Expand = false;
 			w12.Fill = false;
-			this.vbox1.Add(this.statusbarMain);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
-			w13.Position = 2;
-			w13.Expand = false;
-			w13.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
