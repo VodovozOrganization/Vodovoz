@@ -932,9 +932,7 @@ namespace Vodovoz
 			w70.XOptions = ((global::Gtk.AttachOptions)(4));
 			w70.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.phonesview1 = new global::Vodovoz.Dialogs.Phones.PhonesView();
-			this.phonesview1.Events = ((global::Gdk.EventMask)(256));
-			this.phonesview1.Name = "phonesview1";
+			this.phonesview1 = null;
 			this.datatable1.Add(this.phonesview1);
 			global::Gtk.Table.TableChild w71 = ((global::Gtk.Table.TableChild)(this.datatable1[this.phonesview1]));
 			w71.TopAttach = ((uint)(7));
@@ -1030,9 +1028,7 @@ namespace Vodovoz
 			this.datatable5.ColumnSpacing = ((uint)(6));
 			this.datatable5.BorderWidth = ((uint)(6));
 			// Container child datatable5.Gtk.Table+TableChild
-			this.commentsview4 = new global::Vodovoz.ViewWidgets.CommentsView();
-			this.commentsview4.Events = ((global::Gdk.EventMask)(256));
-			this.commentsview4.Name = "commentsview4";
+			this.commentsview4 = null;
 			this.datatable5.Add(this.commentsview4);
 			global::Gtk.Table.TableChild w81 = ((global::Gtk.Table.TableChild)(this.datatable5[this.commentsview4]));
 			w81.TopAttach = ((uint)(1));
