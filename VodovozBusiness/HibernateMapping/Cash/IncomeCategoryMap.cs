@@ -11,14 +11,7 @@ namespace Vodovoz.HibernateMapping
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.Name).Column ("name");
-			Map(x => x.IsArchive).Column ("is_archive");
 			Map(x => x.IncomeDocumentType).Column("type_document").CustomType<IncomeInvoiceDocumentTypeStringType>();
-			Map(x => x.Numbering).Column ("numbering");
-
-			References(x => x.Subdivision).Column("subdivision_id");
-			
-			References(x => x.Parent).Column("parent_id");
-			HasMany (x => x.Childs).Inverse().Cascade.All ().LazyLoad ().KeyColumn ("parent_id");
 		}
 	}
 }

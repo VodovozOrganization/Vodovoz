@@ -17,8 +17,6 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
@@ -31,8 +29,6 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private readonly ICommonServices commonServices;
 		private readonly IEmployeeJournalFactory employeeJournalFactory;
 		private readonly IReportViewOpener reportViewOpener;
-		public readonly IFileChooserProvider fileChooserProvider;
-		public readonly ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel;
 
 		public FuelWriteoffDocumentViewModel(
 			IEntityUoWBuilder uoWBuilder, 
@@ -42,9 +38,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IReportViewOpener reportViewOpener,
-			IFileChooserProvider fileChooserProvider,
-			ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel
+			IReportViewOpener reportViewOpener
 		) 
 		: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -55,8 +49,6 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
-			this.expenseCategoryJournalFilterViewModel = expenseCategoryJournalFilterViewModel ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFilterViewModel));
-			this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
 
 			CreateCommands();
 			UpdateCashSubdivisions();
