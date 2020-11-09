@@ -36,7 +36,7 @@ namespace Vodovoz.Reports
 		private void ConfigureDlg()
 		{
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
-
+			
 			var nomenclatureTypeParam = filter.CreateParameterSet(
 				"Типы номенклатур",
 				"nomenclature_type",
@@ -305,7 +305,10 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
-			OnUpdate(true);
+			if(dateperiodpicker.StartDate != default(DateTime))
+				OnUpdate(true);
+			else
+				MessageDialogHelper.RunWarningDialog("Заполните дату.");
 		}
 
 		void OnUpdate(bool hide = false)
