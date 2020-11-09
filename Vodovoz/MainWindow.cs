@@ -142,7 +142,7 @@ public partial class MainWindow : Gtk.Window
 		ActionDeliveryPrice.Visible = false;
 		ActionUndeliveredOrders.Visible = false;
 
-		ActionStock.Visible = false;
+		//ActionStock.Visible = false;
 		ActionCash.Visible = false;
 		ActionAccounting.Visible = false;
 		ActionReports.Visible = false;
@@ -150,7 +150,7 @@ public partial class MainWindow : Gtk.Window
 		ActionStaff.Visible = false;
 		ActionCRM.Visible = false;
 		ActionSuppliers.Visible = false;
-		ActionComplaints.Visible = false;
+		//ActionComplaints.Visible = false;
 		
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle) {
