@@ -188,7 +188,7 @@ namespace Vodovoz.ViewModels.Logistic
         private DelegateCommand addDistrictCommand;
         public DelegateCommand AddDistrictCommand => addDistrictCommand ?? (addDistrictCommand = new DelegateCommand(
             () => {
-                var newDistrict = new District { PriceType = DistrictWaterPrice.Standart, DistrictName = "Новый район", DistrictsSet = Entity};
+                var newDistrict = new District { PriceType = DistrictWaterPrice.Standart, DistrictName = "Новый район", DistrictsSet = Entity };
                 Entity.ObservableDistricts.Add(newDistrict);
                 SelectedDistrict = newDistrict;
             }, () => true

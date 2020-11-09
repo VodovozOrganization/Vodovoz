@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Sale
@@ -8,7 +9,7 @@ namespace Vodovoz.Domain.Sale
         Nominative = "стоимость доставки дня недели района")]
     public class WeekDayDistrictRuleItem : DistrictRuleItemBase
     {
-        public virtual string Title => $"{DeliveryPriceRule}, то цена {Price:C0}";
+        public virtual string Title => $"{DeliveryPriceRule}, то цена {Price.ToString("C0", CultureInfo.CreateSpecificCulture("ru-RU"))}";
         
         WeekDayName weekDay;
         [Display(Name = "День недели")]
