@@ -1852,16 +1852,6 @@ namespace Vodovoz
 			w141.XOptions = ((global::Gtk.AttachOptions)(4));
 			w141.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableSpecDoc.Gtk.Table+TableChild
-			this.label45 = new global::Gtk.Label();
-			this.label45.Name = "label45";
-			this.label45.LabelProp = global::Mono.Unix.Catalog.GetString("УПД не для безнала");
-			this.tableSpecDoc.Add(this.label45);
-			global::Gtk.Table.TableChild w142 = ((global::Gtk.Table.TableChild)(this.tableSpecDoc[this.label45]));
-			w142.TopAttach = ((uint)(2));
-			w142.BottomAttach = ((uint)(3));
-			w142.XOptions = ((global::Gtk.AttachOptions)(4));
-			w142.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableSpecDoc.Gtk.Table+TableChild
 			this.yspeccomboboxTorg2Count = new global::Gamma.Widgets.ySpecComboBox();
 			this.yspeccomboboxTorg2Count.Name = "yspeccomboboxTorg2Count";
 			this.yspeccomboboxTorg2Count.AddIfNotExist = false;
