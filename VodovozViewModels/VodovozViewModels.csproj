@@ -111,9 +111,21 @@
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
+    <Compile Include="Journals\FilterViewModels\ExpenseCategoryJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\IncomeCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictsSetJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\DistrictsSetJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\ExpenseCategoryJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\IncomeCategoryJournalNode.cs" />
+    <Compile Include="Journals\JournalSelectors\ExpanceCategoryAutoCompleteSelectorFactory.cs" />
+    <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
+    <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />
+    <Compile Include="Journals\JournalSelectors\IncomeCategorySelectorFactory.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\ExpenseCategoryJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -121,6 +133,8 @@
     <Compile Include="TempAdapters\ICounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\IEmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\IEntityDeleteWorker.cs" />
+    <Compile Include="ViewModels\Cash\ExpenseCategoryViewModel.cs" />
+    <Compile Include="ViewModels\Cash\IncomeCategoryViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintViewModel.cs" />
     <Compile Include="ViewModels\Employees\FineViewModel.cs" />
     <Compile Include="Infrastructure\Services\EmployeeService.cs" />
@@ -224,11 +238,10 @@
     <Compile Include="Journals\FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Organization\SubdivisionFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\EmptyClass.cs" />
-    <Compile Include="Journals\Cash\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\Nodes\Cash\FuelDocumentJournalNode.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Infrastructure\Export" />
     <Folder Include="ViewModels\" />
     <Folder Include="ViewModels\Complaints\" />
     <Folder Include="ViewModels\Employees\" />
@@ -253,7 +266,6 @@
     <Folder Include="Journals\JournalViewModels\" />
     <Folder Include="Journals\JournalNodes\" />
     <Folder Include="Journals\FilterViewModels\" />
-    <Folder Include="Journals\Cash\" />
     <Folder Include="Journals\Nodes\" />
     <Folder Include="Journals\Nodes\Cash\" />
   </ItemGroup>

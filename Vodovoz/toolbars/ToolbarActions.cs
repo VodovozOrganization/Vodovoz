@@ -1,4 +1,6 @@
-﻿using Dialogs.Employees;
+﻿using System;
+using System.Data;
+using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -49,8 +51,11 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.ViewModels.Journals.Cash;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewWidgets;
+using VodovozInfrastructure.Interfaces;
+using Action = Gtk.Action;
 
 public partial class MainWindow : Window
 {
@@ -590,6 +595,10 @@ public partial class MainWindow : Window
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
 		ICarJournalFactory carJournalFactory = new CarJournalFactory();
 		
+		IFileChooserProvider fileChooserProvider = new Vodovoz.FileChooser("Расход " + DateTime.Now + ".csv");
+		var  expenseCategoryJournalFilterViewModel = new ExpenseCategoryJournalFilterViewModel(); 
+		
+		
 		var fuelDocumentsJournalViewModel = new FuelDocumentsJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
@@ -600,7 +609,9 @@ public partial class MainWindow : Window
 			nomenclatureSelectorFactory,
 			employeeJournalFactory,
 			carJournalFactory,
-			new GtkReportViewOpener()
+			new GtkReportViewOpener(),
+			fileChooserProvider,
+			expenseCategoryJournalFilterViewModel
 		);
 		tdiMain.AddTab(fuelDocumentsJournalViewModel);
 	}

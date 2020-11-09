@@ -34,7 +34,7 @@ namespace Vodovoz.Core
 					var baseOnNameResolver = new BasedOnNameTDIResolver(usedAssemblies);
 					return baseOnNameResolver.Resolve(tab);
 				} catch(Exception e) {
-					throw new InvalidProgramException("Невозможно найти View для ViewModel вкладки. Имя класса ViewModel не соответствует шаблону именования или не настроено правильное сопоставление", e);
+					throw new InvalidProgramException($"Невозможно найти View для ViewModel вкладки: {tab.TabName}. Имя класса ViewModel: {tab.GetType()} не соответствует шаблону именования или не настроено правильное сопоставление");
 				}
 			}
 		}
