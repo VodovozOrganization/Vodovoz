@@ -98,10 +98,7 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
 		this.KeyReleaseEvent += TDIMain.TDIHandleKeyReleaseEvent;
-		//Передаем лебл
-		QSMain.StatusBarLabel = labelStatus;
 		this.Title = MainSupport.GetTitle();
-		QSMain.MakeNewStatusTargetForNlog();
 		//Настраиваем модули
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
