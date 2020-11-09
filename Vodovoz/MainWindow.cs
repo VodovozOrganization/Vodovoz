@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
-using Vodovoz.Domain.Contacts;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
@@ -16,10 +17,13 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
+using QS.Tdi;
 using QS.Tdi.Gtk;
+using QS.Tools;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
+using QSSupportLib;
 using Vodovoz;
 using Vodovoz.Core;
 using Vodovoz.Dialogs.OnlineStore;
@@ -28,52 +32,46 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
-using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.JournalViewers;
+using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
+using Vodovoz.JournalSelector;
+using Vodovoz.JournalViewers;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.ReportsParameters.Payments;
+using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.WageCalculation;
+using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
-using QSSupportLib;
-using Vodovoz.ReportsParameters.Sales;
-using Vodovoz.Domain.Service.BaseParametersServices;
-using QS.Tdi;
-using QS.Tools;
-using Vodovoz.Infrastructure;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalSelector;
-using Vodovoz.ViewModels.Users;
-using Vodovoz.ViewModels;
-using Vodovoz.JournalViewModels;
 using Vodovoz.ReportsParameters.Production;
 
 public partial class MainWindow : Gtk.Window
@@ -82,6 +80,10 @@ public partial class MainWindow : Gtk.Window
 	uint LastUiId;
 
 	public TdiNotebook TdiMain => tdiMain;
+
+	private ILifetimeScope AutofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
+	public TdiNavigationManager NavigationManager;
+	public MangoManager MangoManager;
 
 	public MainWindow() : base(Gtk.WindowType.Toplevel)
 	{
@@ -178,6 +180,10 @@ public partial class MainWindow : Gtk.Window
 				break;
 		}
 
+		NavigationManager = AutofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
+		MangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
+		MangoManager.Connect();
+
 		BanksUpdater.CheckBanksUpdate(false);
 	}
 
@@ -214,6 +220,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		if(tdiMain.CloseAllTabs()) {
 			a.RetVal = false;
+			AutofacScope.Dispose();
 			Application.Quit();
 		} else {
 			a.RetVal = true;
@@ -223,6 +230,7 @@ public partial class MainWindow : Gtk.Window
 	protected void OnQuitActionActivated(object sender, EventArgs e)
 	{
 		if(tdiMain.CloseAllTabs()) {
+			AutofacScope.Dispose();
 			Application.Quit();
 		}
 	}
@@ -848,8 +856,8 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenRoutesListRegisterReport();
-	protected void OnActionOrderedByIdRoutesListRegisterActivated(object sender, EventArgs e) => OpenDriverRoutesListRegisterReport();
+	protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenDriverRoutesListRegisterReport();
+	protected void OnActionOrderedByIdRoutesListRegisterActivated(object sender, EventArgs e) => OpenRoutesListRegisterReport();
 	protected void OnActionProducedProductionReportActivated(object sender, EventArgs e)
 	{
 		#region DependencyCreation

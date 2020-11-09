@@ -28,6 +28,7 @@ namespace Vodovoz.Reports
 			this.Name = "Vodovoz.Reports.RevisionBottlesAndDeposits";
 			// Container child Vodovoz.Reports.RevisionBottlesAndDeposits.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			this.table1.BorderWidth = ((uint)(6));

@@ -6,8 +6,10 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -26,7 +28,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public IUserRepository UserRepository { get; }
 
 		public CreateComplaintViewModel(
-			IEntityUoWBuilder uoWBuilder, 
+			IEntityUoWBuilder uowBuilder, 
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
@@ -35,8 +37,9 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository
-			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			IUserRepository userRepository,
+			string phone = null
+			) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -48,7 +51,45 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.Checking);
 			ConfigureEntityPropertyChanges();
+			Entity.Phone = phone;
 			TabName = "Новая клиентская рекламация";
+		}
+
+		public CreateComplaintViewModel(Counterparty client,
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IEmployeeService employeeService,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			ISubdivisionRepository subdivisionRepository,
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository,
+			string phone = null) : this(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,nomenclatureSelectorFactory,nomenclatureRepository,userRepository,phone)
+		{
+			Counterparty _client = UoW.GetById<Counterparty>(client.Id);
+			Entity.Counterparty = _client;
+			Entity.Phone = phone;
+		}
+		
+		public CreateComplaintViewModel(Order order,
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IEmployeeService employeeService,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			ISubdivisionRepository subdivisionRepository,
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository,
+			string phone = null) : this(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,nomenclatureSelectorFactory,nomenclatureRepository,userRepository,phone)
+		{
+			Order _order = UoW.GetById<Order>(order.Id);
+			Entity.Order = _order;
+			Entity.Counterparty = _order.Client;
+			Entity.Phone = phone;
 		}
 
 		private Employee currentEmployee;

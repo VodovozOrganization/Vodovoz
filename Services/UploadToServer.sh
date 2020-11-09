@@ -11,6 +11,7 @@ echo "7) InstantSms"
 echo "8) DeliveryRules"
 echo "9) SmsPayment"
 echo "10) OnlineStoreImport"
+echo "11) Mango"
 
 echo "Можно вызывать вместе, перечислив номера через запятую, например Driver+Email=1,2"
 read service;
@@ -50,6 +51,9 @@ smsPaymentServiceName="vodovoz-sms-payment.service"
 onlineStoreImportServiceFolder="VodovozOnlineStoreImportService"
 onlineStoreImportServiceName="vodovoz-online-store-import.service"
 
+mangoServiceFolder="VodovozMangoService"
+mangoServiceName="vodovoz-mango.service"
+
 serverAddress="root@srv2.vod.qsolution.ru"
 serverPort="2203"
 
@@ -75,6 +79,15 @@ function DeleteHttpDll {
 
 function CopyFiles {
 	rsync -vizaP --delete -e "ssh -p $serverPort" ./Application/$1/bin/$buildFolderName/ $serverAddress:/opt/$1
+}
+
+function CopyFilesPublished {
+	rsync -vizaP --delete -e "ssh -p $serverPort" Application/$1/bin/$buildFolderName/$2/publish/ $serverAddress:/opt/$1
+}
+
+function PublishProject {
+    dotnet build "Application/$1" --configuration $buildFolderName
+    dotnet publish "Application/$1" --configuration $buildFolderName
 }
 
 function UpdateDriverService {
@@ -212,43 +225,62 @@ function UpdateOnlineStoreImportService {
 	echo "-- Copying $onlineStoreImportServiceName files"
 	DeleteHttpDll $onlineStoreImportServiceFolder
 	CopyFiles $onlineStoreImportServiceFolder
-
 	echo "-- Starting $onlineStoreImportServiceName"
+
 	ssh $serverAddress -p$serverPort sudo systemctl start $onlineStoreImportServiceName
 }
 
-service2="$service,"
+function UpdateMangoService {
+	printf "\nОбновление службы работы с Mango\n"
+
+  PublishProject $mangoServiceFolder
+
+	ssh $serverAddress -p$serverPort sudo systemctl stop $mangoServiceName
+	echo "-- Stoping $mangoServiceName"
+
+	echo "-- Copying $mangoServiceName files"
+	
+	CopyFilesPublished $mangoServiceFolder "netcoreapp3.1"
+
+	echo "-- Starting $mangoServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl start $mangoServiceName
+}
+
+service2=",$service,"
 case $service2 in
-	*1,*)
+	*,1,*)
 		UpdateDriverService
 	;;&
-	*2,*)
+	*,2,*)
 		UpdateEmailService
 	;;&
-	*3,*)
+	*,3,*)
 		UpdateMobileService
 	;;&
-	*4,*)
+	*,4,*)
 		UpdateOSMService
 	;;&
-	*5,*)
+	*,5,*)
 		UpdateSMSInformerService
 	;;&
-	*6,*)
+	*,6,*)
 		UpdateSalesReceiptsService
 	;;&
-	*7,*)
+	*,7,*)
 		UpdateInstantSmsService
 	;;&
-	*8,*)
+	*,8,*)
 		UpdateDeliveryRulesService
 	;;&
-	*9,*)
+	*,9,*)
 		UpdateSmsPaymentService
 	;;&
-    *10,*)
-        UpdateOnlineStoreImportService
-    ;;
+	*,10,*)
+		UpdateOnlineStoreImportService
+	;;&
+	*,11,*)
+		UpdateMangoService
+	;;
 esac
 
 read -p "Press enter to exit"

@@ -39,6 +39,7 @@ namespace Vodovoz.Reports
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			yentryAuthor.RepresentationModel = new EmployeesVM(filter);
+			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 		}
 
 		#region IParametersWidget implementation
