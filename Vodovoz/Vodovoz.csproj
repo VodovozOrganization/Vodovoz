@@ -1485,6 +1485,7 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ExpenseCategoryJournalFilterView.cs" />
     <Compile Include="Filters\GtkViews\IncomeCategoryJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.IncomeCategoryJournalFilterView.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListStatusNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -64,8 +64,8 @@ namespace Vodovoz.ViewModel
 				query.Where(o => o.Status == Filter.RestrictStatus);
 			}
 
-			if(Filter.OnlyStatuses != null) {
-				query.WhereRestrictionOn(o => o.Status).IsIn(Filter.OnlyStatuses);
+			if(Filter.SelectedStatuses != null) {
+				query.WhereRestrictionOn(o => o.Status).IsIn(Filter.SelectedStatuses);
 			}
 
 			if(Filter.RestrictShift != null) {
