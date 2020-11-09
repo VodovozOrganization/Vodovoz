@@ -14,38 +14,40 @@ using Vodovoz.ViewModels.ViewModels.Cash;
 namespace Vodovoz.Dialogs.Cash
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class IncomeCategoryView2 : TabViewBase<IncomeCategoryViewModel>
+	public partial class ExpenseCategoryView : TabViewBase<ExpenseCategoryViewModel>
 	{
-		public IncomeCategoryView2(IncomeCategoryViewModel viewModel) : base(viewModel)
+		public ExpenseCategoryView(ExpenseCategoryViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			ConfigureDlg();
 		}
+
 
 		private void ConfigureDlg()
 		{
 			yentryName.Binding
 				.AddBinding(ViewModel.Entity, e => e.Name, (widget) => widget.Text)
 				.InitializeFromSource();
-
+			
 			yentryNumbering.Binding
 				.AddBinding(ViewModel.Entity, e => e.Numbering, (widget) => widget.Text)
 				.InitializeFromSource();
-
+			
 			#region ParentEntityviewmodelentry
-			ParentEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.IncomeCategoryAutocompleteSelectorFactory);
+			ParentEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseCategoryAutocompleteSelectorFactory);
 			ParentEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Parent, w => w.Subject).InitializeFromSource();
 			ParentEntityviewmodelentry.CanEditReference = true;
 			#endregion
-
+			
+			
 			#region SubdivisionEntityviewmodelentry
 			//Это создается тут, а не в ExpenseCategoryViewModel потому что EmployeesJournalViewModel и EmployeeFilterViewModel нет в ViewModels
 			var employeeSelectorFactory =
 				new DefaultEntityAutocompleteSelectorFactory
 					<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
-
-			var filter = new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default };
-
+			
+			var filter = new SubdivisionFilterViewModel(){ SubdivisionType = SubdivisionType.Default };
+			
 			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () => {
 					return new SubdivisionsJournalViewModel(
@@ -60,9 +62,11 @@ namespace Vodovoz.Dialogs.Cash
 			#endregion
 
 			ycheckArchived.Binding.AddBinding(ViewModel, e => e.IsArchive, w => w.Active).InitializeFromSource();
+			
+			
 
-			yenumTypeDocument.ItemsEnum = typeof(IncomeInvoiceDocumentType);
-			yenumTypeDocument.Binding.AddBinding(ViewModel.Entity, e => e.IncomeDocumentType, w => w.SelectedItem).InitializeFromSource();
+			yenumTypeDocument.ItemsEnum = typeof(ExpenseInvoiceDocumentType);
+			yenumTypeDocument.Binding.AddBinding(ViewModel.Entity, e => e.ExpenseDocumentType, w => w.SelectedItem).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };

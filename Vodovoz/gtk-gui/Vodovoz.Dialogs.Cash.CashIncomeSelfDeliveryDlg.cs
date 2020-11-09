@@ -129,7 +129,10 @@ namespace Vodovoz.Dialogs.Cash
 			this.hboxSubdivision.Name = "hboxSubdivision";
 			this.hboxSubdivision.Spacing = 6;
 			// Container child hboxSubdivision.Gtk.Box+BoxChild
-			this.accessfilteredsubdivisionselectorwidget = null;
+			this.accessfilteredsubdivisionselectorwidget = new global::Vodovoz.Core.Permissions.AccessFilteredSubdivisionSelectorWidget();
+			this.accessfilteredsubdivisionselectorwidget.Events = ((global::Gdk.EventMask)(256));
+			this.accessfilteredsubdivisionselectorwidget.Name = "accessfilteredsubdivisionselectorwidget";
+			this.accessfilteredsubdivisionselectorwidget.NeedChooseSubdivision = false;
 			this.hboxSubdivision.Add(this.accessfilteredsubdivisionselectorwidget);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxSubdivision[this.accessfilteredsubdivisionselectorwidget]));
 			w7.PackType = ((global::Gtk.PackType)(1));
@@ -341,7 +344,10 @@ namespace Vodovoz.Dialogs.Cash
 			this.hbox11.Name = "hbox11";
 			this.hbox11.Spacing = 6;
 			// Container child hbox11.Gtk.Box+BoxChild
-			this.permissioncommentview = null;
+			this.permissioncommentview = new global::Vodovoz.ViewWidgets.PermissionCommentView();
+			this.permissioncommentview.Events = ((global::Gdk.EventMask)(256));
+			this.permissioncommentview.Name = "permissioncommentview";
+			this.permissioncommentview.AddCommentInfo = false;
 			this.hbox11.Add(this.permissioncommentview);
 			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.permissioncommentview]));
 			w27.Position = 0;

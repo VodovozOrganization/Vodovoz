@@ -116,6 +116,8 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelCloseDelivery;
 
+		private global::Gtk.Label labelDefaultExpense;
+
 		private global::Gtk.Label labelFIO;
 
 		private global::Gtk.Label labelFullName;
@@ -129,6 +131,8 @@ namespace Vodovoz
 		private global::Gamma.GtkWidgets.yLabel lblTax;
 
 		private global::Gamma.GtkWidgets.yLabel lblVodovozNumber;
+
+		private global::Gamma.Widgets.yEntryReference referenceDefaultExpense;
 
 		private global::Gamma.GtkWidgets.ySpinButton spinMaxCredit;
 
@@ -952,6 +956,19 @@ namespace Vodovoz
 			w59.XOptions = ((global::Gtk.AttachOptions)(4));
 			w59.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.labelDefaultExpense = new global::Gtk.Label();
+			this.labelDefaultExpense.Name = "labelDefaultExpense";
+			this.labelDefaultExpense.Xalign = 1F;
+			this.labelDefaultExpense.LabelProp = global::Mono.Unix.Catalog.GetString("Статья расхода\nпо-умолчанию:");
+			this.table1.Add(this.labelDefaultExpense);
+			global::Gtk.Table.TableChild w60 = ((global::Gtk.Table.TableChild)(this.table1[this.labelDefaultExpense]));
+			w60.TopAttach = ((uint)(10));
+			w60.BottomAttach = ((uint)(11));
+			w60.LeftAttach = ((uint)(2));
+			w60.RightAttach = ((uint)(3));
+			w60.XOptions = ((global::Gtk.AttachOptions)(4));
+			w60.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.labelFIO = new global::Gtk.Label();
 			this.labelFIO.Name = "labelFIO";
 			this.labelFIO.Xalign = 1F;
@@ -1019,30 +1036,31 @@ namespace Vodovoz
 			w66.XOptions = ((global::Gtk.AttachOptions)(4));
 			w66.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.lblTax = new global::Gamma.GtkWidgets.yLabel();
-			this.lblTax.Name = "lblTax";
-			this.lblTax.Xalign = 1F;
-			this.lblTax.LabelProp = global::Mono.Unix.Catalog.GetString("Налогообложение:");
-			this.table1.Add(this.lblTax);
-			global::Gtk.Table.TableChild w65 = ((global::Gtk.Table.TableChild)(this.table1[this.lblTax]));
-			w65.TopAttach = ((uint)(9));
-			w65.BottomAttach = ((uint)(10));
-			w65.XOptions = ((global::Gtk.AttachOptions)(4));
-			w65.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.lblVodovozNumber = new global::Gamma.GtkWidgets.yLabel();
 			this.lblVodovozNumber.Name = "lblVodovozNumber";
 			this.lblVodovozNumber.Xalign = 0F;
 			this.lblVodovozNumber.LabelProp = global::Mono.Unix.Catalog.GetString("00");
 			this.lblVodovozNumber.Selectable = true;
 			this.table1.Add(this.lblVodovozNumber);
-			global::Gtk.Table.TableChild w66 = ((global::Gtk.Table.TableChild)(this.table1[this.lblVodovozNumber]));
-			w66.TopAttach = ((uint)(1));
-			w66.BottomAttach = ((uint)(2));
-			w66.LeftAttach = ((uint)(1));
-			w66.RightAttach = ((uint)(2));
-			w66.XOptions = ((global::Gtk.AttachOptions)(4));
-			w66.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w67 = ((global::Gtk.Table.TableChild)(this.table1[this.lblVodovozNumber]));
+			w67.TopAttach = ((uint)(1));
+			w67.BottomAttach = ((uint)(2));
+			w67.LeftAttach = ((uint)(1));
+			w67.RightAttach = ((uint)(2));
+			w67.XOptions = ((global::Gtk.AttachOptions)(4));
+			w67.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.referenceDefaultExpense = new global::Gamma.Widgets.yEntryReference();
+			this.referenceDefaultExpense.Events = ((global::Gdk.EventMask)(256));
+			this.referenceDefaultExpense.Name = "referenceDefaultExpense";
+			this.table1.Add(this.referenceDefaultExpense);
+			global::Gtk.Table.TableChild w68 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceDefaultExpense]));
+			w68.TopAttach = ((uint)(10));
+			w68.BottomAttach = ((uint)(11));
+			w68.LeftAttach = ((uint)(3));
+			w68.RightAttach = ((uint)(4));
+			w68.XOptions = ((global::Gtk.AttachOptions)(4));
+			w68.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.spinMaxCredit = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 100D);
 			this.spinMaxCredit.CanFocus = true;
@@ -1053,13 +1071,13 @@ namespace Vodovoz
 			this.spinMaxCredit.ValueAsDecimal = 0m;
 			this.spinMaxCredit.ValueAsInt = 0;
 			this.table1.Add(this.spinMaxCredit);
-			global::Gtk.Table.TableChild w67 = ((global::Gtk.Table.TableChild)(this.table1[this.spinMaxCredit]));
-			w67.TopAttach = ((uint)(10));
-			w67.BottomAttach = ((uint)(11));
-			w67.LeftAttach = ((uint)(1));
-			w67.RightAttach = ((uint)(2));
-			w67.XOptions = ((global::Gtk.AttachOptions)(4));
-			w67.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w69 = ((global::Gtk.Table.TableChild)(this.table1[this.spinMaxCredit]));
+			w69.TopAttach = ((uint)(10));
+			w69.BottomAttach = ((uint)(11));
+			w69.LeftAttach = ((uint)(1));
+			w69.RightAttach = ((uint)(2));
+			w69.XOptions = ((global::Gtk.AttachOptions)(4));
+			w69.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ycheckSpecialDocuments = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckSpecialDocuments.TooltipMarkup = "Больше не работаем с этим клиентом";
@@ -1069,13 +1087,13 @@ namespace Vodovoz
 			this.ycheckSpecialDocuments.DrawIndicator = true;
 			this.ycheckSpecialDocuments.UseUnderline = true;
 			this.table1.Add(this.ycheckSpecialDocuments);
-			global::Gtk.Table.TableChild w68 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckSpecialDocuments]));
-			w68.TopAttach = ((uint)(12));
-			w68.BottomAttach = ((uint)(13));
-			w68.LeftAttach = ((uint)(2));
-			w68.RightAttach = ((uint)(3));
-			w68.XOptions = ((global::Gtk.AttachOptions)(4));
-			w68.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckSpecialDocuments]));
+			w70.TopAttach = ((uint)(12));
+			w70.BottomAttach = ((uint)(13));
+			w70.LeftAttach = ((uint)(2));
+			w70.RightAttach = ((uint)(3));
+			w70.XOptions = ((global::Gtk.AttachOptions)(4));
+			w70.YOptions = ((global::Gtk.AttachOptions)(4));
 			w21.Add(this.table1);
 			this.GtkScrolledWindow4.Add(w21);
 			this.notebook1.Add(this.GtkScrolledWindow4);
@@ -2062,6 +2080,8 @@ namespace Vodovoz
 			this.buttonEditCloseDeliveryComment.Hide();
 			this.buttonSaveCloseComment.Hide();
 			this.label19.Hide();
+			this.labelDefaultExpense.Hide();
+			this.referenceDefaultExpense.Hide();
 			this.spinMaxCredit.Hide();
 			this.dataentryFinancialContact.Hide();
 			this.dataentryMainContact.Hide();

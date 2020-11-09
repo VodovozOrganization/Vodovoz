@@ -212,7 +212,8 @@ namespace Vodovoz
 			);
 
 			ySpecCmbCameFrom.Binding.AddBinding(Entity, f => f.CameFrom, w => w.SelectedItem).InitializeFromSource();
-
+			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
+			referenceDefaultExpense.Binding.AddBinding(Entity, e => e.DefaultExpenseCategory, w => w.Subject).InitializeFromSource();
 			var filterAccountant = new EmployeeFilterViewModel();
 			filterAccountant.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
