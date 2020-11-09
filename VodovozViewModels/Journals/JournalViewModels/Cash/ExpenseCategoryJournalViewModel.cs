@@ -142,10 +142,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 var res = CSVbuilder.ToString();
 
                 if (fileChooserPath == "") return;
-                using (StreamWriter writer = new StreamWriter(fileChooserPath))  
+                Stream fileStream = new FileStream(fileChooserPath, FileMode.Create);
+                using (StreamWriter writer = new StreamWriter(fileStream, System.Text.Encoding.GetEncoding("Windows-1251")))  
                 {  
+                    writer.Write("\"sep=,\"\n");
                     writer.Write(res.ToString());
-                }               
+                }                 
                 fileChooserProvider.CloseWindow();
 
             }));

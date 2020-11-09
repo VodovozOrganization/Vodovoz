@@ -14,8 +14,6 @@ namespace Vodovoz.Dialogs.Cash
 
 		private global::Gtk.Table table1;
 
-		private global::Gtk.Label labelParent;
-
 		private global::Gtk.Label labelType;
 
 		private global::Gtk.Label labelType1;
@@ -25,6 +23,8 @@ namespace Vodovoz.Dialogs.Cash
 		private global::Gtk.Label labelType3;
 
 		private global::Gtk.Label labelType4;
+
+		private global::Gtk.Label labelType5;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry ParentEntityviewmodelentry;
 
@@ -91,66 +91,67 @@ namespace Vodovoz.Dialogs.Cash
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelParent = new global::Gtk.Label();
-			this.labelParent.Name = "labelParent";
-			this.labelParent.LabelProp = global::Mono.Unix.Catalog.GetString("Родитель:");
-			this.table1.Add(this.labelParent);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.labelParent]));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.labelType = new global::Gtk.Label();
 			this.labelType.Name = "labelType";
 			this.labelType.Xalign = 0F;
 			this.labelType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип документа:");
 			this.table1.Add(this.labelType);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType]));
-			w7.TopAttach = ((uint)(2));
-			w7.BottomAttach = ((uint)(3));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType]));
+			w6.TopAttach = ((uint)(2));
+			w6.BottomAttach = ((uint)(3));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelType1 = new global::Gtk.Label();
 			this.labelType1.Name = "labelType1";
 			this.labelType1.Xalign = 0F;
 			this.labelType1.LabelProp = global::Mono.Unix.Catalog.GetString("Архивировать:");
 			this.table1.Add(this.labelType1);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType1]));
-			w8.TopAttach = ((uint)(3));
-			w8.BottomAttach = ((uint)(4));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType1]));
+			w7.TopAttach = ((uint)(3));
+			w7.BottomAttach = ((uint)(4));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelType2 = new global::Gtk.Label();
 			this.labelType2.Name = "labelType2";
 			this.labelType2.Xalign = 0F;
 			this.labelType2.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение:");
 			this.table1.Add(this.labelType2);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType2]));
-			w9.TopAttach = ((uint)(4));
-			w9.BottomAttach = ((uint)(5));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType2]));
+			w8.TopAttach = ((uint)(4));
+			w8.BottomAttach = ((uint)(5));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelType3 = new global::Gtk.Label();
 			this.labelType3.Name = "labelType3";
 			this.labelType3.Xalign = 0F;
 			this.labelType3.LabelProp = global::Mono.Unix.Catalog.GetString("Нумерация:");
 			this.table1.Add(this.labelType3);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType3]));
-			w10.TopAttach = ((uint)(5));
-			w10.BottomAttach = ((uint)(6));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType3]));
+			w9.TopAttach = ((uint)(5));
+			w9.BottomAttach = ((uint)(6));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelType4 = new global::Gtk.Label();
 			this.labelType4.Name = "labelType4";
 			this.labelType4.Xalign = 0F;
 			this.labelType4.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
 			this.table1.Add(this.labelType4);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType4]));
-			w11.TopAttach = ((uint)(1));
-			w11.BottomAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType4]));
+			w10.TopAttach = ((uint)(1));
+			w10.BottomAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelType5 = new global::Gtk.Label();
+			this.labelType5.Name = "labelType5";
+			this.labelType5.Xalign = 0F;
+			this.labelType5.LabelProp = global::Mono.Unix.Catalog.GetString("Родитель:");
+			this.table1.Add(this.labelType5);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType5]));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
