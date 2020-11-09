@@ -59,7 +59,7 @@ namespace Vodovoz.Infrastructure.Mango
 			toolbarIcon.Activated += ToolbarIcon_Activated;
 			var userId = this.userService.CurrentUserId;
 			NotifyConfiguration.Instance.BatchSubscribe(OnUserChanged).IfEntity<Employee>()
-				.AndWhere(x => x.User.Id == userId);
+				.AndWhere(x => x.User != null && x.User.Id == userId);
 		}
 
 		#region Current State
