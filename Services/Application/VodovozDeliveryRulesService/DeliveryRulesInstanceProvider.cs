@@ -9,17 +9,19 @@ namespace VodovozDeliveryRulesService
 	public class DeliveryRulesInstanceProvider : IInstanceProvider
 	{
 		private readonly IDeliveryRepository deliveryRepository;
+		private readonly IBackupDistrictService backupDistrictService;
 
-		public DeliveryRulesInstanceProvider(IDeliveryRepository deliveryRepository)
+		public DeliveryRulesInstanceProvider(IDeliveryRepository deliveryRepository, IBackupDistrictService backupDistrictService)
 		{
 			this.deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+			this.backupDistrictService = backupDistrictService ?? throw new ArgumentNullException(nameof(backupDistrictService));
 		}
 
 		#region IInstanceProvider implementation
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new DeliveryRulesService(deliveryRepository);
+			return new DeliveryRulesService(deliveryRepository, backupDistrictService);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

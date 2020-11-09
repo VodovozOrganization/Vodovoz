@@ -64,7 +64,7 @@ namespace VodovozDeliveryRulesService
 				return;
 			}
 
-			logger.Info("Запуск службы правил доставки");
+			logger.Info("Запуск службы правил доставки...");
 			try {
 				var conStrBuilder = new MySqlConnectionStringBuilder();
 				conStrBuilder.Server = mysqlServerHostName;
@@ -88,7 +88,9 @@ namespace VodovozDeliveryRulesService
 				OsrmMain.ServerUrl = serverUrl;
 
 				IDeliveryRepository deliveryRepository = new DeliveryRepository();
-				DeliveryRulesInstanceProvider deliveryRulesInstanceProvider = new DeliveryRulesInstanceProvider(deliveryRepository);
+				var backupDistrictService = new BackupDistrictService();
+				
+				DeliveryRulesInstanceProvider deliveryRulesInstanceProvider = new DeliveryRulesInstanceProvider(deliveryRepository, backupDistrictService);
 				ServiceHost deliveryRulesHost = new DeliveryRulesServiceHost(deliveryRulesInstanceProvider);
 
 				ServiceEndpoint webEndPoint = deliveryRulesHost.AddServiceEndpoint(
@@ -102,6 +104,8 @@ namespace VodovozDeliveryRulesService
 #if DEBUG
 				deliveryRulesHost.Description.Behaviors.Add(new PreFilter());
 #endif
+				backupDistrictService.StartAutoUpdateTask();
+				
 				deliveryRulesHost.Open();
 
 				logger.Info("Server started.");
