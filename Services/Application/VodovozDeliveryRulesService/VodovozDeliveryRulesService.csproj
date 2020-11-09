@@ -49,6 +49,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackupDistrictService.cs" />
     <Compile Include="DeliveryRulesInstanceProvider.cs" />
     <Compile Include="DTO\DeliveryInfoDTO.cs" />
     <Compile Include="DTO\DeliveryRulesDTO.cs" />

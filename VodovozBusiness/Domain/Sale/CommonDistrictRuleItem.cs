@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using System.Globalization;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Sale
 {
@@ -7,7 +8,7 @@ namespace Vodovoz.Domain.Sale
 		Nominative = "стоимость доставки района")]
 	public class CommonDistrictRuleItem : DistrictRuleItemBase
 	{
-		public virtual string Title => $"{DeliveryPriceRule}, то цена {Price:C0}";
+		public virtual string Title => $"{DeliveryPriceRule}, то цена {Price.ToString("C0", CultureInfo.CreateSpecificCulture("ru-RU"))}";
 
 		public override object Clone()
 		{
