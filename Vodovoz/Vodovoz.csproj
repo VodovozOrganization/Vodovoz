@@ -567,8 +567,6 @@
     <Compile Include="Dialogs\Logistic\RouteListMileageCheckDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListMileageCheckDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListMileageCheckView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.CashExpenseCategoryDlg.cs" />
-    <Compile Include="Dialogs\Cash\CashExpenseCategoryDlg.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListDiscrepancyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListDiscrepancyView.cs" />
     <Compile Include="SidePanel\PanelViewContainer.cs" />
