@@ -595,7 +595,7 @@ public partial class MainWindow : Window
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
 		ICarJournalFactory carJournalFactory = new CarJournalFactory();
 		
-		IFileChooserProvider fileChooserProvider = new Vodovoz.FileChooser("Расход " + DateTime.Now + ".csv");
+		IFileChooserProvider fileChooserProvider = new Vodovoz.FileChooser("Категория Расхода.csv");
 		var  expenseCategoryJournalFilterViewModel = new ExpenseCategoryJournalFilterViewModel(); 
 		
 		

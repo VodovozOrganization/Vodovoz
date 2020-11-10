@@ -501,12 +501,9 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnAction14Activated(object sender, EventArgs e)
 	{
-
 		var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
-		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Приход " + DateTime.Now + ".csv");
-		
-		
-		
+		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории прихода.csv");
+
 		IEntityAutocompleteSelectorFactory incomeCategorySelectorFactory =
 			new IncomeCategoryAutoCompleteSelectorFactory(ServicesConfig.CommonServices, new IncomeCategoryJournalFilterViewModel(), chooserProvider);
 		
@@ -522,7 +519,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnAction15Activated(object sender, EventArgs e)
 	{
-		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Расход " + DateTime.Now + ".csv");
+		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории расхода.csv");
 		
 		var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel();
 		tdiMain.AddTab(
