@@ -147,7 +147,7 @@ public partial class MainWindow : Window
 		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов", null, "table");
 		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин", null, "table");
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
-		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражом", null, "table");
+		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
 		//Касса
 		ActionCashDocuments = new Action("ActionCashDocuments", "Кассовые документы", null, "table");

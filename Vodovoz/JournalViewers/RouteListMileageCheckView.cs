@@ -33,7 +33,7 @@ namespace Vodovoz
 		public RouteListMileageCheckView()
 		{
 			this.Build();
-			this.TabName = "Контроль за километражом.";
+			this.TabName = "Контроль за километражем.";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			treeRouteLists.Selection.Changed += OnSelectionChanged;
 		}

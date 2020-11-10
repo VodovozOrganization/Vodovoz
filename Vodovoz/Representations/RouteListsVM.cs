@@ -59,13 +59,8 @@ namespace Vodovoz.ViewModel
 
 			query.Left.JoinAlias(o => o.Driver, () => driverAlias);
 
-
-			if(Filter.RestrictStatus != null) {
-				query.Where(o => o.Status == Filter.RestrictStatus);
-			}
-
-			if(Filter.OnlyStatuses != null) {
-				query.WhereRestrictionOn(o => o.Status).IsIn(Filter.OnlyStatuses);
+			if(Filter.SelectedStatuses != null) {
+				query.WhereRestrictionOn(o => o.Status).IsIn(Filter.SelectedStatuses);
 			}
 
 			if(Filter.RestrictShift != null) {
