@@ -40,11 +40,11 @@ namespace Vodovoz
 			this.Build();
 		}
 
-		public RouteListStatus? RestrictStatus {
-			get { return enumcomboStatus.SelectedItem as RouteListStatus?; }
+		public RouteListStatus[] RestrictedStatuses {
+			get { return OnlyStatuses; }
 			set {
-				enumcomboStatus.SelectedItemOrNull = value;
-				enumcomboStatus.Sensitive = false;
+				OnlyStatuses = value;
+				ytreeviewRouteListStatuses.Sensitive = OnlyStatuses.Length > 0;
 			}
 		}
 
