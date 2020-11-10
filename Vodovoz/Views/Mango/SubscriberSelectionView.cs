@@ -10,6 +10,8 @@ namespace Vodovoz.Views.Mango
 	public partial class SubscriberSelectionView : DialogViewBase<SubscriberSelectionViewModel>
 	{
 		private string Number;
+		private Gdk.Pixbuf userIcon = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.user22.png");
+		private Gdk.Pixbuf groupIcon = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.menu.users.png");
 
 		public SubscriberSelectionView(SubscriberSelectionViewModel model) : base(model)
 		{
@@ -31,13 +33,14 @@ namespace Vodovoz.Views.Mango
 
 			ySearchTable.ColumnsConfig = ColumnsConfigFactory.Create<SearchTableEntity>()
 				.AddColumn("Имя")
+				.AddPixbufRenderer(x => x.IsGroup ? groupIcon : userIcon)
 				.AddTextRenderer(entity => entity.Name).SearchHighlight()
 				.AddColumn("Отдел")
 				.AddTextRenderer(entity => entity.Department).SearchHighlight()
 				.AddColumn("Номер")
 				.AddTextRenderer(entity => entity.Extension).SearchHighlight()
 				.AddColumn("Статус")
-				.AddTextRenderer(entity => entity.Status ? "<span foreground=\"green\">☎</span>" : "<span foreground=\"red\">☎</span>", useMarkup: true)
+				.AddTextRenderer(entity => entity.IsReady ? "<span foreground=\"green\">☎ Свободен</span>" : "<span foreground=\"red\">☎ Занят</span>", useMarkup: true)
 				.Finish();
 			ySearchTable.SetItemsSource<SearchTableEntity>(ViewModel.SearchTableEntities);
 			ySearchTable.RowActivated += SelectCursorRow_OrderYTreeView;
@@ -53,7 +56,7 @@ namespace Vodovoz.Views.Mango
 		{
 			Number = String.Copy(FilterEntry.Text);
 			var row = ySearchTable.GetSelectedObject<SearchTableEntity>();
-			ForwardingButton.Sensitive = ForwardingToConsultationButton.Sensitive = row?.Status == true 
+			ForwardingButton.Sensitive = ForwardingToConsultationButton.Sensitive = row?.IsReady == true 
 				|| IsNumber(ref Number);
 		}
 

@@ -378,6 +378,7 @@
     <EmbeddedResource Include="icons\phone\make-call.png" />
     <EmbeddedResource Include="icons\phone\make-call-32.png" />
     <EmbeddedResource Include="icons\phone\make-call-16.png" />
+    <EmbeddedResource Include="icons\buttons\user22.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\SmsPaymentSender.cs" />
