@@ -135,6 +135,5 @@ namespace Vodovoz.Views.Mango
 			else
 				ForwardingButton.Click();
 		}
-
 	}
 }

@@ -1,18 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
+using MangoService;
 using NLog;
 
 namespace ClientMangoService
 {
-	public class MangoNotificationClient : IDisposable
+	public class MangoServiceClient : IDisposable
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		
 		public static string ServiceAddress = "mango.vod.qsolution.ru";
 		public uint ServicePort = 7087;
-		private NotificationService.NotificationServiceClient client;
+		private NotificationService.NotificationServiceClient notificationClient;
 		private Channel channel;
 		private readonly uint extension;
 		private readonly CancellationToken token;
@@ -23,20 +27,21 @@ namespace ClientMangoService
 
 		public event EventHandler<ConnectionStateEventArgs> ChannelStateChanged;
 
-		public MangoNotificationClient(uint extension, CancellationToken token)
+		public MangoServiceClient(uint extension, CancellationToken token)
 		{
 			this.token = token;
 			this.extension = extension;
 			Connect();
 		}
 
+		#region Notification
 		private void Connect()
 		{
 			channel = new Channel($"{ServiceAddress}:{ServicePort}", ChannelCredentials.Insecure);
-			client = new NotificationService.NotificationServiceClient(channel);
+			notificationClient = new NotificationService.NotificationServiceClient(channel);
 
 			var request = new NotificationSubscribeRequest { Extension =  extension};
-			var response = client.Subscribe(request);
+			var response = notificationClient.Subscribe(request);
 			var watcher = new NotificationConnectionWatcher(channel, OnChanalStateChanged);
 
 			var responseReaderTask = Task.Run(async () =>
@@ -78,6 +83,17 @@ namespace ClientMangoService
 		{
 			AppearedMessage?.Invoke(this, new AppearedMessageEventArgs{Message = message});
 		}
+		#endregion
+
+		#region Phonebook
+
+		public List<PhoneEntry> GetPhonebook()
+		{
+			var client = new PhonebookService.PhonebookServiceClient(channel);
+			return client.GetBook(new Empty()).Entries.Where(x => x.Extension != extension).ToList();
+		}
+
+		#endregion
 
 		public void Dispose()
 		{

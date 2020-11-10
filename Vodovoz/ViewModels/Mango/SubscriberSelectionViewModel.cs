@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using MangoService;
-using MangoService.DTO.Group;
-using MangoService.DTO.Users;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Infrastructure.Mango;
@@ -32,16 +29,7 @@ namespace Vodovoz.ViewModels.Mango
 			this.dialogType = dialogType;
 			Manager = manager;
 
-			SearchTableEntities = new List<SearchTableEntity>();
-			List<User> users = Manager.GetAllVpbxUsers().Where(x => !String.IsNullOrEmpty(x.telephony.extension)).ToList();
-			foreach(var user in users) {
-				SearchTableEntities.Add(new SearchTableEntity(user));
-			}
-
-			List<Group> groups = Manager.GetAllVPBXGroups().Where(x => !String.IsNullOrEmpty(x.extension)).ToList();
-			foreach(var group in groups) {
-				SearchTableEntities.Add(new SearchTableEntity(group));
-			}
+			SearchTableEntities = Manager.GetPhoneBook().Select(x => new SearchTableEntity(x)).ToList();
 
 			Title = dialogType == DialogType.Telephone ? "Вызов абонента" : "Перевод звонка на абонента";
 		}
@@ -71,20 +59,12 @@ namespace Vodovoz.ViewModels.Mango
 		public string Extension { get; set; }
 		public bool Status { get; set; }
 
-		public SearchTableEntity(User user)
+		public SearchTableEntity(PhoneEntry phoneEntry)
 		{
-			Name = user.general.name;
-			Department = user.general.department;
-			Extension = user.telephony.extension;
-			Status = user.telephony.numbers.Any(x => x.status == "on");
-		}
-
-		public SearchTableEntity(Group group)
-		{
-			Name = group.name;
-			Department = "";
-			Extension = group.extension;
-			Status = true;
+			Name = phoneEntry.Name;
+			Department = phoneEntry.Department;
+			Extension = phoneEntry.Extension.ToString();
+			Status = phoneEntry.PhoneState == PhoneState.Ready;
 		}
 	}
 }

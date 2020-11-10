@@ -30,7 +30,16 @@
 
     <ItemGroup>
       <Protobuf Include="Protobuf\NotificationService.proto">
-        <Generator>MSBuild:Compile</Generator>
+        <GrpcServices>Both</GrpcServices>
+        <Access>Public</Access>
+        <ProtoCompile>True</ProtoCompile>
+        <ProtoRoot></ProtoRoot>
+        <CompileOutputs>True</CompileOutputs>
+        <OutputDir>obj\Debug\netcoreapp3.1\</OutputDir>
+      </Protobuf>
+      <None Remove="Protobuf\PhonebookService.proto" />
+      <Protobuf Include="Protobuf\PhonebookService.proto">
+        <OutputDir>obj/Debug/netcoreapp3.1/</OutputDir>
       </Protobuf>
     </ItemGroup>
 
