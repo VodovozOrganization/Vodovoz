@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,7 +38,7 @@ namespace VodovozMangoService.HostedServices
 
         private void CleanWorks(object state)
         {
-            var toRemove = Calls.Values.Where(x => x.LiveTime.TotalHours > 2).ToList();
+            var toRemove = Calls.Values.Where(x => x.LiveTime.TotalHours > 1).ToList();
             if(!toRemove.Any())
                 return;
             
@@ -47,9 +46,9 @@ namespace VodovozMangoService.HostedServices
             if (noDisconnected.Count > 0)
             {
                 var text = NumberToTextRus.FormatCase(noDisconnected.Count, 
-                    "Следующие {0} звонок не получили события Disconnected в течении 2 часов:\n",
-                    "Следующие {0} звонка не получили события Disconnected в течении 2 часов:\n",
-                    "Следующие {0} звонков не получили события Disconnected в течении 2 часов:\n"
+                    "Следующие {0} звонок не получили события Disconnected в течении 1 часа:\n",
+                    "Следующие {0} звонка не получили события Disconnected в течении 1 часа:\n",
+                    "Следующие {0} звонков не получили события Disconnected в течении 1 часа:\n"
                     );
                 noDisconnected.ForEach(info => text += $"* CallInfo {info.LastEvent.call_id}:\n{info.EventsToText()}\n");
                 loggerLostEvents.Error(text);
