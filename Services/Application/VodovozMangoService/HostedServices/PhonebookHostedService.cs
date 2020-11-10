@@ -58,7 +58,7 @@ namespace VodovozMangoService.HostedServices
                     {
                         Extension = extension,
                         Name = user.general.name,
-                        Department = user.general.department,
+                        Department = user.general.department ?? String.Empty,
                         PhoneType = PhoneEntryType.Extension
                     });
                 }
@@ -72,7 +72,7 @@ namespace VodovozMangoService.HostedServices
                     {
                         Extension = extension,
                         Name = group.name,
-                        Department = group.descpription,
+                        Department = group.descpription ?? String.Empty,
                         PhoneType = PhoneEntryType.Group,
                         PhoneState = PhoneState.Ready
                     });
