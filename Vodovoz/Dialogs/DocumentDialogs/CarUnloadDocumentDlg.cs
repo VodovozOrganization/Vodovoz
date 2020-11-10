@@ -50,15 +50,6 @@ namespace Vodovoz
 		#region Конструкторы
 		public CarUnloadDocumentDlg()
 		{
-			callTaskWorker = new CallTaskWorker(
-				CallTaskSingletonFactory.GetInstance(),
-				new CallTaskRepository(),
-				OrderSingletonRepository.GetInstance(),
-				EmployeeSingletonRepository.GetInstance(),
-				new BaseParametersProvider(),
-				ServicesConfig.CommonServices.UserService,
-				SingletonErrorReporter.Instance);
-			
 			this.Build();
 			ConfigureNewDoc();
 			ConfigureDlg();
@@ -107,6 +98,15 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
+			callTaskWorker = new CallTaskWorker(
+				CallTaskSingletonFactory.GetInstance(),
+				new CallTaskRepository(),
+				OrderSingletonRepository.GetInstance(),
+				EmployeeSingletonRepository.GetInstance(),
+				new BaseParametersProvider(),
+				ServicesConfig.CommonServices.UserService,
+				SingletonErrorReporter.Instance);
+
 			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.CarUnloadEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
