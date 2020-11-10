@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using MangoService.DTO.Users;
 using MangoService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
