@@ -83,7 +83,8 @@ namespace Vodovoz.Additions.Logistic
 			if(isClosed) {
 				numericCellTemplate += "<BackgroundColor>=Iif((Fields!Status.Value = \"EnRoute\") or (Fields!Status.Value = \"Completed\"), White, Lightgrey)</BackgroundColor>";
 			}
-			numericCellTemplate += "</Style></Textbox></ReportItems></TableCell>";
+			numericCellTemplate += "<PaddingTop>10pt</PaddingTop><PaddingBottom>10pt</PaddingBottom></Style>" +
+			                       "<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>";
 
 			//Расширяем требуемые колонки на нужную ширину
 			RdlText = RdlText.Replace("<!--colspan-->", String.Format("<ColSpan>{0}</ColSpan>", RouteColumns.Count));
