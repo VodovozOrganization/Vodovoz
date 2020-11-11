@@ -807,14 +807,13 @@ public partial class MainWindow : Window
 	{
 		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
 			new WarehouseRepository()
-		);
+		) {ShowArchive = true};
 
 		NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices
-		);
-		vm.SelectionMode = JournalSelectionMode.None;
+		) {SelectionMode = JournalSelectionMode.None};
 
 		tdiMain.OpenTab(() => vm);
 	}
