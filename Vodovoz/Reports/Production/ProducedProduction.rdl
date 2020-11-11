@@ -377,7 +377,7 @@ GROUP BY nomenclature.id;
         <Details>
           <TableRows>
             <TableRow>
-              <Height>15.2pt</Height>
+              <Height>20.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -557,7 +557,7 @@ GROUP BY nomenclature.id;
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>41.6pt</Top>
+        <Top>68.8pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="warehouseGroup">
@@ -587,6 +587,8 @@ GROUP BY nomenclature.id;
                             <FontSize>12pt</FontSize>
                           </Style>
                           <Value>={warehouse_for_grouping}</Value>
+                          <CanGrow >true</CanGrow>
+                          <CanShrink >true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -884,7 +886,7 @@ GROUP BY nomenclature.id;
         </Style>
       </Textbox>
     </ReportItems>
-    <Height>134.6pt</Height>
+    <Height>163.1pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
