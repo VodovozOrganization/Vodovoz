@@ -62,7 +62,7 @@ namespace MangoService
 
 				result = request.Post(command).ToString();
 			}
-			logger.Debug($"Результат команты:{result}");
+			logger.Debug($"Ответ команды:{result}");
 			return result;
 		}
 
@@ -146,7 +146,7 @@ namespace MangoService
 		}
 
 		/// <summary>
-		/// Вызывает команду переадресации , возможно два режима
+		/// Вызывает команду переадресации, возможно два режима
 		/// </summary>
 		/// <returns><c>true</c>, если успешно, <c>false</c> неудачно.</returns>
 		/// <param name="call_id">Идентетификатор текущего вызова.</param>
