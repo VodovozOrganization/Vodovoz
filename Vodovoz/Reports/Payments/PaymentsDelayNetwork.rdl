@@ -878,7 +878,7 @@
       )
     AS DECIMAL (12 , 2 )) AS sum_to_receive,
     DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY) AS estimated_payment_date,
-    CURDATE() - (IFNULL(counterparty.delay_days, 0) + orders.delivery_date) AS days_overdue,
+    TO_DAYS(CURDATE()) - TO_DAYS(DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY)) AS days_overdue,
     CAST(
       IF(orders.sum_to_receive &lt;&gt; 0,
         orders.sum_to_receive,
