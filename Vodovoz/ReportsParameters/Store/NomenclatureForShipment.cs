@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -33,6 +35,47 @@ namespace Vodovoz.ReportsParameters.Store
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			lstGeoGrp.SetRenderTextFunc<GeographicGroup>(g => string.Format("{0}", g.Name));
 			lstGeoGrp.ItemsList = GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
+
+			var nomenclatureTypeParam = filter.CreateParameterSet(
+				"Типы номенклатур",
+				"nomenclature_type",
+				new ParametersEnumFactory<NomenclatureCategory>()
+			);
+
+			var nomenclatureParam = filter.CreateParameterSet(
+				"Номенклатуры",
+				"nomenclature",
+				new ParametersFactory(UoW, (filters) => {
+					SelectableEntityParameter<Nomenclature> resultAlias = null;
+					var query = UoW.Session.QueryOver<Nomenclature>()
+						.Where(x => !x.IsArchive);
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							var filterCriterion = f();
+							if(filterCriterion != null) {
+								query.Where(filterCriterion);
+							}
+						}
+					}
+
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.OfficialName).WithAlias(() => resultAlias.EntityTitle)
+						);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Nomenclature>>());
+					return query.List<SelectableParameter>();
+				})
+			);
+
+			nomenclatureParam.AddFilterOnSourceSelectionChanged(nomenclatureTypeParam,
+				() => {
+					var selectedValues = nomenclatureTypeParam.GetSelectedValues();
+					if(!selectedValues.Any()) {
+						return null;
+					}
+					return Restrictions.On<Nomenclature>(x => x.Category).IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray());
+				}
+			);
 
 			//Предзагрузка. Для избежания ленивой загрузки
 			UoW.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
