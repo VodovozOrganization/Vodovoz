@@ -32,6 +32,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using QS.Project.Domain;
+using QS.DomainModel.NotifyChange;
 
 namespace Vodovoz.ViewModel
 {
@@ -190,11 +191,35 @@ namespace Vodovoz.ViewModel
 		public RouteListsVM(RouteListsFilter filter) : this(filter.UoW)
 		{
 			Filter = filter;
+			ConfigureDlg();
 		}
 
 		public RouteListsVM()
 		{
 			CreateRepresentationFilter = () => new RouteListsFilter(UoW);
+			ConfigureDlg();
+		}
+
+		private void ConfigureDlg()
+		{
+			NotifyConfiguration.Enable();
+			NotifyConfiguration.Instance.SingleSubscribeOnEntity<RouteList>(OnRouteListChanged);
+
+			Filter.SelectedStatuses = new[]{
+					RouteListStatus.New,
+					RouteListStatus.Confirmed,
+					RouteListStatus.InLoading,
+					RouteListStatus.EnRoute,
+					RouteListStatus.Delivered,
+					RouteListStatus.OnClosing,
+					RouteListStatus.MileageCheck,
+					RouteListStatus.Closed
+				};
+		}
+
+		private void OnRouteListChanged(EntityChangeEvent changeEvent)
+		{
+			UpdateNodes();
 		}
 
 		public RouteListsVM(IUnitOfWork uow) : base()
@@ -315,35 +340,33 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						bool isSlaveTabActive = false;
 						var routeListIds = selectedNodes.Select(x => x.Id).ToArray();
-						var routeLists = UoW.Session.QueryOver<RouteList>()
+
+						using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot()) {
+							var routeLists = uowLocal.Session.QueryOver<RouteList>()
 							.Where(x => x.Id.IsIn(routeListIds))
 							.List();
 
-						routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) => {
-							if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
-								MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
-								isSlaveTabActive = true;
+							routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) => {
+								if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
+									MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
+									isSlaveTabActive = true;
+									return;
+								}
+
+								foreach(var address in routeList.Addresses) {
+									if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
+										address.Order.ChangeStatusAndCreateTasks(Domain.Orders.OrderStatus.OnLoading, callTaskWorker);
+								}
+
+								routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, callTaskWorker);
+								uowLocal.Save(routeList);
+							});
+
+							if(isSlaveTabActive)
 								return;
-							}
 
-							foreach(var address in routeList.Addresses) {
-								if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
-									address.Order.ChangeStatusAndCreateTasks(Domain.Orders.OrderStatus.OnLoading, callTaskWorker);
-							}
-
-							routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, callTaskWorker);
-							UoW.Save(routeList);
-						});
-
-						if(isSlaveTabActive)
-							return;
-
-						foreach(var rlNode in selectedNodes) {
-							var node = (rlNode as RouteListsVMNode);
-							if(node != null)
-								node.StatusEnum = RouteListStatus.InLoading;
+							uowLocal.Commit();
 						}
-						UoW.Commit();
 					},
 					(selectedItems) => selectedItems.Any((x) => (x as RouteListsVMNode).StatusEnum == RouteListStatus.Confirmed)
 				));
@@ -366,29 +389,28 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						bool isSlaveTabActive = false;
 						var routeListIds = selectedNodes.Select(x => x.Id).ToArray();
-						var routeLists = UoW.Session.QueryOver<RouteList>()
-							.Where(x => x.Id.IsIn(routeListIds))
-							.List();
-						
-						routeLists.Where((arg) => arg.Status == RouteListStatus.Delivered).ToList().ForEach((routeList) => {
-							if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
-								MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
-								isSlaveTabActive = true;
+
+						using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot()) {
+
+							var routeLists = uowLocal.Session.QueryOver<RouteList>()
+								.Where(x => x.Id.IsIn(routeListIds))
+								.List();
+
+							routeLists.Where((arg) => arg.Status == RouteListStatus.Delivered).ToList().ForEach((routeList) => {
+								if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
+									MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
+									isSlaveTabActive = true;
+									return;
+								}
+								routeList.ChangeStatusAndCreateTask(RouteListStatus.EnRoute, callTaskWorker);
+								uowLocal.Save(routeList);
+							});
+
+							if(isSlaveTabActive)
 								return;
-							}
-							routeList.ChangeStatusAndCreateTask(RouteListStatus.EnRoute, callTaskWorker);
-							UoW.Save(routeList);
-						});
 
-						if(isSlaveTabActive)
-							return;
-
-						foreach(var rlNode in selectedNodes) {
-							var node = (rlNode as RouteListsVMNode);
-							if(node != null)
-								node.StatusEnum = RouteListStatus.EnRoute;
+							uowLocal.Commit();
 						}
-						UoW.Commit();
 					},
 					(selectedItems) => selectedItems.Any(x => CanReturnToEnRoute.Contains((x as RouteListsVMNode).StatusEnum))
 				));
@@ -474,6 +496,12 @@ namespace Vodovoz.ViewModel
 
 				return result;
 			}
+		}
+
+		public new void Dispose()
+		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			base.Dispose();
 		}
 	}
 
