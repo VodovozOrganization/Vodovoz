@@ -585,8 +585,8 @@ namespace Vodovoz
 				.AddClearDependence<Nomenclature>(x => x.RouteListColumn);
 
 			DeleteConfig.AddHibernateDeleteInfo<RouteListItem>()
-						.AddRemoveFromDependence<RouteList>(x => x.Addresses, x => x.RemoveAddress)
-						;
+						.AddDeleteDependence<DeliveryDocument>(x => x.RouteListItem)
+						.AddRemoveFromDependence<RouteList>(x => x.Addresses, x => x.RemoveAddress);
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
 
@@ -838,13 +838,13 @@ namespace Vodovoz
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarLoadDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.MovementOperation);
+				.AddDeleteCascadeDependence(x => x.WarehouseMovementOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarUnloadDocument>()
 				.AddDeleteDependence<CarUnloadDocumentItem>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarUnloadDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.MovementOperation);
+				.AddDeleteCascadeDependence(x => x.WarehouseMovementOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<InventoryDocument>()
 				.AddDeleteDependence<InventoryDocumentItem>(x => x.Document);
@@ -903,8 +903,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<WarehouseMovementOperation>()
 				.RequiredCascadeDeletion()
-				.AddDeleteDependence<CarLoadDocumentItem>(x => x.MovementOperation)
-				.AddDeleteDependence<CarUnloadDocumentItem>(x => x.MovementOperation)
+				.AddDeleteDependence<CarLoadDocumentItem>(x => x.WarehouseMovementOperation)
+				.AddDeleteDependence<CarUnloadDocumentItem>(x => x.WarehouseMovementOperation)
 				.AddDeleteDependence<IncomingInvoiceItem>(x => x.IncomeGoodsOperation)
 				.AddDeleteDependence<IncomingWater>(x => x.ProduceOperation)
 				.AddDeleteDependence<IncomingWaterMaterial>(x => x.ConsumptionMaterialOperation)
@@ -1087,6 +1087,16 @@ namespace Vodovoz
 				.AddDeleteCascadeDependence(item => item.FuelExpenseOperation);
 
 			#endregion Топливо
+
+			#region DeliveryDocument
+
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryDocument>()
+				.AddDeleteDependenceFromCollection(x => x.Items);
+			
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryDocumentItem>()
+				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperation);
+
+			#endregion
 
 			#region Операции по счету
 

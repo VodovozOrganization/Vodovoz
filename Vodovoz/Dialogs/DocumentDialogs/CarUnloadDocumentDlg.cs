@@ -272,31 +272,31 @@ namespace Vodovoz
 				if(Entity.IsDefaultBottle(item))
 					continue;
 
-				if(defectiveitemsreceptionview1.Items.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id))
+				if(defectiveitemsreceptionview1.Items.Any(x => x.NomenclatureId == item.WarehouseMovementOperation.Nomenclature.Id))
 					continue;
 
-				var returned = item.MovementOperation.Equipment != null
-					? returnsreceptionview.Items.FirstOrDefault(x => x.EquipmentId == item.MovementOperation.Equipment.Id)
-					: returnsreceptionview.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+				var returned = item.WarehouseMovementOperation.Equipment != null
+					? returnsreceptionview.Items.FirstOrDefault(x => x.EquipmentId == item.WarehouseMovementOperation.Equipment.Id)
+					: returnsreceptionview.Items.FirstOrDefault(x => x.NomenclatureId == item.WarehouseMovementOperation.Nomenclature.Id);
 				if(returned != null) {
-					returned.Amount = (int)item.MovementOperation.Amount;
+					returned.Amount = (int)item.WarehouseMovementOperation.Amount;
 					returned.Redhead = item.Redhead;
 					continue;
 				}
 
 				switch(item.ReciveType) {
 					case ReciveTypes.Equipment:
-						var equipmentByNomenclature = nonserialequipmentreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+						var equipmentByNomenclature = nonserialequipmentreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.WarehouseMovementOperation.Nomenclature.Id);
 						if(equipmentByNomenclature != null) {
-							equipmentByNomenclature.Amount = (int)item.MovementOperation.Amount;
+							equipmentByNomenclature.Amount = (int)item.WarehouseMovementOperation.Amount;
 							continue;
 						}
 						nonserialequipmentreceptionview1.Items.Add(
 							new ReceptionNonSerialEquipmentItemNode {
 								NomenclatureCategory = NomenclatureCategory.equipment,
-								NomenclatureId = item.MovementOperation.Nomenclature.Id,
-								Amount = (int)item.MovementOperation.Amount,
-								Name = item.MovementOperation.Nomenclature.Name
+								NomenclatureId = item.WarehouseMovementOperation.Nomenclature.Id,
+								Amount = (int)item.WarehouseMovementOperation.Amount,
+								Name = item.WarehouseMovementOperation.Nomenclature.Name
 							}
 						);
 						continue;
@@ -305,17 +305,17 @@ namespace Vodovoz
 					case ReciveTypes.ReturnCashEquipment:
 						break;
 					case ReciveTypes.Defective:
-						var defective = defectiveitemsreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+						var defective = defectiveitemsreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.WarehouseMovementOperation.Nomenclature.Id);
 						if(defective != null) {
-							defective.Amount = (int)item.MovementOperation.Amount;
+							defective.Amount = (int)item.WarehouseMovementOperation.Amount;
 							continue;
 						}
 						defectiveitemsreceptionview1.Items.Add(
 							new DefectiveItemNode {
-								NomenclatureCategory = item.MovementOperation.Nomenclature.Category,
-								NomenclatureId = item.MovementOperation.Nomenclature.Id,
-								Amount = (int)item.MovementOperation.Amount,
-								Name = item.MovementOperation.Nomenclature.Name,
+								NomenclatureCategory = item.WarehouseMovementOperation.Nomenclature.Category,
+								NomenclatureId = item.WarehouseMovementOperation.Nomenclature.Id,
+								Amount = (int)item.WarehouseMovementOperation.Amount,
+								Name = item.WarehouseMovementOperation.Nomenclature.Name,
 								Source = item.DefectSource,
 								TypeOfDefect = item.TypeOfDefect
 							}
@@ -323,10 +323,10 @@ namespace Vodovoz
 						continue;
 				}
 
-				logger.Warn("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.MovementOperation.Nomenclature);
+				logger.Warn("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.WarehouseMovementOperation.Nomenclature);
 				var newItem = new ReceptionItemNode(item);
-				if(item.MovementOperation.Equipment != null) {
-					newItem.EquipmentId = item.MovementOperation.Equipment.Id;
+				if(item.WarehouseMovementOperation.Equipment != null) {
+					newItem.EquipmentId = item.WarehouseMovementOperation.Equipment.Id;
 				}
 				returnsreceptionview.AddItem(newItem);
 			}
@@ -354,7 +354,7 @@ namespace Vodovoz
 					ReciveType = ReciveTypes.Defective,
 					NomenclatureId = node.NomenclatureId,
 					Amount = node.Amount,
-					MovementOperationId = node.MovementOperation != null ? node.MovementOperation.Id : 0,
+					MovementOperationId = node.MovementOperation?.Id ?? 0,
 					TypeOfDefect = node.TypeOfDefect,
 					Source = node.Source
 				};
@@ -405,7 +405,7 @@ namespace Vodovoz
 			}
 
 			foreach(var tempItem in defectiveItemsList) {
-				var item = Entity.Items.FirstOrDefault(x => x.MovementOperation.Id > 0 && x.MovementOperation.Id == tempItem.MovementOperationId);
+				var item = Entity.Items.FirstOrDefault(x => x.WarehouseMovementOperation.Id > 0 && x.WarehouseMovementOperation.Id == tempItem.MovementOperationId);
 				if(item == null) {
 					Entity.AddItem(
 						tempItem.ReciveType,
@@ -413,14 +413,13 @@ namespace Vodovoz
 						null,
 						tempItem.Amount,
 						null,
-						terminalId,
 						null,
 						tempItem.Source,
 						tempItem.TypeOfDefect
 					);
 				} else {
-					if(item.MovementOperation.Amount != tempItem.Amount)
-						item.MovementOperation.Amount = tempItem.Amount;
+					if(item.WarehouseMovementOperation.Amount != tempItem.Amount)
+						item.WarehouseMovementOperation.Amount = tempItem.Amount;
 					if(item.TypeOfDefect != tempItem.TypeOfDefect)
 						item.TypeOfDefect = tempItem.TypeOfDefect;
 					if(item.DefectSource != tempItem.Source)
@@ -430,7 +429,7 @@ namespace Vodovoz
 
 			var nomenclatures = UoW.GetById<Nomenclature>(tempItemList.Select(x => x.NomenclatureId).ToArray());
 			foreach(var tempItem in tempItemList) {
-				var item = Entity.Items.FirstOrDefault(x => x.MovementOperation.Nomenclature.Id == tempItem.NomenclatureId);
+				var item = Entity.Items.FirstOrDefault(x => x.WarehouseMovementOperation.Nomenclature.Id == tempItem.NomenclatureId);
 				if(item == null) {
 					var nomenclature = nomenclatures.First(x => x.Id == tempItem.NomenclatureId);
 					Entity.AddItem(
@@ -439,12 +438,13 @@ namespace Vodovoz
 						null,
 						tempItem.Amount,
 						null,
-						terminalId,
 						tempItem.Redhead
 					);
 				} else {
-					if(item.MovementOperation.Amount != tempItem.Amount)
-						item.MovementOperation.Amount = tempItem.Amount;
+					if(item.WarehouseMovementOperation.Amount != tempItem.Amount)
+						item.WarehouseMovementOperation.Amount = tempItem.Amount;
+					if(item.EmployeeNomenclatureMovementOperation.Amount != -tempItem.Amount)
+						item.EmployeeNomenclatureMovementOperation.Amount = -tempItem.Amount;
 					if(item.Redhead != tempItem.Redhead)
 						item.Redhead = tempItem.Redhead;
 				}
@@ -453,12 +453,12 @@ namespace Vodovoz
 			foreach(var item in Entity.Items.ToList()) {
 				bool exist = true;
 				if(item.ReciveType != ReciveTypes.Defective)
-					exist = tempItemList.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature?.Id);
+					exist = tempItemList.Any(x => x.NomenclatureId == item.WarehouseMovementOperation.Nomenclature?.Id);
 				else
-					exist = defectiveItemsList.Any(x => x.MovementOperationId == item.MovementOperation.Id && x.Amount > 0);
+					exist = defectiveItemsList.Any(x => x.MovementOperationId == item.WarehouseMovementOperation.Id && x.Amount > 0);
 
 				if(!exist) {
-					UoW.Delete(item.MovementOperation);
+					UoW.Delete(item.WarehouseMovementOperation);
 					Entity.ObservableItems.Remove(item);
 				}
 			}

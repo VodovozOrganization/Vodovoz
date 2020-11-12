@@ -105,7 +105,7 @@ namespace Vodovoz
 			ReceptionReturnsList.Clear();
 
 			ReceptionItemNode resultAlias = null;
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			Domain.Orders.Order orderAlias = null;
 			Equipment equipmentAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			OrderItem orderItemsAlias = null;
@@ -171,8 +171,10 @@ namespace Vodovoz
 			var isTerminalLoaded =
 				loadDocs.SelectMany(x => x.ObservableItems)
 				        .Any(x => x.Nomenclature.Id == terminalId);
+
+			EmployeeNomenclatureMovementOperation employeeOperationAlias = null;
 			
-			var returnableTerminal = uow.Session.QueryOver<EmployeeNomenclatureMovementOperation>()
+			var returnableTerminal = uow.Session.QueryOver<EmployeeNomenclatureMovementOperation>(() => employeeOperationAlias)
 			                            .Left.JoinAlias(x => x.Nomenclature, () => nomenclatureAlias)
 			                            .Left.JoinAlias(x => x.Employee, () => employeeAlias)
 			                            .JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
@@ -180,19 +182,24 @@ namespace Vodovoz
 			                            .And(() => nomenclatureAlias.Id == terminalId)
 			                            .And(() => warehouseAlias.Id == Warehouse.Id)
 			                            .SelectList(list => list
-			                                                .SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-			                                                .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-			                                                .SelectSum(x => x.Amount).WithAlias(() => resultAlias.ExpectedAmount))
+                                            .SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+                                            .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+                                            .Select(Projections.Sum(
+                                                Projections.Cast(
+	                                                NHibernateUtil.Int32, 
+	                                                Projections.Property(() => employeeOperationAlias.Amount)))
+                                            ).WithAlias(() => resultAlias.ExpectedAmount)
+			                            )
 			                            .TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
 			                            .SingleOrDefault<ReceptionItemNode>();
 
 			foreach(var item in returnableItems) {
-				if(!ReceptionReturnsList.Any(i => i.NomenclatureId == item.NomenclatureId))
+				if(ReceptionReturnsList.All(i => i.NomenclatureId != item.NomenclatureId))
 					ReceptionReturnsList.Add(item);
 			}
 
 			foreach(var equipment in returnableEquipment) {
-				if(!AlreadyUnloadedEquipment.Any(eq => eq.Id == equipment.EquipmentId))
+				if(AlreadyUnloadedEquipment.All(eq => eq.Id != equipment.EquipmentId))
 					ReceptionReturnsList.Add(equipment);
 			}
 
@@ -297,7 +304,7 @@ namespace Vodovoz
 			set => SetField(ref carUnloadDocumentItem, value, () => CarUnloadDocumentItem);
 		}
 
-		public ReceptionItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.MovementOperation)
+		public ReceptionItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.WarehouseMovementOperation)
 		{
 			this.carUnloadDocumentItem = carUnloadDocumentItem;
 		}

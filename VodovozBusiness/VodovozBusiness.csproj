@@ -54,6 +54,10 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\DeliveryDocumentController.cs" />
+    <Compile Include="Controllers\IDeliveryDocumentController.cs" />
+    <Compile Include="Domain\Documents\DeliveryDocument.cs" />
+    <Compile Include="Domain\Documents\DeliveryDocumentItem.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
@@ -72,6 +76,8 @@
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
+    <Compile Include="HibernateMapping\Documents\DeliveryDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DeliveryDocumentMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />

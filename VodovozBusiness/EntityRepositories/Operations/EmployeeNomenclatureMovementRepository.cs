@@ -12,15 +12,16 @@ namespace Vodovoz.EntityRepositories.Operations
         public int GetDriverTerminalBalance(IUnitOfWork uow, int driverId, int terminalId) {
             Nomenclature nomenclatureAlias = null;
             Employee employeeAlias = null;
-            
-            return uow.Session.QueryOver<EmployeeNomenclatureMovementOperation>()
-               .Left.JoinAlias(x => x.Nomenclature, () => nomenclatureAlias)
-               .Left.JoinAlias(x => x.Employee, () => employeeAlias)
-               .Where(() => employeeAlias.Id == driverId)
-               .And(() => nomenclatureAlias.Id == terminalId)
-               .SelectList(list => list
-                                   .SelectSum(x => x.Amount))
-               .SingleOrDefault<int>();
+
+            var res = uow.Session.QueryOver<EmployeeNomenclatureMovementOperation>()
+                .Left.JoinAlias(x => x.Nomenclature, () => nomenclatureAlias)
+                .Left.JoinAlias(x => x.Employee, () => employeeAlias)
+                .Where(() => employeeAlias.Id == driverId)
+                .And(() => nomenclatureAlias.Id == terminalId)
+                .SelectList(list => list
+                    .SelectSum(x => x.Amount))
+                .SingleOrDefault<decimal>();
+            return (int)res;
         }
         
         public IList<EmployeeBalanceNode> GetNomenclaturesFromDriverBalance(IUnitOfWork uow, int driverId) {
