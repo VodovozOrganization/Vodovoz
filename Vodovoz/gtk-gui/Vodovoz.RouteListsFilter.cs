@@ -62,6 +62,7 @@ namespace Vodovoz
 			this.ytreeviewRouteListStatuses = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeviewRouteListStatuses.CanFocus = true;
 			this.ytreeviewRouteListStatuses.Name = "ytreeviewRouteListStatuses";
+			this.ytreeviewRouteListStatuses.HeadersVisible = false;
 			this.GtkScrolledWindow.Add(this.ytreeviewRouteListStatuses);
 			this.table1.Add(this.GtkScrolledWindow);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow]));
