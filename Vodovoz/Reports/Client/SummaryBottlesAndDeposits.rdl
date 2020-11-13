@@ -763,8 +763,8 @@ FROM
 			SELECT
 				nomenclature.id as id,
                 nomenclature.name as name,
-				IF(doc_residue_equipment_deposit_items.direction = 'ToClient', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
-				IF(doc_residue_equipment_deposit_items.direction = 'FromClient', counterparty_movement_operations.amount, 0) as duty_and_rent_amount_delivered
+				IF(doc_residue_equipment_deposit_items.direction = 'FromClient', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
+				IF(doc_residue_equipment_deposit_items.direction = 'ToClient', counterparty_movement_operations.amount, 0) as duty_and_rent_amount_delivered
 			FROM
 				counterparty_movement_operations
 			LEFT JOIN
