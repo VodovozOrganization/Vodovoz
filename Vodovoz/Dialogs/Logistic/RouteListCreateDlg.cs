@@ -18,6 +18,7 @@ using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -378,7 +379,9 @@ namespace Vodovoz
 					} else {
 						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
 						var forShipment = warehouseRepository.WarehouseForShipment(UoW, Entity.Id);
-						if(!forShipment.Any()) {
+						var needTerminal = Entity.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+						
+						if(!forShipment.Any() && !needTerminal) {
 							if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
 								valid = new QSValidator<RouteList>(
 									Entity,
