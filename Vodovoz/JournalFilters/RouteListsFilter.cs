@@ -12,6 +12,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.EntityRepositories;
 using QS.Project.Services;
 using Gamma.ColumnConfig;
+using System.ComponentModel;
 
 namespace Vodovoz
 {
@@ -97,10 +98,12 @@ namespace Vodovoz
 
 		public RouteListStatus[] SelectedStatuses {
 			get => RouteListStatuses.Where(x => x.Selected).Select(x => x.RouteListStatus).ToArray();
-			set {
-					foreach(var status in RouteListStatuses) {
-						if(value.Contains(status.RouteListStatus)) { status.Selected = true; }
+			set{
+				UnsubscribeOnStatusesChandged();
+				foreach(var status in RouteListStatuses) {
+					if(value.Contains(status.RouteListStatus)) { status.Selected = true; }
 				}
+				SubscribeOnStatusesChandged();
 			}
 		}
 
@@ -143,6 +146,7 @@ namespace Vodovoz
 		{
 			bool onlyStatus = OnlyStatuses?.Length > 0;
 
+			UnsubscribeOnStatusesChandged();
 			RouteListStatuses.Clear();
 
 			foreach(RouteListStatus status in Enum.GetValues(typeof(RouteListStatus))) {
@@ -150,9 +154,29 @@ namespace Vodovoz
 					RouteListStatuses.Add(new RouteListStatusNode(status));
 				}
 			}
+
+			ytreeviewRouteListStatuses.YTreeModel?.EmitModelChanged();
+
+			SubscribeOnStatusesChandged();
+		}
+
+		private void SubscribeOnStatusesChandged()
+		{
 			foreach(var status in RouteListStatuses) {
-				status.PropertyChanged += (sender, e) => OnRefiltered();
+				status.PropertyChanged += OnStatusCheckChanged;
 			}
+		}
+
+		private void UnsubscribeOnStatusesChandged()
+		{
+			foreach(var status in RouteListStatuses) {
+				status.PropertyChanged -= OnStatusCheckChanged;
+			}
+		}
+
+		private void OnStatusCheckChanged(object sender, PropertyChangedEventArgs e)
+		{
+			OnRefiltered();
 		}
 
 		private void LoadRouteListStatusesDefaults()
@@ -163,10 +187,6 @@ namespace Vodovoz
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.Finish();
 			ytreeviewRouteListStatuses.ItemsDataSource = RouteListStatuses;
-			ytreeviewRouteListStatuses.YTreeModel?.EmitModelChanged();
-			foreach(var status in RouteListStatuses) {
-				status.PropertyChanged += (sender, e) => OnRefiltered();
-			}
 		}
 
 		public bool WithDeliveryAddresses => AddressTypes.Any(x => x.AddressType == AddressType.Delivery && x.Selected);
