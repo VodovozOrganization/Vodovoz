@@ -64,6 +64,6 @@ namespace Vodovoz.EntityRepositories.Operations
     {
         public int NomenclatureId { get; set; }
         public string NomenclatureName { get; set; }
-        public int Amount { get; set; }
+        public decimal Amount { get; set; }
     }
 }

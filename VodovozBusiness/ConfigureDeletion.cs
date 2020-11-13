@@ -570,6 +570,8 @@ namespace Vodovoz
 				.AddDeleteDependence<RouteListItem>(x => x.RouteList)
 				.AddDeleteDependence<CarLoadDocument>(x => x.RouteList)
 				.AddDeleteDependence<CarUnloadDocument>(x => x.RouteList)
+				.AddDeleteDependence<AddressTransferDocument>(x => x.RouteListFrom)
+				.AddDeleteDependence<AddressTransferDocument>(x => x.RouteListTo)
 				.AddDeleteDependence<Track>(x => x.RouteList)
 				.AddDeleteDependence<FuelDocument>(x => x.RouteList)
 				.AddClearDependence<Fine>(x => x.RouteList)
@@ -586,6 +588,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<RouteListItem>()
 						.AddDeleteDependence<DeliveryDocument>(x => x.RouteListItem)
+						.AddDeleteDependence<AddressTransferDocumentItem>(x => x.OldAddress)
+						.AddDeleteDependence<AddressTransferDocumentItem>(x => x.NewAddress)
 						.AddRemoveFromDependence<RouteList>(x => x.Addresses, x => x.RemoveAddress);
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
@@ -1095,6 +1099,20 @@ namespace Vodovoz
 			
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryDocumentItem>()
 				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperation);
+
+			#endregion
+
+			#region AddressTransferDocument
+
+			DeleteConfig.AddHibernateDeleteInfo<AddressTransferDocument>()
+				.AddDeleteDependenceFromCollection(x => x.AddressTransferDocumentItems);
+			
+			DeleteConfig.AddHibernateDeleteInfo<AddressTransferDocumentItem>()
+				.AddDeleteDependenceFromCollection(x => x.DriverNomenclatureTransferDocumentItems);
+
+			DeleteConfig.AddHibernateDeleteInfo<DriverNomenclatureTransferItem>()
+				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperationFrom)
+				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperationTo);
 
 			#endregion
 

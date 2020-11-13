@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
@@ -28,12 +27,7 @@ namespace Vodovoz.Controllers
                     DeleteDeliveryDocuments(routeList, uow);
                     break;
                 case RouteListStatus.Closed:
-                    CreateOrUpdateDeliveryDocuments(
-                        uow,
-                        routeList,
-                        uow.GetById<Nomenclature>(standartNomenclaturesParameters.GetReturnedBottleNomenclatureId),
-                        employeeRepository.GetEmployeeForCurrentUser(uow)
-                    );
+                    CreateOrUpdateDeliveryDocuments(uow, routeList);
                     break;
                 default:
                     return;
@@ -52,16 +46,18 @@ namespace Vodovoz.Controllers
             }
         }
         
-        private void CreateOrUpdateDeliveryDocuments(IUnitOfWork uow, RouteList routeList, Nomenclature defaultReturnNomenclature, Employee employeeForCurrentUser)
+        private void CreateOrUpdateDeliveryDocuments(IUnitOfWork uow, RouteList routeList)
         {
             var deliveryDocuments = uow.Session.QueryOver<DeliveryDocument>()
                 .WhereRestrictionOn(x => x.RouteListItem.Id)
                 .IsIn(routeList.Addresses.Select(x => x.Id).ToArray())
                 .List();
+            
+            var employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(uow);
 
             foreach (var address in routeList.Addresses.Where(x => x.Status == RouteListItemStatus.Completed)) {
                 var deliveryDocument = deliveryDocuments.FirstOrDefault(x => x.RouteListItem.Id == address.Id) ?? new DeliveryDocument();
-                
+
                 if(deliveryDocument.Author == null)
                     deliveryDocument.Author = employeeForCurrentUser;
                     
@@ -70,8 +66,9 @@ namespace Vodovoz.Controllers
                 
                 deliveryDocument.LastEditor = employeeForCurrentUser;
                 deliveryDocument.LastEditedTime = DateTime.Now;
+                deliveryDocument.RouteListItem = address;
 				
-                deliveryDocument.FillFromRouteListItem(address, defaultReturnNomenclature);
+                deliveryDocument.UpdateItems(address, uow.GetById<Nomenclature>(standartNomenclaturesParameters.GetReturnedBottleNomenclatureId));
                 uow.Save(deliveryDocument);
             }
         }

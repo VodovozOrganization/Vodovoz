@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate;
 using QS.DomainModel.Entity;
-using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -14,7 +13,6 @@ namespace Vodovoz.Domain.Documents
     [Appellative(Gender = GrammaticalGender.Masculine,
         NominativePlural = "документы доставки",
         Nominative = "документ доставки")]
-    [HistoryTrace]
     public class DeliveryDocument : Document
     {
         #region Сохраняемые свойства
@@ -51,11 +49,10 @@ namespace Vodovoz.Domain.Documents
 
         #region Публичные функции
 
-        public virtual void FillFromRouteListItem(RouteListItem address, Nomenclature standartReturnNomenclature)
+        public virtual void UpdateItems(RouteListItem address, Nomenclature standartReturnNomenclature)
         {
             ObservableItems.Clear();
             
-            RouteListItem = address;
             foreach (var orderItem in address.Order.OrderItems) {
                 var newDeliveryDocumentItem = new DeliveryDocumentItem {
                     Document = this,

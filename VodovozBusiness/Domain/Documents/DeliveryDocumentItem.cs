@@ -1,7 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 
@@ -10,34 +9,33 @@ namespace Vodovoz.Domain.Documents
     [Appellative (Gender = GrammaticalGender.Feminine,
         NominativePlural = "строки документа доставки",
         Nominative = "строка документа доставки")]
-    [HistoryTrace]
     public class DeliveryDocumentItem : PropertyChangedBase, IDomainObject
     {
         public virtual int Id { get; set; }
         
         private DeliveryDocument document;
-        [Display (Name = "Документ доставки")]
+        [Display(Name = "Документ доставки")]
         public virtual DeliveryDocument Document {
             get => document;
             set => SetField(ref document, value);
         }
 
         private decimal amount;
-        [Display (Name = "Количество")]
+        [Display(Name = "Количество")]
         public virtual decimal Amount {
             get => amount;
             set => SetField(ref amount, value);
         }
 
         private Nomenclature nomenclature;
-        [Display (Name = "Номенклатура")]
+        [Display(Name = "Номенклатура")]
         public virtual Nomenclature Nomenclature {
             get => nomenclature;
             set => SetField(ref nomenclature, value);
         }
         
         private DeliveryDirection direction;
-        [Display (Name = "Направление доставки")]
+        [Display(Name = "Направление доставки")]
         public virtual DeliveryDirection Direction {
             get => direction;
             set => SetField(ref direction, value);
