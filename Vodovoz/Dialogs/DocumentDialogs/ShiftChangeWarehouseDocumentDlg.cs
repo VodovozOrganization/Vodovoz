@@ -259,6 +259,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		protected void OnButtonFillItemsClicked(object sender, EventArgs e)
 		{
+			// Костыль для передачи из фильтра предназначенного только для отчетов данных в подходящем виде
 			List<int> nomenclaturesToInclude = new List<int>();
 			List<int> nomenclaturesToExclude = new List<int>();
 			List<string> nomenclatureCategoryToInclude = new List<string>();

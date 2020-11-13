@@ -160,7 +160,7 @@ namespace Vodovoz.Domain.Documents
 		{
 			Dictionary<int, decimal> inStock = new Dictionary<int, decimal>();
 
-			if (Warehouse.Id == null)
+			if (Warehouse == null)
 				return;
 			
 			inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id,
@@ -169,7 +169,8 @@ namespace Vodovoz.Domain.Documents
 				nomenclatureTypeToInclude,
 				nomenclatureTypeToExclude,
 				productGroupToInclude,
-				productGroupToExclude
+				productGroupToExclude,
+				TimeStamp
 			);
 
 			if(inStock.Count == 0)
@@ -206,10 +207,11 @@ namespace Vodovoz.Domain.Documents
 					nomenclatureTypeToInclude,
 					nomenclatureTypeToExclude,
 					productGroupToInclude,
-					productGroupToExclude
+					productGroupToExclude,
+					TimeStamp
 				);
 
-			if (Warehouse.Id == null)
+			if (Warehouse == null)
 				return;
 
 			foreach(var itemInStock in inStock) {
