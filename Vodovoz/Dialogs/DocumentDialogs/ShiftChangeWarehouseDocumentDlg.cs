@@ -12,13 +12,16 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using Gamma.ColumnConfig;
-using Gamma.Binding;
-using Vodovoz.ReportsParameters.Store;
-using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Goods;
 using System.Linq;
-using Gamma.Utilities;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using NHibernate.Criterion;
+using NHibernate.Transform;
+using NHibernate;
+using Vodovoz.ViewModels.Reports;
+using Vodovoz.ReportsParameters;
+using Gamma.GtkWidgets;
+using QSProjectsLib;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -26,7 +29,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	public partial class ShiftChangeWarehouseDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<ShiftChangeWarehouseDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private GenericObservableList<SelectableNomenclatureTypeNode> observableCategoryNodes { get; set; }
+		private SelectableParametersReportFilter filter;
 
 		public ShiftChangeWarehouseDocumentDlg()
 		{
@@ -44,7 +47,6 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(!UoW.IsNew)
 				Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.ShiftChangeEdit);
 
-			ConfigureCategoryTreeView();
 			ConfigureDlg();
 		}
 
@@ -52,7 +54,6 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
-			ConfigureCategoryTreeView();
 			ConfigureDlg();
 		}
 
@@ -67,6 +68,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		void ConfigureDlg()
 		{
+			filter = new SelectableParametersReportFilter(UoW);
+
 			canEdit = !UoW.IsNew && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
 
 			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today) {
@@ -85,13 +88,20 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				MessageDialogHelper.RunWarningDialog("У вас нет прав на изменение этого документа.");
 
 			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = canEdit || canCreate;
-			shiftChangeWarehouseDocItemsView.Sensitive = canEdit || canCreate;
+
+			ytreeviewNomenclatures.Sensitive = 
+				buttonFillItems.Sensitive = 
+				buttonAdd.Sensitive = canEdit || canCreate;
+
+			ytreeviewNomenclatures.ItemsDataSource = Entity.ObservableItems;
+
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			if(UoW.IsNew)
 				yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.ShiftChangeCreate);
 			if(!UoW.IsNew)
 				yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.ShiftChangeEdit);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
+			yentryrefWarehouse.Changed += OnWarehouseChanged;
 
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
@@ -110,51 +120,89 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			shiftChangeWarehouseDocItemsView.DocumentUoW = UoWGeneric;
+			var nomenclatureParam = filter.CreateParameterSet(
+				"Номенклатуры",
+				"nomenclature",
+				new ParametersFactory(UoW, (filters) => {
+					SelectableEntityParameter<Nomenclature> resultAlias = null;
+					var query = UoW.Session.QueryOver<Nomenclature>()
+						.Where(x => !x.IsArchive);
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							var filterCriterion = f();
+							if(filterCriterion != null) {
+								query.Where(filterCriterion);
+							}
+						}
+					}
+
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.OfficialName).WithAlias(() => resultAlias.EntityTitle)
+						);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Nomenclature>>());
+					return query.List<SelectableParameter>();
+				})
+			);
+
+			var nomenclatureTypeParam = filter.CreateParameterSet(
+				"Типы номенклатур",
+				"nomenclature_type",
+				new ParametersEnumFactory<NomenclatureCategory>()
+			);
+
+			nomenclatureParam.AddFilterOnSourceSelectionChanged(nomenclatureTypeParam,
+				() => {
+					var selectedValues = nomenclatureTypeParam.GetSelectedValues();
+					if(!selectedValues.Any()) {
+						return null;
+					}
+					return Restrictions.On<Nomenclature>(x => x.Category).IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray());
+				}
+			);
+
+			//Предзагрузка. Для избежания ленивой загрузки
+			UoW.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
+
+			filter.CreateParameterSet(
+				"Группы товаров",
+				"product_group",
+				new RecursiveParametersFactory<ProductGroup>(UoW,
+				(filters) => {
+					var query = UoW.Session.QueryOver<ProductGroup>();
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							query.Where(f());
+						}
+					}
+					return query.List();
+				},
+				x => x.Name,
+				x => x.Childs)
+			);
+
+			var filterViewModel = new SelectableParameterReportFilterViewModel(filter);
+			var filterWidget = new SelectableParameterReportFilterView(filterViewModel);
+			vboxParameters.Add(filterWidget);
+			filterWidget.Show();
+
+			ConfigureNomenclaturesView();
 		}
 
-		#region CategoryTreeView
-
-		void ConfigureCategoryTreeView()
+		private void ConfigureNomenclaturesView()
 		{
-			var categoryList = Enum.GetValues(typeof(NomenclatureCategory)).Cast<NomenclatureCategory>().ToList();
-
-			observableCategoryNodes = new GenericObservableList<SelectableNomenclatureTypeNode>();
-
-			foreach(var cat in categoryList) {
-				var node = new SelectableNomenclatureTypeNode();
-				node.Category = cat;
-				node.Title = cat.GetEnumTitle() ?? cat.ToString();
-
-				observableCategoryNodes.Add(node);
-			}
-
-			observableCategoryNodes.ListContentChanged += ObservableItemsField_ListContentChanged;
-
-			ytreeviewCategories.ColumnsConfig = FluentColumnsConfig<SelectableNomenclatureTypeNode>
-				.Create()
-				.AddColumn("Выбрать").AddToggleRenderer(node => node.Selected).Editing()
-				.AddColumn("Название").AddTextRenderer(node => node.Title)
+			ytreeviewNomenclatures.ColumnsConfig = ColumnsConfigFactory.Create<ShiftChangeWarehouseDocumentItem>()
+				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
+				.AddColumn("Кол-во в учёте").AddTextRenderer(x => x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInDB) : x.AmountInDB.ToString())
+				.AddColumn("Кол-во по факту").AddNumericRenderer(x => x.AmountInFact).Editing()
+					.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
+					.AddSetter((w, x) => w.Digits = (x.Nomenclature.Unit != null ? (uint)x.Nomenclature.Unit.Digits : 1))
+				.AddColumn("Разница").AddTextRenderer(x => x.Difference != 0 && x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.Difference) : String.Empty)
+					.AddSetter((w, x) => w.Foreground = x.Difference < 0 ? "red" : "blue")
+				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
+				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
 				.Finish();
-
-			ytreeviewCategories.YTreeModel = new RecursiveTreeModel<SelectableNomenclatureTypeNode>(observableCategoryNodes, x => x.Parent, x => x.Children);
-			SelectCategoriesOnStart();
 		}
-
-		void ObservableItemsField_ListContentChanged(object sender, EventArgs e)
-		{
-			ytreeviewCategories.QueueDraw();
-			shiftChangeWarehouseDocItemsView.Categories = observableCategoryNodes.Where(i => i.Selected).Select(i => i.Category).ToList();
-		}
-
-		void SelectCategoriesOnStart()
-		{
-			foreach(var category in Entity.ObservableItems.Select(i => i.Nomenclature.Category).Distinct()) {
-				observableCategoryNodes.FirstOrDefault(n => n.Category == category).Selected = true;
-			}
-		}
-
-		#endregion
 
 		public override bool Save()
 		{
@@ -183,16 +231,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(ShiftChangeWarehouseDocument), "акта передачи склада"))
 				Save();
 
-			string[] categories = observableCategoryNodes.Where(i => i.Selected).Select(i => i.CategoryName).ToArray();
-			if(categories.Length == 0)
-				categories = new string[] { "0" };
-
 			var reportInfo = new QS.Report.ReportInfo {
 				Title = String.Format("Акт передачи склада №{0} от {1:d}", Entity.Id, Entity.TimeStamp),
 				Identifier = "Store.ShiftChangeWarehouse",
 				Parameters = new Dictionary<string, object> {
-					{ "document_id",  Entity.Id },
-					{ "categories", categories}
+					{ "document_id",  Entity.Id }
 				}
 			};
 
@@ -211,5 +254,113 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 					e.CanChange = false;
 			}
 		}
+
+		#region NomenclaturesView
+
+		protected void OnButtonFillItemsClicked(object sender, EventArgs e)
+		{
+			List<int> nomenclaturesToInclude = new List<int>();
+			List<int> nomenclaturesToExclude = new List<int>();
+			List<string> nomenclatureCategoryToInclude = new List<string>();
+			List<string> nomenclatureCategoryToExclude = new List<string>();
+			List<int> productGroupToInclude = new List<int>();
+			List<int> productGroupToExclude = new List<int>();
+
+			foreach (SelectableParameterSet parameterSet in filter.ParameterSets) {
+				switch(parameterSet.ParameterName) {
+					case "nomenclature":
+						if (parameterSet.FilterType == SelectableFilterType.Include) {
+							foreach (SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								nomenclaturesToInclude.Add(value.EntityId);
+							}
+						} else {
+							foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								nomenclaturesToExclude.Add(value.EntityId);
+							}
+						}
+						break;
+					case "nomenclature_type":
+						if(parameterSet.FilterType == SelectableFilterType.Include) {
+							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								nomenclatureCategoryToInclude.Add(value.Value.ToString());
+							}
+						} else {
+							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								nomenclatureCategoryToExclude.Add(value.Value.ToString());
+							}
+						}
+						break;
+					case "product_group":
+						if(parameterSet.FilterType == SelectableFilterType.Include) {
+							foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								productGroupToInclude.Add(value.EntityId);
+							}
+						} else {
+							foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								productGroupToExclude.Add(value.EntityId);
+							}
+						}
+						break;
+				}
+			}
+
+			if(Entity.Items.Count == 0)
+				Entity.FillItemsFromStock(UoW,
+						nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
+						nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
+						nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
+						nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
+						productGroupToInclude: productGroupToInclude.ToArray(),
+						productGroupToExclude: productGroupToExclude.ToArray()
+					);
+			else
+				Entity.UpdateItemsFromStock(UoW,
+					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
+					nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
+					nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
+					nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
+					productGroupToInclude: productGroupToInclude.ToArray(),
+					productGroupToExclude: productGroupToExclude.ToArray()
+					);
+
+			UpdateButtonState();
+		}
+
+		protected void OnButtonAddClicked(object sender, EventArgs e)
+		{
+			var nomenclatureSelectDlg = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			nomenclatureSelectDlg.Mode = OrmReferenceMode.Select;
+			nomenclatureSelectDlg.ObjectSelected += NomenclatureSelectDlg_ObjectSelected;
+			TabParent.AddSlaveTab(this, nomenclatureSelectDlg);
+		}
+
+		void NomenclatureSelectDlg_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			var nomenclature = e.Subject as Nomenclature;
+			if(Entity.Items.Any(x => x.Nomenclature.Id == nomenclature.Id))
+				return;
+
+			Entity.AddItem(nomenclature, 0, 0);
+		}
+
+		private void UpdateButtonState()
+		{
+			buttonFillItems.Sensitive = Entity.Warehouse != null;
+			if(Entity.Items.Count == 0)
+				buttonFillItems.Label = "Заполнить по складу";
+			else
+				buttonFillItems.Label = "Обновить остатки";
+		}
+
+		// change warehouse handler
+
+		protected void OnWarehouseChanged(object sender, EventArgs e)
+		{
+			if(Entity.Warehouse != null)
+				buttonFillItems.Click();
+			UpdateButtonState();
+		}
+
+		#endregion
 	}
 }
