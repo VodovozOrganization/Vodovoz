@@ -68,8 +68,6 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		void ConfigureDlg()
 		{
-			filter = new SelectableParametersReportFilter(UoW);
-
 			canEdit = !UoW.IsNew && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
 
 			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today) {
@@ -94,6 +92,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				buttonAdd.Sensitive = canEdit || canCreate;
 
 			ytreeviewNomenclatures.ItemsDataSource = Entity.ObservableItems;
+			ytreeviewNomenclatures.YTreeModel?.EmitModelChanged();
 
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			if(UoW.IsNew)
@@ -107,7 +106,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			string errorMessage = "Не установлены единицы измерения у следующих номенклатур :" + Environment.NewLine;
 			int wrongNomenclatures = 0;
-			foreach(var item in UoWGeneric.Root.Items) {
+			foreach(var item in Entity.Items) {
 				if(item.Nomenclature.Unit == null) {
 					errorMessage += string.Format("Номер: {0}. Название: {1}{2}",
 						item.Nomenclature.Id, item.Nomenclature.Name, Environment.NewLine);
@@ -119,6 +118,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				FailInitialize = true;
 				return;
 			}
+
+			filter = new SelectableParametersReportFilter(UoW);
 
 			var nomenclatureParam = filter.CreateParameterSet(
 				"Номенклатуры",
