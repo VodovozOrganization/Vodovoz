@@ -203,7 +203,7 @@ namespace Vodovoz.ViewModel
 		private void ConfigureDlg()
 		{
 			NotifyConfiguration.Enable();
-			NotifyConfiguration.Instance.SingleSubscribeOnEntity<RouteList>(OnRouteListChanged);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(OnRouteListChanged);
 
 			Filter.SelectedStatuses = new[]{
 					RouteListStatus.New,
@@ -217,7 +217,7 @@ namespace Vodovoz.ViewModel
 				};
 		}
 
-		private void OnRouteListChanged(EntityChangeEvent changeEvent)
+		private void OnRouteListChanged(EntityChangeEvent[] changeEvents)
 		{
 			UpdateNodes();
 		}
