@@ -98,8 +98,8 @@ namespace Vodovoz
 		public RouteListStatus[] SelectedStatuses {
 			get => RouteListStatuses.Where(x => x.Selected).Select(x => x.RouteListStatus).ToArray();
 			set {
-				foreach(var status in RouteListStatuses) {
-					if(value.Contains(status.RouteListStatus)) { status.Selected = true; }
+					foreach(var status in RouteListStatuses) {
+						if(value.Contains(status.RouteListStatus)) { status.Selected = true; }
 				}
 			}
 		}
@@ -150,6 +150,9 @@ namespace Vodovoz
 					RouteListStatuses.Add(new RouteListStatusNode(status));
 				}
 			}
+			foreach(var status in RouteListStatuses) {
+				status.PropertyChanged += (sender, e) => OnRefiltered();
+			}
 		}
 
 		private void LoadRouteListStatusesDefaults()
@@ -160,6 +163,7 @@ namespace Vodovoz
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.Finish();
 			ytreeviewRouteListStatuses.ItemsDataSource = RouteListStatuses;
+			ytreeviewRouteListStatuses.YTreeModel?.EmitModelChanged();
 			foreach(var status in RouteListStatuses) {
 				status.PropertyChanged += (sender, e) => OnRefiltered();
 			}
