@@ -103,9 +103,6 @@ namespace Vodovoz
 		{
 			List<string> propertys = new List<string> {
 				DocumentUoW.Root.GetPropertyName(x => x.Warehouse),
-				DocumentUoW.Root.GetPropertyName(x => x.Nomenclature),
-				DocumentUoW.Root.GetPropertyName(x => x.NomenclatureCategory),
-				DocumentUoW.Root.GetPropertyName(x => x.ProductGroup)
 			};
 
 			if(propertys.Contains(e.PropertyName))
@@ -123,17 +120,6 @@ namespace Vodovoz
 				var warehouseRepository = new WarehouseRepository();
 				nomenclaturesWithDiscrepancies = warehouseRepository.GetDiscrepancyNomenclatures(UoW, DocumentUoW.Root.Warehouse.Id);
 			}
-		}
-
-		protected void OnButtonFillItemsClicked(object sender, EventArgs e)
-		{
-			FillDiscrepancies();
-
-			if(DocumentUoW.Root.Items.Count == 0)
-				DocumentUoW.Root.FillItemsFromStock(DocumentUoW);
-			else
-				DocumentUoW.Root.UpdateItemsFromStock(DocumentUoW);
-			UpdateButtonState();
 		}
 
 		private void UpdateButtonState()

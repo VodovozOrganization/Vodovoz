@@ -74,37 +74,6 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title => String.Format("Инвентаризация №{0} от {1:d}", Id, TimeStamp);
 
-		#region InventoryParam
-
-		private NomenclatureCategory? nomenclatureCategory;
-		public virtual NomenclatureCategory? NomenclatureCategory {
-			get => nomenclatureCategory;
-			set {
-					ObservableItems?.Clear();
-					SetField(ref nomenclatureCategory, value);
-			}
-		}
-
-		private ProductGroup productGroup;
-		public virtual ProductGroup ProductGroup {
-			get => productGroup;
-			set {
-				ObservableItems?.Clear();
-				SetField(ref productGroup, value);
-			}
-		}
-
-		private Nomenclature nomenclature;
-		public virtual Nomenclature Nomenclature {
-			get => nomenclature;
-			set {
-				ObservableItems?.Clear();
-				SetField(ref nomenclature, value);
-			}
-		}
-
-		#endregion InventoryParam
-
 		#region Функции
 
 		public virtual void AddItem (Nomenclature nomenclature, decimal amountInDB, decimal amountInFact)
@@ -141,14 +110,46 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void FillItemsFromStock(IUnitOfWork uow)
+		public virtual void FillItemsFromStock(IUnitOfWork uow,
+			int[] nomenclaturesToInclude,
+			int[] nomenclaturesToExclude,
+			string[] nomenclatureTypeToInclude,
+			string[] nomenclatureTypeToExclude,
+			int[] productGroupToInclude,
+			int[] productGroupToExclude)
 		{
-			var selectedNomenclature = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id, null, NomenclatureCategory, ProductGroup, Nomenclature);
+			if(Warehouse == null)
+				return;
+
+			var selectedNomenclature = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id,
+				nomenclaturesToInclude,
+				nomenclaturesToExclude,
+				nomenclatureTypeToInclude,
+				nomenclatureTypeToExclude,
+				productGroupToInclude,
+				productGroupToExclude);
 			FillItemsFromStock(uow, selectedNomenclature);
 		}
 
-		public virtual void UpdateItemsFromStock(IUnitOfWork uow){
-			var inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp, NomenclatureCategory, ProductGroup, Nomenclature);
+		public virtual void UpdateItemsFromStock(IUnitOfWork uow,
+			int[] nomenclaturesToInclude,
+			int[] nomenclaturesToExclude,
+			string[] nomenclatureTypeToInclude,
+			string[] nomenclatureTypeToExclude,
+			int[] productGroupToInclude,
+			int[] productGroupToExclude)
+		{
+			if(Warehouse == null)
+				return;
+
+			var inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id,
+				nomenclaturesToInclude,
+				nomenclaturesToExclude,
+				nomenclatureTypeToInclude,
+				nomenclatureTypeToExclude,
+				productGroupToInclude,
+				productGroupToExclude,
+				TimeStamp);
 
 			foreach(var itemInStock in inStock)
 			{
