@@ -443,14 +443,14 @@ namespace Vodovoz.Domain.Logistic
 								Environment.NewLine,
 								Order.OrderEquipments
 									.Where(x => x.Direction == Direction.Deliver)
-								    .Select(x => $"{x.NameString}: {x.Count}")
+								    .Select(x => $"{x.NameString}: {x.Count:N0}")
 				);
 
 				var orderItemEquipment = string.Join(
 								Environment.NewLine,
 								Order.OrderItems
 									.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
-							  		.Select(x => $"{x.Nomenclature.Name}: {x.Count}")
+							  		.Select(x => $"{x.Nomenclature.Name}: {x.Count:N0}")
 				);
 
 				if(String.IsNullOrWhiteSpace(orderItemEquipment))
