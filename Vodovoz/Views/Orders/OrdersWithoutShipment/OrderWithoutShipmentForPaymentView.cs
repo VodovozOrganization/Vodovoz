@@ -57,7 +57,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.AddColumn("Номер").AddTextRenderer(node => node.OrderId.ToString())
 				.AddColumn("Дата").AddTextRenderer(node => node.OrderDate.ToShortDateString())
 				.AddColumn("Статус").AddEnumRenderer(node => node.OrderStatus)
-				.AddColumn("Бутыли").AddTextRenderer(node => node.Bottles.ToString())
+				.AddColumn("Бутыли").AddTextRenderer(node => $"{node.Bottles:N0}")
 				.AddColumn("Сумма").AddTextRenderer(node => node.OrderSum.ToString())
 				.AddColumn("Адрес").AddTextRenderer(node => node.DeliveryAddress)
 				.Finish();
