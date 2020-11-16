@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	bwsfp.id AS bwsfp_id,
@@ -78,7 +78,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bwsfp_id">
           <DataField>bwsfp_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -149,33 +149,34 @@ WHERE
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
-        <CommandText>SELECT 
-	nomenclature.id AS id,
-	nomenclature.official_name AS name,
-	'--' AS unit_code,
-	measurement_units.name AS mu_name,
-	sum(IFNULL(actual_count, count)) AS count,
-	sum(order_items.actual_count) AS actual_count,
-	order_items.price AS item_price,
-	sum(order_items.include_nds) AS include_nds,
-	sum(order_items.discount) AS discount,
-    	sum(order_items.discount_money) AS discount_money,
-    	sum(order_items.price * IFNULL(actual_count, count)) AS sum,
-	sum(order_items.price * IFNULL(actual_count, count) - order_items.discount_money) AS total
+        <CommandText>SELECT
+    nomenclature.id AS id,
+    nomenclature.official_name AS name,
+    '--' AS unit_code,
+    measurement_units.name AS mu_name,
+    measurement_units.digits as digits,
+    sum(IFNULL(actual_count, count)) AS count,
+    sum(order_items.actual_count) AS actual_count,
+    order_items.price AS item_price,
+    sum(order_items.include_nds) AS include_nds,
+    sum(order_items.discount) AS discount,
+    sum(order_items.discount_money) AS discount_money,
+    sum(order_items.price * IFNULL(actual_count, count)) AS sum,
+    sum(order_items.price * IFNULL(actual_count, count) - order_items.discount_money) AS total
 FROM
-	bill_without_shipment_for_payment_items bwsfpi
-LEFT JOIN
-	orders ON orders.id = bwsfpi.order_id
-LEFT JOIN
-	order_items ON order_items.order_id = orders.id
-LEFT JOIN
-	nomenclature ON order_items.nomenclature_id = nomenclature.id
-LEFT JOIN
-	measurement_units ON nomenclature.unit_id = measurement_units.id
+    bill_without_shipment_for_payment_items bwsfpi
+        LEFT JOIN
+    orders ON orders.id = bwsfpi.order_id
+        LEFT JOIN
+    order_items ON order_items.order_id = orders.id
+        LEFT JOIN
+    nomenclature ON order_items.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    measurement_units ON nomenclature.unit_id = measurement_units.id
 WHERE
-	bwsfpi.bill_ws_for_payment_id = @bill_ws_for_payment_id
+        bwsfpi.bill_ws_for_payment_id = @bill_ws_for_payment_id
 Group By
-	nomenclature.id;</CommandText>
+    nomenclature.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="bill_ws_for_payment_id">
             <Value>=Parameters!bill_ws_for_payment_id</Value>
@@ -227,10 +228,14 @@ Group By
           <DataField>discount_money</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     organizations.full_name,
@@ -271,7 +276,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -934,6 +939,7 @@ WHERE
                         <TextAlign>Center</TextAlign>
                         <FontFamily>Calibri</FontFamily>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >="N" + {digits}</Format>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -2084,7 +2090,7 @@ Iif(
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="bill_ws_for_payment_id">
       <DataType>Integer</DataType>
       <DefaultValue>
