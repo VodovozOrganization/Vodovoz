@@ -147,7 +147,7 @@ namespace Vodovoz
 					);
 			foreach (var item in additionalItems)
 			{
-				var nomCount = item.Count.ToString("N"+ $"{item.Nomenclature.Unit.Digits}");
+				var nomCount = item.Count.ToString($"N{item.Nomenclature.Unit.Digits}");
 				stringParts.Add($"{item.Nomenclature.Name}: {nomCount}");
 			}
 
