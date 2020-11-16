@@ -166,7 +166,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Автор").SetDataProperty(node => node.Author)
 					.AddColumn("Статус").SetDataProperty(node => node.StatusEnum.GetEnumTitle())
 					.AddColumn("Тип оплаты").SetDataProperty(node => node.PaymentTypeEnum.GetEnumTitle())
-					.AddColumn("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
+					.AddColumn("Бутыли").AddTextRenderer(node => $"{node.BottleAmount:N0}")
 					.AddColumn("Клиент").SetDataProperty(node => node.Counterparty)
 					.AddColumn("Вариант оплаты").SetDataProperty(node => node.PayOption)
 					.AddColumn("Сумма безнал").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderCashlessSumTotal))
