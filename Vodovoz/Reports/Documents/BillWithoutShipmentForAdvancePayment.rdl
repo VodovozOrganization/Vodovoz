@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	bwsfap.id AS bwsfap_id,
@@ -58,7 +58,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bwsfap_id">
           <DataField>bwsfap_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -125,26 +125,27 @@ WHERE
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
-        <CommandText>SELECT 
-	nomenclature.id AS id,
-	nomenclature.official_name AS name,
-	'--' AS unit_code,
-	measurement_units.name AS mu_name,
-	bwsfapi.count AS count,
-	bwsfapi.price AS item_price,
-	bwsfapi.include_nds,
-	bwsfapi.discount,
+        <CommandText>SELECT
+    nomenclature.id AS id,
+    nomenclature.official_name AS name,
+    '--' AS unit_code,
+    measurement_units.name AS mu_name,
+    measurement_units.digits AS digits,
+    bwsfapi.count AS count,
+    bwsfapi.price AS item_price,
+    bwsfapi.include_nds,
+    bwsfapi.discount,
     bwsfapi.discount_money,
     bwsfapi.price * count AS sum,
-	bwsfapi.price * count - bwsfapi.discount_money AS total
+    bwsfapi.price * count - bwsfapi.discount_money AS total
 FROM
-	bill_without_shipment_for_advance_payment_items bwsfapi
-LEFT JOIN
-	nomenclature ON bwsfapi.nomenclature_id = nomenclature.id
-LEFT JOIN
-	measurement_units ON nomenclature.unit_id = measurement_units.id
+    bill_without_shipment_for_advance_payment_items bwsfapi
+        LEFT JOIN
+    nomenclature ON bwsfapi.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    measurement_units ON nomenclature.unit_id = measurement_units.id
 WHERE
-	bwsfapi.bill_ws_for_advance_payment_id = @bill_ws_for_advance_payment_id;</CommandText>
+        bwsfapi.bill_ws_for_advance_payment_id = @bill_ws_for_advance_payment_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="bill_ws_for_advance_payment_id">
             <Value>=Parameters!bill_ws_for_advance_payment_id</Value>
@@ -196,10 +197,14 @@ WHERE
           <DataField>discount_money</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     organizations.full_name,
@@ -240,7 +245,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -905,6 +910,7 @@ WHERE
                         <TextAlign>Center</TextAlign>
                         <FontFamily>Calibri</FontFamily>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >="N" + {digits}</Format>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -2055,7 +2061,7 @@ Iif(
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="bill_ws_for_advance_payment_id">
       <DataType>Integer</DataType>
       <DefaultValue>
