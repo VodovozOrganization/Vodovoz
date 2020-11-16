@@ -45,7 +45,7 @@ namespace Vodovoz.Repository.Client
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && !nomenclatureAlias.IsDisposableTare)
-				.Select(Projections.Sum(() => orderItemAlias.Count)).List<int?>();
+				.Select(Projections.Sum(() => orderItemAlias.Count)).List<decimal?>();
 
 			var confirmedQueryResult = uow.Session.QueryOver<Order>(() => orderAlias)
 				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
@@ -55,11 +55,11 @@ namespace Vodovoz.Repository.Client
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && !nomenclatureAlias.IsDisposableTare)
 				.Where(() => orderItemAlias.ActualCount != null)
-				.Select(Projections.Sum(() => orderItemAlias.ActualCount)).List<int?>();
+				.Select(Projections.Sum(() => orderItemAlias.ActualCount)).List<decimal?>();
 
 			var bottlesOrdered = notConfirmedQueryResult.FirstOrDefault().GetValueOrDefault()
 				+ confirmedQueryResult.FirstOrDefault().GetValueOrDefault();
-			return bottlesOrdered;
+			return (int)bottlesOrdered;
 		}
 
 		public static double GetAvgBottlesOrdered(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders)
