@@ -11,7 +11,7 @@ namespace Vodovoz.JournalNodes
 		public OrderStatus StatusEnum { get; set; }
 
 		public DateTime Date { get; set; }
-		public int BottleAmount { get; set; }
+		public decimal BottleAmount { get; set; }
 
 		public string Counterparty { get; set; }
 

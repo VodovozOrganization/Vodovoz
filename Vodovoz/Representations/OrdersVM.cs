@@ -193,10 +193,10 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Автор").SetDataProperty(node => node.Author)
 			.AddColumn("Время").SetDataProperty(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
 			.AddColumn("Статус").SetDataProperty(node => node.StatusEnum.GetEnumTitle())
-			.AddColumn("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
+			.AddColumn("Бутыли").AddTextRenderer(node => $"{node.BottleAmount:N0}")
 			.AddColumn("Кол-во с/о")
 				.SetTag("Hidden")
-				.AddTextRenderer(node => node.SanitisationAmount.ToString())
+				.AddTextRenderer(node => $"{node.SanitisationAmount:N0}")
 			.AddColumn("Клиент").SetDataProperty(node => node.Counterparty)
 			.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 			.AddColumn("Коор.").AddTextRenderer(x => x.Coordinates)
@@ -394,8 +394,8 @@ namespace Vodovoz.ViewModel
 		public DateTime Date { get; set; }
 		public bool IsSelfDelivery { get; set; }
 		public string DeliveryTime { get; set; }
-		public int BottleAmount { get; set; }
-		public int SanitisationAmount { get; set; }
+		public decimal BottleAmount { get; set; }
+		public decimal SanitisationAmount { get; set; }
 
 		[UseForSearch]
 		[SearchHighlight]

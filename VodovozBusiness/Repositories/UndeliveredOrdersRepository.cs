@@ -162,7 +162,7 @@ namespace Vodovoz.Repositories
 			return result;
 		}
 
-		public static int GetUndelivered19LBottlesQuantity(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
+		public static decimal GetUndelivered19LBottlesQuantity(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
 		{
 			Order orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -179,7 +179,7 @@ namespace Vodovoz.Repositories
 										.Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
 										.Where(n => n.Category == NomenclatureCategory.water && n.TareVolume == TareVolume.Vol19L)
 										.SelectList(list => list.SelectSum(i => i.Count))
-										.List<int?>()
+										.List<decimal?>()
 										.FirstOrDefault()
 										;
 
