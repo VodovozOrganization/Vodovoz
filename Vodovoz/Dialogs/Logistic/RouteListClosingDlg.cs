@@ -9,7 +9,6 @@ using Gtk;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Repositories;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Parameters;
@@ -37,7 +36,6 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using QS.Tools;
 using Vodovoz.Domain.Client;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -516,7 +514,7 @@ namespace Vodovoz
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered() && item.Status != RouteListItemStatus.Transfered)
 				foreach(var itm in item.Order.OrderItems)
-					itm.ActualCount = 0;
+					itm.ActualCount = 0m;
 
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();
@@ -582,7 +580,7 @@ namespace Vodovoz
 		{
 			var items = routeListAddressesView.Items.Where(item => item.IsDelivered());
 			bottlesReturnedTotal = items.Sum(item => item.BottlesReturned + item.Order.BottlesByStockActualCount);
-			int fullBottlesTotal = items.SelectMany(item => item.Order.OrderItems)
+			int fullBottlesTotal = (int)items.SelectMany(item => item.Order.OrderItems)
 										.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
 										.Sum(item => item.ActualCount ?? 0);
 			decimal depositsCollectedTotal = items.Sum(item => item.BottleDepositsCollected);

@@ -284,7 +284,7 @@ namespace Vodovoz
 				.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(i => i.Count);
 
-			labelSum.LabelProp = $"Всего бутылей: {total}";
+			labelSum.LabelProp = $"Всего бутылей: {total:N0}";
 			UpdateWeightInfo();
 			UpdateVolumeInfo();
 		}

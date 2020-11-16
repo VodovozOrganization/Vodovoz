@@ -572,13 +572,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int GetFullBottlesDeliveredCount()
 		{
-			return Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
+			return (int)Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
 								   .Sum(item => item.ActualCount ?? 0);
 		}
 
 		public virtual int GetFullBottlesToDeliverCount()
 		{
-			return Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
+			return (int)Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
 								   .Sum(item => item.Count);
 		}
 
@@ -622,7 +622,7 @@ namespace Vodovoz.Domain.Logistic
 					item.OriginalDiscount = item.Discount > 0 ? (decimal?)item.Discount : null;
 					item.OriginalDiscountReason = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReason : null;
 				}
-				item.ActualCount = 0;
+				item.ActualCount = 0m;
 			}
 			foreach(var equip in Order.OrderEquipments)
 				equip.ActualCount = 0;
@@ -650,9 +650,9 @@ namespace Vodovoz.Domain.Logistic
 				deposit.ActualCount = deposit.Count;
 		}
 
-		private Dictionary<int, int> goodsByRouteColumns;
+		private Dictionary<int, decimal> goodsByRouteColumns;
 
-		public virtual Dictionary<int, int> GoodsByRouteColumns {
+		public virtual Dictionary<int, decimal> GoodsByRouteColumns {
 			get {
 				if(goodsByRouteColumns == null) {
 					goodsByRouteColumns = Order.OrderItems.Where(i => i.Nomenclature.RouteListColumn != null)
@@ -663,9 +663,9 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual int GetGoodsAmountForColumn(int columnId) => GoodsByRouteColumns.ContainsKey(columnId) ? GoodsByRouteColumns[columnId] : 0;
+		public virtual decimal GetGoodsAmountForColumn(int columnId) => GoodsByRouteColumns.ContainsKey(columnId) ? GoodsByRouteColumns[columnId] : 0;
 
-		public virtual int GetGoodsActualAmountForColumn(int columnId)
+		public virtual decimal GetGoodsActualAmountForColumn(int columnId)
 		{
 			if(Status == RouteListItemStatus.Transfered)
 				return 0;

@@ -420,7 +420,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 	public class GoodsInRouteListResult
 	{
 		public int NomenclatureId { get; set; }
-		public int Amount { get; set; }
+		public decimal Amount { get; set; }
 	}
 
 	public class GoodsLoadedListResult

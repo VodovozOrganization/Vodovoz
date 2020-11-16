@@ -10,7 +10,7 @@ namespace Vodovoz.JournalNodes
 		public string Name { get; set; }
 		public NomenclatureCategory Category { get; set; }
 		public decimal InStock => Added - Removed;
-		public int? Reserved { get; set; }
+		public decimal? Reserved { get; set; }
 		public decimal Available => InStock - Reserved.GetValueOrDefault();
 		public decimal Added { get; set; }
 		public decimal Removed { get; set; }

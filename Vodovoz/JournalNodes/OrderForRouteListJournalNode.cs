@@ -40,8 +40,8 @@ namespace Vodovoz.JournalNodes
 		public DateTime CreateDate { get; set; }
 		public bool IsSelfDelivery { get; set; }
 		public string DeliveryTime { get; set; }
-		public int BottleAmount { get; set; }
-		public int SanitisationAmount { get; set; }
+		public decimal BottleAmount { get; set; }
+		public decimal SanitisationAmount { get; set; }
 
 		public string Counterparty { get; set; }
 
