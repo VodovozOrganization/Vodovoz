@@ -667,7 +667,7 @@ namespace Vodovoz.Representations
 		public virtual string UndeliveredOrderItems {
 			get {
 				if(OldOrder19LBottleQty > 0)
-					return OldOrder19LBottleQty.ToString();
+					return $"{OldOrder19LBottleQty:N0}";
 				if(OldOrderGoodsToClient != null)
 					return "к клиенту:\n" + OldOrderGoodsToClient;
 				if(OldOrderGoodsFromClient != null)
@@ -735,7 +735,7 @@ namespace Vodovoz.Representations
 		public string OldOrderAuthorLastName { get; set; }
 		public string OldOrderAuthorFirstName { get; set; }
 		public string OldOrderAuthorMidleName { get; set; }
-		public int OldOrder19LBottleQty { get; set; }
+		public decimal OldOrder19LBottleQty { get; set; }
 		public string OldOrderGoodsToClient { get; set; }
 		public string OldOrderGoodsFromClient { get; set; }
 		public string OldRouteListDriverName { get; set; }

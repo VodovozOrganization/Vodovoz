@@ -13,9 +13,9 @@ namespace Vodovoz.Repositories
 {
 	public static class StockRepository
 	{
-		public static int NomenclatureReserved(IUnitOfWork uow, Nomenclature nomenclature) => NomenclatureReserved(uow, nomenclature.Id);
+		public static decimal NomenclatureReserved(IUnitOfWork uow, Nomenclature nomenclature) => NomenclatureReserved(uow, nomenclature.Id);
 
-		public static int NomenclatureReserved(IUnitOfWork uow, int nomenclatureId)
+		public static decimal NomenclatureReserved(IUnitOfWork uow, int nomenclatureId)
 		{
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
@@ -24,7 +24,7 @@ namespace Vodovoz.Repositories
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
 				.Where(() => orderItemsAlias.Nomenclature.Id == nomenclatureId)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted)
-				.Select(Projections.Sum(() => orderItemsAlias.Count)).SingleOrDefault<int>();
+				.Select(Projections.Sum(() => orderItemsAlias.Count)).SingleOrDefault<decimal>();
 		}
 
 		public static Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork UoW, int warehouseId, int[] nomenclatureIds, DateTime? onDate = null)
