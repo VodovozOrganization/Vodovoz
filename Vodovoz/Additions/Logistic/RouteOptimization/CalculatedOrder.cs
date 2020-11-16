@@ -41,14 +41,17 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(notCalculate)
 				return;
 
-			Bottles = order.OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water
-																			&& x.Nomenclature.IsWater19L).Sum(x => x.Count);
+			Bottles = (int)order.OrderItems.Where(
+				x => x.Nomenclature.Category == NomenclatureCategory.water
+								&& x.Nomenclature.IsWater19L).Sum(x => x.Count);
 
-			Weight = order.OrderItems.Sum(x => x.Nomenclature.Weight * x.Count)
-						  + order.OrderEquipments.Where(x => x.Direction == Direction.Deliver).Sum(x => x.Nomenclature.Weight * x.Count);
+			Weight = order.OrderItems.Sum(x => x.Nomenclature.Weight * (double) x.Count)
+						  + order.OrderEquipments.Where(x => x.Direction == Direction.Deliver)
+												 .Sum(x => x.Nomenclature.Weight * x.Count);
 
-			Volume = order.OrderItems.Sum(x => x.Nomenclature.Volume * x.Count)
-						  + order.OrderEquipments.Where(x => x.Direction == Direction.Deliver).Sum(x => x.Nomenclature.Volume * x.Count);
+			Volume = order.OrderItems.Sum(x => x.Nomenclature.Volume * (double) x.Count)
+						  + order.OrderEquipments.Where(x => x.Direction == Direction.Deliver)
+												 .Sum(x => x.Nomenclature.Volume * x.Count);
 		}
 	}
 }

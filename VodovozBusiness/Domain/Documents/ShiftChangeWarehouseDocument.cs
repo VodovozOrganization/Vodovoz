@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -122,6 +123,96 @@ namespace Vodovoz.Domain.Documents
 					}
 				} else
 					inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp);
+
+			foreach(var itemInStock in inStock) {
+				var item = Items.FirstOrDefault(x => x.Nomenclature.Id == itemInStock.Key);
+				if(item != null)
+					item.AmountInDB = itemInStock.Value;
+				else {
+					ObservableItems.Add(
+						new ShiftChangeWarehouseDocumentItem() {
+							Nomenclature = uow.GetById<Nomenclature>(itemInStock.Key),
+							AmountInDB = itemInStock.Value,
+							AmountInFact = 0,
+							Document = this
+						});
+				}
+			}
+			var itemsToRemove = new List<ShiftChangeWarehouseDocumentItem>();
+
+			foreach(var item in Items) {
+				if(!inStock.ContainsKey(item.Nomenclature.Id))
+					itemsToRemove.Add(item);
+			}
+
+			foreach(var item in itemsToRemove) {
+				ObservableItems.Remove(item);
+			}
+		}
+
+		public virtual void FillItemsFromStock(IUnitOfWork uow,
+			int[] nomenclaturesToInclude,
+			int[] nomenclaturesToExclude,
+			string[] nomenclatureTypeToInclude,
+			string[] nomenclatureTypeToExclude,
+			int[] productGroupToInclude,
+			int[] productGroupToExclude)
+		{
+			Dictionary<int, decimal> inStock = new Dictionary<int, decimal>();
+
+			if (Warehouse == null)
+				return;
+			
+			inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id,
+				nomenclaturesToInclude,
+				nomenclaturesToExclude,
+				nomenclatureTypeToInclude,
+				nomenclatureTypeToExclude,
+				productGroupToInclude,
+				productGroupToExclude,
+				TimeStamp
+			);
+
+			if(inStock.Count == 0)
+				return;
+
+			var nomenclatures = uow.GetById<Nomenclature>(inStock.Select(p => p.Key).ToArray());
+
+			ObservableItems.Clear();
+			foreach(var itemInStock in inStock) {
+				ObservableItems.Add(
+					new ShiftChangeWarehouseDocumentItem() {
+						Nomenclature = nomenclatures.First(x => x.Id == itemInStock.Key),
+						AmountInDB = itemInStock.Value,
+						AmountInFact = 0,
+						Document = this
+					}
+				);
+			}
+		}
+		
+		public virtual void UpdateItemsFromStock(IUnitOfWork uow,
+			int[] nomenclaturesToInclude,
+			int[] nomenclaturesToExclude,
+			string[] nomenclatureTypeToInclude,
+			string[] nomenclatureTypeToExclude,
+			int[] productGroupToInclude,
+			int[] productGroupToExclude)
+		{
+			Dictionary<int, decimal> inStock = new Dictionary<int, decimal>();
+
+			inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id,
+					nomenclaturesToInclude,
+					nomenclaturesToExclude,
+					nomenclatureTypeToInclude,
+					nomenclatureTypeToExclude,
+					productGroupToInclude,
+					productGroupToExclude,
+					TimeStamp
+				);
+
+			if (Warehouse == null)
+				return;
 
 			foreach(var itemInStock in inStock) {
 				var item = Items.FirstOrDefault(x => x.Nomenclature.Id == itemInStock.Key);

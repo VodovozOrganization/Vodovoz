@@ -8,9 +8,9 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodOrders;
 
-		private global::Gamma.Widgets.yEnumComboBox enumcomboStatus;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gtk.Label label1;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewRouteListStatuses;
 
 		private global::Gtk.Label label2;
 
@@ -49,31 +49,25 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.dateperiodOrders]));
 			w1.TopAttach = ((uint)(1));
 			w1.BottomAttach = ((uint)(2));
-			w1.LeftAttach = ((uint)(1));
-			w1.RightAttach = ((uint)(2));
+			w1.LeftAttach = ((uint)(2));
+			w1.RightAttach = ((uint)(3));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.enumcomboStatus = new global::Gamma.Widgets.yEnumComboBox();
-			this.enumcomboStatus.Name = "enumcomboStatus";
-			this.enumcomboStatus.ShowSpecialStateAll = true;
-			this.enumcomboStatus.ShowSpecialStateNot = false;
-			this.enumcomboStatus.UseShortTitle = false;
-			this.enumcomboStatus.DefaultFirst = false;
-			this.table1.Add(this.enumcomboStatus);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboStatus]));
-			w2.LeftAttach = ((uint)(1));
-			w2.RightAttach = ((uint)(2));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.label1 = new global::Gtk.Label();
-			this.label1.Name = "label1";
-			this.label1.Xalign = 1F;
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Статус:");
-			this.table1.Add(this.label1);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.WidthRequest = 220;
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.ytreeviewRouteListStatuses = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewRouteListStatuses.CanFocus = true;
+			this.ytreeviewRouteListStatuses.Name = "ytreeviewRouteListStatuses";
+			this.ytreeviewRouteListStatuses.HeadersVisible = false;
+			this.GtkScrolledWindow.Add(this.ytreeviewRouteListStatuses);
+			this.table1.Add(this.GtkScrolledWindow);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow]));
+			w3.BottomAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(0));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label();
@@ -84,8 +78,8 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));
 			w4.TopAttach = ((uint)(1));
 			w4.BottomAttach = ((uint)(2));
-			w4.LeftAttach = ((uint)(2));
-			w4.RightAttach = ((uint)(3));
+			w4.LeftAttach = ((uint)(3));
+			w4.RightAttach = ((uint)(4));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -95,8 +89,8 @@ namespace Vodovoz
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Район города:");
 			this.table1.Add(this.label3);
 			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.label3]));
-			w5.LeftAttach = ((uint)(2));
-			w5.RightAttach = ((uint)(3));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -108,6 +102,8 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.label4]));
 			w6.TopAttach = ((uint)(1));
 			w6.BottomAttach = ((uint)(2));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -117,10 +113,8 @@ namespace Vodovoz
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Тип ТС:");
 			this.table1.Add(this.label5);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.label5]));
-			w7.TopAttach = ((uint)(1));
-			w7.BottomAttach = ((uint)(2));
-			w7.LeftAttach = ((uint)(4));
-			w7.RightAttach = ((uint)(5));
+			w7.LeftAttach = ((uint)(3));
+			w7.RightAttach = ((uint)(4));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -131,8 +125,8 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryreferenceShift]));
 			w8.TopAttach = ((uint)(1));
 			w8.BottomAttach = ((uint)(2));
-			w8.LeftAttach = ((uint)(3));
-			w8.RightAttach = ((uint)(4));
+			w8.LeftAttach = ((uint)(4));
+			w8.RightAttach = ((uint)(5));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -144,10 +138,8 @@ namespace Vodovoz
 			this.yEnumCmbTransport.DefaultFirst = false;
 			this.table1.Add(this.yEnumCmbTransport);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.yEnumCmbTransport]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
-			w9.LeftAttach = ((uint)(5));
-			w9.RightAttach = ((uint)(6));
+			w9.LeftAttach = ((uint)(4));
+			w9.RightAttach = ((uint)(5));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -159,8 +151,8 @@ namespace Vodovoz
 			this.ySpecCmbGeographicGroup.ShowSpecialStateNot = false;
 			this.table1.Add(this.ySpecCmbGeographicGroup);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ySpecCmbGeographicGroup]));
-			w10.LeftAttach = ((uint)(3));
-			w10.RightAttach = ((uint)(4));
+			w10.LeftAttach = ((uint)(2));
+			w10.RightAttach = ((uint)(3));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -184,7 +176,6 @@ namespace Vodovoz
 			this.ySpecCmbGeographicGroup.Changed += new global::System.EventHandler(this.OnYSpecCmbGeographicGroupChanged);
 			this.yEnumCmbTransport.ChangedByUser += new global::System.EventHandler(this.OnYEnumCmbTransportChangedByUser);
 			this.yentryreferenceShift.Changed += new global::System.EventHandler(this.OnYentryreferenceShiftChanged);
-			this.enumcomboStatus.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumcomboStatusEnumItemSelected);
 			this.dateperiodOrders.PeriodChanged += new global::System.EventHandler(this.OnDateperiodOrdersPeriodChanged);
 		}
 	}

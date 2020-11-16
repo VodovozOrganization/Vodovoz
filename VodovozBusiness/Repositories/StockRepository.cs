@@ -112,6 +112,79 @@ namespace Vodovoz.Repositories
 			return result;
 		}
 
+		public static Dictionary<int, decimal> NomenclatureInStock(
+			IUnitOfWork UoW, int warehouseId,
+			int[] nomenclaturesToInclude,
+			int[] nomenclaturesToExclude,
+			string[] nomenclatureTypeToInclude,
+			string[] nomenclatureTypeToExclude,
+			int[] productGroupToInclude,
+			int[] productGroupToExclude,
+			DateTime? onDate = null)
+		{
+			Nomenclature nomenclatureAlias = null;
+			Nomenclature nomenclatureAddOperationAlias = null;
+			Nomenclature nomenclatureRemoveOperationAlias = null;
+			WarehouseMovementOperation operationAddAlias = null;
+			WarehouseMovementOperation operationRemoveAlias = null;
+
+			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
+				.JoinAlias(() => operationAddAlias.Nomenclature, () => nomenclatureAddOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id);
+			if (nomenclatureTypeToInclude.Length > 0)
+			{
+				List<NomenclatureCategory> parsedCategories = new List<NomenclatureCategory>();
+				foreach (var categoryName in nomenclatureTypeToInclude)
+				{
+					parsedCategories.Add((NomenclatureCategory)Enum.Parse(typeof(NomenclatureCategory), categoryName));
+				}
+				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.Category.IsIn(parsedCategories));
+			}
+			if(productGroupToInclude.Length > 0)
+				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.ProductGroup.Id.IsIn(productGroupToInclude));
+			if(nomenclaturesToInclude.Length > 0)
+				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.Id.IsIn(nomenclaturesToInclude));
+			if(onDate.HasValue)
+				subqueryAdd = subqueryAdd.Where(x => x.OperationTime < onDate.Value);
+			subqueryAdd.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse.Id), warehouseId))
+				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
+
+			var subqueryRemove = QueryOver.Of(() => operationRemoveAlias)
+				.JoinAlias(() => operationRemoveAlias.Nomenclature, () => nomenclatureRemoveOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id);
+			if (nomenclatureTypeToExclude.Length > 0)
+			{
+				List<NomenclatureCategory> parsedCategories = new List<NomenclatureCategory>();
+				foreach (var categoryName in nomenclatureTypeToExclude)
+				{
+					parsedCategories.Add((NomenclatureCategory)Enum.Parse(typeof(NomenclatureCategory), categoryName));
+				}
+				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Category.IsIn(parsedCategories));
+			}
+			if(productGroupToExclude.Length > 0)
+				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.ProductGroup.IsIn(productGroupToExclude));
+			if(nomenclaturesToExclude != null)
+				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Id.IsIn(nomenclaturesToExclude));
+			if(onDate.HasValue)
+				subqueryRemove = subqueryRemove.Where(x => x.OperationTime < onDate.Value);
+			subqueryRemove.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse.Id), warehouseId))
+				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
+
+			ItemInStock inStock = null;
+			var stocklist = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
+				.SelectList(list => list
+				   .SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => inStock.Id)
+				   .SelectSubQuery(subqueryAdd).WithAlias(() => inStock.Added)
+				   .SelectSubQuery(subqueryRemove).WithAlias(() => inStock.Removed)
+				).TransformUsing(Transformers.AliasToBean<ItemInStock>()).List<ItemInStock>();
+			
+			var result = new Dictionary<int, decimal>();
+			foreach(var nomenclatureInStock in stocklist.Where(x => x.Amount != 0))
+				result.Add(nomenclatureInStock.Id, nomenclatureInStock.Amount);
+			
+			return result;
+		}
+
 		public static Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork UoW, int[] warehouseIds, int[] nomenclatureIds)
 		{
 			var total = new Dictionary<int, decimal>();

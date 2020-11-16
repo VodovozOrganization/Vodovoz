@@ -115,7 +115,7 @@ namespace Vodovoz
 					if(!goodsColumns.Contains(column.Id))
 						continue;
 					int id = column.Id;
-					config = config.AddColumn(column.Name).AddTextRenderer(a => a.GetGoodsAmountForColumn(id).ToString());
+					config = config.AddColumn(column.Name).AddTextRenderer(a => a.GetGoodsAmountForColumn(id).ToString("N0"));
 				}
 			}
 			if(RouteListUoW.Root.Forwarder != null) {
@@ -145,8 +145,11 @@ namespace Vodovoz
 								&& x.Nomenclature.Category != NomenclatureCategory.deposit
 								&& x.Nomenclature.Category != NomenclatureCategory.master
 					);
-			foreach(var item in additionalItems)
-				stringParts.Add($"{item.Nomenclature.Name}: {item.Count}");
+			foreach (var item in additionalItems)
+			{
+				var nomCount = item.Count.ToString("N"+ $"{item.Nomenclature.Unit.Digits}");
+				stringParts.Add($"{item.Nomenclature.Name}: {nomCount}");
+			}
 
 			return string.Join("\n", stringParts);
 		}
@@ -284,7 +287,7 @@ namespace Vodovoz
 				.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(i => i.Count);
 
-			labelSum.LabelProp = $"Всего бутылей: {total}";
+			labelSum.LabelProp = $"Всего бутылей: {total:N0}";
 			UpdateWeightInfo();
 			UpdateVolumeInfo();
 		}

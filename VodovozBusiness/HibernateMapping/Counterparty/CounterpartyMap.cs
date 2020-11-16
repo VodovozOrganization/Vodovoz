@@ -45,6 +45,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.RingUpPhone).Column("ringup_phone");
 			Map(x => x.Torg2Count).Column("torg2_count");
 			Map(x => x.TTNCount).Column("ttn_count");
+			Map(x => x.UPDCount).Column("upd_count");
 			Map(x => x.CounterpartyType).Column("counterparty_type").CustomType<CounterpartyTypeStringType>();
 			Map(x => x.IsChainStore).Column("is_chain_store");
 			Map(x => x.CargoReceiverSource).Column("cargo_receiver_source").CustomType<CargoReceiverTypeStringType>();

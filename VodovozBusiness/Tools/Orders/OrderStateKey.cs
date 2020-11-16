@@ -82,19 +82,19 @@ namespace Vodovoz.Tools.Orders
 		#region для проверки цены доставки
 
 		[Display(Name = "Сколько воды многооборотной таре 19л?")]
-		public int Water19LCount { get; set; }
+		public decimal Water19LCount { get; set; }
 
 		[Display(Name = "Сколько воды одноразовой таре 19л?")]
-		public int DisposableWater19LCount { get; set; }
+		public decimal DisposableWater19LCount { get; set; }
 
 		[Display(Name = "Сколько воды одноразовой таре 6л?")]
-		public int DisposableWater6LCount { get; set; }
+		public decimal DisposableWater6LCount { get; set; }
 		
 		[Display(Name = "Сколько воды одноразовой таре 1.5л?")]
-		public int DisposableWater1500mlCount { get; set; }
+		public decimal DisposableWater1500mlCount { get; set; }
 
 		[Display(Name = "Сколько воды одноразовой таре 0.6л?")]
-		public int DisposableWater600mlCount { get; set; }
+		public decimal DisposableWater600mlCount { get; set; }
 
 		#endregion
 
@@ -161,9 +161,9 @@ namespace Vodovoz.Tools.Orders
 		public bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)
 		{
 			var total19LWater = Water19LCount + DisposableWater19LCount;
-			decimal totalNo19LWater = (decimal)DisposableWater6LCount / (decimal)rule.EqualsCount6LFor19L;
-			totalNo19LWater += (decimal)DisposableWater1500mlCount / (decimal)rule.EqualsCount1500mlFor19L;
-			totalNo19LWater += (decimal)DisposableWater600mlCount / (decimal)rule.EqualsCount600mlFor19L;
+			decimal totalNo19LWater = DisposableWater6LCount / rule.EqualsCount6LFor19L;
+			totalNo19LWater += DisposableWater1500mlCount / rule.EqualsCount1500mlFor19L;
+			totalNo19LWater += DisposableWater600mlCount / rule.EqualsCount600mlFor19L;
 			total19LWater += (int)totalNo19LWater;
 
 			bool result = total19LWater < rule.Water19LCount;

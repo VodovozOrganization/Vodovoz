@@ -561,7 +561,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>60</Timeout>
         <CommandText>SELECT
@@ -635,6 +635,7 @@ FROM (
 	GROUP BY gg.id, eq.nomenclature_id
 ) AS items
 JOIN nomenclature n ON n.id = items.nomenclature_id
+LEFT JOIN nomenclature_groups ng ON n.group_id = ng.id
 LEFT JOIN geographic_groups gg ON items.geographic_group_id = gg.id
 #остатки на складах
 LEFT JOIN (
@@ -664,6 +665,24 @@ WHERE n.category NOT IN('water','deposit','service','master')
 		FROM base_parameters
 		WHERE name = 'номенклатура_для_выезда_с_мастером'
 	)
+		AND (
+         ((n.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
+             OR
+          (n.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
+         OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
+     )
+   AND (
+         ((n.category IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude) )
+             OR
+          (n.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
+         OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
+     )
+   AND (
+           ((IFNULL(ng.id , 0) IN (@product_group_include) AND 0 IN (@product_group_exclude))
+               OR
+            (IFNULL(ng.id , 0) NOT IN (@product_group_exclude) AND 0 IN (@product_group_include)))
+           OR (0 IN (@product_group_include) AND 0 IN (@product_group_exclude))
+    )
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="@date">
@@ -672,9 +691,27 @@ WHERE n.category NOT IN('water','deposit','service','master')
           <QueryParameter Name="@geo_group_id">
             <Value>={?geo_group_id}</Value>
           </QueryParameter>
+          <QueryParameter Name="@product_group_include">
+            <Value>={?product_group_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@product_group_exclude">
+            <Value>={?product_group_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@nomenclature_include">
+            <Value>={?nomenclature_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@nomenclature_exclude">
+            <Value>={?nomenclature_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@nomenclature_type_include">
+            <Value>={?nomenclature_type_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@nomenclature_type_exclude">
+            <Value>={?nomenclature_type_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature_id">
           <DataField>nomenclature_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -706,7 +743,7 @@ WHERE n.category NOT IN('water','deposit','service','master')
       </Fields>
     </DataSet>
     <DataSet Name="Details">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -729,6 +766,7 @@ LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
 LEFT JOIN districts distr ON delivery_points.district_id = distr.id
 LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
 JOIN counterparty c ON c.id = o.client_id 
+LEFT JOIN nomenclature_groups ng ON n.group_id = ng.id
 WHERE DATE(o.delivery_date) = @date
 	AND eq.direction = 'Deliver'
 	AND eq.own_type = 'Client'
@@ -738,6 +776,25 @@ WHERE DATE(o.delivery_date) = @date
 		'OnLoading'
 	)
 	AND (@geo_group_id IS NULL OR @geo_group_id = 0 OR gg.id = @geo_group_id)
+	AND (
+         ((n.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
+             OR
+          (n.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
+         OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
+     )
+   AND (
+         ((n.category IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude) )
+             OR
+          (n.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
+         OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
+     )
+   AND (
+           ((IFNULL(ng.id , 0) IN (@product_group_include) AND 0 IN (@product_group_exclude))
+               OR
+            (IFNULL(ng.id , 0) NOT IN (@product_group_exclude) AND 0 IN (@product_group_include)))
+           OR (0 IN (@product_group_include) AND 0 IN (@product_group_exclude))
+       )
+     
 GROUP BY o.id
 ;</CommandText>
         <QueryParameters>
@@ -747,9 +804,27 @@ GROUP BY o.id
           <QueryParameter Name="geo_group_id">
             <Value>={?geo_group_id}</Value>
           </QueryParameter>
+          <QueryParameter Name="@product_group_include">
+            <Value>={?product_group_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@product_group_exclude">
+            <Value>={?product_group_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@nomenclature_include">
+            <Value>={?nomenclature_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@nomenclature_exclude">
+            <Value>={?nomenclature_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@nomenclature_type_include">
+            <Value>={?nomenclature_type_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@nomenclature_type_exclude">
+            <Value>={?nomenclature_type_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -818,6 +893,50 @@ GROUP BY o.id
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="product_group_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="product_group_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_type_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_type_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

@@ -42,14 +42,10 @@ FROM
     nomenclature ON nomenclature.id = store_shiftchange_item.nomenclature_id
 WHERE
     store_shiftchange_item.store_shiftchange_id = @document_id
-    AND
-    ((nomenclature.category IN (@categories)) OR ('0' IN (@categories)));</CommandText>
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="document_id">
             <Value>=Parameters!document_id</Value>
-          </QueryParameter>
-          <QueryParameter Name="categories">
-            <Value>={?categories}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -310,7 +306,7 @@ WHERE stored_resource.id = @id1</CommandText>
           <TableColumn>
             <Width>26.7pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>37.9pt</Width>
           </TableColumn>
           <TableColumn>
@@ -350,7 +346,7 @@ WHERE stored_resource.id = @id1</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
                       <Value>Id</Value>
@@ -472,7 +468,7 @@ WHERE stored_resource.id = @id1</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
                       <Value>={nomenclature_id}</Value>
@@ -481,9 +477,9 @@ WHERE stored_resource.id = @id1</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Left</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -589,7 +585,7 @@ WHERE stored_resource.id = @id1</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
                       <Value>

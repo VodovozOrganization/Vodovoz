@@ -30,10 +30,9 @@ namespace Vodovoz.Infrastructure.Mango
 		private readonly IEmployeeService employeeService;
 		private readonly IUserService userService;
 		private readonly INavigationManager navigation;
-		private readonly PhoneRepository phoneRepository;
 		private ConnectionState connectionState;
 		private uint extension;
-		private MangoNotificationClient notificationClient;
+		private MangoServiceClient mangoServiceClient;
 		private CancellationTokenSource notificationCancellation;
 		private IPage CurrentPage;
 		private uint timer;
@@ -52,7 +51,6 @@ namespace Vodovoz.Infrastructure.Mango
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			this.navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
-			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			this.mangoController = new MangoService.MangoController(parametrs.VpbxApiKey, parametrs.VpbxApiSalt);
 
 			timer = GLib.Timeout.Add(1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
@@ -113,10 +111,10 @@ namespace Vodovoz.Infrastructure.Mango
 				extension = employee.InnerPhone.Value;
 				ConnectionState = ConnectionState.Disconnected;
 				notificationCancellation = new CancellationTokenSource();
-				notificationClient = new MangoNotificationClient(extension, notificationCancellation.Token);
-				notificationClient.ChannelStateChanged += NotificationClientChannelStateChanged;
-				ConnectionState = notificationClient.IsNotificationActive ? ConnectionState.Connected : ConnectionState.Disconnected;
-				notificationClient.AppearedMessage += NotificationClientOnAppearedMessage;
+				mangoServiceClient = new MangoServiceClient(extension, notificationCancellation.Token);
+				mangoServiceClient.ChannelStateChanged += MangoServiceClientChannelStateChanged;
+				ConnectionState = mangoServiceClient.IsNotificationActive ? ConnectionState.Connected : ConnectionState.Disconnected;
+				mangoServiceClient.AppearedMessage += MangoServiceClientOnAppearedMessage;
 			}
 		}
 
@@ -126,19 +124,19 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			logger.Info("Текущий сотрудник изменён, мог поменятся номер привязки, переподключаемся...");
 			notificationCancellation?.Cancel();
-			notificationClient?.Dispose();
+			mangoServiceClient?.Dispose();
 			Connect();
 		}
 
-		private void NotificationClientOnAppearedMessage(object sender, AppearedMessageEventArgs e)
+		private void MangoServiceClientOnAppearedMessage(object sender, AppearedMessageEventArgs e)
 		{
 			Application.Invoke((s, arg) => HandleMessage(e.Message));
 		}
 
-		void NotificationClientChannelStateChanged(object sender, ConnectionStateEventArgs e)
+		void MangoServiceClientChannelStateChanged(object sender, ConnectionStateEventArgs e)
 		{
 			Gtk.Application.Invoke(delegate {
-				ConnectionState = notificationClient.IsNotificationActive ? ConnectionState.Connected : ConnectionState.Disconnected;
+				ConnectionState = mangoServiceClient.IsNotificationActive ? ConnectionState.Connected : ConnectionState.Disconnected;
 			});
 		}
 
@@ -331,14 +329,9 @@ namespace Vodovoz.Infrastructure.Mango
 			}
 		}
 
-		public IEnumerable<MangoService.DTO.Group.Group> GetAllVPBXGroups()
+		public List<PhoneEntry> GetPhoneBook()
 		{
-			return mangoController.GetAllVpbxGroups();
-		}
-
-		public IEnumerable<MangoService.DTO.Users.User> GetAllVpbxUsers()
-		{
-			return mangoController.GetAllVPBXUsers();
+			return mangoServiceClient.GetPhonebook();
 		}
 
 		public void MakeCall(string to_extension)
@@ -356,8 +349,8 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			notificationCancellation?.Cancel();
-			if(notificationClient != null)
-				notificationClient.Dispose();
+			if(mangoServiceClient != null)
+				mangoServiceClient.Dispose();
 			GLib.Source.Remove(timer);
 		}
 

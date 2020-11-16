@@ -198,7 +198,7 @@ namespace Vodovoz.EntityRepositories.Orders
 										  .Where(n => n.Category == NomenclatureCategory.water && n.TareVolume == TareVolume.Vol19L)
 										  .List()
 										  .Sum(i => i.Count);
-			return _19LWatterQty;
+			return (int)_19LWatterQty;
 		}
 
 		/// <summary>

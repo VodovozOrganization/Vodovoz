@@ -212,8 +212,7 @@ namespace Vodovoz
 			);
 
 			ySpecCmbCameFrom.Binding.AddBinding(Entity, f => f.CameFrom, w => w.SelectedItem).InitializeFromSource();
-			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
-			referenceDefaultExpense.Binding.AddBinding(Entity, e => e.DefaultExpenseCategory, w => w.Subject).InitializeFromSource();
+
 			var filterAccountant = new EmployeeFilterViewModel();
 			filterAccountant.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
@@ -317,8 +316,10 @@ namespace Vodovoz
 			int?[] docCount = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 			yspeccomboboxTTNCount.ItemsList = docCount;
 			yspeccomboboxTorg2Count.ItemsList = docCount;
+			yspeccomboboxUPDForNonCashlessCount.ItemsList = docCount;
 			yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
 			yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxUPDForNonCashlessCount.Binding.AddBinding(Entity, e => e.UPDCount, w => w.SelectedItem).InitializeFromSource();
 
 			enumcomboCargoReceiverSource.ItemsEnum = typeof(CargoReceiverSource);
 			enumcomboCargoReceiverSource.Binding.AddBinding(Entity, e => e.CargoReceiverSource, w => w.SelectedItem).InitializeFromSource();

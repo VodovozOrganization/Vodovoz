@@ -262,7 +262,7 @@ namespace Vodovoz
 					.AddSetter((cell, node) => cell.Editable = canEditPrices)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
-									? new Adjustment(0, 0, (double)n.Price * n.ActualCount, 1, 100, 1)
+									? new Adjustment(0, 0, (double)(n.Price * n.ActualCount), 1, 100, 1)
 									: new Adjustment(0, 0, 100, 1, 100, 1)
 					)
 					.Digits(2)
@@ -549,7 +549,7 @@ namespace Vodovoz
 			}
 		}
 
-		public int ActualCount {
+		public decimal ActualCount {
 			get {
 				if(IsEquipment) {
 					if(IsSerialEquipment)
@@ -562,7 +562,7 @@ namespace Vodovoz
 				if(IsEquipment) {
 					if(IsSerialEquipment)
 						orderEquipment.ActualCount = value > 0 ? 1 : 0;
-					orderEquipment.ActualCount = value;
+					orderEquipment.ActualCount = (int?)value;
 				} else {
 					orderItem.ActualCount = value;
 				}
@@ -581,7 +581,7 @@ namespace Vodovoz
 			}
 		}
 
-		public int Count => IsEquipment ? 1 : orderItem.Count;
+		public decimal Count => IsEquipment ? 1 : orderItem.Count;
 
 		public string Name => IsEquipment ? orderEquipment.NameString : orderItem.NomenclatureString;
 

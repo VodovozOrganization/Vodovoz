@@ -1,4 +1,6 @@
-﻿using Dialogs.Employees;
+﻿using System;
+using System.Data;
+using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -49,8 +51,11 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.ViewModels.Journals.Cash;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewWidgets;
+using VodovozInfrastructure.Interfaces;
+using Action = Gtk.Action;
 
 public partial class MainWindow : Window
 {
@@ -142,7 +147,7 @@ public partial class MainWindow : Window
 		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов", null, "table");
 		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин", null, "table");
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
-		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражом", null, "table");
+		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
 		//Касса
 		ActionCashDocuments = new Action("ActionCashDocuments", "Кассовые документы", null, "table");
@@ -590,6 +595,10 @@ public partial class MainWindow : Window
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
 		ICarJournalFactory carJournalFactory = new CarJournalFactory();
 		
+		IFileChooserProvider fileChooserProvider = new Vodovoz.FileChooser("Категория Расхода.csv");
+		var  expenseCategoryJournalFilterViewModel = new ExpenseCategoryJournalFilterViewModel(); 
+		
+		
 		var fuelDocumentsJournalViewModel = new FuelDocumentsJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
@@ -600,7 +609,9 @@ public partial class MainWindow : Window
 			nomenclatureSelectorFactory,
 			employeeJournalFactory,
 			carJournalFactory,
-			new GtkReportViewOpener()
+			new GtkReportViewOpener(),
+			fileChooserProvider,
+			expenseCategoryJournalFilterViewModel
 		);
 		tdiMain.AddTab(fuelDocumentsJournalViewModel);
 	}
@@ -796,14 +807,13 @@ public partial class MainWindow : Window
 	{
 		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
 			new WarehouseRepository()
-		);
+		) {ShowArchive = true};
 
 		NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices
-		);
-		vm.SelectionMode = JournalSelectionMode.None;
+		) {SelectionMode = JournalSelectionMode.None};
 
 		tdiMain.OpenTab(() => vm);
 	}

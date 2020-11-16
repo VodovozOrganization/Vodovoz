@@ -26,6 +26,8 @@ namespace VodovozMangoService.Calling
 
         public TimeSpan LiveTime => DateTime.Now - created;
 
+        public bool IsActive => Events.Values.All(e => e.CallState != CallState.Disconnected);
+        
         public string EventsToText()
         {
             return String.Join("\n", Events.Values.Select(x => $"  - {JsonSerializer.Serialize(x)}"));

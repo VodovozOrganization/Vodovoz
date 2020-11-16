@@ -83,6 +83,7 @@ FROM
     GROUP BY warehouse_movement_operations.nomenclature_id) movements ON movements.nomenclature_id = nomenclature.id
         LEFT JOIN
     measurement_units ON measurement_units.id = nomenclature.unit_id
+    LEFT JOIN nomenclature_groups ON nomenclature.group_id = nomenclature_groups.id
 WHERE 	(
 			((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
 			OR
@@ -95,6 +96,12 @@ WHERE 	(
 				(nomenclature.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
 				OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
 			)
+			AND (
+             ((IFNULL(nomenclature_groups.id , 0) IN (@product_group_include) AND 0 IN (@product_group_exclude))
+                 OR
+              (IFNULL(nomenclature_groups.id , 0) NOT IN (@product_group_exclude) AND 0 IN (@product_group_include)))
+             OR (0 IN (@product_group_include) AND 0 IN (@product_group_exclude))
+       )
 HAVING before_added - before_removed &lt;&gt; 0
     OR IFNULL(all_added, 0) &lt;&gt; 0 OR IFNULL(all_removed, 0) &lt;&gt; 0
 ORDER BY nomenclature.category , nomenclature.name;</CommandText>
@@ -119,6 +126,12 @@ ORDER BY nomenclature.category , nomenclature.name;</CommandText>
           </QueryParameter>
           <QueryParameter Name="nomenclature_type_exclude">
             <Value>=Parameters!nomenclature_type_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_include">
+            <Value>=Parameters!product_group_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_exclude">
+            <Value>=Parameters!product_group_exclude</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1156,7 +1169,7 @@ ORDER BY nomenclature.category , nomenclature.name;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1204,16 +1217,16 @@ ORDER BY nomenclature.category , nomenclature.name;</CommandText>
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="nomenclature_exclude">
-      <DataType>String</DataType>
+    <ReportParameter Name="nomenclature_include">
+      <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="nomenclature_include">
-      <DataType>String</DataType>
+    <ReportParameter Name="nomenclature_exclude">
+      <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
@@ -1225,14 +1238,32 @@ ORDER BY nomenclature.category , nomenclature.name;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_type_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="product_group_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="product_group_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

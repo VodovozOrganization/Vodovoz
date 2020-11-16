@@ -13,7 +13,7 @@ namespace Vodovoz.Journals.JournalNodes
 		public DateTime Date { get; set; }
 		public DateTime CreateDate { get; set; }
 		public bool IsSelfDelivery { get; set; }
-		public int BottleAmount { get; set; }
+		public decimal BottleAmount { get; set; }
 
 		public string Counterparty { get; set; }
 

@@ -266,13 +266,18 @@ namespace Vodovoz
 		private void UpdateBottlesSummaryInfo()
 		{
 			string bottles = null;
-			int completedBottles = Entity.Addresses.Where(x => x != null && x.Status == RouteListItemStatus.Completed).Sum(x => x.Order.TotalWaterBottles);
+			int completedBottles = Entity.Addresses.Where(x => x != null && x.Status == RouteListItemStatus.Completed)
+												   .Sum(x => x.Order.Total19LBottlesToDeliver);
+			
 			int canceledBottles = Entity.Addresses.Where(
 				  x => x != null && (x.Status == RouteListItemStatus.Canceled
 					|| x.Status == RouteListItemStatus.Overdue
 					|| x.Status == RouteListItemStatus.Transfered)
-				).Sum(x => x.Order.TotalWaterBottles);
-			int enrouteBottles = Entity.Addresses.Where(x => x != null && x.Status == RouteListItemStatus.EnRoute).Sum(x => x.Order.TotalWaterBottles);
+				).Sum(x => x.Order.Total19LBottlesToDeliver);
+			
+			int enrouteBottles = Entity.Addresses.Where(x => x != null && x.Status == RouteListItemStatus.EnRoute)
+												 .Sum(x => x.Order.Total19LBottlesToDeliver);
+			
 			bottles = string.Format("<b>Всего 19л. бутылей в МЛ:</b>\n");
 			bottles += string.Format("Выполнено: <b>{0}</b>\n", completedBottles);
 			bottles += string.Format(" Отменено: <b>{0}</b>\n", canceledBottles);
@@ -383,10 +388,9 @@ namespace Vodovoz
 		{
 			try {
 				SetSensetivity(false);
-				if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute)) {
-					if(MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?")) {
-						Entity.CompleteRouteAndCreateTask(wageParameterService, CallTaskWorker);
-					}
+				if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute))
+				{
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.Delivered, CallTaskWorker);
 				}
 
 				UoWGeneric.Save();

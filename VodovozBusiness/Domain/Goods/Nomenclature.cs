@@ -640,7 +640,7 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		public virtual decimal GetPrice(int? itemsCount)
+		public virtual decimal GetPrice(decimal? itemsCount)
 		{
 			if(itemsCount < 1)
 				itemsCount = 1;

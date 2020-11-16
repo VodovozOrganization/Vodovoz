@@ -62,7 +62,7 @@ namespace Vodovoz.Repository.Client
 			return bottlesOrdered;
 		}
 
-		public static double GetAvgBottlesOrdered(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders)
+		public static decimal GetAvgBottlesOrdered(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders)
 		{
 			Order orderAlias = null;
 			OrderItem orderItemAlias = null;
@@ -81,7 +81,7 @@ namespace Vodovoz.Repository.Client
 			var list = confirmedQueryResult.Select(Projections.Group<Order>(x => x.Id),
 				Projections.Sum(() => orderItemAlias.Count)).List<object[]>();
 
-			return list.Count > 0 ? list.Average(x => (int)x[1]) : 0;
+			return list.Count > 0 ? list.Average(x => (decimal) x[1]) : 0;
 		}
 	}
 }
