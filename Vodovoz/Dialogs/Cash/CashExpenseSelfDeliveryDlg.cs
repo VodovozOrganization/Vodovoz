@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
@@ -152,8 +153,10 @@ namespace Vodovoz.Dialogs.Cash
 
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 
-			OrmMain.GetObjectDescription<ExpenseCategory>().ObjectUpdated += OnExpenseCategoryUpdated;
-			OnExpenseCategoryUpdated(null, null);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<ExpenseCategory>(
+				s => comboExpense.ItemsList = CategoryRepository.ExpenseSelfDeliveryCategories(UoW)
+			);
+			comboExpense.ItemsList = CategoryRepository.ExpenseSelfDeliveryCategories(UoW);
 			comboExpense.Binding.AddBinding(Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource();
 
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();
@@ -168,11 +171,6 @@ namespace Vodovoz.Dialogs.Cash
 				buttonSave.Sensitive = false;
 				ytextviewDescription.Editable = false;
 			}
-		}
-
-		void OnExpenseCategoryUpdated(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
-		{
-			comboExpense.ItemsList = CategoryRepository.ExpenseSelfDeliveryCategories(UoW);
 		}
 
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)
@@ -222,6 +220,12 @@ namespace Vodovoz.Dialogs.Cash
 		protected void OnYentryOrderChanged(object sender, EventArgs e)
 		{
 			Entity.FillFromOrder(UoW);
+		}
+		
+		public override void Destroy()
+		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			base.Destroy();
 		}
 	}
 }
