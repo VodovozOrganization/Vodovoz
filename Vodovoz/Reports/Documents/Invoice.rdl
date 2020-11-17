@@ -384,55 +384,57 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
-	nomenclature.id AS id,
-	nomenclature.official_name AS name,
-	'--' AS unit_code,
-	measurement_units.name AS mu_name,
-	IFNULL(actual_count, count) AS count,
-	order_items.price AS item_price,
-	order_items.discount AS item_discount,
-	order_items.price * IFNULL(actual_count, count) AS total_wo_disc,
-	order_items.price * IFNULL(actual_count, count) - order_items.discount_money AS total
+    nomenclature.id AS id,
+    nomenclature.official_name AS name,
+    '--' AS unit_code,
+    measurement_units.name AS mu_name,
+    measurement_units.digits AS digits,
+    IFNULL(actual_count, count) AS count,
+    order_items.price AS item_price,
+    order_items.discount AS item_discount,
+    order_items.price * IFNULL(actual_count, count) AS total_wo_disc,
+    order_items.price * IFNULL(actual_count, count) - order_items.discount_money AS total
 FROM
-	order_items
-LEFT JOIN
-	nomenclature ON order_items.nomenclature_id = nomenclature.id
-LEFT JOIN
-	measurement_units ON nomenclature.unit_id = measurement_units.id
-LEFT JOIN
-	orders ON orders.id = order_items.order_id
+    order_items
+        LEFT JOIN
+    nomenclature ON order_items.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    measurement_units ON nomenclature.unit_id = measurement_units.id
+        LEFT JOIN
+    orders ON orders.id = order_items.order_id
 WHERE
-	order_items.order_id = @order_id
+        order_items.order_id = @order_id
 /*Отображенеие строки Забор-Доставка, если нет номенклатур в заказе*/
 UNION ALL
 SELECT DISTINCT
-	null AS id,
-	'Забор-Доставка' AS name,
-	null AS unit_code,
-	null AS mu_name,
-	null AS count,
-	null AS item_price,
-	null AS item_discount,
-	null AS total_wo_disc,
-	null AS total
+    null AS id,
+    'Забор-Доставка' AS name,
+    null AS unit_code,
+    null AS mu_name,
+    null AS digits,
+    null AS count,
+    null AS item_price,
+    null AS item_discount,
+    null AS total_wo_disc,
+    null AS total
 FROM
-	order_items
+    order_items
 WHERE NOT EXISTS (
-	SELECT id
-	FROM order_items
-	WHERE order_id = @order_id
-	);</CommandText>
+        SELECT id
+        FROM order_items
+        WHERE order_id = @order_id
+    );</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.String</TypeName>
@@ -468,6 +470,10 @@ WHERE NOT EXISTS (
         <Field Name="total_wo_disc">
           <DataField>total_wo_disc</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1424,6 +1430,7 @@ WHERE stored_resource.id = @id1</CommandText>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >="N" + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3672,7 +3679,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Value>=First( {IM12} , "Image" )</Value>
         <Sizing>Clip</Sizing>
         <MIMEType>image/jpeg</MIMEType>
-        <Visibility >
+        <Visibility>
           <Hidden>={?without_advertising}</Hidden>
         </Visibility>
       </Image>
