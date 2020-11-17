@@ -675,7 +675,7 @@ GROUP BY name</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Image">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>/*
 SET @id1 = 3; #VodovozLogo
@@ -689,6 +689,7 @@ SET @id8 = 10; #Договор оферты
 SET @id9 = 13; #Безконтактная доставка
 SET @id10 = 14; #Оплата по SMS
 SET @id11 = 17; #Терминал
+SET @id12 = 18; #Бесплатная доставка продуктов
 */
 
 SELECT
@@ -724,7 +725,10 @@ R10.id as ID10 ,
 R10.binary_file as IM10,
 
 R11.id as ID11 ,
-R11.binary_file as IM11
+R11.binary_file as IM11,
+
+R12.id as ID12 ,
+R12.binary_file as IM12
 
 FROM stored_resource
 
@@ -818,6 +822,15 @@ LEFT JOIN
     WHERE stored_resource.id = @id11
 ) as R11 ON R11.id = @id11
 
+LEFT JOIN
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource
+    WHERE stored_resource.id = @id12
+) as R12 ON R12.id = @id12
+
 WHERE stored_resource.id = @id1</CommandText>
         <QueryParameters>
           <QueryParameter Name="id1">
@@ -853,9 +866,12 @@ WHERE stored_resource.id = @id1</CommandText>
           <QueryParameter Name="id11">
             <Value>17</Value>
           </QueryParameter>
+          <QueryParameter Name="id12">
+            <Value>18</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="IM1">
           <DataField>IM1</DataField>
           <TypeName>System.String</TypeName>
@@ -898,6 +914,10 @@ WHERE stored_resource.id = @id1</CommandText>
         </Field>
         <Field Name="IM11">
           <DataField>IM11</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM12">
+          <DataField>IM12</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1920,16 +1940,16 @@ WHERE stored_resource.id = @id1</CommandText>
       </Textbox>
       <CustomReportItem Name="CustomReportItem3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
-        <Height>90pt</Height>
-        <Width>90pt</Width>
+        <Height>60.72pt</Height>
+        <Width>73.53pt</Width>
         <CustomProperties>
           <CustomProperty>
             <Name>QrCode</Name>
             <Value>="Invoice;"+Max({order_id}, "Order")+";"+Format(Max({order_date}, "Order"), "ddMMyyyy")</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>474.3pt</Left>
-        <Top>2.4pt</Top>
+        <Left>483.9pt</Left>
+        <Top>8.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1957,7 +1977,7 @@ WHERE stored_resource.id = @id1</CommandText>
             <Width>79.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>483.8pt</Width>
+            <Width>477.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -2263,16 +2283,16 @@ WHERE stored_resource.id = @id1</CommandText>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
       <List Name="List1">
-        <Height>36.24pt</Height>
-        <Width>135.53pt</Width>
-        <Left>443.70pt</Left>
-        <Top>92.90pt</Top>
+        <Height>28.74pt</Height>
+        <Width>118.28pt</Width>
+        <Left>464.5pt</Left>
+        <Top>67.7pt</Top>
         <ReportItems>
           <Image Name="Image7">
-            <Height>33.19pt</Height>
-            <Width>58.78pt</Width>
-            <Left>76.8pt</Left>
-            <Top>0.0pt</Top>
+            <Height>27.94pt</Height>
+            <Width>52.03pt</Width>
+            <Left>65.20pt</Left>
+            <Top>0.40pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2284,10 +2304,10 @@ WHERE stored_resource.id = @id1</CommandText>
             <MIMEType>image/jpeg</MIMEType>
           </Image>
           <Image Name="Image12">
-            <Height>24.89pt</Height>
-            <Width>59.55pt</Width>
+            <Height>23.39pt</Height>
+            <Width>46.80pt</Width>
             <Left>4.8pt</Left>
-            <Top>6.8pt</Top>
+            <Top>2.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2511,10 +2531,10 @@ WHERE stored_resource.id = @id1</CommandText>
         <Top>338.6pt</Top>
       </Table>
       <Image Name="Image3">
-        <Height>57.98pt</Height>
+        <Height>60.23pt</Height>
         <Width>93.37pt</Width>
-        <Left>24.2pt</Left>
-        <Top>70.9pt</Top>
+        <Left>24.20pt</Left>
+        <Top>70.90pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2773,8 +2793,8 @@ WHERE stored_resource.id = @id1</CommandText>
         <Top>301.2pt</Top>
       </Table>
       <Image Name="Image5">
-        <Height>58.66pt</Height>
-        <Width>96.38pt</Width>
+        <Height>60.91pt</Height>
+        <Width>95.63pt</Width>
         <Left>125.70pt</Left>
         <Top>70.10pt</Top>
         <Style>
@@ -3595,10 +3615,10 @@ WHERE stored_resource.id = @id1</CommandText>
         <Top>408.4pt</Top>
       </Table>
       <Image Name="Image6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>74.78pt</Height>
+        <Height>78.53pt</Height>
         <Width>85.43pt</Width>
-        <Left>354.10pt</Left>
-        <Top>54.80pt</Top>
+        <Left>384.40pt</Left>
+        <Top>52.40pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3610,34 +3630,16 @@ WHERE stored_resource.id = @id1</CommandText>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
       <List Name="List2">
-        <Height>76.87pt</Height>
-        <Width>118.91pt</Width>
-        <Left>229.50pt</Left>
-        <Top>56.10pt</Top>
+        <Height>49.85pt</Height>
+        <Width>101.64pt</Width>
+        <Left>470.0pt</Left>
+        <Top>93.7pt</Top>
         <ReportItems>
-          <Textbox Name="Textbox103">
-            <Height>24.02pt</Height>
-            <Width>61.70pt</Width>
-            <Value>Оплата по терминалу</Value>
-            <ZIndex>1</ZIndex>
-            <Left>56.9pt</Left>
-            <Top>37.3pt</Top>
-            <Visibility>
-              <Hidden>= !{?need_terminal}</Hidden>
-            </Visibility>
-            <Style>
-              <TextAlign>Center</TextAlign>
-              <FontWeight>Bold</FontWeight>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-          </Textbox>
           <Image Name="Image9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>63.49pt</Height>
-            <Width>89.92pt</Width>
-            <Left>8.90pt</Left>
-            <Top>3.30pt</Top>
+            <Height>43.20pt</Height>
+            <Width>91.38pt</Width>
+            <Left>4.1pt</Left>
+            <Top>3.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -3656,6 +3658,24 @@ WHERE stored_resource.id = @id1</CommandText>
         </Style>
         <DataSetName>Image</DataSetName>
       </List>
+      <Image Name="Image10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>75.16pt</Height>
+        <Width>151.24pt</Width>
+        <Left>231.40pt</Left>
+        <Top>55.90pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Database</Source>
+        <Value>=First( {IM12} , "Image" )</Value>
+        <Sizing>Clip</Sizing>
+        <MIMEType>image/jpeg</MIMEType>
+        <Visibility >
+          <Hidden>={?without_advertising}</Hidden>
+        </Visibility>
+      </Image>
     </ReportItems>
   </Body>
   <PageFooter>
