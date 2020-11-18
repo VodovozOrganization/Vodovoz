@@ -280,6 +280,7 @@ namespace Vodovoz.ViewModel
 			RouteListStatus.New,
 			RouteListStatus.Confirmed,
 			RouteListStatus.InLoading,
+			RouteListStatus.EnRoute,
 			RouteListStatus.Delivered,
 			RouteListStatus.OnClosing,
 			RouteListStatus.MileageCheck
