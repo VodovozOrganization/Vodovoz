@@ -96,7 +96,7 @@ GROUP BY stored_emails.id ORDER BY state, counterparty.id, send_date</CommandTex
       </Fields>
     </DataSet>
     <DataSet Name="EmailsByState">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	state_order_enum,
@@ -138,7 +138,7 @@ ORDER BY state_order_enum</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="state">
           <DataField>state</DataField>
           <TypeName>System.String</TypeName>
@@ -207,8 +207,8 @@ ORDER BY state_order_enum</CommandText>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -303,8 +303,8 @@ ORDER BY state_order_enum</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <TextAlign>Left</TextAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -392,7 +392,7 @@ ORDER BY state_order_enum</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Left</TextAlign>
+                        <TextAlign>Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -435,7 +435,7 @@ ORDER BY state_order_enum</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Left</TextAlign>
+                        <TextAlign>Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -694,6 +694,9 @@ ORDER BY state_order_enum</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <TextAlign>Center</TextAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>

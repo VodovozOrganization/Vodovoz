@@ -297,86 +297,87 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	rl.date AS rl_date,
-	rl.id AS rl_id,
-	TRIM(
-		BOTH '.'
-		FROM CONCAT_WS(
-			'.',
-			NULLIF(LEFT(drv.name, 1), ''),
-			NULLIF(LEFT(drv.patronymic, 1), ''),
-			drv.last_name
-		)
-	) AS driver_name,
-	w.name AS wh_name,
-	n.name AS nom_name,
-	nomenclatures_from_rl.nom_id,
-	doc_items.count AS count_loaded,
-	nomenclatures_from_rl.count AS count_total
+    rl.date AS rl_date,
+    rl.id AS rl_id,
+    TRIM(
+            BOTH '.'
+            FROM CONCAT_WS(
+                    '.',
+                    NULLIF(LEFT(drv.name, 1), ''),
+                    NULLIF(LEFT(drv.patronymic, 1), ''),
+                    drv.last_name
+                )
+        ) AS driver_name,
+    w.name AS wh_name,
+    n.name AS nom_name,
+    nomenclatures_from_rl.nom_id,
+    doc_items.count AS count_loaded,
+    ROUND(nomenclatures_from_rl.count, mu.digits) AS count_total
 FROM route_lists rl
-LEFT JOIN employees drv ON drv.id = rl.driver_id
-LEFT JOIN (
-	SELECT
-		T.nom_id AS nom_id,
-		SUM(T.count) AS count,
-		T.rl_id AS rl_id
-	FROM (
-		SELECT
-			n.id AS nom_id,
-			oi.count AS count,
-			rl.id AS rl_id
-		FROM route_list_addresses rla
-		LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
-		LEFT JOIN orders o ON rla.order_id = o.id
-		LEFT JOIN order_items oi ON oi.order_id = o.id
-		LEFT JOIN nomenclature n ON oi.nomenclature_id = n.id
-		WHERE rl.not_fully_loaded
-			AND rl.date BETWEEN @start_date AND @end_date
-			AND (!rla.was_transfered OR rla.need_to_reload)
-			AND n.category IN (
-				'additional',
-				'equipment',
-				'water',
-				'bottle',
-				'spare_parts',
-				'material'
-			)
-		UNION ALL
-		SELECT
-			oe.nomenclature_id AS nom_id,
-			oe.count AS count,
-			rl.id AS rl_id
-		FROM route_list_addresses rla
-		LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
-		LEFT JOIN orders o ON rla.order_id = o.id
-		LEFT JOIN order_equipment oe ON oe.order_id = o.id
-		LEFT JOIN nomenclature n ON oe.nomenclature_id = n.id
-		WHERE rl.not_fully_loaded
-		AND rl.date BETWEEN @start_date AND @end_date
-		AND (!rla.was_transfered OR rla.need_to_reload)
-			AND oe.direction = 'Deliver'
-	) AS T
-	GROUP BY T.rl_id, T.nom_id
+         LEFT JOIN employees drv ON drv.id = rl.driver_id
+         LEFT JOIN (
+    SELECT
+        T.nom_id AS nom_id,
+        SUM(T.count) AS count,
+        T.rl_id AS rl_id
+    FROM (
+             SELECT
+                 n.id AS nom_id,
+                 oi.count AS count,
+                 rl.id AS rl_id
+             FROM route_list_addresses rla
+                      LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
+                      LEFT JOIN orders o ON rla.order_id = o.id
+                      LEFT JOIN order_items oi ON oi.order_id = o.id
+                      LEFT JOIN nomenclature n ON oi.nomenclature_id = n.id
+             WHERE rl.not_fully_loaded
+               AND rl.date BETWEEN @start_date AND @end_date
+               AND (!rla.was_transfered OR rla.need_to_reload)
+               AND n.category IN (
+                                  'additional',
+                                  'equipment',
+                                  'water',
+                                  'bottle',
+                                  'spare_parts',
+                                  'material'
+                 )
+             UNION ALL
+             SELECT
+                 oe.nomenclature_id AS nom_id,
+                 oe.count AS count,
+                 rl.id AS rl_id
+             FROM route_list_addresses rla
+                      LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
+                      LEFT JOIN orders o ON rla.order_id = o.id
+                      LEFT JOIN order_equipment oe ON oe.order_id = o.id
+                      LEFT JOIN nomenclature n ON oe.nomenclature_id = n.id
+             WHERE rl.not_fully_loaded
+               AND rl.date BETWEEN @start_date AND @end_date
+               AND (!rla.was_transfered OR rla.need_to_reload)
+               AND oe.direction = 'Deliver'
+         ) AS T
+    GROUP BY T.rl_id, T.nom_id
 ) AS nomenclatures_from_rl ON nomenclatures_from_rl.rl_id = rl.id
-LEFT JOIN nomenclature n ON n.id = nomenclatures_from_rl.nom_id
-LEFT JOIN (
-	SELECT
-		i.nomenclature_id AS nom_id,
-		SUM(IFNULL(i.amount, 0)) AS count,
-		doc.warehouse_id,
-		doc.route_list_id
-	FROM store_car_load_document_items i
-	LEFT JOIN store_car_load_documents doc ON doc.id = i.car_load_document_id
-	GROUP BY doc.route_list_id, i.nomenclature_id
+         LEFT JOIN nomenclature n ON n.id = nomenclatures_from_rl.nom_id
+         LEFT JOIN measurement_units mu on n.unit_id = mu.id
+         LEFT JOIN (
+    SELECT
+        i.nomenclature_id AS nom_id,
+        SUM(IFNULL(i.amount, 0)) AS count,
+        doc.warehouse_id,
+        doc.route_list_id
+    FROM store_car_load_document_items i
+             LEFT JOIN store_car_load_documents doc ON doc.id = i.car_load_document_id
+    GROUP BY doc.route_list_id, i.nomenclature_id
 ) AS doc_items ON doc_items.route_list_id = rl.id AND nomenclatures_from_rl.nom_id = doc_items.nom_id
-LEFT JOIN warehouses w ON w.id = doc_items.warehouse_id
-WHERE rl.not_fully_loaded 
-	AND rl.date BETWEEN @start_date AND @end_date
-	AND (w.id IS NULL OR @warehouse_id = 0 OR w.id = @warehouse_id)
-	AND IFNULL(doc_items.count, -1) != nomenclatures_from_rl.count
+         LEFT JOIN warehouses w ON w.id = doc_items.warehouse_id
+WHERE rl.not_fully_loaded
+  AND rl.date BETWEEN @start_date AND @end_date
+  AND (w.id IS NULL OR @warehouse_id = 0 OR w.id = @warehouse_id)
+  AND IFNULL(doc_items.count, -1) != nomenclatures_from_rl.count
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -390,7 +391,7 @@ WHERE rl.not_fully_loaded
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="rl_date">
           <DataField>rl_date</DataField>
           <TypeName>System.DateTime</TypeName>

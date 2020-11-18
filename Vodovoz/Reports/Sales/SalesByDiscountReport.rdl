@@ -34,7 +34,7 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Table Name="Table2" >
+      <Table Name="Table2">
         <DataSetName>Sales</DataSetName>
         <NoRows>Заказы отсутствуют</NoRows>
         <Style>
@@ -505,6 +505,7 @@
                         <PaddingRight>10pt</PaddingRight>
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
+                        <Format >="N" + {digits}</Format>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -1052,45 +1053,47 @@
     orders.id AS order_id,
     orders.create_date,
     counterparty.name,
-    SUM(order_items.price * IFNULL(order_items.actual_count, order_items.count)) AS SumWithoutDiscount,
+    ROUND(SUM(order_items.price * IFNULL(order_items.actual_count, order_items.count)), 2) AS SumWithoutDiscount,
     order_items.discount,
     order_items.discount_money,
     discount_reasons.name AS discount_name,
     nomenclature.name AS nomenclature_name,
+    mu.digits AS digits,
     IFNULL(order_items.actual_count, order_items.count) AS count,
     orders.comment,
     GET_PERSON_NAME_WITH_INITIALS(author_employee.last_name, author_employee.name, author_employee.patronymic) AS author,
     GET_PERSON_NAME_WITH_INITIALS(accepted_employee.last_name, accepted_employee.name, accepted_employee.patronymic) AS accepted
 FROM
     order_items
-    JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-    JOIN discount_reasons ON discount_reasons.id = order_items.discount_reason_id
-    JOIN orders ON orders.id = order_items.order_id
-    JOIN counterparty ON counterparty.id = orders.client_id
-    LEFT JOIN employees AS author_employee ON author_employee.id = orders.author_employee_id
-    LEFT JOIN employees AS accepted_employee ON accepted_employee.id = orders.accepted_order_employee
+        JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+        JOIN discount_reasons ON discount_reasons.id = order_items.discount_reason_id
+        JOIN orders ON orders.id = order_items.order_id
+        JOIN counterparty ON counterparty.id = orders.client_id
+        LEFT JOIN employees AS author_employee ON author_employee.id = orders.author_employee_id
+        LEFT JOIN employees AS accepted_employee ON accepted_employee.id = orders.accepted_order_employee
+        LEFT JOIN measurement_units mu ON nomenclature.unit_id = mu.id
 WHERE
-    (@StartDate = '' OR 
-        (
-            (@DateType = 'CreationDate' AND orders.create_date &gt;= @StartDate) 
-            OR 
-            (@DateType = 'DeliveryDate' AND orders.delivery_date &gt;= @StartDate)
+    (@StartDate = '' OR
+     (
+             (@DateType = 'CreationDate' AND orders.create_date &gt;= @StartDate)
+             OR
+             (@DateType = 'DeliveryDate' AND orders.delivery_date &gt;= @StartDate)
+         )
         )
-    )
-    AND
-    (@EndDate = '' OR 
-        (
-            (@DateType = 'CreationDate' AND orders.create_date &lt;= @EndDate) 
-            OR 
-            (@DateType = 'DeliveryDate' AND orders.delivery_date &lt;= @EndDate)
+  AND
+    (@EndDate = '' OR
+     (
+             (@DateType = 'CreationDate' AND orders.create_date &lt;= @EndDate)
+             OR
+             (@DateType = 'DeliveryDate' AND orders.delivery_date &lt;= @EndDate)
+         )
         )
+  AND (
+        ((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
+            OR
+         (order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
+        OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
     )
-	AND ( 
-		((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
-		OR
-		(order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
-		OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
-	)
 GROUP BY
     order_items.id</CommandText>
         <QueryParameters>
@@ -1156,6 +1159,10 @@ GROUP BY
         <Field Name="discount_name">
           <DataField>discount_name</DataField>
         </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -1171,7 +1178,7 @@ GROUP BY
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>

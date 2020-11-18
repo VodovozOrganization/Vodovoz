@@ -16,136 +16,137 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	M.*,
-	# Заявка на производство
-	IF((M.norm - M.total) &gt;= 0, M.norm - M.total, 0) as request,
-	# Остаток на завтра
-	M.total + IF((M.norm - M.total) &gt;= 0, M.norm - M.total, 0) as balance,
-	# Разница
-	M.total + IF((M.norm - M.total) &gt;= 0, M.norm - M.total, 0) - M.norm as difference
+    M.*,
+    # Заявка на производство
+    IF((M.norm - M.total) &gt;= 0, M.norm - M.total, 0) as request,
+    # Остаток на завтра
+    M.total + IF((M.norm - M.total) &gt;= 0, M.norm - M.total, 0) as balance,
+    # Разница
+    M.total + IF((M.norm - M.total) &gt;= 0, M.norm - M.total, 0) - M.norm as difference
 FROM
-(
-	SELECT
-		Tab.*,
-		# Итого
-		Tab.store_balance - (Tab.sold - Tab.shipped) as total,
-		# Норма
-		Tab.max_shipped * 1.2 as norm
-	FROM
-	(
-		SELECT 
-			n.name as nomenclature_name,
-			n.bottle_cap_color,
-			# Остаток на складе
-			IFNULL
-			(
-				(
-				
-					SELECT 
-						SUM(wmo.amount)
-					FROM
-						warehouse_movement_operations wmo
-					WHERE 
-						wmo.incoming_warehouse_id = @warehouse_id
-						AND wmo.nomenclature_id = n.id
-						AND wmo.operation_time &lt;= @currently
-				)
-				-
-				(
-					SELECT 
-						SUM(wmo.amount)
-					FROM
-						warehouse_movement_operations wmo
-					WHERE
-						wmo.writeoff_warehouse_id = @warehouse_id
-						AND wmo.nomenclature_id = n.id
-						AND wmo.operation_time &lt;= @currently
-				), 
-			0) as store_balance,
-			# Продано
-			IFNULL(SUM(t_sales.count_nom), 0) as sold,
-			# Отгружено
-			IFNULL
-			(
-				(
-					SELECT SUM(wmo.amount)
-					FROM
-						warehouse_movement_operations wmo
-					LEFT JOIN store_car_load_document_items ON store_car_load_document_items.warehouse_movement_operation_id = wmo.id
-					LEFT JOIN store_self_delivery_document_item ON store_self_delivery_document_item.warehouse_movement_operation_id = wmo.id 
-					WHERE
-						wmo.writeoff_warehouse_id = @warehouse_id
-						AND (store_self_delivery_document_item.id is not null OR store_car_load_document_items.id is not null)
-						AND wmo.nomenclature_id = n.id
-						AND wmo.operation_time BETWEEN @today AND @currently),
-			0) AS shipped,
-			# Макс. продажи за день
-			IFNULL(max_shipping.max_shipped, 0) as max_shipped
-		From
-			nomenclature n
-		LEFT JOIN
-		(
-			SELECT
-				n.name,
-				o.delivery_date,
-				IFNULL(oi.actual_count, oi.count) as count_nom,
-				n.id as nomenclature_id,
-				n.tare_volume as tare_volume
-			FROM orders o
-			LEFT JOIN order_items oi ON oi.order_id = o.id
-			LEFT JOIN nomenclature n ON oi.nomenclature_id = n.id
-			LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
-			LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-			LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
-			WHERE
-				(
-					o.order_status = 'Accepted'
-					OR o.order_status = 'InTravelList'
-					OR o.order_status = 'OnLoading'
-					OR o.order_status = 'OnTheWay'
-					OR o.order_status = 'Shipped'
-					OR o.order_status = 'UnloadingOnStock'
-					OR o.order_status = 'Closed'
-			        OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)
-				)
-				AND o.delivery_date BETWEEN @today AND @currently
-				AND !o.is_contract_closer
-				AND gg.id in (@geographic_group_id)
-			GROUP BY oi.id
-		) as t_sales ON t_sales.nomenclature_id = n.id
-		LEFT JOIN
-		(
-			SELECT
-				T.nomenclature_id,
-				MAX(T.amount) as max_shipped
-			FROM
-			(
-				SELECT
-					n.id as nomenclature_id,
-					n.name,
-					n.tare_volume,
-					wmo.operation_time,
-					SUM(wmo.amount) as amount
-				FROM
-					warehouse_movement_operations wmo
-				LEFT JOIN store_car_load_document_items ON store_car_load_document_items.warehouse_movement_operation_id = wmo.id
-				LEFT JOIN store_self_delivery_document_item ON store_self_delivery_document_item.warehouse_movement_operation_id = wmo.id
-				LEFT JOIN nomenclature n ON wmo.nomenclature_id = n.id
-				WHERE
-					wmo.writeoff_warehouse_id = @warehouse_id
-					AND wmo.operation_time BETWEEN @start_date AND @end_date
-				GROUP BY nomenclature_id, date(wmo.operation_time)
-			)AS T
-			GROUP BY T.nomenclature_id
-		) as max_shipping ON max_shipping.nomenclature_id = n.id
-		WHERE
-			n.category = 'water'
-			AND !n.is_archive
-		GROUP BY n.id
-		ORDER BY
-			n.tare_volume
-	) as Tab
-) as M
+    (
+        SELECT
+            Tab.*,
+            # Итого
+            Tab.store_balance - (Tab.sold - Tab.shipped) as total,
+            # Норма
+            Tab.max_shipped * 1.2 as norm
+        FROM
+            (
+                SELECT
+                    n.name as nomenclature_name,
+                    n.bottle_cap_color,
+                    # Остаток на складе
+                    IFNULL
+                        (
+                                (
+
+                                    SELECT
+                                        SUM(wmo.amount)
+                                    FROM
+                                        warehouse_movement_operations wmo
+                                    WHERE
+                                            wmo.incoming_warehouse_id = @warehouse_id
+                                      AND wmo.nomenclature_id = n.id
+                                      AND wmo.operation_time &lt;= @currently
+                                )
+                                -
+                                (
+                                    SELECT
+                                        SUM(wmo.amount)
+                                    FROM
+                                        warehouse_movement_operations wmo
+                                    WHERE
+                                            wmo.writeoff_warehouse_id = @warehouse_id
+                                      AND wmo.nomenclature_id = n.id
+                                      AND wmo.operation_time &lt;= @currently
+                                ),
+                                0) as store_balance,
+                    # Продано
+                    IFNULL(SUM(t_sales.count_nom), 0) as sold,
+                    # Отгружено
+                    IFNULL
+                        (
+                            (
+                                SELECT SUM(wmo.amount)
+                                FROM
+                                    warehouse_movement_operations wmo
+                                        LEFT JOIN store_car_load_document_items ON store_car_load_document_items.warehouse_movement_operation_id = wmo.id
+                                        LEFT JOIN store_self_delivery_document_item ON store_self_delivery_document_item.warehouse_movement_operation_id = wmo.id
+                                WHERE
+                                        wmo.writeoff_warehouse_id = @warehouse_id
+                                  AND (store_self_delivery_document_item.id is not null OR store_car_load_document_items.id is not null)
+                                  AND wmo.nomenclature_id = n.id
+                                  AND wmo.operation_time BETWEEN @today AND @currently),
+                            0) AS shipped,
+                    # Макс. продажи за день
+                    IFNULL(max_shipping.max_shipped, 0) as max_shipped
+                From
+                    nomenclature n
+                        LEFT JOIN
+                    (
+                        SELECT
+                            n.name,
+                            o.delivery_date,
+                            FORMAT(IFNULL(oi.actual_count, oi.count), measurement_units.digits) as count_nom,
+                            n.id as nomenclature_id,
+                            n.tare_volume as tare_volume
+                        FROM orders o
+                                 LEFT JOIN order_items oi ON oi.order_id = o.id
+                                 LEFT JOIN nomenclature n ON oi.nomenclature_id = n.id
+                                 LEFT JOIN measurement_units On n.unit_id = measurement_units.id
+                                 LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
+                                 LEFT JOIN districts distr ON delivery_points.district_id = distr.id
+                                 LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+                        WHERE
+                            (
+                                        o.order_status = 'Accepted'
+                                    OR o.order_status = 'InTravelList'
+                                    OR o.order_status = 'OnLoading'
+                                    OR o.order_status = 'OnTheWay'
+                                    OR o.order_status = 'Shipped'
+                                    OR o.order_status = 'UnloadingOnStock'
+                                    OR o.order_status = 'Closed'
+                                    OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)
+                                )
+                          AND o.delivery_date BETWEEN @today AND @currently
+                          AND !o.is_contract_closer
+                          AND gg.id in (@geographic_group_id)
+                        GROUP BY oi.id
+                    ) as t_sales ON t_sales.nomenclature_id = n.id
+                        LEFT JOIN
+                    (
+                        SELECT
+                            T.nomenclature_id,
+                            MAX(T.amount) as max_shipped
+                        FROM
+                            (
+                                SELECT
+                                    n.id as nomenclature_id,
+                                    n.name,
+                                    n.tare_volume,
+                                    wmo.operation_time,
+                                    SUM(wmo.amount) as amount
+                                FROM
+                                    warehouse_movement_operations wmo
+                                        LEFT JOIN store_car_load_document_items ON store_car_load_document_items.warehouse_movement_operation_id = wmo.id
+                                        LEFT JOIN store_self_delivery_document_item ON store_self_delivery_document_item.warehouse_movement_operation_id = wmo.id
+                                        LEFT JOIN nomenclature n ON wmo.nomenclature_id = n.id
+                                WHERE
+                                        wmo.writeoff_warehouse_id = @warehouse_id
+                                  AND wmo.operation_time BETWEEN @start_date AND @end_date
+                                GROUP BY nomenclature_id, date(wmo.operation_time)
+                            )AS T
+                        GROUP BY T.nomenclature_id
+                    ) as max_shipping ON max_shipping.nomenclature_id = n.id
+                WHERE
+                        n.category = 'water'
+                  AND !n.is_archive
+                GROUP BY n.id
+                ORDER BY
+                    n.tare_volume
+            ) as Tab
+    ) as M
 HAVING store_balance &gt; 0 OR sold &gt; 0 OR shipped &gt; 0</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -538,7 +539,7 @@ WHERE
                         <BorderWidth />
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
+                        <BackgroundColor>=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -559,7 +560,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
+                        <BackgroundColor>=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -580,7 +581,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
+                        <BackgroundColor>=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -601,7 +602,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
+                        <BackgroundColor>=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -622,7 +623,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
+                        <BackgroundColor>=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -642,7 +643,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
+                        <BackgroundColor>=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -662,7 +663,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
+                        <BackgroundColor>=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -683,7 +684,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
+                        <BackgroundColor>=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -703,7 +704,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
+                        <BackgroundColor>=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -723,7 +724,7 @@ WHERE
                         <Format>N2</Format>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <BackgroundColor >=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
+                        <BackgroundColor>=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>

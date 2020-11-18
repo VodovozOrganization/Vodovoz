@@ -60,7 +60,7 @@
           <TableColumn>
             <Width>127.9pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>52.2pt</Width>
           </TableColumn>
           <TableColumn>
@@ -132,7 +132,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
                       <Value>Заказ</Value>
@@ -287,7 +287,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
                       <Value>=Fields!orderId.Value</Value>
@@ -375,7 +375,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -415,74 +415,74 @@
         <DataSourceName>DS1</DataSourceName>
         <Timeout>200</Timeout>
         <CommandText>SELECT * FROM
-(
-	SELECT
-		MainOrders.id AS orderId,
-		MainOrders.delivery_point_id AS delivery_point_id,
-		MainOrders.client_id AS counterparty_id,
-		counterparty.name as CounterpartyName,
-		IF(MainOrders.self_delivery, 'Самовывоз', delivery_points.compiled_address_short) as AddressShort,
-		MainOrders.delivery_date as DeliveryDate,	    
-		SUM(order_items.count) as mainBottleCount,		
-		Min(order_items.price) as mainPrice,	    
-		(
-			# Нахождение минимальной цены по количеству
-			SELECT 
-				nomenclature_price.price
-			FROM
-				nomenclature_price
-			WHERE 
-				nomenclature_price.nomenclature_id = 1 /* Цены выбираются по номенклатуре Семиозерье 19л (Id = 1) */ 
-				AND nomenclature_price.min_count &lt;= SUM(order_items.count)
-			ORDER BY nomenclature_price.price ASC LIMIT 1 
-		) as mainMinPrice,
-	    counterparty.comment as comment
-	FROM
-		orders as MainOrders	    
-		LEFT JOIN order_items ON order_items.order_id = MainOrders.id
-		LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-		LEFT JOIN counterparty ON MainOrders.client_id = counterparty.id
-		LEFT JOIN delivery_points ON MainOrders.delivery_point_id = delivery_points.id	    
-	WHERE
-		nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'
-		AND (MainOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
-		AND (@DateFrom = '' OR Date(MainOrders.delivery_date) &gt;= @DateFrom) AND (@DateTo = '' OR Date(MainOrders.delivery_date) &lt;= @DateTo)
-	    
-		#Нахождение только последнего по дате заказа
-		AND NOT EXISTS (
-			SELECT
-				subOrders.id,		
-				Min(subOrderItems.price) as subPrice,	    
-				(
-					# Нахождение минимальной цены по количеству
-					SELECT 
-						nomenclature_price.price
-					FROM
-						nomenclature_price
-					WHERE 
-						nomenclature_price.nomenclature_id = 1 /* Цены выбираются по номенклатуре Семиозерье 19л (Id = 1) */ 
-						AND nomenclature_price.min_count &lt;= SUM(subOrderItems.count)
-					ORDER BY nomenclature_price.price ASC LIMIT 1 
-				) as subMinPrice
-			FROM
-				orders as subOrders	    
-				LEFT JOIN order_items AS subOrderItems ON subOrderItems.order_id = subOrders.id
-				LEFT JOIN nomenclature AS subNomenclature ON subNomenclature.id = subOrderItems.nomenclature_id	    
-			WHERE
-				subNomenclature.category = 'water' AND subNomenclature.tare_volume = 'Vol19L'
-				AND (subOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
-				AND MainOrders.delivery_point_id = subOrders.delivery_point_id
-				AND subOrders.delivery_date &gt; MainOrders.delivery_date
-			GROUP BY subOrders.id
-			HAVING 
-				subPrice &lt; subMinPrice
-				AND subPrice &gt; 0
-		)
-	GROUP BY MainOrders.id
-	HAVING 
-		mainPrice &lt; mainMinPrice
-		AND mainPrice &gt; 0
-) AS mainTable
+    (
+        SELECT
+            MainOrders.id AS orderId,
+            MainOrders.delivery_point_id AS delivery_point_id,
+            MainOrders.client_id AS counterparty_id,
+            counterparty.name as CounterpartyName,
+            IF(MainOrders.self_delivery, 'Самовывоз', delivery_points.compiled_address_short) as AddressShort,
+            MainOrders.delivery_date as DeliveryDate,
+            cast(SUM(order_items.count) as signed) as mainBottleCount,
+            Min(order_items.price) as mainPrice,
+            (
+                # Нахождение минимальной цены по количеству
+                SELECT
+                    nomenclature_price.price
+                FROM
+                    nomenclature_price
+                WHERE
+                        nomenclature_price.nomenclature_id = 1 /* Цены выбираются по номенклатуре Семиозерье 19л (Id = 1) */
+                  AND nomenclature_price.min_count &lt;= SUM(order_items.count)
+                ORDER BY nomenclature_price.price ASC LIMIT 1
+            ) as mainMinPrice,
+            counterparty.comment as comment
+        FROM
+            orders as MainOrders
+                LEFT JOIN order_items ON order_items.order_id = MainOrders.id
+                LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+                LEFT JOIN counterparty ON MainOrders.client_id = counterparty.id
+                LEFT JOIN delivery_points ON MainOrders.delivery_point_id = delivery_points.id
+        WHERE
+                nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'
+          AND (MainOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
+          AND (@DateFrom = '' OR Date(MainOrders.delivery_date) &gt;= @DateFrom) AND (@DateTo = '' OR Date(MainOrders.delivery_date) &lt;= @DateTo)
+
+          #Нахождение только последнего по дате заказа
+          AND NOT EXISTS (
+                SELECT
+                    subOrders.id,
+                    Min(subOrderItems.price) as subPrice,
+                    (
+                        # Нахождение минимальной цены по количеству
+                        SELECT
+                            nomenclature_price.price
+                        FROM
+                            nomenclature_price
+                        WHERE
+                                nomenclature_price.nomenclature_id = 1 /* Цены выбираются по номенклатуре Семиозерье 19л (Id = 1) */
+                          AND nomenclature_price.min_count &lt;= SUM(subOrderItems.count)
+                        ORDER BY nomenclature_price.price ASC LIMIT 1
+                    ) as subMinPrice
+                FROM
+                    orders as subOrders
+                        LEFT JOIN order_items AS subOrderItems ON subOrderItems.order_id = subOrders.id
+                        LEFT JOIN nomenclature AS subNomenclature ON subNomenclature.id = subOrderItems.nomenclature_id
+                WHERE
+                        subNomenclature.category = 'water' AND subNomenclature.tare_volume = 'Vol19L'
+                  AND (subOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
+                  AND MainOrders.delivery_point_id = subOrders.delivery_point_id
+                  AND subOrders.delivery_date &gt; MainOrders.delivery_date
+                GROUP BY subOrders.id
+                HAVING
+                        subPrice &lt; subMinPrice
+                   AND subPrice &gt; 0
+            )
+        GROUP BY MainOrders.id
+        HAVING
+                mainPrice &lt; mainMinPrice
+           AND mainPrice &gt; 0
+    ) AS mainTable
 ORDER BY mainTable.DeliveryDate DESC, mainTable.mainPrice, mainTable.counterparty_id, mainTable.delivery_point_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="DateFrom">

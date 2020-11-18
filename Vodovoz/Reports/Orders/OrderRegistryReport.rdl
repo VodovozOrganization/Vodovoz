@@ -43,8 +43,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -384,51 +384,51 @@
     <DataSet Name="orders">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	daily_number_1c AS daily_number,
-	counterparty.full_name AS client,
-	IF(orders.self_delivery, 'Самовывоз (Юг, Север...)', delivery_points.compiled_address) AS address,
-	orders.id AS order_id,
-	SUM(
-		IF(
-			nomenclature.tare_volume = 'Vol19L',
-			order_items.count,
-			0
-		)
-	) AS water_count,
-	CASE
-		WHEN orders.order_status = 'NewOrder' THEN 'Новый'
-		WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
-		WHEN orders.order_status = 'Accepted' THEN 'Принят'
-		WHEN orders.order_status = 'InTravelList' THEN 'В маршрутном листе'
-		WHEN orders.order_status = 'OnLoading' THEN 'На погрузке'
-		WHEN orders.order_status = 'OnTheWay' THEN 'В пути'
-		WHEN orders.order_status = 'Shipped' THEN 'Доставлен'
-		WHEN orders.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
-		WHEN orders.order_status = 'Closed' THEN 'Закрыт'
-		WHEN orders.order_status = 'Canceled' THEN 'Отменён'
-		WHEN orders.order_status = 'NotDelivered' THEN 'Недовоз'
-		WHEN orders.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'
-		ELSE ''
-	END AS status,
-	CONCAT(
-		TIME_FORMAT(delivery_schedule.from_time, '%H:%i'),
-		'-',
-		TIME_FORMAT(delivery_schedule.to_time, '%H:%i')
-	) AS delivery_time,
-	GROUP_CONCAT(gg.name SEPARATOR ', ')
+        <CommandText>SELECT
+    daily_number_1c AS daily_number,
+    counterparty.full_name AS client,
+    IF(orders.self_delivery, 'Самовывоз (Юг, Север...)', delivery_points.compiled_address) AS address,
+    orders.id AS order_id,
+    SUM(
+            IF(
+                        nomenclature.tare_volume = 'Vol19L',
+                        cast(order_items.count as signed),
+                        0
+                )
+        ) AS water_count,
+    CASE
+        WHEN orders.order_status = 'NewOrder' THEN 'Новый'
+        WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
+        WHEN orders.order_status = 'Accepted' THEN 'Принят'
+        WHEN orders.order_status = 'InTravelList' THEN 'В маршрутном листе'
+        WHEN orders.order_status = 'OnLoading' THEN 'На погрузке'
+        WHEN orders.order_status = 'OnTheWay' THEN 'В пути'
+        WHEN orders.order_status = 'Shipped' THEN 'Доставлен'
+        WHEN orders.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
+        WHEN orders.order_status = 'Closed' THEN 'Закрыт'
+        WHEN orders.order_status = 'Canceled' THEN 'Отменён'
+        WHEN orders.order_status = 'NotDelivered' THEN 'Недовоз'
+        WHEN orders.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'
+        ELSE ''
+        END AS status,
+    CONCAT(
+            TIME_FORMAT(delivery_schedule.from_time, '%H:%i'),
+            '-',
+            TIME_FORMAT(delivery_schedule.to_time, '%H:%i')
+        ) AS delivery_time,
+    GROUP_CONCAT(gg.name SEPARATOR ', ')
 FROM
-	orders
-LEFT JOIN order_items ON order_items.order_id = orders.id
-LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-LEFT JOIN counterparty ON counterparty.id = orders.client_id
-LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
-LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+    orders
+        LEFT JOIN order_items ON order_items.order_id = orders.id
+        LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+        LEFT JOIN counterparty ON counterparty.id = orders.client_id
+        LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+        LEFT JOIN districts distr ON delivery_points.district_id = distr.id
+        LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+        LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
 WHERE
-	orders.delivery_date = DATE(@date)
-	AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups) OR gg.id IS NULL)
+        orders.delivery_date = DATE(@date)
+  AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups) OR gg.id IS NULL)
 GROUP BY order_id
 ;</CommandText>
         <QueryParameters>
@@ -440,7 +440,7 @@ GROUP BY order_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="daily_number">
           <DataField>daily_number</DataField>
           <TypeName>System.Int32</TypeName>

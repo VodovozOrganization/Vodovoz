@@ -13,37 +13,38 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	nomenclature.name AS nomenclature,
-	nomenclature.category,
-	measurement_units.name AS unit,
-	nomenclature.tare_volume,
-	CASE nomenclature.tare_volume
-		WHEN 'Vol19L' THEN 0
-		WHEN 'Vol6L' THEN 1
-		WHEN 'Vol600ml' THEN 2
-		ELSE 3
-	END AS clmn_for_sorting,
-	SUM(order_items.count) AS amount
+        <CommandText>SELECT
+    nomenclature.name AS nomenclature,
+    nomenclature.category,
+    measurement_units.name AS unit,
+    measurement_units.digits AS digits,
+    nomenclature.tare_volume,
+    CASE nomenclature.tare_volume
+        WHEN 'Vol19L' THEN 0
+        WHEN 'Vol6L' THEN 1
+        WHEN 'Vol600ml' THEN 2
+        ELSE 3
+        END AS clmn_for_sorting,
+    SUM(order_items.count) AS amount
 FROM
-	route_list_addresses
-		LEFT JOIN
-	order_items ON route_list_addresses.order_id = order_items.order_id
-		LEFT JOIN
-	nomenclature ON order_items.nomenclature_id = nomenclature.id
-		LEFT JOIN
-	measurement_units ON measurement_units.id = nomenclature.unit_id
-		LEFT JOIN 
-	nomenclature_groups ng ON ng.id = nomenclature.group_id
-		LEFT JOIN
-	nomenclatures_to_warehouses ON nomenclatures_to_warehouses.nomenclature_id = nomenclature.id
+    route_list_addresses
+        LEFT JOIN
+    order_items ON route_list_addresses.order_id = order_items.order_id
+        LEFT JOIN
+    nomenclature ON order_items.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    measurement_units ON measurement_units.id = nomenclature.unit_id
+        LEFT JOIN
+    nomenclature_groups ng ON ng.id = nomenclature.group_id
+        LEFT JOIN
+    nomenclatures_to_warehouses ON nomenclatures_to_warehouses.nomenclature_id = nomenclature.id
 WHERE
-	route_list_addresses.route_list_id = @id
-		AND nomenclatures_to_warehouses.warehouse_id = 1 #Отгрузка только с софийской
-		AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
-		AND IF(nomenclature.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE) 
+        route_list_addresses.route_list_id = @id
+  AND nomenclatures_to_warehouses.warehouse_id = 1 #Отгрузка только с софийской
+  AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
+  AND IF(nomenclature.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
 GROUP BY nomenclature.id
 ORDER BY clmn_for_sorting;</CommandText>
         <QueryParameters>
@@ -52,7 +53,7 @@ ORDER BY clmn_for_sorting;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -72,6 +73,10 @@ ORDER BY clmn_for_sorting;</CommandText>
         <Field Name="amount">
           <DataField>amount</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -212,7 +217,7 @@ GROUP BY oe.own_type, n.id
       </Fields>
     </DataSet>
     <DataSet Name="EquipmentOnlineStore">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     o.e_shop_order
@@ -246,7 +251,7 @@ GROUP BY order_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="e_shop_order">
           <DataField>e_shop_order</DataField>
           <TypeName>System.Int32</TypeName>
@@ -727,6 +732,7 @@ GROUP BY order_id</CommandText>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >N0</Format>
                       </Style>
                       <Value>=Sum({amount})</Value>
                     </Textbox>
@@ -1311,6 +1317,7 @@ GROUP BY order_id</CommandText>
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >N0</Format>
                       </Style>
                       <Value>=Sum({amount})</Value>
                     </Textbox>
@@ -1728,6 +1735,7 @@ GROUP BY order_id</CommandText>
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >N0</Format>
                       </Style>
                       <Value>=Sum({amount})</Value>
                     </Textbox>
@@ -2692,7 +2700,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Header>
         <Left>310.9pt</Left>
         <Top>93.8pt</Top>
-        <Details >
+        <Details>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -2717,7 +2725,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             </TableRow>
           </TableRows>
         </Details>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -2789,7 +2797,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Header>
         <Left>414.7pt</Left>
         <Top>378.2pt</Top>
-        <Details >
+        <Details>
           <TableRows>
             <TableRow>
               <Height>13.2pt</Height>
@@ -2814,7 +2822,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             </TableRow>
           </TableRows>
         </Details>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -2886,7 +2894,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Header>
         <Left>415.2pt</Left>
         <Top>482.7pt</Top>
-        <Details >
+        <Details>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -2911,7 +2919,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             </TableRow>
           </TableRows>
         </Details>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>

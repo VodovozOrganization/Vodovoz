@@ -1174,7 +1174,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>.2in</Height>
               <TableCells>
                 <TableCell>
@@ -1191,8 +1191,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Right</TextAlign>
-                        <FontSize >11pt</FontSize>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>11pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1212,9 +1212,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >11pt</FontSize>
-                        <TextAlign >Left</TextAlign>
-                        <Format >#,##0.00</Format>
+                        <FontSize>11pt</FontSize>
+                        <TextAlign>Left</TextAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1222,7 +1222,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>.2in</Height>
               <TableCells>
                 <TableCell>
@@ -1239,8 +1239,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Right</TextAlign>
-                        <FontSize >11pt</FontSize>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>11pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1260,9 +1260,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >11pt</FontSize>
-                        <TextAlign >Left</TextAlign>
-                        <Format >#,##0.00</Format>
+                        <FontSize>11pt</FontSize>
+                        <TextAlign>Left</TextAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1380,21 +1380,21 @@ FROM
             delivery_points.compiled_address_short AS entry_address,
             IF(order_items.actual_count = 0 OR order_items.actual_count IS NULL,
                0,
-               (order_items.price * order_items.actual_count - order_items.discount_money) / order_items.actual_count
-            ) as entry_price,
-            IFNULL(order_items.actual_count, 0) AS entry_count,
+               ROUND((order_items.price * order_items.actual_count - order_items.discount_money) / order_items.actual_count, 2)
+                ) as entry_price,
+            IFNULL(FORMAT(order_items.actual_count, mu.digits), 0) AS entry_count,
             orders.payment_type AS entry_payment_type,
             IF(order_items.actual_count = 0 OR order_items.actual_count IS NULL,
                0,
-               order_items.price * order_items.actual_count - order_items.discount_money
+               ROUND(order_items.price * order_items.actual_count - order_items.discount_money, 2)
                 ) as entry_sum,
             IF(order_items.actual_count = 0 OR order_items.actual_count IS NULL,
                0,
-               (order_items.price * order_items.actual_count - order_items.discount_money) * nomenclature.percent_for_master * 0.01
+               ROUND((order_items.price * order_items.actual_count - order_items.discount_money) * nomenclature.percent_for_master * 0.01, 2)
                 ) as entry_wage,
             IF(order_items.actual_count = 0 OR order_items.actual_count IS NULL,
                0,
-               (order_items.price * order_items.actual_count - order_items.discount_money) * (1 - nomenclature.percent_for_master * 0.01)
+               ROUND((order_items.price * order_items.actual_count - order_items.discount_money), 2) * (1 - nomenclature.percent_for_master * 0.01)
                 ) as entry_profit,
             IFNULL(nomenclature.short_name, nomenclature.name) AS entry_nomenclatures
         FROM
@@ -1409,26 +1409,28 @@ FROM
             order_items ON order_items.order_id = orders.id
                 LEFT JOIN
             nomenclature ON nomenclature.id = order_items.nomenclature_id
+                LEFT JOIN 
+            measurement_units mu ON nomenclature.unit_id = mu.id
                 LEFT JOIN
             order_equipment ON order_equipment.order_id = orders.id
         WHERE
             NOT(
                 #Исключатся недовозы и отмены 
-                (orders.order_status IN ('NotDelivered', 'Canceled', 'DeliveryCanceled'))
-                OR
-                #Частичные недовозы
-                (
-                    route_list_addresses.status = 'Completed'
-                    AND
+                    (orders.order_status IN ('NotDelivered', 'Canceled', 'DeliveryCanceled'))
+                    OR
+                    #Частичные недовозы
                     (
-                            nomenclature.category in ('master', 'service')
-                        AND nomenclature.serial = false
-                        AND order_items.count != IFNULL(order_items.actual_count, 0)
-                    )
+                                route_list_addresses.status = 'Completed'
+                            AND
+                                (
+                                            nomenclature.category in ('master', 'service')
+                                        AND nomenclature.serial = false
+                                        AND order_items.count != IFNULL(order_items.actual_count, 0)
+                                    )
+                        )
+                    OR
+                    route_list_addresses.status = 'Transfered'
                 )
-                OR
-                route_list_addresses.status = 'Transfered'
-            )
     ) AS entries ON entries.rl_id = route_lists.id
         LEFT JOIN
     employees ON employees.id = route_lists.driver_id
@@ -1437,7 +1439,7 @@ FROM
         LEFT JOIN
     cash_expense ON cash_expense.route_list_id = route_lists.id
 WHERE
-      route_lists.date &gt;= @start_date
+        route_lists.date &gt;= @start_date
   AND route_lists.date &lt; date_add(@end_date, INTERVAL 1 DAY)
   AND route_lists.driver_id = @driver_id
 ORDER BY route_lists.date, route_lists.id;</CommandText>
@@ -1554,7 +1556,7 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="total_premiums" >
+    <DataSet Name="total_premiums">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select IFNULL(SUM(wmo.money), 0) as total_premiums
@@ -1582,7 +1584,7 @@ and wmo.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="total_fines" >
+    <DataSet Name="total_fines">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT IFNULL(ABS(SUM(wmo.money)), 0) as total_fines
