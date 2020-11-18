@@ -43,6 +43,5 @@ namespace Vodovoz.ViewWidgets
 			lblDistrict.LabelProp = deliveryPriceNode.DistrictName;
 			wageTypeValueLabel.Text = deliveryPriceNode.WageDistrict + ",";
 		}
-
 	}
 }
