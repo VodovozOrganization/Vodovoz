@@ -150,8 +150,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			string tooltip = "Заказ №" + order.Id + ":";
 
 			foreach(OrderItem orderItem in order.OrderItems) {
-				tooltip += "\n" + orderItem.Nomenclature.Name + ": " 
-				           + orderItem.Count.ToString($"N{orderItem.Nomenclature.Unit.Digits}");
+				tooltip += "\n"
+		           + orderItem.Nomenclature.Name + ": "
+		           + orderItem.Count.ToString(orderItem.Nomenclature.Unit != null ? $"N{orderItem.Nomenclature.Unit.Digits}" : "G29");
 			}
 
 			ytreeLastOrders.TooltipText = tooltip;
