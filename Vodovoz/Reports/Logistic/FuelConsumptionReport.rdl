@@ -215,6 +215,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -341,7 +342,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -412,7 +413,7 @@ ORDER BY gg_grp.ft_name ASC
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date_from">
           <DataField>date_from</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -459,7 +460,7 @@ ORDER BY gg_grp.ft_name ASC
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>

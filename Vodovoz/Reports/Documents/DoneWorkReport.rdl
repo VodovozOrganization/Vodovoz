@@ -108,15 +108,17 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="MasterOrderItem">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT order_items.id,
-order_items.count,
-order_items.price,
-nomenclature.name,
-order_items.order_id
+       order_items.count,
+       mu.digits as digits,
+       order_items.price,
+       nomenclature.name,
+       order_items.order_id
 FROM order_items
-LEFT JOIN nomenclature on order_items.nomenclature_id=nomenclature.id 
+    LEFT JOIN nomenclature on order_items.nomenclature_id=nomenclature.id
+    LEFT JOIN measurement_units mu on nomenclature.unit_id = mu.id
 WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -124,10 +126,10 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="count">
           <DataField>count</DataField>
-          <TypeName>System.String</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="name">
           <DataField>name</DataField>
@@ -136,6 +138,10 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
         <Field Name="price">
           <DataField>price</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1371,6 +1377,7 @@ WHERE stored_resource.id = @id1
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <Format >="N" + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1387,6 +1394,7 @@ WHERE stored_resource.id = @id1
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1710,7 +1718,7 @@ WHERE stored_resource.id = @id1
         <Sizing>FitProportional</Sizing>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
-      <Textbox Name="Textbox24" >
+      <Textbox Name="Textbox24">
         <Height>11.99pt</Height>
         <Width>115.85pt</Width>
         <Value>Заполняется клиентом:</Value>
@@ -1721,7 +1729,7 @@ WHERE stored_resource.id = @id1
           <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox45" >
+      <Textbox Name="Textbox45">
         <Height>12.00pt</Height>
         <Width>87.27pt</Width>
         <Value>Время прибытия:</Value>
@@ -1729,7 +1737,7 @@ WHERE stored_resource.id = @id1
         <Left>121.6pt</Left>
         <Top>572.9pt</Top>
       </Textbox>
-      <Textbox Name="Textbox71" >
+      <Textbox Name="Textbox71">
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>
@@ -1745,7 +1753,7 @@ WHERE stored_resource.id = @id1
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox72" >
+      <Textbox Name="Textbox72">
         <Height>12.00pt</Height>
         <Width>87.27pt</Width>
         <Value>Время убытия:</Value>
@@ -1753,7 +1761,7 @@ WHERE stored_resource.id = @id1
         <Left>121.6pt</Left>
         <Top>586.7pt</Top>
       </Textbox>
-      <Textbox Name="Textbox73" >
+      <Textbox Name="Textbox73">
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>
