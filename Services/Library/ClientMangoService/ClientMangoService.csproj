@@ -72,7 +72,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MangoNotificationClient.cs" />
+    <Compile Include="MangoServiceClient.cs" />
     <Compile Include="NotificationConnectionWatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -85,6 +85,9 @@
   <ItemGroup>
     <Protobuf Include="..\..\Application\VodovozMangoService\Protobuf\NotificationService.proto">
       <Link>ProtoBuf\NotificationService.proto</Link>
+    </Protobuf>
+    <Protobuf Include="..\..\Application\VodovozMangoService\Protobuf\PhonebookService.proto">
+      <Link>ProtoBuf\PhonebookService.proto</Link>
     </Protobuf>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -43,7 +43,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddColumn("Тип оплаты")
 				.AddTextRenderer(node => GetDisplayShortName(node.PaymentType))
 				.AddColumn("Бутылей")
-				.AddNumericRenderer(node => node.TotalWaterBottles).Editing(false)
+				.AddNumericRenderer(node => node.Total19LBottlesToDeliver).Editing(false)
 				.Finish();
 		}
 
@@ -91,9 +91,9 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			var bottlesAtDeliveryPoint = BottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			var bottlesAvgDeliveryPoint = DeliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);
-			lblBottlesQty.LabelProp = String.Format("{0} шт. (сред. зак.: {1:G3})", bottlesAtDeliveryPoint, bottlesAvgDeliveryPoint);
+			lblBottlesQty.LabelProp = $"{bottlesAtDeliveryPoint} шт. (сред. зак.: {bottlesAvgDeliveryPoint:G3})";
 			var bottlesAtCounterparty = BottlesRepository.GetBottlesAtCounterparty(InfoProvider.UoW, DeliveryPoint.Counterparty);
-			debtByClientLabel.LabelProp = String.Format("{0} шт.", bottlesAtCounterparty);
+			debtByClientLabel.LabelProp = $"{bottlesAtCounterparty} шт.";
 			var depositsAtDeliveryPoint = DepositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
 			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
@@ -150,7 +150,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			string tooltip = "Заказ №" + order.Id + ":";
 
 			foreach(OrderItem orderItem in order.OrderItems) {
-				tooltip += "\n" + orderItem.Nomenclature.Name + ": " + orderItem.Count;
+				tooltip += "\n" + orderItem.Nomenclature.Name + ": " 
+				           + orderItem.Count.ToString($"N{orderItem.Nomenclature.Unit.Digits}");
 			}
 
 			ytreeLastOrders.TooltipText = tooltip;

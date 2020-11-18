@@ -9,7 +9,6 @@ using Gtk;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Repositories;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Parameters;
@@ -37,7 +36,6 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using QS.Tools;
 using Vodovoz.Domain.Client;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -296,7 +294,8 @@ namespace Vodovoz
 
 		private void UpdateSensitivity()
 		{
-			if(Entity.Status != RouteListStatus.OnClosing && Entity.Status != RouteListStatus.MileageCheck) {
+			if(Entity.Status != RouteListStatus.OnClosing && Entity.Status != RouteListStatus.MileageCheck
+			&& Entity.Status != RouteListStatus.Delivered) {
 				ytextviewFuelInfo.Sensitive = false;
 				ycheckHideCells.Sensitive = false;
 				vbxFuelTickets.Sensitive = false;
@@ -515,7 +514,7 @@ namespace Vodovoz
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered() && item.Status != RouteListItemStatus.Transfered)
 				foreach(var itm in item.Order.OrderItems)
-					itm.ActualCount = 0;
+					itm.ActualCount = 0m;
 
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();
@@ -556,7 +555,8 @@ namespace Vodovoz
 		void UpdateButtonState()
 		{
 			buttonAccept.Sensitive = 
-				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck) 
+				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck
+				                                            || Entity.Status == RouteListStatus.Delivered) 
 				&& canCloseRoutelist;
 		}
 
@@ -580,7 +580,7 @@ namespace Vodovoz
 		{
 			var items = routeListAddressesView.Items.Where(item => item.IsDelivered());
 			bottlesReturnedTotal = items.Sum(item => item.BottlesReturned + item.Order.BottlesByStockActualCount);
-			int fullBottlesTotal = items.SelectMany(item => item.Order.OrderItems)
+			int fullBottlesTotal = (int)items.SelectMany(item => item.Order.OrderItems)
 										.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
 										.Sum(item => item.ActualCount ?? 0);
 			decimal depositsCollectedTotal = items.Sum(item => item.BottleDepositsCollected);
@@ -685,6 +685,7 @@ namespace Vodovoz
 		}
 
 		public override bool Save() {
+			
 			var valid = new QSValidator<RouteList>(Entity,
 				new Dictionary<object, object>{{nameof(IRouteListItemRepository), new RouteListItemRepository()}});
 			
@@ -700,6 +701,12 @@ namespace Vodovoz
 			if(!TrySetCashier()) {
 				return false;
 			}
+
+			if (HasChanges && Entity.Status == RouteListStatus.Delivered)
+			{
+				Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
+			}
+			
 			UoW.Save();
 
 			return true;

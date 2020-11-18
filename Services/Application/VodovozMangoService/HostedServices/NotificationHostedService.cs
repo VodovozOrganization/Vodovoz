@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using MangoService;
-using MangoService.DTO.Users;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using MySql.Data.MySqlClient;
 using NLog;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
+using System;
 using VodovozMangoService.Calling;
 
 namespace VodovozMangoService.HostedServices
@@ -19,17 +18,18 @@ namespace VodovozMangoService.HostedServices
 	public class NotificationHostedService : NotificationService.NotificationServiceBase, IHostedService
 	{
 		private readonly MySqlConnection connection;
-		private readonly MangoController mangoController;
+		private readonly PhonebookHostedService phonebookService;
 		private readonly IConfiguration configuration;
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		
 		public readonly List<Subscription> Subscribers = new List<Subscription>();
 
-		public NotificationHostedService(MySqlConnection connection, MangoController mangoController, IConfiguration configuration)
+		public NotificationHostedService(MySqlConnection connection, PhonebookHostedService phonebookService, IConfiguration configuration)
 		{
+			if (phonebookService == null) throw new ArgumentNullException(nameof(phonebookService));
 			logger.Info("Создание службы уведомлений");
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
-			this.mangoController = mangoController ?? throw new ArgumentNullException(nameof(mangoController));
+			this.phonebookService = phonebookService;
 			this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
@@ -308,16 +308,9 @@ namespace VodovozMangoService.HostedServices
 		#endregion
 
 		#region Internal Call
-		private List<User> Users;
-		DateTime lastUpdateUsers = DateTime.MinValue;
 		private Caller GetInternalCaller(string number)
 		{
-			if(Users == null || (DateTime.Now - lastUpdateUsers).TotalMinutes > 5)
-				GetUsers();
-			var user = Users.Find(x => x.telephony.extension == number);
-			if(user == null)
-				GetUsers(); //Обновляем на случай если номер добавлен но его нет в кеше.
-			user = Users.Find(x => x.telephony.extension == number);
+			var user = phonebookService.FindPhone(number);
 			if(user == null)
 				logger.Warn( $"Пришло событие для номера {number}, но его нет в списке пользователей Mango");
 			var caller = new Caller
@@ -327,19 +320,12 @@ namespace VodovozMangoService.HostedServices
 			};
 			if (user != null)
 			{
-				string name = user.general.name;
-				if (!String.IsNullOrWhiteSpace(user.general.department))
-					name += $" ({user.general.department})";
+				string name = user.Name;
+				if (!String.IsNullOrWhiteSpace(user.Department))
+					name += $" ({user.Department})";
 				caller.Names.Add(new CallerName {Name = name});
 			}
-
 			return caller;
-		}
-
-		private void GetUsers()
-		{
-			Users = mangoController.GetAllVPBXUsers().ToList();
-			lastUpdateUsers = DateTime.Now;
 		}
 		#endregion
 
@@ -348,10 +334,14 @@ namespace VodovozMangoService.HostedServices
 		private Server server;
 		public async Task StartAsync(CancellationToken cancellationToken)
 		{
-			logger.Info("Запуск сервера службы уведомлений");
+			logger.Info("Запуск сервера GRPC");
 			server = new Server
 			{
-				Services = { NotificationService.BindService(this) },
+				Services =
+				{
+					NotificationService.BindService(this),
+					PhonebookService.BindService(phonebookService)
+				},
 				Ports = { new ServerPort("0.0.0.0", Int32.Parse(configuration["MangoService:grps_client_port"]), ServerCredentials.Insecure) }
 			};
 			server.Start();
@@ -359,7 +349,7 @@ namespace VodovozMangoService.HostedServices
 
 		public async Task StopAsync(CancellationToken cancellationToken)
 		{
-			logger.Info("Остановка сервера службы уведомлений");
+			logger.Info("Остановка сервера GRPC");
 			await server.ShutdownAsync();
 		}
 		#endregion

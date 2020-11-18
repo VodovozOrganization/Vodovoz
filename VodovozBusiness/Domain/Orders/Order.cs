@@ -868,15 +868,23 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string Title => string.Format("Заказ №{0} от {1:d}", Id, DeliveryDate);
 
-		public virtual int Total19LBottlesToDeliver => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
+		public virtual int Total19LBottlesToDeliver => 
+			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && 
+			                           x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 
-		public virtual int Total6LBottlesToDeliver => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
+		public virtual int Total6LBottlesToDeliver => 
+			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && 
+			                           x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
 
-		public virtual int Total600mlBottlesToDeliver => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
+		public virtual int Total600mlBottlesToDeliver => 
+			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water &&
+			                           x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
 
-		public virtual int TotalWeight => (int)OrderItems.Sum(x => x.Count * x.Nomenclature.Weight);
+		public virtual int TotalWeight => 
+			(int)OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Weight);
 
-		public virtual double TotalVolume => OrderItems.Sum(x => x.Count * x.Nomenclature.Volume);
+		public virtual double TotalVolume => 
+			(double)OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Volume);
 
 		public virtual string RowColor => PreviousOrder == null ? "black" : "red";
 
@@ -956,13 +964,9 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal? ActualGoodsTotalSum =>
 			OrderItems.Sum(item => item.Price * item.ActualCount - item.DiscountMoney);
 
-		/// <summary>
-		/// Количество 19л бутылей в заказе
-		/// </summary>
-		public virtual int TotalWaterBottles => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
-
-		public virtual bool CanBeMovedFromClosedToAcepted => new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
-																 && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
+		public virtual bool CanBeMovedFromClosedToAcepted => 
+			new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
+		        && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
 
 		#endregion
 
@@ -1376,7 +1380,7 @@ namespace Vodovoz.Domain.Orders
 			var water19L = ObservableOrderItems.Where(x => x.Nomenclature.IsWater19L);
 			if(doNotCountWaterFromPromoSets)
 				water19L = water19L.Where(x => x.PromoSet == null);
-			return water19L.Sum(x => x.Count);
+			return (int)water19L.Sum(x => x.Count);
 		}
 
 		/// <summary>
@@ -1663,9 +1667,7 @@ namespace Vodovoz.Domain.Orders
 												  || IsService
 												  || DeliveryPoint.AlwaysFreeDelivery
 												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
-												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != paidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any())
-												  || IsOnlineStoreFreeDeliverySumReached()
-												  ;
+												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != paidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
 
 			if(IsDeliveryForFree) {
 				if(deliveryPriceItem != null)
@@ -1677,7 +1679,8 @@ namespace Vodovoz.Domain.Orders
 			var district = DeliveryPoint?.District;
 
 			OrderStateKey orderKey = new OrderStateKey(this);
-			var price = district?.GetDeliveryPrice(orderKey) ?? 0m;
+			var price = 
+				district?.GetDeliveryPrice(orderKey, ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m )) ?? 0m;
 
 			if(price != 0) {
 				if(deliveryPriceItem == null) {
@@ -1710,17 +1713,6 @@ namespace Vodovoz.Domain.Orders
 			return false;
 		}
 
-		#region OnlineStoreRules
-
-		protected bool IsOnlineStoreFreeDeliverySumReached()
-		{
-			var SumToFreeDelivery = DeliveryPoint?.District?.DistrictsSet.OnlineStoreOrderSumForFreeDelivery ?? 0m;
-			var OnlineStoreItemsSum = ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m );
-			return SumToFreeDelivery < OnlineStoreItemsSum;
-		}
-
-		#endregion
-		
 		#region test_methods_for_sidebar
 
 		/// <summary>
@@ -1760,12 +1752,18 @@ namespace Vodovoz.Domain.Orders
 			//UpdateDocuments();
 		}
 
-		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, bool discountInMoney = false, DiscountReason discountReason = null, PromotionalSet proSet = null)
+		public virtual void AddNomenclature(
+			Nomenclature nomenclature, 
+			decimal count = 0, 
+			decimal discount = 0, 
+			bool discountInMoney = false, 
+			DiscountReason discountReason = null, 
+			PromotionalSet proSet = null)
 		{
 			OrderItem oi = null;
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.equipment://Оборудование
-					CreateSalesEquipmentAgreementAndAddEquipment(nomenclature, count, discount, discountReason, proSet, discountInMoney);
+					CreateSalesEquipmentAgreementAndAddEquipment(nomenclature, (int)count, discount, discountReason, proSet, discountInMoney);
 					break;
 				case NomenclatureCategory.water:
 					var ag = CreateWaterSalesAgreement(nomenclature);
@@ -1775,7 +1773,7 @@ namespace Vodovoz.Domain.Orders
 							action.Activate(this);
 						UoW.Session.Refresh(ag);
 					}
-					AddWaterForSale(nomenclature, ag, count, discount, discountInMoney, discountReason, proSet);
+					AddWaterForSale(nomenclature, ag, (int)count, discount, discountInMoney, discountReason, proSet);
 					break;
 				case NomenclatureCategory.master:
 					contract = CreateServiceContractAddMasterNomenclature(nomenclature);
@@ -2428,7 +2426,7 @@ namespace Vodovoz.Domain.Orders
 			if(Client == null || Client.PersonType == PersonType.legal)
 				return 0;
 
-			var waterItemsCount = ObservableOrderItems.Select(item => item)
+			var waterItemsCount = (int)ObservableOrderItems.Select(item => item)
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 				.Sum(item => item.Count);
 
@@ -3362,11 +3360,11 @@ namespace Vodovoz.Domain.Orders
 			if(IsContractCloser)
 				return false;
 
-			int amountDelivered = OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
+			int amountDelivered = (int)OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 								.Sum(item => item?.ActualCount ?? 0);
 
 			if(forfeitQuantity == null) {
-				forfeitQuantity = OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
+				forfeitQuantity = (int)OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
 							.Select(i => i?.ActualCount ?? 0)
 							.Sum();
 			}
@@ -3424,7 +3422,7 @@ namespace Vodovoz.Domain.Orders
 			int? forfeitQuantity = null;
 
 			if(!SelfDelivery || SelfDeliveryIsFullyPaid(cashRepository, incomeCash, expenseCash))
-				forfeitQuantity = OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
+				forfeitQuantity = (int)OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
 											.Select(i => i.ActualCount ?? 0)
 											.Sum();
 
@@ -3826,7 +3824,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			double weight = 0;
 			if(includeGoods)
-				weight += OrderItems.Sum(x => x.Nomenclature.Weight * x.Count);
+				weight += OrderItems.Sum(x => x.Nomenclature.Weight * (double) x.Count);
 			if(includeEquipment)
 				weight += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Weight * x.Count);
@@ -3843,7 +3841,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			double volume = 0;
 			if(includeGoods)
-				volume += OrderItems.Sum(x => x.Nomenclature.Volume * x.Count);
+				volume += OrderItems.Sum(x => x.Nomenclature.Volume * (double) x.Count);
 			if(includeEquipment)
 				volume += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Volume * x.Count);
@@ -4066,6 +4064,15 @@ namespace Vodovoz.Domain.Orders
 							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
 							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
 					);
+					
+					// Хардкодим дату, чтобы отсечь старые заказы
+					var date = new DateTime(2020, 11, 09, 11, 0, 0);
+					if (Client.PersonType == PersonType.legal && 
+					    Client.TaxType == TaxType.None &&
+					    (!CreateDate.HasValue || CreateDate > date))
+						yield return new ValidationResult(
+							"Налогообложение не указано.",
+							new[] {nameof(Client.TaxType)});
 				}
 
 				if(newStatus == OrderStatus.Closed) {

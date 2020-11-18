@@ -420,11 +420,24 @@ namespace Vodovoz.Domain.Client
 		}
 
 		Order firstOrder;
-
 		[Display(Name = "Первый заказ")]
 		public virtual Order FirstOrder {
 			get => firstOrder;
 			set => SetField(ref firstOrder, value, () => FirstOrder);
+		}
+		
+		TaxType taxType;
+		[Display(Name = "Налогобложение")]
+		public virtual TaxType TaxType {
+			get => taxType;
+			set => SetField(ref taxType, value);
+		}
+		
+		private DateTime? createDate = DateTime.Now;
+		[Display(Name = "Дата создания")]
+		public virtual DateTime? CreateDate {
+			get => createDate;
+			set => SetField(ref createDate, value);
 		}
 
 		#region ОсобаяПечать
@@ -490,6 +503,13 @@ namespace Vodovoz.Domain.Client
 		public virtual int? Torg2Count {
 			get => torg2Count;
 			set => SetField(ref torg2Count, value, () => Torg2Count);
+		}
+
+		int? updCount;
+		[Display(Name = "Кол-во УПД(не для безнала)")]
+		public virtual int? UPDCount {
+			get => updCount;
+			set => SetField(ref updCount, value);
 		}
 
 		string okpo;
@@ -828,6 +848,9 @@ namespace Vodovoz.Domain.Client
 			if(Id == 0 && CameFrom == null) {
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Откуда клиент\"");
 			}
+			
+			if(Id == 0 && PersonType == PersonType.legal && TaxType == TaxType.None)
+				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Налогообложение\"");
 		}
 
 		#endregion
@@ -887,6 +910,21 @@ namespace Vodovoz.Domain.Client
 	public class CargoReceiverTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public CargoReceiverTypeStringType() : base(typeof(CargoReceiverSource)) { }
+	}
+
+	public enum TaxType
+	{
+		[Display(Name = "Не указано")]
+		None,
+		[Display(Name = "С НДС")]
+		WithVat,
+		[Display(Name = "Без НДС")]
+		WithoutVat
+	}
+
+	public class TaxTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public TaxTypeStringType() : base(typeof(TaxType)) { }
 	}
 
 	#region Для уровневого отображения цен поставщика

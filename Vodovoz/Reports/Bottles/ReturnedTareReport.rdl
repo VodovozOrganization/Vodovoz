@@ -555,6 +555,7 @@
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1267,7 +1268,7 @@ ORDER BY orders.id DESC;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="reasons_names">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>Select 
     rtr.name as name, 
@@ -1300,7 +1301,7 @@ GROUP BY rtr.name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -1312,7 +1313,7 @@ GROUP BY rtr.name</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="reasons_categories">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>Select
     rtrc.name as category,
@@ -1345,7 +1346,7 @@ GROUP BY rtrc.name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="category">
           <DataField>category</DataField>
           <TypeName>System.String</TypeName>

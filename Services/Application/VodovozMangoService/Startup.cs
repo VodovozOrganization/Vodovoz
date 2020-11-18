@@ -38,12 +38,15 @@ namespace VodovozMangoService
             services.AddSingleton(x =>
                 new MangoController(Configuration["Mango:vpbx_api_key"], Configuration["Mango:vpbx_api_salt"]));
             
-            services.AddSingleton<NotificationHostedService>();
-            services.AddHostedService<NotificationHostedService>(provider => provider.GetService<NotificationHostedService>());
-
             services.AddSingleton<CallsHostedService>();
             services.AddHostedService<CallsHostedService>(provider => provider.GetService<CallsHostedService>());
             
+            services.AddSingleton<PhonebookHostedService>();
+            services.AddHostedService<PhonebookHostedService>(provider => provider.GetService<PhonebookHostedService>());
+            
+            services.AddSingleton<NotificationHostedService>();
+            services.AddHostedService<NotificationHostedService>(provider => provider.GetService<NotificationHostedService>());
+
             services.AddControllers();
 
             services.AddLettuceEncrypt(options =>

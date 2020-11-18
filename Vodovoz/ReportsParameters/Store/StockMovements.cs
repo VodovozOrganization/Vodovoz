@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
@@ -73,6 +74,26 @@ namespace Vodovoz.Reports
 					}
 					return Restrictions.On<Nomenclature>(x => x.Category).IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray());
 				}
+			);
+
+			//Предзагрузка. Для избежания ленивой загрузки
+			UoW.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
+
+			filter.CreateParameterSet(
+				"Группы товаров",
+				"product_group",
+				new RecursiveParametersFactory<ProductGroup>(UoW,
+				(filters) => {
+					var query = UoW.Session.QueryOver<ProductGroup>();
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							query.Where(f());
+						}
+					}
+					return query.List();
+				},
+				x => x.Name,
+				x => x.Childs)
 			);
 
 			var viewModel = new SelectableParameterReportFilterViewModel(filter);

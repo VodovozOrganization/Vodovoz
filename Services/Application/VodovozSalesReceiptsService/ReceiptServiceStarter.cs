@@ -55,17 +55,17 @@ namespace VodovozSalesReceiptsService
 				if(isWorkInProgress)
 					return;
 				isWorkInProgress = true;
-				
-				orderRoutineTimer.Interval = 180000d; //3 минуты
-				if(DateTime.Now.Hour >= 1 && DateTime.Now.Hour < 5) {
-					var fiveHrsOfToday = DateTime.Today.AddHours(5);
-					orderRoutineTimer.Interval = fiveHrsOfToday.Subtract(DateTime.Now).TotalMilliseconds;//миллисекунд до 5 утра
-					logger.Info("Ночь. Не пытаемся отсылать чеки с 1 до 5 утра.");
-					return;
-				}
 
 				try
 				{
+					orderRoutineTimer.Interval = 180000d; //3 минуты
+					if(DateTime.Now.Hour >= 1 && DateTime.Now.Hour < 5) {
+						var fiveHrsOfToday = DateTime.Today.AddHours(5);
+						orderRoutineTimer.Interval = fiveHrsOfToday.Subtract(DateTime.Now).TotalMilliseconds;//миллисекунд до 5 утра
+						logger.Info("Ночь. Не пытаемся отсылать чеки с 1 до 5 утра.");
+						return;
+					}
+					
 					Fiscalization.RunAsync(baseAddress, authentication).GetAwaiter().GetResult();
 				}
 				catch (Exception ex)

@@ -12,6 +12,7 @@ namespace Vodovoz.HibernateMapping.Order
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.Water19LCount).Column("wtr_19L_qty");
+			Map(x => x.OrderMinSumEShopGoods).Column("order_min_sum_eshop_goods");
 		}
 	}
 }

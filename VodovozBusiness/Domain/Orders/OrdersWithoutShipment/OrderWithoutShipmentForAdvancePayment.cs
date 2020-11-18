@@ -56,12 +56,12 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 		}
 
-		public virtual int GetTotalWater19LCount(bool doNotCountWaterFromPromoSets = false)
+		public virtual int GetTotalWater19LCount()
 		{
 			var water19L =
 				ObservableOrderWithoutDeliveryForAdvancePaymentItems.Where(x => x.Nomenclature.IsWater19L);
 
-			return water19L.Sum(x => x.Count);
+			return (int)water19L.Sum(x => x.Count);
 		}
 
 		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, bool discountInMoney = false, DiscountReason discountReason = null, PromotionalSet proSet = null)

@@ -408,6 +408,7 @@
                         <PaddingBottom>5pt</PaddingBottom>
                         <FontSize>9pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -442,7 +443,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     counterparty.id,
@@ -622,7 +623,7 @@ ORDER BY orderDates.del_date</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="del_date">
           <DataField>del_date</DataField>
           <TypeName>System.DateTime</TypeName>

@@ -22,7 +22,13 @@ using Vodovoz.Repository.Store;
 using Vodovoz.ViewWidgets.Store;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz
 {
@@ -37,6 +43,9 @@ namespace Vodovoz
 		IList<Equipment> alreadyUnloadedEquipment;
 
 		public override bool HasChanges => true;
+
+		private WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private CallTaskWorker callTaskWorker;
 
 		#region Конструкторы
 		public CarUnloadDocumentDlg()
@@ -89,6 +98,15 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
+			callTaskWorker = new CallTaskWorker(
+				CallTaskSingletonFactory.GetInstance(),
+				new CallTaskRepository(),
+				OrderSingletonRepository.GetInstance(),
+				EmployeeSingletonRepository.GetInstance(),
+				new BaseParametersProvider(),
+				ServicesConfig.CommonServices.UserService,
+				SingletonErrorReporter.Instance);
+
 			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.CarUnloadEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
@@ -113,7 +131,7 @@ namespace Vodovoz
 			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new RouteListsFilter(UoW);
-			filter.SetAndRefilterAtOnce(x => x.RestrictStatus = RouteListStatus.EnRoute);
+			filter.SetAndRefilterAtOnce(x => x.RestrictedStatuses = new[]{ RouteListStatus.EnRoute});
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 			yentryrefRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
@@ -174,6 +192,11 @@ namespace Vodovoz
 				return false;
 			}
 
+			if (Entity.RouteList.Status == RouteListStatus.Delivered)
+			{
+				Entity.RouteList.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker);
+			}
+			
 			logger.Info("Сохраняем разгрузочный талон...");
 			UoWGeneric.Save();
 			logger.Info("Ok.");

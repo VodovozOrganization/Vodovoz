@@ -862,6 +862,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
+                        <Format >0.000</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -985,6 +986,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1095,6 +1097,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
+                        <Format >0.000</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1220,6 +1223,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1304,6 +1308,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
+                        <Format >0.000</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1429,6 +1434,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1605,6 +1611,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>

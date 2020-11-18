@@ -21,14 +21,15 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    nomenclature.name AS nomenclature,
+        <CommandText>SELECT
+    nomenclature.name as nomenclature,
     nomenclature.category as category,
     measurement_units.name as unit,
     equipment.id as serial_number,
-    warehouse_movement_operations.amount
+    warehouse_movement_operations.amount,
+    measurement_units.digits as digits
 FROM
     store_car_unload_document_items
         LEFT JOIN
@@ -40,15 +41,15 @@ FROM
         LEFT JOIN
     equipment ON equipment.id = warehouse_movement_operations.equipment_id
 WHERE
-    store_car_unload_document_items.car_unload_document_id = @id
-    ORDER BY nomenclature, serial_number, category;</CommandText>
+        store_car_unload_document_items.car_unload_document_id = @id
+ORDER BY nomenclature, serial_number, category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
             <Value>=Parameters!id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -64,6 +65,10 @@ WHERE
         <Field Name="amount">
           <DataField>amount</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -307,7 +312,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="warehouse_movement_operation_id">
-                      <Value>={amount} + " " + {unit}</Value>
+                      <Value>=Format({amount}, 'N' + {digits}) + " " + {unit}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -461,7 +466,7 @@ WHERE
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -496,7 +501,7 @@ WHERE
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>

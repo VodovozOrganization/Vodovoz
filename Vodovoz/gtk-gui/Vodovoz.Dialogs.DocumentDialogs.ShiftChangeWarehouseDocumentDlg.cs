@@ -4,6 +4,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 {
 	public partial class ShiftChangeWarehouseDocumentDlg
 	{
+		private global::Gtk.HBox hbox1;
+
 		private global::Gtk.VBox vbox4;
 
 		private global::Gtk.HBox hbox5;
@@ -28,15 +30,25 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		private global::Gtk.Label label5;
 
+		private global::Gtk.VBox vboxParameters;
+
 		private global::QS.Widgets.GtkUI.DatePicker ydatepickerDocDate;
 
 		private global::Gamma.Widgets.yEntryReference yentryrefWarehouse;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
+		private global::Gtk.VBox vbox2;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeviewCategories;
+		private global::Gtk.Label label3;
 
-		private global::Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentItemsView shiftChangeWarehouseDocItemsView;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewNomenclatures;
+
+		private global::Gtk.HBox hbox6;
+
+		private global::Gtk.Button buttonFillItems;
+
+		private global::Gtk.Button buttonAdd;
 
 		protected virtual void Build()
 		{
@@ -45,6 +57,10 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentDlg";
 			// Container child Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentDlg.Gtk.Container+ContainerChild
+			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.vbox4 = new global::Gtk.VBox();
 			this.vbox4.Name = "vbox4";
 			this.vbox4.Spacing = 6;
@@ -106,7 +122,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.tableWriteoff = new global::Gtk.Table(((uint)(2)), ((uint)(4)), false);
+			this.tableWriteoff = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
 			this.tableWriteoff.Name = "tableWriteoff";
 			this.tableWriteoff.RowSpacing = ((uint)(6));
 			this.tableWriteoff.ColumnSpacing = ((uint)(6));
@@ -121,11 +137,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.GtkScrolledWindow.Add(this.ytextviewCommnet);
 			this.tableWriteoff.Add(this.GtkScrolledWindow);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.GtkScrolledWindow]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
+			w9.TopAttach = ((uint)(3));
+			w9.BottomAttach = ((uint)(4));
 			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(4));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.RightAttach = ((uint)(2));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
@@ -142,8 +158,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Склад:");
 			this.tableWriteoff.Add(this.label4);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.label4]));
-			w11.LeftAttach = ((uint)(2));
-			w11.RightAttach = ((uint)(3));
+			w11.TopAttach = ((uint)(1));
+			w11.BottomAttach = ((uint)(2));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
@@ -154,10 +170,19 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий:");
 			this.tableWriteoff.Add(this.label5);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.label5]));
-			w12.TopAttach = ((uint)(1));
-			w12.BottomAttach = ((uint)(2));
+			w12.TopAttach = ((uint)(3));
+			w12.BottomAttach = ((uint)(4));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableWriteoff.Gtk.Table+TableChild
+			this.vboxParameters = new global::Gtk.VBox();
+			this.vboxParameters.Name = "vboxParameters";
+			this.vboxParameters.Spacing = 6;
+			this.tableWriteoff.Add(this.vboxParameters);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.vboxParameters]));
+			w13.TopAttach = ((uint)(2));
+			w13.BottomAttach = ((uint)(3));
+			w13.RightAttach = ((uint)(2));
 			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.ydatepickerDocDate = new global::QS.Widgets.GtkUI.DatePicker();
 			this.ydatepickerDocDate.Events = ((global::Gdk.EventMask)(256));
@@ -168,51 +193,101 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.ydatepickerDocDate.IsEditable = true;
 			this.ydatepickerDocDate.AutoSeparation = true;
 			this.tableWriteoff.Add(this.ydatepickerDocDate);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.ydatepickerDocDate]));
-			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.ydatepickerDocDate]));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.yentryrefWarehouse = new global::Gamma.Widgets.yEntryReference();
 			this.yentryrefWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.yentryrefWarehouse.Name = "yentryrefWarehouse";
 			this.tableWriteoff.Add(this.yentryrefWarehouse);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.yentryrefWarehouse]));
-			w14.LeftAttach = ((uint)(3));
-			w14.RightAttach = ((uint)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.yentryrefWarehouse]));
+			w15.TopAttach = ((uint)(1));
+			w15.BottomAttach = ((uint)(2));
+			w15.LeftAttach = ((uint)(1));
+			w15.RightAttach = ((uint)(2));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.hbox3.Add(this.tableWriteoff);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.tableWriteoff]));
-			w15.Position = 0;
-			w15.Expand = false;
-			w15.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
-			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
-			this.ytreeviewCategories = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewCategories.HeightRequest = 200;
-			this.ytreeviewCategories.CanFocus = true;
-			this.ytreeviewCategories.Name = "ytreeviewCategories";
-			this.GtkScrolledWindow2.Add(this.ytreeviewCategories);
-			this.hbox3.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.GtkScrolledWindow2]));
-			w17.Position = 1;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.tableWriteoff]));
+			w16.Position = 0;
 			this.vbox4.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox3]));
-			w18.Position = 1;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox3]));
+			w17.Position = 1;
+			this.hbox1.Add(this.vbox4);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox4]));
+			w18.Position = 0;
 			w18.Expand = false;
 			w18.Fill = false;
-			// Container child vbox4.Gtk.Box+BoxChild
-			this.shiftChangeWarehouseDocItemsView = new global::Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentItemsView();
-			this.shiftChangeWarehouseDocItemsView.Events = ((global::Gdk.EventMask)(256));
-			this.shiftChangeWarehouseDocItemsView.Name = "shiftChangeWarehouseDocItemsView";
-			this.vbox4.Add(this.shiftChangeWarehouseDocItemsView);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.shiftChangeWarehouseDocItemsView]));
-			w19.Position = 2;
-			this.Add(this.vbox4);
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.label3 = new global::Gtk.Label();
+			this.label3.Name = "label3";
+			this.label3.Xalign = 0F;
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Список номенклатур:");
+			this.vbox2.Add(this.label3);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.label3]));
+			w19.Position = 0;
+			w19.Expand = false;
+			w19.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
+			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
+			this.ytreeviewNomenclatures = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewNomenclatures.CanFocus = true;
+			this.ytreeviewNomenclatures.Name = "ytreeviewNomenclatures";
+			this.GtkScrolledWindow3.Add(this.ytreeviewNomenclatures);
+			this.vbox2.Add(this.GtkScrolledWindow3);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow3]));
+			w21.Position = 1;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbox6 = new global::Gtk.HBox();
+			this.hbox6.Name = "hbox6";
+			this.hbox6.Spacing = 6;
+			// Container child hbox6.Gtk.Box+BoxChild
+			this.buttonFillItems = new global::Gtk.Button();
+			this.buttonFillItems.CanFocus = true;
+			this.buttonFillItems.Name = "buttonFillItems";
+			this.buttonFillItems.UseUnderline = true;
+			this.buttonFillItems.Label = global::Mono.Unix.Catalog.GetString("Заполнить по складу");
+			global::Gtk.Image w22 = new global::Gtk.Image();
+			w22.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.insert-object.png");
+			this.buttonFillItems.Image = w22;
+			this.hbox6.Add(this.buttonFillItems);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonFillItems]));
+			w23.Position = 0;
+			w23.Expand = false;
+			w23.Fill = false;
+			// Container child hbox6.Gtk.Box+BoxChild
+			this.buttonAdd = new global::Gtk.Button();
+			this.buttonAdd.CanFocus = true;
+			this.buttonAdd.Name = "buttonAdd";
+			this.buttonAdd.UseUnderline = true;
+			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить отсутствующее");
+			global::Gtk.Image w24 = new global::Gtk.Image();
+			w24.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAdd.Image = w24;
+			this.hbox6.Add(this.buttonAdd);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAdd]));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
+			this.vbox2.Add(this.hbox6);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox6]));
+			w26.Position = 2;
+			w26.Expand = false;
+			w26.Fill = false;
+			this.hbox1.Add(this.vbox2);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox2]));
+			w27.Position = 1;
+			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
@@ -220,6 +295,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.Hide();
 			this.buttonPrint.Clicked += new global::System.EventHandler(this.OnButtonPrintClicked);
 			this.yentryrefWarehouse.BeforeChangeByUser += new global::System.EventHandler<QSOrmProject.EntryReferenceBeforeChangeEventArgs>(this.OnYentryrefWarehouseBeforeChangeByUser);
+			this.buttonFillItems.Clicked += new global::System.EventHandler(this.OnButtonFillItemsClicked);
+			this.buttonAdd.Clicked += new global::System.EventHandler(this.OnButtonAddClicked);
 		}
 	}
 }

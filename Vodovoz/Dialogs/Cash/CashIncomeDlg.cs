@@ -4,18 +4,15 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSProjectsLib;
-using QS.Project.Repositories;
 using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Employees;
-using QS.EntityRepositories;
 using QS.Services;
 using Vodovoz.EntityRepositories;
 using QS.Project.Services;
@@ -146,14 +143,18 @@ namespace Vodovoz
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
-			OrmMain.GetObjectDescription<ExpenseCategory> ().ObjectUpdated += OnExpenseCategoryUpdated;
-			OnExpenseCategoryUpdated (null, null);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<ExpenseCategory>(
+				s => comboExpense.ItemsList = CategoryRepository.ExpenseCategories (UoW)
+			);
+			comboExpense.ItemsList = CategoryRepository.ExpenseCategories(UoW);
 			comboExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
-
-			OrmMain.GetObjectDescription<IncomeCategory> ().ObjectUpdated += OnIncomeCategoryUpdated;
-			OnIncomeCategoryUpdated (null, null);
+			
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<IncomeCategory>(
+				s => comboCategory.ItemsList = CategoryRepository.IncomeCategories (UoW)
+			); 
+			comboCategory.ItemsList = CategoryRepository.IncomeCategories(UoW);
 			comboCategory.Binding.AddBinding (Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource ();
-
+			
 			checkNoClose.Binding.AddBinding(Entity, e => e.NoFullCloseMode, w => w.Active);
 
 			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
@@ -198,16 +199,6 @@ namespace Vodovoz
 			Entity.Description = $"Закрытие МЛ №{rl.Id} от {rl.Date:d}";
 			Entity.RouteListClosing = rl;
 			Entity.RelatedToSubdivision = rl.ClosingSubdivision;
-		}
-
-		void OnIncomeCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
-		{
-			comboCategory.ItemsList = Repository.Cash.CategoryRepository.IncomeCategories (UoW);
-		}
-
-		void OnExpenseCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
-		{
-			comboExpense.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories (UoW);
 		}
 
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)
@@ -346,6 +337,12 @@ namespace Vodovoz
 				Entity.RouteListClosing = null;
 				Entity.Employee = null;
 			}
+		}
+		
+		public override void Destroy()
+		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			base.Destroy();
 		}
 	}
 

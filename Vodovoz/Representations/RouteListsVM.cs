@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dialogs.Logistic;
+using FluentNHibernate.Conventions;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -31,6 +32,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using QS.Project.Domain;
+using QS.DomainModel.NotifyChange;
 
 namespace Vodovoz.ViewModel
 {
@@ -58,13 +60,8 @@ namespace Vodovoz.ViewModel
 
 			query.Left.JoinAlias(o => o.Driver, () => driverAlias);
 
-
-			if(Filter.RestrictStatus != null) {
-				query.Where(o => o.Status == Filter.RestrictStatus);
-			}
-
-			if(Filter.OnlyStatuses != null) {
-				query.WhereRestrictionOn(o => o.Status).IsIn(Filter.OnlyStatuses);
+			if(Filter.SelectedStatuses != null) {
+				query.WhereRestrictionOn(o => o.Status).IsIn(Filter.SelectedStatuses);
 			}
 
 			if(Filter.RestrictShift != null) {
@@ -150,6 +147,7 @@ namespace Vodovoz.ViewModel
 				   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
 				   .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
 				   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => resultAlias.NotFullyLoaded)
+				   .Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListsVMNode>())
 				.List<RouteListsVMNode>();
@@ -193,11 +191,35 @@ namespace Vodovoz.ViewModel
 		public RouteListsVM(RouteListsFilter filter) : this(filter.UoW)
 		{
 			Filter = filter;
+			ConfigureDlg();
 		}
 
 		public RouteListsVM()
 		{
 			CreateRepresentationFilter = () => new RouteListsFilter(UoW);
+			ConfigureDlg();
+		}
+
+		private void ConfigureDlg()
+		{
+			NotifyConfiguration.Enable();
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(OnRouteListChanged);
+
+			Filter.SelectedStatuses = new[]{
+					RouteListStatus.New,
+					RouteListStatus.Confirmed,
+					RouteListStatus.InLoading,
+					RouteListStatus.EnRoute,
+					RouteListStatus.Delivered,
+					RouteListStatus.OnClosing,
+					RouteListStatus.MileageCheck,
+					RouteListStatus.Closed
+				};
+		}
+
+		private void OnRouteListChanged(EntityChangeEvent[] changeEvents)
+		{
+			UpdateNodes();
 		}
 
 		public RouteListsVM(IUnitOfWork uow) : base()
@@ -211,9 +233,11 @@ namespace Vodovoz.ViewModel
 
 		private List<RouteListStatus> KeepingDlgStatuses = new List<RouteListStatus> {
 			RouteListStatus.EnRoute,
-			RouteListStatus.OnClosing,
-			RouteListStatus.MileageCheck,
-			RouteListStatus.Closed
+		};
+		
+		private List<RouteListStatus> CanReturnToEnRoute = new List<RouteListStatus>
+		{
+			RouteListStatus.Delivered
 		};
 
 		private List<RouteListStatus> ControlDlgStatuses = new List<RouteListStatus> {
@@ -226,18 +250,21 @@ namespace Vodovoz.ViewModel
 		};
 
 		private List<RouteListStatus> ClosingDlgStatuses = new List<RouteListStatus> {
+			RouteListStatus.Delivered,
 			RouteListStatus.OnClosing,
 			RouteListStatus.MileageCheck,
 			RouteListStatus.Closed
 		};
 
 		private List<RouteListStatus> AnalysisViewModelStatuses = new List<RouteListStatus> {
+			RouteListStatus.Delivered,
 			RouteListStatus.OnClosing,
 			RouteListStatus.MileageCheck,
 			RouteListStatus.Closed
 		};
 
 		private List<RouteListStatus> MileageCheckDlgStatuses = new List<RouteListStatus> {
+			RouteListStatus.Delivered,
 			RouteListStatus.OnClosing,
 			RouteListStatus.MileageCheck,
 			RouteListStatus.Closed
@@ -253,7 +280,7 @@ namespace Vodovoz.ViewModel
 			RouteListStatus.New,
 			RouteListStatus.Confirmed,
 			RouteListStatus.InLoading,
-			RouteListStatus.EnRoute,
+			RouteListStatus.Delivered,
 			RouteListStatus.OnClosing,
 			RouteListStatus.MileageCheck
 		};
@@ -313,35 +340,33 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						bool isSlaveTabActive = false;
 						var routeListIds = selectedNodes.Select(x => x.Id).ToArray();
-						var routeLists = UoW.Session.QueryOver<RouteList>()
+
+						using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot()) {
+							var routeLists = uowLocal.Session.QueryOver<RouteList>()
 							.Where(x => x.Id.IsIn(routeListIds))
 							.List();
 
-						routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) => {
-							if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
-								MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
-								isSlaveTabActive = true;
+							routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) => {
+								if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
+									MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
+									isSlaveTabActive = true;
+									return;
+								}
+
+								foreach(var address in routeList.Addresses) {
+									if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
+										address.Order.ChangeStatusAndCreateTasks(Domain.Orders.OrderStatus.OnLoading, callTaskWorker);
+								}
+
+								routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, callTaskWorker);
+								uowLocal.Save(routeList);
+							});
+
+							if(isSlaveTabActive)
 								return;
-							}
 
-							foreach(var address in routeList.Addresses) {
-								if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
-									address.Order.ChangeStatusAndCreateTasks(Domain.Orders.OrderStatus.OnLoading, callTaskWorker);
-							}
-
-							routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, callTaskWorker);
-							UoW.Save(routeList);
-						});
-
-						if(isSlaveTabActive)
-							return;
-
-						foreach(var rlNode in selectedNodes) {
-							var node = (rlNode as RouteListsVMNode);
-							if(node != null)
-								node.StatusEnum = RouteListStatus.InLoading;
+							uowLocal.Commit();
 						}
-						UoW.Commit();
 					},
 					(selectedItems) => selectedItems.Any((x) => (x as RouteListsVMNode).StatusEnum == RouteListStatus.Confirmed)
 				));
@@ -357,6 +382,37 @@ namespace Vodovoz.ViewModel
 							);
 					},
 					(selectedItems) => selectedItems.Any(x => KeepingDlgStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+				));
+				
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Вернуть в путь",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
+						bool isSlaveTabActive = false;
+						var routeListIds = selectedNodes.Select(x => x.Id).ToArray();
+
+						using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot()) {
+
+							var routeLists = uowLocal.Session.QueryOver<RouteList>()
+								.Where(x => x.Id.IsIn(routeListIds))
+								.List();
+
+							routeLists.Where((arg) => arg.Status == RouteListStatus.Delivered).ToList().ForEach((routeList) => {
+								if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
+									MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
+									isSlaveTabActive = true;
+									return;
+								}
+								routeList.ChangeStatusAndCreateTask(RouteListStatus.EnRoute, callTaskWorker);
+								uowLocal.Save(routeList);
+							});
+
+							if(isSlaveTabActive)
+								return;
+
+							uowLocal.Commit();
+						}
+					},
+					(selectedItems) => selectedItems.Any(x => CanReturnToEnRoute.Contains((x as RouteListsVMNode).StatusEnum))
 				));
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Открыть диалог закрытия",
@@ -398,7 +454,10 @@ namespace Vodovoz.ViewModel
 								() => new RouteListMileageCheckDlg(selectedNode.Id)
 							);
 					},
-					(selectedItems) => selectedItems.Any(x => MileageCheckDlgStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+					(selectedItems) => selectedItems.Any(
+						x => MileageCheckDlgStatuses.Contains((x as RouteListsVMNode).StatusEnum)
+						&& (x as RouteListsVMNode).UsesCompanyCar
+					)
 				));
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Удалить МЛ",
@@ -438,6 +497,12 @@ namespace Vodovoz.ViewModel
 				return result;
 			}
 		}
+
+		public new void Dispose()
+		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			base.Dispose();
+		}
 	}
 
 	public class RouteListsVMNode
@@ -467,5 +532,7 @@ namespace Vodovoz.ViewModel
 		public string ClosinComments { get; set; }
 		public string ClosingSubdivision { get; set; }
 		public bool NotFullyLoaded { get; set; }
+		public CarTypeOfUse CarTypeOfUse { get; set; }
+		public bool UsesCompanyCar => !CarTypeOfUse.Equals(CarTypeOfUse.DriverCar);
 	}
 }

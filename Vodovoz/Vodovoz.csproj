@@ -378,10 +378,12 @@
     <EmbeddedResource Include="icons\phone\make-call.png" />
     <EmbeddedResource Include="icons\phone\make-call-32.png" />
     <EmbeddedResource Include="icons\phone\make-call-16.png" />
+    <EmbeddedResource Include="icons\buttons\user22.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Additions\SmsSender.cs" />
+    <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
@@ -566,8 +568,6 @@
     <Compile Include="Dialogs\Logistic\RouteListMileageCheckDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListMileageCheckDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListMileageCheckView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.CashExpenseCategoryDlg.cs" />
-    <Compile Include="Dialogs\Cash\CashExpenseCategoryDlg.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListDiscrepancyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListDiscrepancyView.cs" />
     <Compile Include="SidePanel\PanelViewContainer.cs" />
@@ -1114,7 +1114,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTypeView.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelWriteoffDocumentView.cs" />
-    <Compile Include="Dialogs\Cash\ExpenseCategoryViewModel.cs" />
     <Compile Include="Dialogs\Cash\ExpenseCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.ExpenseCategoryView.cs" />
     <Compile Include="Infrastructure\Converters\EmployeeToLastNameWithInitialsConverter.cs" />
@@ -1481,6 +1480,13 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DriverRoutesListRegisterReport.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Production.ProducedProductionReport.cs" />
+    <Compile Include="Dialogs\Cash\IncomeCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.IncomeCategoryView.cs" />
+    <Compile Include="Filters\GtkViews\ExpenseCategoryJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ExpenseCategoryJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\IncomeCategoryJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.IncomeCategoryJournalFilterView.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListStatusNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -854,10 +854,11 @@ namespace Vodovoz.Domain.Logistic
 					}
 					break;
 				case RouteListStatus.EnRoute:
-					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed) {
+					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed
+					|| Status == RouteListStatus.Delivered) {
 						Status = RouteListStatus.EnRoute;
 						foreach(var item in Addresses) {
-							bool isInvalidStatus =  OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
+							bool isInvalidStatus = OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
 
 							if(!isInvalidStatus)
 								item.Order.OrderStatus = OrderStatus.OnTheWay;
@@ -866,11 +867,21 @@ namespace Vodovoz.Domain.Logistic
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
+				case RouteListStatus.Delivered:
+					if (Status == RouteListStatus.EnRoute)
+					{
+						Status = newStatus;
+					}
+					else
+					{
+						throw new InvalidOperationException(exceptionMessage);
+					}
+					break;
 				case RouteListStatus.OnClosing:
 					if(
-					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck || Driver.VisitingMaster || !NeedMileageCheckByWage))
+					(Status == RouteListStatus.Delivered && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck || Driver.VisitingMaster || !NeedMileageCheckByWage))
 					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck))
-					|| Status == RouteListStatus.MileageCheck || Status == RouteListStatus.EnRoute
+					|| Status == RouteListStatus.MileageCheck || Status == RouteListStatus.Delivered
 					|| Status == RouteListStatus.Closed) {
 						Status = newStatus;
 						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
@@ -881,7 +892,7 @@ namespace Vodovoz.Domain.Logistic
 					}
 					break;
 				case RouteListStatus.MileageCheck:
-					if(Status == RouteListStatus.EnRoute || Status == RouteListStatus.OnClosing) {
+					if(Status == RouteListStatus.Delivered || Status == RouteListStatus.OnClosing) {
 						Status = newStatus;
 						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
 							item.Order.ChangeStatusAndCreateTasks(OrderStatus.UnloadingOnStock, callTaskWorker);
@@ -946,7 +957,8 @@ namespace Vodovoz.Domain.Logistic
 					}
 					break;
 				case RouteListStatus.EnRoute:
-					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed) {
+					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed
+					|| Status == RouteListStatus.Delivered) {
 						Status = RouteListStatus.EnRoute;
 						foreach(var item in Addresses) {
 							bool isInvalidStatus =  OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
@@ -958,11 +970,19 @@ namespace Vodovoz.Domain.Logistic
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
+				case RouteListStatus.Delivered:
+					if (Status == RouteListStatus.EnRoute)
+					{
+						Status = newStatus;
+					} else {
+						throw new InvalidOperationException(exceptionMessage);
+					}
+					break;
 				case RouteListStatus.OnClosing:
 					if(
 					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck || Driver.VisitingMaster || !NeedMileageCheckByWage))
 					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck))
-					|| Status == RouteListStatus.MileageCheck || Status == RouteListStatus.EnRoute
+					|| Status == RouteListStatus.MileageCheck || Status == RouteListStatus.Delivered
 					|| Status == RouteListStatus.Closed) {
 						Status = newStatus;
 						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
@@ -973,7 +993,7 @@ namespace Vodovoz.Domain.Logistic
 					}
 					break;
 				case RouteListStatus.MileageCheck:
-					if(Status == RouteListStatus.EnRoute || Status == RouteListStatus.OnClosing) {
+					if(Status == RouteListStatus.Delivered || Status == RouteListStatus.OnClosing) {
 						Status = newStatus;
 						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
 							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock);
@@ -1142,6 +1162,7 @@ namespace Vodovoz.Domain.Logistic
 				return actualWageParameter == null || actualWageParameter.WageParameterItem.WageParameterItemType != WageParameterItemTypes.RatesLevel;
 			}
 		}
+		
 		public virtual void CompleteRouteAndCreateTask(WageParameterService wageParameterService, CallTaskWorker callTaskWorker)
 		{
 			if(wageParameterService == null) {
@@ -1787,7 +1808,7 @@ namespace Vodovoz.Domain.Logistic
 						notLoadedNomenclatures.Add(new RouteListControlNotLoadedNode {
 							NomenclatureId = n.NomenclatureId,
 							CountTotal = n.Amount,
-							CountNotLoaded = (int)(n.Amount - loadedAmount)
+							CountNotLoaded = (n.Amount - loadedAmount)
 						});
 					}
 				}
@@ -1996,6 +2017,8 @@ namespace Vodovoz.Domain.Logistic
 		InLoading,
 		[Display(Name = "В пути")]
 		EnRoute,
+		[Display(Name = "Доставлен")]
+		Delivered,
 		[Display(Name = "Сдаётся")]
 		OnClosing,
 		[Display(Name = "Проверка километража")]
@@ -2013,9 +2036,9 @@ namespace Vodovoz.Domain.Logistic
 	{
 		public int NomenclatureId { get; set; }
 		public Nomenclature Nomenclature { get; set; }
-		public int CountNotLoaded { get; set; }
-		public int CountTotal { get; set; }
-		public int CountLoaded => CountTotal - CountNotLoaded;
+		public decimal CountNotLoaded { get; set; }
+		public decimal CountTotal { get; set; }
+		public decimal CountLoaded => CountTotal - CountNotLoaded;
 		public string CountLoadedString => string.Format("<span foreground=\"{0}\">{1}</span>", CountLoaded > 0 ? "Orange" : "Red", CountLoaded);
 	}
 }

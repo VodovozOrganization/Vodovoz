@@ -2,8 +2,8 @@
 {
 	public interface IOrderItemWageCalculationSource
 	{
-		int InitialCount { get; }
-		int? ActualCount { get; }
+		decimal InitialCount { get; }
+		decimal? ActualCount { get; }
 		decimal Price { get; }
 		decimal DiscountMoney { get; }
 		decimal PercentForMaster { get; }

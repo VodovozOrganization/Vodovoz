@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("МЛ").AddTextRenderer().AddSetter((c, node) => c.Markup = node.RouteListsText)
 			.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent)
 			.AddSetter((c, n) => c.Text = n.CompletedText)
-			.AddColumn("Остаток бут.").AddTextRenderer().AddSetter((c, node) => c.Markup = node.BottlesLeft.ToString())
+			.AddColumn("Остаток бут.").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.BottlesLeft:N0}")
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig => columnsConfig;
@@ -137,7 +137,7 @@ namespace Vodovoz.ViewModel
 		public int AddressesCompleted { get; set; }
 		public int AddressesAll { get; set; }
 
-		public int BottlesLeft { get; set; } // @Дима
+		public decimal BottlesLeft { get; set; } // @Дима
 
 		public int CompletedPercent {
 			get {

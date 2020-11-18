@@ -872,7 +872,7 @@ namespace Vodovoz.ViewModels.Logistic
 											 .And(o => !o.IsService)
 											 .SingleOrDefault<int>();
 
-			int totalBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			decimal totalBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											  .GetExecutableQueryOver(UoW.Session)
 											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -880,9 +880,9 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
 											  .Where(o => !o.IsContractCloser)
 											  .And(o => !o.IsService)
-											  .SingleOrDefault<int>();
+											  .SingleOrDefault<decimal>();
 												
-			int total6LBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			decimal total6LBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											  .GetExecutableQueryOver(UoW.Session)
 											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -890,9 +890,9 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
 											  .Where(o => !o.IsContractCloser)
 											  .And(o => !o.IsService)
-											  .SingleOrDefault<int>();
+											  .SingleOrDefault<decimal>();
 
-			int total600mlBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			decimal total600mlBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											  .GetExecutableQueryOver(UoW.Session)
 											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -900,13 +900,13 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
 											  .Where(o => !o.IsContractCloser)
 											  .And(o => !o.IsService)
-											  .SingleOrDefault<int>();
+											  .SingleOrDefault<decimal>();
 
 			var text = new List<string> {
 				NumberToTextRus.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."),
-				$"19л - {totalBottles}",
-				$"6л - {total6LBottles}",
-				$"0,6л - {total600mlBottles}"
+				$"19л - {totalBottles:N0}",
+				$"6л - {total6LBottles:N0}",
+				$"0,6л - {total600mlBottles:N0}"
 			};
 
 			return string.Join("\n", text);

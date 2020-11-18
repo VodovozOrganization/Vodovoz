@@ -1139,7 +1139,7 @@
                   </ReportItems>
                 </TableCell>
                 <TableCell>
-                  <ReportItems >
+                  <ReportItems>
                     <Textbox Name="Textbox91" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>=Iif({terminals_sum} != 0, {terminals_sum}, Iif({Total} = 0, "", {Total}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1404,7 +1404,7 @@
                   </ReportItems>
                 </TableCell>
                 <TableCell>
-                  <ReportItems >
+                  <ReportItems>
                     <Textbox Name="Textbox72">
                       <Value>
                       </Value>
@@ -1421,7 +1421,7 @@
                   </ReportItems>
                 </TableCell>
                 <TableCell>
-                  <ReportItems >
+                  <ReportItems>
                     <Textbox Name="Textbox92" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>=Iif(Sum({Total}) = 0, "", Sum({Total}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1506,6 +1506,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1513,7 +1514,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>12 pt</Height>
               <TableCells>
                 <TableCell>
@@ -1582,6 +1583,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>9pt</FontSize>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1795,77 +1797,77 @@ WHERE route_lists.id = @route_list_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
-SELECT 
-route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, orders.daily_number_1c,
-CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
+SELECT
+    route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, orders.daily_number_1c,
+    CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
 #SHORT В сокращенной версии без комментариев.
 #orders.comment AS Comment, 
-NULL AS Comment,
-route_list_addresses.status AS Status,
- #orders.bottles_return AS EmptyBottles,
- route_list_addresses.bottles_returned AS EmptyBottles,
- route_list_addresses.total_cash AS Total,
-IF(orders.payment_type = 'Terminal' AND route_list_addresses.status != 'Transfered',
-        (
-            SELECT SUM(IFNULL(actual_count, count) * price - discount_money)
-            FROM order_items
-            WHERE order_id = orders.id), 
-        0) as terminals_sum,
-CONCAT_WS(' ', IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address), 
-	IF(route_list_addresses.status = 'Transfered',CONCAT_WS('','(Перенесен в МЛ №',TransferedAddresses.route_list_id,')'),'')) AS Address,
-CONCAT_WS(
-	' ', 
-    GROUP_CONCAT(
-		DISTINCT
-		CONCAT(
-			' ', 
-            eq_qry.name,
-            IFNULL(
-				CONCAT(': ', eq_qry.cnt),
-            	''
-            )
-		)
-	), 
-	IF(
-		(orders.to_client_text IS NOT NULL) AND (eq_qry.name IS NOT NULL), 
-		"; ", 
-        ""
-    ), 
-    orders.to_client_text
-) AS ToClient,
-CONCAT_WS(
-	' ', 
-    GROUP_CONCAT(DISTINCT
-		CONCAT(
-			' ', 
-			pickup_eq_qry.name, 
-            ': ', 
-            pickup_eq_qry.cnt
-		)
-    ), 
-    orders.from_client_text
-) AS FromClient,
+    NULL AS Comment,
+    route_list_addresses.status AS Status,
+    #orders.bottles_return AS EmptyBottles,
+    route_list_addresses.bottles_returned AS EmptyBottles,
+    route_list_addresses.total_cash AS Total,
+    IF(orders.payment_type = 'Terminal' AND route_list_addresses.status != 'Transfered',
+       (
+           SELECT SUM(IFNULL(actual_count, count) * price - discount_money)
+           FROM order_items
+           WHERE order_id = orders.id),
+       0) as terminals_sum,
+    CONCAT_WS(' ', IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address),
+              IF(route_list_addresses.status = 'Transfered',CONCAT_WS('','(Перенесен в МЛ №',TransferedAddresses.route_list_id,')'),'')) AS Address,
+    CONCAT_WS(
+            ' ',
+            GROUP_CONCAT(
+                    DISTINCT
+                    CONCAT(
+                            ' ',
+                            eq_qry.name,
+                            IFNULL(
+                                    CONCAT(': ', eq_qry.cnt),
+                                    ''
+                                )
+                        )
+                ),
+            IF(
+                        (orders.to_client_text IS NOT NULL) AND (eq_qry.name IS NOT NULL),
+                        "; ",
+                        ""
+                ),
+            orders.to_client_text
+        ) AS ToClient,
+    CONCAT_WS(
+            ' ',
+            GROUP_CONCAT(DISTINCT
+                         CONCAT(
+                                 ' ',
+                                 pickup_eq_qry.name,
+                                 ': ',
+                                 pickup_eq_qry.cnt
+                             )
+                ),
+            orders.from_client_text
+        ) AS FromClient,
 #IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit
 #База в запросе выше на проде пустая, залоги гребутся из той, что в запросе ниже.
-IF(route_list_addresses.deposits_collected IS NULL, 0, route_list_addresses.deposits_collected) AS BottlesDeposit,
-IF(route_list_addresses.equipment_deposits_collected IS NULL, 0, route_list_addresses.equipment_deposits_collected) AS EquipmentDeposit,
-orders.payment_type AS payment_type
+    IF(route_list_addresses.deposits_collected IS NULL, 0, route_list_addresses.deposits_collected) AS BottlesDeposit,
+    IF(route_list_addresses.equipment_deposits_collected IS NULL, 0, route_list_addresses.equipment_deposits_collected) AS EquipmentDeposit,
+    orders.payment_type AS payment_type
 
 
 <!--sql_select-->
 FROM route_list_addresses
-LEFT JOIN orders ON orders.id = route_list_addresses.order_id
-LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
-LEFT JOIN 
-	(SELECT
-    route_list_addresses.id,
-    route_list_addresses.route_list_id    
-    FROM route_list_addresses) as TransferedAddresses
-ON TransferedAddresses.id = route_list_addresses.transfered_to_id
+         LEFT JOIN orders ON orders.id = route_list_addresses.order_id
+         LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+         LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+         LEFT JOIN
+     (SELECT
+          route_list_addresses.id,
+          route_list_addresses.route_list_id
+      FROM route_list_addresses) as TransferedAddresses
+     ON TransferedAddresses.id = route_list_addresses.transfered_to_id
 
 /*LEFT JOIN ( 
 SELECT order_id, (count * deposit_sum * IF(payment_type = 'ToClient', -1, 1)) AS deposit 
@@ -1873,87 +1875,87 @@ FROM order_deposit_items
 WHERE order_deposit_items.deposit_type = 'Bottles'
 ) AS deposit_qry ON deposit_qry.order_id = orders.id*/
 
-LEFT JOIN (
+         LEFT JOIN (
 #SELECT order_equipment.order_id as order_id, nomenclature.id AS nomenclature_id, nomenclature.name as name, COUNT(nomenclature.id) AS cnt FROM order_equipment 
 #LEFT JOIN equipment ON order_equipment.equipment_id = equipment.id
 #LEFT JOIN nomenclature ON nomenclature.id = equipment.nomenclature_id 
 #WHERE order_equipment.direction = 'Deliver'
 #GROUP BY order_id, nomenclature_id
 #Для SHORT версии.
-	SELECT
-		T.order_id AS order_id,
-		nomenclature_id AS nomenclature_id,
-		T.name AS name,
-		IF(nomenclature_id = -1, NULL, SUM(T.cnt)) AS cnt
-	FROM(
-		SELECT 
-			order_items.order_id AS order_id,
-			IF(
-				IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
-				-1, nomenclature_id) AS nomenclature_id,
-			IF(
-				IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
-				CONCAT('Заказ ИМ ', order_items.order_id), IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
-			IF(
-				IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
-				1, SUM(IFNULL(order_items.actual_count, 0))) AS cnt
-		FROM order_items
-		LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-		LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id 
-		JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
-		WHERE (nomenclature.category = 'equipment' OR nomenclature.category = 'additional') AND nomenclature.hide = 0
-			AND route_list_addresses.route_list_id = @route_list_id
-		GROUP BY order_id, nomenclature_id 
+    SELECT
+        T.order_id AS order_id,
+        nomenclature_id AS nomenclature_id,
+        T.name AS name,
+        IF(nomenclature_id = -1, NULL, SUM(T.cnt)) AS cnt
+    FROM(
+            SELECT
+                order_items.order_id AS order_id,
+                IF(
+                        IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
+                        -1, nomenclature_id) AS nomenclature_id,
+                IF(
+                        IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
+                        CONCAT('Заказ ИМ ', order_items.order_id), IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
+                IF(
+                        IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
+                        1, cast(SUM(IFNULL(order_items.actual_count, 0)) as DECIMAL)) AS cnt
+            FROM order_items
+                     LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+                     LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id
+                     JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
+            WHERE (nomenclature.category = 'equipment' OR nomenclature.category = 'additional') AND nomenclature.hide = 0
+              AND route_list_addresses.route_list_id = @route_list_id
+            GROUP BY order_id, nomenclature_id
 
-		UNION ALL
+            UNION ALL
 
-		SELECT 
-			order_equipment.order_id AS order_id,
-			nomenclature.id AS nomenclature_id,
-			CONCAT(
-				IFNULL(nomenclature.short_name, nomenclature.name),
-				' ',
-				CASE
-					WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
-					WHEN order_equipment.own_type = 'Client' THEN '(Клиент)'
-					WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
-					ELSE order_equipment.own_type
-				END
-			) AS name,
-			SUM(IFNULL(order_equipment.actual_count, 0)) AS cnt
-		FROM order_equipment
-		LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
-		JOIN route_list_addresses ON route_list_addresses.order_id = order_equipment.order_id
-		WHERE order_equipment.direction = 'Deliver' AND nomenclature.hide = 0
-			AND route_list_addresses.route_list_id = @route_list_id
-		GROUP BY order_id, nomenclature_id
-	) AS T
-	GROUP BY order_id, nomenclature_id, name
+            SELECT
+                order_equipment.order_id AS order_id,
+                nomenclature.id AS nomenclature_id,
+                CONCAT(
+                        IFNULL(nomenclature.short_name, nomenclature.name),
+                        ' ',
+                        CASE
+                            WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
+                            WHEN order_equipment.own_type = 'Client' THEN '(Клиент)'
+                            WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
+                            ELSE order_equipment.own_type
+                            END
+                    ) AS name,
+                SUM(IFNULL(order_equipment.actual_count, 0)) AS cnt
+            FROM order_equipment
+                     LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+                     JOIN route_list_addresses ON route_list_addresses.order_id = order_equipment.order_id
+            WHERE order_equipment.direction = 'Deliver' AND nomenclature.hide = 0
+              AND route_list_addresses.route_list_id = @route_list_id
+            GROUP BY order_id, nomenclature_id
+        ) AS T
+    GROUP BY order_id, nomenclature_id, name
 ) AS eq_qry ON eq_qry.order_id = orders.id
 
-LEFT JOIN (
-	SELECT
-		order_equipment.order_id as order_id, 
+         LEFT JOIN (
+    SELECT
+        order_equipment.order_id as order_id,
         nomenclature.id AS nomenclature_id,
-		IFNULL(nomenclature.short_name, nomenclature.name) as name, 
-        SUM(IFNULL(order_equipment.actual_count, 0)) AS cnt 
-    FROM order_equipment 
-		LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
-	WHERE order_equipment.direction = 'PickUp' AND nomenclature.hide = 0
-	GROUP BY order_id, nomenclature_id
+        IFNULL(nomenclature.short_name, nomenclature.name) as name,
+        SUM(IFNULL(order_equipment.actual_count, 0)) AS cnt
+    FROM order_equipment
+             LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+    WHERE order_equipment.direction = 'PickUp' AND nomenclature.hide = 0
+    GROUP BY order_id, nomenclature_id
 ) AS pickup_eq_qry ON pickup_eq_qry.order_id = orders.id
 
 
-LEFT JOIN (
-SELECT
-order_items.order_id AS order_id
+         LEFT JOIN (
+    SELECT
+        order_items.order_id AS order_id
 <!--sql_select_subquery-->
-FROM route_list_addresses
-LEFT JOIN order_items ON route_list_addresses.order_id = order_items.order_id
-LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-LEFT JOIN nomenclature_route_column ON nomenclature_route_column.id = nomenclature.route_column_id
-WHERE route_list_addresses.route_list_id = @route_list_id AND nomenclature.route_column_id IS NOT NULL
-GROUP BY order_id) AS wt_qry ON wt_qry.order_id = orders.id
+    FROM route_list_addresses
+             LEFT JOIN order_items ON route_list_addresses.order_id = order_items.order_id
+             LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
+             LEFT JOIN nomenclature_route_column ON nomenclature_route_column.id = nomenclature.route_column_id
+    WHERE route_list_addresses.route_list_id = @route_list_id AND nomenclature.route_column_id IS NOT NULL
+    GROUP BY order_id) AS wt_qry ON wt_qry.order_id = orders.id
 
 WHERE route_list_addresses.route_list_id = @route_list_id
 GROUP BY orders.id
@@ -1965,7 +1967,7 @@ ORDER BY route_list_addresses.order_in_route;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="DeliveryTime">
           <DataField>DeliveryTime</DataField>
           <TypeName>System.String</TypeName>

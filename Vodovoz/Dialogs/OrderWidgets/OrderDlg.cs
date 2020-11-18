@@ -96,6 +96,7 @@ namespace Vodovoz
 
 		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
+		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
@@ -387,7 +388,7 @@ namespace Vodovoz
 			entryTrifle.ValidationMode = ValidationType.numeric;
 			entryTrifle.Binding.AddBinding(Entity, e => e.Trifle, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			ylabel3.Binding.AddFuncBinding(Entity, e => e.Contract != null ? e.Contract.Title : string.Empty, w => w.Text).InitializeFromSource();
+			ylabelContract.Binding.AddFuncBinding(Entity, e => e.Contract != null ? e.Contract.Title : string.Empty, w => w.Text).InitializeFromSource();
 
 			OldFieldsConfigure();
 
@@ -401,6 +402,11 @@ namespace Vodovoz
 				ySpecPaymentFrom.ItemsList = UoW.GetAll<PaymentFrom>();
 			ySpecPaymentFrom.Binding.AddBinding(Entity, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 
+			enumTax.ItemsEnum = typeof(TaxType);
+			Enum[] hideTaxTypeEnums = { TaxType.None };
+			enumTax.AddEnumToHideList(hideTaxTypeEnums);
+			enumTax.ChangedByUser += (sender, args) => { Entity.Client.TaxType = (TaxType)enumTax.SelectedItem; }; 
+			
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
@@ -638,7 +644,7 @@ namespace Vodovoz
 					.AddSetter((c, n) => c.Editable = n.PromoSet == null)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
-									? new Adjustment(0, 0, (double)n.Price * n.CurrentCount, 1, 100, 1)
+									? new Adjustment(0, 0, (double)(n.Price * n.CurrentCount), 1, 100, 1)
 									: new Adjustment(0, 0, 100, 1, 100, 1)
 					)
 					.AddSetter((c, n) => {
@@ -1485,7 +1491,7 @@ namespace Vodovoz
 			TryAddNomenclature(e.Subject as Nomenclature);
 		}
 
-		void TryAddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
+		void TryAddNomenclature(Nomenclature nomenclature, decimal count = 0, decimal discount = 0, DiscountReason discountReason = null)
 		{
 			if(Entity.IsLoadedFrom1C)
 				return;
@@ -2099,6 +2105,9 @@ namespace Vodovoz
 						enumPaymentType.SelectedItem = Entity.PaymentType;
 					}
 				}
+
+				enumTax.SelectedItem = Entity.Client.TaxType;
+				enumTax.Visible = lblTax.Visible = IsEnumTaxVisible();
 			} else {
 				referenceDeliveryPoint.Sensitive = false;
 			}
@@ -2107,6 +2116,11 @@ namespace Vodovoz
 
 			SetSensitivityOfPaymentType();
 		}
+		
+		private bool IsEnumTaxVisible() => Entity.Client != null &&
+                                           (!Entity.CreateDate.HasValue || Entity.CreateDate > date) &&
+                                           Entity.Client.PersonType == PersonType.legal &&
+                                           Entity.Client.TaxType == TaxType.None;
 
 		protected void OnButtonFillCommentClicked(object sender, EventArgs e)
 		{
@@ -2660,11 +2674,12 @@ namespace Vodovoz
 					if(oItem != null && oItem.Count > 0 && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 						OnFormOrderActions();
 					
-					if(oItem == null || oItem.PaidRentEquipment == null) {
+					if(oItem?.PaidRentEquipment == null) {
 						return;
 					}
+					
 					if(oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
-						ChangeEquipmentsCount(oItem, oItem.Count);
+						ChangeEquipmentsCount(oItem, (int)oItem.Count);
 					}
 				}
 			}
@@ -2713,7 +2728,7 @@ namespace Vodovoz
 		
 		/// <summary>
 		/// Меняет количество оборудования в списке оборудования заказа, в списке 
-		/// товаров заказа, в списке оборудования дополнитульного соглашения и 
+		/// товаров заказа, в списке оборудования дополнительного соглашения и 
 		/// меняет количество залогов за оборудование в списке товаров заказа
 		/// </summary>
 		void ChangeEquipmentsCount(OrderItem orderItem, int newCount)
@@ -2780,6 +2795,7 @@ namespace Vodovoz
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer") && val && !Entity.SelfDelivery;
 			hbxTareNonReturnReason.Sensitive = val;
+			lblTax.Visible = enumTax.Visible = val && IsEnumTaxVisible();
 
 			if(Entity != null)
 				yCmbPromoSets.Sensitive = val;

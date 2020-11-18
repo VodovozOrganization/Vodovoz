@@ -73,6 +73,11 @@ using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using Vodovoz.ReportsParameters.Production;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.Journals.JournalViewModels;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using VodovozInfrastructure.Interfaces;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -93,10 +98,7 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
 		this.KeyReleaseEvent += TDIMain.TDIHandleKeyReleaseEvent;
-		//Передаем лебл
-		QSMain.StatusBarLabel = labelStatus;
 		this.Title = MainSupport.GetTitle();
-		QSMain.MakeNewStatusTargetForNlog();
 		//Настраиваем модули
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
@@ -521,22 +523,35 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnAction14Activated(object sender, EventArgs e)
 	{
-		var vm = new EntityCommonRepresentationModelConstructor<IncomeCategory>()
-			.AddColumn("Имя", x => x.Name).AddSearch(x => x.Name)
-			.AddColumn("Тип", x => x.IncomeDocumentType.GetEnumTitle())
-			.OrderBy(x => x.Name)
-			.Finish();
-		tdiMain.AddTab(new PermissionControlledRepresentationJournal(vm));
+		var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
+		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории прихода.csv");
+
+		IEntityAutocompleteSelectorFactory incomeCategorySelectorFactory =
+			new IncomeCategoryAutoCompleteSelectorFactory(ServicesConfig.CommonServices, new IncomeCategoryJournalFilterViewModel(), chooserProvider);
+		
+		tdiMain.AddTab(
+			new IncomeCategoryJournalViewModel(
+				incomeCategoryFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				chooserProvider
+			)
+		);
 	}
 
 	protected void OnAction15Activated(object sender, EventArgs e)
 	{
-		var vm = new EntityCommonRepresentationModelConstructor<ExpenseCategory>()
-			.AddColumn("Имя", x => x.Name).AddSearch(x => x.Name)
-			.AddColumn("Тип", x => x.ExpenseDocumentType.GetEnumTitle())
-			.OrderBy(x => x.Name)
-			.Finish();
-		tdiMain.AddTab(new PermissionControlledRepresentationJournal(vm));
+		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории расхода.csv");
+		
+		var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel();
+		tdiMain.AddTab(
+			new ExpenseCategoryJournalViewModel(
+				expenseCategoryFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				chooserProvider
+			)
+		);
 	}
 
 	protected void OnActionCashToggled(object sender, EventArgs e)

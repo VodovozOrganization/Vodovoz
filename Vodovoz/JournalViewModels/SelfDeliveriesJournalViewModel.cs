@@ -136,7 +136,7 @@ namespace Vodovoz.Representations
 						   Projections.Conditional(
 							   Restrictions.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L),
 							   Projections.Property(() => orderItemAlias.Count),
-							Projections.Constant(0, NHibernateUtil.Int32)
+							Projections.Constant(0, NHibernateUtil.Decimal)
 						)
 					)).WithAlias(() => resultAlias.BottleAmount)
 					.Select(Projections.Sum(
