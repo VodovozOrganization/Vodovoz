@@ -26,6 +26,8 @@ namespace Vodovoz.Domain.Sale
 
 		public virtual int Id { get; set; }
 
+		public virtual string Title => $"{this} или сумма товаров ИМ < {OrderMinSumEShopGoods}р.";
+		
 		int water19LCount;
 		[Display(Name = "Количество 19л бутылей в заказе")]
 		public virtual int Water19LCount {
@@ -38,18 +40,28 @@ namespace Vodovoz.Domain.Sale
 				}
 			}
 		}
+		
+		decimal orderMinSumEShopGoods;
+		[Display(Name = "Минимальная сумма товаров ИМ")]
+		public virtual decimal OrderMinSumEShopGoods {
+			get => orderMinSumEShopGoods;
+			set => SetField(ref orderMinSumEShopGoods, value);
+		}
 
 		private int? equalsCount6LFor19L;
 		[Display(Name = "Количество 6л бутылей на одну 19л бутыль")]
-		public virtual int EqualsCount6LFor19L => equalsCount6LFor19L ?? (equalsCount6LFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_6л_на_1бутыль_19л"))).Value;
+		public virtual int EqualsCount6LFor19L => 
+			equalsCount6LFor19L ?? (equalsCount6LFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_6л_на_1бутыль_19л"))).Value;
 
 		private int? equalsCount1500mlFor19L;
 		[Display(Name = "Количество 1,5л бутылей на одну 19л бутыль")]
-		public virtual int EqualsCount1500mlFor19L => equalsCount1500mlFor19L ?? (equalsCount1500mlFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_1,5л_на_1бутыль_19л"))).Value;
+		public virtual int EqualsCount1500mlFor19L => 
+			equalsCount1500mlFor19L ?? (equalsCount1500mlFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_1,5л_на_1бутыль_19л"))).Value;
 		
 		private int? equalsCount600mlFor19L;
 		[Display(Name = "Количество 0,6л бутылей на одну 19л бутыль")]
-		public virtual int EqualsCount600mlFor19L => equalsCount600mlFor19L ?? (equalsCount600mlFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_0,6л_на_1бутыль_19л"))).Value;
+		public virtual int EqualsCount600mlFor19L => 
+			equalsCount600mlFor19L ?? (equalsCount600mlFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_0,6л_на_1бутыль_19л"))).Value;
 
 		[Display(Name = "Количество 6л бутылей в заказе")]
 		public virtual string Water6LCount => (water19LCount * EqualsCount6LFor19L).ToString();

@@ -1667,9 +1667,7 @@ namespace Vodovoz.Domain.Orders
 												  || IsService
 												  || DeliveryPoint.AlwaysFreeDelivery
 												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
-												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != paidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any())
-												  || IsOnlineStoreFreeDeliverySumReached()
-												  ;
+												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != paidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
 
 			if(IsDeliveryForFree) {
 				if(deliveryPriceItem != null)
@@ -1681,7 +1679,8 @@ namespace Vodovoz.Domain.Orders
 			var district = DeliveryPoint?.District;
 
 			OrderStateKey orderKey = new OrderStateKey(this);
-			var price = district?.GetDeliveryPrice(orderKey) ?? 0m;
+			var price = 
+				district?.GetDeliveryPrice(orderKey, ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m )) ?? 0m;
 
 			if(price != 0) {
 				if(deliveryPriceItem == null) {
@@ -1714,17 +1713,6 @@ namespace Vodovoz.Domain.Orders
 			return false;
 		}
 
-		#region OnlineStoreRules
-
-		protected bool IsOnlineStoreFreeDeliverySumReached()
-		{
-			var SumToFreeDelivery = DeliveryPoint?.District?.DistrictsSet.OnlineStoreOrderSumForFreeDelivery ?? 0m;
-			var OnlineStoreItemsSum = ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m );
-			return SumToFreeDelivery < OnlineStoreItemsSum;
-		}
-
-		#endregion
-		
 		#region test_methods_for_sidebar
 
 		/// <summary>

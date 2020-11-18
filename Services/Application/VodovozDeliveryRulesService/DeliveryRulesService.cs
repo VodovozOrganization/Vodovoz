@@ -120,7 +120,7 @@ namespace VodovozDeliveryRulesService
 					logger.Debug(message);
 					return new DeliveryInfoDTO {
 						StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
-						WeekDayDeliveryRules = null,
+						WeekDayDeliveryInfos = null,
 						GeoGroup = null,
 						Message = message
 					};
@@ -130,7 +130,7 @@ namespace VodovozDeliveryRulesService
 				logger.Error(ex);
 				return new DeliveryInfoDTO {
 					StatusEnum = DeliveryRulesResponseStatus.Error,
-					WeekDayDeliveryRules = null,
+					WeekDayDeliveryInfos = null,
 					GeoGroup = null,
 					Message = "Возникла внутренняя ошибка при получении правила доставки"
 				};
@@ -148,26 +148,28 @@ namespace VodovozDeliveryRulesService
 		private DeliveryInfoDTO FillDeliveryInfoDTO(District district)
 		{
 			var info = new DeliveryInfoDTO {
-				WeekDayDeliveryRules = new List<WeekDayDeliveryRuleDTO>(),
+				WeekDayDeliveryInfos = new List<WeekDayDeliveryInfoDTO>(),
 			};
 			foreach (WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName))) {
-				//Берём все правила дня недели
-				var rulesToAdd = district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay).Select(x => x.Title).ToList();
-				//Если правил дня недели нет берем общие правила района
-				if(!rulesToAdd.Any())
-					rulesToAdd = district.ObservableCommonDistrictRuleItems.Select(x => x.Title).ToList();
-
+				
+				var rules = district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay).ToList();
+				
 				var scheduleRestrictions = district
 					.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
 					.Select(x => x.DeliverySchedule)
 					.ToList();
 
-				var item = new WeekDayDeliveryRuleDTO {
+				var item = new WeekDayDeliveryInfoDTO
+				{
+					DeliveryRules = rules.Any()
+						? FillDeliveryRuleDTO(rules) //Берём все правила дня недели
+						: FillDeliveryRuleDTO(district.ObservableCommonDistrictRuleItems), //Если правил дня недели нет берем общие правила района
 					WeekDayEnum = weekDay,
-					DeliveryRules = rulesToAdd,
-					ScheduleRestrictions = ReorderScheduleRestrictions(scheduleRestrictions).Select(x => x.Name).ToList()
+					ScheduleRestrictions = 
+						ReorderScheduleRestrictions(scheduleRestrictions).Select(x => x.Name).ToList()
 				};
-				info.WeekDayDeliveryRules.Add(item);
+				
+				info.WeekDayDeliveryInfos.Add(item);
 			}
 
 			info.GeoGroup = district.GeographicGroup.Name;
@@ -198,6 +200,21 @@ namespace VodovozDeliveryRulesService
 				.OrderByDescending(x => x.To - x.From).ThenBy(x => x.From);
 
 			return schedulesGroup1.Concat(schedulesGroup2).Concat(schedulesGroup3).Concat(schedulesGroup4);
+		}
+
+		private IList<DeliveryRuleDTO> FillDeliveryRuleDTO<T>(IList<T> rules)
+			where T : DistrictRuleItemBase
+		{
+			return rules.Select(rule => new DeliveryRuleDTO
+				{
+					Bottles19l = rule.DeliveryPriceRule.Water19LCount.ToString(),
+					Bottles6l = rule.DeliveryPriceRule.Water6LCount,
+					Bottles1500ml = rule.DeliveryPriceRule.Water1500mlCount,
+					Bottles600ml = rule.DeliveryPriceRule.Water600mlCount,
+					MinOrder = $"{rule.DeliveryPriceRule.OrderMinSumEShopGoods}",
+					Price = $"{rule.Price:N0}"
+				})
+				.ToList();
 		}
 	}
 }
