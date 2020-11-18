@@ -25,6 +25,6 @@ namespace VodovozDeliveryRulesService
         public string GeoGroup { get; set; }
 
         [DataMember]
-        public IList<WeekDayDeliveryRuleDTO> WeekDayDeliveryRules { get; set; }
+        public IList<WeekDayDeliveryInfoDTO> WeekDayDeliveryInfos { get; set; }
     }
 }

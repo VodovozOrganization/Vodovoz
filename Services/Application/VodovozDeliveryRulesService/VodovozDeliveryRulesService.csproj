@@ -55,6 +55,7 @@
     <Compile Include="DTO\DeliveryRulesDTO.cs" />
     <Compile Include="DTO\DeliveryRulesResponseStatus.cs" />
     <Compile Include="DTO\WeekDayDeliveryRuleDTO.cs" />
+    <Compile Include="DTO\WeekDayDeliveryInfoDTO.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DeliveryRulesService.cs" />

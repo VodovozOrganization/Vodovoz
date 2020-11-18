@@ -32,6 +32,7 @@ namespace Vodovoz.Dialogs.Sale
 		void ConfigureDlg()
 		{
 			spin19LQty.Binding.AddBinding(Entity, e => e.Water19LCount, w => w.ValueAsInt).InitializeFromSource();
+			spinOrderMinSumEShopGoods.Binding.AddBinding(Entity, e => e.OrderMinSumEShopGoods, w => w.ValueAsDecimal).InitializeFromSource();
 			ylabel6LWater.Binding.AddBinding(Entity, e => e.Water6LCount, w => w.LabelProp).InitializeFromSource();
 			ylabel1500mlBottles.Binding.AddBinding(Entity, e => e.Water1500mlCount, w => w.LabelProp).InitializeFromSource();
 			ylabel600mlBottles.Binding.AddBinding(Entity, e => e.Water600mlCount, w => w.LabelProp).InitializeFromSource();
