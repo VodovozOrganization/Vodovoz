@@ -911,24 +911,24 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     source.delivery_interval,
-    
+
     COUNT(source.creationTime1_address) as creationTime1_addresses,
-    SUM(source.creationTime1_bottles) as creationTime1_bottles,
-    
+    CAST(SUM(source.creationTime1_bottles) as SIGNED) as creationTime1_bottles,
+
     COUNT(source.creationTime2_address) as creationTime2_addresses,
-    SUM(source.creationTime2_bottles) as creationTime2_bottles,
-    
+    CAST(SUM(source.creationTime2_bottles) as SIGNED) as creationTime2_bottles,
+
     COUNT(source.creationTime3_address) as creationTime3_addresses,
-    SUM(source.creationTime3_bottles) as creationTime3_bottles,
-    
+    CAST(SUM(source.creationTime3_bottles) as SIGNED) as creationTime3_bottles,
+
     COUNT(source.creationTime4_address) as creationTime4_addresses,
-    SUM(source.creationTime4_bottles) as creationTime4_bottles,
-    
+    CAST(SUM(source.creationTime4_bottles) as SIGNED) as creationTime4_bottles,
+
     (COUNT(source.creationTime2_address) + COUNT(source.creationTime3_address) + COUNT(source.creationTime4_address)) as online_addresses,
-    (SUM(source.creationTime2_bottles) + SUM(source.creationTime3_bottles) + SUM(source.creationTime4_bottles)) as online_bottles,
-    
+    CAST((SUM(source.creationTime2_bottles) + SUM(source.creationTime3_bottles) + SUM(source.creationTime4_bottles)) as SIGNED) as online_bottles,
+
     (COUNT(source.creationTime1_address) + COUNT(source.creationTime2_address) + COUNT(source.creationTime3_address) + COUNT(source.creationTime4_address)) as summary_addresses,
-    (SUM(source.creationTime1_bottles) + SUM(source.creationTime2_bottles) + SUM(source.creationTime3_bottles) + SUM(source.creationTime4_bottles)) as summary_bottles
+    CAST((SUM(source.creationTime1_bottles) + SUM(source.creationTime2_bottles) + SUM(source.creationTime3_bottles) + SUM(source.creationTime4_bottles)) as SIGNED) as summary_bottles
 FROM
 (
     SELECT
