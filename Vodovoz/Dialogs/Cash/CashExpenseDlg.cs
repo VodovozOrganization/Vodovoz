@@ -260,6 +260,12 @@ namespace Vodovoz
 			var report = new QSReport.ReportViewDlg (reportInfo);
 			TabParent.AddTab (report, this, false);
 		}
+
+		protected void OnYspinMoneyFocusInEvent(object o, Gtk.FocusInEventArgs args)
+		{
+			if(yspinMoney.Text == "0,00")
+				yspinMoney.Text = "";
+		}
 	}
 }
 

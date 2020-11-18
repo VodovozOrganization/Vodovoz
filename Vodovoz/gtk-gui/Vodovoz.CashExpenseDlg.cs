@@ -352,6 +352,7 @@ namespace Vodovoz
 			}
 			this.Hide();
 			this.buttonPrint.Clicked += new global::System.EventHandler(this.OnButtonPrintClicked);
+			this.yspinMoney.FocusInEvent += new global::Gtk.FocusInEventHandler(this.OnYspinMoneyFocusInEvent);
 			this.enumcomboOperation.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumcomboOperationEnumItemSelected);
 		}
 	}
