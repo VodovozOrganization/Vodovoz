@@ -306,6 +306,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -473,6 +474,7 @@
                             <BorderWidth />
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
+                            <Format >0</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -683,7 +685,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -755,7 +757,7 @@ ORDER BY ft_name DESC
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="rl_id">
           <DataField>rl_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -810,7 +812,7 @@ ORDER BY ft_name DESC
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
