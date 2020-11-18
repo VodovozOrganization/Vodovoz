@@ -746,7 +746,7 @@
           <TableColumn>
             <Width>61.3pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>76.4pt</Width>
           </TableColumn>
           <TableColumn>
@@ -801,7 +801,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
                       <Value>Магазин</Value>
@@ -939,7 +939,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
                       <Value>={shop}</Value>
@@ -976,6 +976,7 @@
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1093,7 +1094,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	o.delivery_date AS order_date,
@@ -1207,7 +1208,7 @@ ORDER BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1275,7 +1276,7 @@ ORDER BY
       </Fields>
     </DataSet>
     <DataSet Name="PaymentsWithoutOrders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT *
@@ -1297,7 +1298,7 @@ ORDER BY date_and_time DESC
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1344,7 +1345,7 @@ ORDER BY date_and_time DESC
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <DefaultValue>

@@ -42,7 +42,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Недовоз
 		/// </summary>
-		public string Returns => string.Format("{0}", ClientRejected);
+		public string Returns => $"{ClientRejected:N0}";
 
 		/// <summary>
 		/// Серийный номер

@@ -13,13 +13,14 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
     nomenclature.name AS nomenclature,
     nomenclature.category,
     measurement_units.name AS unit,
-    SUM(order_items.count) AS amount
+    SUM(order_items.count) AS amount,
+    measurement_units.digits AS digits
 FROM
     route_list_addresses
         LEFT JOIN
@@ -29,9 +30,9 @@ FROM
         LEFT JOIN
     measurement_units ON measurement_units.id = nomenclature.unit_id
 WHERE
-    route_list_addresses.route_list_id = @id
-        AND nomenclature.warehouse_id = 1 #Отгрузка только с софийской
-        AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
+        route_list_addresses.route_list_id = @id
+  AND nomenclature.warehouse_id = 1 #Отгрузка только с софийской
+  AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
 GROUP BY nomenclature.id
 ORDER BY category , nomenclature;</CommandText>
         <QueryParameters>
@@ -40,7 +41,7 @@ ORDER BY category , nomenclature;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -56,6 +57,10 @@ ORDER BY category , nomenclature;</CommandText>
         <Field Name="amount">
           <DataField>amount</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -435,6 +440,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >N0</Format>
                       </Style>
                       <Value>=Sum({amount})</Value>
                     </Textbox>
@@ -1331,6 +1337,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >N0</Format>
                       </Style>
                       <Value>=Sum({amount})</Value>
                     </Textbox>
@@ -1869,6 +1876,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >N0</Format>
                       </Style>
                       <Value>=Sum({amount})</Value>
                     </Textbox>
