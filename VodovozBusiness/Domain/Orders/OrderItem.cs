@@ -425,11 +425,11 @@ namespace Vodovoz.Domain.Orders
 
 		public decimal CurrentCount => ActualCount ?? Count;
 
-		public virtual decimal Sum => Price * Count - DiscountMoney;//FIXME Count -- CurrentCount
+		public virtual decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);//FIXME Count -- CurrentCount
 
-		public virtual decimal ActualSum => Price * CurrentCount - DiscountMoney;
+		public virtual decimal ActualSum => Math.Round(Price * CurrentCount - DiscountMoney, 2);
 
-		public virtual decimal OriginalSum => Price * Count - (OriginalDiscountMoney ?? 0);
+		public virtual decimal OriginalSum => Math.Round(Price * Count - (OriginalDiscountMoney ?? 0), 2);
 
 		public virtual bool CanEditAmount {
 			get {
