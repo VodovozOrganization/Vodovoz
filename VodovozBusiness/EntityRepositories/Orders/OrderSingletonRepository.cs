@@ -635,7 +635,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.Select(
 					Projections.Sum(
-						Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * IFNULL(?2, ?3) - ?4)"),
+						Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3) - ?4, 2)"),
 							NHibernateUtil.Decimal, new IProjection[] {
 								Projections.Property(() => orderItemAlias.Price),
 								Projections.Property(() => orderItemAlias.ActualCount),
