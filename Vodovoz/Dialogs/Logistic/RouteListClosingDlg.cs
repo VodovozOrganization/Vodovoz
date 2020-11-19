@@ -323,7 +323,9 @@ namespace Vodovoz
 			referenceForwarder.Sensitive = editing;
 			referenceLogistican.Sensitive = editing;
 			datePickerDate.Sensitive = editing;
-			ycheckConfirmDifferences.Sensitive = editing && Entity.Status == RouteListStatus.OnClosing;
+			ycheckConfirmDifferences.Sensitive = editing &&
+				(Entity.Status == RouteListStatus.OnClosing || 
+				 Entity.Status == RouteListStatus.Delivered);
 			ytextClosingComment.Sensitive = editing;
 			routeListAddressesView.IsEditing = editing;
 			ycheckHideCells.Sensitive = editing;
@@ -702,11 +704,14 @@ namespace Vodovoz
 				return false;
 			}
 
-			if (HasChanges && Entity.Status == RouteListStatus.Delivered)
-			{
-				Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
+			if(HasChanges && Entity.Status == RouteListStatus.Delivered) {
+				if(Entity.Car.IsCompanyCar) {
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+				} else {
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
+				}
 			}
-			
+
 			UoW.Save();
 
 			return true;
@@ -786,7 +791,20 @@ namespace Vodovoz
 				
 				PerformanceHelper.AddTimePoint("Создано задание на обзвон");
 			}
-			
+
+			if(Entity.Status == RouteListStatus.Delivered) {
+				if(routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0)
+				&& !Entity.DifferencesConfirmed) {
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
+				} else {
+					if(Entity.Car.IsCompanyCar) {
+						Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+					} else {
+						Entity.ChangeStatusAndCreateTask(RouteListStatus.Closed, CallTaskWorker);
+					}
+				}
+			}
+
 			SaveAndClose();
 			
 			PerformanceHelper.AddTimePoint("Сохранение и закрытие завершено");
