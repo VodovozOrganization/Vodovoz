@@ -10,9 +10,9 @@ using QS.HistoryLog;
 using QS.Report;
 using QS.Tools;
 using QS.Validation;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -20,6 +20,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
@@ -433,8 +434,7 @@ namespace Vodovoz.Domain.Logistic
 			get => closingSubdivision;
 			set => SetField(ref closingSubdivision, value, () => ClosingSubdivision);
 		}
-
-
+		
 		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
 		[Display(Name = "Группа района")]
 		public virtual IList<GeographicGroup> GeographicGroups {
@@ -913,6 +913,7 @@ namespace Vodovoz.Domain.Logistic
 					throw new NotImplementedException($"Не реализовано изменение статуса для {newStatus}");
 			}
 
+			UpdateDeliveryDocuments(UoW);
 			UpdateClosedInformation();
 		}
 		
@@ -1014,6 +1015,7 @@ namespace Vodovoz.Domain.Logistic
 					throw new NotImplementedException($"Не реализовано изменение статуса для {newStatus}");
 			}
 
+			UpdateDeliveryDocuments(UoW);
 			UpdateClosedInformation();
 		}
 
@@ -1501,6 +1503,12 @@ namespace Vodovoz.Domain.Logistic
 		{
 			return (decimal)Car.FuelConsumption
 				/ 100 * km;
+		}
+
+		public virtual void UpdateDeliveryDocuments(IUnitOfWork uow)
+		{
+			var controller = new DeliveryDocumentController(new BaseParametersProvider(), EmployeeSingletonRepository.GetInstance());
+			controller.UpdateDocuments(this, uow);
 		}
 
 		#endregion

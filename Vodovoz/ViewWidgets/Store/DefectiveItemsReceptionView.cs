@@ -133,7 +133,7 @@ namespace Vodovoz.ViewWidgets.Store
 			var defectiveItems = UoW.Session.QueryOver<CarUnloadDocumentItem>(() => carUnloadDocumentItemAlias)
 									.Left.JoinAlias(() => carUnloadDocumentItemAlias.Document, () => carUnloadDocumentAlias)
 									.Where(() => carUnloadDocumentAlias.RouteList.Id == RouteList.Id)
-									.Left.JoinAlias(() => carUnloadDocumentItemAlias.MovementOperation, () => warehouseMovementOperationAlias)
+									.Left.JoinAlias(() => carUnloadDocumentItemAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias)
 									.Left.JoinAlias(() => warehouseMovementOperationAlias.Nomenclature, () => nomenclatureAlias)
 									.JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
 									.Where(() => nomenclatureAlias.IsDefectiveBottle)
@@ -148,7 +148,7 @@ namespace Vodovoz.ViewWidgets.Store
 										.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 										.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 				                        .Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
-				                        .Select(() => carUnloadDocumentItemAlias.MovementOperation).WithAlias(() => resultAlias.MovementOperation)
+				                        .Select(() => carUnloadDocumentItemAlias.WarehouseMovementOperation).WithAlias(() => resultAlias.MovementOperation)
 				                        .Select(() => carUnloadDocumentItemAlias.DefectSource).WithAlias(() => resultAlias.Source)
 				                        .Select(() => carUnloadDocumentItemAlias.TypeOfDefect).WithAlias(() => resultAlias.TypeOfDefect)
 									   )
@@ -191,7 +191,7 @@ namespace Vodovoz.ViewWidgets.Store
 			this.movementOperation = movementOperation;
 		}
 
-		public DefectiveItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.MovementOperation)
+		public DefectiveItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.WarehouseMovementOperation)
 		{
 			this.carUnloadDocumentItem = carUnloadDocumentItem;
 		}

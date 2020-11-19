@@ -18,6 +18,7 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			enumcomboDocumentType.ItemsEnum = typeof(DocumentType);
+			enumcomboDocumentType.HiddenItems = new[] { DocumentType.DeliveryDocument as object };
 
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
 			if(CurrentUserSettings.Settings.DefaultWarehouse != null)

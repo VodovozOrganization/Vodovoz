@@ -24,11 +24,11 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref document, value, () => Document); }
 		}
 
-		WarehouseMovementOperation movementOperation;
+		WarehouseMovementOperation warehouseMovementOperation;
 
-		public virtual WarehouseMovementOperation MovementOperation { 
-			get { return movementOperation; }
-			set { SetField (ref movementOperation, value, () => MovementOperation); }
+		public virtual WarehouseMovementOperation WarehouseMovementOperation { 
+			get { return warehouseMovementOperation; }
+			set { SetField (ref warehouseMovementOperation, value, () => WarehouseMovementOperation); }
 		}
 
 		EmployeeNomenclatureMovementOperation employeeNomenclatureMovementOperation;
@@ -45,8 +45,8 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField (ref nomenclature, value, () => Nomenclature);
 
-				if (MovementOperation != null && MovementOperation.Nomenclature != nomenclature)
-					MovementOperation.Nomenclature = nomenclature;
+				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Nomenclature != nomenclature)
+					WarehouseMovementOperation.Nomenclature = nomenclature;
 			}
 		}
 
@@ -57,8 +57,8 @@ namespace Vodovoz.Domain.Documents
 			get { return equipment; }
 			set {
 				SetField (ref equipment, value, () => Equipment);
-				if (MovementOperation != null && MovementOperation.Equipment != equipment)
-					MovementOperation.Equipment = equipment;
+				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Equipment != equipment)
+					WarehouseMovementOperation.Equipment = equipment;
 			}
 		}
 
@@ -105,44 +105,49 @@ namespace Vodovoz.Domain.Documents
 		}
 			
 		public virtual string Title =>
-			MovementOperation == null ? Nomenclature.Name : String.Format("[{2}] {0} - {1}",
-				MovementOperation.Nomenclature.Name,
-				MovementOperation.Nomenclature.Unit?.MakeAmountShortStr(MovementOperation.Amount) ?? MovementOperation.Amount.ToString(),
+			WarehouseMovementOperation == null ? Nomenclature.Name : String.Format("[{2}] {0} - {1}",
+				WarehouseMovementOperation.Nomenclature.Name,
+				WarehouseMovementOperation.Nomenclature.Unit?.MakeAmountShortStr(WarehouseMovementOperation.Amount) ?? WarehouseMovementOperation.Amount.ToString(),
 				document.Title);
 
 		#endregion
 
 		#region Функции
 
-		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
+		public virtual void CreateWarehouseMovementOperation(Warehouse warehouse, DateTime time)
 		{
-			MovementOperation = new WarehouseMovementOperation
-				{
-					WriteoffWarehouse = warehouse,
-					Amount = Amount,
-					OperationTime = time,
-					Nomenclature = Nomenclature,
-					Equipment = Equipment
-				};
+			WarehouseMovementOperation = new WarehouseMovementOperation {
+				WriteoffWarehouse = warehouse,
+				Amount = Amount,
+				OperationTime = time,
+				Nomenclature = Nomenclature,
+				Equipment = Equipment
+			};
 		}
 
-		public virtual void UpdateOperation(Warehouse warehouse)
+		public virtual void UpdateWarehouseMovementOperation(Warehouse warehouse)
 		{
-			MovementOperation.WriteoffWarehouse = warehouse;
-			MovementOperation.IncomingWarehouse = null;
-			MovementOperation.Amount = Amount;
-			MovementOperation.Equipment = Equipment;
+			WarehouseMovementOperation.WriteoffWarehouse = warehouse;
+			WarehouseMovementOperation.IncomingWarehouse = null;
+			WarehouseMovementOperation.Amount = Amount;
+			WarehouseMovementOperation.Equipment = Equipment;
 		}
 		
-		public virtual void CreateEmployeeNomenclatureIncomeOperation(DateTime time)
+		public virtual void CreateEmployeeNomenclatureMovementOperation(DateTime time)
 		{
-			EmployeeNomenclatureMovementOperation = new EmployeeNomenclatureMovementOperation
-			{
-				Amount = (int)Amount,
+			EmployeeNomenclatureMovementOperation = new EmployeeNomenclatureMovementOperation {
+				Amount = Amount,
 				OperationTime = time,
-				Employee = Document.RouteList.Driver,
-				Nomenclature = Nomenclature
+				Nomenclature = Nomenclature,
+				Employee = Document.RouteList.Driver ?? throw new ArgumentNullException(nameof(Document.RouteList.Driver))
 			};
+		}
+		
+		public virtual void UpdateEmployeeNomenclatureMovementOperation()
+		{
+			EmployeeNomenclatureMovementOperation.Amount = Amount;
+			EmployeeNomenclatureMovementOperation.Nomenclature = Nomenclature;
+			EmployeeNomenclatureMovementOperation.Employee = Document.RouteList.Driver ?? throw new ArgumentNullException(nameof(Document.RouteList.Driver));
 		}
 
 		#endregion

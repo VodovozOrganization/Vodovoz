@@ -211,7 +211,7 @@
 			Equipment equipmentAlias = null;
 			var unloadedEquipmentIdsQuery = QueryOver.Of<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeList.Id)
 				.JoinAlias(doc => doc.Items, () => unloadItemAlias)
-				.JoinAlias(() => unloadItemAlias.MovementOperation, () => operationAlias)
+				.JoinAlias(() => unloadItemAlias.WarehouseMovementOperation, () => operationAlias)
 				.JoinAlias(() => operationAlias.Equipment, () => equipmentAlias)
 				.Select(op => equipmentAlias.Id);
 			return uow.Session.QueryOver<Equipment>(() => equipmentAlias).WithSubquery.WhereProperty(() => equipmentAlias.Id).In(unloadedEquipmentIdsQuery).List();

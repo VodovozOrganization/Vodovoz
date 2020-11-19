@@ -71,14 +71,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 			if(terminal != null)
 				result.Add(terminal);
 
-			return result.GroupBy(x => x.NomenclatureId, x => x.Amount)
-						 .Select(
-							 x => new GoodsInRouteListResult {
-								 NomenclatureId = x.Key,
-								 Amount = x.Sum()
-							 }
-						 )
-						 .ToList();
+			return result
+				.GroupBy(x => x.NomenclatureId, x => x.Amount)
+				.Select(
+					x => new GoodsInRouteListResult {
+						NomenclatureId = x.Key,
+						Amount = x.Sum()
+					}
+				)
+				.ToList();
 		}
 
 		public IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
@@ -216,7 +217,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var returnableQuery = uow.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
 				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
-				.JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
+				.JoinAlias(() => carUnloadItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
 				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
 				.JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => !nomenclatureAlias.IsSerial)
@@ -237,7 +238,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var returnableQueryEquipment = uow.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
 				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
-				.JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
+				.JoinAlias(() => carUnloadItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
 				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
 				.JoinAlias(() => movementOperationAlias.Equipment, () => equipmentAlias)
 				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
@@ -279,7 +280,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var returnableQuery = QueryOver.Of<CarUnloadDocument>(() => carUnloadAlias)
 				   .JoinAlias(() => carUnloadAlias.Items, () => carUnloadItemsAlias)
-				   .JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
+				   .JoinAlias(() => carUnloadItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
 				   .JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
 				   .Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
 				   .Where(() => !nomenclatureAlias.IsSerial)
@@ -301,7 +302,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var returnableQueryEquipment = uow.Session.QueryOver<CarUnloadDocument>(() => carUnloadAlias)
 				.JoinAlias(() => carUnloadAlias.Items, () => carUnloadItemsAlias)
-				.JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
+				.JoinAlias(() => carUnloadItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
 				.JoinAlias(() => movementOperationAlias.Equipment, () => equipmentAlias)
 				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
@@ -355,7 +356,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var returnableQuery = QueryOver.Of<CarUnloadDocument>()
 										   .Where(doc => doc.RouteList.Id == routeListId)
 										   .JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
-										   .JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
+										   .JoinAlias(() => carUnloadItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
 										   .Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
 										   .JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
 										   .Where(() => !nomenclatureAlias.IsSerial)

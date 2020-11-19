@@ -32,7 +32,7 @@ namespace Vodovoz.Repository.Store
 								  .Where(d => d.Warehouse.Id == warehouse.Id)
 								  .Where(d => d.Id != excludeDoc.Id)
 								  .JoinAlias(d => d.Items, () => docItemsAlias)
-								  .JoinAlias(() => docItemsAlias.MovementOperation, () => movementOperationAlias)
+								  .JoinAlias(() => docItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
 				.SelectList(list => list
 							.SelectGroup(() => movementOperationAlias.Nomenclature.Id)
 							.SelectSum(() => movementOperationAlias.Amount)

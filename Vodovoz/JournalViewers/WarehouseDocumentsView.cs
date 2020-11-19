@@ -43,6 +43,7 @@ namespace Vodovoz
 			tableDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
 			buttonAdd.ItemsEnum = typeof(DocumentType);
+			buttonAdd.SetVisibility(DocumentType.DeliveryDocument, false);
 
 			var allPermissions = CurrentPermissions.Warehouse.AnyEntities();
 			foreach(DocumentType doctype in Enum.GetValues(typeof(DocumentType))) {

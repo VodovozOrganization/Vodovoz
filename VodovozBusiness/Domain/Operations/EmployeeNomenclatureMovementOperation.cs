@@ -21,8 +21,8 @@ namespace Vodovoz.Domain.Operations
             set => SetField (ref nomenclature, value);
         }
         
-        private int amount;
-        public virtual int Amount {
+        private decimal amount;
+        public virtual decimal Amount {
             get => amount;
             set => SetField (ref amount, value);
         }
