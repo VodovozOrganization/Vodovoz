@@ -97,6 +97,7 @@ namespace Vodovoz
 		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
+		private bool isEditOrderClicked;
 
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
@@ -918,6 +919,7 @@ namespace Vodovoz
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
+			isEditOrderClicked = true;
 			EditOrder();
 		}
 
@@ -2305,7 +2307,7 @@ namespace Vodovoz
 				};
 				enumPaymentType.AddEnumToHideList(hideEnums);
 			}
-
+			
 			Entity.UpdateClientDefaultParam();
 
 			//Проверяем возможность добавления Акции "Бутыль"
@@ -2782,7 +2784,7 @@ namespace Vodovoz
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive =
 				buttonAddForSale.Sensitive = val;
 			checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
-			pickerDeliveryDate.Sensitive = val;
+			//pickerDeliveryDate.Sensitive = val; // оно повторно устанавливается в ChangeOrderEditable(val) -> SetPadInfoSensitive(val)
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
 			ycheckContactlessDelivery.Sensitive = val;
@@ -2820,8 +2822,14 @@ namespace Vodovoz
 		{
 			foreach(var widget in table1.Children)
 				widget.Sensitive = widget.Name == vboxOrderComment.Name || value;
+			
 			if(chkContractCloser.Active)
 				enumPaymentType.Sensitive = false;
+
+			if (isEditOrderClicked)
+			{
+				pickerDeliveryDate.Sensitive = false;
+			}
 		}
 
 		void SetSensitivityOfPaymentType()
