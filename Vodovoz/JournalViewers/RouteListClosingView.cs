@@ -66,6 +66,7 @@ namespace Vodovoz
 				case RouteListStatus.EnRoute:
 					TabParent.OpenTab(RouteListKeepingDlg.GenerateHashName(node.Id), () => new RouteListKeepingDlg(node.Id));
 					break;
+				case RouteListStatus.Delivered:
 				case RouteListStatus.MileageCheck:
 				case RouteListStatus.OnClosing:
 				case RouteListStatus.Closed:

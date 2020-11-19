@@ -418,8 +418,8 @@
 	GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS name,
 	w.full_quantity AS full_plan,
 	w.empty_quantity AS empty_plan,
-	sold.full_sold AS full_sold,
-	sold.empty_returned AS empty_returned
+	CAST(sold.full_sold AS SIGNED) AS full_sold,
+	CAST(sold.empty_returned AS SIGNED) AS empty_returned
 FROM employees e
 JOIN (
 	SELECT
@@ -494,11 +494,11 @@ WHERE sold.full_sold IS NOT NULL OR sold.empty_returned IS NOT NULL
         </Field>
         <Field Name="full_sold">
           <DataField>full_sold</DataField>
-          <TypeName>System.Decimal</TypeName>
+          <TypeName>System.Int32</TypeName>
         </Field>
         <Field Name="empty_returned">
           <DataField>empty_returned</DataField>
-          <TypeName>System.Decimal</TypeName>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>

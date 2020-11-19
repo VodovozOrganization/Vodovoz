@@ -273,52 +273,52 @@
     <DataSet Name="Orders">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    delivery_date, 
+        <CommandText>SELECT
+    delivery_date,
     counterparty.name AS counterparty,
     delivery_points.compiled_address_short as address,
     IFNULL(dp_phones.number, cp_phones.number) as phone,
-    (debts.bottle_debt - IFNULL(forfeits.forfeitCount,0)) as bottle_debt
+    cast((debts.bottle_debt - IFNULL(forfeits.forfeitCount, 0)) as signed) as bottle_debt
 FROM
     orders
         LEFT JOIN
     counterparty ON orders.client_id = counterparty.id
-        LEFT JOIN 
+        LEFT JOIN
     delivery_points ON orders.delivery_point_id=delivery_points.id
         LEFT JOIN
     phones dp_phones ON delivery_points.id = dp_phones.delivery_point_id
         LEFT JOIN
     phones cp_phones ON delivery_points.id = cp_phones.counterparty_id
         LEFT JOIN
-    (SELECT delivery_point_id, (SUM(delivered) - SUM(returned)) as bottle_debt 
-            FROM bottles_movement_operations GROUP BY delivery_point_id) as debts ON debts.delivery_point_id = orders.delivery_point_id
+    (SELECT delivery_point_id, (SUM(delivered) - SUM(returned)) as bottle_debt
+     FROM bottles_movement_operations GROUP BY delivery_point_id) as debts ON debts.delivery_point_id = orders.delivery_point_id
         LEFT JOIN
     (SELECT
-        orders.delivery_point_id as delivery_point,
-        sum(IFNULL(order_items.actual_count, 0)) as forfeitCount
-    FROM
-        order_items
-        LEFT JOIN orders ON order_items.order_id = orders.id            
-    WHERE
-        order_items.nomenclature_id IN 
-            (SELECT
-                str_value
-            FROM
-                base_parameters
-            WHERE
-                base_parameters.name = 'forfeit_nomenclature_id'
-                OR  base_parameters.name = 'forfeit1с_nomenclature_id')
-    GROUP BY orders.delivery_point_id
+         orders.delivery_point_id as delivery_point,
+         sum(IFNULL(order_items.actual_count, 0)) as forfeitCount
+     FROM
+         order_items
+             LEFT JOIN orders ON order_items.order_id = orders.id
+     WHERE
+             order_items.nomenclature_id IN
+             (SELECT
+                  str_value
+              FROM
+                  base_parameters
+              WHERE
+                      base_parameters.name = 'forfeit_nomenclature_id'
+                 OR  base_parameters.name = 'forfeit1с_nomenclature_id')
+     GROUP BY orders.delivery_point_id
     ) as forfeits ON forfeits.delivery_point = orders.delivery_point_id
 WHERE
         delivery_date = DATE(@date)
-        AND ((@is_sort_bottles = true AND debts.bottle_debt &gt;= @bottles_count) OR (@is_sort_bottles = false)) 
-        AND order_status NOT IN ('Canceled', 'DeliveryCanceled')
-        AND NOT EXISTS( SELECT * FROM orders AS t2
-                WHERE
-                t2.delivery_point_id = orders.delivery_point_id
-                AND t2.delivery_date &gt; DATE(@date)
-                AND NOT t2.order_status IN ('Canceled', 'DeliveryCanceled'))
+  AND ((@is_sort_bottles = true AND debts.bottle_debt &gt;= @bottles_count) OR (@is_sort_bottles = false))
+  AND order_status NOT IN ('Canceled', 'DeliveryCanceled')
+  AND NOT EXISTS( SELECT * FROM orders AS t2
+                  WHERE
+                          t2.delivery_point_id = orders.delivery_point_id
+                    AND t2.delivery_date &gt; DATE(@date)
+                    AND NOT t2.order_status IN ('Canceled', 'DeliveryCanceled'))
 GROUP BY orders.delivery_point_id
 ORDER BY debts.bottle_debt DESC;</CommandText>
         <QueryParameters>

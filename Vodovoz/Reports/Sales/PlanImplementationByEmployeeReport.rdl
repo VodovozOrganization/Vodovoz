@@ -940,12 +940,12 @@
 	o.id AS order_id,
 	c.name AS client,
 	IFNULL(GROUP_CONCAT(DISTINCT items.nomenclature SEPARATOR ', '), 'Нет заказа воды 19 л.') AS nomenclature,
-	IFNULL(SUM(items.count), 0) AS count,
-	IFNULL(SUM(items.total_sum), 0) AS total_sum,
+	CAST(IFNULL(SUM(items.count), 0) AS SIGNED) AS count,
+	CAST(IFNULL(SUM(items.total_sum), 0) AS SIGNED) AS total_sum,
 	IFNULL(o.bottles_return, 0) AS bottles_to_return,
 	IFNULL(IF(o.self_delivery, o.returned_tare, a.bottles_returned),0) + IFNULL(o.bottles_by_stock_actual_count, 0) AS bottles_returned,
-	ROUND(100*IFNULL(SUM(items.count), 0)/w.full_quantity, 2) AS full_sold_pct,
-	ROUND(
+	CAST(ROUND(100*IFNULL(SUM(items.count), 0)/w.full_quantity, 2) AS SIGNED) AS full_sold_pct,
+	CAST(ROUND(
 		100
 		*
 		(
@@ -966,7 +966,7 @@
 		/
 		w.empty_quantity,
 		2
-	) AS btls_returned_pct,
+	) AS SIGNED) AS btls_returned_pct,
 	o.order_status != 'Closed' AND a.route_list_id IS NOT NULL AS unclosed_rl,
 	o.order_status != 'Closed' AND a.route_list_id IS NULL AS unclosed_not_in_rl,
 	CONCAT('МЛ№', rl.id, ', водитель - ',GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic)) AS rl_details,
@@ -1079,7 +1079,7 @@ GROUP BY o.id
       </Fields>
     </DataSet>
     <DataSet Name="Employee">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -1106,7 +1106,7 @@ WHERE e.id = @employee_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>

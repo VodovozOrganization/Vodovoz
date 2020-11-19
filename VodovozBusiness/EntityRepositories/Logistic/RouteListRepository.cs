@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
@@ -139,7 +140,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return orderEquipmentsQuery
 				.SelectList(list => list
 				   .SelectGroup(() => OrderEquipmentNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-							.SelectSum(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.Amount)
+							.Select(Projections.Sum(
+					   Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => orderEquipmentAlias.Count)))).WithAlias(() => resultAlias.Amount)
 				)
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();

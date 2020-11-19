@@ -716,6 +716,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -733,6 +734,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -751,6 +753,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -768,6 +771,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >0</Format>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -786,6 +790,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                       <DataElementName>formula1</DataElementName>
                       <CanGrow>true</CanGrow>
@@ -885,7 +890,7 @@ ORDER BY driver_name</CommandText>
                             <BorderColor />
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
-                            <TextAlign >Right</TextAlign>
+                            <TextAlign>Right</TextAlign>
                           </Style>
                           <Value>Всего по водителю: </Value>
                         </Textbox>
@@ -934,6 +939,7 @@ ORDER BY driver_name</CommandText>
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
+                            <Format >0</Format>
                           </Style>
                           <Value>=Sum(Fields!water19_amount.Value)</Value>
                         </Textbox>
@@ -951,6 +957,7 @@ ORDER BY driver_name</CommandText>
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
+                            <Format >0</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -966,6 +973,7 @@ ORDER BY driver_name</CommandText>
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
+                            <Format >0</Format>
                           </Style>
                           <Value>=Sum(Fields!water19_absent.Value)</Value>
                         </Textbox>
@@ -983,6 +991,7 @@ ORDER BY driver_name</CommandText>
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
+                            <Format >0</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -999,6 +1008,7 @@ ORDER BY driver_name</CommandText>
                             <BorderWidth />
                             <FontWeight>=Iif ( Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5)) &lt; 1625,  'Bold', 'Normal')</FontWeight>
                             <TextAlign>Center</TextAlign>
+                            <Format >#,##0.00</Format>
                           </Style>
                           <CanGrow>true</CanGrow>
                         </Textbox>

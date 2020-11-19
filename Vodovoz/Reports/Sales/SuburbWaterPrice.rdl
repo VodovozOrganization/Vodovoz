@@ -23,26 +23,26 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
     orders.code1c,
     orders.id,
     counterparty.name AS client,
     counterparty.comment,
     IF(orders.self_delivery, 'Самовывоз', orders.address_1c) AS address_1c,
     delivery_points.distance_from_center_meters,
-    SUM(order_items.count) AS water_count,
+    CAST(SUM(order_items.count) AS signed) AS water_count,
     districts.min_bottles,
-    SUM(order_items.count * order_items.price) / SUM(order_items.count) AS avg_price,
+    ROUND(SUM(order_items.count * order_items.price) / SUM(order_items.count), 2) AS avg_price,
     IF(districts.price_type = 'FixForDistrict',
        districts.water_price,
-    (((delivery_points.distance_from_center_meters / 1000 * 2 / 100) * 20 * fuel.cost) / SUM(order_items.count) + 120)) AS min_price
+       (((delivery_points.distance_from_center_meters / 1000 * 2 / 100) * 20 * fuel.cost) / CAST(SUM(order_items.count) AS signed) + 120)) AS min_price
 FROM
-    (SELECT 
-        fuel_types.cost
-    FROM
-        fuel_types
-    WHERE
-        fuel_types.name = 'АИ-92') AS fuel,
+    (SELECT
+         fuel_types.cost
+     FROM
+         fuel_types
+     WHERE
+             fuel_types.name = 'АИ-92') AS fuel,
     orders
         LEFT JOIN
     counterparty ON orders.client_id = counterparty.id
@@ -54,17 +54,17 @@ FROM
     nomenclature ON order_items.nomenclature_id = nomenclature.id
         LEFT JOIN
     districts ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(',
-                            delivery_points.latitude,
-                            ' ',
-                            delivery_points.longitude,
-                            ')')),
-            districts.district_border)
+                                               delivery_points.latitude,
+                                               ' ',
+                                               delivery_points.longitude,
+                                               ')')),
+                           districts.district_border)
 WHERE
-    orders.delivery_date = @report_date
-        AND nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
-        AND (districts.id IS NULL OR districts.price_type &lt;&gt; 'Standart')
+        orders.delivery_date = @report_date
+  AND nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
+  AND (districts.id IS NULL OR districts.price_type &lt;&gt; 'Standart')
 GROUP BY orders.id
-HAVING avg_price &lt; min_price OR (min_bottles IS NOT NULL AND water_count &lt; min_bottles) 
+HAVING avg_price &lt; min_price OR (min_bottles IS NOT NULL AND water_count &lt; min_bottles)
 ORDER BY orders.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="report_date">
