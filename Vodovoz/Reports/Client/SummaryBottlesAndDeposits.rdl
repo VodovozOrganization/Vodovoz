@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -270,7 +270,7 @@
                                                    ), ''
                                             ),
                                             ': ',
-                                            ROUND(warehouse_movement_operations.amount),
+                                            ROUND(cmo.amount),
                                             ' шт'
                                         )
                                         SEPARATOR ',\n'
@@ -281,10 +281,10 @@
                                 store_self_delivery_document ON orders.id = store_self_delivery_document.order_id
                                     LEFT JOIN
                                 store_self_delivery_document_returned ON store_self_delivery_document.id = store_self_delivery_document_returned.store_self_delivery_document_id
+                                    LEFT JOIN counterparty_movement_operations cmo ON
+                                cmo.id = store_self_delivery_document_returned.counterparty_movement_operation_id 
                                     LEFT JOIN
-                                warehouse_movement_operations ON warehouse_movement_operations.id = store_self_delivery_document_returned.warehouse_movement_operation_id
-                                    LEFT JOIN
-                                nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+                                nomenclature ON nomenclature.id = cmo.nomenclature_id
                                     LEFT JOIN
                                 delivery_points ON delivery_points.id = orders.delivery_point_id
                                     LEFT JOIN
@@ -447,7 +447,7 @@ ORDER BY docs.doc_date;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="doc_id">
           <DataField>doc_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -1230,6 +1230,7 @@ WHERE
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format >#,##0.00</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1700,6 +1701,7 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1922,6 +1924,7 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>

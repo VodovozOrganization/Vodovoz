@@ -321,69 +321,69 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT DISTINCT
-	counterparty_mq.id AS cl_id,
-	counterparty_mq.name AS client_name,
-	orders_mq.address_1c_code AS dpoint_id,
-	orders_mq.address_1c AS dpoint_address,
-	order_items_mq.price AS min_price,
-	order_items_mq.count AS min_price_quantity,
-	MIN(orders_mq.delivery_date) AS min_price_date,
-	(
-		SELECT
-			MAX(orders.delivery_date)
-		FROM
-			orders
-		WHERE
-				orders.client_id = cl_id
-			AND
-				orders.address_1c_code = dpoint_id
-		) AS last_order_date
+    counterparty_mq.id AS cl_id,
+    counterparty_mq.name AS client_name,
+    orders_mq.address_1c_code AS dpoint_id,
+    orders_mq.address_1c AS dpoint_address,
+    order_items_mq.price AS min_price,
+    cast(order_items_mq.count as signed) AS min_price_quantity,
+    MIN(orders_mq.delivery_date) AS min_price_date,
+    (
+        SELECT
+            MAX(orders.delivery_date)
+        FROM
+            orders
+        WHERE
+                orders.client_id = cl_id
+          AND
+                orders.address_1c_code = dpoint_id
+    ) AS last_order_date
 FROM
-	counterparty AS counterparty_mq
-LEFT JOIN
-	orders AS orders_mq ON orders_mq.client_id = counterparty_mq.id
-LEFT JOIN
-	order_items AS order_items_mq ON order_items_mq.order_id = orders_mq.id
-INNER JOIN
-	(
-		SELECT
-			counterparty.id AS oid,
+    counterparty AS counterparty_mq
+        LEFT JOIN
+    orders AS orders_mq ON orders_mq.client_id = counterparty_mq.id
+        LEFT JOIN
+    order_items AS order_items_mq ON order_items_mq.order_id = orders_mq.id
+        INNER JOIN
+    (
+        SELECT
+            counterparty.id AS oid,
             orders.address_1c_code,
-			MIN(order_items.price) AS min_price
-		FROM
-			counterparty
-		LEFT JOIN
-			orders ON orders.client_id = counterparty.id
-		LEFT JOIN
-			order_items ON order_items.order_id = orders.id
-		LEFT JOIN
-			nomenclature ON nomenclature.id = order_items.nomenclature_id
-		WHERE
-				nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'
-			AND
-				order_items.price BETWEEN 0.01 AND 99.99
-			AND 
-				order_items.discount &lt; 100
-		GROUP BY
-			counterparty.id,
+            MIN(order_items.price) AS min_price
+        FROM
+            counterparty
+                LEFT JOIN
+            orders ON orders.client_id = counterparty.id
+                LEFT JOIN
+            order_items ON order_items.order_id = orders.id
+                LEFT JOIN
+            nomenclature ON nomenclature.id = order_items.nomenclature_id
+        WHERE
+                nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'
+          AND
+            order_items.price BETWEEN 0.01 AND 99.99
+          AND
+                order_items.discount &lt; 100
+        GROUP BY
+            counterparty.id,
             orders.address_1c_code
-	) AS counterparty_sq ON counterparty_sq.oid = counterparty_mq.id
+    ) AS counterparty_sq ON counterparty_sq.oid = counterparty_mq.id
 WHERE
-	order_items_mq.price = counterparty_sq.min_price
+        order_items_mq.price = counterparty_sq.min_price
 GROUP BY
-	cl_id,
-	dpoint_id,
-	min_price,
-	(
-		SELECT
-			MAX(orders.delivery_date)
-		FROM
-			orders
-		WHERE
-			orders.client_id = cl_id
-		AND
-			orders.address_1c_code = dpoint_id
-	)</CommandText>
+    cl_id,
+    dpoint_id,
+    min_price,
+    (
+        SELECT
+            MAX(orders.delivery_date)
+        FROM
+            orders
+        WHERE
+                orders.client_id = cl_id
+          AND
+                orders.address_1c_code = dpoint_id
+    )</CommandText>
       </Query>
       <Fields >
         <Field Name="cl_id">

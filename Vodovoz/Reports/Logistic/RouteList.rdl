@@ -211,7 +211,7 @@
                   </ReportItems>
                 </TableCell>
                 <TableCell>
-                  <ReportItems >
+                  <ReportItems>
                     <Textbox Name="Textbox59" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>Бензин</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -364,7 +364,7 @@
                   </ReportItems>
                 </TableCell>
                 <TableCell>
-                  <ReportItems >
+                  <ReportItems>
                     <Textbox Name="Textbox82" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>=First({FuelType}, 'RouteList')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -763,7 +763,7 @@
                   </ReportItems>
                 </TableCell>
                 <TableCell>
-                  <ReportItems >
+                  <ReportItems>
                     <Textbox Name="Textbox74" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>бутыли</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -773,7 +773,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
-                          <Right >3pt</Right>
+                          <Right>3pt</Right>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
@@ -783,7 +783,7 @@
                   </ReportItems>
                 </TableCell>
                 <TableCell>
-                  <ReportItems >
+                  <ReportItems>
                     <Textbox Name="Textbox88">
                       <Value>
                       </Value>
@@ -794,7 +794,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
-                          <Left >3pt</Left>
+                          <Left>3pt</Left>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
@@ -934,6 +934,7 @@
                         <PaddingRight>5pt</PaddingRight>
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
+                        <Format >="N0"</Format>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -987,7 +988,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox18" >
+                    <Textbox Name="Textbox18">
                       <Value>={empty_btls_from_client}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1259,7 +1260,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox56" >
+                    <Textbox Name="Textbox56">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1375,6 +1376,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1397,7 +1399,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>12 pt</Height>
               <TableCells>
                 <TableCell>
@@ -1463,6 +1465,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2388,7 +2391,7 @@ WHERE order_deposit_items.deposit_type = 'Bottles'
                         CONCAT('Заказ ИМ ', o.e_shop_order), IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
                 IF(
                         IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
-                        1, SUM(order_items.count)) AS cnt
+                        1, cast(SUM(order_items.count) as DECIMAL)) AS cnt
             FROM order_items
                      LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
                      LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id

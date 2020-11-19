@@ -92,7 +92,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 					.AddNumericRenderer(node => node.ManualChangingDiscount).Editing()
 				.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
-									? new Adjustment(0, 0, (double)n.Price * n.Count, 1, 100, 1)
+									? new Adjustment(0, 0, (double)(n.Price * n.Count), 1, 100, 1)
 									: new Adjustment(0, 0, 100, 1, 100, 1)
 					)
 					.Digits(2)

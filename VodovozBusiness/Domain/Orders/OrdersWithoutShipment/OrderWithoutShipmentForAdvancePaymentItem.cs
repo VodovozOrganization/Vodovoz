@@ -73,9 +73,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 		}
 
-		int count = -1;
+		decimal count = -1;
 		[Display(Name = "Количество")]
-		public virtual int Count {
+		public virtual decimal Count {
 			get => count;
 			set {
 				if(SetField(ref count, value)) {
@@ -254,9 +254,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		{
 			if(Nomenclature != null) {
 				if(Nomenclature.DependsOnNomenclature == null)
-					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment?.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
+					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment.GetTotalWater19LCount() : Count);
 				if(Nomenclature.IsWater19L)
-					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment?.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
+					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment.GetTotalWater19LCount() : Count);
 			}
 			return 0m;
 		}

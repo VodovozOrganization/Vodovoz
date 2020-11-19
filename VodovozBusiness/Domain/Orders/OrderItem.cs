@@ -80,12 +80,16 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref equipment, value, () => Equipment);
 		}
 
+		private bool priceIsSetted = false;
+
 		decimal price;
 
 		[Display(Name = "Цена")]
 		public virtual decimal Price {
 			get => price;
 			set {
+				if(priceIsSetted && Order.OrderStatus != OrderStatus.NewOrder)
+					return;
 				//Если цена не отличается от той которая должна быть по прайсам в 
 				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
 				IsUserPrice = value != GetPriceByTotalCount() && value != 0;
@@ -98,6 +102,8 @@ namespace Vodovoz.Domain.Orders
 					RecalculateDiscount();
 					RecalculateNDS();
 				}
+
+				priceIsSetted = true;
 			}
 		}
 
@@ -109,15 +115,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isUserPrice, value, () => IsUserPrice);
 		}
 
-		int count = -1;
-
+		decimal count = -1;
 		[Display(Name = "Количество")]
-		public virtual int Count {
+		public virtual decimal Count {
 			get => count;
 			set {
-				if(SetField(ref count, value, () => Count)) {
+				if(SetField(ref count, value)) {
 					if(AdditionalAgreement?.Self is SalesEquipmentAgreement aa)
-						aa.UpdateCount(Nomenclature, value);
+						aa.UpdateCount(Nomenclature, (int)value);
 					Order?.RecalculateItemsPrice();
 					RecalculateDiscount();
 					RecalculateNDS();
@@ -125,11 +130,11 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		int? actualCount;
-		public virtual int? ActualCount {
+		decimal? actualCount;
+		public virtual decimal? ActualCount {
 			get => actualCount;
 			set {
-				if(SetField(ref actualCount, value, () => ActualCount)) {
+				if(SetField(ref actualCount, value)) {
 					RecalculateDiscount();
 					RecalculateNDS();
 				}
@@ -317,7 +322,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual int ReturnedCount => Count - ActualCount ?? 0;
+		public virtual decimal ReturnedCount => Count - ActualCount ?? 0;
 
 		public virtual bool IsDelivered => ReturnedCount == 0;
 
@@ -418,13 +423,13 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public int CurrentCount => ActualCount ?? Count;
+		public decimal CurrentCount => ActualCount ?? Count;
 
-		public virtual decimal Sum => Price * Count - DiscountMoney;//FIXME Count -- CurrentCount
+		public virtual decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);//FIXME Count -- CurrentCount
 
-		public virtual decimal ActualSum => Price * CurrentCount - DiscountMoney;
+		public virtual decimal ActualSum => Math.Round(Price * CurrentCount - DiscountMoney, 2);
 
-		public virtual decimal OriginalSum => Price * Count - (OriginalDiscountMoney ?? 0);
+		public virtual decimal OriginalSum => Math.Round(Price * Count - (OriginalDiscountMoney ?? 0), 2);
 
 		public virtual bool CanEditAmount {
 			get {
@@ -479,7 +484,7 @@ namespace Vodovoz.Domain.Orders
 
 		#region IOrderItemWageCalculationSource implementation
 
-		public virtual int InitialCount => Count;
+		public virtual decimal InitialCount => Count;
 
 		public virtual decimal PercentForMaster => (decimal)Nomenclature.PercentForMaster;
 

@@ -212,15 +212,11 @@ namespace Vodovoz.ViewModels.Warehouses
                                 if(!selectedNodes.Any()) {
                                     return;
                                 }
-                                var existedItems = Entity.Items.Select(x => x.Nomenclature.Id);
-                                //Исключение из полученных уже добавленных в список
-                                var selectedNomenclatures = UoW.GetById<Nomenclature>
-                                    (
-                                        selectedNodes
-                                            .Select(x => x.Id))
-                                            .Where(x => existedItems.All(y => y != x.Id)
-                                    );
-        
+                                
+                                var selectedNomenclatures = UoW.GetById<Nomenclature>(
+                                    selectedNodes.Select(x => x.Id)
+                                );
+                                
                                 foreach(var nomenclature in selectedNomenclatures) {
                                     Entity.AddItem(new IncomingInvoiceItem(){Nomenclature = nomenclature, Amount = 1});
                                     OnPropertyChanged(nameof(TotalSum));

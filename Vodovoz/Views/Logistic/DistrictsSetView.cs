@@ -106,7 +106,7 @@ namespace Vodovoz.Views.Logistic
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Правило")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(p => p.DeliveryPriceRule.ToString())
+					.AddTextRenderer(p => p.DeliveryPriceRule.Title)
 					.WrapMode(Pango.WrapMode.WordChar)
 					.WrapWidth(500)
 				.Finish();
@@ -145,9 +145,6 @@ namespace Vodovoz.Views.Logistic
 			
 			entryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			entryName.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-
-			yspinbuttonOnlineStoreOrderSumForFreeDelivery.Binding.AddBinding(ViewModel.Entity, vm => vm.OnlineStoreOrderSumForFreeDelivery, w => w.ValueAsDecimal);
-			yspinbuttonOnlineStoreOrderSumForFreeDelivery.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			btnAddDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanCreateDistrict, w => w.Sensitive).InitializeFromSource();
 			btnAddDistrict.Clicked += (sender, args) => {

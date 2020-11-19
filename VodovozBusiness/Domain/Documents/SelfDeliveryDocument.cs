@@ -268,13 +268,13 @@ namespace Vodovoz.Domain.Documents
 					Document = this,
 					Nomenclature = uow.GetById<Nomenclature>(returnedNomenclaureId)
 				};
-				item.CreateOperation(Warehouse, TimeStamp);
+				item.CreateOperation(Warehouse, Order.Client, TimeStamp);
 				ReturnedItems.Add(item);
 			} else if(item != null && returnedNomenclaureQuantity == 0) {
 				ReturnedItems.Remove(item);
 			} else if(item != null && returnedNomenclaureQuantity != 0) {
 				item.Amount = returnedNomenclaureQuantity;
-				item.UpdateOperation(Warehouse);
+				item.UpdateOperation(Warehouse, Order.Client);
 			}
 		}
 

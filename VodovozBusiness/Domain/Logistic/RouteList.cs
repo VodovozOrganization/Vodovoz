@@ -1816,7 +1816,7 @@ namespace Vodovoz.Domain.Logistic
 						notLoadedNomenclatures.Add(new RouteListControlNotLoadedNode {
 							NomenclatureId = n.NomenclatureId,
 							CountTotal = n.Amount,
-							CountNotLoaded = (int)(n.Amount - loadedAmount)
+							CountNotLoaded = (n.Amount - loadedAmount)
 						});
 					}
 				}
@@ -2044,9 +2044,9 @@ namespace Vodovoz.Domain.Logistic
 	{
 		public int NomenclatureId { get; set; }
 		public Nomenclature Nomenclature { get; set; }
-		public int CountNotLoaded { get; set; }
-		public int CountTotal { get; set; }
-		public int CountLoaded => CountTotal - CountNotLoaded;
+		public decimal CountNotLoaded { get; set; }
+		public decimal CountTotal { get; set; }
+		public decimal CountLoaded => CountTotal - CountNotLoaded;
 		public string CountLoadedString => string.Format("<span foreground=\"{0}\">{1}</span>", CountLoaded > 0 ? "Orange" : "Red", CountLoaded);
 	}
 }

@@ -13,20 +13,22 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Nomenclature">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	nomenclature.official_name AS name,
-	nomenclature.id AS nomenclature_id,
-	IFNULL(order_items.actual_count, order_items.count) AS items_count,
-	nomenclature.storage_cell,
-	order_items.price - (order_items.discount_money / IFNULL(order_items.actual_count,order_items.count)) AS price,
-	GET_TOTAL_SUM_FOR_ORDER_ITEM(order_items.id) AS total_item_price
+    nomenclature.official_name AS name,
+    nomenclature.id AS nomenclature_id,
+    mu.digits AS digits,
+    IFNULL(order_items.actual_count, order_items.count) AS items_count,
+    nomenclature.storage_cell,
+    order_items.price - (order_items.discount_money / IFNULL(order_items.actual_count,order_items.count)) AS price,
+    GET_TOTAL_SUM_FOR_ORDER_ITEM(order_items.id) AS total_item_price
 FROM order_items
-LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id 
+    LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+    LEFT JOIN measurement_units mu ON nomenclature.unit_id = mu.id
+    LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id
 WHERE order_items.order_id = @order_id
-	AND IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE) 
+  AND IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE)
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -34,7 +36,7 @@ WHERE order_items.order_id = @order_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
         </Field>
@@ -52,6 +54,10 @@ WHERE order_items.order_id = @order_id
         </Field>
         <Field Name="total_item_price">
           <DataField>total_item_price</DataField>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -195,7 +201,7 @@ WHERE orders.id = @order_id
           <TableColumn>
             <Width>27.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>48.4pt</Width>
           </TableColumn>
           <TableColumn>
@@ -228,12 +234,12 @@ WHERE orders.id = @order_id
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value>№ тмц</Value>
@@ -245,7 +251,7 @@ WHERE orders.id = @order_id
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -262,7 +268,7 @@ WHERE orders.id = @order_id
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -279,7 +285,7 @@ WHERE orders.id = @order_id
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -296,7 +302,7 @@ WHERE orders.id = @order_id
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -313,7 +319,7 @@ WHERE orders.id = @order_id
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -345,7 +351,7 @@ WHERE orders.id = @order_id
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
                       <Value>={nomenclature_id}</Value>
@@ -408,6 +414,7 @@ WHERE orders.id = @order_id
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >="N" + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -453,7 +460,7 @@ WHERE orders.id = @order_id
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
                       <Value>
@@ -553,7 +560,7 @@ WHERE orders.id = @order_id
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
                       <Value>
@@ -996,7 +1003,7 @@ WHERE orders.id = @order_id
           <TableColumn>
             <Width>24.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>54.4pt</Width>
           </TableColumn>
           <TableColumn>
@@ -1046,7 +1053,7 @@ WHERE orders.id = @order_id
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
                       <Value>
@@ -1211,7 +1218,7 @@ WHERE orders.id = @order_id
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
                       <Value>
@@ -1350,7 +1357,7 @@ WHERE orders.id = @order_id
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
                       <Value>
@@ -1489,7 +1496,7 @@ WHERE orders.id = @order_id
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
                       <Value>
@@ -1654,7 +1661,7 @@ WHERE orders.id = @order_id
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
                       <Value>
@@ -1804,7 +1811,7 @@ WHERE orders.id = @order_id
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
                       <Value>№ тмц</Value>
@@ -1943,7 +1950,7 @@ WHERE orders.id = @order_id
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
                       <Value>={nomenclature_id}</Value>
@@ -2001,6 +2008,7 @@ WHERE orders.id = @order_id
                         <PaddingBottom>2pt</PaddingBottom>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >="N" + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2078,7 +2086,7 @@ WHERE orders.id = @order_id
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
                       <Value>

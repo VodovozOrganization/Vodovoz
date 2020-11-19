@@ -2525,33 +2525,28 @@
 #SET @end_date = '2020-08-20 23:59';
 
 SELECT
-    T.week_begin,
-    T.week_end,
-    SUM(T.bottles_monday) as bottles_monday,
-    (COUNT(T.address_monday) * (SUM(T.address_monday) - SUM(T.address_monday) + 1) ) as address_monday,
+   T.week_begin,
+   T.week_end,
+   CAST(SUM(T.bottles_monday) as SIGNED) as bottles_monday,
+   (COUNT(T.address_monday) * (SUM(T.address_monday) - SUM(T.address_monday) + 1) ) as address_monday,
 
-    SUM(T.bottles_tuesday) as bottles_tuesday,
-    (COUNT(T.address_tuesday) * (SUM(T.address_tuesday) - SUM(T.address_tuesday) + 1) ) as address_tuesday,
+   CAST(SUM(T.bottles_tuesday) as SIGNED) as bottles_tuesday,
+   (COUNT(T.address_tuesday) * (SUM(T.address_tuesday) - SUM(T.address_tuesday) + 1) ) as address_tuesday,
 
+   CAST(SUM(T.bottles_wednesday) as SIGNED) as bottles_wednesday,
+   (COUNT(T.address_wednesday) * (SUM(T.address_wednesday) - SUM(T.address_wednesday) + 1) ) as address_wednesday,
 
-    SUM(T.bottles_wednesday) as bottles_wednesday,
-    (COUNT(T.address_wednesday) * (SUM(T.address_wednesday) - SUM(T.address_wednesday) + 1) ) as address_wednesday,
+   CAST(SUM(T.bottles_thursday) as SIGNED) as bottles_thursday,
+   (COUNT(T.address_thursday) * (SUM(T.address_thursday) - SUM(T.address_thursday) + 1) ) as address_thursday,
 
+   CAST(SUM(T.bottles_friday) as SIGNED) as bottles_friday,
+   (COUNT(T.address_friday) * (SUM(T.address_friday) - SUM(T.address_friday) + 1) ) as address_friday,
 
-    SUM(T.bottles_thursday) as bottles_thursday,
-    (COUNT(T.address_thursday) * (SUM(T.address_thursday) - SUM(T.address_thursday) + 1) ) as address_thursday,
+   CAST(SUM(T.bottles_saturday) as SIGNED) as bottles_saturday,
+   (COUNT(T.address_saturday) * (SUM(T.address_saturday) - SUM(T.address_saturday) + 1) ) as address_saturday,
 
-
-    SUM(T.bottles_friday) as bottles_friday,
-    (COUNT(T.address_friday) * (SUM(T.address_friday) - SUM(T.address_friday) + 1) ) as address_friday,
-
-
-    SUM(T.bottles_saturday) as bottles_saturday,
-    (COUNT(T.address_saturday) * (SUM(T.address_saturday) - SUM(T.address_saturday) + 1) ) as address_saturday,
-
-
-    SUM(T.bottles_sunday) as bottles_sunday,
-    (COUNT(T.address_sunday) * (SUM(T.address_sunday) - SUM(T.address_sunday) + 1) ) as address_sunday
+   CAST(SUM(T.bottles_sunday) as SIGNED) as bottles_sunday,
+   (COUNT(T.address_sunday) * (SUM(T.address_sunday) - SUM(T.address_sunday) + 1) ) as address_sunday
 
 FROM
     (SELECT

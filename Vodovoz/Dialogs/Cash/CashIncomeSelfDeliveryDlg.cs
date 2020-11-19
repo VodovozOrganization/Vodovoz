@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
@@ -21,6 +22,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Core.DataService;
 using QS.Project.Services;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Repository.Cash;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Dialogs.Cash
@@ -158,8 +160,10 @@ namespace Vodovoz.Dialogs.Cash
 
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 
-			OrmMain.GetObjectDescription<IncomeCategory>().ObjectUpdated += OnIncomeCategoryUpdated;
-			OnIncomeCategoryUpdated(null, null);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<IncomeCategory>(
+				s => comboCategory.ItemsList = CategoryRepository.SelfDeliveryIncomeCategories(UoW)
+			);
+			comboCategory.ItemsList = CategoryRepository.SelfDeliveryIncomeCategories(UoW);
 			comboCategory.Binding.AddBinding(Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource();
 
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();
@@ -174,11 +178,6 @@ namespace Vodovoz.Dialogs.Cash
 			}
 
 			UpdateSubdivision();
-		}
-
-		void OnIncomeCategoryUpdated(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
-		{
-			comboCategory.ItemsList = Repository.Cash.CategoryRepository.SelfDeliveryIncomeCategories(UoW);
 		}
 
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)
@@ -227,6 +226,12 @@ namespace Vodovoz.Dialogs.Cash
 		protected void OnYentryOrderChanged(object sender, EventArgs e)
 		{
 			Entity.FillFromOrder(UoW);
+		}
+		
+		public override void Destroy()
+		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			base.Destroy();
 		}
 	}
 }

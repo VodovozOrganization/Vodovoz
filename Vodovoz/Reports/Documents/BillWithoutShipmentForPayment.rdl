@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	bwsfp.id AS bwsfp_id,
@@ -78,7 +78,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bwsfp_id">
           <DataField>bwsfp_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -146,43 +146,44 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
-        <CommandText>SELECT 
-	nomenclature.id AS id,
-	nomenclature.official_name AS name,
-	'--' AS unit_code,
-	measurement_units.name AS mu_name,
-	sum(IFNULL(actual_count, count)) AS count,
-	sum(order_items.actual_count) AS actual_count,
-	order_items.price AS item_price,
-	sum(order_items.include_nds) AS include_nds,
-	sum(order_items.discount) AS discount,
-    	sum(order_items.discount_money) AS discount_money,
-    	sum(order_items.price * IFNULL(actual_count, count)) AS sum,
-	sum(order_items.price * IFNULL(actual_count, count) - order_items.discount_money) AS total
+        <CommandText>SELECT
+    nomenclature.id AS id,
+    nomenclature.official_name AS name,
+    '--' AS unit_code,
+    measurement_units.name AS mu_name,
+    measurement_units.digits as digits,
+    sum(IFNULL(actual_count, count)) AS count,
+    sum(order_items.actual_count) AS actual_count,
+    order_items.price AS item_price,
+    sum(order_items.include_nds) AS include_nds,
+    sum(order_items.discount) AS discount,
+    sum(order_items.discount_money) AS discount_money,
+    sum(order_items.price * IFNULL(actual_count, count)) AS sum,
+    sum(order_items.price * IFNULL(actual_count, count) - order_items.discount_money) AS total
 FROM
-	bill_without_shipment_for_payment_items bwsfpi
-LEFT JOIN
-	orders ON orders.id = bwsfpi.order_id
-LEFT JOIN
-	order_items ON order_items.order_id = orders.id
-LEFT JOIN
-	nomenclature ON order_items.nomenclature_id = nomenclature.id
-LEFT JOIN
-	measurement_units ON nomenclature.unit_id = measurement_units.id
+    bill_without_shipment_for_payment_items bwsfpi
+        LEFT JOIN
+    orders ON orders.id = bwsfpi.order_id
+        LEFT JOIN
+    order_items ON order_items.order_id = orders.id
+        LEFT JOIN
+    nomenclature ON order_items.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    measurement_units ON nomenclature.unit_id = measurement_units.id
 WHERE
-	bwsfpi.bill_ws_for_payment_id = @bill_ws_for_payment_id
+        bwsfpi.bill_ws_for_payment_id = @bill_ws_for_payment_id
 Group By
-	nomenclature.id;</CommandText>
+    nomenclature.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="bill_ws_for_payment_id">
             <Value>=Parameters!bill_ws_for_payment_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -227,10 +228,14 @@ Group By
           <DataField>discount_money</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     organizations.full_name,
@@ -271,7 +276,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -342,6 +347,54 @@ WHERE
         </Field>
         <Field Name="org_name">
           <DataField>org_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Images" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>/*
+SET @id1 = 19; #Бесплатная доставка продуктов
+SET @id2 = 20; #Сервисное обслуживание оборудования
+*/
+
+SELECT
+
+stored_resource.id AS ID1,
+stored_resource.binary_file AS IM1 ,
+
+R2.id as ID2 ,
+R2.binary_file as IM2
+
+FROM stored_resource
+
+LEFT JOIN
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource
+    WHERE stored_resource.id = @id2
+) as R2 ON R2.id = @id2
+
+WHERE stored_resource.id = @id1</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id1">
+            <Value>19</Value>
+          </QueryParameter>
+          <QueryParameter Name="id2">
+            <Value>20</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="IM1">
+          <DataField>IM1</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM2">
+          <DataField>IM2</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -934,6 +987,7 @@ WHERE
                         <TextAlign>Center</TextAlign>
                         <FontFamily>Calibri</FontFamily>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >="N" + {digits}</Format>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -1349,95 +1403,6 @@ WHERE
         </Style>
         <DataSetName>Organization</DataSetName>
       </List>
-      <Textbox Name="Textbox21">
-        <Height>17.81pt</Height>
-        <Width>597.91pt</Width>
-        <Value>Уважаемый клиент! Обращаем Ваше внимание, что:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>523.2pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextDecoration>Underline</TextDecoration>
-          <TextAlign>Center</TextAlign>
-          <Color>Gray</Color>
-          <FontWeight>Bold</FontWeight>
-          <FontSize>11pt</FontSize>
-          <FontFamily>Calibri</FontFamily>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox23">
-        <Height>24.15pt</Height>
-        <Width>598.00pt</Width>
-        <Value>Для Вашего удобства, наша компания самостоятельно осуществляет
-"Санитарную обработку и дезинфекцию кулера",</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>545.4pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <TextAlign>Center</TextAlign>
-          <Color>Gray</Color>
-          <FontFamily>Calibri</FontFamily>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox28">
-        <Height>15.03pt</Height>
-        <Width>597.98pt</Width>
-        <Value>даже для тех кто не является нашими клиентами, по той же стоимости.</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>567.6pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <Color>Gray</Color>
-          <FontFamily>Calibri</FontFamily>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox29">
-        <Height>35.57pt</Height>
-        <Width>598.50pt</Width>
-        <Value>Санитарная обработка - это очистка внутренних и внешних поверхностей кулера: т.к.
-при эксплуатации кулера, внутри аппарата появляются нежелательные бактерии и
-микрочастицы, влияющие на качество и вкус питьевой воды.</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>594.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <Color>Gray</Color>
-          <FontFamily>Calibri</FontFamily>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox30">
-        <Height>34.58pt</Height>
-        <Width>597.74pt</Width>
-        <Value>Рекомендуется проводить санитарную обработку не реже одного раза в 4-6 месяцев.
-Стоимость данной услуги составляет 1200 руб. На время проведения санитарной обработки
-для Вашего удобства мы предоставляем дежурный кулер совершенно бесплатно.</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.5pt</Left>
-        <Top>642.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <Color>Gray</Color>
-          <FontFamily>Calibri</FontFamily>
-        </Style>
-      </Textbox>
       <Textbox Name="Textbox31">
         <Height>32.25pt</Height>
         <Width>326.52pt</Width>
@@ -1650,6 +1615,46 @@ Iif(
         <Left>28.9pt</Left>
         <Top>240.9pt</Top>
       </Table>
+      <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>145.13pt</Height>
+        <Width>250.77pt</Width>
+        <Left>122.2pt</Left>
+        <Top>536.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Calibri</FontFamily>
+          <TextAlign >Center</TextAlign>
+        </Style>
+        <Source>Database</Source>
+        <Value>=First( {IM1} , "Images" )</Value>
+        <Sizing>FitProportional</Sizing>
+        <ZIndex>1</ZIndex>
+        <Visibility>
+        </Visibility>
+        <MIMEType >image/jpeg</MIMEType>
+      </Image>
+      <Image Name="Image6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>145.82pt</Height>
+        <Width>249.98pt</Width>
+        <Left>305.9pt</Left>
+        <Top>535.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Calibri</FontFamily>
+          <TextAlign >Center</TextAlign>
+        </Style>
+        <Source>Database</Source>
+        <Value>=First( {IM2} , "Images" )</Value>
+        <Sizing>FitProportional</Sizing>
+        <ZIndex>1</ZIndex>
+        <Visibility>
+        </Visibility>
+        <MIMEType >image/jpeg</MIMEType>
+      </Image>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2084,7 +2089,7 @@ Iif(
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="bill_ws_for_payment_id">
       <DataType>Integer</DataType>
       <DefaultValue>

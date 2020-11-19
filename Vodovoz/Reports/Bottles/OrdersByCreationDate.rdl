@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS OrderId,
@@ -69,7 +69,7 @@ GROUP BY orders.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="CreationTime">
           <DataField>CreationDate</DataField>
           <TypeName>System.String</TypeName>
@@ -168,7 +168,7 @@ GROUP BY orders.id</CommandText>
           <TableColumn>
             <Width>64.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>193.6pt</Width>
           </TableColumn>
         </TableColumns>
@@ -305,7 +305,7 @@ GROUP BY orders.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
                       <Value>Комментарий</Value>
@@ -408,6 +408,9 @@ GROUP BY orders.id</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -439,7 +442,7 @@ GROUP BY orders.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
                       <Value>={Comment}</Value>
@@ -494,7 +497,7 @@ GROUP BY orders.id</CommandText>
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <DefaultValue>

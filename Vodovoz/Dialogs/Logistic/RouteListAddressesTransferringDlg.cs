@@ -581,14 +581,8 @@ namespace Vodovoz
 		public bool WasTransfered => RouteListItem.WasTransfered;
 		public string Comment => RouteListItem.Comment ?? "";
 
-		public string BottlesCount {
-			get {
-				return RouteListItem.Order.OrderItems
-					.Where(bot => bot.Nomenclature.Category == NomenclatureCategory.water && !bot.Nomenclature.IsDisposableTare)
-					.Sum(bot => bot.Count)
-					.ToString();
-			}
-		}
+		public string BottlesCount => 
+			$"{(RouteListItem.Order.OrderItems.Where(bot => bot.Nomenclature.Category == NomenclatureCategory.water && !bot.Nomenclature.IsDisposableTare).Sum(bot => bot.Count)):N0}";
 
 		public RouteListItem RouteListItem { get; set; }
 		public string DalyNumber => RouteListItem.Order.DailyNumber.ToString();

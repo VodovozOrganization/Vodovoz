@@ -334,8 +334,8 @@ namespace Vodovoz
 			var planned = item.GetGoodsAmountForColumn(id);
 			var actual = item.GetGoodsActualAmountForColumn(id);
 			var formatString = actual < planned
-				? "<b>{0}</b>({1})" 
-				: "<b>{0}</b>";
+				? "<b>{0:N0}</b>({1:N0})" 
+				: "<b>{0:N0}</b>";
 			return String.Format(formatString, actual, planned-actual);
 		}
 

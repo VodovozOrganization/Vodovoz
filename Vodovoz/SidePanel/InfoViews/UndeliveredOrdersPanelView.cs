@@ -60,18 +60,15 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private void DrawRefreshed(UndeliveredOrdersFilter undeliveredOrdersFilter)
 		{
-			lblCaption.Markup = String.Format("<u><b>Сводка по недовозам\nСписок виновных:</b></u>");
+			lblCaption.Markup = "<u><b>Сводка по недовозам\nСписок виновных:</b></u>";
 
 			yTreeView.ItemsDataSource = guilties;
 
-			lblTotalUdeliveredBottles.Markup = string.Format(
-				"Воды 19л: <b>{0}</b> бут.", guilties.Sum(g => (int)g[3])
-			);
+			lblTotalUdeliveredBottles.Markup = 
+				$"Воды 19л: <b>{guilties.Sum(g => (decimal) g[3]):N0}</b> бут.";
 
-			lblTotalUndeliveredOrders.Markup = string.Format(
-				"Заказов: <b>{0}</b> шт.",
-				guilties.Sum(o => (int)o[1])
-			);
+			lblTotalUndeliveredOrders.Markup = 
+				$"Заказов: <b>{guilties.Sum(o => (int) o[1])}</b> шт.";
 		}
 
 		#region Queries
@@ -177,7 +174,7 @@ namespace Vodovoz.SidePanel.InfoViews
 										 )
 							  .List<object[]>()
 							  .GroupBy(x => x[1])
-							  .Select(r => new[] { r.Key, r.Count(), position++, r.Sum(x => x[2] == null ? 0 : (int)x[2]) })
+							  .Select(r => new[] { r.Key, r.Count(), position++, r.Sum(x => x[2] == null ? 0 : (decimal)x[2]) })
 							  .ToList();
 			return result;
 		}

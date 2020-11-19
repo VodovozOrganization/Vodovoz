@@ -13,7 +13,7 @@
   <BottomMargin>10mm</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>select
@@ -259,7 +259,7 @@ order by docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="doc_id">
           <DataField>doc_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -896,6 +896,7 @@ WHERE
                             <FontFamily>Arial</FontFamily>
                             <FontSize>9pt</FontSize>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format >#,##0.00</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1342,6 +1343,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1520,6 +1522,7 @@ WHERE
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1806,6 +1809,7 @@ ____________(                        )
           <BorderWidth />
           <TextAlign>Left</TextAlign>
           <FontWeight>Bold</FontWeight>
+          <Format >#,##0.00</Format>
         </Style>
       </Textbox>
     </ReportItems>

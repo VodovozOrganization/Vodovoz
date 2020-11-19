@@ -644,7 +644,7 @@ namespace Vodovoz
 					.AddSetter((c, n) => c.Editable = n.PromoSet == null)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
-									? new Adjustment(0, 0, (double)n.Price * n.CurrentCount, 1, 100, 1)
+									? new Adjustment(0, 0, (double)(n.Price * n.CurrentCount), 1, 100, 1)
 									: new Adjustment(0, 0, 100, 1, 100, 1)
 					)
 					.AddSetter((c, n) => {
@@ -1491,7 +1491,7 @@ namespace Vodovoz
 			TryAddNomenclature(e.Subject as Nomenclature);
 		}
 
-		void TryAddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
+		void TryAddNomenclature(Nomenclature nomenclature, decimal count = 0, decimal discount = 0, DiscountReason discountReason = null)
 		{
 			if(Entity.IsLoadedFrom1C)
 				return;
@@ -2674,11 +2674,12 @@ namespace Vodovoz
 					if(oItem != null && oItem.Count > 0 && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 						OnFormOrderActions();
 					
-					if(oItem == null || oItem.PaidRentEquipment == null) {
+					if(oItem?.PaidRentEquipment == null) {
 						return;
 					}
+					
 					if(oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
-						ChangeEquipmentsCount(oItem, oItem.Count);
+						ChangeEquipmentsCount(oItem, (int)oItem.Count);
 					}
 				}
 			}
@@ -2727,7 +2728,7 @@ namespace Vodovoz
 		
 		/// <summary>
 		/// Меняет количество оборудования в списке оборудования заказа, в списке 
-		/// товаров заказа, в списке оборудования дополнитульного соглашения и 
+		/// товаров заказа, в списке оборудования дополнительного соглашения и 
 		/// меняет количество залогов за оборудование в списке товаров заказа
 		/// </summary>
 		void ChangeEquipmentsCount(OrderItem orderItem, int newCount)

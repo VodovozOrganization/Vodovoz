@@ -73,7 +73,7 @@ namespace VodovozSalesReceiptsService
 				}
 
 				if(withoutReceipts.Any()) {
-					var ordersWithoutReceipts = uow.GetById<Order>(withoutReceipts.Select(n => n.OrderId));
+					var ordersWithoutReceipts = uow.GetById<Order>(withoutReceipts.Select(n => n.OrderId).Take(50));
 					foreach(var o in ordersWithoutReceipts) {
 						logger.Info(string.Format("Подготовка документа \"№{0}\" к отправке...", o.Id));
 						var newReceipt = new CashReceipt { Order = o };
