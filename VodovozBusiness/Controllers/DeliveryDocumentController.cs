@@ -61,7 +61,7 @@ namespace Vodovoz.Controllers
                 if(deliveryDocument.Author == null)
                     deliveryDocument.Author = employeeForCurrentUser;
                     
-                if(deliveryDocument.TimeStamp == default)
+                if(deliveryDocument.TimeStamp == default(DateTime))
                     deliveryDocument.TimeStamp = DateTime.Now;
                 
                 deliveryDocument.LastEditor = employeeForCurrentUser;

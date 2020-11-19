@@ -51,7 +51,7 @@ namespace Vodovoz.Controllers
             if(transferDocument.Author == null)
                 transferDocument.Author = employeeForCurrentUser;
             
-            if(transferDocument.TimeStamp == default)
+            if(transferDocument.TimeStamp == default(DateTime))
                 transferDocument.TimeStamp = DateTime.Now;
                 
             transferDocument.LastEditor = employeeForCurrentUser;
