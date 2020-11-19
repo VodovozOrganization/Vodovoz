@@ -13,82 +13,82 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="RouteLists">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	route_lists.id AS routeListId,
-	route_lists.date AS routeListDate,
-	route_lists.logisticians_comment as logisticians_comment,
-	route_lists.driver_id,
-	CONCAT_WS(' ',
-			employees.last_name,
-			IF(employees.name = '',
-				NULL,
-				employees.name),
-			IF(employees.patronymic = '',
-				NULL,
-				employees.patronymic)) AS driver_name,
-	IFNULL((SELECT 
-					SUM(total_cash) - IFNULL(money, 0) - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected))
-				FROM
-					route_list_addresses
-				WHERE
-					route_list_addresses.status = 'Completed'
-						AND route_list_addresses.route_list_id = routeListId),
-			0) AS nal,
-	(SELECT 
-			SUM(order_items.count)
-		FROM
-			route_list_addresses
-				LEFT JOIN
-			orders ON orders.id = route_list_addresses.order_id
-				LEFT JOIN
-			order_items ON order_items.order_id = orders.id
-				LEFT JOIN
-			nomenclature ON nomenclature.id = order_items.nomenclature_id
-		WHERE
-			nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
-				AND route_list_addresses.route_list_id = routeListId) AS bottles,
-	SUM(IFNULL(orders.bottles_return, 0)) AS planned_returned_bottles,
-	(SELECT 
-			ROUND(IFNULL(SUM(warehouse_movement_operations.amount),
-								0))
-		FROM
-			warehouse_movement_operations
-				LEFT JOIN
-			store_car_unload_document_items ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
-				LEFT JOIN
-			store_car_unload_documents ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
-				LEFT JOIN
-			nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
-		WHERE
-			nomenclature.category = 'bottle'
-				AND store_car_unload_documents.route_list_id = routeListId) AS returned_bottles,
-	closing_comment
+    route_lists.id AS routeListId,
+    route_lists.date AS routeListDate,
+    route_lists.logisticians_comment as logisticians_comment,
+    route_lists.driver_id,
+    CONCAT_WS(' ',
+              employees.last_name,
+              IF(employees.name = '',
+                 NULL,
+                 employees.name),
+              IF(employees.patronymic = '',
+                 NULL,
+                 employees.patronymic)) AS driver_name,
+    IFNULL((SELECT
+                    SUM(total_cash) - IFNULL(money, 0) - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected))
+            FROM
+                route_list_addresses
+            WHERE
+                    route_list_addresses.status = 'Completed'
+              AND route_list_addresses.route_list_id = routeListId),
+           0) AS nal,
+    (SELECT 
+         cast(SUM(order_items.count) as SIGNED)
+     FROM
+         route_list_addresses
+             LEFT JOIN
+         orders ON orders.id = route_list_addresses.order_id
+             LEFT JOIN
+         order_items ON order_items.order_id = orders.id
+             LEFT JOIN
+         nomenclature ON nomenclature.id = order_items.nomenclature_id
+     WHERE
+             nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
+       AND route_list_addresses.route_list_id = routeListId) AS bottles,
+    SUM(IFNULL(orders.bottles_return, 0)) AS planned_returned_bottles,
+    (SELECT
+         ROUND(IFNULL(SUM(warehouse_movement_operations.amount),
+                      0))
+     FROM
+         warehouse_movement_operations
+             LEFT JOIN
+         store_car_unload_document_items ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+             LEFT JOIN
+         store_car_unload_documents ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
+             LEFT JOIN
+         nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+     WHERE
+             nomenclature.category = 'bottle'
+       AND store_car_unload_documents.route_list_id = routeListId) AS returned_bottles,
+    closing_comment
 FROM
-	route_lists
-LEFT JOIN
-	employees ON employees.id = route_lists.driver_id
-LEFT JOIN
-	route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-LEFT JOIN
-	orders ON route_list_addresses.order_id = orders.id
-LEFT JOIN
-	cash_income ON cash_income.route_list_id = route_list_addresses.route_list_id
-LEFT JOIN
-	cars ON cars.id = route_lists.car_id
+    route_lists
+        LEFT JOIN
+    employees ON employees.id = route_lists.driver_id
+        LEFT JOIN
+    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+        LEFT JOIN
+    orders ON route_list_addresses.order_id = orders.id
+        LEFT JOIN
+    cash_income ON cash_income.route_list_id = route_list_addresses.route_list_id
+        LEFT JOIN
+    cars ON cars.id = route_lists.car_id
 WHERE
-	route_lists.status IN ('OnClosing', 'MileageCheck')
-	# скрыть сегодняшние МЛ
-	AND ((@todayRloff = 1 AND route_lists.date &lt; CURDATE()) OR @todayRloff = 0)
-	# скрыть МЛ с фурами
-	AND ((@RemTruckRLs = 1 AND !(cars.type_of_use IS NOT NULL AND cars.type_of_use = 'CompanyTruck')) OR @RemTruckRLs = 0)
-	# скрыть МЛ с выездными мастерами
-	AND ((@RemServiceRLs = 1 AND employees.visiting_master = 0) OR @RemServiceRLs = 0)
-	# скрыть МЛ наёмников (наёмник = не мастер, не фура, не собственность компании)
-	AND ((@RemMercRLs = 1 AND (employees.visiting_master = 1 OR cars.type_of_use = 'CompanyTruck')) OR @RemMercRLs = 0)
+        route_lists.status IN ('Delivered', 'OnClosing', 'MileageCheck')
+  # скрыть сегодняшние МЛ
+  AND ((@todayRloff = 1 AND route_lists.date &lt; CURDATE()) OR @todayRloff = 0)
+  # скрыть МЛ с фурами
+  AND ((@RemTruckRLs = 1 AND !(cars.type_of_use IS NOT NULL AND cars.type_of_use = 'CompanyTruck')) OR @RemTruckRLs = 0)
+  # скрыть МЛ с выездными мастерами
+  AND ((@RemServiceRLs = 1 AND employees.visiting_master = 0) OR @RemServiceRLs = 0)
+  # скрыть МЛ наёмников (наёмник = не мастер, не фура, не собственность компании)
+  AND ((@RemMercRLs = 1 AND (employees.visiting_master = 1 OR cars.type_of_use = 'CompanyTruck')) OR @RemMercRLs = 0)
 GROUP BY routeListId
-ORDER BY routeListDate, routeListId  
+ORDER BY routeListDate, routeListId
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="@todayRloff">
@@ -105,7 +105,7 @@ ORDER BY routeListDate, routeListId
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="routeListId">
           <DataField>routeListId</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -323,8 +323,8 @@ ORDER BY routeListDate, routeListId
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -343,8 +343,8 @@ ORDER BY routeListDate, routeListId
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -364,8 +364,8 @@ ORDER BY routeListDate, routeListId
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -497,7 +497,7 @@ ORDER BY routeListDate, routeListId
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -530,6 +530,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -578,8 +579,8 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop >20pt</PaddingTop>
-                        <PaddingBottom >0pt</PaddingBottom>
+                        <PaddingTop>20pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -681,6 +682,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
