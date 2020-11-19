@@ -140,9 +140,9 @@ namespace Vodovoz.Repositories
 				}
 				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.Category.IsIn(parsedCategories));
 			}
-			if(productGroupToInclude.Length > 0)
+			if(productGroupToInclude != null && productGroupToInclude.Any())
 				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.ProductGroup.Id.IsIn(productGroupToInclude));
-			if(nomenclaturesToInclude.Length > 0)
+			if(nomenclaturesToInclude != null && nomenclaturesToInclude.Any())
 				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.Id.IsIn(nomenclaturesToInclude));
 			if(onDate.HasValue)
 				subqueryAdd = subqueryAdd.Where(x => x.OperationTime < onDate.Value);
@@ -161,9 +161,9 @@ namespace Vodovoz.Repositories
 				}
 				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Category.IsIn(parsedCategories));
 			}
-			if(productGroupToExclude.Length > 0)
+			if(productGroupToExclude != null && productGroupToExclude.Any())
 				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.ProductGroup.IsIn(productGroupToExclude));
-			if(nomenclaturesToExclude != null)
+			if(nomenclaturesToExclude != null && nomenclaturesToExclude.Any())
 				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Id.IsIn(nomenclaturesToExclude));
 			if(onDate.HasValue)
 				subqueryRemove = subqueryRemove.Where(x => x.OperationTime < onDate.Value);
