@@ -902,7 +902,9 @@ namespace Vodovoz.Domain.Logistic
 					}
 					break;
 				case RouteListStatus.Closed:
-					if(Status == RouteListStatus.OnClosing || Status == RouteListStatus.MileageCheck) {
+					if(Status == RouteListStatus.OnClosing
+					|| Status == RouteListStatus.MileageCheck
+					|| Status == RouteListStatus.Delivered) {
 						Status = newStatus;
 						CloseAddressesAndCreateTask(callTaskWorker);
 					} else {
@@ -1004,7 +1006,9 @@ namespace Vodovoz.Domain.Logistic
 					}
 					break;
 				case RouteListStatus.Closed:
-					if(Status == RouteListStatus.OnClosing || Status == RouteListStatus.MileageCheck) {
+					if(Status == RouteListStatus.OnClosing 
+					|| Status == RouteListStatus.MileageCheck
+					|| Status == RouteListStatus.Delivered) {
 						Status = newStatus;
 						CloseAddresses();
 					} else {
