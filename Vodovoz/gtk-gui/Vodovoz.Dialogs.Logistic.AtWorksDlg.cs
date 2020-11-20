@@ -8,17 +8,17 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.HBox hbox8;
 
-		private global::Gtk.HBox hbox9;
-
-		private global::Gtk.Label label1;
-
-		private global::QS.Widgets.GtkUI.DatePicker ydateAtWorks;
-
 		private global::Gtk.HBox hbox4;
 
 		private global::Gtk.Button buttonSaveChanges;
 
 		private global::Gtk.Button buttonCancelChanges;
+
+		private global::Gtk.HBox hbox9;
+
+		private global::Gtk.Label label1;
+
+		private global::QS.Widgets.GtkUI.DatePicker ydateAtWorks;
 
 		private global::Gtk.HBox hbox2;
 
@@ -79,6 +79,40 @@ namespace Vodovoz.Dialogs.Logistic
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
+			this.hbox4 = new global::Gtk.HBox();
+			this.hbox4.Name = "hbox4";
+			this.hbox4.Spacing = 6;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.buttonSaveChanges = new global::Gtk.Button();
+			this.buttonSaveChanges.CanFocus = true;
+			this.buttonSaveChanges.Name = "buttonSaveChanges";
+			this.buttonSaveChanges.UseUnderline = true;
+			this.buttonSaveChanges.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			global::Gtk.Image w1 = new global::Gtk.Image();
+			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-floppy", global::Gtk.IconSize.Menu);
+			this.buttonSaveChanges.Image = w1;
+			this.hbox4.Add(this.buttonSaveChanges);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonSaveChanges]));
+			w2.Position = 0;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.buttonCancelChanges = new global::Gtk.Button();
+			this.buttonCancelChanges.CanFocus = true;
+			this.buttonCancelChanges.Name = "buttonCancelChanges";
+			this.buttonCancelChanges.UseUnderline = true;
+			this.buttonCancelChanges.Label = global::Mono.Unix.Catalog.GetString("Отменить");
+			global::Gtk.Image w3 = new global::Gtk.Image();
+			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.buttonCancelChanges.Image = w3;
+			this.hbox4.Add(this.buttonCancelChanges);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonCancelChanges]));
+			w4.PackType = ((global::Gtk.PackType)(1));
+			w4.Position = 1;
+			this.hbox8.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.hbox4]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
 			this.hbox9 = new global::Gtk.HBox();
 			this.hbox9.Name = "hbox9";
 			this.hbox9.Spacing = 6;
@@ -88,9 +122,9 @@ namespace Vodovoz.Dialogs.Logistic
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
 			this.hbox9.Add(this.label1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.label1]));
-			w1.Position = 0;
-			w1.Expand = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.label1]));
+			w6.Position = 0;
+			w6.Expand = false;
 			// Container child hbox9.Gtk.Box+BoxChild
 			this.ydateAtWorks = new global::QS.Widgets.GtkUI.DatePicker();
 			this.ydateAtWorks.Events = ((global::Gdk.EventMask)(256));
@@ -101,47 +135,12 @@ namespace Vodovoz.Dialogs.Logistic
 			this.ydateAtWorks.IsEditable = true;
 			this.ydateAtWorks.AutoSeparation = true;
 			this.hbox9.Add(this.ydateAtWorks);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ydateAtWorks]));
-			w2.Position = 1;
-			this.hbox8.Add(this.hbox9);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.hbox9]));
-			w3.Position = 0;
-			w3.Expand = false;
-			// Container child hbox8.Gtk.Box+BoxChild
-			this.hbox4 = new global::Gtk.HBox();
-			this.hbox4.Name = "hbox4";
-			this.hbox4.Spacing = 6;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonSaveChanges = new global::Gtk.Button();
-			this.buttonSaveChanges.CanFocus = true;
-			this.buttonSaveChanges.Name = "buttonSaveChanges";
-			this.buttonSaveChanges.UseUnderline = true;
-			this.buttonSaveChanges.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			global::Gtk.Image w4 = new global::Gtk.Image();
-			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-floppy", global::Gtk.IconSize.Menu);
-			this.buttonSaveChanges.Image = w4;
-			this.hbox4.Add(this.buttonSaveChanges);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonSaveChanges]));
-			w5.Position = 0;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonCancelChanges = new global::Gtk.Button();
-			this.buttonCancelChanges.CanFocus = true;
-			this.buttonCancelChanges.Name = "buttonCancelChanges";
-			this.buttonCancelChanges.UseUnderline = true;
-			this.buttonCancelChanges.Label = global::Mono.Unix.Catalog.GetString("Отменить");
-			global::Gtk.Image w6 = new global::Gtk.Image();
-			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
-			this.buttonCancelChanges.Image = w6;
-			this.hbox4.Add(this.buttonCancelChanges);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonCancelChanges]));
-			w7.PackType = ((global::Gtk.PackType)(1));
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ydateAtWorks]));
 			w7.Position = 1;
-			this.hbox8.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.hbox4]));
-			w8.PackType = ((global::Gtk.PackType)(1));
-			w8.Position = 2;
+			this.hbox8.Add(this.hbox9);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.hbox9]));
+			w8.Position = 1;
 			w8.Expand = false;
-			w8.Fill = false;
 			this.vbox1.Add(this.hbox8);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox8]));
 			w9.Position = 0;
@@ -385,9 +384,9 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 			this.districtpriorityview1.Hide();
 			this.Hide();
-			this.ydateAtWorks.DateChanged += new global::System.EventHandler(this.OnYdateAtWorksDateChanged);
 			this.buttonSaveChanges.Clicked += new global::System.EventHandler(this.OnButtonSaveChangesClicked);
 			this.buttonCancelChanges.Clicked += new global::System.EventHandler(this.OnButtonCancelChangesClicked);
+			this.ydateAtWorks.DateChanged += new global::System.EventHandler(this.OnYdateAtWorksDateChanged);
 			this.btnAddWorkingDrivers.Clicked += new global::System.EventHandler(this.OnButtonAddWorkingDriversClicked);
 			this.buttonAddDriver.Clicked += new global::System.EventHandler(this.OnButtonAddDriverClicked);
 			this.buttonOpenDriver.Clicked += new global::System.EventHandler(this.OnButtonOpenDriverClicked);
