@@ -265,7 +265,7 @@ namespace Vodovoz.ViewModels.Warehouses
                                         var count = item.Count > nomsAmount[item.Nomenclature.Id]
                                             ? nomsAmount[item.Nomenclature.Id]
                                             : item.Count;
-                                        if (count == 0)
+                                        if ((count == 0) && item.Nomenclature.OnlineStore == null)
                                             continue;
                                         
                                         if (item.Nomenclature.Category == NomenclatureCategory.service || item.Nomenclature.Category == NomenclatureCategory.master)
