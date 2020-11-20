@@ -56,6 +56,7 @@ namespace Vodovoz.Additions.Logistic
 			bool isClosed = false;
 
 			switch(routeList.Status) {
+				case RouteListStatus.Delivered:
 				case RouteListStatus.OnClosing:
 				case RouteListStatus.MileageCheck:
 				case RouteListStatus.Closed:
