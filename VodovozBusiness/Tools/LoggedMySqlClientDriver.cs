@@ -1,7 +1,6 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Globalization;
 using System.Linq;
 using NHibernate.Driver;
 using NLog;
@@ -30,15 +29,13 @@ namespace Vodovoz.Tools
 			
 			foreach (DbParameter parameter in dbCommand.Parameters) {
 				string parameterValue;
-
+				
 				if(parameter.DbType == DbType.Date || parameter.DbType == DbType.DateTime) {
-					parameterValue = DateTime.Parse(parameter.Value.ToString(), CultureInfo.InvariantCulture)
-						.ToString("yyyy-MM-dd hh:mm:ss");
+					parameterValue = ((DateTime)parameter.Value).ToString("yyyy-MM-dd hh:mm:ss");
 				}
 				else {
 					parameterValue = parameter.Value.ToString();
 				}
-
 				parameterValue = typesWithQuotes.Contains(parameter.DbType) ? "'" + parameterValue + "'" : parameterValue;
 				parametersText += $"SET @{parameter.ParameterName.TrimStart('?')} = {parameterValue};{Environment.NewLine}";
 			}
