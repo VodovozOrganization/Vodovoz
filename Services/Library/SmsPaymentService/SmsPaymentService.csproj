@@ -64,6 +64,7 @@
         <Compile Include="SmsPaymentServiceSetting.cs" />
         <Compile Include="OverduePaymentsWorker.cs" />
         <Compile Include="CachePaymentsWorker.cs" />
+        <Compile Include="TestPaymentController.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\InstantSmsService\InstantSmsService.csproj">

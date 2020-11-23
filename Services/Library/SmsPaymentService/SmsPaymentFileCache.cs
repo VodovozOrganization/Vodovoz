@@ -26,7 +26,7 @@ namespace SmsPaymentService
         private readonly string filePath;
         private readonly Object locker = new Object();
 
-        public void WritePaymentCache(int smsPaymentId, int externalId)
+        public void WritePaymentCache(int? smsPaymentId, int? externalId)
         {
             lock (locker) {
                 var cache = JsonConvert.DeserializeObject<List<SmsPaymentCacheDTO>>(File.ReadAllText(filePath));
@@ -48,7 +48,8 @@ namespace SmsPaymentService
                 var cache = JsonConvert.DeserializeObject<List<SmsPaymentCacheDTO>>(File.ReadAllText(filePath));
 
                 var newContent = JsonConvert.SerializeObject(
-                    cache.Where(x => cachesToRemove.All(j => j.PaymentId != x.PaymentId)));
+                    cache.Where(x => 
+                        !cachesToRemove.Any(j => j.PaymentId == x.PaymentId && j.ExternalId == x.ExternalId)));
                 File.WriteAllText(filePath, newContent);
             }
         }
