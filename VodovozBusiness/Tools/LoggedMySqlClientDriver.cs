@@ -29,8 +29,8 @@ namespace Vodovoz.Tools
 			
 			foreach (DbParameter parameter in dbCommand.Parameters) {
 				string parameterValue;
-				
-				if(parameter.DbType == DbType.Date || parameter.DbType == DbType.DateTime) {
+
+				if(parameter.Value != DBNull.Value && (parameter.DbType == DbType.Date || parameter.DbType == DbType.DateTime)) {
 					parameterValue = ((DateTime)parameter.Value).ToString("yyyy-MM-dd hh:mm:ss");
 				}
 				else {
