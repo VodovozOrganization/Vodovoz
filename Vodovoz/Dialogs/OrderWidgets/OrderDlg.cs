@@ -1337,25 +1337,9 @@ namespace Vodovoz
 							   Entity.Client,
 							   Entity.Client.PersonType,
 							   Entity.PaymentType);
-			if(!contract.RepairAgreementExists()) {
-				RunRepairAgreementCreateDialog(contract);
-				return;
-			}
 			selected.FinalOrder = Entity;
 			Entity.ObservableFinalOrderService.Add(selected);
 			//TODO Add service nomenclature with price.
-		}
-
-		private void RunRepairAgreementCreateDialog(CounterpartyContract contract)
-		{
-			ITdiTab dlg;
-			string question = "Отсутствует доп. соглашение сервиса с клиентом в текущем договоре. Создать?";
-			if(MessageDialogHelper.RunQuestionDialog(question)) {
-				dlg = new RepairAgreementDlg(contract);
-				(dlg as IAgreementSaved).AgreementSaved += (sender, e) =>
-					Entity.CreateOrderAgreementDocument(e.Agreement);
-				TabParent.AddSlaveTab(this, dlg);
-			}
 		}
 
 		void TreeServiceClaim_Selection_Changed(object sender, EventArgs e)

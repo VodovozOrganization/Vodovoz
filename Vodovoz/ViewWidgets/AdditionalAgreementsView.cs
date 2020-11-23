@@ -84,14 +84,6 @@ namespace Vodovoz
 			case AgreementType.EquipmentSales:
 				dlg = new EquipSalesAgreementDlg(AgreementUoW.Root);
 				break;
-			case AgreementType.Repair:
-				if (AgreementUoW.Root.RepairAgreementExists ()) {
-					MessageDialogWorks.RunWarningDialog ("Доп. соглашение на ремонт оборудования уже существует. " +
-					"Нельзя создать более одного доп. соглашения данного типа.");
-					return;
-				}
-				dlg = new RepairAgreementDlg (AgreementUoW.Root);
-				break;
 			default:
 				throw new NotSupportedException (String.Format ("Тип {0} пока не поддерживается.", type));
 			}

@@ -627,9 +627,7 @@
     <Compile Include="Dialogs\Client\NonFreeRentAgreementDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FreeRentAgreementDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.NonFreeRentAgreementDlg.cs" />
-    <Compile Include="Dialogs\Client\RepairAgreementDlg.cs" />
     <Compile Include="Dialogs\Client\WaterAgreementDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RepairAgreementDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WaterAgreementDlg.cs" />
     <Compile Include="Representations\ClientDeliveryPointsVM.cs" />
     <Compile Include="Representations\DeliveryPointsVM.cs" />

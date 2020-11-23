@@ -114,7 +114,6 @@ namespace Vodovoz.ViewModel
 			typeof(DailyRentAgreement), 
 			typeof(FreeRentAgreement), 
 			typeof(NonfreeRentAgreement),
-			typeof(RepairAgreement),
 			typeof(WaterSalesAgreement))
 		{
 			this.UoW = uow;
@@ -124,7 +123,6 @@ namespace Vodovoz.ViewModel
 			typeof(DailyRentAgreement), 
 			typeof(FreeRentAgreement), 
 			typeof(NonfreeRentAgreement),
-			typeof(RepairAgreement),
 			typeof(WaterSalesAgreement))
 		{
 			UoW = uow;

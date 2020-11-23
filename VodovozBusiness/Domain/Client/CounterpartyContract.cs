@@ -264,14 +264,6 @@ namespace Vodovoz.Domain.Client
 									   ;
 		}
 
-		public virtual bool RepairAgreementExists()
-		{
-			if(AdditionalAgreements == null || !AdditionalAgreements.Any())
-				return false;
-
-			return AdditionalAgreements.Any(a => a.Type == AgreementType.Repair && !a.IsCancelled);
-		}
-
 		/// <summary>
 		/// Updates template for the contract.
 		/// </summary>
