@@ -502,11 +502,7 @@ namespace Vodovoz.Dialogs.Logistic
 					MessageDialogHelper.RunWarningDialog("Не у всех снятых водителей указаны причины!");
 					return false;
 				}
-			
-			else
-				DriversAtDay.ToList().ForEach(x => UoW.Save(x));
-			
-			
+
 			// Сохранение изменившихся за этот раз авторов и дат комментариев
 			foreach (var atWorkDriver in driversWithCommentChanged)
 			{
@@ -515,6 +511,7 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 			driversWithCommentChanged.Clear();
 			ForwardersAtDay.ToList().ForEach(x => UoW.Save(x));
+			DriversAtDay.ToList().ForEach(x => UoW.Save(x));
 			UoW.Commit();
 			FillDialogAtDay();
 			return true;
