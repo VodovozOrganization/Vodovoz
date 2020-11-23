@@ -46,7 +46,6 @@ namespace Vodovoz
 			this.Build ();
 			buttonAdd.ItemsEnum = typeof(AgreementType);
 			buttonAdd.SetSensitive (AgreementType.FreeRent, false);
-			buttonAdd.SetSensitive (AgreementType.DailyRent, false);
 			buttonAdd.SetSensitive (AgreementType.NonfreeRent, false);
 			treeAdditionalAgreements.Selection.Changed += OnSelectionChanged;
 		}
@@ -77,9 +76,6 @@ namespace Vodovoz
 				break;
 			case AgreementType.WaterSales:
 				dlg = new WaterAgreementDlg (AgreementUoW.Root);
-				break;
-			case AgreementType.DailyRent:
-				dlg = new DailyRentAgreementDlg (AgreementUoW.Root);
 				break;
 			default:
 				throw new NotSupportedException (String.Format ("Тип {0} пока не поддерживается.", type));

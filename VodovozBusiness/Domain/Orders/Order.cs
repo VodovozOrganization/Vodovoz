@@ -1001,7 +1001,6 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				if(item.AdditionalAgreement.Self is NonfreeRentAgreement
-				  || item.AdditionalAgreement.Self is DailyRentAgreement
 				  || item.AdditionalAgreement.Self is FreeRentAgreement
 				  ) {
 					item.AdditionalAgreement.Self.Contract = Contract;
@@ -1280,9 +1279,6 @@ namespace Vodovoz.Domain.Orders
 				switch(agr.Type) {
 					case AgreementType.NonfreeRent:
 						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
-						break;
-					case AgreementType.DailyRent:
-						AgreementTransfer<DailyRentAgreement>(out uowAggr, agr.Id, actualContract);
 						break;
 					case AgreementType.FreeRent:
 						AgreementTransfer<FreeRentAgreement>(out uowAggr, agr.Id, actualContract);
@@ -2386,18 +2382,12 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void FillItemsFromAgreement(AdditionalAgreement a, int count = -1, decimal discount = -1, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
 		{
-			if(a.Type == AgreementType.DailyRent || a.Type == AgreementType.NonfreeRent) {
+			if(a.Type == AgreementType.NonfreeRent) {
 				IList<PaidRentEquipment> paidRentEquipmentList;
 				bool isDaily = false;
 				int rentCount = 0;
-				if(a.Type == AgreementType.DailyRent) {
-					paidRentEquipmentList = (a.Self as DailyRentAgreement).Equipment;
-					rentCount = (a.Self as DailyRentAgreement).RentDays;
-					isDaily = true;
-				} else {
-					paidRentEquipmentList = (a.Self as NonfreeRentAgreement).PaidRentEquipments;
-					rentCount = (a.Self as NonfreeRentAgreement).RentMonths ?? 0;
-				}
+				paidRentEquipmentList = (a.Self as NonfreeRentAgreement).PaidRentEquipments;
+				rentCount = (a.Self as NonfreeRentAgreement).RentMonths ?? 0;
 
 				foreach(PaidRentEquipment paidRentEquipment in paidRentEquipmentList) {
 					int itemId;

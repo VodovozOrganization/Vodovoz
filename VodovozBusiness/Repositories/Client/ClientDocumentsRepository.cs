@@ -51,45 +51,6 @@ namespace Vodovoz.Repositories.Client
 		}
 
 		/// <summary>
-		/// Создает дополнительное соглашение для посуточной аренды оборудования
-		/// </summary>
-		public static DailyRentAgreement CreateDefaultDailyRentAgreement(IUnitOfWork UoW, 
-		                                                                     DeliveryPoint deliveryPoint, 
-		                                                                     DateTime? deliveryDate, 
-		                                                                     CounterpartyContract contract,
-		                                                                     List<PaidRentEquipment> equipments,
-		                                                                     int rentDays)
-		{
-			if(equipments.Count == 0) {
-				throw new ArgumentException("При автоматическом создании дополнительного соглашения " +
-				                            "аренды оборудования, список должен иметь оборудование для аренды");
-			}
-			DailyRentAgreement result = null;
-			using(var uow = DailyRentAgreement.Create(contract)) {
-				uow.Root.DeliveryPoint = deliveryPoint;
-				if(deliveryDate.HasValue) {
-					uow.Root.IssueDate = deliveryDate.Value;
-					uow.Root.StartDate = deliveryDate.Value;
-				}
-				uow.Root.RentDays = rentDays;
-				foreach(var item in equipments) {
-					uow.Root.ObservableEquipment.Add( new PaidRentEquipment(){
-						Count = item.Count,
-						Deposit = item.Deposit,
-						Price = item.Price,
-						Equipment = item.Equipment,
-						IsNew = item.IsNew,
-						Nomenclature = item.Nomenclature,
-						PaidRentPackage = item.PaidRentPackage
-					});
-				}
-				uow.Save();
-				result = UoW.GetById<DailyRentAgreement>(uow.Root.Id);
-			}
-			return result;
-		}
-
-		/// <summary>
 		/// Создает дополнительное соглашение для долгосрочной аренды оборудования
 		/// </summary>
 		public static NonfreeRentAgreement CreateDefaultNonfreeRentAgreement(IUnitOfWork UoW,

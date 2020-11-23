@@ -82,19 +82,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 			labelNextService.Text = nextServiceText;
 			var agreements = AdditionalAgreementRepository.GetActiveAgreementsForDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
-			var dailyAgreements = agreements
-				.OfType<DailyRentAgreement>()
-				.OrderBy(a => a.EndDate);
-			vboxRent.Visible = dailyAgreements.Any();
-			var rentText = string.Join(
-				"\n",
-				dailyAgreements.Select(a => string.Format(
-					"{0} - A до {1}",
-					a.AgreementNumber,
-					a.EndDate.ToShortDateString()
-				)).ToArray()
-			);
-			labelRent.Text = rentText;
 			var freeRent = agreements.OfType<FreeRentAgreement>();
 			var requiredBottlesThisMonth = freeRent.SelectMany(a => a.Equipment).Sum(eq => eq.WaterAmount);
 			var monthStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);

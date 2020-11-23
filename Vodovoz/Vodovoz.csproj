@@ -463,8 +463,6 @@
     <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterMaterialView.cs" />
     <Compile Include="ViewWidgets\PaidRentPackagesView.cs" />
-    <Compile Include="ViewWidgets\DailyRentPackagesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.DailyRentPackagesView.cs" />
     <Compile Include="Dialogs\CommentTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CommentTemplateDlg.cs" />
     <Compile Include="Representations\AdditionalAgreementsVM.cs" />
@@ -621,9 +619,7 @@
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
     <Compile Include="Representations\EquipmentTypesForRentVM.cs" />
-    <Compile Include="Dialogs\Client\DailyRentAgreementDlg.cs" />
     <Compile Include="Dialogs\Client\FreeRentAgreementDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.DailyRentAgreementDlg.cs" />
     <Compile Include="Dialogs\Client\NonFreeRentAgreementDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FreeRentAgreementDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.NonFreeRentAgreementDlg.cs" />

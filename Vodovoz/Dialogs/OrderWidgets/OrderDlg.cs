@@ -1571,9 +1571,6 @@ namespace Vodovoz
 					case OrderAgreementType.NonfreeRent:
 						lastChosenAction = LastChosenAction.NonFreeRentAgreement;
 						break;
-					case OrderAgreementType.DailyRent:
-						lastChosenAction = LastChosenAction.DailyRentAgreement;
-						break;
 					default:
 						lastChosenAction = LastChosenAction.FreeRentAgreement;
 						break;
@@ -1682,7 +1679,6 @@ namespace Vodovoz
 		private void RemoveOrderItem(OrderItem item)
 		{
 			var types = new AgreementType[] {
-					AgreementType.DailyRent,
 					AgreementType.FreeRent,
 					AgreementType.NonfreeRent
 				};
@@ -1728,9 +1724,6 @@ namespace Vodovoz
 				switch(agreement.Type) {
 					case AgreementType.NonfreeRent:
 						agreementType = typeof(NonfreeRentAgreement);
-						break;
-					case AgreementType.DailyRent:
-						agreementType = typeof(DailyRentAgreement);
 						break;
 					case AgreementType.FreeRent:
 						agreementType = typeof(FreeRentAgreement);
@@ -1854,16 +1847,6 @@ namespace Vodovoz
 					};
 					refWin.ObjectSelected += (sender, e) => {
 						dlg = new NonFreeRentAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate, (e.Subject as PaidRentPackage));
-						RunAgreementDialog(dlg);
-					};
-					TabParent.AddTab(refWin, this);
-					break;
-				case OrderAgreementType.DailyRent:
-					refWin = new OrmReference(typeof(PaidRentPackage)) {
-						Mode = OrmReferenceMode.Select
-					};
-					refWin.ObjectSelected += (sender, e) => {
-						dlg = new DailyRentAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate, (e.Subject as PaidRentPackage));
 						RunAgreementDialog(dlg);
 					};
 					TabParent.AddTab(refWin, this);
@@ -2597,9 +2580,6 @@ namespace Vodovoz
 				case LastChosenAction.NonFreeRentAgreement:
 					AddRentAgreement(OrderAgreementType.NonfreeRent);
 					break;
-				case LastChosenAction.DailyRentAgreement:
-					AddRentAgreement(OrderAgreementType.DailyRent);
-					break;
 				case LastChosenAction.FreeRentAgreement:
 					AddRentAgreement(OrderAgreementType.FreeRent);
 					break;
@@ -2627,7 +2607,6 @@ namespace Vodovoz
 
 			var deleteTypes = new AgreementType[] {
 				AgreementType.WaterSales,
-				AgreementType.DailyRent,
 				AgreementType.FreeRent,
 				AgreementType.NonfreeRent
 			};
