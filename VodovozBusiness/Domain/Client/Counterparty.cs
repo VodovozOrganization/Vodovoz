@@ -600,6 +600,24 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref alwaysSendReceitps, value);
 		}
 
+		private IList<NomenclatureFixedPrice> fixedPrices = new List<NomenclatureFixedPrice>();
+		[Display(Name = "Фиксированные цены")]
+		public virtual IList<NomenclatureFixedPrice> FixedPrices {
+			get => fixedPrices;
+			set => SetField(ref fixedPrices, value);
+		}
+
+		private GenericObservableList<NomenclatureFixedPrice> observableFixedPrices;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<NomenclatureFixedPrice> ObservableFixedPrices {
+			get {
+				if (observableFixedPrices == null)
+					observableFixedPrices = new GenericObservableList<NomenclatureFixedPrice>(FixedPrices);
+				return observableFixedPrices;
+			}
+		}
+		
+
 		#region Calculated Properties
 
 		public virtual string RawJurAddress {
