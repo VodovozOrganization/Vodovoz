@@ -263,7 +263,7 @@ namespace Vodovoz
 
 		protected void OnYspinMoneyFocusInEvent(object o, Gtk.FocusInEventArgs args)
 		{
-			if(yspinMoney.Text == "0,00")
+			if(yspinMoney.ValueAsDecimal == Decimal.Zero)
 				yspinMoney.Text = "";
 		}
 	}
