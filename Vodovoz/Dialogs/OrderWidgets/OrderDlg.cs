@@ -1682,7 +1682,6 @@ namespace Vodovoz
 		private void RemoveOrderItem(OrderItem item)
 		{
 			var types = new AgreementType[] {
-					AgreementType.EquipmentSales,
 					AgreementType.DailyRent,
 					AgreementType.FreeRent,
 					AgreementType.NonfreeRent
@@ -1735,9 +1734,6 @@ namespace Vodovoz
 						break;
 					case AgreementType.FreeRent:
 						agreementType = typeof(FreeRentAgreement);
-						break;
-					case AgreementType.EquipmentSales:
-						agreementType = typeof(SalesEquipmentAgreement);
 						break;
 					default:
 						return;
@@ -2162,8 +2158,6 @@ namespace Vodovoz
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
 		{
-			Entity.UpdateDeliveryPointInSalesAgreement();
-
 			if(!HasAgreementForDeliveryPoint()) {
 				Order originalOrder = UoW.GetById<Order>(Entity.Id);
 				Entity.DeliveryPoint = originalOrder?.DeliveryPoint;
@@ -2635,8 +2629,7 @@ namespace Vodovoz
 				AgreementType.WaterSales,
 				AgreementType.DailyRent,
 				AgreementType.FreeRent,
-				AgreementType.NonfreeRent,
-				AgreementType.EquipmentSales
+				AgreementType.NonfreeRent
 			};
 			btnDeleteOrderItem.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null
 														   || deleteTypes.Contains((items[0] as OrderItem).AdditionalAgreement.Type)

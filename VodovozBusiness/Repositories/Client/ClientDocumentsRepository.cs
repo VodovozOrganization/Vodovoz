@@ -164,40 +164,5 @@ namespace Vodovoz.Repositories.Client
 			}
 			return result;
 		}
-
-		/// <summary>
-		/// Создает дополнительное соглашение для продажи оборудования
-		/// </summary>
-		public static SalesEquipmentAgreement CreateDefaultSalesEquipmentAgreement(IUnitOfWork UoW,
-																			 DeliveryPoint deliveryPoint,
-																			 DateTime? deliveryDate,
-																			 CounterpartyContract contract,
-																			 List<SalesEquipment> equipments)
-		{
-			if(equipments.Count == 0) {
-				throw new ArgumentException("При автоматическом создании дополнительного соглашения " +
-											"аренды оборудования, список должен иметь оборудование для аренды");
-			}
-			SalesEquipmentAgreement result = null;
-			using(var uow = SalesEquipmentAgreement.Create(contract)) {
-				uow.Root.DeliveryPoint = deliveryPoint;
-				if(deliveryDate.HasValue) {
-					uow.Root.IssueDate = deliveryDate.Value;
-					uow.Root.StartDate = deliveryDate.Value;
-				}
-				foreach(var item in equipments) {
-					uow.Root.ObservableSalesEqipments.Add(new SalesEquipment() {
-						Count = item.Count,
-						AdditionalAgreement = item.AdditionalAgreement,
-						Nomenclature = item.Nomenclature,
-						Price = item.Price
-					});
-				}
-				uow.Save();
-				result = UoW.GetById<SalesEquipmentAgreement>(uow.Root.Id);
-			}
-			return result;
-		}
-
 	}
 }

@@ -1000,8 +1000,7 @@ namespace Vodovoz.Domain.Orders
 					item.AdditionalAgreement = waterAgreement;
 				}
 
-				if(item.AdditionalAgreement.Self is SalesEquipmentAgreement
-				  || item.AdditionalAgreement.Self is NonfreeRentAgreement
+				if(item.AdditionalAgreement.Self is NonfreeRentAgreement
 				  || item.AdditionalAgreement.Self is DailyRentAgreement
 				  || item.AdditionalAgreement.Self is FreeRentAgreement
 				  ) {
@@ -1287,9 +1286,6 @@ namespace Vodovoz.Domain.Orders
 						break;
 					case AgreementType.FreeRent:
 						AgreementTransfer<FreeRentAgreement>(out uowAggr, agr.Id, actualContract);
-						break;
-					case AgreementType.EquipmentSales:
-						AgreementTransfer<SalesEquipmentAgreement>(out uowAggr, agr.Id, actualContract);
 						break;
 				}
 				try {
@@ -1625,21 +1621,6 @@ namespace Vodovoz.Domain.Orders
 			ChangeOrderContract();
 		}
 
-		/// <summary>
-		/// При смене точки доставки меняем точку доставки в ДС на продажу оборудования,
-		/// которое создано в этом заказе и было сохранено в БД
-		/// </summary>
-		public virtual void UpdateDeliveryPointInSalesAgreement()
-		{
-			var esa = ObservableOrderDocuments.Where(
-				x => x is OrderAgreement
-					&& (x as OrderAgreement).AdditionalAgreement?.Self?.Type == AgreementType.EquipmentSales
-					&& (x as OrderAgreement).Order == this);
-
-			foreach(OrderAgreement aa in esa)
-				aa.AdditionalAgreement.DeliveryPoint = DeliveryPoint;
-		}
-
 		public virtual void SetProxyForOrder()
 		{
 			if(Client == null)
@@ -1767,9 +1748,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			OrderItem oi = null;
 			switch(nomenclature.Category) {
-				case NomenclatureCategory.equipment://Оборудование
-					CreateSalesEquipmentAgreementAndAddEquipment(nomenclature, (int)count, discount, discountReason, proSet, discountInMoney);
-					break;
 				case NomenclatureCategory.water:
 					var ag = CreateWaterSalesAgreement(nomenclature);
 					//Если промо-набор с фиксой был применён к новому доп.соглашению
@@ -1912,39 +1890,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			return wsa;
 		}
-
-		void CreateSalesEquipmentAgreementAndAddEquipment(Nomenclature nom, int count, decimal discount, DiscountReason reason, PromotionalSet proSet, bool discountInMoney = false)
-		{
-			if(Contract == null) {
-				Contract = Repositories.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
-				if(Contract == null) {
-					Contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
-					AddContractDocument(Contract);
-				}
-			}
-
-			int agId = 0;
-			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<SalesEquipmentAgreement>()) {
-				SalesEquipmentAgreement esa = uow.Root;
-				esa.Contract = Contract;
-				esa.AgreementNumber = AdditionalAgreement.GetNumberWithType(Contract, AgreementType.EquipmentSales);
-				esa.DeliveryPoint = DeliveryPoint;
-				if(DeliveryDate.HasValue)
-					esa.IssueDate = esa.StartDate = DeliveryDate.Value;
-				if(nom != null)
-					esa.AddEquipment(nom);
-				uow.Save();
-				agId = esa.Id;
-			}
-			var ag = UoW.GetById<SalesEquipmentAgreement>(agId);
-
-			CreateOrderAgreementDocument(ag);
-			FillItemsFromAgreement(ag, count, discount, discountInMoney, reason, proSet);
-			Repositories.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType)
-										  .AdditionalAgreements
-										  .Add(ag);
-		}
-
+		
 		public virtual void ClearOrderItemsList()
 		{
 			ObservableOrderItems.Clear();
@@ -2555,34 +2501,6 @@ namespace Vodovoz.Domain.Orders
 							OwnType = OwnTypes.Rent
 						}
 					);
-				}
-			} else if(a.Type == AgreementType.EquipmentSales) {
-				SalesEquipmentAgreement agreement = a.Self as SalesEquipmentAgreement;
-				foreach(SalesEquipment equipment in agreement.SalesEqipments) {
-					var oi = observableOrderItems.FirstOrDefault(x => x.AdditionalAgreement != null
-																 && x.AdditionalAgreement.Self == agreement
-																 && x.Nomenclature.Id == equipment.Nomenclature.Id);
-					if(oi != null) {
-						oi.Price = equipment.Price;
-						oi.Count = equipment.Count;
-					} else {
-						int itemId;
-						//Добавляем номенклатуру продажи оборудования.
-						itemId = ObservableOrderItems.AddWithReturn(
-							new OrderItem {
-								Order = this,
-								AdditionalAgreement = agreement,
-								Nomenclature = equipment.Nomenclature,
-								Price = equipment.Price,
-								Count = count > 0 ? count : equipment.Count,
-								IsDiscountInMoney = discountInMoney,
-								DiscountSetter = discount > 0 ? discount : 0,
-								DiscountReason = reason,
-								PromoSet = proSet,
-								Equipment = null
-							}
-						);
-					}
 				}
 			}
 			UpdateDocuments();

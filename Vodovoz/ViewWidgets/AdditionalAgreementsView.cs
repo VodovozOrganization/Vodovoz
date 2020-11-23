@@ -81,9 +81,6 @@ namespace Vodovoz
 			case AgreementType.DailyRent:
 				dlg = new DailyRentAgreementDlg (AgreementUoW.Root);
 				break;
-			case AgreementType.EquipmentSales:
-				dlg = new EquipSalesAgreementDlg(AgreementUoW.Root);
-				break;
 			default:
 				throw new NotSupportedException (String.Format ("Тип {0} пока не поддерживается.", type));
 			}
