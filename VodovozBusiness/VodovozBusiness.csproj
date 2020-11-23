@@ -62,6 +62,8 @@
     <Compile Include="Domain\Documents\DeliveryDocument.cs" />
     <Compile Include="Domain\Documents\DeliveryDocumentItem.cs" />
     <Compile Include="Domain\Documents\DriverNomenclatureTransferItem.cs" />
+    <Compile Include="Domain\FinancialDistrict.cs" />
+    <Compile Include="Domain\FinancialDistrictsSet.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
@@ -85,6 +87,8 @@
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverNomenclatureTransferItemMap.cs" />
+    <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
+    <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />
