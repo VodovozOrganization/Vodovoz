@@ -350,6 +350,14 @@ namespace Vodovoz.ViewWidgets
 				newOrder.Author = this.oldOrder.Author;
 				SetLabelsAcordingToNewOrder();
 				undelivery.NewDeliverySchedule = newOrder.DeliverySchedule;
+				if ((oldOrder.PaymentType == Domain.Client.PaymentType.ByCard) && 
+					oldOrder.OrderItems.All(ooi => newOrder.OrderItems.Any(
+							noi => ooi.Nomenclature.Id == noi.Nomenclature.Id && ooi.Count == noi.Count)) &&
+					MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?")){
+					newOrder.PaymentType = oldOrder.PaymentType;
+					newOrder.OnlineOrder = oldOrder.OnlineOrder;
+					newOrder.PaymentByCardFrom = oldOrder.PaymentByCardFrom;
+				}
 			};
 		}
 
