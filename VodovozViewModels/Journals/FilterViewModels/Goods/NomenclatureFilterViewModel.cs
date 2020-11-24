@@ -56,15 +56,7 @@ namespace Vodovoz.FilterViewModels.Goods
 			}
 		}
 		public bool CanChangeShowDisposableTare { get; private set; } = true;
-
-		bool restrictDilers;
-		public virtual bool RestrictDilers {
-			get => restrictDilers;
-			set {
-				if(UpdateFilterField(ref restrictDilers, value))
-					CanChangeShowDilers = false;
-			}
-		}
+		
 		public bool CanChangeShowDilers { get; private set; } = true;
 
 		bool restrictArchive;
