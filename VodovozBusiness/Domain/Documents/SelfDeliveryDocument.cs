@@ -281,7 +281,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual bool FullyShiped(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, CallTaskWorker callTaskWorker)
 		{
 			//Проверка текущего документа
-			return Order.TryCloseSelfDeliveryOrder(uow, standartNomenclatures, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker, this);
+			return Order.TryCloseSelfDeliveryOrderWithCallTask(uow, standartNomenclatures, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker, this);
 		}
 
 		#endregion

@@ -7,9 +7,15 @@ using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -169,8 +175,36 @@ namespace SmsPaymentService
                         
                         orderId = payment.Order.Id;
                         logger.Info($"Статус платежа с externalId: {payment.ExternalId} изменён c {oldStatus} на {status}");
+
+                        #region OrderStatusChanged
                         if(oldPaymentType != payment.Order.PaymentType)
-                            logger.Info($"Тип оплаты заказа № {payment.Order.Id} изменён c {oldPaymentType} на {payment.Order.PaymentType}");
+                        {
+                            if ((oldPaymentType == PaymentType.cash && payment.Order.PaymentType == PaymentType.ByCard)
+                                && payment.Order.SelfDelivery
+                                && payment.Order.OrderStatus == OrderStatus.WaitForPayment
+                                && payment.Order.PayAfterShipment)
+                            {
+                                payment.Order.TryCloseSelfDeliveryOrder(
+                                    uow,
+                                    new BaseParametersProvider(),
+                                    new RouteListItemRepository(),
+                                    new SelfDeliveryRepository(), 
+                                    new CashRepository());
+                            }
+                            
+                            if ((oldPaymentType == PaymentType.cash && payment.Order.PaymentType == PaymentType.ByCard)
+                                && payment.Order.SelfDelivery
+                                && payment.Order.OrderStatus == OrderStatus.WaitForPayment
+                                && !payment.Order.PayAfterShipment)
+                            {
+                                payment.Order.ChangeStatus(OrderStatus.OnLoading);
+                            }
+                            
+                            logger.Info(
+                                $"Тип оплаты заказа № {payment.Order.Id} изменён c {oldPaymentType} на {payment.Order.PaymentType}");
+                        }
+                        #endregion
+                        
                     }
                     catch (Exception e) {
                         logger.Error(e, "При сохранении платежа произошла ошибка, записываю в файл...");
