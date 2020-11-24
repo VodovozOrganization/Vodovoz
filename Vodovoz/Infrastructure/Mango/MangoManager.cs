@@ -142,6 +142,8 @@ namespace Vodovoz.Infrastructure.Mango
 
 		void ToolbarIcon_Activated(object sender, EventArgs e)
 		{
+			if(connectionState == ConnectionState.Disable || connectionState == ConnectionState.Disconnected)
+				return;
 			if(CurrentPage == null) {
 				if(CurrentTalk != null)
 					OpenTalkDlg();
