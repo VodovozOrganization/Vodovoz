@@ -251,7 +251,6 @@ namespace Vodovoz
 			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
 			Entity.Comment = templateOrder.Comment;
 			Entity.CommentLogist = templateOrder.CommentLogist;
-			Entity.PaymentType = templateOrder.PaymentType;
 			Entity.ClientPhone = templateOrder.ClientPhone;
 			Entity.TareNonReturnReason = templateOrder.TareNonReturnReason;
 			Entity.BillDate = templateOrder.BillDate;
@@ -261,7 +260,6 @@ namespace Vodovoz
 			Entity.DocumentType = templateOrder.DocumentType;
 			Entity.ExtraMoney = templateOrder.ExtraMoney;
 			Entity.InformationOnTara = templateOrder.InformationOnTara;
-			Entity.OnlineOrder = templateOrder.OnlineOrder;
 			Entity.PreviousOrder = templateOrder.PreviousOrder;
 			Entity.ReturnedTare = templateOrder.ReturnedTare;
 			Entity.SelfDelivery = templateOrder.SelfDelivery;
@@ -272,6 +270,17 @@ namespace Vodovoz
 			Entity.Contract = templateOrder.Contract;
 			Entity.ReturnTareReasonCategory = templateOrder.ReturnTareReasonCategory;
 			Entity.ReturnTareReason = templateOrder.ReturnTareReason;
+
+			if (templateOrder.PaymentType == PaymentType.ByCard) {
+				if (MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?")) {
+					Entity.PaymentType = templateOrder.PaymentType;
+					Entity.OnlineOrder = templateOrder.OnlineOrder;
+					Entity.PaymentByCardFrom = templateOrder.PaymentByCardFrom;
+				}
+			} else {
+				Entity.PaymentType = templateOrder.PaymentType;
+			}
+
 			Entity.CopyPromotionalSetsFrom(templateOrder);
 			Entity.CopyItemsFrom(templateOrder);
 			Entity.CopyDocumentsFrom(templateOrder);
