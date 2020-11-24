@@ -351,8 +351,7 @@ namespace Vodovoz.ViewWidgets
 				SetLabelsAcordingToNewOrder();
 				undelivery.NewDeliverySchedule = newOrder.DeliverySchedule;
 				if ((oldOrder.PaymentType == Domain.Client.PaymentType.ByCard) && 
-					oldOrder.OrderItems.All(ooi => newOrder.OrderItems.Any(
-							noi => ooi.Nomenclature.Id == noi.Nomenclature.Id && ooi.Count == noi.Count)) &&
+					(oldOrder.OrderTotalSum == newOrder.OrderTotalSum) &&
 					MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?")){
 					newOrder.PaymentType = oldOrder.PaymentType;
 					newOrder.OnlineOrder = oldOrder.OnlineOrder;
@@ -392,11 +391,15 @@ namespace Vodovoz.ViewWidgets
 		/// <param name="order">Заказ, который требуется открыть</param>
 		void OpenOrder(Order order)
 		{
-			var dlg = new OrderDlg(order);
-			MyTab.TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<Order>(order.Id),
-				() => dlg
-			);
+			if(MessageDialogHelper.RunQuestionDialog("Требуется сохранить недовоз. Сохранить?")) {
+				UoW.Save();
+				UoW.Commit();
+				var dlg = new OrderDlg(order);
+				MyTab.TabParent.OpenTab(
+					DialogHelper.GenerateDialogHashName<Order>(order.Id),
+					() => dlg
+				);
+			}
 		}
 
 		protected void OnYEnumCMBDriverCallPlaceEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
