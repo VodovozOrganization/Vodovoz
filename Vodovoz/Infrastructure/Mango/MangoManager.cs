@@ -136,7 +136,10 @@ namespace Vodovoz.Infrastructure.Mango
 		void MangoServiceClientChannelStateChanged(object sender, ConnectionStateEventArgs e)
 		{
 			Gtk.Application.Invoke(delegate {
-				ConnectionState = mangoServiceClient.IsNotificationActive ? ConnectionState.Connected : ConnectionState.Disconnected;
+				if(mangoServiceClient.IsNotificationActive)
+					ConnectionState = ConnectionState.Connected;
+				else if(ConnectionState != ConnectionState.Disable)
+					ConnectionState = ConnectionState.Disconnected;
 			});
 		}
 
