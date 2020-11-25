@@ -195,6 +195,11 @@ namespace Vodovoz
 					ReceptionReturnsList.Add(item);
 			}
 
+			foreach(var item in returnableEquipment) {
+				if(ReceptionReturnsList.All(i => i.NomenclatureId != item.NomenclatureId))
+					ReceptionReturnsList.Add(item);
+			}
+
 			if (returnableTerminal != null && isTerminalLoaded) {
 				if (ReceptionReturnsList.All(i => i.NomenclatureId != returnableTerminal.NomenclatureId))
 					ReceptionReturnsList.Add(returnableTerminal);
