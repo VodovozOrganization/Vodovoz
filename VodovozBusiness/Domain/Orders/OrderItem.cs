@@ -252,7 +252,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsDepositCategory => Nomenclature.Category == NomenclatureCategory.deposit;
 
-		public virtual int ReturnedCount => Count - ActualCount ?? 0;
+		public virtual decimal ReturnedCount => Count - ActualCount ?? 0;
 
 		public virtual bool IsDelivered => ReturnedCount == 0;
 

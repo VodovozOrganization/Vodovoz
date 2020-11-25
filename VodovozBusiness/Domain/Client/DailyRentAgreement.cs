@@ -18,6 +18,8 @@ namespace Vodovoz.Domain.Client
 	{
 		[Display (Name = "Количество дней аренды")]
 		public virtual int RentDays { get; set; }
+		
+		public virtual DateTime EndDate => base.StartDate.AddDays(RentDays);
 
 		IList<PaidRentEquipment> equipment = new List<PaidRentEquipment> ();
 
@@ -34,44 +36,6 @@ namespace Vodovoz.Domain.Client
 				if (observableEquipment == null)
 					observableEquipment = new GenericObservableList<PaidRentEquipment> (Equipment);
 				return observableEquipment;
-			}
-		}
-
-		public virtual DateTime EndDate{
-			get{
-				return base.StartDate.AddDays(RentDays);
-			}
-			set {; }
-		}
-
-		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
-		{
-			foreach (ValidationResult result in base.Validate (validationContext))
-				yield return result;
-			
-			if (RentDays < 1)
-				yield return new ValidationResult ("Срок аренды не может быть меньше одного дня.", new[] { "RentDays" });
-
-			if (!Equipment.Any())
-				yield return new ValidationResult("Необходимо добавить в список оборудование.", new[] { "Equipment" });
-		}
-
-		public static IUnitOfWorkGeneric<DailyRentAgreement> Create (CounterpartyContract contract)
-		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<DailyRentAgreement> ($"Создание нового доп. соглашения посуточной аренды для договора {contract.Number}.");
-			uow.Root.Contract = uow.GetById<CounterpartyContract>(contract.Id);
-			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithType (uow.Root.Contract, AgreementType.DailyRent);
-			return uow;
-		}
-
-		public virtual void RemoveEquipment(PaidRentEquipment paidEquipment)
-		{
-			foreach(PaidRentEquipment eq in this.ObservableEquipment.CreateList())
-			{
-				if(eq == paidEquipment)
-				{
-					ObservableEquipment.Remove(eq);
-				}
 			}
 		}
 	}

@@ -31,8 +31,7 @@ namespace Vodovoz.HibernateMapping
 		public OrderAgreementMap ()
 		{
 			DiscriminatorValue ("AdditionalAgreement");
-			Map(x => x.FullName).Column("agreement_full_number");
-			Map(x => x.AdditionalAgreementId).Column ("agreement_id");
+			References(x => x.AdditionalAgreement).Column ("agreement_id");
 		}
 	}
 

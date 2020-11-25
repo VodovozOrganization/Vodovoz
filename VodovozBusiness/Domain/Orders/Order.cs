@@ -1168,7 +1168,7 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		#region Автосоздание договоров, допсоглашений при изменении подтвержденного заказа
+		#region Автосоздание договоров, при изменении подтвержденного заказа
 
 		private void OnChangeCounterparty(Counterparty newClient)
 		{
@@ -1500,7 +1500,7 @@ namespace Vodovoz.Domain.Orders
 				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
 		}
 
-		public virtual void AddWaterForSale(Nomenclature nomenclature, int count, decimal discount = 0, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
+		public virtual void AddWaterForSale(Nomenclature nomenclature, decimal count, decimal discount = 0, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 				return;
@@ -1640,8 +1640,6 @@ namespace Vodovoz.Domain.Orders
 				ObservableOrderItems.Remove(deliveryPriceItem);
 			return false;
 		}
-
-		#region test_methods_for_sidebar
 
 		/// <summary>
 		/// Добавить оборудование из выбранного предыдущего заказа.
@@ -2196,8 +2194,6 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 		}
-
-		#endregion
 
 		/// <summary>
 		/// Ожидаемое количество залогов за бутыли
@@ -3513,259 +3509,5 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
-
-		#region IValidatableObject implementation
-
-		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			if(validationContext.Items.ContainsKey("NewStatus")) {
-				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
-				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Client != null) {
-
-					var key = new OrderStateKey(this, newStatus);
-					var messages = new List<string>();
-					if(!OrderAcceptProhibitionRulesRepository.CanAcceptOrder(key, ref messages)) {
-						foreach(var msg in messages) {
-							yield return new ValidationResult(msg);
-						}
-					}
-
-					if(DeliveryDate == null || DeliveryDate == default(DateTime))
-						yield return new ValidationResult("В заказе не указана дата доставки.",
-							new[] { this.GetPropertyName(o => o.DeliveryDate) });
-					if(!SelfDelivery && DeliverySchedule == null)
-						yield return new ValidationResult("В заказе не указано время доставки.",
-							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
-
-					if(!IsLoadedFrom1C && PaymentType == PaymentType.cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
-						yield return new ValidationResult("В заказе не указано как будут подписаны документы.",
-							new[] { this.GetPropertyName(o => o.SignatureType) });
-
-					if(!IsLoadedFrom1C && bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare))
-						yield return new ValidationResult("В заказе не указана планируемая тара.",
-							new[] { this.GetPropertyName(o => o.Contract) });
-					if(bottlesReturn.HasValue && bottlesReturn > 0 && GetTotalWater19LCount() == 0 && ReturnTareReason == null)
-						yield return new ValidationResult("Необходимо указать причину забора тары.",
-							new[] { nameof(ReturnTareReason) });
-					if(bottlesReturn.HasValue && bottlesReturn > 0 && GetTotalWater19LCount() == 0 && ReturnTareReasonCategory == null)
-						yield return new ValidationResult("Необходимо указать категорию причины забора тары.",
-							new[] { nameof(ReturnTareReasonCategory) });
-					if(!IsLoadedFrom1C && trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.TotalSum > 0m)
-						yield return new ValidationResult("В заказе не указана сдача.",
-							new[] { this.GetPropertyName(o => o.Trifle) });
-					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
-						yield return new ValidationResult("В заказе должно быть указано количество во всех позициях товара и оборудования");
-					//если ни у точки доставки, ни у контрагента нет ни одного номера телефона
-					if(!IsLoadedFrom1C && !((DeliveryPoint != null && DeliveryPoint.Phones.Any()) || Client.Phones.Any()))
-						yield return new ValidationResult("Ни для контрагента, ни для точки доставки заказа не указано ни одного номера телефона.");
-
-					if(!IsLoadedFrom1C && DeliveryPoint != null) {
-						if(string.IsNullOrWhiteSpace(DeliveryPoint.Entrance)) {
-							yield return new ValidationResult("Не заполнена парадная в точке доставки");
-						}
-						if(string.IsNullOrWhiteSpace(DeliveryPoint.Floor)) {
-							yield return new ValidationResult("Не заполнен этаж в точке доставки");
-						}
-						if(string.IsNullOrWhiteSpace(DeliveryPoint.Room)) {
-							yield return new ValidationResult("Не заполнен номер помещения в точке доставки");
-						}
-					}
-
-					// Проверка соответствия цен в заказе ценам в номенклатуре
-					string priceResult = "В заказе неверно указаны цены на следующие товары:\n";
-					List<string> incorrectPriceItems = new List<string>();
-					foreach(OrderItem item in ObservableOrderItems) {
-						decimal fixedPrice = GetFixedPrice(item);
-						decimal nomenclaturePrice = GetNomenclaturePrice(item);
-						if(fixedPrice > 0m) {
-							if(item.Price < fixedPrice) {
-								incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
-																	  item.NomenclatureString,
-																	  item.Price,
-																	  fixedPrice));
-							}
-						} else if(nomenclaturePrice > default(decimal) && item.Price < nomenclaturePrice) {
-							incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
-																  item.NomenclatureString,
-																  item.Price,
-																  nomenclaturePrice));
-						}
-					}
-					if(incorrectPriceItems.Any()) {
-						foreach(string item in incorrectPriceItems) {
-							priceResult += item;
-						}
-						yield return new ValidationResult(priceResult);
-					}
-					// Конец проверки цен
-
-					//создание нескольких заказов на одну дату и точку доставки
-					if(!SelfDelivery && DeliveryPoint != null) {
-						var ordersForDeliveryPoints = orderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
-																	 .Where(
-																		 o => o.Id != Id
-																		 && o.DeliveryDate == DeliveryDate
-																		 && !orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
-																		 && !o.IsService
-																		);
-
-						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
-
-						if(!hasMaster
-						   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
-						   && ordersForDeliveryPoints.Any()
-						   && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) {
-							yield return new ValidationResult(
-								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже создан заказ №{0}", ordersForDeliveryPoints.First().Id),
-								new[] { this.GetPropertyName(o => o.OrderEquipments) });
-						}
-					}
-
-					if(Client.IsDeliveriesClosed &&
-					   PaymentType != PaymentType.cash &&
-					   PaymentType != PaymentType.ByCard &&
-					   PaymentType != PaymentType.Terminal)
-						yield return new ValidationResult(
-							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
-							new[] { this.GetPropertyName(o => o.PaymentType) }
-						);
-
-					//FIXME Исправить изменение данных. В валидации нельзя менять объекты.
-					if(DeliveryPoint != null && !DeliveryPoint.FindAndAssociateDistrict(UoW))
-						yield return new ValidationResult(
-							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
-							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
-					);
-					
-					// Хардкодим дату, чтобы отсечь старые заказы
-					var date = new DateTime(2020, 11, 09, 11, 0, 0);
-					if (Client.PersonType == PersonType.legal && 
-					    Client.TaxType == TaxType.None &&
-					    (!CreateDate.HasValue || CreateDate > date))
-						yield return new ValidationResult(
-							"Налогообложение не указано.",
-							new[] {nameof(Client.TaxType)});
-				}
-
-				if(newStatus == OrderStatus.Closed) {
-					foreach(var equipment in OrderEquipments.Where(x => x.Direction == Direction.PickUp)) {
-						if(!equipment.Confirmed && string.IsNullOrWhiteSpace(equipment.ConfirmedComment))
-							yield return new ValidationResult(
-								string.Format("Забор оборудования {0} по заказу {1} не произведен, а в комментарии не указана причина.",
-									equipment.NameString, Id),
-								new[] { this.GetPropertyName(o => o.OrderEquipments) });
-					}
-				}
-
-				if(IsService && PaymentType == PaymentType.cashless
-				             && newStatus == OrderStatus.Accepted
-				             && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders")) {
-					yield return new ValidationResult(
-						"Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
-						new[] { this.GetPropertyName(o => o.OrderStatus) }
-					);
-				}
-
-				if(IsContractCloser && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer")) {
-					yield return new ValidationResult(
-						"Недостаточно прав для подтверждения зыкрывашки по контракту. Обратитесь к руководителю.",
-						new[] { this.GetPropertyName(o => o.IsContractCloser) }
-					);
-				}
-
-				if (validationContext.Items.ContainsKey("AddressStatus")) {
-					RouteListItemStatus addressStatus = (RouteListItemStatus) validationContext.Items["AddressStatus"];
-					if (newStatus == OrderStatus.Closed &&
-                                     addressStatus != RouteListItemStatus.Transfered &&
-                                     PaymentType == PaymentType.Terminal &&
-                                     OrderStatus != OrderStatus.DeliveryCanceled &&
-                                     OrderStatus != OrderStatus.NotDelivered &&
-                                     OnlineOrder == null)
-						yield return new ValidationResult(
-							"Если в заказе выбран тип оплаты терминал, необходимо заполнить номер оплаты.",
-							new[] {this.GetPropertyName(o => o.OnlineOrder)});
-				}
-			}
-
-			if(ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
-				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
-
-			if(DeliveryDate == null || DeliveryDate == default(DateTime))
-				yield return new ValidationResult("В заказе не указана дата доставки.",
-					new[] { this.GetPropertyName(o => o.DeliveryDate) });
-			if(!SelfDelivery && DeliveryPoint == null)
-				yield return new ValidationResult("В заказе необходимо заполнить точку доставки.",
-					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
-			if(DeliveryPoint != null && (!DeliveryPoint.Latitude.HasValue || !DeliveryPoint.Longitude.HasValue)) {
-				yield return new ValidationResult("В точке доставки необходимо указать координаты.",
-				new[] { this.GetPropertyName(o => o.DeliveryPoint) });
-			}
-			if(Client == null)
-				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
-					new[] { this.GetPropertyName(o => o.Client) });
-
-			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
-				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
-					new[] { this.GetPropertyName(o => o.OnlineOrder) });
-
-			if(!EShopOrder.HasValue
-				&& OrderItems
-					.Where(x => x.Nomenclature.ProductGroup != null)
-					.Select(x => ProductGroup.GetRootParent(x.Nomenclature.ProductGroup))
-					.Any(x => x.Id == new NomenclatureParametersProvider().RootProductGroupForOnlineStoreNomenclatures)) 
-				yield return new ValidationResult(
-					"При добавлении в заказ номенклатур с группой товаров интернет-магазиа необходимо указать номер заказа интернет-магазина.",
-					new[] { nameof(EShopOrder) });
-
-			if(PaymentType == PaymentType.ByCard && PaymentByCardFrom == null)
-				yield return new ValidationResult(
-					"Выбран тип оплаты по карте. Необходимо указать откуда произведена оплата.",
-					new[] { this.GetPropertyName(o => o.PaymentByCardFrom) }
-				);
-
-			if(
-				ObservableOrderEquipments
-			   .Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
-			   .Any(x => x.OwnType == OwnTypes.None)
-			  )
-				yield return new ValidationResult("У оборудования в заказе должна быть выбрана принадлежность.");
-
-			if(
-				ObservableOrderEquipments
-			   .Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
-			   .Where(x => x.DirectionReason == DirectionReason.None && x.OwnType != OwnTypes.Duty)
-			   .Any(x => x.Nomenclature?.SaleCategory != SaleCategory.forSale)
-			  )
-				yield return new ValidationResult("У оборудования в заказе должна быть указана причина забор-доставки.");
-
-			if(ObservableOrderDepositItems.Any(x => x.Total < 0)) {
-				yield return new ValidationResult("В возврате залогов в заказе необходимо вводить положительную сумму.");
-			}
-
-			if(!IsLoadedFrom1C && ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.IsDisposableTare) &&
-			   //Если нет ни одного допсоглашения на воду подходящего на точку доставку в заказе 
-			   //(или без точки доставки если относится на все точки)
-			   !HasActualWaterSaleAgreementByDeliveryPoint()) {
-				yield return new ValidationResult("В заказе выбрана точка доставки для которой нет актуального дополнительного соглашения по доставке воды");
-			}
-
-			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_can_create_order_in_advance")
-			   && DeliveryDate.HasValue && DeliveryDate.Value < DateTime.Today
-			   && OrderStatus <= OrderStatus.Accepted) {
-				yield return new ValidationResult(
-					"Указана дата заказа более ранняя чем сегодняшняя. Укажите правильную дату доставки.",
-					new[] { this.GetPropertyName(o => o.DeliveryDate) }
-				);
-			}
-			if(SelfDelivery && PaymentType == PaymentType.ContractDoc) {
-				yield return new ValidationResult(
-					"Тип оплаты - контрактная документация невозможен для самовывоза",
-					new[] { this.GetPropertyName(o => o.PaymentType) }
-				);
-			}
-		}
-
-		#endregion
-		
 	}
 }

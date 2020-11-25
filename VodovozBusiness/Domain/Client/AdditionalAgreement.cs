@@ -7,6 +7,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Repository.Client;
 
 namespace Vodovoz.Domain.Client
 {
@@ -16,7 +17,7 @@ namespace Vodovoz.Domain.Client
 		Accusative = "дополнительное соглашение",
 		Genitive = "дополнительного соглашения"
 	)]
-	public class AdditionalAgreement : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class AdditionalAgreement : PropertyChangedBase, IDomainObject
 	{
 		/// <summary>
 		/// Используется для возможности приведения общего типа к конкретному, если
@@ -72,17 +73,14 @@ namespace Vodovoz.Domain.Client
 			}		
 		}
 
-		[Required (ErrorMessage = "Договор должен быть указан.")]
 		[Display (Name = "Договор")]
 		[PropertyChangedAlso("FullNumberText")]
 		public virtual CounterpartyContract Contract { get; set; }
 
-		[Required (ErrorMessage = "Дата создания должна быть указана.")]
 		[Display (Name = "Дата подписания")]
 		[HistoryDateOnly]
 		public virtual DateTime IssueDate { get; set; }
 
-		[Required (ErrorMessage = "Дата начала действия должна быть указана.")]
 		[Display (Name = "Дата начала")]
 		[HistoryDateOnly]
 		public virtual DateTime StartDate { get; set; }
@@ -94,9 +92,7 @@ namespace Vodovoz.Domain.Client
 		public virtual bool IsCancelled { get; set; }
 
 		#region Вычисляемые
-
-		public virtual string AgreementDeliveryPoint => DeliveryPoint != null ? DeliveryPoint.CompiledAddress : "Не указана";
-
+		
 		public virtual string AgreementTypeTitle => Type.GetEnumTitle();
 
 		public virtual string Title => string.Format("Доп. соглашение №{0} от {1}", FullNumberText, StartDate.ToShortDateString());
@@ -105,21 +101,6 @@ namespace Vodovoz.Domain.Client
 		public virtual string FullNumberText => string.Format("{0}-{1}/{2}{3}", Contract.Counterparty.VodovozInternalId, Contract.ContractSubNumber, GetTypePrefix(Type), AgreementNumber);
 
 		#endregion
-
-		public AdditionalAgreement ()
-		{
-			IssueDate = StartDate = DateTime.Today;
-		}
-
-		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
-		{
-			int count = 0;
-			foreach (AdditionalAgreement agreement in Contract.AdditionalAgreements)
-				if (agreement.AgreementNumber == this.AgreementNumber && agreement.Type == this.Type)
-					count++;
-			if (count > 1)
-				yield return new ValidationResult ("Доп. соглашение с таким номером уже существует.", new[] { "AgreementNumber" });
-		}
 
 		/// <summary>
 		/// Updates template for the additional agreement.
@@ -135,7 +116,7 @@ namespace Vodovoz.Domain.Client
 			}
 			else
 			{
-				var newTemplate = Repository.Client.DocTemplateRepository.GetTemplate(uow, GetTemplateType(Type), Contract.Organization, Contract.ContractType);
+				var newTemplate = DocTemplateRepository.GetTemplate(uow, GetTemplateType(Type), Contract.Organization, Contract.ContractType);
 				if(newTemplate == null) {
 					DocumentTemplate = null;
 					ChangedTemplateFile = null;
@@ -151,27 +132,6 @@ namespace Vodovoz.Domain.Client
 			return false;
 		}
 		#region Статические
-
-		public static int GetNumberWithType(CounterpartyContract contract, AgreementType type)
-		{
-			//Вычисляем номер для нового соглашения.
-			var additionalAgreements = contract.AdditionalAgreements;
-			var numbers = additionalAgreements.Where(x => x.Type == type).Select(x => x.AgreementNumber).ToList();
-			numbers.Sort();
-			return numbers.Any() ? numbers.Last() + 1 : 1;
-		}
-
-		public static int GetNumberWithTypeFromDB<TAgreement>(CounterpartyContract contract) 
-			where TAgreement : AdditionalAgreement
-		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				var maxNumber = uow.Session.QueryOver<TAgreement>()
-								   .Where(x => x.Contract.Id == contract.Id)
-				                   .Select(Projections.Max<TAgreement>(y => y.AgreementNumber))
-				                   .SingleOrDefault<int>();
-				return maxNumber + 1;
-			}
-		}
 
 		public static string GetTypePrefix(AgreementType type)
 		{
@@ -217,21 +177,6 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Возвращает типы доп соглашений которые создаются на 
-		/// каждое новое создание аренды в заказе, и могут хранится 
-		/// в неограниченном количестве в договоре
-		/// </summary>
-		public static AgreementType[] GetOrderBasedAgreementTypes()
-		{
-			return new AgreementType[] {
-				AgreementType.DailyRent,
-				AgreementType.FreeRent,
-				AgreementType.NonfreeRent,
-				AgreementType.EquipmentSales
-			};
-		}
 	}
 
 	public enum AgreementType
@@ -265,20 +210,5 @@ namespace Vodovoz.Domain.Client
 		DailyRent,
 		[Display (Name = "Бесплатная аренда")]
 		FreeRent
-	}
-
-	public interface IAgreementSaved
-	{
-		event EventHandler<AgreementSavedEventArgs> AgreementSaved;
-	}
-
-	public class AgreementSavedEventArgs : EventArgs
-	{
-		public AdditionalAgreement Agreement { get; private set; }
-
-		public AgreementSavedEventArgs (AdditionalAgreement agreement)
-		{
-			Agreement = agreement;
-		}
 	}
 }
