@@ -56,34 +56,41 @@ namespace SmsPaymentService
                 }
 
                 using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-                    
-                    var smsPayments = uow.GetById<SmsPayment>(caches.Select(x => x.PaymentId));
-                    int saveCount = 0;
-                    foreach (var smsPayment in smsPayments.Where(x => x.ExternalId == 0 && x.SmsPaymentStatus == SmsPaymentStatus.ReadyToSend)) {
-                        smsPayment.ExternalId = caches.First(x => x.PaymentId == smsPayment.Id).ExternalId;
-                        smsPayment.SetWaitingForPayment();
-                            
-                        uow.Save(smsPayment);
-                        saveCount++;
+                    var cachesWithIds = caches.Where(x => x.ExternalId.HasValue && x.PaymentId.HasValue).ToList();
+
+                    var readyForSendPayments = uow.Session.QueryOver<SmsPayment>()
+                        .WhereRestrictionOn(x => x.Id).IsIn(cachesWithIds.Select(x => x.PaymentId).ToArray())
+                        .And(x => x.SmsPaymentStatus == SmsPaymentStatus.ReadyToSend)
+                        .List();
+
+                    if(readyForSendPayments.Any()) {
+                        logger.Info($"Найдено {readyForSendPayments.Count} платежей в статусе {SmsPaymentStatus.ReadyToSend}. Меняю статус...");
                     }
-                    
-                    if(saveCount > 0) {
+
+                    foreach (var payment in readyForSendPayments) {
+                        payment.ExternalId = cachesWithIds.First(x => x.PaymentId.Value == payment.Id).ExternalId.Value;
+                        payment.SetWaitingForPayment();
+                        uow.Save(payment);
+                    }
+
+                    if(readyForSendPayments.Any()) {
                         uow.Commit();
-                        logger.Info($"Сохранено {saveCount} платежей без ExternalId. Синхронизация статусов...");
                     }
                 }
                 
                 IList<SmsPaymentCacheDTO> cachesToRemove = new List<SmsPaymentCacheDTO>();
                 int synchronizedCount = 0;
-                foreach (var cache in caches) {
-                    var res = smsPaymentService.RefreshPaymentStatus(cache.ExternalId);
+                foreach (var cache in caches.Where(x => x.ExternalId.HasValue)) {
+                    var res = smsPaymentService.RefreshPaymentStatus(cache.ExternalId.Value);
                     if(res.Status == PaymentResult.MessageStatus.Ok) {
                         cachesToRemove.Add(cache);
                         synchronizedCount++;
                     }
                 }
-                if(synchronizedCount > 0)
+
+                if(synchronizedCount > 0) {
                     smsPaymentFileCache.RemovePaymentCaches(cachesToRemove);
+                }
 
                 logger.Info($"Синхронизировано {synchronizedCount} статусов платежей");
                 

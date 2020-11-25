@@ -128,7 +128,18 @@ namespace SmsPaymentService
                 }
                 
                 using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-                    var payment = uow.Session.QueryOver<SmsPayment>().Where(x => x.ExternalId == externalId).Take(1).SingleOrDefault();
+
+                    SmsPayment payment;
+
+                    try {
+                        payment = uow.Session.QueryOver<SmsPayment>().Where(x => x.ExternalId == externalId).Take(1).SingleOrDefault();
+                    }
+                    catch (Exception e) {
+                        logger.Error(e, "При загрузке платежа по externalId произошла ошибка, записываю данные файл...");
+                        smsPaymentFileCache.WritePaymentCache(null, externalId);
+                        return new StatusCode(HttpStatusCode.OK);
+                    }
+                    
                     if (payment == null) {
                         logger.Error($"Запрос на изменение статуса платежа указывает на несуществующий платеж (externalId: {externalId})"); 
                         return new StatusCode(HttpStatusCode.UnsupportedMediaType);
