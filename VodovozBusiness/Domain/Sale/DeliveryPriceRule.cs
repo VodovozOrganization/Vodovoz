@@ -107,7 +107,8 @@ namespace Vodovoz.Domain.Sale
 				return false;
 
 			DeliveryPriceRule rule = (DeliveryPriceRule)obj;
-			bool result = this.Water19LCount == rule.Water19LCount;
+			bool result = this.Water19LCount == rule.Water19LCount
+				&& this.OrderMinSumEShopGoods == rule.OrderMinSumEShopGoods;
 			return result;
 		}
 
