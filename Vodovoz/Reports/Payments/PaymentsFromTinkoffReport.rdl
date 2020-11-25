@@ -976,7 +976,7 @@
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1094,110 +1094,110 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	o.delivery_date AS order_date,
-	o.id AS order_id,
-	c.full_name AS client,
-	IF(o.self_delivery, 'Самовывоз', dp.compiled_address_short) AS address,
-	o.online_order AS payment_nr_from_order,
-	p.total_sum AS sum_from_bank,
-	o_sum.total AS sum_from_order,
-	(
-		CASE o.order_status
-			WHEN 'NewOrder' THEN 'Новый'
-			WHEN 'Canceled' THEN 'Отменён'
-			WHEN 'WaitForPayment' THEN 'Ожидание оплаты'
-			WHEN 'Accepted' THEN 'Принят'
-			WHEN 'InTravelList' THEN 'В маршрутном листе'
-			WHEN 'OnLoading' THEN 'На погрузке'
-			WHEN 'OnTheWay' THEN 'В пути'
-			WHEN 'DeliveryCanceled' THEN 'Доставка отменена'
-			WHEN 'Shipped' THEN 'Доставлен'
-			WHEN 'UnloadingOnStock' THEN 'Выгрузка на складе'
-			WHEN 'NotDelivered' THEN 'Недовоз'
-			WHEN 'Closed' THEN 'Закрыт'
-			ELSE o.order_status
-		END
-	) AS order_satus,
-	TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(author.name, 1), LEFT(author.patronymic, 1), author.last_name)) AS author,
-	IFNULL(
-		DATE_FORMAT(
-			p.date_and_time, 
-			'%d.%m.%Y %H:%i:%s'
-		),
-		'оплата не найдена'
-	) AS payment_date_time,
-	o.payment_type AS payment_type,
-	#номер группы для порядка в группировке в RDL
-	(
-		CASE o.order_status
-			WHEN 'Canceled' THEN 0
-			WHEN 'NewOrder' THEN 1
-			WHEN 'WaitForPayment' THEN 2
-			WHEN 'Accepted' THEN 3
-			WHEN 'InTravelList' THEN 4
-			WHEN 'OnLoading' THEN 5
-			WHEN 'OnTheWay' THEN 6
-			WHEN 'DeliveryCanceled' THEN 7
-			WHEN 'Shipped' THEN 8
-			WHEN 'UnloadingOnStock' THEN 9
-			WHEN 'NotDelivered' THEN 10
-			WHEN 'Closed' THEN 11
-			ELSE 999
-		END
-	) AS order_satus_numbered,
-	#имя группы для группировки в RDL
-	(
-		CASE
-			WHEN p.total_sum = o_sum.total THEN 'Оплачено'
-			WHEN p.total_sum IS NULL OR p.total_sum = 0 AND p.total_sum &lt; o_sum.total THEN 'Отсутствует оплата'
-			WHEN p.total_sum &gt; 0 AND p.total_sum &gt; o_sum.total THEN 'Переплата'
-			WHEN p.total_sum &gt; 0 AND p.total_sum &lt; o_sum.total THEN 'Недоплата'
-			ELSE 'Оплачено'
-		END
-	) AS underpayment,
-	#номер группы для порядка в группировке в RDL
-	(
-		CASE
-			WHEN p.total_sum = o_sum.total THEN 0
-			WHEN p.total_sum IS NULL OR p.total_sum = 0 AND p.total_sum &lt; o_sum.total THEN 1
-			WHEN p.total_sum &gt; 0 AND p.total_sum &gt; o_sum.total THEN 2
-			WHEN p.total_sum &gt; 0 AND p.total_sum &lt; o_sum.total THEN 3
-			ELSE 99
-		END
-	) AS underpayment_number,
-	o.delivery_date &gt; CURDATE() AS is_future_order,
-	IF(p.shop IS NULL, o.online_order, CONCAT(p.number, '\n', p.shop)) AS number_and_shop
-	#для отладки на тестовых БД. Для того, чтоб увидеть заказы на будущие даты
-	#o.delivery_date &gt; '2018-10-03' AS is_future_order
+        <CommandText>SELECT
+    o.delivery_date AS order_date,
+    o.id AS order_id,
+    c.full_name AS client,
+    IF(o.self_delivery, 'Самовывоз', dp.compiled_address_short) AS address,
+    o.online_order AS payment_nr_from_order,
+    p.total_sum AS sum_from_bank,
+    o_sum.total AS sum_from_order,
+    (
+        CASE o.order_status
+            WHEN 'NewOrder' THEN 'Новый'
+            WHEN 'Canceled' THEN 'Отменён'
+            WHEN 'WaitForPayment' THEN 'Ожидание оплаты'
+            WHEN 'Accepted' THEN 'Принят'
+            WHEN 'InTravelList' THEN 'В маршрутном листе'
+            WHEN 'OnLoading' THEN 'На погрузке'
+            WHEN 'OnTheWay' THEN 'В пути'
+            WHEN 'DeliveryCanceled' THEN 'Доставка отменена'
+            WHEN 'Shipped' THEN 'Доставлен'
+            WHEN 'UnloadingOnStock' THEN 'Выгрузка на складе'
+            WHEN 'NotDelivered' THEN 'Недовоз'
+            WHEN 'Closed' THEN 'Закрыт'
+            ELSE o.order_status
+            END
+        ) AS order_satus,
+    TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(author.name, 1), LEFT(author.patronymic, 1), author.last_name)) AS author,
+    IFNULL(
+            DATE_FORMAT(
+                    p.date_and_time,
+                    '%d.%m.%Y %H:%i:%s'
+                ),
+            'оплата не найдена'
+        ) AS payment_date_time,
+    o.payment_type AS payment_type,
+    #номер группы для порядка в группировке в RDL
+    (
+        CASE o.order_status
+            WHEN 'Canceled' THEN 0
+            WHEN 'NewOrder' THEN 1
+            WHEN 'WaitForPayment' THEN 2
+            WHEN 'Accepted' THEN 3
+            WHEN 'InTravelList' THEN 4
+            WHEN 'OnLoading' THEN 5
+            WHEN 'OnTheWay' THEN 6
+            WHEN 'DeliveryCanceled' THEN 7
+            WHEN 'Shipped' THEN 8
+            WHEN 'UnloadingOnStock' THEN 9
+            WHEN 'NotDelivered' THEN 10
+            WHEN 'Closed' THEN 11
+            ELSE 999
+            END
+        ) AS order_satus_numbered,
+    #имя группы для группировки в RDL
+    (
+        CASE
+            WHEN p.total_sum = o_sum.total THEN 'Оплачено'
+            WHEN p.total_sum IS NULL OR p.total_sum = 0 AND p.total_sum &lt; o_sum.total THEN 'Отсутствует оплата'
+            WHEN p.total_sum &gt; 0 AND p.total_sum &gt; o_sum.total THEN 'Переплата'
+            WHEN p.total_sum &gt; 0 AND p.total_sum &lt; o_sum.total THEN 'Недоплата'
+            ELSE 'Оплачено'
+            END
+        ) AS underpayment,
+    #номер группы для порядка в группировке в RDL
+    (
+        CASE
+            WHEN p.total_sum = o_sum.total THEN 0
+            WHEN p.total_sum IS NULL OR p.total_sum = 0 AND p.total_sum &lt; o_sum.total THEN 1
+            WHEN p.total_sum &gt; 0 AND p.total_sum &gt; o_sum.total THEN 2
+            WHEN p.total_sum &gt; 0 AND p.total_sum &lt; o_sum.total THEN 3
+            ELSE 99
+            END
+        ) AS underpayment_number,
+    o.delivery_date &gt; CURDATE() AS is_future_order,
+    IF(p.shop IS NULL, o.online_order, CONCAT(p.number, '\n', p.shop)) AS number_and_shop
+    #для отладки на тестовых БД. Для того, чтоб увидеть заказы на будущие даты
+    #o.delivery_date &gt; '2018-10-03' AS is_future_order
 FROM
-	orders o
-LEFT JOIN 
-	counterparty c ON c.id = o.client_id
-LEFT JOIN
-	delivery_points dp ON dp.id = o.delivery_point_id
-LEFT JOIN
-	employees author ON author.id = o.author_employee_id
-LEFT JOIN
-	payments_from_tinkoff p ON p.number = o.online_order
-LEFT JOIN
-	(
-		SELECT
-			i.order_id AS id,
-			SUM(price * count - discount_money) AS total
-		FROM
-			order_items i
-		GROUP BY
-			i.order_id
-	) o_sum ON o_sum.id = o.id
+    orders o
+        LEFT JOIN
+    counterparty c ON c.id = o.client_id
+        LEFT JOIN
+    delivery_points dp ON dp.id = o.delivery_point_id
+        LEFT JOIN
+    employees author ON author.id = o.author_employee_id
+        LEFT JOIN
+    payments_from_tinkoff p ON p.number = o.online_order
+        LEFT JOIN
+    (
+        SELECT
+            i.order_id AS id,
+            ROUND(SUM(price * count - discount_money), 2) AS total
+        FROM
+            order_items i
+        GROUP BY
+            i.order_id
+    ) o_sum ON o_sum.id = o.id
 WHERE
-	payment_type = 'ByCard' AND	online_order IS NOT NULL
-	AND o.delivery_date &gt;= @date
-	AND (@shop = 'ALL' OR p.shop = @shop OR p.shop IS NULL)
-ORDER BY 
-	/*underpayment ASC, */order_satus_numbered DESC
+        payment_type = 'ByCard' AND	online_order IS NOT NULL
+  AND o.delivery_date &gt;= @date
+  AND (@shop = 'ALL' OR p.shop = @shop OR p.shop IS NULL)
+ORDER BY
+    /*underpayment ASC, */order_satus_numbered DESC
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
@@ -1208,7 +1208,7 @@ ORDER BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
