@@ -157,6 +157,7 @@ namespace Vodovoz
 	                .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 	                .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
+					.Select(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.ExpectedAmount)
 		        )
 		        .TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
 		        .List<ReceptionItemNode>();
