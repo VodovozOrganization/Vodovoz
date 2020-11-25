@@ -71,11 +71,11 @@ namespace Vodovoz.Domain
             set => SetField(ref financialDistricts, value);
         }
 
-        private GenericObservableList<FinancialDistrict> observableFinancialDistrict;
+        private GenericObservableList<FinancialDistrict> observableFinancialDistricts;
         //FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-        public virtual GenericObservableList<FinancialDistrict> ObservableFinancialDistrict => 
-            observableFinancialDistrict ?? 
-            (observableFinancialDistrict = new GenericObservableList<FinancialDistrict>(FinancialDistricts));
+        public virtual GenericObservableList<FinancialDistrict> ObservableFinancialDistricts => 
+            observableFinancialDistricts ?? 
+            (observableFinancialDistricts = new GenericObservableList<FinancialDistrict>(FinancialDistricts));
         
         #endregion
 

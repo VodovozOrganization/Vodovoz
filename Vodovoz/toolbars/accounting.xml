@@ -9,5 +9,6 @@
         <toolitem name='ActionOldExportTo1c' action='ActionOldExportTo1c'/>
         <toolitem name='ActionExportCounterpartiesTo1c' action='ActionExportCounterpartiesTo1c'/>
         <toolitem name='ActionImportFromTinkoff' action='ActionImportFromTinkoff'/>
+		<toolitem name='ActionFinancialDistrictsSetsJournal' action='ActionFinancialDistrictsSetsJournal'/>
 	</toolbar>
 </ui>

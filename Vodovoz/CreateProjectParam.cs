@@ -156,6 +156,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Tools;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
+using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz
 {
@@ -232,6 +233,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RouteListAnalysisViewModel, RouteListAnalysisView>()
 				.RegisterWidgetForTabViewModel<LateArrivalReasonViewModel, LateArrivalReasonView>()
 				.RegisterWidgetForTabViewModel<NomenclatureViewModel, NomenclatureView>()
+				.RegisterWidgetForTabViewModel<FinancialDistrictsSetViewModel, FinancialDistrictsSetView>()
 				;
 
 			//Регистрация виджетов
@@ -267,6 +269,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalFooterViewModel, BusinessTasksJournalFooterView>()
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalActionsViewModel, BusinessTasksJournalActionsView>()
 				.RegisterWidgetForWidgetViewModel<SendDocumentByEmailViewModel, SendDocumentByEmailView>()
+				.RegisterWidgetForWidgetViewModel<FinancialDistrictsSetsJournalFilterViewModel, FinancialDistrictsSetsJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
