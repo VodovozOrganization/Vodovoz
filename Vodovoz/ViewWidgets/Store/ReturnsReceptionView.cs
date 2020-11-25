@@ -106,7 +106,6 @@ namespace Vodovoz
 
 			ReceptionItemNode resultAlias = null;
 			Domain.Orders.Order orderAlias = null;
-			Equipment equipmentAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
@@ -146,8 +145,7 @@ namespace Vodovoz
 			var returnableEquipment = UoW.Session.QueryOver<RouteListItem>().Where(r => r.RouteList.Id == RouteList.Id)
 				.JoinAlias(rli => rli.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
-				.JoinAlias(() => orderEquipmentAlias.Equipment, () => equipmentAlias)
-		        .JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
+		        .JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
 		        .Where(() => orderEquipmentAlias.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
 		        .JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
 		        .Where(Restrictions.Or(
@@ -156,7 +154,6 @@ namespace Vodovoz
 		        ))
 		        .Where(() => nomenclatureAlias.Category != NomenclatureCategory.deposit)
 		        .SelectList(list => list
-	                .Select(() => equipmentAlias.Id).WithAlias(() => resultAlias.EquipmentId)
 	                .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 	                .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
@@ -196,11 +193,6 @@ namespace Vodovoz
 			foreach(var item in returnableItems) {
 				if(ReceptionReturnsList.All(i => i.NomenclatureId != item.NomenclatureId))
 					ReceptionReturnsList.Add(item);
-			}
-
-			foreach(var equipment in returnableEquipment) {
-				if(AlreadyUnloadedEquipment.All(eq => eq.Id != equipment.EquipmentId))
-					ReceptionReturnsList.Add(equipment);
 			}
 
 			if (returnableTerminal != null && isTerminalLoaded) {
