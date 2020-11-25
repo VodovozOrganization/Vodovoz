@@ -33,18 +33,18 @@ namespace Vodovoz.Domain
 			set => SetField(ref border, value);
 		}
 		
-		private GeographicGroup geographicGroup;
-		[Display(Name = "Часть города")]
-		public virtual GeographicGroup GeographicGroup {
-			get => geographicGroup;
-			set => SetField(ref geographicGroup, value);
+		private Organization organization;
+		[Display(Name = "Организация")]
+		public virtual Organization Organization {
+			get => organization;
+			set => SetField(ref organization, value);
 		}
 		
-		private FinancialDistrictsSet financialDistrictsesSet;
+		private FinancialDistrictsSet financialDistrictsSet;
 		[Display(Name = "Версия финансовых районов")]
 		public virtual FinancialDistrictsSet FinancialDistrictsSet {
-			get => financialDistrictsesSet;
-			set => SetField(ref financialDistrictsesSet, value);
+			get => financialDistrictsSet;
+			set => SetField(ref financialDistrictsSet, value);
 		}
 		
 		private FinancialDistrict copyOf;
@@ -66,10 +66,10 @@ namespace Vodovoz.Domain
 					new[] { nameof(this.Name) }
 				);
 			}
-			if(GeographicGroup == null) {
+			if(Organization == null) {
 				yield return new ValidationResult(
-					$"Для района \"{Name}\"Необходимо указать часть города, содержащую этот финансовый район",
-					new[] { nameof(this.GeographicGroup) }
+					$"Для района \"{Name}\" необходимо указать организацию",
+					new[] { nameof(this.Organization) }
 				);
 			}
 			if(Border == null) {
@@ -89,29 +89,9 @@ namespace Vodovoz.Domain
 			var newDistrict = new FinancialDistrict {
 				Name = Name,
 				Border = Border?.Copy(),
-				GeographicGroup = GeographicGroup,
+				Organization = Organization,
 			};
-			/*newDistrict.InitializeAllCollections();
 
-			foreach (var commonRuleItem in CommonDistrictRuleItems) {
-				var newCommonRuleItem = commonRuleItem.Clone() as CommonDistrictRuleItem;
-				newCommonRuleItem.District = newDistrict;
-				newDistrict.CommonDistrictRuleItems
-					.Add(newCommonRuleItem);
-			}
-			foreach (var scheduleRestriction in GetAllDeliveryScheduleRestrictions()) {
-				var newScheduleRestriction = scheduleRestriction.Clone() as DeliveryScheduleRestriction;
-				newScheduleRestriction.District = newDistrict;
-				newDistrict.GetScheduleRestrictionCollectionByWeekDayName(scheduleRestriction.WeekDay)
-					.Add(newScheduleRestriction);
-			}
-			foreach (var weekDayRule in GetAllWeekDayDistrictRuleItems()) {
-				var newWeekDayRule = weekDayRule.Clone() as WeekDayDistrictRuleItem;
-				newWeekDayRule.District = newDistrict;
-				newDistrict.GetWeekDayRuleItemCollectionByWeekDayName(weekDayRule.WeekDay)
-					.Add(newWeekDayRule);
-			}*/
-			
 			return newDistrict;
 		}
 

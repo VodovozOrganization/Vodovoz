@@ -16,7 +16,7 @@ namespace Vodovoz.HibernateMapping
             Map(x => x.Border).Column("border").CustomType<MySQL57GeometryType>();
             References(x => x.FinancialDistrictsSet).Column("financial_districts_set_id");
 
-            References(x => x.GeographicGroup).Column("geographic_group_id");
+            References(x => x.Organization).Column("organization_id");
             References(x => x.CopyOf).Column("copy_of_financial_district_id");
         }
     }
