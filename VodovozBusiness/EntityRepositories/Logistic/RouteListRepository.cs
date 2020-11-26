@@ -102,9 +102,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
 				.Where(() => OrderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
-			if(warehouse != null)
-				orderitemsQuery.JoinAlias(() => OrderItemNomenclatureAlias.Warehouses, () => warehouseAlias)
-							   .Where(() => warehouseAlias.Id == warehouse.Id);
 
 			return orderitemsQuery.SelectList(list => list
 				.SelectGroup(() => OrderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
@@ -133,11 +130,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias);
-
-			if(warehouse != null)
-				orderEquipmentsQuery.JoinAlias(() => OrderEquipmentNomenclatureAlias.Warehouses, () => warehouseAlias)
-									.Where(() => warehouseAlias.Id == warehouse.Id);
-
+				
 			return orderEquipmentsQuery
 				.SelectList(list => list
 				   .SelectGroup(() => OrderEquipmentNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
@@ -164,19 +157,10 @@ namespace Vodovoz.EntityRepositories.Logistic
 				var terminal = uow.GetById<Nomenclature>(terminalId);
 				int amount = 1;
 
-				if (warehouse == null) {
-					return new GoodsInRouteListResult {
-						NomenclatureId = terminalId,
-						Amount = amount
-					};
-				}
-
-				if (terminal.Warehouses.Contains(warehouse)) {
-					return new GoodsInRouteListResult {
-						NomenclatureId = terminalId,
-						Amount = amount
-					};
-				}
+				return new GoodsInRouteListResult {
+					NomenclatureId = terminalId,
+					Amount = amount
+				};
 			}
 
 			return null;
