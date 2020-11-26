@@ -13,11 +13,6 @@ namespace Vodovoz.Repository.Store
 			return new EntityRepositories.Store.WarehouseRepository().GetActiveWarehouse(uow);
 		}
 
-		public static IList<Warehouse> WarehouseForShipment(IUnitOfWork uow, int routeListId)
-		{
-			return new EntityRepositories.Store.WarehouseRepository().WarehouseForShipment(uow, routeListId);
-		}
-
 		public static IList<Warehouse> WarehouseForReception(IUnitOfWork uow, int id)
 		{
 			return new EntityRepositories.Store.WarehouseRepository().WarehouseForReception(uow, id);
