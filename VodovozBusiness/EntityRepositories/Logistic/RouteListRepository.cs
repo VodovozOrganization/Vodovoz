@@ -18,6 +18,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -157,10 +158,20 @@ namespace Vodovoz.EntityRepositories.Logistic
 				var terminal = uow.GetById<Nomenclature>(terminalId);
 				int amount = 1;
 
-				return new GoodsInRouteListResult {
-					NomenclatureId = terminalId,
-					Amount = amount
-				};
+				if(warehouse == null) {
+					return new GoodsInRouteListResult {
+						NomenclatureId = terminalId,
+						Amount = amount
+					};
+				}
+
+
+				if(StockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any()) {
+					return new GoodsInRouteListResult {
+						NomenclatureId = terminalId,
+						Amount = amount
+					};
+				}
 			}
 
 			return null;
