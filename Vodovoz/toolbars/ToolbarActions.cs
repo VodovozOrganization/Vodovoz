@@ -560,7 +560,7 @@ public partial class MainWindow : Window
 
 	void ActionFinancialDistrictsSetsJournal_Activated(object sender, EventArgs e)
 	{
-		var filter = new FinancialDistrictsSetsJournalFilterViewModel();
+		var filter = new FinancialDistrictsSetsJournalFilterViewModel { HidenByDefault = true };
 
 		var paymentsJournalViewModel = new FinancialDistrictsSetsJournalViewModel(
 			filter,
