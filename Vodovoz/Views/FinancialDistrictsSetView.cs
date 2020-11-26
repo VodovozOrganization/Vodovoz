@@ -12,6 +12,7 @@ using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz.Views
@@ -43,12 +44,14 @@ namespace Vodovoz.Views
 				.AddColumn("Название")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.Name)
-					.Editable()
+					.AddSetter((c, n) => 
+						c.Editable = n.FinancialDistrictsSet.Status != DistrictsSetStatus.Active)
 				.AddColumn("Организация")
 					.AddComboRenderer(x => x.Organization)
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(ViewModel.UoW.GetAll<Domain.Organization>().ToList())
-					.Editing()
+					.AddSetter((c, n) => 
+						c.Editable = n.FinancialDistrictsSet.Status != DistrictsSetStatus.Active)
 				.AddColumn("")
 				.Finish();
 			
@@ -152,6 +155,7 @@ namespace Vodovoz.Views
 				}
 				
 				toggleNewBorderPreview.Active = false;
+				newBordersPreviewOverlay.Clear();
 				ViewModel.ConfirmNewBorderCommand.Execute();
 				RefreshBorders();
 			}
@@ -162,6 +166,7 @@ namespace Vodovoz.Views
 			if(MessageDialogHelper.RunQuestionDialog("Отменить создание границы района?")) {
 				ViewModel.CancelNewBorderCommand.Execute();
 				verticeOverlay.Clear();
+				newBordersPreviewOverlay.Clear();
 				toggleNewBorderPreview.Active = false;
 			}
 		}
@@ -170,12 +175,10 @@ namespace Vodovoz.Views
 		{
 			if(args.Event.Button == 1 && ViewModel.IsCreatingNewBorder) {
 				var point = gmapWidget.FromLocalToLatLng((int) args.Event.X, (int) args.Event.Y);
-				var color = GMarkerGoogleType.yellow;
-					
-				ViewModel.AddNewVertexCommand.Execute(point);
-				GMapMarker markerPoint = new GMarkerGoogle(point, color);
-				verticeOverlay.Markers.Add(markerPoint);
 				
+				ViewModel.AddNewVertexCommand.Execute(point);
+				
+				RefreshVerticeOverlay();
 				RefreshPreviewBorders();
 			}
 
@@ -196,7 +199,8 @@ namespace Vodovoz.Views
 					item.Activated += (sender, e) =>
 					{
 						ViewModel.RemoveNewBorderVertexCommand.Execute(pointMarker);
-						verticeOverlay.Markers.Remove(marker);
+
+						RefreshVerticeOverlay();
 						RefreshPreviewBorders();
 					};
 
@@ -214,6 +218,24 @@ namespace Vodovoz.Views
 			newBordersPreviewOverlay.Polygons.Add(previewBorder);
 		}
 
+		private void RefreshVerticeOverlay()
+		{
+			verticeOverlay.Clear();
+			for (int i = 0; i < ViewModel.NewBorderVertices.Count; i++) {
+				var color = GMarkerGoogleType.red;
+
+				if (i == 0) {
+					color = GMarkerGoogleType.yellow;
+				}
+				else if (i == ViewModel.NewBorderVertices.Count - 1) {
+					color = GMarkerGoogleType.green;
+				}
+
+				GMapMarker point = new GMarkerGoogle(ViewModel.NewBorderVertices[i], color);
+				verticeOverlay.Markers.Add(point);
+			}
+		}
+
 		private void RefreshBorders()
 		{
 			bordersOverlay.Clear();
@@ -228,12 +250,7 @@ namespace Vodovoz.Views
 
 		private void ToggleNewBorderPreviewOnToggled(object sender, EventArgs e)
 		{
-			if (toggleNewBorderPreview.Active)
-				newBordersPreviewOverlay.IsVisibile = true;
-			else
-			{
-				newBordersPreviewOverlay.IsVisibile = false;
-			}
+			newBordersPreviewOverlay.IsVisibile = toggleNewBorderPreview.Active;
 		}
 
 		private void YTreeDistrictsSelectionOnChanged(object sender, EventArgs e)
@@ -261,6 +278,7 @@ namespace Vodovoz.Views
 				var iter = ytreeDistricts.YTreeModel.IterFromNode(ViewModel.SelectedDistrict);
 				var path = ytreeDistricts.YTreeModel.GetPath(iter);
 				ytreeDistricts.ScrollToCell(path, ytreeDistricts.Columns.FirstOrDefault(), false, 0, 0);
+				ytreeDistricts.Selection.SelectPath(path);
 			}
 		}
 	}

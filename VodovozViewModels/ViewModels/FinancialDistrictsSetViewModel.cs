@@ -100,7 +100,10 @@ namespace Vodovoz.ViewModels.ViewModels
             () => {
                 var distrToDel = selectedDistrict;
                 Entity.ObservableFinancialDistricts.Remove(SelectedDistrict);
-                if(entityDeleteWorker.DeleteObject<District>(distrToDel.Id, UoW)) {
+
+                if (distrToDel.Id == 0) return;
+                
+                if(entityDeleteWorker.DeleteObject<FinancialDistrict>(distrToDel.Id, UoW)) {
                     SelectedDistrict = null;
                 }
                 else {
@@ -177,7 +180,7 @@ namespace Vodovoz.ViewModels.ViewModels
 		{
 			SelectedDistrictBorderVertices.Clear();
 			
-			if(SelectedDistrict.Border?.Coordinates != null) {
+			if(SelectedDistrict?.Border?.Coordinates != null) {
 				foreach(Coordinate coord in SelectedDistrict.Border.Coordinates) {
 					SelectedDistrictBorderVertices.Add(new PointLatLng {
 						Lat = coord.X,

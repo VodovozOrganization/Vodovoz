@@ -622,6 +622,17 @@ namespace Vodovoz
 
 			#endregion
 
+			#region Financial District
+
+			DeleteConfig.AddHibernateDeleteInfo<FinancialDistrictsSet>()
+				.AddDeleteDependence<FinancialDistrict>(x => x.FinancialDistrictsSet);
+			
+			DeleteConfig.AddHibernateDeleteInfo<FinancialDistrict>()
+				.AddClearDependence<FinancialDistrict>(i => i.CopyOf)
+				.AddRemoveFromDependence<FinancialDistrictsSet>(x => x.FinancialDistricts);
+
+			#endregion
+
 			#region District
 
 			DeleteConfig.AddHibernateDeleteInfo<DistrictsSet>()

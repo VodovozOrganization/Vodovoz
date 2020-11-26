@@ -143,10 +143,7 @@ namespace Vodovoz.Domain.Logistic
         Closed
     }
     
-    public class DistrictsSetStatusStringType : NHibernate.Type.EnumStringType
-    {
-        public DistrictsSetStatusStringType() : base(typeof(DistrictsSetStatus))
-        {
-        }
+    public class DistrictsSetStatusStringType : NHibernate.Type.EnumStringType {
+        public DistrictsSetStatusStringType() : base(typeof(DistrictsSetStatus)) { }
     }
 }

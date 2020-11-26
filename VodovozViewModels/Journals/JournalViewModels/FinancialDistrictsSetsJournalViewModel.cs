@@ -31,8 +31,6 @@ namespace Vodovoz.Journals.JournalViewModels
         private readonly bool canUpdate;
         private readonly bool canCreate;
         private readonly bool canActivateDistrictsSet;
-        
-        public bool EnableDeleteButton { get; set; }
 
         public FinancialDistrictsSetsJournalViewModel(
             FinancialDistrictsSetsJournalFilterViewModel filterViewModel,
@@ -48,13 +46,12 @@ namespace Vodovoz.Journals.JournalViewModels
             this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
             this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			
-            canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_districts_set");
+            canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_financial_districts_set");
             var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FinancialDistrictsSet));
             canCreate = permissionResult.CanCreate;
             canUpdate = permissionResult.CanUpdate;
 
             TabName = "Журнал версий финансовых районов";
-            EnableDeleteButton = false;
             UpdateOnChanges(typeof(FinancialDistrictsSet));
         }
         
@@ -101,15 +98,13 @@ namespace Vodovoz.Journals.JournalViewModels
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
 			CreateCopyAction();
-			
-			if(EnableDeleteButton)
-				CreateDefaultDeleteAction();
 		}
 
 		private void CreateCopyAction()
 		{
 			var copyAction = new JournalAction("Копировать",
-				selectedItems => canCreate && selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault() != null,
+				selectedItems => canCreate && 
+				                 selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault() != null,
 				selected => true,
 				selected => {
 					var selectedNode = selected.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault();
@@ -141,7 +136,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						UoW.Save(copy);
 						UoW.Commit();
 						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Копирование завершено");
-						//Refresh();
+						Refresh();
 					}
 				}
 			);
@@ -176,7 +171,7 @@ namespace Vodovoz.Journals.JournalViewModels
 															.Take(1)
 															.SingleOrDefault();
 						
-						if(activeFinancialDistrictsSet.DateCreated > selectedNode.DateCreated) {
+						if(activeFinancialDistrictsSet?.DateCreated > selectedNode.DateCreated) {
 							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя активировать, так как дата создания выбранной версии меньше чем дата создания активной версии");
 							return;
 						}
@@ -210,7 +205,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								districtsSet.DateActivated = null;
 								UoW.Save(districtsSet);
 								UoW.Commit();
-								//Refresh();
+								Refresh();
 							}
 						}
 					}
@@ -239,7 +234,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								districtsSet.DateActivated = null;
 								UoW.Save(districtsSet);
 								UoW.Commit();
-								//Refresh();
+								Refresh();
 							}
 						}
 					}
@@ -260,7 +255,9 @@ namespace Vodovoz.Journals.JournalViewModels
 			selectedDistrictsSet.Status = DistrictsSetStatus.Active;
 			selectedDistrictsSet.DateActivated = DateTime.Now;
 				
+			UoW.Save(selectedDistrictsSet);
 			UoW.Commit();
+			Refresh();
 		}
     }
 }
