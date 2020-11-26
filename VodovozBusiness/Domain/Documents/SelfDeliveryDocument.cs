@@ -137,32 +137,31 @@ namespace Vodovoz.Domain.Documents
 					continue;
 				}
 
-				if(Warehouse == null || Warehouse.Nomenclatures.Contains(orderItem.Nomenclature)) {
-					if(!ObservableItems.Any(i => i.Nomenclature == orderItem.Nomenclature))
-						ObservableItems.Add(
-							new SelfDeliveryDocumentItem {
-								Document = this,
-								Nomenclature = orderItem.Nomenclature,
-								OrderItem = orderItem,
-								OrderEquipment = null,
-								Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature)
-							}
-						);
+				if(!ObservableItems.Any(i => i.Nomenclature == orderItem.Nomenclature)) {
+					ObservableItems.Add(
+						new SelfDeliveryDocumentItem {
+							Document = this,
+							Nomenclature = orderItem.Nomenclature,
+							OrderItem = orderItem,
+							OrderEquipment = null,
+							Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature)
+						}
+					);
 				}
+
 			}
 
 			foreach(var orderEquipment in Order.OrderEquipments.Where(x => x.Direction == Direction.Deliver)) {
-				if(Warehouse == null || Warehouse.Nomenclatures.Contains(orderEquipment.Nomenclature)) {
-					if(!ObservableItems.Any(i => i.Nomenclature == orderEquipment.Nomenclature))
-						ObservableItems.Add(
-							new SelfDeliveryDocumentItem {
-								Document = this,
-								Nomenclature = orderEquipment.Nomenclature,
-								OrderItem = null,
-								OrderEquipment = orderEquipment,
-								Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature)
-							}
-						);
+				if(!ObservableItems.Any(i => i.Nomenclature == orderEquipment.Nomenclature)) { 
+					ObservableItems.Add(
+						new SelfDeliveryDocumentItem {
+							Document = this,
+							Nomenclature = orderEquipment.Nomenclature,
+							OrderItem = null,
+							OrderEquipment = orderEquipment,
+							Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature)
+						}
+					);
 				}
 			}
 		}
