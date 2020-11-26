@@ -131,6 +131,7 @@ namespace Vodovoz.Repositories
 			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
 				.JoinAlias(() => operationAddAlias.Nomenclature, () => nomenclatureAddOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id);
+
 			if (nomenclatureTypeToInclude.Length > 0)
 			{
 				List<NomenclatureCategory> parsedCategories = new List<NomenclatureCategory>();
@@ -144,6 +145,18 @@ namespace Vodovoz.Repositories
 				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.ProductGroup.Id.IsIn(productGroupToInclude));
 			if(nomenclaturesToInclude != null && nomenclaturesToInclude.Any())
 				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.Id.IsIn(nomenclaturesToInclude));
+			if(nomenclatureTypeToExclude.Length > 0) {
+				List<NomenclatureCategory> parsedCategories = new List<NomenclatureCategory>();
+				foreach(var categoryName in nomenclatureTypeToExclude) {
+					parsedCategories.Add((NomenclatureCategory)Enum.Parse(typeof(NomenclatureCategory), categoryName));
+				}
+				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.Category.IsIn(parsedCategories));
+			}
+			if(productGroupToExclude != null && productGroupToExclude.Any())
+				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.ProductGroup.IsIn(productGroupToExclude));
+			if(nomenclaturesToExclude != null && nomenclaturesToExclude.Any())
+				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.Id.IsIn(nomenclaturesToExclude));
+
 			if(onDate.HasValue)
 				subqueryAdd = subqueryAdd.Where(x => x.OperationTime < onDate.Value);
 			subqueryAdd.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse.Id), warehouseId))
@@ -152,6 +165,18 @@ namespace Vodovoz.Repositories
 			var subqueryRemove = QueryOver.Of(() => operationRemoveAlias)
 				.JoinAlias(() => operationRemoveAlias.Nomenclature, () => nomenclatureRemoveOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id);
+
+			if(nomenclatureTypeToInclude.Length > 0) {
+				List<NomenclatureCategory> parsedCategories = new List<NomenclatureCategory>();
+				foreach(var categoryName in nomenclatureTypeToInclude) {
+					parsedCategories.Add((NomenclatureCategory)Enum.Parse(typeof(NomenclatureCategory), categoryName));
+				}
+				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Category.IsIn(parsedCategories));
+			}
+			if(productGroupToInclude != null && productGroupToInclude.Any())
+				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.ProductGroup.Id.IsIn(productGroupToInclude));
+			if(nomenclaturesToInclude != null && nomenclaturesToInclude.Any())
+				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Id.IsIn(nomenclaturesToInclude));
 			if (nomenclatureTypeToExclude.Length > 0)
 			{
 				List<NomenclatureCategory> parsedCategories = new List<NomenclatureCategory>();
@@ -165,6 +190,7 @@ namespace Vodovoz.Repositories
 				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.ProductGroup.IsIn(productGroupToExclude));
 			if(nomenclaturesToExclude != null && nomenclaturesToExclude.Any())
 				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Id.IsIn(nomenclaturesToExclude));
+
 			if(onDate.HasValue)
 				subqueryRemove = subqueryRemove.Where(x => x.OperationTime < onDate.Value);
 			subqueryRemove.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse.Id), warehouseId))
