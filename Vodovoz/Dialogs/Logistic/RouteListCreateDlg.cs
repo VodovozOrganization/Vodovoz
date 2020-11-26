@@ -20,6 +20,7 @@ using Vodovoz.Dialogs;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -378,11 +379,17 @@ namespace Vodovoz
 						}
 					} else {
 						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
-						var forShipment = warehouseRepository.WarehouseForShipment(UoW, Entity.Id);
 						var needTerminal = Entity.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
-						
-						if(!forShipment.Any() && !needTerminal) {
-							if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
+
+						var categoriesForDelivery = new NomenclatureCategory[] { NomenclatureCategory.service, NomenclatureCategory.deposit, NomenclatureCategory.master };
+
+						if(!Entity.Addresses.Any(address => 
+								address.Order.ObservableOrderItems.Any(item => 
+									!categoriesForDelivery.Contains(item.Nomenclature.Category) || !item.Nomenclature.NoDelivey)
+								|| address.Order.ObservableOrderEquipments.Any(equipment =>
+									!categoriesForDelivery.Contains(equipment.Nomenclature.Category) || !equipment.Nomenclature.NoDelivey)) 
+							&& !needTerminal) {
+							if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
 								valid = new QSValidator<RouteList>(
 									Entity,
 									new Dictionary<object, object> {
