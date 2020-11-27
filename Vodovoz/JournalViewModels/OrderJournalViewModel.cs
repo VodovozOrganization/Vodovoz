@@ -236,6 +236,7 @@ namespace Vodovoz.JournalViewModels
 				   .SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
 				)
 				.OrderBy(x => x.CreateDate).Desc
+				.SetTimeout(60)
 				.TransformUsing(Transformers.AliasToBean<OrderJournalNode<VodovozOrder>>());
 
 			return resultQuery;
@@ -313,6 +314,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => orderWSDAlias.DebtSum).WithAlias(() => resultAlias.Sum)
 				)
 				.OrderBy(x => x.CreateDate).Desc
+				.SetTimeout(60)
 				.TransformUsing(Transformers.AliasToBean<OrderJournalNode<OrderWithoutShipmentForDebt>>());
 
 			return resultQuery;
@@ -427,6 +429,7 @@ namespace Vodovoz.JournalViewModels
 				   	.SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 				)
 				.OrderBy(x => x.CreateDate).Desc
+				.SetTimeout(60)
 				.TransformUsing(Transformers.AliasToBean<OrderJournalNode<OrderWithoutShipmentForPayment>>());
 
 			return resultQuery;
@@ -531,6 +534,7 @@ namespace Vodovoz.JournalViewModels
 				   .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 				)
 				.OrderBy(x => x.CreateDate).Desc
+				.SetTimeout(60)
 				.TransformUsing(Transformers.AliasToBean<OrderJournalNode<OrderWithoutShipmentForAdvancePayment>>());
 
 			return resultQuery;
