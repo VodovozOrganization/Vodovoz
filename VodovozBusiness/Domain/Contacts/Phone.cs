@@ -62,7 +62,7 @@ namespace Vodovoz.Domain.Contacts
 				return PhoneType?.Name
 					 + (String.IsNullOrWhiteSpace(Number) ? "" : " +7 " + Number)
 					 + (String.IsNullOrWhiteSpace(Additional) ? "" : " доп." + Additional)
-					 + (String.IsNullOrWhiteSpace(Name) ? "" : String.Format(" [{0}]", Name));
+					 + (String.IsNullOrWhiteSpace(Name) ? "" : $"\n[{Name}]");
 			}
 		}
 
