@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Goods
     [HistoryTrace]
     public class NomenclatureFixedPrice : PropertyChangedBase, IDomainObject
     {
-        public int Id { get; set; }
+        public virtual int Id { get; set; }
 
         private Counterparty counterparty;
         [Display(Name = "Контрагент")]

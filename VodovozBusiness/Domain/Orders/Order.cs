@@ -1515,14 +1515,8 @@ namespace Vodovoz.Domain.Orders
 			if(discount > 0 && reason == null)
 				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
 
-			decimal price;
-			//влияющая номенклатура
-			Nomenclature infuentialNomenclature = nomenclature?.DependsOnNomenclature;
-
-			//TODO Добавить получение цены из фиксы, плюс проверить зависимую номенклатуру
-			price = nomenclature.GetPrice(proSet == null ? GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : count);
+			decimal price = GetWaterPrice(nomenclature, proSet, count);
 			
-
 			var oi = new OrderItem {
 				Order = this,
 				Count = count,
@@ -1537,9 +1531,32 @@ namespace Vodovoz.Domain.Orders
 			ObservableOrderItems.Add(oi);
 		}
 
+		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
+		{
+			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
+
+			IList<NomenclatureFixedPrice> fixedPrices = Contract.Counterparty.FixedPrices;
+			if(deliveryPoint != null) {
+				fixedPrices = deliveryPoint.FixedPrices;
+			}
+			
+			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && influentialNomenclature == null)) {
+				return fixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id).Price;
+			}
+			
+			if(influentialNomenclature != null && fixedPrices.Any(x => x.Nomenclature.Id == influentialNomenclature.Id)) {
+				return fixedPrices.First(x => x.Nomenclature.Id == influentialNomenclature?.Id).Price;
+			}
+			
+			return nomenclature.GetPrice(promoSet == null ? GetTotalWater19LCount(true) : bottlesCount);
+		}
+
 		public virtual IEnumerable<Nomenclature> GetNomenclaturesWithFixPrices{
 			get {
-				throw new NotImplementedException();
+				List<NomenclatureFixedPrice> fixedPrices = new List<NomenclatureFixedPrice>();
+				fixedPrices.AddRange(Client.FixedPrices);
+				fixedPrices.AddRange(Client.DeliveryPoints.SelectMany(x => x.FixedPrices));
+				return fixedPrices.Select(x => x.Nomenclature).Distinct();
 			}
 		}
 
@@ -3163,7 +3180,7 @@ namespace Vodovoz.Domain.Orders
 					newDoc = new AssemblyListDocument();
 					break;
 				default:
-					throw new NotImplementedException();
+					throw new NotSupportedException("Не поддерживаемый тип документа");
 			}
 			newDoc.Order = newDoc.AttachedToOrder = this;
 			return newDoc;

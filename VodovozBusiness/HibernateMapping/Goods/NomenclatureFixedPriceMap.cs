@@ -11,7 +11,7 @@ namespace Vodovoz.HibernateMapping.Goods
             Table ("nomenclature_fixed_prices");
 
             Id (x => x.Id).Column ("id").GeneratedBy.Native ();
-            Map (x => x.Price).Column ("price");
+            Map (x => x.Price).Column ("fixed_price");
 
             References(x => x.Counterparty).Column("counterparty_id");
             References(x => x.DeliveryPoint).Column("delivery_point_id");

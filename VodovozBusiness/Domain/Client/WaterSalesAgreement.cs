@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Client
 		public virtual IUnitOfWorkGeneric<WaterSalesAgreement> UoWGeneric { set; get; }
 		public virtual IUnitOfWork UoW { set; get; }
 
-		public IList<NomenclatureFixedPrice> FixedPrices {
+		public virtual IList<NomenclatureFixedPrice> FixedPrices {
 			get {
 				if (DeliveryPoint == null) {
 					return Contract.Counterparty.FixedPrices;
