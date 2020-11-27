@@ -709,7 +709,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
-			() => new ExportTo1cDialog()
+			() => new ExportTo1cDialog(UnitOfWorkFactory.GetDefaultFactory)
 		);
 	}
 
