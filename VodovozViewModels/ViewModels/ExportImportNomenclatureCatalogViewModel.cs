@@ -248,13 +248,11 @@ namespace Vodovoz.ViewModels
 			NomenclatureCatalogNode resultAlias = null;
 			NomenclaturePrice nomenclaturePriceAlias = null;
 			MeasurementUnits measurementUnitsAlias = null;
-			Warehouse warehouseAlias = null;
 			Folder1c folder1CAlias = null;
 			FuelType fuelTypeAlias = null;
 			EquipmentType equipmentTypeAlias = null;
 
 			var result = UoW.Session.QueryOver<Nomenclature>()
-				   .Left.JoinAlias(x => x.Warehouses, () => warehouseAlias)
 				   .Left.JoinAlias(x => x.Unit, () => measurementUnitsAlias)
 				   .Left.JoinAlias(x => x.Folder1C, () => folder1CAlias)
 				   .Left.JoinAlias(x => x.NomenclaturePrice, () => nomenclaturePriceAlias)
@@ -275,11 +273,6 @@ namespace Vodovoz.ViewModels
 								NHibernateUtil.Decimal,
 								Projections.Property(() => nomenclaturePriceAlias.Price)
 								).WithAlias(() => resultAlias.SellPrice))
-						.Select(Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1)"),
-								NHibernateUtil.String,
-								Projections.Property(() => warehouseAlias.Id)
-								).WithAlias(() => resultAlias.Warehouses))
 						.Select(Projections.SqlFunction(
 							new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?1)"),
 								NHibernateUtil.String,
@@ -331,19 +324,12 @@ namespace Vodovoz.ViewModels
 				List<int> productGroupIds = new List<int>();
 
 				foreach(var node in itemsToSave) {
-					try {
-						warehouseIds.AddRange(GetWarehouseIdsFromString(node.Warehouses));
-					} catch(FormatException) {
-						node.AddWrongDataErrorMessage("Строка складов имеет неверный формат");
-						NeedReload = true;
-					}
 					if(node.ShipperCounterpartyId.HasValue)
 						counterpartyIds.Add(node.ShipperCounterpartyId.Value);
 					if(node.GroupId.HasValue)
 						productGroupIds.Add(node.GroupId.Value);
 				}
 				progressBarValue++;
-				IEnumerable<Warehouse> warehouses = UoW.GetById<Warehouse>(warehouseIds.Distinct());
 				IEnumerable<Counterparty> counterparties = UoW.GetById<Counterparty>(counterpartyIds.Distinct());
 				IEnumerable<ProductGroup> productGroups = UoW.GetById<ProductGroup>(productGroupIds.Distinct());
 				IEnumerable<EquipmentType> equipmentTypes = UoW.GetAll<EquipmentType>();
@@ -429,16 +415,6 @@ namespace Vodovoz.ViewModels
 						Nomenclature = newNomenclature,
 						Price = node.SellPrice
 					});
-					try {
-						foreach(var warehouseid in GetWarehouseIdsFromString(node.Warehouses)) {
-							var warehouse = warehouses.FirstOrDefault(x => x.Id == warehouseid);
-							if(warehouse == null) {
-								node.AddWrongDataErrorMessage($"Не найден склад с ID: {warehouseid}");
-								continue;
-							}
-							newNomenclature.Warehouses.Add(warehouse);
-						}
-					} catch(FormatException) { /* Обработано выше. Действие не требуется*/ }
 					if(node.GroupId.HasValue) {
 						var group = productGroups.FirstOrDefault(x => x.Id == node.GroupId.Value);
 						if(group == null) {
@@ -862,7 +838,6 @@ namespace Vodovoz.ViewModels
 								nomToUpdate.NomenclaturePrice.Add(newNom.NomenclaturePrice.First());
 							}
 							nomToUpdate.ShipperCounterparty = newNom.ShipperCounterparty;
-							nomToUpdate.Warehouses = newNom.Warehouses;
 							nomToUpdate.ProductGroup = newNom.ProductGroup;
 							nomToUpdate.Folder1C = newNom.Folder1C;
 							nomToUpdate.Unit = newNom.Unit;
@@ -887,9 +862,6 @@ namespace Vodovoz.ViewModels
 							break;
 						case ConfirmUpdateAction.UpdateShipperCounterparties:
 							nomToUpdate.ShipperCounterparty = newNom.ShipperCounterparty;
-							break;
-						case ConfirmUpdateAction.UpdateWarehouses:
-							nomToUpdate.Warehouses = newNom.Warehouses;
 							break;
 						case ConfirmUpdateAction.UpdateGroups:
 							nomToUpdate.ProductGroup = newNom.ProductGroup;
@@ -971,7 +943,6 @@ namespace Vodovoz.ViewModels
 		public string Folder1cName { get; set; }
 		public string MeasurementUnit { get; set; }
 		public string Name { get; set; }
-		public string Warehouses { get; set; }
 		public string NomenclatureCategory { get; set; }
 		public string TareVolume { get; set; }
 		public string SaleCategory { get; set; }
@@ -1024,17 +995,16 @@ namespace Vodovoz.ViewModels
 			Map(x => x.Name).Index(1).Name("Наименование");
 			Map(x => x.GroupId).Index(2).Name("ID группы товаров");
 			Map(x => x.ShipperCounterpartyId).Index(3).Name("ID поставщика");
-			Map(x => x.Warehouses).Index(4).Name("ID складов");
-			Map(x => x.PurchasePrice).Index(5).Name("Цена закупки").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.SellPrice).Index(6).Name("Цена продажи").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.MeasurementUnit).Index(7).Name("Ед. измерения");
-			Map(x => x.Folder1cName).Index(8).Name("Имя папки 1С");
-			Map(x => x.NomenclatureCategory).Index(9).Name("Категория");
-			Map(x => x.TareVolume).Index(10).Name("Объем тары");
-			Map(x => x.EquipmentTypeName).Index(11).Name("Тип оборудования");
-			Map(x => x.SaleCategory).Index(12).Name("Доступность для продажи");
-			Map(x => x.TypeOfDepositCategory).Index(13).Name("Тип залога");
-			Map(x => x.FuelTypeName).Index(14).Name("Тип топлива");
+			Map(x => x.PurchasePrice).Index(4).Name("Цена закупки").Default(0).TypeConverter<DecimalConverter>();
+			Map(x => x.SellPrice).Index(5).Name("Цена продажи").Default(0).TypeConverter<DecimalConverter>();
+			Map(x => x.MeasurementUnit).Index(6).Name("Ед. измерения");
+			Map(x => x.Folder1cName).Index(7).Name("Имя папки 1С");
+			Map(x => x.NomenclatureCategory).Index(8).Name("Категория");
+			Map(x => x.TareVolume).Index(9).Name("Объем тары");
+			Map(x => x.EquipmentTypeName).Index(10).Name("Тип оборудования");
+			Map(x => x.SaleCategory).Index(11).Name("Доступность для продажи");
+			Map(x => x.TypeOfDepositCategory).Index(12).Name("Тип залога");
+			Map(x => x.FuelTypeName).Index(13).Name("Тип топлива");
 		}
 	}
 
