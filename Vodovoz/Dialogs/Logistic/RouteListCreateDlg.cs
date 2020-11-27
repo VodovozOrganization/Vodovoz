@@ -381,14 +381,7 @@ namespace Vodovoz
 						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
 						var needTerminal = Entity.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
-						var categoriesForDelivery = new NomenclatureCategory[] { NomenclatureCategory.service, NomenclatureCategory.deposit, NomenclatureCategory.master };
-
-						if(!Entity.Addresses.Any(address => 
-								address.Order.ObservableOrderItems.Any(item => 
-									!categoriesForDelivery.Contains(item.Nomenclature.Category) || !item.Nomenclature.NoDelivey)
-								|| address.Order.ObservableOrderEquipments.Any(equipment =>
-									!categoriesForDelivery.Contains(equipment.Nomenclature.Category) || !equipment.Nomenclature.NoDelivey)) 
-							&& !needTerminal) {
+						if(!Entity.NeedToLoad && !needTerminal) {
 							if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
 								valid = new QSValidator<RouteList>(
 									Entity,

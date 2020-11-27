@@ -912,7 +912,16 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.water
 			};
 		}
-		
+
+		public static NomenclatureCategory[] GetCategoriesNotNeededToLoad()
+		{
+			return new[] { 
+				NomenclatureCategory.service, 
+				NomenclatureCategory.deposit, 
+				NomenclatureCategory.master 
+			};
+		}
+
 		#endregion
 	}
 
