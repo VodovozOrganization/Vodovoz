@@ -192,11 +192,6 @@ namespace Vodovoz.ViewModels
 			}
 		}
 
-		private IEnumerable<int> GetWarehouseIdsFromString(string warehouses)
-		{
-			return warehouses.Split(',').Where(x => !String.IsNullOrWhiteSpace(x)).Select(x => int.Parse(x)).Distinct();
-		}
-
 		private IEnumerable<NomenclatureCatalogNode> ReadNodesFromFile()
 		{
 			CsvConfiguration configuration = new CsvConfiguration(CultureInfo.InvariantCulture);
@@ -319,7 +314,6 @@ namespace Vodovoz.ViewModels
 		{
 			try {
 				SetProgressBar(0, 100, "Проверка корректности данных...");
-				List<int> warehouseIds = new List<int>();
 				List<int> counterpartyIds = new List<int>();
 				List<int> productGroupIds = new List<int>();
 
