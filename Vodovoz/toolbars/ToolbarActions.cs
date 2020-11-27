@@ -44,6 +44,7 @@ using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalSelector;
@@ -101,6 +102,7 @@ public partial class MainWindow : Window
 	Action ActionExportImportNomenclatureCatalog;
 	Action ActionTransferBankDocs;
 	Action ActionPaymentFromBank;
+	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
 	Action ActionExportTo1c;
@@ -122,23 +124,28 @@ public partial class MainWindow : Window
 	public void BuildToolbarActions()
 	{
 		#region Creating actions
+
 		//Заказы
 		ActionOrdersTable = new Action("ActionOrdersTable", "Журнал заказов", null, "table");
 		ActionAddOrder = new Action("ActionAddOrder", "Новый заказ", null, "table");
 		ActionLoadOrders = new Action("ActionLoadOrders", "Загрузить из 1С", null, "table");
 		ActionDeliveryPrice = new Action("ActionDeliveryPrice", "Стоимость доставки", null, null);
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
+
 		//CRM
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
+
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
+
 		//Склад
 		ActionWarehouseDocuments = new Action("ActionWarehouseDocuments", "Журнал документов", null, "table");
 		ActionReadyForShipment = new Action("ActionReadyForShipment", "Готовые к погрузке", null, "table");
 		ActionReadyForReception = new Action("ActionReadyForReception", "Готовые к разгрузке", null, "table");
 		ActionWarehouseStock = new Action("ActionWarehouseStock", "Складские остатки", null, "table");
 		ActionClientBalance = new Action("ActionClientBalance", "Оборудование у клиентов", null, "table");
+
 		//Логистика
 		ActionRouteListTable = new Action("ActionRouteListTable", "Журнал МЛ", null, "table");
 		ActionAtWorks = new Action("ActionAtWorks", "На работе", null, "table");
@@ -149,6 +156,7 @@ public partial class MainWindow : Window
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
+
 		//Касса
 		ActionCashDocuments = new Action("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action("ActionAccountableDebt", "Долги сотрудников", null, "table");
@@ -168,17 +176,21 @@ public partial class MainWindow : Window
 		ActionAccountingTable = new Action("ActionAccountingTable", "Операции по счету", null, "table");
 		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
+		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
+
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
 		ActionRevisionBottlesAndDeposits = new Action("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
 		ActionResidue = new Action("ActionResidue", "Ввод остатков", null, "table");
 		ActionTransferOperationJournal = new Action("ActionTransferOperationJournal", "Переносы между точками доставки", null, "table");
+	
 		//Кадры
 		ActionEmployeeWorkChart = new Action("ActionEmployeeWorkChart", "График работы сотрудников", null, "table");
 		ActionFinesJournal = new Action("ActionFinesJournal", "Штрафы", null, "table");
 		ActionPremiumJournal = new Action("ActionPremiumJournal", "Премии", null, "table");
 		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Журнал доверенностей", null, "table");
 		ActionDistricts = new Action("ActionDistricts", "Версии районов", null, "table");
+
 		//Suppliers
 		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
@@ -187,12 +199,14 @@ public partial class MainWindow : Window
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup("ToolbarActions");
+
 		//Заказы
 		w1.Add(ActionOrdersTable, null);
 		w1.Add(ActionAddOrder, null);
 		w1.Add(ActionLoadOrders, null);
 		w1.Add(ActionDeliveryPrice, null);
 		w1.Add(ActionUndeliveredOrders, null);
+
 		//
 		w1.Add(ActionServiceClaims, null);
 		w1.Add(ActionWarehouseDocuments, null);
@@ -200,9 +214,11 @@ public partial class MainWindow : Window
 		w1.Add(ActionReadyForReception, null);
 		w1.Add(ActionWarehouseStock, null);
 		w1.Add(ActionClientBalance, null);
+
 		//CRM
 		w1.Add(ActionCallTasks, null);
 		w1.Add(ActionBottleDebtors, null);
+
 		//Логистика
 		w1.Add(ActionRouteListTable, null);
 		w1.Add(ActionAtWorks, null);
@@ -228,6 +244,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionReportDebtorsBottles, null);
 		w1.Add(ActionTransferBankDocs, null);
 		w1.Add(ActionPaymentFromBank, null);
+		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionAccountingTable, null);
 		w1.Add(ActionAccountFlow, null);
 		w1.Add(ActionExportTo1c, null);
@@ -239,6 +256,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionRouteListAddressesTransferring, null);
 		w1.Add(ActionTransferOperationJournal, null);
 		w1.Add(ActionDistricts, null);
+
 		//Suppliers
 		w1.Add(ActionNewRequestToSupplier, null);
 		w1.Add(ActionJournalOfRequestsToSuppliers, null);
@@ -289,6 +307,7 @@ public partial class MainWindow : Window
 		ActionReportDebtorsBottles.Activated += ActionReportDebtorsBottles_Activated;
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionPaymentFromBank.Activated += ActionPaymentFromBank_Activated;
+		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
@@ -534,6 +553,23 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			NavigationManagerProvider.NavigationManager,
 			OrderSingletonRepository.GetInstance()
+		);
+
+		tdiMain.AddTab(paymentsJournalViewModel);
+	}
+
+	void ActionFinancialDistrictsSetsJournal_Activated(object sender, EventArgs e)
+	{
+		var filter = new FinancialDistrictsSetsJournalFilterViewModel { HidenByDefault = true };
+
+		var paymentsJournalViewModel = new FinancialDistrictsSetsJournalViewModel(
+			filter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			VodovozGtkServicesConfig.EmployeeService,
+			new EntityDeleteWorker(), 
+			true, 
+			true
 		);
 
 		tdiMain.AddTab(paymentsJournalViewModel);

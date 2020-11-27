@@ -113,11 +113,13 @@
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
     <Compile Include="Journals\FilterViewModels\ExpenseCategoryJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\FinancialDistrictsSetsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\IncomeCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictsSetJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\DistrictsSetJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\ExpenseCategoryJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\FinancialDistrictsSetsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\IncomeCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalSelectors\ExpanceCategoryAutoCompleteSelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
@@ -126,6 +128,7 @@
     <Compile Include="Journals\JournalViewModels\Cash\ExpenseCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\FinancialDistrictsSetsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -239,6 +242,7 @@
     <Compile Include="Journals\FilterViewModels\Organization\SubdivisionFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
     <Compile Include="Journals\Nodes\Cash\FuelDocumentJournalNode.cs" />
+    <Compile Include="ViewModels\FinancialDistrictsSetViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />
