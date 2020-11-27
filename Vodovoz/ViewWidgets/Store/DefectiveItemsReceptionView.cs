@@ -135,13 +135,7 @@ namespace Vodovoz.ViewWidgets.Store
 									.Where(() => carUnloadDocumentAlias.RouteList.Id == RouteList.Id)
 									.Left.JoinAlias(() => carUnloadDocumentItemAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias)
 									.Left.JoinAlias(() => warehouseMovementOperationAlias.Nomenclature, () => nomenclatureAlias)
-									.JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
 									.Where(() => nomenclatureAlias.IsDefectiveBottle)
-									.Where(
-										Restrictions.Or(
-											Restrictions.On(() => warehouseAlias.Id).IsNull, Restrictions.Eq(Projections.Property(() => warehouseAlias.Id), Warehouse.Id)
-										)
-									)
 									.SelectList(
 										list => list
 										.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
