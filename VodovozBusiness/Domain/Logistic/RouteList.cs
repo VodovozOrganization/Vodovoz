@@ -497,6 +497,8 @@ namespace Vodovoz.Domain.Logistic
 		/// <returns>Количество полных 19л бутылей</returns>
 		public virtual int TotalFullBottlesToClient => Addresses.Sum(a => a.GetFullBottlesToDeliverCount());
 
+		public virtual bool NeedToLoad => Addresses.Any(address => address.NeedToLoad);
+
 		#endregion
 
 		void ObservableAddresses_ElementRemoved(object aList, int[] aIdx, object aObject)

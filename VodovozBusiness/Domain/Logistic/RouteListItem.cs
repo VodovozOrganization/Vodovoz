@@ -477,6 +477,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual WageDistrictLevelRate ForwarderWageCalcMethodicTemporaryStore { get; set; }
 
+		public virtual bool NeedToLoad => Order.HasItemsNeededToLoad;
+
 		#endregion
 
 		public RouteListItem() { }

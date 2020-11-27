@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
-using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
@@ -14,7 +13,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.ViewModel
 {
@@ -45,7 +44,6 @@ namespace Vodovoz.ViewModel
 			OrderEquipment orderEquipmentAlias = null;
 			Equipment equipmentAlias = null;
 			Nomenclature orderItemNomenclatureAlias = null, orderEquipmentNomenclatureAlias = null;
-			Warehouse warehouseAlias = null;
 
 			RouteList routeListAlias = null;
 			RouteListItem routeListAddressAlias = null;
@@ -57,15 +55,13 @@ namespace Vodovoz.ViewModel
 			var orderitemsSubqury = QueryOver.Of(() => orderItemsAlias)
 				.Where(() => orderItemsAlias.Order.Id == orderAlias.Id)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
-				.JoinAlias(() => orderItemNomenclatureAlias.Warehouses, () => warehouseAlias)
-				.Where(() => Filter.RestrictWarehouse.Id == warehouseAlias.Id)
 				.Select(i => i.Order);
+
 			var orderEquipmentSubquery = QueryOver.Of(() => orderEquipmentAlias)
 				.Where(() => orderEquipmentAlias.Order.Id == orderAlias.Id)
 				.JoinAlias(() => orderEquipmentAlias.Equipment, () => equipmentAlias)
 				.JoinAlias(() => equipmentAlias.Nomenclature, () => orderEquipmentNomenclatureAlias)
-				.JoinAlias(() => orderEquipmentNomenclatureAlias.Warehouses, () => warehouseAlias)
-				.Where(() => Filter.RestrictWarehouse.Id == warehouseAlias.Id && orderEquipmentAlias.Direction == Direction.Deliver)
+				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.Select(i => i.Order);
 
 			var queryRoutes = UoW.Session.QueryOver(() => routeListAlias)
@@ -98,13 +94,13 @@ namespace Vodovoz.ViewModel
 				.List<ReadyForShipmentVMNode>();
 
 			if(Filter.RestrictWarehouse != null) {
-				List<ReadyForShipmentVMNode> resultList = new List<ReadyForShipmentVMNode>();
+				var RouteListRepository = new RouteListRepository();
+				var resultList = new List<ReadyForShipmentVMNode>();
 				var routes = UoW.GetById<RouteList>(dirtyList.Select(x => x.Id));
 				foreach(var dirty in dirtyList) {
 					var route = routes.First(x => x.Id == dirty.Id);
-					var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(UoW, route);
-
-					var goodsAndEquips = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(UoW, route, Filter.RestrictWarehouse);
+					var inLoaded = RouteListRepository.AllGoodsLoaded(UoW, route);
+					var goodsAndEquips = RouteListRepository.GetGoodsAndEquipsInRL(UoW, route, Filter.RestrictWarehouse);
 
 					bool closed = true;
 					foreach(var rlItem in goodsAndEquips) {
@@ -115,13 +111,15 @@ namespace Vodovoz.ViewModel
 						}
 					}
 
-					if(!closed)
+					if(!closed) {
 						resultList.Add(dirty);
+					}
 				}
 
 				SetItemsSource(resultList.OrderByDescending(x => x.Date).ToList());
-			} else
+			} else {
 				SetItemsSource(dirtyList.OrderByDescending(x => x.Date).ToList());
+			}
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ReadyForShipmentVMNode>

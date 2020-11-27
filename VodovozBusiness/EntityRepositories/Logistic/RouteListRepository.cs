@@ -5,7 +5,6 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
-using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
@@ -18,6 +17,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -63,8 +63,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			List<GoodsInRouteListResult> result = new List<GoodsInRouteListResult>();
 
-			result.AddRange(GetGoodsInRLWithoutEquipments(uow, routeList, warehouse).ToList());
-			result.AddRange(GetEquipmentsInRL(uow, routeList, warehouse).ToList());
+			result.AddRange(GetGoodsInRLWithoutEquipments(uow, routeList).ToList());
+			result.AddRange(GetEquipmentsInRL(uow, routeList).ToList());
 
 			var terminal = GetTerminalInRL(uow, routeList, warehouse);
 			
@@ -82,13 +82,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.ToList();
 		}
 
-		public IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
+		public IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList)
 		{
 			GoodsInRouteListResult resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			Nomenclature OrderItemNomenclatureAlias = null;
-			Warehouse warehouseAlias = null;
 
 			var ordersQuery = QueryOver.Of(() => orderAlias);
 
@@ -102,9 +101,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
 				.Where(() => OrderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
-			if(warehouse != null)
-				orderitemsQuery.JoinAlias(() => OrderItemNomenclatureAlias.Warehouses, () => warehouseAlias)
-							   .Where(() => warehouseAlias.Id == warehouse.Id);
 
 			return orderitemsQuery.SelectList(list => list
 				.SelectGroup(() => OrderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
@@ -113,13 +109,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.List<GoodsInRouteListResult>();
 		}
 
-		public IList<GoodsInRouteListResult> GetEquipmentsInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
+		public IList<GoodsInRouteListResult> GetEquipmentsInRL(IUnitOfWork uow, RouteList routeList)
 		{
 			GoodsInRouteListResult resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature OrderEquipmentNomenclatureAlias = null;
-			Warehouse warehouseAlias = null;
 
 			//Выбирается список Id заказов находящихся в МЛ
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
@@ -133,11 +128,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias);
-
-			if(warehouse != null)
-				orderEquipmentsQuery.JoinAlias(() => OrderEquipmentNomenclatureAlias.Warehouses, () => warehouseAlias)
-									.Where(() => warehouseAlias.Id == warehouse.Id);
-
+				
 			return orderEquipmentsQuery
 				.SelectList(list => list
 				   .SelectGroup(() => OrderEquipmentNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
@@ -164,14 +155,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 				var terminal = uow.GetById<Nomenclature>(terminalId);
 				int amount = 1;
 
-				if (warehouse == null) {
+				if(warehouse == null) {
 					return new GoodsInRouteListResult {
 						NomenclatureId = terminalId,
 						Amount = amount
 					};
 				}
 
-				if (terminal.Warehouses.Contains(warehouse)) {
+
+				if(StockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any()) {
 					return new GoodsInRouteListResult {
 						NomenclatureId = terminalId,
 						Amount = amount

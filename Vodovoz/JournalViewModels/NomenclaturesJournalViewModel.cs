@@ -108,12 +108,6 @@ namespace Vodovoz.JournalViewModels
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(FilterViewModel.RestrictedExcludedIds.ToArray()));
 			}
 
-			if(FilterViewModel.RestrictedLoadedWarehouse != null) {
-				itemsQuery
-				.Left.JoinAlias(() => nomenclatureAlias.Warehouses, () => loadedWarehouseAlias)
-				.Where(() => loadedWarehouseAlias.Id == FilterViewModel.RestrictedLoadedWarehouse.Id);
-			}
-
 			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(ExcludingNomenclatureIds));
 

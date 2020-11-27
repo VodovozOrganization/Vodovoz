@@ -968,6 +968,11 @@ namespace Vodovoz.Domain.Orders
 			new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
 		        && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
 
+		public virtual bool HasItemsNeededToLoad => ObservableOrderItems.Any(orderItem =>
+				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderItem.Nomenclature.Category) && !orderItem.Nomenclature.NoDelivey)
+			|| ObservableOrderEquipments.Any(orderEquipment =>
+				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderEquipment.Nomenclature.Category) && !orderEquipment.Nomenclature.NoDelivey);
+
 		#endregion
 
 		#region Автосоздание договоров, допсоглашений при изменении подтвержденного заказа

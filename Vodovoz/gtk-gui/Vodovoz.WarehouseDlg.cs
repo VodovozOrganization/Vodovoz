@@ -42,20 +42,6 @@ namespace Vodovoz
 
 		private global::Gtk.Label label3;
 
-		private global::Gtk.Table table2;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
-
-		private global::QSOrmProject.RepresentationTreeView repTreeViewNomenclatures;
-
-		private global::Gtk.HButtonBox hbuttonbox2;
-
-		private global::Gtk.Button btnAddNomenclature;
-
-		private global::Gtk.Button btnRemoveNomenclature;
-
-		private global::Gtk.Label label4;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -106,7 +92,6 @@ namespace Vodovoz
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
-			this.notebook1.Name = "notebook1";
 			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.table1 = new global::Gtk.Table(((uint)(8)), ((uint)(2)), false);
@@ -273,73 +258,17 @@ namespace Vodovoz
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Информация");
 			this.notebook1.SetTabLabel(this.table1, this.label3);
 			this.label3.ShowAll();
-			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.table2 = new global::Gtk.Table(((uint)(2)), ((uint)(1)), false);
-			this.table2.Name = "table2";
-			this.table2.RowSpacing = ((uint)(6));
-			this.table2.ColumnSpacing = ((uint)(6));
-			// Container child table2.Gtk.Table+TableChild
-			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
-			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
-			this.repTreeViewNomenclatures = new global::QSOrmProject.RepresentationTreeView();
-			this.repTreeViewNomenclatures.CanFocus = true;
-			this.repTreeViewNomenclatures.Name = "repTreeViewNomenclatures";
-			this.GtkScrolledWindow2.Add(this.repTreeViewNomenclatures);
-			this.table2.Add(this.GtkScrolledWindow2);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table2[this.GtkScrolledWindow2]));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.hbuttonbox2 = new global::Gtk.HButtonBox();
-			this.hbuttonbox2.Name = "hbuttonbox2";
-			this.hbuttonbox2.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(1));
-			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
-			this.btnAddNomenclature = new global::Gtk.Button();
-			this.btnAddNomenclature.CanFocus = true;
-			this.btnAddNomenclature.Name = "btnAddNomenclature";
-			this.btnAddNomenclature.UseUnderline = true;
-			this.btnAddNomenclature.Label = global::Mono.Unix.Catalog.GetString("Добавить");
-			this.hbuttonbox2.Add(this.btnAddNomenclature);
-			global::Gtk.ButtonBox.ButtonBoxChild w21 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnAddNomenclature]));
-			w21.Expand = false;
-			w21.Fill = false;
-			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
-			this.btnRemoveNomenclature = new global::Gtk.Button();
-			this.btnRemoveNomenclature.CanFocus = true;
-			this.btnRemoveNomenclature.Name = "btnRemoveNomenclature";
-			this.btnRemoveNomenclature.UseUnderline = true;
-			this.btnRemoveNomenclature.Label = global::Mono.Unix.Catalog.GetString("Удалить");
-			this.hbuttonbox2.Add(this.btnRemoveNomenclature);
-			global::Gtk.ButtonBox.ButtonBoxChild w22 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnRemoveNomenclature]));
-			w22.Position = 1;
-			w22.Expand = false;
-			w22.Fill = false;
-			this.table2.Add(this.hbuttonbox2);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table2[this.hbuttonbox2]));
-			w23.TopAttach = ((uint)(1));
-			w23.BottomAttach = ((uint)(2));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.notebook1.Add(this.table2);
-			global::Gtk.Notebook.NotebookChild w24 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.table2]));
-			w24.Position = 1;
-			// Notebook tab
-			this.label4 = new global::Gtk.Label();
-			this.label4.Name = "label4";
-			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Отгружаемые номенклатуры");
-			this.notebook1.SetTabLabel(this.table2, this.label4);
-			this.label4.ShowAll();
 			this.vbox3.Add(this.notebook1);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.notebook1]));
-			w25.Position = 1;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.notebook1]));
+			w19.Position = 1;
+			w19.Expand = false;
+			w19.Fill = false;
 			this.Add(this.vbox3);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.btnAddNomenclature.Clicked += new global::System.EventHandler(this.OnBtnAddNomenclatureClicked);
-			this.btnRemoveNomenclature.Clicked += new global::System.EventHandler(this.OnBtnRemoveNomenclatureClicked);
 		}
 	}
 }
