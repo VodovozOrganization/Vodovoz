@@ -179,27 +179,6 @@ namespace SmsPaymentService
                         #region OrderStatusChanged
                         if(oldPaymentType != payment.Order.PaymentType)
                         {
-                            if ((oldPaymentType == PaymentType.cash && payment.Order.PaymentType == PaymentType.ByCard)
-                                && payment.Order.SelfDelivery
-                                && payment.Order.OrderStatus == OrderStatus.WaitForPayment
-                                && payment.Order.PayAfterShipment)
-                            {
-                                payment.Order.TryCloseSelfDeliveryOrder(
-                                    uow,
-                                    new BaseParametersProvider(),
-                                    new RouteListItemRepository(),
-                                    new SelfDeliveryRepository(), 
-                                    new CashRepository());
-                            }
-                            
-                            if ((oldPaymentType == PaymentType.cash && payment.Order.PaymentType == PaymentType.ByCard)
-                                && payment.Order.SelfDelivery
-                                && payment.Order.OrderStatus == OrderStatus.WaitForPayment
-                                && !payment.Order.PayAfterShipment)
-                            {
-                                payment.Order.ChangeStatus(OrderStatus.OnLoading);
-                            }
-                            
                             logger.Info(
                                 $"Тип оплаты заказа № {payment.Order.Id} изменён c {oldPaymentType} на {payment.Order.PaymentType}");
                         }

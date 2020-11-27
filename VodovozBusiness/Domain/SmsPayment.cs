@@ -3,9 +3,13 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz.Domain
 {
@@ -83,11 +87,33 @@ namespace Vodovoz.Domain
         public virtual SmsPayment SetPaid(IUnitOfWork uow, DateTime datePaid, PaymentFrom paymentFrom)
         {
             SmsPaymentStatus = SmsPaymentStatus.Paid;
+            
+            if (Order.PaymentType == PaymentType.cash
+                && Order.SelfDelivery
+                && Order.OrderStatus == OrderStatus.WaitForPayment
+                && Order.PayAfterShipment)
+                {
+                    Order.TryCloseSelfDeliveryOrder(
+                        uow,
+                        new BaseParametersProvider(),
+                        new RouteListItemRepository(),
+                        new SelfDeliveryRepository(),
+                        new CashRepository());
+                }
+
+                if (Order.PaymentType == PaymentType.cash
+                    && Order.SelfDelivery
+                    && Order.OrderStatus == OrderStatus.WaitForPayment
+                    && !Order.PayAfterShipment)
+                {
+                    Order.ChangeStatus(OrderStatus.OnLoading);
+                }
+            
             PaidDate = datePaid;
             Order.OnlineOrder = ExternalId;
             Order.PaymentType = PaymentType.ByCard;    
             Order.PaymentByCardFrom = paymentFrom;
-            
+
             foreach (var routeListItem in uow.Session.QueryOver<RouteListItem>().Where(x => x.Order.Id == Order.Id).List<RouteListItem>()) {
                 routeListItem.RecalculateTotalCash();
                 uow.Save(routeListItem);
