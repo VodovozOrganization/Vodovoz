@@ -913,7 +913,7 @@ FROM
         LEFT JOIN
     employees ON employees.id = orders.author_employee_id
 WHERE
-  DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY) &lt;= '2020-11-6'
+  DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY) &lt;= DATE(@date)
   AND orders.order_payment_status IN ('UnPaid', 'PartiallyPaid')
   AND counterparty.is_chain_store = 1
   AND orders.payment_type = 'cashless'
