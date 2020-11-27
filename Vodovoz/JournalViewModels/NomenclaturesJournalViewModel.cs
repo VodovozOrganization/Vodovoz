@@ -124,7 +124,9 @@ namespace Vodovoz.JournalViewModels
 					() => nomenclatureAlias.OnlineStoreExternalId
 				)
 			);
-			
+
+			if(!FilterViewModel.RestrictDilers)
+				itemsQuery.Where(() => !nomenclatureAlias.IsDiler);
 			if(FilterViewModel.RestrictCategory == NomenclatureCategory.water)
 				itemsQuery.Where(() => nomenclatureAlias.IsDisposableTare == FilterViewModel.RestrictDisposbleTare);
 
