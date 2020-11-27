@@ -5,7 +5,6 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
-using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
@@ -89,7 +88,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			Nomenclature OrderItemNomenclatureAlias = null;
-			Warehouse warehouseAlias = null;
 
 			var ordersQuery = QueryOver.Of(() => orderAlias);
 
@@ -117,7 +115,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature OrderEquipmentNomenclatureAlias = null;
-			Warehouse warehouseAlias = null;
 
 			//Выбирается список Id заказов находящихся в МЛ
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
