@@ -381,7 +381,7 @@ namespace Vodovoz
 						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
 						var needTerminal = Entity.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
-						var categoriesForDelivery = Nomenclature.GetCategoriesForShipment();
+						var categoriesForDelivery = new NomenclatureCategory[] { NomenclatureCategory.service, NomenclatureCategory.deposit, NomenclatureCategory.master };
 
 						if(!Entity.Addresses.Any(address => 
 								address.Order.ObservableOrderItems.Any(item => 
