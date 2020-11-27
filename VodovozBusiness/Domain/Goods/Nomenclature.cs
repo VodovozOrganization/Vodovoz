@@ -782,6 +782,9 @@ namespace Vodovoz.Domain.Goods
 			};
 		}
 
+		/// <summary>
+		/// Список номенклатур доступных для отгрузки 
+		/// </summary>
 		public static NomenclatureCategory[] GetCategoriesForShipment()
 		{
 			return new[] {
