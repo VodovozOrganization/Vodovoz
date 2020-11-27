@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -11,9 +10,7 @@ using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSProjectsLib;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -109,7 +106,6 @@ namespace Vodovoz
 			Nomenclature nomenclatureAlias = null;
 			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
-			Warehouse warehouseAlias = null;
 			RouteListItem routeListItemAlias = null;
 			RouteListItem routeListItemToAlias = null;
 			Employee employeeAlias = null;
@@ -119,13 +115,8 @@ namespace Vodovoz
 				.JoinAlias(rli => rli.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
-				.JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
 				.Left.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.Left.JoinAlias(() => routeListItemAlias.TransferedTo, () => routeListItemToAlias)
-				.Where(Restrictions.Or(
-					Restrictions.On(() => warehouseAlias.Id).IsNull,
-					Restrictions.Eq(Projections.Property(() => warehouseAlias.Id), Warehouse.Id)
-				))
 				.Where(() => nomenclatureAlias.Category != NomenclatureCategory.deposit)
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
@@ -147,11 +138,6 @@ namespace Vodovoz
 				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 		        .JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
 		        .Where(() => orderEquipmentAlias.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
-		        .JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
-		        .Where(Restrictions.Or(
-		            Restrictions.On(() => warehouseAlias.Id).IsNull,
-		            Restrictions.Eq(Projections.Property(() => warehouseAlias.Id), Warehouse.Id)
-		        ))
 		        .Where(() => nomenclatureAlias.Category != NomenclatureCategory.deposit)
 		        .SelectList(list => list
 	                .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
@@ -175,10 +161,8 @@ namespace Vodovoz
 			var returnableTerminal = uow.Session.QueryOver<EmployeeNomenclatureMovementOperation>(() => employeeOperationAlias)
 			                            .Left.JoinAlias(x => x.Nomenclature, () => nomenclatureAlias)
 			                            .Left.JoinAlias(x => x.Employee, () => employeeAlias)
-			                            .JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
 			                            .Where(() => employeeAlias.Id == RouteList.Driver.Id)
 			                            .And(() => nomenclatureAlias.Id == terminalId)
-			                            .And(() => warehouseAlias.Id == Warehouse.Id)
 			                            .SelectList(list => list
                                             .SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
                                             .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
