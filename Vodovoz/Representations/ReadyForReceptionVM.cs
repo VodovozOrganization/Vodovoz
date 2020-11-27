@@ -11,7 +11,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModel
 {
@@ -38,8 +37,6 @@ namespace Vodovoz.ViewModel
 			Equipment equipmentAlias = null;
 			CarUnloadDocument carUnloadDocAlias = null;
 			Nomenclature orderItemNomenclatureAlias = null, orderEquipmentNomenclatureAlias = null, orderNewEquipmentNomenclatureAlias = null;
-			Warehouse warehouseAlias = null;
-			Warehouse warehouseForNewEquipmentAlias = null;
 
 			RouteList routeListAlias = null;
 			RouteListItem routeListAddressAlias = null;
@@ -52,26 +49,23 @@ namespace Vodovoz.ViewModel
 			var orderitemsSubqury = QueryOver.Of<OrderItem>(() => orderItemsAlias)
 				.Where(() => orderItemsAlias.Order.Id == orderAlias.Id)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
-				.JoinAlias(() => orderItemNomenclatureAlias.Warehouses, () => warehouseAlias)
-				.Where(() => warehouseAlias.Id == Filter.RestrictWarehouse.Id)
 				.Select(i => i.Order);
+
 			var orderEquipmentSubquery = QueryOver.Of<OrderEquipment>(() => orderEquipmentAlias)
 				.Where(() => orderEquipmentAlias.Order.Id == orderAlias.Id)
 				.JoinAlias(() => orderEquipmentAlias.Equipment, () => equipmentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(() => equipmentAlias.Nomenclature, () => orderEquipmentNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => orderNewEquipmentNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(() => orderNewEquipmentNomenclatureAlias.Warehouses, () => warehouseForNewEquipmentAlias)
-				.JoinAlias(() => orderEquipmentNomenclatureAlias.Warehouses, () => warehouseAlias)
-				.Where(() => warehouseAlias.Id == Filter.RestrictWarehouse.Id || warehouseForNewEquipmentAlias.Id == Filter.RestrictWarehouse.Id)
 				.Select(i => i.Order);
 
 			var queryRoutes = UoW.Session.QueryOver<RouteList>(() => routeListAlias)
 				.JoinAlias(rl => rl.Driver, () => employeeAlias)
 				.JoinAlias(rl => rl.Car, () => carAlias)
-			.Where(r => routeListAlias.Status == RouteListStatus.OnClosing || routeListAlias.Status == RouteListStatus.MileageCheck || routeListAlias.Status == RouteListStatus.Delivered);
+				.Where(r => routeListAlias.Status == RouteListStatus.OnClosing 
+						 || routeListAlias.Status == RouteListStatus.MileageCheck
+						 || routeListAlias.Status == RouteListStatus.Delivered);
 
 			if(Filter.RestrictWarehouse != null) {
-
 				queryRoutes.JoinAlias(rl => rl.Addresses, () => routeListAddressAlias)
 					.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
 					.Where(new Disjunction()
