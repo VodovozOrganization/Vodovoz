@@ -63,8 +63,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			List<GoodsInRouteListResult> result = new List<GoodsInRouteListResult>();
 
-			result.AddRange(GetGoodsInRLWithoutEquipments(uow, routeList, warehouse).ToList());
-			result.AddRange(GetEquipmentsInRL(uow, routeList, warehouse).ToList());
+			result.AddRange(GetGoodsInRLWithoutEquipments(uow, routeList).ToList());
+			result.AddRange(GetEquipmentsInRL(uow, routeList).ToList());
 
 			var terminal = GetTerminalInRL(uow, routeList, warehouse);
 			
@@ -82,7 +82,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.ToList();
 		}
 
-		public IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
+		public IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList)
 		{
 			GoodsInRouteListResult resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
@@ -109,7 +109,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.List<GoodsInRouteListResult>();
 		}
 
-		public IList<GoodsInRouteListResult> GetEquipmentsInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
+		public IList<GoodsInRouteListResult> GetEquipmentsInRL(IUnitOfWork uow, RouteList routeList)
 		{
 			GoodsInRouteListResult resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
