@@ -57,6 +57,12 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			radioInfo.Toggled += OnRadioInfoToggled;
+			radioEquipment.Toggled += OnRadioEquipmentToggled;
+			radioCharacteristics.Toggled += OnRadioCharacteristicsToggled;
+			radioImages.Toggled += OnRadioImagesToggled;
+			radioPrice.Toggled += OnRadioPriceToggled;
+
 			notebook1.ShowTabs = false;
 			spinWeight.Sensitive = false;
 			spinVolume.Sensitive = false;
@@ -307,19 +313,19 @@ namespace Vodovoz
 		protected void OnRadioEquipmentToggled(object sender, EventArgs e)
 		{
 			if(radioEquipment.Active)
-				notebook1.CurrentPage = 2;
+				notebook1.CurrentPage = 1;
 		}
 
 		protected void OnRadioCharacteristicsToggled(object sender, EventArgs e)
 		{
 			if(radioCharacteristics.Active)
-				notebook1.CurrentPage = 3;
+				notebook1.CurrentPage = 2;
 		}
 
 		protected void OnRadioImagesToggled(object sender, EventArgs e)
 		{
 			if(radioImages.Active) {
-				notebook1.CurrentPage = 4;
+				notebook1.CurrentPage = 3;
 				ImageTabOpen();
 			}
 		}
@@ -327,7 +333,7 @@ namespace Vodovoz
 		protected void OnRadioPriceToggled(object sender, EventArgs e)
 		{
 			if(radioPrice.Active)
-				notebook1.CurrentPage = 5;
+				notebook1.CurrentPage = 4;
 		}
 
 		#endregion
