@@ -157,7 +157,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						if(selectedNode == null)
 							return;
 						var activeDistrictsSet = UoW.Session.QueryOver<DistrictsSet>().Where(x => x.Status == DistrictsSetStatus.Active).Take(1).SingleOrDefault();
-						if(activeDistrictsSet.DateCreated > selectedNode.DateCreated) {
+						if(activeDistrictsSet?.DateCreated > selectedNode.DateCreated) {
 							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя активировать, так как дата создания выбранной версии меньше чем дата создания активной версии");
 							return;
 						}

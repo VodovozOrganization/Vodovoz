@@ -323,7 +323,9 @@ namespace Vodovoz
 			referenceForwarder.Sensitive = editing;
 			referenceLogistican.Sensitive = editing;
 			datePickerDate.Sensitive = editing;
-			ycheckConfirmDifferences.Sensitive = editing && Entity.Status == RouteListStatus.OnClosing;
+			ycheckConfirmDifferences.Sensitive = editing &&
+				(Entity.Status == RouteListStatus.OnClosing || 
+				 Entity.Status == RouteListStatus.Delivered);
 			ytextClosingComment.Sensitive = editing;
 			routeListAddressesView.IsEditing = editing;
 			ycheckHideCells.Sensitive = editing;
@@ -589,6 +591,9 @@ namespace Vodovoz
 			Entity.CalculateWages(wageParameterService);
 			decimal driverWage = Entity.GetDriversTotalWage();
 			decimal forwarderWage = Entity.GetForwardersTotalWage();
+			decimal acceptedDriverWage = Entity.DriverWageOperation?.Money ?? 0;
+			decimal acceptedForwarderWage = Entity.ForwarderWageOperation?.Money ?? 0;
+
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = string.Format(
 				"Сот. связь: {0} {1}",
@@ -619,9 +624,12 @@ namespace Vodovoz
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = string.Format(
-				"ЗП вод.: <b>{0}</b> {2}" + "  " + "ЗП эксп.: <b>{1}</b> {2}",
+				"ЗП вод.: <b>{0}</b> {4}" + "  " + "ЗП эксп.: <b>{2}</b> {4}" + " " + 
+				"Подтв.: ЗП вод.: <b>{1}</b> {4}" + "  " + "ЗП эксп.: <b>{3}</b> {4}",
 				driverWage,
+				acceptedDriverWage,
 				forwarderWage,
+				acceptedForwarderWage,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelEmptyBottlesFommula.Markup = string.Format("Тара: <b>{0}</b><sub>(выгружено на склад)</sub> - <b>{1}</b><sub>(по документам)</sub> =",
@@ -702,11 +710,14 @@ namespace Vodovoz
 				return false;
 			}
 
-			if (HasChanges && Entity.Status == RouteListStatus.Delivered)
-			{
-				Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
+			if(HasChanges && Entity.Status == RouteListStatus.Delivered) {
+				if(Entity.Car.IsCompanyCar) {
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+				} else {
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
+				}
 			}
-			
+
 			UoW.Save();
 
 			return true;
@@ -786,7 +797,20 @@ namespace Vodovoz
 				
 				PerformanceHelper.AddTimePoint("Создано задание на обзвон");
 			}
-			
+
+			if(Entity.Status == RouteListStatus.Delivered) {
+				if(routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0)
+				&& !Entity.DifferencesConfirmed) {
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
+				} else {
+					if(Entity.Car.IsCompanyCar) {
+						Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+					} else {
+						Entity.ChangeStatusAndCreateTask(RouteListStatus.Closed, CallTaskWorker);
+					}
+				}
+			}
+
 			SaveAndClose();
 			
 			PerformanceHelper.AddTimePoint("Сохранение и закрытие завершено");

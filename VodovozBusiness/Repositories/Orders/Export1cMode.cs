@@ -3,6 +3,7 @@
 	public enum Export1cMode
 	{
 		BuhgalteriaOOO,
-		IPForTinkoff
+		IPForTinkoff,
+		BuhgalteriaOOONew
 	}
 }

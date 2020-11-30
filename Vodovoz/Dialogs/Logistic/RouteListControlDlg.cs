@@ -7,9 +7,7 @@ using Gamma.Utilities;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Core.DataService;
@@ -29,7 +27,6 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.ViewModels.Goods;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -78,10 +75,7 @@ namespace Vodovoz.Dialogs.Logistic
 		
 		public GenericObservableList<RouteListControlNotLoadedNode> ObservableNotLoadedList { get; set; }
 			= new GenericObservableList<RouteListControlNotLoadedNode>();
-
-		public GenericObservableList<Nomenclature> ObservableNotAttachedList { get; set; }
-			= new GenericObservableList<Nomenclature>();
-
+			
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
 			get {
@@ -127,8 +121,6 @@ namespace Vodovoz.Dialogs.Logistic
 			ytreeviewNotLoaded.ColumnsConfig = ColumnsConfigFactory.Create<RouteListControlNotLoadedNode>()
 				.AddColumn("Номенклатура")
 					.AddTextRenderer(x => x.Nomenclature.Name)
-				.AddColumn("Возможные склады")
-					.AddTextRenderer(x => string.Join(", ", x.Nomenclature.Warehouses.Select(w => w.Name)))
 				.AddColumn("Погружено")
 					.AddTextRenderer(x => x.CountLoadedString, useMarkup: true)
 				.AddColumn("Всего")
@@ -137,13 +129,6 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddNumericRenderer(x => x.CountNotLoaded)
 				.RowCells()
 				.Finish();
-
-			ytreeviewNotAttached.ColumnsConfig = ColumnsConfigFactory.Create<Nomenclature>()
-				.AddColumn("Номенклатура").AddTextRenderer(x => x.Name)
-				.RowCells()
-				.Finish();
-
-			ytreeviewNotAttached.RowActivated += YtreeviewNotAttached_RowActivated;
 
 			UpdateLists();
 		}
@@ -155,22 +140,7 @@ namespace Vodovoz.Dialogs.Logistic
 			
 			ObservableNotLoadedList = new GenericObservableList<RouteListControlNotLoadedNode>(notLoadedNomenclatures);
 
-			var notAttachedNomenclatures = UoW.Session.QueryOver<Nomenclature>()
-											  .WhereRestrictionOn(x => x.Id).IsIn(goods.Select(x => x.NomenclatureId).ToList())
-											  .List()
-											  .Where(n => !n.Warehouses.Any())
-											  .ToList();
-			ObservableNotAttachedList = new GenericObservableList<Nomenclature>(notAttachedNomenclatures);
 			ytreeviewNotLoaded.ItemsDataSource = ObservableNotLoadedList;
-			ytreeviewNotAttached.ItemsDataSource = ObservableNotAttachedList;
-		}
-
-		void YtreeviewNotAttached_RowActivated(object o, Gtk.RowActivatedArgs args)
-		{
-			if(ytreeviewNotAttached.GetSelectedObject() is Nomenclature notAttachedNomenclature)
-				TabParent.AddTab(new NomenclatureViewModel(EntityUoWBuilder.ForOpen(notAttachedNomenclature.Id), 
-					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, employeeService, NomenclatureSelectorFactory, 
-					CounterpartySelectorFactory, NomenclatureRepository, userRepository), this);
 		}
 
 		protected void OnBtnSendEnRouteClicked(object sender, EventArgs e)

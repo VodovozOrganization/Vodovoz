@@ -169,7 +169,7 @@ namespace Vodovoz
 					Entity.ClearItemsFromZero();
 			}
 
-			Entity.UpdateOperations(UoW, new BaseParametersProvider().GetNomenclatureIdForTerminal);
+			Entity.UpdateOperations(UoW);
 
 			logger.Info("Сохраняем погрузочный талон...");
 			UoWGeneric.Save();

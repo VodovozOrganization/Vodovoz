@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -22,6 +21,8 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class CarLoadDocument : Document, IValidatableObject
 	{
+		#region Сохраняемые свойства
+		
 		DateTime version;
 		[Display(Name = "Версия")]
 		public virtual DateTime Version {
@@ -35,30 +36,23 @@ namespace Vodovoz.Domain.Documents
 				base.TimeStamp = value;
 				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
 					return;
-				foreach(var item in Items) {
-					if(item.MovementOperation != null && item.MovementOperation.OperationTime != TimeStamp)
-						item.MovementOperation.OperationTime = TimeStamp;
-				}
+				UpdateOperationsTime();
 			}
 		}
 
-		RouteList routeList;
-
+		private RouteList routeList;
 		public virtual RouteList RouteList {
 			get => routeList;
 			set => SetField(ref routeList, value, () => RouteList);
 		}
 
-		Warehouse warehouse;
-
+		private Warehouse warehouse;
 		public virtual Warehouse Warehouse {
 			get => warehouse;
 			set => SetField(ref warehouse, value, () => Warehouse);
 		}
-
-
-		IList<CarLoadDocumentItem> items = new List<CarLoadDocumentItem>();
-
+		
+		private IList<CarLoadDocumentItem> items = new List<CarLoadDocumentItem>();
 		[Display(Name = "Строки")]
 		public virtual IList<CarLoadDocumentItem> Items {
 			get => items;
@@ -68,7 +62,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		GenericObservableList<CarLoadDocumentItem> observableItems;
+		private GenericObservableList<CarLoadDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<CarLoadDocumentItem> ObservableItems {
 			get {
@@ -78,58 +72,22 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		string comment;
-
+		private string comment;
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get => comment;
 			set => SetField(ref comment, value, () => Comment);
 		}
+		
+		#endregion
+
+		#region Не сохраняемые свойства
 
 		public virtual string Title => $"Талон погрузки №{Id} от {TimeStamp:d}";
 
-		#region IValidatableObject implementation
-
-		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			if(Author == null)
-				yield return new ValidationResult("Не указан кладовщик.",
-					new[] { this.GetPropertyName(o => o.Author) });
-			if(RouteList == null)
-				yield return new ValidationResult("Не указан маршрутный лист, по которому осуществляется отгрузка.",
-					new[] { this.GetPropertyName(o => o.RouteList) });
-			if(Warehouse == null)
-				yield return new ValidationResult("Не указан склад погрузки.",
-					new[] { this.GetPropertyName(o => o.Warehouse) });
-
-			foreach(var item in Items) {
-				if(item.Amount > item.AmountInStock)
-					yield return new ValidationResult(string.Format("На складе недостаточное количество <{0}>", item.Nomenclature.Name),
-						new[] { this.GetPropertyName(o => o.Items) });
-				if(item.Equipment != null && !(item.Amount == 0 || item.Amount == 1)
-				   && item.Equipment.Nomenclature.IsSerial // I-407
-				  )
-					yield return new ValidationResult(
-						$"Оборудование <{item.Nomenclature.Name}> сн: {item.Equipment.Serial} нельзя отгружать в количестве отличном от 0 или 1",
-						new[] { this.GetPropertyName(o => o.Items) });
-				if(item.Amount + item.AmountLoaded > item.AmountInRouteList)
-					yield return new ValidationResult(
-						$"Номенклатура <{item.Nomenclature.Name}> отгружается в большем количестве чем указано в маршрутном листе. " +
-						$"Отгружается:{item.Amount}, По другим документам:{item.AmountLoaded}, Всего нужно отгрузить:{item.AmountInRouteList}",
-						new[] { this.GetPropertyName(o => o.Items) }
-					);
-			}
-		}
-
 		#endregion
 
-		#region Функции
-
-		public virtual void AddItem(CarLoadDocumentItem item)
-		{
-			item.Document = this;
-			ObservableItems.Add(item);
-		}
+		#region Публичные функции
 
 		public virtual void FillFromRouteList(IUnitOfWork uow, IRouteListRepository routeListRepository, bool warehouseOnly)
 		{
@@ -176,13 +134,12 @@ namespace Vodovoz.Domain.Documents
 		{
 			if(!Items.Any() || Warehouse == null)
 				return;
-			var nomenclatureIds = Items.Select(x => x.Nomenclature.Id).ToArray();
 			var inStock = Repositories.StockRepository.NomenclatureInStock(
-														uow,
-														Warehouse.Id,
-														nomenclatureIds,
-														TimeStamp
-													);
+				uow,
+				Warehouse.Id,
+				Items.Select(x => x.Nomenclature.Id).ToArray(),
+				TimeStamp
+			);
 
 			foreach(var item in Items)
 				item.AmountInStock = inStock[item.Nomenclature.Id];
@@ -199,29 +156,37 @@ namespace Vodovoz.Domain.Documents
 			var inLoaded = routeListRepository.AllGoodsLoaded(uow, RouteList, this);
 
 			foreach(var item in Items) {
-				GoodsLoadedListResult found;
-				found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
+				var found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
 				if(found != null)
 					item.AmountLoaded = found.Amount;
 			}
 		}
 
-		public virtual void UpdateOperations(IUnitOfWork uow, int terminalId)
+		public virtual void UpdateOperations(IUnitOfWork uow)
 		{
 			foreach(var item in Items) {
-				if(item.Amount == 0 && item.MovementOperation != null) {
-					uow.Delete(item.MovementOperation);
-					item.MovementOperation = null;
+				if(item.Amount == 0) {
+					if(item.WarehouseMovementOperation != null) {
+						uow.Delete(item.WarehouseMovementOperation);
+						item.WarehouseMovementOperation = null;
+					}
+					if(item.EmployeeNomenclatureMovementOperation != null) {
+						uow.Delete(item.EmployeeNomenclatureMovementOperation);
+						item.EmployeeNomenclatureMovementOperation = null;
+					}
 				}
-				if(item.Amount != 0) {
-					if(item.MovementOperation != null) {
-						item.UpdateOperation(Warehouse);
+				else {
+					if(item.WarehouseMovementOperation != null) {
+						item.UpdateWarehouseMovementOperation(Warehouse);
 					} else {
-						item.CreateOperation(Warehouse, TimeStamp);
+						item.CreateWarehouseMovementOperation(Warehouse, TimeStamp);
 					}
 					
-					if(item.Nomenclature.Id == terminalId && item.EmployeeNomenclatureMovementOperation == null)
-						item.CreateEmployeeNomenclatureIncomeOperation(TimeStamp);
+					if(item.EmployeeNomenclatureMovementOperation != null) {
+						item.UpdateEmployeeNomenclatureMovementOperation();
+					} else {
+						item.CreateEmployeeNomenclatureMovementOperation(TimeStamp);
+					}
 				}
 			}
 		}
@@ -230,6 +195,59 @@ namespace Vodovoz.Domain.Documents
 		{
 			foreach(var item in Items.Where(x => x.Amount == 0).ToList()) {
 				ObservableItems.Remove(item);
+			}
+		}
+
+		#endregion
+
+		#region Приватные функии
+
+		private void UpdateOperationsTime()
+		{
+			foreach(var item in Items) {
+				if(item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.OperationTime != TimeStamp)
+					item.WarehouseMovementOperation.OperationTime = TimeStamp;
+				if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.OperationTime != TimeStamp)
+					item.EmployeeNomenclatureMovementOperation.OperationTime = TimeStamp;
+			}
+		}
+
+		#endregion
+		
+		#region IValidatableObject implementation
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Author == null) {
+				yield return new ValidationResult("Не указан кладовщик.",
+					new[] { nameof(Author) });
+			}
+			if(RouteList == null) {
+				yield return new ValidationResult("Не указан маршрутный лист, по которому осуществляется отгрузка.",
+					new[] { nameof(RouteList) });
+			}
+			if(Warehouse == null) {
+				yield return new ValidationResult("Не указан склад погрузки.",
+					new[] { nameof(Warehouse) });
+			}
+
+			foreach(var item in Items) {
+				if(item.Amount > item.AmountInStock) {
+					yield return new ValidationResult($"На складе недостаточное количество <{item.Nomenclature.Name}>",
+						new[] { nameof(Items) });
+				}
+				if(item.Equipment != null && !(item.Amount == 0 || item.Amount == 1) && item.Equipment.Nomenclature.IsSerial) {
+					yield return new ValidationResult(
+						$"Оборудование <{item.Nomenclature.Name}> сн: {item.Equipment.Serial} нельзя отгружать в количестве отличном от 0 или 1",
+						new[] { nameof(Items) });
+				}
+				if(item.Amount + item.AmountLoaded > item.AmountInRouteList) {
+					yield return new ValidationResult(
+						$"Номенклатура <{item.Nomenclature.Name}> отгружается в большем количестве чем указано в маршрутном листе. " +
+						$"Отгружается:{item.Amount}, По другим документам:{item.AmountLoaded}, Всего нужно отгрузить:{item.AmountInRouteList}",
+						new[] { nameof(Items) }
+					);
+				}
 			}
 		}
 

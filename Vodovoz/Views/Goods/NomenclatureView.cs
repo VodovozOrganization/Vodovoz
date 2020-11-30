@@ -195,20 +195,6 @@ namespace Vodovoz.Views.Goods
 
 			#endregion
 
-			#region Вкладка "Склады отгрузки"
-
-			repTreeViewWarehouses.ColumnsConfig = ColumnsConfigFactory.Create<Domain.Store.Warehouse>()
-				.AddColumn("Название").AddTextRenderer(node => node.Name)
-				.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
-				.Finish();
-			repTreeViewWarehouses.SetItemsSource(ViewModel.Entity.ObservableWarehouses);
-			repTreeViewWarehouses.Selection.Changed += (sender, e) => {
-				ViewModel.SelectedWarehouse = repTreeViewWarehouses.GetSelectedObject<Domain.Store.Warehouse>();
-			};
-			btnRemoveWarehouse.Clicked += (sender, args) => ViewModel.RemoveWarehouseCommand.Execute();
-
-			#endregion
-
 			#region Вкладка характиристики
 
 			ytextDescription.Binding.AddBinding(ViewModel.Entity, e => e.Description, w => w.Buffer.Text).InitializeFromSource();
@@ -272,12 +258,6 @@ namespace Vodovoz.Views.Goods
 		{
 			if(radioInfo.Active)
 				notebook1.CurrentPage = 0;
-		}
-
-		protected void OnRadioWarehousesToggled(object sender, EventArgs e)
-		{
-			if(radioWarehouses.Active)
-				notebook1.CurrentPage = 1;
 		}
 
 		protected void OnRadioEquipmentToggled(object sender, EventArgs e)
@@ -374,25 +354,5 @@ namespace Vodovoz.Views.Goods
 		}
 
 		#endregion
-
-		protected void OnBtnAddWarehouseClicked(object sender, EventArgs e)
-		{
-			var refWin = new OrmReference(StoreDocumentHelper.GetWarehouseQuery()) {
-				ButtonMode = ReferenceButtonMode.None,
-				Mode = OrmReferenceMode.MultiSelect
-			};
-			refWin.ObjectSelected += RefWin_ObjectSelected;
-			ViewModel.TabParent.AddSlaveTab(ViewModel, refWin);
-		}
-
-		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			var warehouses = e.Subjects.OfType<Domain.Store.Warehouse>();
-			
-			foreach(var warehouse in warehouses) {
-				if(warehouse != null)
-					ViewModel.AddWarehouse(warehouse);
-			}
-		}
 	}
 }

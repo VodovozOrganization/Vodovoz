@@ -113,12 +113,6 @@ namespace Vodovoz
 				return;
 
 			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), false);
-			if(DocumentUoW.Root.Items.Any(i => !i.Nomenclature.Warehouses.Any())) {
-				string str = "";
-				foreach(var nomenclarure in DocumentUoW.Root.Items.Where(i => !i.Nomenclature.Warehouses.Any()))
-					str = string.Join("\n", nomenclarure.Nomenclature.Name);
-				MessageDialogHelper.RunErrorWithSecondaryTextDialog("В МЛ есть номенклатура не привязанная к складу.", str);
-			}
 
 			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), true);
 			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, new RouteListRepository());

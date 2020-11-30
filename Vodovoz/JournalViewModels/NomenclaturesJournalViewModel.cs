@@ -108,12 +108,6 @@ namespace Vodovoz.JournalViewModels
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(FilterViewModel.RestrictedExcludedIds.ToArray()));
 			}
 
-			if(FilterViewModel.RestrictedLoadedWarehouse != null) {
-				itemsQuery
-				.Left.JoinAlias(() => nomenclatureAlias.Warehouses, () => loadedWarehouseAlias)
-				.Where(() => loadedWarehouseAlias.Id == FilterViewModel.RestrictedLoadedWarehouse.Id);
-			}
-
 			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(ExcludingNomenclatureIds));
 
@@ -124,7 +118,9 @@ namespace Vodovoz.JournalViewModels
 					() => nomenclatureAlias.OnlineStoreExternalId
 				)
 			);
-			
+
+			if(!FilterViewModel.RestrictDilers)
+				itemsQuery.Where(() => !nomenclatureAlias.IsDiler);
 			if(FilterViewModel.RestrictCategory == NomenclatureCategory.water)
 				itemsQuery.Where(() => nomenclatureAlias.IsDisposableTare == FilterViewModel.RestrictDisposbleTare);
 

@@ -968,6 +968,11 @@ namespace Vodovoz.Domain.Orders
 			new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
 		        && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
 
+		public virtual bool HasItemsNeededToLoad => ObservableOrderItems.Any(orderItem =>
+				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderItem.Nomenclature.Category) && !orderItem.Nomenclature.NoDelivey)
+			|| ObservableOrderEquipments.Any(orderEquipment =>
+				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderEquipment.Nomenclature.Category) && !orderEquipment.Nomenclature.NoDelivey);
+
 		#endregion
 
 		#region Автосоздание договоров, допсоглашений при изменении подтвержденного заказа
@@ -3305,7 +3310,7 @@ namespace Vodovoz.Domain.Orders
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со
 		/// склада все отгружено, и произведена оплата
 		/// </summary>
-		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, CallTaskWorker callTaskWorker, SelfDeliveryDocument closingDocument = null)
+		public virtual bool TryCloseSelfDeliveryOrderWithCallTask(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, CallTaskWorker callTaskWorker, SelfDeliveryDocument closingDocument = null)
 		{
 			if(routeListItemRepository == null)
 				throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -3345,6 +3350,52 @@ namespace Vodovoz.Domain.Orders
 			UpdateSelfDeliveryActualCounts(closingDocument);
 			return true;
 		}
+		
+		/// <summary>
+		/// Закрывает заказ с самовывозом если по всем документам самовывоза со
+		/// склада все отгружено, и произведена оплата
+		/// </summary>
+		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, SelfDeliveryDocument closingDocument = null)
+		{
+			if(routeListItemRepository == null)
+				throw new ArgumentNullException(nameof(routeListItemRepository));
+			if(selfDeliveryRepository == null)
+				throw new ArgumentNullException(nameof(selfDeliveryRepository));
+			if(cashRepository == null)
+				throw new ArgumentNullException(nameof(cashRepository));
+
+			bool isNotShipped = !IsFullyShippedSelfDeliveryOrder(uow, selfDeliveryRepository, closingDocument);
+
+			if(!isNotShipped)
+				UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, routeListItemRepository, cashRepository);
+			else
+				return false;
+
+			if(OrderStatus != OrderStatus.OnLoading)
+				return false;
+
+			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
+
+			switch(PaymentType) {
+				case PaymentType.cash:
+				case PaymentType.BeveragesWorld:
+					ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment);
+					break;
+				case PaymentType.cashless:
+				case PaymentType.ByCard:
+					ChangeStatus(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed);
+					break;
+				case PaymentType.barter:
+				case PaymentType.ContractDoc:
+					ChangeStatus(OrderStatus.Closed);
+					break;
+			}
+			//обновление актуальных кол-в из документов самовывоза, включая не сохранённый
+			//документ, откуда был вызов метода
+			UpdateSelfDeliveryActualCounts(closingDocument);
+			return true;
+		}
+		
 
 		private void DeleteBottlesMovementOperation(IUnitOfWork uow)
 		{

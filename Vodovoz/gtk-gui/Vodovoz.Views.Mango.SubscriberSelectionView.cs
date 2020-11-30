@@ -96,7 +96,7 @@ namespace Vodovoz.Views.Mango
 			this.Search = new global::Gtk.Label();
 			this.Search.Name = "Search";
 			this.Search.Xalign = 1F;
-			this.Search.LabelProp = global::Mono.Unix.Catalog.GetString("Поиск:");
+			this.Search.LabelProp = global::Mono.Unix.Catalog.GetString("Поиск/Набор:");
 			this.table1.Add(this.Search);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.Search]));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));

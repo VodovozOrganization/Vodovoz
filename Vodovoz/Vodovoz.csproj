@@ -388,7 +388,6 @@
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
     <Compile Include="JournalViewModels\OrderForRouteListJournalViewModel.cs" />
-    <Compile Include="LoggedMySqlClientDriver.cs" />
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringValuableConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
@@ -1487,6 +1486,10 @@
     <Compile Include="Filters\GtkViews\IncomeCategoryJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.IncomeCategoryJournalFilterView.cs" />
     <Compile Include="ViewModels\Logistic\RouteListStatusNode.cs" />
+    <Compile Include="Views\FinancialDistrictsSetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.FinancialDistrictsSetView.cs" />
+    <Compile Include="Filters\GtkViews\FinancialDistrictsSetsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FinancialDistrictsSetsJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -425,18 +425,6 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref onlineStore, value);
 		}
 
-		IList<Warehouse> warehouses = new List<Warehouse>();
-		[Display(Name = "Склады для отгрузки")]
-		public virtual IList<Warehouse> Warehouses {
-			get => warehouses;
-			set => SetField(ref warehouses, value, () => Warehouses);
-		}
-
-		private GenericObservableList<Warehouse> observableWarehouses;
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Warehouse> ObservableWarehouses => observableWarehouses 
-			?? (observableWarehouses = new GenericObservableList<Warehouse>(Warehouses));
-
 		#endregion
 
 		#region Свойства товаров для магазина
@@ -676,15 +664,6 @@ namespace Vodovoz.Domain.Goods
 				parent = parent.Parent;
 			}
 			return false;
-		}
-
-		public void RemoveWarehouse(Warehouse warehouse) {
-			ObservableWarehouses.Remove(warehouse);
-		}
-		
-		public void AddWarehouse(Warehouse warehouse) {
-			if(ObservableWarehouses.All(x => x.Id != warehouse.Id))
-				ObservableWarehouses.Add(warehouse);
 		}
 
 		#endregion
@@ -933,7 +912,16 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.water
 			};
 		}
-		
+
+		public static NomenclatureCategory[] GetCategoriesNotNeededToLoad()
+		{
+			return new[] { 
+				NomenclatureCategory.service, 
+				NomenclatureCategory.deposit, 
+				NomenclatureCategory.master 
+			};
+		}
+
 		#endregion
 	}
 

@@ -1245,7 +1245,7 @@ namespace Vodovoz.ViewModels.Logistic
 			Optimizer.Drivers = DriversOnDay;
 			Optimizer.Forwarders = ForwardersOnDay;
 			Optimizer.StatisticsTxtAction = statisticsUpdateAction;
-			Optimizer.CreateRoutes(driverStartTime, driverEndTime);
+			Optimizer.CreateRoutes(DriverStartTime, DriverEndTime);
 
 			if(optimizer.ProposedRoutes.Any()) {
 				//Удаляем корректно адреса из уже имеющихся МЛ. Чтобы они встали в правильный статус.

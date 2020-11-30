@@ -407,6 +407,5 @@ namespace Vodovoz.ViewModels.Logistic
             UoW?.Dispose();
             base.Dispose();
         }
-        
     }
 }

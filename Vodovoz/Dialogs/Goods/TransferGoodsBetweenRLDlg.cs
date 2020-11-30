@@ -208,7 +208,7 @@ namespace Vodovoz
 
 			foreach(var item in selectedItem.Items) {
 				var nomenclature = driverBalanceNomenclatures.SingleOrDefault(x =>
-					x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+					x.NomenclatureId == item.WarehouseMovementOperation.Nomenclature.Id);
 				
 				if (nomenclature == null) {
 					result.Add(new CarUnloadDocumentNode {DocumentItem = item});
@@ -228,15 +228,14 @@ namespace Vodovoz
 			foreach(var from in itemsFrom.Where(i => i.TransferCount > 0)) {
 				int transfer = from.TransferCount;
 				//Заполняем для краткости
-				var nomenclature = from.DocumentItem.MovementOperation.Nomenclature;
+				var nomenclature = from.DocumentItem.WarehouseMovementOperation.Nomenclature;
 				var receiveType = from.DocumentItem.ReciveType;
 
 				var to = itemsTo
-					.FirstOrDefault(i => i.DocumentItem.MovementOperation.Nomenclature.Id == nomenclature.Id);
+					.FirstOrDefault(i => i.DocumentItem.WarehouseMovementOperation.Nomenclature.Id == nomenclature.Id);
 
 				if(to == null) {
-					var terminalId = -1;
-					toDoc.AddItem(receiveType, nomenclature, null, transfer, null, terminalId);
+					toDoc.AddItem(receiveType, nomenclature, null, transfer, null);
 
 					foreach(var item in toDoc.Items) {
 						var exist = itemsTo.FirstOrDefault(i => i.DocumentItem.Id == item.Id);
@@ -244,19 +243,19 @@ namespace Vodovoz
 							itemsTo.Add(new CarUnloadDocumentNode { DocumentItem = item });
 					}
 				} else {
-					to.DocumentItem.MovementOperation.Amount += transfer;
+					to.DocumentItem.WarehouseMovementOperation.Amount += transfer;
 
-					UoW.Save(to.DocumentItem.MovementOperation);
+					UoW.Save(to.DocumentItem.WarehouseMovementOperation);
 				}
 
-				from.DocumentItem.MovementOperation.Amount -= transfer;
-				if(from.DocumentItem.MovementOperation.Amount == 0) {
+				from.DocumentItem.WarehouseMovementOperation.Amount -= transfer;
+				if(from.DocumentItem.WarehouseMovementOperation.Amount == 0) {
 					var item = fromDoc.Items.First(i => i.Id == from.DocumentItem.Id);
 					fromDoc.Items.Remove(item);
 
-					UoW.Delete(from.DocumentItem.MovementOperation);
+					UoW.Delete(from.DocumentItem.WarehouseMovementOperation);
 				} else {
-					UoW.Save(from.DocumentItem.MovementOperation);
+					UoW.Save(from.DocumentItem.WarehouseMovementOperation);
 				}
 
 				from.TransferCount = 0;
@@ -298,8 +297,8 @@ namespace Vodovoz
 		private class CarUnloadDocumentNode
 		{
 			public string Id { get { return DocumentItem.Id.ToString(); } }
-			public string Nomenclature { get { return DocumentItem.MovementOperation.Nomenclature.OfficialName; } }
-			public int ItemsCount { get { return (int)DocumentItem.MovementOperation.Amount; } }
+			public string Nomenclature { get { return DocumentItem.WarehouseMovementOperation.Nomenclature.OfficialName; } }
+			public int ItemsCount { get { return (int)DocumentItem.WarehouseMovementOperation.Amount; } }
 
 			private int transferCount = 0;
 			public int TransferCount {

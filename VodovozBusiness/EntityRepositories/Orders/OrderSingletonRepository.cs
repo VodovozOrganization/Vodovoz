@@ -101,41 +101,57 @@ namespace Vodovoz.EntityRepositories.Orders
 				.List();
 		}
 
-		public IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork UoW, Export1cMode mode, DateTime startDate, DateTime endDate)
+		public IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork uow, Export1cMode mode, DateTime startDate, DateTime endDate, Organization organization = null)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 
-			var export1cSubquerySum = QueryOver.Of(() => orderItemAlias)
-									   .Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-									   .Select(Projections.Sum(
-										   Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
-																   NHibernateUtil.Decimal,
-																   Projections.Conditional(
-																	   Restrictions.IsNotNull(Projections.Property<OrderItem>(x => x.ActualCount)),
-																	   Projections.Property<OrderItem>(x => x.ActualCount),
-																	   Projections.Property<OrderItem>(x => x.Count)
-																	  ),
-																   Projections.Property<OrderItem>(x => x.Price),
-																   Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( 1 - ?1 / 100 )"),
-																						   NHibernateUtil.Decimal,
-																						   Projections.Property<OrderItem>(x => x.Discount)
-																						  )
-																  )
-										  ))
-									   ;
+			var export1CSubquerySum = QueryOver.Of(() => orderItemAlias)
+					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+					.Select(Projections.Sum(
+						Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
+							NHibernateUtil.Decimal,
+							Projections.Conditional(
+								Restrictions.IsNotNull(Projections.Property<OrderItem>(x => x.ActualCount)),
+								Projections.Property<OrderItem>(x => x.ActualCount),
+								Projections.Property<OrderItem>(x => x.Count)
+							),
+							Projections.Property<OrderItem>(x => x.Price),
+							Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( 1 - ?1 / 100 )"),
+								NHibernateUtil.Decimal,
+								Projections.Property<OrderItem>(x => x.Discount)
+							)
+						)
+					))
+				;
 
-			var query = UoW.Session.QueryOver(() => orderAlias)
-					  .Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
 					  .Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
-					  .Where(Subqueries.Le(0.01, export1cSubquerySum.DetachedCriteria));
-			if(mode == Export1cMode.IPForTinkoff) {
-				query.Where(o => o.PaymentType == PaymentType.ByCard)
-					.Where(o => o.OnlineOrder != null);
-			} else {
-				query.Where(o => o.PaymentType == PaymentType.cashless);
+					  .Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
+			
+			if(organization != null) {
+				CounterpartyContract counterpartyContractAlias = null;
+						
+				query.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
+					.Where(() => counterpartyContractAlias.Organization.Id == organization.Id);
 			}
 
+			switch (mode) {
+				case Export1cMode.BuhgalteriaOOO:
+					query.Where(o => o.PaymentType == PaymentType.cashless);
+					break;
+				case Export1cMode.BuhgalteriaOOONew:
+					query.WhereRestrictionOn(o => o.PaymentType)
+						.IsIn(new[] { PaymentType.cash, PaymentType.cashless, PaymentType.ByCard, PaymentType.Terminal });
+					break;
+				case Export1cMode.IPForTinkoff:
+					query.Where(o => o.PaymentType == PaymentType.ByCard)
+						.And(o => o.OnlineOrder != null);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+			}
 			return query.List();
 		}
 

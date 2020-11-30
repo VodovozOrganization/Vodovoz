@@ -39,18 +39,6 @@ namespace Vodovoz.Repository.Logistics
 		}
 
 		[Obsolete]
-		public static IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
-		{
-			return new EntityRepositories.Logistic.RouteListRepository().GetGoodsInRLWithoutEquipments(uow, routeList, warehouse);
-		}
-
-		[Obsolete]
-		public static IList<GoodsInRouteListResult> GetEquipmentsInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
-		{
-			return new EntityRepositories.Logistic.RouteListRepository().GetEquipmentsInRL(uow, routeList, warehouse);
-		}
-
-		[Obsolete]
 		public static IList<GoodsLoadedListResult> AllGoodsLoaded(IUnitOfWork uow, RouteList routeList, CarLoadDocument excludeDoc = null)
 		{
 			return new EntityRepositories.Logistic.RouteListRepository().AllGoodsLoaded(uow, routeList, excludeDoc);
