@@ -919,6 +919,7 @@ WHERE
   AND counterparty.is_chain_store = 1
   AND orders.payment_type = 'cashless'
   AND orders.order_status NOT IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
+  AND (orders.order_status &lt;&gt; 'WaitForPayment' OR (orders.pay_after_shipment = 1 AND orders.self_delivery = 1))
   AND (@counterparty_id = -1 OR counterparty.id = @counterparty_id )
   AND (@sell_manager_id = -1 OR counterparty.sales_manager_id = @sell_manager_id)
   AND (@order_author_id = -1 OR orders.author_employee_id = @order_author_id)
