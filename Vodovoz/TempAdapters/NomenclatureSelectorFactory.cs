@@ -14,6 +14,7 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.TempAdapters
 {
@@ -42,7 +43,7 @@ namespace Vodovoz.TempAdapters
 			nomenclatureFilter.RestrictArchive = true;
 			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 			
-			var nomenclatureRepository = new NomenclatureRepository();
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 			
 			var counterpartySelectorFactory =
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
@@ -76,7 +77,7 @@ namespace Vodovoz.TempAdapters
 			nomenclatureFilter.RestrictCategory = NomenclatureCategory.fuel;
 			nomenclatureFilter.RestrictArchive = false;
 			
-			var nomenclatureRepository = new NomenclatureRepository();
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 			
 			var counterpartySelectorFactory =
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
