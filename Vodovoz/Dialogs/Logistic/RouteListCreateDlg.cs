@@ -188,7 +188,10 @@ namespace Vodovoz
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadSofiyskaya, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.OrderOfAddresses, false);
-			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, !(Entity.Status == RouteListStatus.Confirmed));
+			bool IsLoadDocumentPrintable = ServicesConfig.CommonServices.CurrentPermissionService
+											.ValidatePresetPermission("can_print_car_load_document");
+			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, IsLoadDocumentPrintable
+																			  && !(Entity.Status == RouteListStatus.Confirmed));
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments)e.ItemEnum);
 			CheckCarLoadDocuments();
 
