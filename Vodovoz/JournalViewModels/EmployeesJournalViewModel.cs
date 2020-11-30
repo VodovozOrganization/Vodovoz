@@ -1,6 +1,7 @@
 ﻿using System;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
@@ -63,11 +64,17 @@ namespace Vodovoz.JournalViewModels
 				;
 				query.WithSubquery.WhereProperty(e => e.Id).In(subquery);
 			}
+			
+			var employeeProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?1, ?2, ?3)"),
+				NHibernateUtil.String,
+				Projections.Property(() => employeeAlias.LastName),
+				Projections.Property(() => employeeAlias.Name),
+				Projections.Property(() => employeeAlias.Patronymic)
+			);
 
 			query.Where(GetSearchCriterion(
-				() => employeeAlias.Name,
-				() => employeeAlias.LastName,
-				() => employeeAlias.Patronymic
+				() => employeeProjection
 			));
 
 			var result = query
