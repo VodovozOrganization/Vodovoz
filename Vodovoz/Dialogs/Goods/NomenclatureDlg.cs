@@ -57,12 +57,6 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			radioInfo.Toggled += OnRadioInfoToggled;
-			radioEquipment.Toggled += OnRadioEquipmentToggled;
-			radioCharacteristics.Toggled += OnRadioCharacteristicsToggled;
-			radioImages.Toggled += OnRadioImagesToggled;
-			radioPrice.Toggled += OnRadioPriceToggled;
-
 			notebook1.ShowTabs = false;
 			spinWeight.Sensitive = false;
 			spinVolume.Sensitive = false;
