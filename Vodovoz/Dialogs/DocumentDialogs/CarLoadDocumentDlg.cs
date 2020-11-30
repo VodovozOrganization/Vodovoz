@@ -165,7 +165,7 @@ namespace Vodovoz
 			}
 
 			if(Entity.Items.Any(x => x.Amount == 0)) {
-				if(MessageDialogHelper.RunQuestionDialog("В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?"))
+				if(MessageDialogHelper.RunQuestionDialog("<span foreground=\"red\">В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?</span>"))
 					Entity.ClearItemsFromZero();
 			}
 
