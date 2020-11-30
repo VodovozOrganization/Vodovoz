@@ -385,7 +385,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>={create_date}</Value>
+                      <Value>={delivery_date}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -853,6 +853,7 @@
         <CommandText>SELECT
     orders.id AS order_num,
     orders.create_date AS create_date, # для сортировки
+    orders.delivery_date AS delivery_date,
     counterparty.name AS counterparty_name,
     counterparty.inn AS INN,
     IF(orders.author_employee_id IS NOT NULL,
@@ -984,6 +985,10 @@ ORDER BY estimated_payment_date
         </Field>
         <Field Name="debt">
           <DataField>debt</DataField>
+        </Field>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
