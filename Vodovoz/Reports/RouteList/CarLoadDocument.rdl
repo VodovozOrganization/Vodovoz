@@ -38,11 +38,8 @@ FROM
     measurement_units ON measurement_units.id = nomenclature.unit_id
         LEFT JOIN
     nomenclature_groups ng ON ng.id = nomenclature.group_id
-        LEFT JOIN
-    nomenclatures_to_warehouses ON nomenclatures_to_warehouses.nomenclature_id = nomenclature.id
 WHERE
         route_list_addresses.route_list_id = @id
-  AND nomenclatures_to_warehouses.warehouse_id = 1 #Отгрузка только с софийской
   AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
   AND IF(nomenclature.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
 GROUP BY nomenclature.id
