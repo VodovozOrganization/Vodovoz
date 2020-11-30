@@ -243,6 +243,7 @@
     <Compile Include="Journals\FilterViewModels\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
     <Compile Include="Journals\Nodes\Cash\FuelDocumentJournalNode.cs" />
     <Compile Include="ViewModels\FinancialDistrictsSetViewModel.cs" />
+    <Compile Include="ViewModels\Goods\FixedPricesViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />
@@ -272,6 +273,7 @@
     <Folder Include="Journals\FilterViewModels\" />
     <Folder Include="Journals\Nodes\" />
     <Folder Include="Journals\Nodes\Cash\" />
+    <Folder Include="ViewModels\Goods\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">

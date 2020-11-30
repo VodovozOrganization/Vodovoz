@@ -898,6 +898,7 @@
     <Folder Include="Domain\BusinessTasks\" />
     <Folder Include="HibernateMapping\BusinessTasks\" />
     <Folder Include="Domain\Orders\OrdersWithoutShipment\" />
+    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
