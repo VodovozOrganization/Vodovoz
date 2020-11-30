@@ -211,8 +211,6 @@ namespace Vodovoz.Dialogs.Logistic
 							rlDocTypesToPrint.Add(RouteListPrintableDocuments.RouteList);
 						if(checkRouteMap.Active)
 							rlDocTypesToPrint.Add(RouteListPrintableDocuments.RouteMap);
-						if(chkLoadDocument.Active)
-							rlDocTypesToPrint.Add(RouteListPrintableDocuments.LoadDocument);
 						if(chkDocumentsOfOrders.Active)
 							oDocTypesToPrint = OrderDocTypesToPrint.Where(n => n.Selected)
 																   .Select(n => n.Type)

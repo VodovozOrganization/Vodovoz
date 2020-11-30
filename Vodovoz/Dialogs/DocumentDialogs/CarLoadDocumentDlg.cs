@@ -165,7 +165,7 @@ namespace Vodovoz
 			}
 
 			if(Entity.Items.Any(x => x.Amount == 0)) {
-				if(MessageDialogHelper.RunQuestionDialog("В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?"))
+				if(MessageDialogHelper.RunQuestionDialog("<span foreground=\"red\">В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?</span>"))
 					Entity.ClearItemsFromZero();
 			}
 
@@ -222,7 +222,7 @@ namespace Vodovoz
 
 			var reportInfo = new QS.Report.ReportInfo {
 				Title = Entity.Title,
-				Identifier = CarLoadPrintableDocuments.Common.Equals(e.ItemEnum) ? "Store.CarLoadDoc" : "Store.CarLoadDocPallets",
+				Identifier = "Store.CarLoadDocument",
 				Parameters = new System.Collections.Generic.Dictionary<string, object>
 					{
 						{ "id",  Entity.Id }
@@ -238,10 +238,8 @@ namespace Vodovoz
 
 	public enum CarLoadPrintableDocuments
 	{
-		[Display(Name = "Универсальная")]
-		Common,
-		[Display(Name = "С разбивной на поддоны")]
-		WithPallets
+		[Display(Name = "Документ погрузки")]
+		LoadDocument
 	}
 }
 
