@@ -248,8 +248,10 @@ namespace Vodovoz
             datatable4.Sensitive = canEditCounterpartyDetails;
             entryFullName.Sensitive = canEditCounterpartyDetails;
 
-            //accountsView.
-
+            ycheckAlwaysSendReceitps.Binding.AddBinding(Entity, e => e.AlwaysSendReceitps, w => w.Active).InitializeFromSource();
+            ycheckAlwaysSendReceitps.Visible =
+                ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_cash_receipts");
+            
             #region Особая печать
 
             ytreeviewSpecialNomenclature.ColumnsConfig = ColumnsConfigFactory.Create<SpecialNomenclature>()

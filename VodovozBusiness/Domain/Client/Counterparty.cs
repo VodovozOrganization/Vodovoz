@@ -593,6 +593,13 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		private bool alwaysSendReceitps;
+		[Display(Name = "Всегда отправлять чеки")]
+		public virtual bool AlwaysSendReceitps {
+			get => alwaysSendReceitps;
+			set => SetField(ref alwaysSendReceitps, value);
+		}
+
 		#region Calculated Properties
 
 		public virtual string RawJurAddress {
