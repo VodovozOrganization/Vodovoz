@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     nomenclature.name as nomenclature,
@@ -49,7 +49,7 @@ ORDER BY nomenclature, serial_number, category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -197,7 +197,7 @@ WHERE
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>231.4pt</Width>
+            <Width>311.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>110.8pt</Width>
@@ -279,7 +279,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="id">
                       <Value>={nomenclature}</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -288,6 +288,8 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>11pt</FontSize>
+                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingBottom >2pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -296,7 +298,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="car_load_document_id">
                       <Value>={serial_number}</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -313,7 +315,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="warehouse_movement_operation_id">
                       <Value>=Format({amount}, 'N' + {digits}) + " " + {unit}</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
