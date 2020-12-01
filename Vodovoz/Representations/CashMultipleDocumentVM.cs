@@ -376,6 +376,35 @@ namespace Vodovoz.Representations
 			//завершение конфигурации
 			advanceReportConfig.FinishConfiguration();
 		}
+
+		public override IEnumerable<IJournalPopupItem> PopupItems
+		{
+			get
+			{
+				var result = new List<IJournalPopupItem>();
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Повторить РКО",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<CashDocumentVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						
+						if(selectedNode != null)
+						{
+							var dlg = new CashExpenseDlg(PermissionsSettings.PermissionService);
+							var doc = UoW.GetById<Expense>(selectedNode.DocumentId);
+							dlg.CopyExpenseFrom(doc);
+							
+							MainClass.MainWin.TdiMain.OpenTab(
+								() => dlg
+							);
+						}
+					},
+					(selectedItems) => selectedItems.Any(x => (x as CashDocumentVMNode).DocTypeEnum == CashDocumentType.Expense &&
+					                   (x as CashDocumentVMNode).ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseInvoice)
+				));
+				
+				return result;
+			}
+		}
 	}
 
 	public class CashDocumentVMNode<TEntity> : CashDocumentVMNode
