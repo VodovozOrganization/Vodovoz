@@ -123,13 +123,13 @@ namespace Vodovoz.ViewModels
 
 			foreach(var doc in parserDocs){
 
-				var curDoc = ObservablePayments.SingleOrDefault(x => x.Date.Year == doc.Date.Year
+				var curDoc = ObservablePayments.SingleOrDefault(x => x.Date == doc.Date
 																&& x.PaymentNum == int.Parse(doc.DocNum)
 																&& x.CounterpartyInn == doc.PayerInn
 																&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount);
 
 				if(PaymentsRepository.PaymentFromBankClientExists(UoW,
-															   	doc.Date.Year,
+															   	doc.Date,
 															   	int.Parse(doc.DocNum),
 															   	doc.PayerInn,
 															   	doc.PayerCurrentAccount) || curDoc != null) {

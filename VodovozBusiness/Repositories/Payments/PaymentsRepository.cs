@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Payments;
@@ -29,10 +30,10 @@ namespace Vodovoz.Repositories.Payments
 			return shops;
 		}
 
-		public static bool PaymentFromBankClientExists(IUnitOfWork uow, int year, int number, string counterpartyInn, string accountNumber)
+		public static bool PaymentFromBankClientExists(IUnitOfWork uow, DateTime date, int number, string counterpartyInn, string accountNumber)
 		{
 			var payment = uow.Session.QueryOver<Payment>()
-				.Where(p => p.Date.Year == year &&
+				.Where(p => p.Date == date &&
 						p.PaymentNum == number &&
 						p.CounterpartyInn == counterpartyInn &&
 						p.CounterpartyCurrentAcc == accountNumber)
