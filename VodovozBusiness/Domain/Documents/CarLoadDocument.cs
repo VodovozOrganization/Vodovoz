@@ -11,6 +11,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -89,7 +90,7 @@ namespace Vodovoz.Domain.Documents
 
 		#region Публичные функции
 
-		public virtual void FillFromRouteList(IUnitOfWork uow, IRouteListRepository routeListRepository, bool warehouseOnly)
+		public virtual void FillFromRouteList(IUnitOfWork uow, IRouteListRepository routeListRepository, ISubdivisionRepository subdivisionRepository, bool warehouseOnly)
 		{
 			if(routeListRepository == null)
 				throw new ArgumentNullException(nameof(routeListRepository));
@@ -98,7 +99,7 @@ namespace Vodovoz.Domain.Documents
 			if(RouteList == null || (Warehouse == null && warehouseOnly))
 				return;
 
-			var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRL(uow, RouteList, warehouseOnly ? Warehouse : null);
+			var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRL(uow, RouteList, subdivisionRepository, warehouseOnly ? Warehouse : null);
 			var nomenclatures = uow.GetById<Nomenclature>(goodsAndEquips.Select(x => x.NomenclatureId).ToArray());
 
 			foreach(var inRoute in goodsAndEquips) {

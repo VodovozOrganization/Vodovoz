@@ -20,6 +20,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
@@ -37,6 +38,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
+		private readonly IRouteListRepository routeListRepository = new RouteListRepository();
+		private readonly ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		
 		private  INomenclatureRepository nomenclatureRepository;
 		public virtual INomenclatureRepository NomenclatureRepository {
@@ -135,7 +138,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void UpdateLists()
 		{
-			var goods = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(UoW, Entity);
+			var goods = routeListRepository.GetGoodsAndEquipsInRL(UoW, Entity);
 			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures(true);
 			
 			ObservableNotLoadedList = new GenericObservableList<RouteListControlNotLoadedNode>(notLoadedNomenclatures);

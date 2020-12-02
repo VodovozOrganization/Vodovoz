@@ -14,6 +14,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.ViewModel
 {
@@ -29,6 +30,9 @@ namespace Vodovoz.ViewModel
 		{
 			this.UoW = uow;
 		}
+		
+		private readonly ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+		private readonly IRouteListRepository routeListRepository = new RouteListRepository();
 
 		public ReadyForShipmentFilter Filter {
 			get => RepresentationFilter as ReadyForShipmentFilter;
@@ -94,13 +98,12 @@ namespace Vodovoz.ViewModel
 				.List<ReadyForShipmentVMNode>();
 
 			if(Filter.RestrictWarehouse != null) {
-				var RouteListRepository = new RouteListRepository();
 				var resultList = new List<ReadyForShipmentVMNode>();
 				var routes = UoW.GetById<RouteList>(dirtyList.Select(x => x.Id));
 				foreach(var dirty in dirtyList) {
 					var route = routes.First(x => x.Id == dirty.Id);
-					var inLoaded = RouteListRepository.AllGoodsLoaded(UoW, route);
-					var goodsAndEquips = RouteListRepository.GetGoodsAndEquipsInRL(UoW, route, Filter.RestrictWarehouse);
+					var inLoaded = routeListRepository.AllGoodsLoaded(UoW, route);
+					var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRL(UoW, route, subdivisionRepository, Filter.RestrictWarehouse);
 
 					bool closed = true;
 					foreach(var rlItem in goodsAndEquips) {
