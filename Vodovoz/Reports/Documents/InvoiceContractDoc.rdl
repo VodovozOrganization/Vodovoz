@@ -277,7 +277,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -327,7 +327,7 @@ WHERE NOT EXISTS (
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.String</TypeName>
@@ -1069,7 +1069,7 @@ GROUP BY name</CommandText>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >="N" + {digits}</Format>
+                        <Format>="N" + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1172,7 +1172,7 @@ GROUP BY name</CommandText>
           </TableRows>
         </Details>
         <Left>33.0pt</Left>
-        <Top>198.2pt</Top>
+        <Top>183.8pt</Top>
         <Visibility>
           <Hidden>
           </Hidden>
@@ -1365,7 +1365,7 @@ GROUP BY name</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=SUM({total_wo_disc})</Value>
                       <Visibility>
@@ -1405,8 +1405,8 @@ GROUP BY name</CommandText>
       <List Name="List2">
         <Height>192.49pt</Height>
         <Width>530.08pt</Width>
-        <Left>37.40pt</Left>
-        <Top>281.30pt</Top>
+        <Left>37.4pt</Left>
+        <Top>271.7pt</Top>
         <ReportItems>
           <Textbox Name="Textbox32">
             <Height>12.00pt</Height>
@@ -1693,8 +1693,8 @@ GROUP BY name</CommandText>
           <Image Name="Image11">
             <Height>48.26pt</Height>
             <Width>94.16pt</Width>
-            <Left>380.9pt</Left>
-            <Top>127.2pt</Top>
+            <Left>380.90pt</Left>
+            <Top>127.20pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1827,7 +1827,7 @@ GROUP BY name</CommandText>
           </TableRows>
         </Details>
         <Left>38.1pt</Left>
-        <Top>550.8pt</Top>
+        <Top>530.8pt</Top>
         <Visibility>
           <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
         </Visibility>
@@ -1952,7 +1952,7 @@ GROUP BY name</CommandText>
           </TableRows>
         </Details>
         <Left>38.7pt</Left>
-        <Top>520.4pt</Top>
+        <Top>496.4pt</Top>
       </Table>
       <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>17.25pt</Height>
@@ -2234,13 +2234,13 @@ GROUP BY name</CommandText>
           </TableRows>
         </Details>
         <Left>20.7pt</Left>
-        <Top>87.3pt</Top>
+        <Top>124.9pt</Top>
       </Table>
       <Image Name="Image8">
         <Height>51.20pt</Height>
         <Width>169.41pt</Width>
-        <Left>211.40pt</Left>
-        <Top>728.60pt</Top>
+        <Left>211.4pt</Left>
+        <Top>711.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2254,16 +2254,16 @@ GROUP BY name</CommandText>
         </Visibility>
       </Image>
       <List Name="List1">
-        <Height>79.05pt</Height>
-        <Width>138.50pt</Width>
-        <Left>411.3pt</Left>
-        <Top>113.8pt</Top>
+        <Height>28.74pt</Height>
+        <Width>118.28pt</Width>
+        <Left>464.5pt</Left>
+        <Top>90.1pt</Top>
         <ReportItems>
           <Image Name="Image7">
-            <Height>39.23pt</Height>
-            <Width>58.78pt</Width>
-            <Left>0.00pt</Left>
-            <Top>0.00pt</Top>
+            <Height>27.94pt</Height>
+            <Width>52.03pt</Width>
+            <Left>65.20pt</Left>
+            <Top>0.40pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2274,10 +2274,10 @@ GROUP BY name</CommandText>
             <Sizing>Fit</Sizing>
           </Image>
           <Image Name="Image12">
-            <Height>22.62pt</Height>
-            <Width>58.02pt</Width>
-            <Left>0.0pt</Left>
-            <Top>51.4pt</Top>
+            <Height>23.39pt</Height>
+            <Width>46.80pt</Width>
+            <Left>4.8pt</Left>
+            <Top>2.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2286,34 +2286,6 @@ GROUP BY name</CommandText>
             <Source>Embedded</Source>
             <Value>Visa_Inc</Value>
             <Sizing>Fit</Sizing>
-          </Image>
-          <Image Name="Image13">
-            <Height>41.43pt</Height>
-            <Width>76.07pt</Width>
-            <Left>63.30pt</Left>
-            <Top>0.00pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <Source>Embedded</Source>
-            <Value>VIP</Value>
-            <Sizing>FitProportional</Sizing>
-          </Image>
-          <Image Name="Image14">
-            <Height>34.70pt</Height>
-            <Width>72.33pt</Width>
-            <Left>65.6pt</Left>
-            <Top>43.8pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <Source>Embedded</Source>
-            <Value>embeddedimage1</Value>
-            <Sizing>FitProportional</Sizing>
           </Image>
         </ReportItems>
         <Style>
@@ -2374,7 +2346,7 @@ GROUP BY name</CommandText>
           </TableRows>
         </Details>
         <Left>38.0pt</Left>
-        <Top>251.4pt</Top>
+        <Top>245.0pt</Top>
       </Table>
       <Table Name="Table6">
         <DataSetName>Order</DataSetName>
@@ -2420,7 +2392,7 @@ GROUP BY name</CommandText>
           </TableRows>
         </Details>
         <Left>40.5pt</Left>
-        <Top>490.1pt</Top>
+        <Top>470.1pt</Top>
       </Table>
       <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>60.21pt</Height>
@@ -2445,7 +2417,7 @@ GROUP BY name</CommandText>
         <Height>102.39pt</Height>
         <Width>112.93pt</Width>
         <Left>24.5pt</Left>
-        <Top>257.3pt</Top>
+        <Top>247.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2464,7 +2436,7 @@ GROUP BY name</CommandText>
         <Height>148pt</Height>
         <Width>210pt</Width>
         <Left>61.2pt</Left>
-        <Top>574.2pt</Top>
+        <Top>555.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2478,7 +2450,7 @@ GROUP BY name</CommandText>
         <Height>148pt</Height>
         <Width>210pt</Width>
         <Left>319.1pt</Left>
-        <Top>574.2pt</Top>
+        <Top>555.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2487,6 +2459,34 @@ GROUP BY name</CommandText>
         <Source>Embedded</Source>
         <Value>Obyavleniya_Napominanie_70x60</Value>
         <Sizing>Fit</Sizing>
+      </Image>
+      <Image Name="Image10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>60.23pt</Height>
+        <Width>93.37pt</Width>
+        <Left>24.20pt</Left>
+        <Top>70.90pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Embedded</Source>
+        <Value>VIP</Value>
+        <Sizing>FitProportional</Sizing>
+      </Image>
+      <Image Name="Image13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>60.91pt</Height>
+        <Width>95.63pt</Width>
+        <Left>125.70pt</Left>
+        <Top>70.10pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Embedded</Source>
+        <Value>embeddedimage1</Value>
+        <Sizing>FitProportional</Sizing>
       </Image>
     </ReportItems>
   </Body>
