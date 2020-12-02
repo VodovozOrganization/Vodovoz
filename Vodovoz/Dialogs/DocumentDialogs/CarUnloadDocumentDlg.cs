@@ -443,7 +443,7 @@ namespace Vodovoz
 				} else {
 					if(item.WarehouseMovementOperation.Amount != tempItem.Amount)
 						item.WarehouseMovementOperation.Amount = tempItem.Amount;
-					if(item.EmployeeNomenclatureMovementOperation.Amount != -tempItem.Amount)
+					if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.Amount != -tempItem.Amount)
 						item.EmployeeNomenclatureMovementOperation.Amount = -tempItem.Amount;
 					if(item.Redhead != tempItem.Redhead)
 						item.Redhead = tempItem.Redhead;
