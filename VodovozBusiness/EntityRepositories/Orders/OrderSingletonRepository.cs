@@ -127,9 +127,8 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
-					  .Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
-					  .Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
-			
+				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate);
+
 			if(organization != null) {
 				CounterpartyContract counterpartyContractAlias = null;
 						
@@ -139,7 +138,8 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			switch (mode) {
 				case Export1cMode.BuhgalteriaOOO:
-					query.Where(o => o.PaymentType == PaymentType.cashless);
+					query.Where(o => o.PaymentType == PaymentType.cashless)
+						.And(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
 				case Export1cMode.BuhgalteriaOOONew:
 					query.WhereRestrictionOn(o => o.PaymentType)
@@ -147,7 +147,8 @@ namespace Vodovoz.EntityRepositories.Orders
 					break;
 				case Export1cMode.IPForTinkoff:
 					query.Where(o => o.PaymentType == PaymentType.ByCard)
-						.And(o => o.OnlineOrder != null);
+						.And(o => o.OnlineOrder != null)
+						.And(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(mode), mode, null);

@@ -94,8 +94,8 @@ namespace Vodovoz
 			this.buttonExportBookkeeping.Label = global::Mono.Unix.Catalog.GetString("В бухгалтерию ООО");
 			this.table2.Add(this.buttonExportBookkeeping);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table2[this.buttonExportBookkeeping]));
-			w1.TopAttach = ((uint)(2));
-			w1.BottomAttach = ((uint)(3));
+			w1.TopAttach = ((uint)(1));
+			w1.BottomAttach = ((uint)(2));
 			w1.LeftAttach = ((uint)(1));
 			w1.RightAttach = ((uint)(2));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -110,8 +110,8 @@ namespace Vodovoz
 			this.comboOrganization.ShowSpecialStateNot = true;
 			this.table2.Add(this.comboOrganization);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table2[this.comboOrganization]));
-			w2.TopAttach = ((uint)(1));
-			w2.BottomAttach = ((uint)(2));
+			w2.TopAttach = ((uint)(2));
+			w2.BottomAttach = ((uint)(3));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -158,8 +158,8 @@ namespace Vodovoz
 			w5.Fill = false;
 			this.table2.Add(this.hbox4);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table2[this.hbox4]));
-			w6.TopAttach = ((uint)(2));
-			w6.BottomAttach = ((uint)(3));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
 			w6.LeftAttach = ((uint)(2));
 			w6.RightAttach = ((uint)(3));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -176,23 +176,23 @@ namespace Vodovoz
 			// Container child table2.Gtk.Table+TableChild
 			this.label7 = new global::Gtk.Label();
 			this.label7.Name = "label7";
-			this.label7.Xalign = 0F;
+			this.label7.Xalign = 1F;
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString("Сформировать выгрузку:");
 			this.table2.Add(this.label7);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2[this.label7]));
-			w8.TopAttach = ((uint)(2));
-			w8.BottomAttach = ((uint)(3));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.labelOrg = new global::Gtk.Label();
 			this.labelOrg.Name = "labelOrg";
 			this.labelOrg.Xalign = 1F;
-			this.labelOrg.LabelProp = global::Mono.Unix.Catalog.GetString("Организация:");
+			this.labelOrg.LabelProp = global::Mono.Unix.Catalog.GetString("Организация (для Теста УСН):");
 			this.table2.Add(this.labelOrg);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table2[this.labelOrg]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
+			w9.TopAttach = ((uint)(2));
+			w9.BottomAttach = ((uint)(3));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox2.Add(this.table2);
