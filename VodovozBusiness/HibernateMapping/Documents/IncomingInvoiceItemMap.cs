@@ -12,6 +12,7 @@ namespace Vodovoz.HibernateMapping
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.Amount).Column ("amount");
+			Map(x => x.PrimeCost).Column("price");
 			Map (x => x.VAT).Column ("vat").CustomType<VATStringType> ();
 			References (x => x.Document).Column ("incoming_invoice_id").Not.Nullable ();
 			References (x => x.Equipment).Column ("equipment_id");
