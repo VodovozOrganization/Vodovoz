@@ -133,19 +133,28 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			if(organization != null) {
 				CounterpartyContract counterpartyContractAlias = null;
-						
+
 				query.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 					.Where(() => counterpartyContractAlias.Organization.Id == organization.Id);
 			}
 
-			switch (mode) {
+			switch(mode) {
 				case Export1cMode.BuhgalteriaOOO:
 					query.Where(o => o.PaymentType == PaymentType.cashless)
 						.And(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
 				case Export1cMode.BuhgalteriaOOONew:
-					query.WhereRestrictionOn(o => o.PaymentType)
-						.IsIn(new[] { PaymentType.cash, PaymentType.cashless, PaymentType.ByCard, PaymentType.Terminal });
+					CashReceipt cashReceiptAlias = null;
+					
+					query.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
+						.Where(Restrictions.Disjunction()
+							.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+							.Add(Restrictions.Conjunction()
+								.Add(Restrictions.IsNotNull(Projections.Property(() => cashReceiptAlias.Id)))
+								.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
+								new[] { PaymentType.cash, PaymentType.ByCard, PaymentType.Terminal }))
+							)
+						);
 					break;
 				case Export1cMode.IPForTinkoff:
 					query.Where(o => o.PaymentType == PaymentType.ByCard)
@@ -155,6 +164,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				default:
 					throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
 			}
+
 			return query.List();
 		}
 
