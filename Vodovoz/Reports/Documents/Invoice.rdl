@@ -734,7 +734,13 @@ R11.id as ID11 ,
 R11.binary_file as IM11,
 
 R12.id as ID12 ,
-R12.binary_file as IM12
+R12.binary_file as IM12,
+
+R21.id as ID21 ,
+R21.binary_file as IM21,
+
+R22.id as ID22 ,
+R22.binary_file as IM22
 
 FROM stored_resource
 
@@ -837,6 +843,24 @@ LEFT JOIN
     WHERE stored_resource.id = @id12
 ) as R12 ON R12.id = @id12
 
+LEFT JOIN
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource
+    WHERE stored_resource.id = @id21
+) as R21 ON R21.id = @id21
+
+LEFT JOIN
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource
+    WHERE stored_resource.id = @id22
+) as R22 ON R22.id = @id22
+
 WHERE stored_resource.id = @id1</CommandText>
         <QueryParameters>
           <QueryParameter Name="id1">
@@ -874,6 +898,12 @@ WHERE stored_resource.id = @id1</CommandText>
           </QueryParameter>
           <QueryParameter Name="id12">
             <Value>18</Value>
+          </QueryParameter>
+          <QueryParameter Name="id21">
+            <Value>21</Value>
+          </QueryParameter>
+          <QueryParameter Name="id22">
+            <Value>22</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -926,6 +956,14 @@ WHERE stored_resource.id = @id1</CommandText>
           <DataField>IM12</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="IM21">
+          <DataField>IM21</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM22">
+          <DataField>IM22</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -935,7 +973,7 @@ WHERE stored_resource.id = @id1</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>755.7pt</Height>
+    <Height>845.9pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table1">
@@ -1990,53 +2028,6 @@ WHERE stored_resource.id = @id1</CommandText>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12.1pt</Height>
-              <Visibility>
-                <Hidden>=Iif(Fields!order_id.Value = Nothing, true, false)</Hidden>
-              </Visibility>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Value>Поставщик:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontWeight>Normal</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox1">
-                      <Value>=Iif(
-    {order_payment_type} != 'ByCard',
-    "",
-    "Тинькоф\\"
-) + {org_name} + ', ' + {org_address}</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Left</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
               <Height>11.8pt</Height>
               <Visibility>
                 <Hidden>=Iif(Fields!order_date.Value = Nothing, true, false)</Hidden>
@@ -2123,45 +2114,6 @@ WHERE stored_resource.id = @id1</CommandText>
 + ' ' + {organization}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Left</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox57">
-                      <Value>Подписание:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontWeight>Normal</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox68">
-                      <Value>={order_signature_type}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                         </BorderStyle>
@@ -2274,8 +2226,8 @@ WHERE stored_resource.id = @id1</CommandText>
       <Image Name="Image8">
         <Height>51.20pt</Height>
         <Width>183.72pt</Width>
-        <Left>28.1pt</Left>
-        <Top>696.6pt</Top>
+        <Left>211.4pt</Left>
+        <Top>777.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2398,10 +2350,10 @@ WHERE stored_resource.id = @id1</CommandText>
         <Top>209.3pt</Top>
       </Table>
       <Image Name="Image2">
-        <Height>67.50pt</Height>
-        <Width>520.00pt</Width>
-        <Left>27.4pt</Left>
-        <Top>625.7pt</Top>
+        <Height>220.50pt</Height>
+        <Width>260.00pt</Width>
+        <Left>287.10pt</Left>
+        <Top>552.40pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2409,7 +2361,7 @@ WHERE stored_resource.id = @id1</CommandText>
           <FontSize>10pt</FontSize>
         </Style>
         <Source>Database</Source>
-        <Value>=First( {IM5} , "Image" )</Value>
+        <Value>=First( {IM22} , "Image" )</Value>
         <Sizing>Fit</Sizing>
         <Visibility>
           <Hidden>={?without_advertising}</Hidden>
@@ -2553,17 +2505,17 @@ WHERE stored_resource.id = @id1</CommandText>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
       <Image Name="Image4">
-        <Height>70.50pt</Height>
-        <Width>520.00pt</Width>
-        <Left>27.1pt</Left>
-        <Top>552.4pt</Top>
+        <Height>220.50pt</Height>
+        <Width>260.00pt</Width>
+        <Left>27.10pt</Left>
+        <Top>552.40pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
         </Style>
         <Source>Database</Source>
-        <Value>=First( {IM8} , "Image" )</Value>
+        <Value>=First( {IM21} , "Image" )</Value>
         <Sizing>Fit</Sizing>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
@@ -3665,24 +3617,6 @@ WHERE stored_resource.id = @id1</CommandText>
         </Style>
         <DataSetName>Image</DataSetName>
       </List>
-      <Image Name="Image10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>75.16pt</Height>
-        <Width>151.24pt</Width>
-        <Left>231.40pt</Left>
-        <Top>55.90pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Database</Source>
-        <Value>=First( {IM12} , "Image" )</Value>
-        <Sizing>Clip</Sizing>
-        <MIMEType>image/jpeg</MIMEType>
-        <Visibility>
-          <Hidden>={?without_advertising}</Hidden>
-        </Visibility>
-      </Image>
     </ReportItems>
   </Body>
   <PageFooter>
