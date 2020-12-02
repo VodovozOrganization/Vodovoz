@@ -153,6 +153,7 @@ using Vodovoz.Views.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Views.Orders;
 using Vodovoz.Core.DataService;
+using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
@@ -287,7 +288,7 @@ namespace Vodovoz
 			QSMain.ConnectionString += ";ConnectionTimeout=120";
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
+				.Dialect<MySQL57SpatialExtendedDialect>()
 				.ConnectionString(QSMain.ConnectionString)
 				.AdoNetBatchSize(100)
 				.Driver<LoggedMySqlClientDriver>();

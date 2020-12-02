@@ -82,6 +82,7 @@
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
+    <Compile Include="EntityRepositories\Orders\ExtendedReceiptForOrderNode.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentItemMap.cs" />
@@ -106,6 +107,8 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
+    <Compile Include="NhibernateExtensions\CustomProjections.cs" />
+    <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
