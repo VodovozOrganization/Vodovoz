@@ -872,6 +872,13 @@ namespace Vodovoz.Domain.Client
 			
 			if(Id == 0 && PersonType == PersonType.legal && TaxType == TaxType.None)
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Налогообложение\"");
+
+			foreach (var fixedPrice in NomenclatureFixedPrices) {
+				var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
+				foreach (var fixedPriceValidationResult in fixedPriceValidationResults) {
+					yield return fixedPriceValidationResult;
+				}
+			}
 		}
 
 		#endregion

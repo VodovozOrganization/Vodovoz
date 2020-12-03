@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -10,7 +11,7 @@ namespace Vodovoz.Domain.Goods
         NominativePlural = "фиксированные цены",
         Nominative = "фиксированная цена")]
     [HistoryTrace]
-    public class NomenclatureFixedPrice : PropertyChangedBase, IDomainObject
+    public class NomenclatureFixedPrice : PropertyChangedBase, IDomainObject, IValidatableObject
     {
         public virtual int Id { get; set; }
 
@@ -40,6 +41,13 @@ namespace Vodovoz.Domain.Goods
         public virtual decimal Price {
             get => price;
             set => SetField(ref price, value);
+        }
+
+        public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Price <= 0) {
+                yield return new ValidationResult($"Фиксированная цена для {Nomenclature.Name} должна быть больше нуля", new []{ nameof(Price) });
+            }
         }
     }
 }

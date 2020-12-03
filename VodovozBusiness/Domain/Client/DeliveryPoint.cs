@@ -746,6 +746,12 @@ namespace Vodovoz.Domain.Client
 						new[] { this.GetPropertyName(o => o.Organization) });
 			}
 
+			foreach (var fixedPrice in NomenclatureFixedPrices) {
+				var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
+				foreach (var fixedPriceValidationResult in fixedPriceValidationResults) {
+					yield return fixedPriceValidationResult;
+				}
+			}
 		}
 
 		#endregion
