@@ -118,6 +118,7 @@ public partial class MainWindow : Gtk.Window
 		ActionDriverWages.Sensitive = hasAccessToSalaries;
 		ActionWagesOperations.Sensitive = hasAccessToSalaries;
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries;
+		ActionDriversWageBalance.Visible = hasAccessToSalaries;
 
 		ActionWage.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
 
