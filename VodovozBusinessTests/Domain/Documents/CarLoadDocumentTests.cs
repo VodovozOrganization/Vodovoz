@@ -7,6 +7,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Logistic;
 using System.Linq;
+using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace VodovozBusinessTests.Domain.Documents
 {
@@ -19,6 +20,7 @@ namespace VodovozBusinessTests.Domain.Documents
 			// arrange
 			Vodovoz.Domain.Logistic.RouteList routeListMock01 = Substitute.For<Vodovoz.Domain.Logistic.RouteList>();
 			Warehouse warehouseMock01 = Substitute.For<Warehouse>();
+			ISubdivisionRepository subdivisionRepositoryMock01 = Substitute.For<ISubdivisionRepository>();
 			Nomenclature nomenclatureMock01 = Substitute.For<Nomenclature>();
 			nomenclatureMock01.Id.Returns(101);
 			Nomenclature nomenclatureMock02 = Substitute.For<Nomenclature>();
@@ -51,7 +53,7 @@ namespace VodovozBusinessTests.Domain.Documents
 			);
 
 			IRouteListRepository routeListRepositoryMock = Substitute.For<IRouteListRepository>();
-			routeListRepositoryMock.GetGoodsAndEquipsInRL(uowMock, routeListMock01, warehouseMock01).Returns(listOfGoods);
+			routeListRepositoryMock.GetGoodsAndEquipsInRL(uowMock, routeListMock01, subdivisionRepositoryMock01, warehouseMock01).Returns(listOfGoods);
 
 			CarLoadDocument loadDocumentUnderTest = new CarLoadDocument {
 				Warehouse = warehouseMock01,
@@ -59,7 +61,7 @@ namespace VodovozBusinessTests.Domain.Documents
 			};
 
 			// act
-			loadDocumentUnderTest.FillFromRouteList(uowMock, routeListRepositoryMock, true);
+			loadDocumentUnderTest.FillFromRouteList(uowMock, routeListRepositoryMock, subdivisionRepositoryMock01, true);
 
 			// assert
 			Assert.That(loadDocumentUnderTest.Items.Count, Is.EqualTo(3));

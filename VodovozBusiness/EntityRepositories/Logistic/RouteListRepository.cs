@@ -8,6 +8,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -17,6 +18,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Repositories;
 
 namespace Vodovoz.EntityRepositories.Logistic
@@ -59,22 +61,42 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return query;
 		}
 
-		public IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
+		public IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(
+			IUnitOfWork uow,
+			RouteList routeList,
+			ISubdivisionRepository subdivisionRepository = null,
+			Warehouse warehouse = null)
 		{
+			if(subdivisionRepository == null && warehouse != null) {
+				throw new ArgumentNullException(nameof(subdivisionRepository));
+			}
+
 			List<GoodsInRouteListResult> result = new List<GoodsInRouteListResult>();
 
-			result.AddRange(GetGoodsInRLWithoutEquipments(uow, routeList).ToList());
-			result.AddRange(GetEquipmentsInRL(uow, routeList).ToList());
+			if(warehouse != null) {
+				var cashSubdivisions = subdivisionRepository.GetCashSubdivisions(uow);
+				if(cashSubdivisions.Contains(warehouse.OwningSubdivision)) {
+					var terminal = GetTerminalInRL(uow, routeList, warehouse);
+					if(terminal != null)
+						result.Add(terminal);
+				}
+				else {
+					result.AddRange(GetGoodsInRLWithoutEquipments(uow, routeList).ToList());
+					result.AddRange(GetEquipmentsInRL(uow, routeList).ToList());
+				}
+			}
+			else {
+				result.AddRange(GetGoodsInRLWithoutEquipments(uow, routeList).ToList());
+				result.AddRange(GetEquipmentsInRL(uow, routeList).ToList());
 
-			var terminal = GetTerminalInRL(uow, routeList, warehouse);
-			
-			if(terminal != null)
-				result.Add(terminal);
+				var terminal = GetTerminalInRL(uow, routeList);
+				if(terminal != null)
+					result.Add(terminal);
+			}
 
 			return result
 				.GroupBy(x => x.NomenclatureId, x => x.Amount)
-				.Select(
-					x => new GoodsInRouteListResult {
+				.Select(x => new GoodsInRouteListResult {
 						NomenclatureId = x.Key,
 						Amount = x.Sum()
 					}
