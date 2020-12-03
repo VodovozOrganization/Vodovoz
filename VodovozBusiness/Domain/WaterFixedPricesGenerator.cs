@@ -7,26 +7,12 @@ using Vodovoz.EntityRepositories.Goods;
 namespace Vodovoz.Domain {
     public class WaterFixedPricesGenerator {
         private readonly INomenclatureRepository nomenclatureRepository;
-        private readonly IUnitOfWork uow;
         private decimal priceIncrement;
 
-		public WaterFixedPricesGenerator(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository)
+		public WaterFixedPricesGenerator(INomenclatureRepository nomenclatureRepository)
 		{
-			this.uow = uow;
 			this.nomenclatureRepository = nomenclatureRepository ??
 			                              throw new ArgumentNullException(nameof(nomenclatureRepository));
-			
-			Initialize();
-		}
-
-		private void Initialize() {
-			SemiozeriePrice = 0m;
-			priceIncrement = nomenclatureRepository.GetWaterPriceIncrement;
-			SemiozerieWater = nomenclatureRepository.GetWaterSemiozerie(uow);
-			RuchkiWater = nomenclatureRepository.GetWaterRuchki(uow);
-			KislorodnayaWater = nomenclatureRepository.GetWaterKislorodnaya(uow);
-			SnyatogorskayaWater = nomenclatureRepository.GetWaterSnyatogorskaya(uow);
-			KislorodnayaDeluxeWater = nomenclatureRepository.GetWaterKislorodnayaDeluxe(uow);
 		}
 
 		private Nomenclature SemiozerieWater;
@@ -75,51 +61,59 @@ namespace Vodovoz.Domain {
 			set => SemiozeriePrice = value - priceIncrement * 3;
 		}
 
+		private void LoadNomenclatures()
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				SemiozeriePrice = 0m;
+				priceIncrement = nomenclatureRepository.GetWaterPriceIncrement;
+				SemiozerieWater = nomenclatureRepository.GetWaterSemiozerie(uow);
+				RuchkiWater = nomenclatureRepository.GetWaterRuchki(uow);
+				KislorodnayaWater = nomenclatureRepository.GetWaterKislorodnaya(uow);
+				SnyatogorskayaWater = nomenclatureRepository.GetWaterSnyatogorskaya(uow);
+				KislorodnayaDeluxeWater = nomenclatureRepository.GetWaterKislorodnayaDeluxe(uow);
+			}
+		}
+
 		/// <summary>
 		/// Создает фиксированные цены по всем номенклатурам воды основываясь на цене одной номенклатуры
 		/// </summary>
-		/// <returns>The fixed prices.</returns>
+		/// <returns>Словарь с id номенклатуры и ценой</returns>
 		/// <param name="waterNomenclature"> Номенклатура относительно которой будут созданы остальные фиксированные цены</param>
 		/// <param name="fixedPrice"> Фиксированная цена для базовой номенклатуры </param>
-		public Dictionary<Nomenclature, decimal> GenerateFixedPricesForAllWater(
-			Nomenclature waterNomenclature, decimal fixedPrice) {
-
-			if(waterNomenclature.Id == 0) {
+		public Dictionary<int, decimal> GenerateFixedPricesForAllWater(int waterNomenclatureId, decimal fixedPrice) {
+			if(waterNomenclatureId == 0) {
 				throw new InvalidOperationException("Невозможно определить цены на воду для новой номенклатуры.");
 			}
+
+			LoadNomenclatures();
+
+			var result = new Dictionary<int, decimal>();
 			
-			var result = new Dictionary<Nomenclature, decimal>();
-			
-			if (waterNomenclature.Id == SemiozerieWater.Id) {
+			if (waterNomenclatureId == SemiozerieWater.Id) {
 				SemiozeriePrice = fixedPrice;
 			}
-			else if (waterNomenclature.Id == RuchkiWater.Id) {
+			else if (waterNomenclatureId == RuchkiWater.Id) {
 				SemiozeriePrice = fixedPrice;
 			}
-			else if (waterNomenclature.Id == KislorodnayaWater.Id) {
+			else if (waterNomenclatureId == KislorodnayaWater.Id) {
 				KislorodnayaPrice = fixedPrice;
 			}
-			else if (waterNomenclature.Id == SnyatogorskayaWater.Id) {
+			else if (waterNomenclatureId == SnyatogorskayaWater.Id) {
 				SnyatogorskayaPrice = fixedPrice;
 			}
-			else if (waterNomenclature.Id == KislorodnayaDeluxeWater.Id) {
+			else if (waterNomenclatureId == KislorodnayaDeluxeWater.Id) {
 				KislorodnayaDeluxePrice = fixedPrice;
 			}
 			else {
-				var basedNomenclature = uow.GetById<Nomenclature>(waterNomenclature.Id);
-				
-				if (basedNomenclature != null) {
-					result.Add(basedNomenclature, fixedPrice);
-				}
-
+				result.Add(waterNomenclatureId, fixedPrice);
 				return result;
 			}
 			
-			result.Add(SemiozerieWater, SemiozeriePrice);
-			result.Add(RuchkiWater, SemiozeriePrice);
-			result.Add(KislorodnayaWater, KislorodnayaPrice);
-			result.Add(SnyatogorskayaWater, SnyatogorskayaPrice);
-			result.Add(KislorodnayaDeluxeWater, KislorodnayaDeluxePrice);
+			result.Add(SemiozerieWater.Id, SemiozeriePrice);
+			result.Add(RuchkiWater.Id, SemiozeriePrice);
+			result.Add(KislorodnayaWater.Id, KislorodnayaPrice);
+			result.Add(SnyatogorskayaWater.Id, SnyatogorskayaPrice);
+			result.Add(KislorodnayaDeluxeWater.Id, KislorodnayaDeluxePrice);
 			return result;
 		}
     }

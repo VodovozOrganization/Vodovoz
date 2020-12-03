@@ -333,6 +333,16 @@ namespace Vodovoz.JournalColumnsConfigs
 					})
 					.Finish()
 			);
+			
+			//NomenclaturesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<WaterJournalViewModel>(
+				() => FluentColumnsConfig<WaterJournalNode>.Create()
+					.AddColumn("Код")
+					.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Номенклатура")
+					.AddTextRenderer(node => node.Name)
+					.Finish()
+			);
 
 			//RequestsToSuppliersJournalViewModel
 			TreeViewColumnsConfigFactory.Register<RequestsToSuppliersJournalViewModel>(

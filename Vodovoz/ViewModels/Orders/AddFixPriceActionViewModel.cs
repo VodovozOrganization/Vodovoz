@@ -7,6 +7,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.Orders
@@ -75,7 +76,7 @@ namespace Vodovoz.ViewModels.Orders
 					if(!CommonServices.ValidationService.Validate(validatableAction))
 						return;
 
-					NomenclatureRepository nomenclatureRepository = new NomenclatureRepository();
+					NomenclatureRepository nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 					WaterFixedPriceGenerator waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW, nomenclatureRepository);
 					var fixedPrices = waterFixedPriceGenerator.GenerateFixedPrices(Nomenclature.Id, Price);
 					foreach(var fixedPrice in fixedPrices) {

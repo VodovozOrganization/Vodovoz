@@ -33,6 +33,11 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.ViewModels.Goods;
+using Vodovoz.TempAdapters;
+using Vodovoz.Models;
+using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
 
 namespace Vodovoz
 {
@@ -291,6 +296,14 @@ namespace Vodovoz
 			enumPersonType.Sensitive = canEditCounterpartyDetails;
 			datatable4.Sensitive = canEditCounterpartyDetails;
 			entryFullName.Sensitive = canEditCounterpartyDetails;
+
+			var waterFixedPricesGenerator = new WaterFixedPricesGenerator(NomenclatureRepository);
+			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
+			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory, waterFixedPricesGenerator);
+			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
+			var nomSelectorFactory = new NomenclatureSelectorFactory();
+			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
+			fixedpricesview.ViewModel = fixedPricesViewModel;
 
 			//accountsView.
 			#region Особая печать

@@ -26,10 +26,10 @@ namespace Vodovoz.Domain.Client
 		public virtual IList<NomenclatureFixedPrice> FixedPrices {
 			get {
 				if (DeliveryPoint == null) {
-					return Contract.Counterparty.FixedPrices;
+					return Contract.Counterparty.NomenclatureFixedPrices;
 				}
 
-				return DeliveryPoint.FixedPrices;
+				return DeliveryPoint.NomenclatureFixedPrices;
 			}
 		}
 	}

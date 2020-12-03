@@ -158,6 +158,7 @@ using Vodovoz.Tools;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.ViewModels;
+using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -271,6 +272,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalActionsViewModel, BusinessTasksJournalActionsView>()
 				.RegisterWidgetForWidgetViewModel<SendDocumentByEmailViewModel, SendDocumentByEmailView>()
 				.RegisterWidgetForWidgetViewModel<FinancialDistrictsSetsJournalFilterViewModel, FinancialDistrictsSetsJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<FixedPricesViewModel, FixedPricesView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

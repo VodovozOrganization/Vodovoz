@@ -1535,9 +1535,9 @@ namespace Vodovoz.Domain.Orders
 		{
 			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
 
-			IList<NomenclatureFixedPrice> fixedPrices = Contract.Counterparty.FixedPrices;
+			IList<NomenclatureFixedPrice> fixedPrices = Contract.Counterparty.NomenclatureFixedPrices;
 			if(deliveryPoint != null) {
-				fixedPrices = deliveryPoint.FixedPrices;
+				fixedPrices = deliveryPoint.NomenclatureFixedPrices;
 			}
 			
 			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && influentialNomenclature == null)) {
@@ -1554,8 +1554,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual IEnumerable<Nomenclature> GetNomenclaturesWithFixPrices{
 			get {
 				List<NomenclatureFixedPrice> fixedPrices = new List<NomenclatureFixedPrice>();
-				fixedPrices.AddRange(Client.FixedPrices);
-				fixedPrices.AddRange(Client.DeliveryPoints.SelectMany(x => x.FixedPrices));
+				fixedPrices.AddRange(Client.NomenclatureFixedPrices);
+				fixedPrices.AddRange(Client.DeliveryPoints.SelectMany(x => x.NomenclatureFixedPrices));
 				return fixedPrices.Select(x => x.Nomenclature).Distinct();
 			}
 		}

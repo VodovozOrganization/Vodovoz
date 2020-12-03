@@ -26,6 +26,7 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 
@@ -45,7 +46,7 @@ namespace Vodovoz.Dialogs.Logistic
 		public virtual INomenclatureRepository NomenclatureRepository {
 			get {
 				if (nomenclatureRepository == null) {
-					nomenclatureRepository = new NomenclatureRepository();
+					nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 				}
 				return nomenclatureRepository;
 			}

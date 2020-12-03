@@ -103,5 +103,10 @@ namespace Vodovoz.TempAdapters
 
 			return vm;
 		}
+
+		public IEntityAutocompleteSelectorFactory GetWaterJournalFactory()
+		{
+			return new WaterJournalFactory();
+		}
 	}
 }
