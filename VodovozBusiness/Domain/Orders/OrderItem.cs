@@ -402,19 +402,13 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			decimal originalExistingPercent = existingPercent - DiscountByStock;
+			decimal originalExistingPercent = 100 * (existingPercent - DiscountByStock) / (100 - DiscountByStock);
 
-			decimal resultDiscount = originalExistingPercent + discountPercent;
-			resultDiscount = resultDiscount > 100 ? 100 : resultDiscount < 0 ? 0 : resultDiscount;
-
-			//на сколько избыточна добавляемая скидка (значение отрицательное)
-			decimal discountExcess = (originalExistingPercent + discountPercent > 100) ? (100 - (originalExistingPercent + discountPercent)) : 0;
-			decimal realDiscountByStock = discountPercent + discountExcess;
-
+			decimal resultDiscount = originalExistingPercent + (100 - originalExistingPercent) / 100 * discountPercent;
 
 			Discount = resultDiscount;
 			DiscountMoney = Price * CurrentCount * Discount / 100;
-			DiscountByStock = realDiscountByStock;
+			DiscountByStock = discountPercent;
 
 			if(Discount == 0) {
 				DiscountReason = null;
