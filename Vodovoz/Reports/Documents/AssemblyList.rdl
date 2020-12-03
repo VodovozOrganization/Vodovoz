@@ -1828,7 +1828,7 @@ WHERE orders.id = @order_id
   </DataSources>
   <ReportParameters>
     <ReportParameter Name="order_id">
-      <DataType>String</DataType>
+      <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
