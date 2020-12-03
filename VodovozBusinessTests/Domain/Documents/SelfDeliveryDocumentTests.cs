@@ -4,6 +4,7 @@ using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using QS.DomainModel.UoW;
+using Vodovoz;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -41,7 +42,8 @@ namespace VodovozBusinessTests.Domain.Documents
 					new SelfDeliveryDocumentReturned {
 						Amount = 1,
 						Nomenclature = nomenclatureMock,
-						WarehouseMovementOperation = Substitute.For<WarehouseMovementOperation>()
+						WarehouseMovementOperation = Substitute.For<WarehouseMovementOperation>(),
+						CounterpartyMovementOperation = Substitute.For<CounterpartyMovementOperation>()
 					},
 					Substitute.For<SelfDeliveryDocumentReturned>()
 				}
@@ -121,7 +123,8 @@ namespace VodovozBusinessTests.Domain.Documents
 						Nomenclature = nomenclatureMock,
 						WarehouseMovementOperation = new WarehouseMovementOperation {
 							Amount = 1
-						}
+						},
+						CounterpartyMovementOperation = Substitute.For<CounterpartyMovementOperation>()
 					}
 				}
 			};
