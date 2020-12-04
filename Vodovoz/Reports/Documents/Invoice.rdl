@@ -1764,6 +1764,7 @@ WHERE stored_resource.id = @id1</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >#,##0.00</Format>
                       </Style>
                       <Value>=SUM({total_wo_disc})</Value>
                       <Visibility>
