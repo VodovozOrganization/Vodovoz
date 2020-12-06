@@ -309,6 +309,12 @@ namespace Vodovoz.Domain.Employees
 			get { return loginForNewUser; }
 			set { SetField(ref loginForNewUser, value, () => LoginForNewUser); }
 		}
+		
+		Organization organisationForSalary;
+		public virtual Organization OrganisationForSalary {
+			get => organisationForSalary;
+			set => SetField(ref organisationForSalary, value);
+		}
 
 		#endregion
 

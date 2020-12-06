@@ -17,10 +17,15 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
+using Gtk;
+using Gamma.Binding;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -31,6 +36,10 @@ namespace Vodovoz
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
+		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
+			new RouteListCashOrganisationDistributor(
+				new CashDistributionCommonOrganisationProvider(
+					new OrganisationParametersProvider()), OrderSingletonRepository.GetInstance());
 
 		public CashExpenseDlg (IPermissionService permissionService)
 		{
@@ -149,7 +158,12 @@ namespace Vodovoz
 			);
 			entityVMEntryExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategorySelectorFactory);
 			entityVMEntryExpenseCategory.Binding.AddBinding(Entity, e => e.ExpenseCategory, w => w.Subject).InitializeFromSource();
-			
+
+			//entityVMEntryOrganization.SetEntityAutocompleteSelectorFactory(expenseCategorySelectorFactory);
+			//entityVMEntryOrganization.Binding.AddBinding(Entity, e => e.Organization, w => w.Subject).InitializeFromSource();
+			var list = new ListStore(typeof(Organization));
+			yCmbEntryOrganisation.Model = list;
+
 			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
 
 			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
@@ -199,11 +213,22 @@ namespace Vodovoz
 
 			Entity.UpdateWagesOperations(UoW);
 
+			if (UoW.IsNew) {
+				DistributeCash();
+			}
+			
 			logger.Info ("Сохраняем расходный ордер...");
 			UoWGeneric.Save();
 			logger.Info ("Ok");
 			return true;
 
+		}
+
+		private void DistributeCash()
+		{
+			if (Entity.TypeOperation == ExpenseType.Expense && Entity.ExpenseCategory.Id == 63) {
+				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, Entity.RouteListClosing, Entity.Money);
+			}
 		}
 
 		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)

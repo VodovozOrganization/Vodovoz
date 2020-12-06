@@ -88,6 +88,13 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
+		Organization organisation;
+		[Display(Name = "Организация")]
+		public virtual Organization Organisation {
+			get => organisation;
+			set => SetField(ref organisation, value);
+		}
+
 		public virtual string Title => String.Format("Авансовый отчет №{0} от {1:d}", Id, Date);
 
 		#endregion

@@ -16,6 +16,8 @@ using Vodovoz.EntityRepositories.Employees;
 using QS.Services;
 using Vodovoz.EntityRepositories;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 
 namespace Vodovoz
@@ -27,6 +29,10 @@ namespace Vodovoz
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
+		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
+			new RouteListCashOrganisationDistributor(
+				new CashDistributionCommonOrganisationProvider(
+					new OrganisationParametersProvider()), OrderSingletonRepository.GetInstance());
 
 		List<Selectable<Expense>> selectableAdvances;
 
@@ -228,11 +234,25 @@ namespace Vodovoz
 				logger.Info ("Закрываем авансы...");
 				Entity.CloseAdvances(UoW);
 			}
+
+			if (UoW.IsNew) {
+				DistributeCash();
+			}
+			
 			UoWGeneric.Save();
 			logger.Info ("Ok");
 			return true;
 		}
+
+		private void DistributeCash()
+		{
+			if (Entity.TypeOperation == IncomeType.DriverReport && Entity.IncomeCategory.Id == 1) {
+				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, Entity.RouteListClosing, Entity.Money);
+			}
 			
+			//if()
+		}
+
 		protected void OnButtonPrintClicked (object sender, EventArgs e)
 		{
 			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(Expense), "квитанции"))

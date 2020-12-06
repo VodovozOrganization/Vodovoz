@@ -180,6 +180,13 @@ namespace Vodovoz.Domain.Cash
 			get => cashierReviewComment;
 			set => SetField(ref cashierReviewComment, value, () => CashierReviewComment);
 		}
+		
+		private Organization organisation;
+		[Display(Name = "Организация")]
+		public virtual Organization Organisation {
+			get => organisation;
+			set => SetField(ref organisation, value);
+		}
 
 		#endregion
 

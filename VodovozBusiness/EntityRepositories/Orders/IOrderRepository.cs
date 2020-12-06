@@ -124,6 +124,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		IList<PaymentItem> GetPaymentItemsForOrder(IUnitOfWork uow, int orderId);
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
+		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 	}
 
 	public class ClientEquipmentNode
