@@ -3306,17 +3306,19 @@ namespace Vodovoz.Domain.Orders
 
 		#region Аренда
 
+		#region NonFreeRent
+
 		public virtual void AddNonFreeRent(PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
 		{
-			OrderItem orderRentDepositItem = GetExistingRentDepositItem(paidRentPackage);
+			OrderItem orderRentDepositItem = GetExistingNonFreeRentDepositItem(paidRentPackage);
 			if(orderRentDepositItem == null) {
-				orderRentDepositItem = CreateNewRentDepositItem(paidRentPackage);
+				orderRentDepositItem = CreateNewNonFreeRentDepositItem(paidRentPackage);
 				ObservableOrderItems.Add(orderRentDepositItem);
 			}
 			
-			OrderItem orderRentServiceItem = GetExistingRentServiceItem(paidRentPackage);
+			OrderItem orderRentServiceItem = GetExistingNonFreeRentServiceItem(paidRentPackage);
 			if(orderRentServiceItem == null) {
-				orderRentServiceItem = CreateNewRentServiceItem(paidRentPackage);
+				orderRentServiceItem = CreateNewNonFreeRentServiceItem(paidRentPackage);
 				ObservableOrderItems.Add(orderRentServiceItem);
 			}
 
@@ -3333,8 +3335,8 @@ namespace Vodovoz.Domain.Orders
 			OnPropertyChanged(nameof(TotalSum));
 			OnPropertyChanged(nameof(OrderCashSum));
 		}
-
-		private OrderItem GetExistingRentDepositItem(PaidRentPackage paidRentPackage)
+		
+		private OrderItem GetExistingNonFreeRentDepositItem(PaidRentPackage paidRentPackage)
 		{
 			OrderItem orderRentDepositItem = OrderItems
 				.Where(x => x.PaidRentPackage != null && x.PaidRentPackage.Id == paidRentPackage.Id)
@@ -3344,7 +3346,7 @@ namespace Vodovoz.Domain.Orders
 			return orderRentDepositItem;
 		}
 		
-		private OrderItem CreateNewRentDepositItem(PaidRentPackage paidRentPackage)
+		private OrderItem CreateNewNonFreeRentDepositItem(PaidRentPackage paidRentPackage)
 		{
 			OrderItem orderRentDepositItem = new OrderItem {
 				Order = this,
@@ -3358,7 +3360,7 @@ namespace Vodovoz.Domain.Orders
 			return orderRentDepositItem;
 		}
 		
-		private OrderItem GetExistingRentServiceItem(PaidRentPackage paidRentPackage)
+		private OrderItem GetExistingNonFreeRentServiceItem(PaidRentPackage paidRentPackage)
 		{
 			OrderItem orderRentServiceItem = OrderItems
 				.Where(x => x.PaidRentPackage != null && x.PaidRentPackage.Id == paidRentPackage.Id)
@@ -3368,7 +3370,7 @@ namespace Vodovoz.Domain.Orders
 			return orderRentServiceItem;
 		}
 		
-		private OrderItem CreateNewRentServiceItem(PaidRentPackage paidRentPackage)
+		private OrderItem CreateNewNonFreeRentServiceItem(PaidRentPackage paidRentPackage)
 		{
 			OrderItem orderRentServiceItem = new OrderItem {
 				Order = this,
@@ -3383,6 +3385,89 @@ namespace Vodovoz.Domain.Orders
 			return orderRentServiceItem;
 		}
 		
+		#endregion NonFreeRent
+
+		#region DailyRent
+
+		public virtual void AddDailyRent(PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
+		{
+			OrderItem orderRentDepositItem = GetExistingDailyRentDepositItem(paidRentPackage);
+			if(orderRentDepositItem == null) {
+				orderRentDepositItem = CreateNewDailyRentDepositItem(paidRentPackage);
+				ObservableOrderItems.Add(orderRentDepositItem);
+			}
+			
+			OrderItem orderRentServiceItem = GetExistingDailyRentServiceItem(paidRentPackage);
+			if(orderRentServiceItem == null) {
+				orderRentServiceItem = CreateNewDailyRentServiceItem(paidRentPackage);
+				ObservableOrderItems.Add(orderRentServiceItem);
+			}
+
+			OrderEquipment orderRentEquipment = GetExistingRentEquipmentItem(equipmentNomenclature, orderRentDepositItem, orderRentServiceItem);
+			if (orderRentEquipment == null) {
+				orderRentEquipment = CreateNewRentEquipmentItem(equipmentNomenclature, orderRentDepositItem, orderRentServiceItem);
+				ObservableOrderEquipments.Add(orderRentEquipment);
+			} else {
+				orderRentEquipment.Count++;
+			}
+
+			UpdateRentsCount();
+			
+			OnPropertyChanged(nameof(TotalSum));
+			OnPropertyChanged(nameof(OrderCashSum));
+		}
+		
+		private OrderItem GetExistingDailyRentDepositItem(PaidRentPackage paidRentPackage)
+		{
+			OrderItem orderRentDepositItem = OrderItems
+				.Where(x => x.PaidRentPackage != null && x.PaidRentPackage.Id == paidRentPackage.Id)
+				.Where(x => x.RentType == OrderRentType.DailyRent)
+				.Where(x => x.OrderItemRentSubType == OrderItemRentSubType.RentDepositItem)
+				.FirstOrDefault();
+			return orderRentDepositItem;
+		}
+		
+		private OrderItem CreateNewDailyRentDepositItem(PaidRentPackage paidRentPackage)
+		{
+			OrderItem orderRentDepositItem = new OrderItem {
+				Order = this,
+				Count = 1,
+				RentType = OrderRentType.DailyRent,
+				OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
+				PaidRentPackage = paidRentPackage,
+				Price = paidRentPackage.Deposit,
+				Nomenclature = paidRentPackage.DepositService
+			};
+			return orderRentDepositItem;
+		}
+		
+		private OrderItem GetExistingDailyRentServiceItem(PaidRentPackage paidRentPackage)
+		{
+			OrderItem orderRentServiceItem = OrderItems
+				.Where(x => x.PaidRentPackage != null && x.PaidRentPackage.Id == paidRentPackage.Id)
+				.Where(x => x.RentType == OrderRentType.DailyRent)
+				.Where(x => x.OrderItemRentSubType == OrderItemRentSubType.RentServiceItem)
+				.FirstOrDefault();
+			return orderRentServiceItem;
+		}
+		
+		private OrderItem CreateNewDailyRentServiceItem(PaidRentPackage paidRentPackage)
+		{
+			OrderItem orderRentServiceItem = new OrderItem {
+				Order = this,
+				Count = 1,
+				RentCount = 1,
+				RentType = OrderRentType.DailyRent,
+				OrderItemRentSubType = OrderItemRentSubType.RentServiceItem,
+				PaidRentPackage = paidRentPackage,
+				Price = paidRentPackage.PriceDaily,
+				Nomenclature = paidRentPackage.RentServiceDaily
+			};
+			return orderRentServiceItem;
+		}
+
+		#endregion DailyRent
+
 		private OrderEquipment GetExistingRentEquipmentItem(Nomenclature nomenclature, OrderItem rentDepositItem, OrderItem rentServiceItem)
 		{
 			OrderEquipment rentEquipment = OrderEquipments
@@ -3397,19 +3482,19 @@ namespace Vodovoz.Domain.Orders
 		private OrderEquipment CreateNewRentEquipmentItem(Nomenclature nomenclature, OrderItem rentDepositItem, OrderItem rentServiceItem)
 		{
 			OrderEquipment rentEquipment = new OrderEquipment {
-					Order = this,
-					Count = 1,
-					Direction = Direction.Deliver,
-					Nomenclature = nomenclature,
-					Reason = Reason.Rent,
-					DirectionReason = DirectionReason.Rent,
-					OwnType = OwnTypes.Rent,
-					OrderRentDepositItem = rentDepositItem,
-					OrderRentServiceItem = rentServiceItem
-				};
+				Order = this,
+				Count = 1,
+				Direction = Direction.Deliver,
+				Nomenclature = nomenclature,
+				Reason = Reason.Rent,
+				DirectionReason = DirectionReason.Rent,
+				OwnType = OwnTypes.Rent,
+				OrderRentDepositItem = rentDepositItem,
+				OrderRentServiceItem = rentServiceItem
+			};
 			return rentEquipment;
 		}
-
+		
 		public virtual void UpdateRentsCount()
 		{
 			foreach (var orderItem in OrderItems.Where(x => x.OrderItemRentSubType != OrderItemRentSubType.None)) {

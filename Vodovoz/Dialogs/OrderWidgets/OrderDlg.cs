@@ -2683,10 +2683,10 @@ namespace Vodovoz
 			}
 			switch (rentType) {
 				case RentType.NonfreeRent:
-					SelectPaidRentPackageForNonfreeRent();
+					SelectPaidRentPackage(RentType.NonfreeRent);
 					break;
 				case RentType.DailyRent:
-					//AddDailyRent();
+					SelectPaidRentPackage(RentType.DailyRent);
 					break;
 				case RentType.FreeRent:
 					//AddFreeRent();
@@ -2696,7 +2696,7 @@ namespace Vodovoz
 		
 		#region NonfreeRent
 		
-		private void SelectPaidRentPackageForNonfreeRent()
+		private void SelectPaidRentPackage(RentType rentType)
 		{
 			var ormReference = new OrmReference(typeof(PaidRentPackage)) {
 				Mode = OrmReferenceMode.Select
@@ -2706,12 +2706,12 @@ namespace Vodovoz
 				if (rentPackage == null) {
 					return;
 				}
-				SelectEquipmentForPaidRentPackage(rentPackage);
+				SelectEquipmentForPaidRentPackage(rentType, rentPackage);
 			};
 			TabParent.AddTab(ormReference, this);
 		}
 
-		private void SelectEquipmentForPaidRentPackage(PaidRentPackage paidRentPackage)
+		private void SelectEquipmentForPaidRentPackage(RentType rentType, PaidRentPackage paidRentPackage)
 		{
 			if (ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) {
 				var existingItems = Entity.OrderEquipments
@@ -2721,7 +2721,7 @@ namespace Vodovoz
 					.ToArray();
 				
 				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentType, existingItems);
-				AddNonfreeRent(paidRentPackage, anyNomenclature);
+				AddPaidRent(rentType, paidRentPackage, anyNomenclature);
 			}
 			else {
 				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, paidRentPackage.EquipmentType));
@@ -2729,14 +2729,17 @@ namespace Vodovoz
 				selectDialog.CustomTabName("Оборудование для аренды");
 				selectDialog.ObjectSelected += (sender, e) => {
 					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					AddNonfreeRent(paidRentPackage, selectedNode.Nomenclature);
+					AddPaidRent(rentType, paidRentPackage, selectedNode.Nomenclature);
 				};
 				TabParent.AddSlaveTab(this, selectDialog);
 			}
 		}
 
-		private void AddNonfreeRent(PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
+		private void AddPaidRent(RentType rentType, PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
 		{
+			if (rentType == RentType.FreeRent) {
+				throw new InvalidOperationException($"Не правильный тип аренды {RentType.FreeRent}, возможен только {RentType.NonfreeRent} или {RentType.DailyRent}");
+			}
 			var interactiveService = ServicesConfig.InteractiveService;
 			if(equipmentNomenclature == null) {
 				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
@@ -2749,20 +2752,18 @@ namespace Vodovoz
 					return;
 				}
 			}
-			Entity.AddNonFreeRent(paidRentPackage, equipmentNomenclature);
+
+			switch (rentType) {
+				case RentType.NonfreeRent:
+					Entity.AddNonFreeRent(paidRentPackage, equipmentNomenclature);
+					break;
+				case RentType.DailyRent:
+					Entity.AddDailyRent(paidRentPackage, equipmentNomenclature);
+					break;
+			}
 		}
 
 		#endregion NonfreeRent
-		
-		private void AddFreeRent()
-		{
-			
-		}
-		
-		private void AddDailyRent()
-		{
-			
-		}
 
 		#endregion
 	}
