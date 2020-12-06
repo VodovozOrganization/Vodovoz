@@ -42,6 +42,14 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		
+		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
+			new RouteListCashOrganisationDistributor(
+				new CashDistributionCommonOrganisationProvider(
+					new OrganisationParametersProvider()), OrderSingletonRepository.GetInstance());
+		
+		private ExpenseCashOrganisationDistributor expenseCashOrganisationDistributor = 
+			new ExpenseCashOrganisationDistributor();
 
 		#region Свойства
 
@@ -1338,7 +1346,7 @@ namespace Vodovoz.Domain.Logistic
 				};
 
 				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money:C0}");
-
+				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
 					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
@@ -1352,6 +1360,7 @@ namespace Vodovoz.Domain.Logistic
 					RelatedToSubdivision = Cashier.Subdivision
 				};
 				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money:C0}");
+				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense.Money);
 			}
 			IsManualAccounting = true;
 			return messages.ToArray();
@@ -1376,6 +1385,7 @@ namespace Vodovoz.Domain.Logistic
 			};
 
 			message = $"Создан расходный ордер на сумму {cashExpense.Money:C0}";
+			expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, cashExpense, true);			
 			return (message);
 		}
 
@@ -1567,7 +1577,9 @@ namespace Vodovoz.Domain.Logistic
 					RouteListClosing = this,
 					RelatedToSubdivision = Cashier.Subdivision
 				};
+				
 				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money}");
+				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
 					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
@@ -1580,7 +1592,9 @@ namespace Vodovoz.Domain.Logistic
 					RouteListClosing = this,
 					RelatedToSubdivision = Cashier.Subdivision
 				};
+				
 				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money}");
+				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense.Money);
 			}
 
 			// Если хотя бы один fuelDocument имеет PayedForFuel то добавить пустую строку разделитель и сообщения о расходных ордерах топлива
@@ -1595,11 +1609,9 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
-
-
-			if(cashIncome != null) UoW.Save(cashIncome);
-			if(cashExpense != null) UoW.Save(cashExpense);
-
+			if (cashIncome != null) UoW.Save(cashIncome);
+			if (cashExpense != null) UoW.Save(cashExpense);
+			
 			return messages;
 		}
 

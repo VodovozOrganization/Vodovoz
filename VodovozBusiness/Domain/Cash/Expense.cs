@@ -170,6 +170,13 @@ namespace Vodovoz.Domain.Cash
 			set => SetField(ref cashTransferDocument, value, () => CashTransferDocument);
 		}
 
+		private Organization organisation;
+		[Display(Name = "Организация")]
+		public virtual Organization Organisation {
+			get => organisation;
+			set => SetField(ref organisation, value);
+		}
+		
 		#endregion
 
 		#region Вычисляемые

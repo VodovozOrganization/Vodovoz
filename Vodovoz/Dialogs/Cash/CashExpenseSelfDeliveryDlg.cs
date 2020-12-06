@@ -22,6 +22,8 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Core.DataService;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Documents;
+using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Tools;
 
@@ -34,6 +36,12 @@ namespace Vodovoz.Dialogs.Cash
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
+		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
+			new SelfDeliveryCashOrganisationDistributor(
+				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()),
+				new SelfDeliveryCashDistributionDocumentRepository(),
+				OrderSingletonRepository.GetInstance());
+
 		
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -185,13 +193,20 @@ namespace Vodovoz.Dialogs.Cash
 
 		public override bool Save()
 		{
-			var validationContext = new Dictionary<object, object>();
-			validationContext.Add("IsSelfDelivery", true);
+			var validationContext = new Dictionary<object, object> {{"IsSelfDelivery", true}};
 			var valid = new QSValidator<Expense>(UoWGeneric.Root, validationContext);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
 			Entity.AcceptSelfDeliveryPaid(CallTaskWorker);
+			
+			if (UoW.IsNew) {
+				selfDeliveryCashOrganisationDistributor.DistributeExpenseCash(UoW, Entity.Order, Entity);
+			}
+			else { 
+				selfDeliveryCashOrganisationDistributor.UpdateRecords(UoW, Entity.Order, Entity,
+					EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
+			}
 
 			logger.Info("Сохраняем расходный ордер...");
 			UoWGeneric.Save();
@@ -219,7 +234,10 @@ namespace Vodovoz.Dialogs.Cash
 
 		protected void OnYentryOrderChanged(object sender, EventArgs e)
 		{
-			Entity.FillFromOrder(UoW);
+			if (Entity.Order != null)
+			{
+				Entity.FillFromOrder(UoW);
+			}
 		}
 		
 		public override void Destroy()

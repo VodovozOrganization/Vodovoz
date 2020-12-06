@@ -162,6 +162,8 @@ namespace Vodovoz
 
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();
 
+			entityVMEntryOrganisation.Binding.AddBinding(Entity, e => e.Organisation, w => w.Subject).InitializeFromSource();
+
 			ytextviewDescription.Binding.AddBinding(Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource();
 
 			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<RecivedAdvance>()
@@ -216,14 +218,22 @@ namespace Vodovoz
 			Expense newExpense;
 			bool needClosing = UoWGeneric.IsNew;
 			UoWGeneric.Save(); // Сохраняем сначала отчет, так как нужно получить Id.
+			var distributor = new AdvanceCashOrganisationDistributor();
 			if(needClosing) {
 				var closing = Entity.CloseAdvances(out newExpense, out newIncome,
 					advanceList.Where(a => a.Selected).Select(a => a.Advance).ToList());
 
-				if(newExpense != null)
+				if (newExpense != null)
+				{
 					UoWGeneric.Save(newExpense);
-				if(newIncome != null)
+					distributor.DistributeCashForExpenseAdvance(UoW, newExpense, Entity);
+				}
+
+				if (newIncome != null)
+				{
 					UoWGeneric.Save(newIncome);
+					distributor.DistributeCashForIncomeAdvance(UoW, newIncome, Entity);
+				}
 
 				advanceList.Where(a => a.Selected).Select(a => a.Advance).ToList().ForEach(a => UoWGeneric.Save(a));
 				closing.ForEach(c => UoWGeneric.Save(c));

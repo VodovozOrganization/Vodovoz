@@ -18,6 +18,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using QS.Navigation;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.FuelDocuments
 {
@@ -252,12 +253,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return false;
 			}
 
-			var cashSubdivisions = subdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			/*var cashSubdivisions = subdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!cashSubdivisions?.Contains(Cashier.Subdivision) ?? true) {
 				ShowWarningMessage("Выдать топливо может только сотрудник кассы");
 				return false;
 			}
-
+*/
 			return true;
 		}
 
@@ -293,6 +294,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				FuelDocument.CreateOperations(fuelRepository);
 				RouteList.ObservableFuelDocuments.Add(FuelDocument);
+
+				if (FuelInMoney && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)
+				{
+					var distributor = new FuelCashOrganisationDistributor(
+						new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()));
+					
+					distributor.DistributeCash(UoW, FuelDocument);
+				}
 			} 
 			else 
 			{
