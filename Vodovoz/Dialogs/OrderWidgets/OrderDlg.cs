@@ -26,6 +26,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
+using QS.Services;
 using QS.Tdi;
 using QS.Validation;
 using QSDocTemplates;
@@ -69,9 +70,11 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
+using Vodovoz.Representations;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
@@ -448,6 +451,9 @@ namespace Vodovoz
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 
 			commentsview4.UoW = UoWGeneric;
+			
+			enumAddRentButton.ItemsEnum = typeof(RentType);
+			enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
 
 			checkSelfDelivery.Toggled += (sender, e) => {
 				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
@@ -598,7 +604,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
 				.AddColumn(!orderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
-				.SetTag("Count")
+					.SetTag("Count")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Count)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
@@ -609,7 +615,9 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Аренда")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(node => string.Empty)
+					.AddNumericRenderer(node => node.RentCount).Editing().Digits(0)
+					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+					.AddSetter((c, node) => c.Visible = node.RentVisible)
 				.AddColumn("Цена")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
@@ -2660,5 +2668,102 @@ namespace Vodovoz
 		{
 			Order.AddContractDocument(Order.Contract);
 		}
+
+		#region Аренда
+
+		private void AddRent(RentType rentType)
+		{
+			if (Entity.IsService) {
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Error, 
+					"Нельзя добавлять аренду в сервисный заказ", 
+					"Ошибка"
+				);
+				return;
+			}
+			switch (rentType) {
+				case RentType.NonfreeRent:
+					SelectPaidRentPackageForNonfreeRent();
+					break;
+				case RentType.DailyRent:
+					//AddDailyRent();
+					break;
+				case RentType.FreeRent:
+					//AddFreeRent();
+					break;
+			}
+		}
+		
+		#region NonfreeRent
+		
+		private void SelectPaidRentPackageForNonfreeRent()
+		{
+			var ormReference = new OrmReference(typeof(PaidRentPackage)) {
+				Mode = OrmReferenceMode.Select
+			};
+			ormReference.ObjectSelected += (sender, e) => {
+				PaidRentPackage rentPackage = e.Subject as PaidRentPackage;
+				if (rentPackage == null) {
+					return;
+				}
+				SelectEquipmentForPaidRentPackage(rentPackage);
+			};
+			TabParent.AddTab(ormReference, this);
+		}
+
+		private void SelectEquipmentForPaidRentPackage(PaidRentPackage paidRentPackage)
+		{
+			if (ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) {
+				var existingItems = Entity.OrderEquipments
+					.Where(x => x.OrderRentDepositItem != null || x.OrderRentServiceItem != null)
+					.Select(x => x.Nomenclature.Id)
+					.Distinct()
+					.ToArray();
+				
+				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentType, existingItems);
+				AddNonfreeRent(paidRentPackage, anyNomenclature);
+			}
+			else {
+				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, paidRentPackage.EquipmentType));
+				selectDialog.Mode = JournalSelectMode.Single;
+				selectDialog.CustomTabName("Оборудование для аренды");
+				selectDialog.ObjectSelected += (sender, e) => {
+					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
+					AddNonfreeRent(paidRentPackage, selectedNode.Nomenclature);
+				};
+				TabParent.AddSlaveTab(this, selectDialog);
+			}
+		}
+
+		private void AddNonfreeRent(PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
+		{
+			var interactiveService = ServicesConfig.InteractiveService;
+			if(equipmentNomenclature == null) {
+				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
+				return;
+			}
+
+			var stock = StockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
+			if(stock <= 0) {
+				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?")) {
+					return;
+				}
+			}
+			Entity.AddNonFreeRent(paidRentPackage, equipmentNomenclature);
+		}
+
+		#endregion NonfreeRent
+		
+		private void AddFreeRent()
+		{
+			
+		}
+		
+		private void AddDailyRent()
+		{
+			
+		}
+
+		#endregion
 	}
 }

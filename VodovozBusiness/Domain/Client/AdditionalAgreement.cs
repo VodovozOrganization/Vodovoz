@@ -202,7 +202,7 @@ namespace Vodovoz.Domain.Client
 		}
 	}
 
-	public enum OrderAgreementType
+	public enum RentType
 	{
 		[Display (Name = "Долгосрочная аренда")]
 		NonfreeRent,

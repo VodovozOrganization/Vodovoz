@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -98,7 +100,7 @@ namespace Vodovoz.Domain.Orders
 			get => isUserPrice;
 			set => SetField(ref isUserPrice, value, () => IsUserPrice);
 		}
-
+		
 		decimal count = -1;
 		[Display(Name = "Количество")]
 		public virtual decimal Count {
@@ -108,6 +110,7 @@ namespace Vodovoz.Domain.Orders
 					Order?.RecalculateItemsPrice();
 					RecalculateDiscount();
 					RecalculateNDS();
+					Order?.UpdateRentsCount();
 				}
 			}
 		}
@@ -232,23 +235,75 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref promoSet, value, () => PromoSet);
 		}
 
+		#region Аренда
+
+		OrderRentType rentType;
+		[Display(Name = "Тип аренды")]
+		public virtual OrderRentType RentType {
+			get => rentType;
+			set => SetField(ref rentType, value);
+		}
+		
+		OrderItemRentSubType orderItemRentSubType;
+		[Display(Name = "Подтип позиции аренды")]
+		public virtual OrderItemRentSubType OrderItemRentSubType {
+			get => orderItemRentSubType;
+			set => SetField(ref orderItemRentSubType, value);
+		}
+
+		int rentCount;
+		[Display(Name = "Количество аренды (дни/месяцы)")]
+		public virtual int RentCount {
+			get => rentCount;
+			set {
+				if (SetField(ref rentCount, value)) {
+					Order?.UpdateRentsCount();
+				}
+			}
+		}
+
+		int rentEquipmentCount;
+		[Display(Name = "Количество оборудования для аренды")]
+		public virtual int RentEquipmentCount {
+			get => rentEquipmentCount;
+			set => SetField(ref rentEquipmentCount, value);
+		}
+		
+		PaidRentPackage paidRentPackage;
+		[Display(Name = "Пакет платной аренды")]
+		public virtual PaidRentPackage PaidRentPackage {
+			get => paidRentPackage;
+			set => SetField(ref paidRentPackage, value);
+		}
+		
+		FreeRentPackage freeRentPackage;
+		[Display(Name = "Пакет бесплатной аренды")]
+		public virtual FreeRentPackage FreeRentPackage {
+			get => freeRentPackage;
+			set => SetField(ref freeRentPackage, value);
+		}
+		
+		public virtual void SetRentEquipmentCount(int equipmentCount)
+		{
+			RentEquipmentCount = equipmentCount;
+			switch (OrderItemRentSubType) {
+				case OrderItemRentSubType.RentServiceItem:
+					Count = RentCount * RentEquipmentCount;
+					break;
+				case OrderItemRentSubType.RentDepositItem:
+					Count = RentEquipmentCount;
+					break;
+			}
+		}
+
+		#endregion Аренда
+
 		#endregion
 
 		#region Вычисляемые
 
-		/// <summary>
-		/// Получает количество оборудования для аренды
-		/// </summary>
-		int RentEquipmentCount {
-			get {
-				return 0;
-			}
-		}
-
 		public virtual bool CanShowReturnedCount => Order.OrderStatus >= OrderStatus.OnTheWay && ReturnedCount > 0
 														&& Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category);
-
-		public virtual bool IsRentCategory => !IsRentRenewal() && RentEquipmentCount > 0;
 
 		public virtual bool IsDepositCategory => Nomenclature.Category == NomenclatureCategory.deposit;
 
@@ -281,7 +336,6 @@ namespace Vodovoz.Domain.Orders
 			if(!NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(DiscountMoney))
 			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Discount))
 			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Price))
-			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Count))
 			   || (Order == null || !NHibernate.NHibernateUtil.IsInitialized(Order.OrderItems))) {
 				return;
 			}
@@ -359,8 +413,9 @@ namespace Vodovoz.Domain.Orders
 			get {
 				bool result = true;
 
-				if(IsRentRenewal())
-					result = true;
+				if(RentType != OrderRentType.None) {
+					result = false;
+				}
 
 				if(Nomenclature.Id == PaidDeliveryNomenclatureId)
 					result = false;
@@ -377,12 +432,16 @@ namespace Vodovoz.Domain.Orders
 				if(PromoSet != null) {
 					return false;
 				}
-				if(IsRentRenewal())
-					return true;
+				
+				if(RentType != OrderRentType.None) {
+					return false;
+				}
 
 				return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
 			}
 		}
+
+		public virtual bool RentVisible => OrderItemRentSubType == OrderItemRentSubType.RentServiceItem;
 
 		public virtual string NomenclatureString => Nomenclature != null ? Nomenclature.Name : string.Empty;
 
@@ -401,14 +460,6 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Методы
-		
-		private bool IsRentRenewal()
-		{
-			if(Order.IsLoadedFrom1C) {
-				return false;
-			}
-			return true;
-		}
 
 		public virtual decimal? GetWaterFixedPrice()
 		{
@@ -483,6 +534,47 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
+	}
+
+	public enum OrderRentType
+	{
+		[Display(Name = "Нет аренды")]
+		None,
+		
+		[Display(Name = "Долгосрочная аренда")]
+		NonFreeRent,
+		
+		[Display(Name = "Бесплатная аренда")]
+		FreeRent,
+		
+		[Display(Name = "Посуточная аренда")]
+		DailyRent
+	}
+	
+	public class OrderRentTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public OrderRentTypeStringType () : base (typeof(OrderRentType))
+		{
+		}
+	}
+	
+	public enum OrderItemRentSubType
+	{
+		[Display(Name = "Нет аренды")]
+		None,
+		
+		[Display(Name = "Услуга аренды")]
+		RentServiceItem,
+		
+		[Display(Name = "Залог за аренду")]
+		RentDepositItem
+	}
+	
+	public class OrderItemRentSubTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public OrderItemRentSubTypeStringType () : base (typeof(OrderItemRentSubType))
+		{
+		}
 	}
 }
 

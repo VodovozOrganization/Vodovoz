@@ -24,6 +24,11 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.Price)				.Column ("price");
 			Map (x => x.IsUserPrice)		.Column ("is_user_price");
 			Map (x => x.ValueAddedTax)		.Column ("value_added_tax");
+			Map (x => x.RentType)		.Column ("rent_type").CustomType<OrderRentTypeStringType> ();
+			Map (x => x.OrderItemRentSubType)		.Column ("rent_sub_type").CustomType<OrderItemRentSubTypeStringType> ();
+			Map (x => x.RentCount)		.Column ("rent_count");
+			Map (x => x.RentEquipmentCount)		.Column ("rent_equipment_count");
+
 
 			References (x => x.CounterpartyMovementOperation).Column ("counterparty_movement_operation_id").Cascade.All();
 			References (x => x.Equipment)					 .Column ("equipment_id");
@@ -32,6 +37,8 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.DiscountReason)			 	 .Column ("discount_reason_id");
 			References (x => x.OriginalDiscountReason)		 .Column ("original_discount_reason_id");
 			References (x => x.PromoSet)					 .Column ("promotional_set_id");
+			References (x => x.PaidRentPackage)					 .Column ("paid_rent_package_id");
+			References (x => x.FreeRentPackage)					 .Column ("free_rent_package_id");
 		}
 	}
 }

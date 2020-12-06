@@ -2246,6 +2246,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			ObservableOrderEquipments.Remove(item);
 			UpdateDocuments();
+			UpdateRentsCount();
 		}
 
 		/// <summary>
@@ -3300,9 +3301,147 @@ namespace Vodovoz.Domain.Orders
 			if(ReturnTareReasonCategory != null)
 				ReturnTareReasonCategory = null;
 		}
-
+		
 		#endregion
 
+		#region Аренда
+
+		public virtual void AddNonFreeRent(PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
+		{
+			OrderItem orderRentDepositItem = GetExistingRentDepositItem(paidRentPackage);
+			if(orderRentDepositItem == null) {
+				orderRentDepositItem = CreateNewRentDepositItem(paidRentPackage);
+				ObservableOrderItems.Add(orderRentDepositItem);
+			}
+			
+			OrderItem orderRentServiceItem = GetExistingRentServiceItem(paidRentPackage);
+			if(orderRentServiceItem == null) {
+				orderRentServiceItem = CreateNewRentServiceItem(paidRentPackage);
+				ObservableOrderItems.Add(orderRentServiceItem);
+			}
+
+			OrderEquipment orderRentEquipment = GetExistingRentEquipmentItem(equipmentNomenclature, orderRentDepositItem, orderRentServiceItem);
+			if (orderRentEquipment == null) {
+				orderRentEquipment = CreateNewRentEquipmentItem(equipmentNomenclature, orderRentDepositItem, orderRentServiceItem);
+				ObservableOrderEquipments.Add(orderRentEquipment);
+			} else {
+				orderRentEquipment.Count++;
+			}
+
+			UpdateRentsCount();
+			
+			OnPropertyChanged(nameof(TotalSum));
+			OnPropertyChanged(nameof(OrderCashSum));
+		}
+
+		private OrderItem GetExistingRentDepositItem(PaidRentPackage paidRentPackage)
+		{
+			OrderItem orderRentDepositItem = OrderItems
+				.Where(x => x.PaidRentPackage != null && x.PaidRentPackage.Id == paidRentPackage.Id)
+				.Where(x => x.RentType == OrderRentType.NonFreeRent)
+				.Where(x => x.OrderItemRentSubType == OrderItemRentSubType.RentDepositItem)
+				.FirstOrDefault();
+			return orderRentDepositItem;
+		}
+		
+		private OrderItem CreateNewRentDepositItem(PaidRentPackage paidRentPackage)
+		{
+			OrderItem orderRentDepositItem = new OrderItem {
+				Order = this,
+				Count = 1,
+				RentType = OrderRentType.NonFreeRent,
+				OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
+				PaidRentPackage = paidRentPackage,
+				Price = paidRentPackage.Deposit,
+				Nomenclature = paidRentPackage.DepositService
+			};
+			return orderRentDepositItem;
+		}
+		
+		private OrderItem GetExistingRentServiceItem(PaidRentPackage paidRentPackage)
+		{
+			OrderItem orderRentServiceItem = OrderItems
+				.Where(x => x.PaidRentPackage != null && x.PaidRentPackage.Id == paidRentPackage.Id)
+				.Where(x => x.RentType == OrderRentType.NonFreeRent)
+				.Where(x => x.OrderItemRentSubType == OrderItemRentSubType.RentServiceItem)
+				.FirstOrDefault();
+			return orderRentServiceItem;
+		}
+		
+		private OrderItem CreateNewRentServiceItem(PaidRentPackage paidRentPackage)
+		{
+			OrderItem orderRentServiceItem = new OrderItem {
+				Order = this,
+				Count = 1,
+				RentCount = 1,
+				RentType = OrderRentType.NonFreeRent,
+				OrderItemRentSubType = OrderItemRentSubType.RentServiceItem,
+				PaidRentPackage = paidRentPackage,
+				Price = paidRentPackage.PriceMonthly,
+				Nomenclature = paidRentPackage.RentServiceMonthly
+			};
+			return orderRentServiceItem;
+		}
+		
+		private OrderEquipment GetExistingRentEquipmentItem(Nomenclature nomenclature, OrderItem rentDepositItem, OrderItem rentServiceItem)
+		{
+			OrderEquipment rentEquipment = OrderEquipments
+				.Where(x => x.Reason == Reason.Rent)
+				.Where(x => x.Nomenclature == nomenclature)
+				.Where(x => x.OrderRentDepositItem == rentDepositItem)
+				.Where(x => x.OrderRentServiceItem == rentServiceItem)
+				.FirstOrDefault();
+			return rentEquipment;
+		}
+		
+		private OrderEquipment CreateNewRentEquipmentItem(Nomenclature nomenclature, OrderItem rentDepositItem, OrderItem rentServiceItem)
+		{
+			OrderEquipment rentEquipment = new OrderEquipment {
+					Order = this,
+					Count = 1,
+					Direction = Direction.Deliver,
+					Nomenclature = nomenclature,
+					Reason = Reason.Rent,
+					DirectionReason = DirectionReason.Rent,
+					OwnType = OwnTypes.Rent,
+					OrderRentDepositItem = rentDepositItem,
+					OrderRentServiceItem = rentServiceItem
+				};
+			return rentEquipment;
+		}
+
+		public virtual void UpdateRentsCount()
+		{
+			foreach (var orderItem in OrderItems.Where(x => x.OrderItemRentSubType != OrderItemRentSubType.None)) {
+				switch(orderItem.OrderItemRentSubType) {
+					case OrderItemRentSubType.RentServiceItem:
+						var totalEquipmentCountForService = GetRentEquipmentTotalCountForServiceItem(orderItem);
+						orderItem.SetRentEquipmentCount(totalEquipmentCountForService);
+						break;
+					case OrderItemRentSubType.RentDepositItem:
+						var totalEquipmentCountForDeposit = GetRentEquipmentTotalCountForDepositItem(orderItem);
+						orderItem.SetRentEquipmentCount(totalEquipmentCountForDeposit);
+						break;
+				}
+			}
+		}
+
+		private int GetRentEquipmentTotalCountForDepositItem(OrderItem orderRentDepositItem)
+		{
+			var totalCount = orderEquipments.Where(x => x.OrderRentDepositItem == orderRentDepositItem)
+				.Sum(x => x.Count);
+			return totalCount;
+		}
+		
+		private int GetRentEquipmentTotalCountForServiceItem(OrderItem orderRentServiceItem)
+		{
+			var totalCount = orderEquipments.Where(x => x.OrderRentServiceItem == orderRentServiceItem)
+				.Sum(x => x.Count);
+			return totalCount;
+		}
+		
+		#endregion Аренда
+		
 		#region работа со скидками
 		public virtual void SetDiscountUnitsForAll(DiscountUnits unit)
 		{
