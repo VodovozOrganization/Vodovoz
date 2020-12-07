@@ -1571,7 +1571,7 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>20.6pt</Left>
-        <Top>219.2pt</Top>
+        <Top>227.2pt</Top>
         <Visibility>
           <Hidden>
           </Hidden>
@@ -1764,7 +1764,7 @@ WHERE stored_resource.id = @id1</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=SUM({total_wo_disc})</Value>
                       <Visibility>
@@ -1935,7 +1935,7 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>25.4pt</Left>
-        <Top>347.5pt</Top>
+        <Top>355.5pt</Top>
       </Table>
       <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>19.50pt</Height>
@@ -2348,13 +2348,13 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>26.4pt</Left>
-        <Top>175.7pt</Top>
+        <Top>183.7pt</Top>
       </Table>
       <Image Name="Image2">
         <Height>160pt</Height>
         <Width>240pt</Width>
-        <Left>300pt</Left>
-        <Top>517.4pt</Top>
+        <Left>300.0pt</Left>
+        <Top>525.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2488,7 +2488,7 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>22.7pt</Left>
-        <Top>311.4pt</Top>
+        <Top>319.4pt</Top>
       </Table>
       <Image Name="Image3">
         <Height>60.23pt</Height>
@@ -2508,8 +2508,8 @@ WHERE stored_resource.id = @id1</CommandText>
       <Image Name="Image4">
         <Height>160pt</Height>
         <Width>240pt</Width>
-        <Left>30pt</Left>
-        <Top>517.4pt</Top>
+        <Left>30.0pt</Left>
+        <Top>525.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2750,7 +2750,7 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>19.4pt</Left>
-        <Top>274.0pt</Top>
+        <Top>282.0pt</Top>
       </Table>
       <Image Name="Image5">
         <Height>60.91pt</Height>
@@ -3572,7 +3572,7 @@ WHERE stored_resource.id = @id1</CommandText>
           </TableRows>
         </Details>
         <Left>21.1pt</Left>
-        <Top>380.4pt</Top>
+        <Top>388.4pt</Top>
       </Table>
       <Image Name="Image6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>78.53pt</Height>
