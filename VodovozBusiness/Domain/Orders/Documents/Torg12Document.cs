@@ -5,7 +5,7 @@ using QS.Report;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class Torg12Document:OrderDocument, IPrintableRDLDocument
+	public class Torg12Document : PrintableOrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.Torg12;

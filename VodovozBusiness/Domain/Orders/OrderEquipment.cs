@@ -127,9 +127,7 @@ namespace Vodovoz.Domain.Orders
 			get => serviceClaim;
 			set => SetField(ref serviceClaim, value, () => ServiceClaim);
 		}
-
-		//TODO Номер заявки на обслуживание
-
+		
 		int count;
 		/// <summary>
 		/// Количество оборудования, которое изначально должен был привезти/забрать водитель
@@ -137,7 +135,11 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Количество")]
 		public virtual int Count {
 			get => count;
-			set => SetField(ref count, value, () => Count);
+			set {
+				if(SetField(ref count, value)) {
+					Order?.UpdateRentsCount();
+				}
+			}
 		}
 
 		int? actualCount;
@@ -146,7 +148,23 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual int? ActualCount {
 			get => actualCount;
-			set => SetField(ref actualCount, value, () => ActualCount);
+			set => SetField(ref actualCount, value);
+		}
+
+		OrderItem orderRentDepositItem;
+
+		[Display(Name = "Связанный залог за аренду")]
+		public virtual OrderItem OrderRentDepositItem {
+			get => orderRentDepositItem;
+			set => SetField(ref orderRentDepositItem, value);
+		}
+		
+		OrderItem orderRentServiceItem;
+
+		[Display(Name = "Связанная услуга аренды")]
+		public virtual OrderItem OrderRentServiceItem {
+			get => orderRentServiceItem;
+			set => SetField(ref orderRentServiceItem, value);
 		}
 
 		#region Вычисляемые

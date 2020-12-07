@@ -158,6 +158,7 @@ using Vodovoz.Tools;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.ViewModels;
+using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -271,6 +272,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalActionsViewModel, BusinessTasksJournalActionsView>()
 				.RegisterWidgetForWidgetViewModel<SendDocumentByEmailViewModel, SendDocumentByEmailView>()
 				.RegisterWidgetForWidgetViewModel<FinancialDistrictsSetsJournalFilterViewModel, FinancialDistrictsSetsJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<FixedPricesViewModel, FixedPricesView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -347,12 +349,6 @@ namespace Vodovoz
 				OrmObjectMapping<PaidRentPackage>.Create().Dialog<PaidRentPackageDlg>()
 					.DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип оборудования", x => x.EquipmentType.Name).SearchColumn("Цена в сутки", x => CurrencyWorks.GetShortCurrencyString (x.PriceDaily)).SearchColumn("Цена в месяц", x => CurrencyWorks.GetShortCurrencyString (x.PriceMonthly)).End(),
 				OrmObjectMapping<FreeRentPackage>.Create().Dialog<FreeRentPackageDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип оборудования", x => x.EquipmentType.Name).OrderAsc(x => x.Name).End(),
-				OrmObjectMapping<FreeRentAgreement>.Create().Dialog<FreeRentAgreementDlg>(),
-				OrmObjectMapping<DailyRentAgreement>.Create().Dialog<DailyRentAgreementDlg>(),
-				OrmObjectMapping<NonfreeRentAgreement>.Create().Dialog<NonFreeRentAgreementDlg>(),
-				OrmObjectMapping<SalesEquipmentAgreement>.Create().Dialog<EquipSalesAgreementDlg>(),
-				OrmObjectMapping<WaterSalesAgreement>.Create().Dialog<WaterAgreementDlg>(),
-				OrmObjectMapping<RepairAgreement>.Create().Dialog<RepairAgreementDlg>(),
 				OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView().SearchColumn("Название", x => x.FullName).End(),
 				OrmObjectMapping<Tag>.Create().Dialog<TagDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),

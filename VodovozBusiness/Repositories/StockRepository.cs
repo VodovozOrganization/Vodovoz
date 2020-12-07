@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
@@ -27,6 +29,39 @@ namespace Vodovoz.Repositories
 				.Select(Projections.Sum(() => orderItemsAlias.Count)).SingleOrDefault<decimal>();
 		}
 
+		public static int GetStockForNomenclature(IUnitOfWork uow, int nomenclatureId)
+		{
+			Nomenclature nomenclatureAlias = null;
+			WarehouseMovementOperation operationAddAlias = null;
+			WarehouseMovementOperation operationRemoveAlias = null;
+
+			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
+				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
+				
+
+			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
+				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
+			
+			var amountProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?1 - ?2 )"),
+				NHibernateUtil.Int32, new IProjection[] {
+					Projections.SubQuery(subqueryAdd),
+					Projections.SubQuery(subqueryRemove)
+				}
+			);
+
+			ItemInStock inStock = null;
+			var queryResult = uow.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Id == nomenclatureId)
+				.SelectList(list => list
+					.SelectGroup(() => nomenclatureAlias.Id)
+					.Select(amountProjection)
+				).SingleOrDefault<object[]>();
+				
+			return (int)queryResult[1];
+		}
+		
 		public static Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork UoW, int warehouseId, int[] nomenclatureIds, DateTime? onDate = null)
 		{
 			Nomenclature nomenclatureAlias = null;

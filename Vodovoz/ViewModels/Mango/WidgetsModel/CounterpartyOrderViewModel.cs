@@ -29,6 +29,7 @@ using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
@@ -193,7 +194,7 @@ namespace Vodovoz.ViewModels.Mango
 		{
 			if (order != null)
 			{
-				var nomenclatureRepository = new NomenclatureRepository();
+				var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
 				IEntityAutocompleteSelectorFactory employeeSelectorFactory =
 					new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(

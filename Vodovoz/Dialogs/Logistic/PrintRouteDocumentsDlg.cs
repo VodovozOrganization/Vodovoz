@@ -86,15 +86,9 @@ namespace Vodovoz.Dialogs.Logistic
 				OrderDocumentType.EquipmentTransfer,
 				OrderDocumentType.DoneWorkReport,
 				OrderDocumentType.EquipmentReturn,
-				OrderDocumentType.PumpWarranty,
-				OrderDocumentType.CoolerWarranty,
 				OrderDocumentType.Torg12,
 				OrderDocumentType.ShetFactura,
-				OrderDocumentType.RefundBottleDeposit,
-				OrderDocumentType.RefundEquipmentDeposit,
-				OrderDocumentType.BottleTransfer,
-				OrderDocumentType.ProductCertificate,
-				OrderDocumentType.TransportInvoice
+				OrderDocumentType.ProductCertificate
 			};
 
 			foreach(OrderDocumentType t in Enum.GetValues(typeof(OrderDocumentType)))

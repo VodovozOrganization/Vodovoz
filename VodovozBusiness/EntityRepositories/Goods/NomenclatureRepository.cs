@@ -6,11 +6,19 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Goods
 {
-	public class NomenclatureRepository : INomenclatureRepository
-	{
+	public class NomenclatureRepository : INomenclatureRepository {
+		
+		private readonly INomenclatureParametersProvider nomenclatureParametersProvider;
+
+		public NomenclatureRepository(INomenclatureParametersProvider nomenclatureParametersProvider) {
+			this.nomenclatureParametersProvider = nomenclatureParametersProvider ?? 
+				throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+		}
+		
 		public QueryOver<Nomenclature> NomenclatureForProductMaterialsQuery()
 		{
 			return QueryOver.Of<Nomenclature>()
@@ -223,55 +231,27 @@ namespace Vodovoz.EntityRepositories.Goods
 
 		#region Получение номенклатур воды
 
-		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
-		{
-			var bottleDepositParameter = "nomenclature_semiozerie_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Семиозерье");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
-		}
+		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow) => 
+			nomenclatureParametersProvider.GetWaterSemiozerie(uow);
 
-		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow)
-		{
-			var bottleDepositParameter = "nomenclature_kislorodnaya_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Кислородная");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
-		}
+		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow) => 
+			nomenclatureParametersProvider.GetWaterKislorodnaya(uow);
 
-		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow)
-		{
-			var bottleDepositParameter = "nomenclature_snyatogorskaya_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Снятогорская");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
-		}
+		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow) => 
+			nomenclatureParametersProvider.GetWaterSnyatogorskaya(uow);
 
-		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow)
-		{
-			var bottleDepositParameter = "nomenclature_kislorodnaya_deluxe_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Кислородная Deluxe");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
-		}
+		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow) => 
+			nomenclatureParametersProvider.GetWaterKislorodnayaDeluxe(uow);
 
-		public Nomenclature GetWaterStroika(IUnitOfWork uow)
-		{
-			var bottleDepositParameter = "nomenclature_stroika_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Стройка");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
-		}
+		public Nomenclature GetWaterStroika(IUnitOfWork uow) => 
+			nomenclatureParametersProvider.GetWaterStroika(uow);
 
-		public Nomenclature GetWaterRuchki(IUnitOfWork uow)
-		{
-			var bottleDepositParameter = "nomenclature_ruchki_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды С ручками");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
-		}
+		public Nomenclature GetWaterRuchki(IUnitOfWork uow) => 
+			nomenclatureParametersProvider.GetWaterRuchki(uow);
 
 		#endregion
+
+		public decimal GetWaterPriceIncrement => nomenclatureParametersProvider.GetWaterPriceIncrement;
 
 		public int GetIdentifierOfOnlineShopGroup()
 		{

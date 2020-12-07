@@ -10,7 +10,7 @@ namespace Vodovoz.Domain.Client
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки БА соглашения",
 		Nominative = "строка БА соглашения")]
-	public class FreeRentEquipment : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class FreeRentEquipment : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
@@ -18,58 +18,58 @@ namespace Vodovoz.Domain.Client
 
 		[Display (Name = "Пакет бесплатной аренды")]
 		public virtual FreeRentPackage FreeRentPackage {
-			get { return freeRentPackage; }
-			set { SetField (ref freeRentPackage, value, () => FreeRentPackage); }
+			get => freeRentPackage;
+			set => SetField (ref freeRentPackage, value);
 		}
 
 		Equipment equipment;
 
 		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
-			get { return equipment; }
-			set { SetField (ref equipment, value, () => Equipment); }
+			get => equipment;
+			set => SetField (ref equipment, value);
 		}
 
 		Nomenclature nomenclature;
 
 		[Display(Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
-			set { SetField(ref nomenclature, value, () => Nomenclature); }
+			get => nomenclature;
+			set => SetField(ref nomenclature, value);
 		}
 
 		int count;
 
 		[Display(Name = "Количество")]
 		public virtual int Count {
-			get { return count; }
-			set { SetField(ref count, value, () => Count); }
+			get => count;
+			set => SetField(ref count, value);
 		}
 
 		Decimal deposit;
 
 		[Display (Name = "Залог")]
 		public virtual Decimal Deposit {
-			get { return deposit; }
-			set { SetField (ref deposit, value, () => Deposit); }
+			get => deposit;
+			set => SetField (ref deposit, value);
 		}
 
 		int waterAmount;
 
 		[Display (Name = "Кол бутылей")]
 		public virtual int WaterAmount {
-			get { return waterAmount; }
-			set { SetField (ref waterAmount, value, () => WaterAmount); }
+			get => waterAmount;
+			set => SetField (ref waterAmount, value);
 		}
 
 		bool isNew;
 
 		public virtual bool IsNew {
-			get { return isNew; }
-			set { SetField (ref isNew, value, () => IsNew); }
+			get => isNew;
+			set => SetField (ref isNew, value);
 		}
 
-		public virtual string PackageName { get { return FreeRentPackage != null ? FreeRentPackage.Name : ""; } }
+		public virtual string PackageName => FreeRentPackage != null ? FreeRentPackage.Name : "";
 
 		/// <summary>
 		/// Выводит имя из оборудования если посерийный учет, иначе из номенклатуры 
@@ -87,30 +87,13 @@ namespace Vodovoz.Domain.Client
 			} 
 		}
 
-		public virtual string EquipmentSerial { get { return Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : ""; } }
+		public virtual string EquipmentSerial => Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "";
 
-		public virtual string DepositString { get { return CurrencyWorks.GetShortCurrencyString (Deposit); } }
+		public virtual string DepositString => CurrencyWorks.GetShortCurrencyString (Deposit);
 
-		public virtual string WaterAmountString { get { return String.Format ("{0} " + NumberToTextRus.Case (WaterAmount, "бутыль", "бутыли", "бутылей"), WaterAmount); } }
+		public virtual string WaterAmountString => String.Format ("{0} " + NumberToTextRus.Case (WaterAmount, "бутыль", "бутыли", "бутылей"), WaterAmount);
 
-		public virtual string Title {get { return String.Format("Бесплатная аренда {0}", EquipmentName); }}
-
-		#region IValidatableObject implementation
-
-		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
-		{
-			if (FreeRentPackage == null)
-				yield return new ValidationResult ("Не выбран пакет бесплатной аренды.", new[] { "FreeRentPackage" });
-			
-			if (Equipment == null)
-				yield return new ValidationResult ("Не выбрано оборудование.", new[] { "Equipment" });
-		}
-
-		#endregion
-
-		public FreeRentEquipment ()
-		{
-		}
+		public virtual string Title => String.Format("Бесплатная аренда {0}", EquipmentName);
 	}
 }
 

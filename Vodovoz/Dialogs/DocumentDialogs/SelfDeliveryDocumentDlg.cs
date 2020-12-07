@@ -33,6 +33,7 @@ using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -40,9 +41,9 @@ namespace Vodovoz
 	public partial class SelfDeliveryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<SelfDeliveryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
+		
 		public override bool HasChanges => GoodsReceptionList.Sum(x => x.Amount) >= 0 || base.HasChanges;
-
+		
 		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
 		public SelfDeliveryDocumentDlg()
@@ -111,7 +112,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository());
+			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()));
 			vbxMain.Sensitive = canEditDocument;
 			buttonCancel.Sensitive = true;
 
@@ -135,7 +136,7 @@ namespace Vodovoz
 
 			UpdateOrderInfo();
 			Entity.UpdateStockAmount(UoW);
-			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(), new BottlesRepository());
+			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
 			selfdeliverydocumentitemsview1.DocumentUoW = UoWGeneric;
 			//bottlereceptionview1.UoW = UoW;
 			UpdateWidgets();
@@ -220,7 +221,7 @@ namespace Vodovoz
 			}
 
 			Entity.UpdateOperations(UoW);
-			Entity.UpdateReceptions(UoW, GoodsReceptionList, new NomenclatureRepository(), new BottlesRepository());
+			Entity.UpdateReceptions(UoW, GoodsReceptionList, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
 
 			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
 			var callTaskWorker = new CallTaskWorker(
@@ -263,7 +264,7 @@ namespace Vodovoz
 			UpdateOrderInfo();
 			Entity.FillByOrder();
 			Entity.UpdateStockAmount(UoW);
-			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(), new BottlesRepository());
+			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
 			UpdateAmounts();
 		}
 
@@ -271,7 +272,7 @@ namespace Vodovoz
 		{
 			Entity.FillByOrder();
 			Entity.UpdateStockAmount(UoW);
-			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(), new BottlesRepository());
+			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
 			UpdateAmounts();
 			UpdateWidgets();
 		}
@@ -292,7 +293,7 @@ namespace Vodovoz
 
 		protected void OnBtnAddOtherGoodsClicked(object sender, EventArgs e)
 		{
-			OrmReference refWin = new OrmReference(new NomenclatureRepository().NomenclatureOfGoodsWithoutEmptyBottlesQuery()) {
+			OrmReference refWin = new OrmReference(new NomenclatureRepository(new NomenclatureParametersProvider()).NomenclatureOfGoodsWithoutEmptyBottlesQuery()) {
 				FilterClass = null,
 				Mode = OrmReferenceMode.Select
 			};

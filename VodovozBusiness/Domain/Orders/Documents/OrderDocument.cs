@@ -1,10 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Print;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Domain.Orders.Documents
@@ -12,7 +9,7 @@ namespace Vodovoz.Domain.Orders.Documents
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы заказа",
 		Nominative = "документ заказа")]
-	public abstract class OrderDocument : PropertyChangedBase, IPrintableDocument, IDocument
+	public abstract class OrderDocument : PropertyChangedBase, IDocument
 	{
 		public virtual int Id { get; set; }
 
@@ -39,35 +36,13 @@ namespace Vodovoz.Domain.Orders.Documents
 			get => attachedToOrder;
 			set => SetField(ref attachedToOrder, value, () => AttachedToOrder);
 		}
+		public abstract string Name { get; }
 
 		public abstract OrderDocumentType Type { get; }
-
-		public virtual string Name => "Не указан";
-
+		
 		public abstract DateTime? DocumentDate { get; }
-
+        
 		public virtual string DocumentDateText => DocumentDate?.ToShortDateString() ?? "не указана";
-
-		public virtual PrinterType PrintType => PrinterType.None;
-
-		public virtual DocumentOrientation Orientation => DocumentOrientation.Portrait;
-
-		readonly OrderDocumentType[] typesForVariableQuantity = {
-			OrderDocumentType.UPD,
-			OrderDocumentType.SpecialUPD,
-			OrderDocumentType.Torg12,
-			OrderDocumentType.ShetFactura
-		};
-
-		int copiesToPrint = -1;
-		public virtual int CopiesToPrint {
-			get {
-				if(copiesToPrint < 0 && typesForVariableQuantity.Contains(Type))
-					return Order.DocumentType.HasValue && Order.DocumentType.Value == DefaultDocumentType.torg12 ? 1 : 2;
-				return copiesToPrint;
-			}
-			set => copiesToPrint = value;
-		}
 	}
 
 
@@ -118,10 +93,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		[DocumentOfOrder]
 		[Display(Name = "Особый УПД")]
 		SpecialUPD,
-		[Display(Name = "Гарантийный талон для кулеров")]
-		CoolerWarranty,
-		[Display(Name = "Гарантийный талон для помп")]
-		PumpWarranty,
 		[DocumentOfOrder]
 		[Display(Name = "Талон водителю")]
 		DriverTicket,
@@ -131,15 +102,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		[DocumentOfOrder]
 		[Display(Name = "Счет-Фактура")]
 		ShetFactura,
-		[DocumentOfOrder]
-		[Display(Name = "Акт возврата залога за бутыли")]
-		RefundBottleDeposit,
-		[DocumentOfOrder]
-		[Display(Name = "Акт возврата залога за оборудование")]
-		RefundEquipmentDeposit,
-		[DocumentOfOrder]
-		[Display(Name = "Акт передачи-возврата бутылей")]
-		BottleTransfer,
 		[Display(Name = "Сертификат продукции")]
 		ProductCertificate,
 		[DocumentOfOrder]

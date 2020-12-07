@@ -23,6 +23,7 @@ using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepo
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -65,7 +66,7 @@ namespace Vodovoz.JournalViewModels
 			Employee lastEditorAlias = null;
 			District districtAlias = null;
 
-			Nomenclature sanitizationNomenclature = new NomenclatureRepository().GetSanitisationNomenclature(uow);
+			Nomenclature sanitizationNomenclature = new NomenclatureRepository(new NomenclatureParametersProvider()).GetSanitisationNomenclature(uow);
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 

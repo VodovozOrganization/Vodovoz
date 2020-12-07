@@ -18,15 +18,7 @@ namespace Vodovoz
 
 		public event EventHandler<ContractSavedEventArgs> ContractSaved;
 
-		bool isEditable = true;
-
-		public bool IsEditable { 
-			get { return isEditable; } 
-			set {
-				isEditable = value; 
-							additionalagreementsview1.IsEditable = value;
-			}
-		}
+		public bool IsEditable { get; set; } = true;
 
 		public CounterpartyContractDlg (Counterparty counterparty)
 		{
@@ -77,7 +69,6 @@ namespace Vodovoz
 
 			referenceOrganization.SubjectType = typeof(Organization);
 			referenceOrganization.Binding.AddBinding (Entity, e => e.Organization, w => w.Subject).InitializeFromSource ();
-			additionalagreementsview1.AgreementUoW = UoWGeneric;
 
 			if (Entity.DocumentTemplate == null && Entity.Organization != null)
 				Entity.UpdateContractTemplate(UoW);

@@ -30,6 +30,12 @@ using QSOsm;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
 using QS.Project.Services;
+using Vodovoz.Domain;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Domain.EntityFactories;
+using Vodovoz.Models;
+using Vodovoz.ViewModels.ViewModels.Goods;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -154,6 +160,17 @@ namespace Vodovoz
 			ychkAlwaysFreeDelivery.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_free_delivery");
 			lblCounterparty.LabelProp = Entity.Counterparty.FullName;
 			lblId.LabelProp = Entity.Id.ToString();
+
+			radioFixedPrices.Toggled += OnRadioFixedPricesToggled;
+			var nomenclatureParametersProvider = new NomenclatureParametersProvider();
+			var nomenclatureRepository = new NomenclatureRepository(nomenclatureParametersProvider);
+			var waterFixedPricesGenerator = new WaterFixedPricesGenerator(nomenclatureRepository);
+			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
+			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory, waterFixedPricesGenerator);
+			var fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, fixedPriceController);
+			var nomSelectorFactory = new NomenclatureSelectorFactory();
+			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
+			fixedpricesview.ViewModel = fixedPricesViewModel;
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding(Entity,
 				entity => entity.CoordinatesExist
@@ -452,6 +469,12 @@ namespace Vodovoz
 		{
 			if(radioContacts.Active)
 				notebook1.CurrentPage = 2;
+		}
+
+		private void OnRadioFixedPricesToggled(object sender, EventArgs e)
+		{
+			if(radioFixedPrices.Active)
+				notebook1.CurrentPage = 3;
 		}
 
 		protected void OnButtonAddResponsiblePersonClicked(object sender, EventArgs e)

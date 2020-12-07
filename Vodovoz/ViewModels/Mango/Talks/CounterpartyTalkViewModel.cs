@@ -23,6 +23,7 @@ using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.Views.Mango;
 
@@ -142,7 +143,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void AddComplainCommand()
 		{
-			var nomenclatureRepository = new NomenclatureRepository();
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory =
 				new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(

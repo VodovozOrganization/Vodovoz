@@ -5,7 +5,7 @@ using QS.Report;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class TransportInvoiceDocument : OrderDocument, IPrintableRDLDocument
+	public class TransportInvoiceDocument : PrintableOrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.TransportInvoice;

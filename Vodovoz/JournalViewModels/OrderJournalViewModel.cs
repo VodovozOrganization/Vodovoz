@@ -94,7 +94,7 @@ namespace Vodovoz.JournalViewModels
 			Employee lastEditorAlias = null;
 			District districtAlias = null;
 
-			Nomenclature sanitizationNomenclature = new NomenclatureRepository().GetSanitisationNomenclature(uow);
+			Nomenclature sanitizationNomenclature = nomenclatureRepository.GetSanitisationNomenclature(uow);
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
