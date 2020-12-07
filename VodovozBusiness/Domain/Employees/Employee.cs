@@ -467,18 +467,7 @@ namespace Vodovoz.Domain.Employees
 			ObservableWageParameters.Add(wageParameter);
 			return;
 		}
-		
-		// public virtual void ResetPasswordForEmployee(IAuthorizationService service)
-		// {
-		// 	var passGenerator = new PasswordGenerator();
-		// 	var result = authorizationService.ResetPassword(this, passGenerator.GeneratePassword(5));
-		// 	if (result.MessageStatus == SmsMessageStatus.Ok)
-		// 	{
-		// 		MessageDialogHelper.RunInfoDialog("Sms с паролем отправлена успешно");
-		// 	} else {
-		// 		MessageDialogHelper.RunErrorDialog(result.ErrorDescription, "Ошибка при отправке Sms");
-		// 	}
-		// }
+
 
 		public virtual EmployeeWageParameter GetActualWageParameter(DateTime date)
 		{

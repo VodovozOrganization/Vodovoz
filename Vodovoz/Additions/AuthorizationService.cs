@@ -57,7 +57,6 @@ namespace Vodovoz.Additions
 	            ExpiredTime = DateTime.Now.AddMinutes(10)
             };
             return  service.SendSms(smsNotification);
-            return new ResultMessage();
             #endregion
         }
 
@@ -68,7 +67,6 @@ namespace Vodovoz.Additions
             {
                 throw new ApplicationException($"У сотрудника {employee.Name} не найден телефон для отправки Sms");
             }
-
             return $"+7{stringPhoneNumber}";
         }
 
