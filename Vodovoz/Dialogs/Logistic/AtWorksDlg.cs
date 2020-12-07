@@ -17,6 +17,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
+using Vodovoz.Additions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
@@ -32,8 +33,10 @@ namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
-		public AtWorksDlg()
+		public AtWorksDlg(IAuthorizationService authorizationService)
 		{
+			this.authorizationService =
+				authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			this.Build();
 
 			var colorWhite = new Color(0xff, 0xff, 0xff);
@@ -106,7 +109,8 @@ namespace Vodovoz.Dialogs.Logistic
 		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		
 		private readonly Gdk.Pixbuf vodovozCarIcon = Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
-		
+		private readonly IAuthorizationService authorizationService;
+			
 		private IList<AtWorkDriver> driversAtDay;
 		private IList<AtWorkForwarder> forwardersAtDay;
 		private HashSet<AtWorkDriver> driversWithCommentChanged = new HashSet<AtWorkDriver>();
@@ -313,7 +317,7 @@ namespace Vodovoz.Dialogs.Logistic
 			foreach(var one in selected) {
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<Employee>(one.Employee.Id),
-					() => new EmployeeDlg(one.Employee.Id)
+					() => new EmployeeDlg(one.Employee.Id, authorizationService)
 				);
 			}
 		}

@@ -2,10 +2,14 @@
 using System.Data;
 using Dialogs.Employees;
 using Gtk;
+using InstantSmsService;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -38,6 +42,9 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.EntityRepositories.Store;
 using QS.Project.Journal;
+using QS.Project.Repositories;
+using QS.Project.Services.GtkUI;
+using Vodovoz.Additions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels;
@@ -489,9 +496,14 @@ public partial class MainWindow : Window
 
 	void ActionAtWorks_Activated(object sender, System.EventArgs e)
 	{
+		var authService = new AuthorizationService(
+			new PasswordGenerator(),
+			new MySQLUserRepository(
+				new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
+				new GtkInteractiveService()));
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AtWorksDlg>(),
-			() => new AtWorksDlg()
+			() => new AtWorksDlg(authService)
 		);
 	}
 

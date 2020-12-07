@@ -103,6 +103,8 @@ namespace Vodovoz
 			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.NHibernateStaleObjectStateExceptionException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionConnectionTimeout);
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionAuth);
+			
 			#endregion
 
 			//Настройка карты
