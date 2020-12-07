@@ -18,7 +18,7 @@ namespace Vodovoz
 	{
 		public static bool NHibernateStaleObjectStateExceptionException(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
 		{
-			var staleObjectStateException = ExceptionHelper.FindExceptionTypeInInner<NHibernate.StaleObjectStateException>(exception);
+			var staleObjectStateException = ExceptionHelper.FineExceptionTypeInInner<NHibernate.StaleObjectStateException>(exception);
 			if(staleObjectStateException != null) {
 				var type = OrmConfig.FindMappingByFullClassName(staleObjectStateException.EntityName).MappedClass;
 				var objectName = DomainHelper.GetSubjectNames(type);
@@ -47,7 +47,7 @@ namespace Vodovoz
 
 		public static bool MySqlExceptionConnectionTimeout(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
 		{
-			var mysqlEx = ExceptionHelper.FindExceptionTypeInInner<MySqlException>(exception);
+			var mysqlEx = ExceptionHelper.FineExceptionTypeInInner<MySqlException>(exception);
 			var exceptions = new[] { 1159, 1161 };
 			if(mysqlEx != null && exceptions.Contains(mysqlEx.Number)) {
 				interactiveMessage.ShowMessage(ImportanceLevel.Error, "Возникла проблема с подключением к серверу, попробуйте снова.");
@@ -59,7 +59,7 @@ namespace Vodovoz
 		public static bool IsLoginFormOpen = false;
 		public static bool MySqlExceptionAuth(Exception exception, IApplicationInfo application, UserBase user, IInteractiveService interactiveMessage)
 		{
-			var mysqlEx = ExceptionHelper.FindExceptionTypeInInner<MySqlException>(exception);
+			var mysqlEx = ExceptionHelper.FineExceptionTypeInInner<MySqlException>(exception);
 			if (mysqlEx.Message.Contains("Authentication to host"))
 			{
 				if (!IsLoginFormOpen)
