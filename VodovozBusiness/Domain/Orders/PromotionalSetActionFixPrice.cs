@@ -62,8 +62,22 @@ namespace Vodovoz.Domain.Orders
 
 		public override void Activate(Order order)
 		{
-			//TODO код применения фиксы по точке доставки или по контрагенту
-			throw new NotImplementedException();
+			if(order == null || order.Contract == null){
+				return;
+			}
+			IList<NomenclatureFixedPrice> fixedPrices = order.Contract.Counterparty.NomenclatureFixedPrices;
+			if(order.DeliveryPoint != null){
+				fixedPrices = order.DeliveryPoint.NomenclatureFixedPrices;
+			}
+
+			var foundFixedPrice = fixedPrices.FirstOrDefault(x => x.Nomenclature.Id == Nomenclature.Id);
+			if(foundFixedPrice == null) {
+				foundFixedPrice = new NomenclatureFixedPrice();
+				fixedPrices.Add(foundFixedPrice);
+			}
+			
+			foundFixedPrice.Nomenclature = Nomenclature;
+			foundFixedPrice.Price = Price;
 		}
 
 		public override void Deactivate(Order order)
