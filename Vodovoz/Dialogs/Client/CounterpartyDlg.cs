@@ -38,6 +38,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Models;
 using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz
 {

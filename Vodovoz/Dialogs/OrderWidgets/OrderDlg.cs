@@ -2689,12 +2689,12 @@ namespace Vodovoz
 					SelectPaidRentPackage(RentType.DailyRent);
 					break;
 				case RentType.FreeRent:
-					//AddFreeRent();
+					SelectFreeRentPackage();
 					break;
 			}
 		}
 		
-		#region NonfreeRent
+		#region PaidRent
 		
 		private void SelectPaidRentPackage(RentType rentType)
 		{
@@ -2734,7 +2734,7 @@ namespace Vodovoz
 				TabParent.AddSlaveTab(this, selectDialog);
 			}
 		}
-
+		
 		private void AddPaidRent(RentType rentType, PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
 		{
 			if (rentType == RentType.FreeRent) {
@@ -2763,7 +2763,68 @@ namespace Vodovoz
 			}
 		}
 
-		#endregion NonfreeRent
+		#endregion PaidRent
+
+		#region FreeRent
+
+		private void SelectFreeRentPackage()
+		{
+			var ormReference = new OrmReference(typeof(FreeRentPackage)) {
+				Mode = OrmReferenceMode.Select
+			};
+			ormReference.ObjectSelected += (sender, e) => {
+				FreeRentPackage rentPackage = e.Subject as FreeRentPackage;
+				if (rentPackage == null) {
+					return;
+				}
+				SelectEquipmentForFreeRentPackage(rentPackage);
+			};
+			TabParent.AddTab(ormReference, this);
+		}
+
+		private void SelectEquipmentForFreeRentPackage(FreeRentPackage freeRentPackage)
+		{
+			if (ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) {
+				var existingItems = Entity.OrderEquipments
+					.Where(x => x.OrderRentDepositItem != null || x.OrderRentServiceItem != null)
+					.Select(x => x.Nomenclature.Id)
+					.Distinct()
+					.ToArray();
+				
+				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentType, existingItems);
+				AddFreeRent(freeRentPackage, anyNomenclature);
+			}
+			else {
+				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, freeRentPackage.EquipmentType));
+				selectDialog.Mode = JournalSelectMode.Single;
+				selectDialog.CustomTabName("Оборудование для аренды");
+				selectDialog.ObjectSelected += (sender, e) => {
+					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
+					AddFreeRent(freeRentPackage, selectedNode.Nomenclature);
+				};
+				TabParent.AddSlaveTab(this, selectDialog);
+			}
+		}
+		
+		private void AddFreeRent(FreeRentPackage freeRentPackage, Nomenclature equipmentNomenclature)
+		{
+			var interactiveService = ServicesConfig.InteractiveService;
+			if(equipmentNomenclature == null) {
+				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
+				return;
+			}
+
+			var stock = StockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
+			if(stock <= 0) {
+				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?")) {
+					return;
+				}
+			}
+
+			Entity.AddFreeRent(freeRentPackage, equipmentNomenclature);
+		}
+
+		#endregion FreeRent
 
 		#endregion
 	}
