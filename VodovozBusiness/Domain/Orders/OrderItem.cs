@@ -80,16 +80,12 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref equipment, value, () => Equipment);
 		}
 
-		private bool priceIsSetted = false;
-
 		decimal price;
 
 		[Display(Name = "Цена")]
 		public virtual decimal Price {
 			get => price;
 			set {
-				if(priceIsSetted && Order.OrderStatus != OrderStatus.NewOrder)
-					return;
 				//Если цена не отличается от той которая должна быть по прайсам в 
 				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
 				IsUserPrice = value != GetPriceByTotalCount() && value != 0;
@@ -102,8 +98,6 @@ namespace Vodovoz.Domain.Orders
 					RecalculateDiscount();
 					RecalculateNDS();
 				}
-
-				priceIsSetted = true;
 			}
 		}
 
