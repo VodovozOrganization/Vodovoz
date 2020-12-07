@@ -1533,6 +1533,19 @@ namespace Vodovoz.Domain.Orders
 
 		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
 		{
+			var fixedPrice = GetFixedPriceOrNull(nomenclature);
+			if (fixedPrice != null) {
+				return fixedPrice.Price;
+			}
+			
+			return nomenclature.GetPrice(promoSet == null ? GetTotalWater19LCount(true) : bottlesCount);
+		}
+
+		public virtual NomenclatureFixedPrice GetFixedPriceOrNull(Nomenclature nomenclature)
+		{
+			if (Contract == null) {
+				return null;
+			}
 			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
 
 			IList<NomenclatureFixedPrice> fixedPrices = Contract.Counterparty.NomenclatureFixedPrices;
@@ -1541,14 +1554,14 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && influentialNomenclature == null)) {
-				return fixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id).Price;
+				return fixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id);
 			}
 			
 			if(influentialNomenclature != null && fixedPrices.Any(x => x.Nomenclature.Id == influentialNomenclature.Id)) {
-				return fixedPrices.First(x => x.Nomenclature.Id == influentialNomenclature?.Id).Price;
+				return fixedPrices.First(x => x.Nomenclature.Id == influentialNomenclature?.Id);
 			}
-			
-			return nomenclature.GetPrice(promoSet == null ? GetTotalWater19LCount(true) : bottlesCount);
+
+			return null;
 		}
 
 		public virtual IEnumerable<Nomenclature> GetNomenclaturesWithFixPrices{

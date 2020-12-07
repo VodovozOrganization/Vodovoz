@@ -318,7 +318,6 @@ namespace Vodovoz
 
 			if(Entity.PreviousOrder != null) {
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
-				//TODO Make it clickable.
 			} else
 				labelPreviousOrder.Visible = false;
 			hboxStatusButtons.Visible = orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
@@ -328,7 +327,6 @@ namespace Vodovoz
 
 			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
-			//TODO FIXME Добавить в таблицу закрывающие заказы.
 
 			//Подписывемся на изменения листов для засеривания клиента
 			Entity.ObservableOrderDocuments.ListChanged += ObservableOrderDocuments_ListChanged;
@@ -627,9 +625,8 @@ namespace Vodovoz
 						if(Entity.OrderStatus == OrderStatus.NewOrder || (Entity.OrderStatus == OrderStatus.WaitForPayment && !Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
 							c.ForegroundGdk = colorBlack;
-							//TODO Получить фиксу, если есть фикса то цвет зеленый
-							bool isFixPrice = true;
-							if(isFixPrice) {
+							var fixedPrice = Order.GetFixedPriceOrNull(node.Nomenclature);
+							if(fixedPrice != null) {
 								c.ForegroundGdk = colorGreen;
 							} else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 								c.ForegroundGdk = colorBlue;

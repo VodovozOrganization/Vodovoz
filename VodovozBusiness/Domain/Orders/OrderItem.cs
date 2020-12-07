@@ -469,10 +469,11 @@ namespace Vodovoz.Domain.Orders
 				return result;
 
 			//влияющая номенклатура
-			Nomenclature infuentialNomenclature = Nomenclature?.DependsOnNomenclature;
 			if(Nomenclature.Category == NomenclatureCategory.water) {
-				//TODO Берем фиксу из доп соглашения, если фиксы нет, ищем по зависиой номенклатуре
-				throw new NotImplementedException();
+				var fixedPrice = order.GetFixedPriceOrNull(Nomenclature);
+				if (fixedPrice != null) {
+					return fixedPrice.Price;
+				}
 			}
 			return result;
 		}
