@@ -14,7 +14,6 @@ namespace Vodovoz.Additions
 {
     public class AuthorizationService : IAuthorizationService
     {
-        //mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
         public AuthorizationService(IPasswordGenerator passwordGenerator,
             MySQLUserRepository mySQLUserRepository)
         {
