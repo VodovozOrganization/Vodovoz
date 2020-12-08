@@ -254,6 +254,14 @@ namespace Vodovoz
 
 		private global::Gtk.Label label30;
 
+		private global::Gtk.VBox vbox9;
+
+		private global::Gtk.HBox hbox19;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel7;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox specialListCmbOrganisation;
+
 		private global::Vodovoz.Views.WageCalculation.EmployeeWageParametersView wageParametersView;
 
 		private global::Gtk.Label labelWageParameters;
@@ -1621,21 +1629,58 @@ namespace Vodovoz
 			this.notebookMain.SetTabLabel(this.vbox8, this.label30);
 			this.label30.ShowAll();
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
+			this.vbox9 = new global::Gtk.VBox();
+			this.vbox9.Name = "vbox9";
+			this.vbox9.Spacing = 6;
+			// Container child vbox9.Gtk.Box+BoxChild
+			this.hbox19 = new global::Gtk.HBox();
+			this.hbox19.Name = "hbox19";
+			this.hbox19.Spacing = 6;
+			// Container child hbox19.Gtk.Box+BoxChild
+			this.ylabel7 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel7.Name = "ylabel7";
+			this.ylabel7.LabelProp = global::Mono.Unix.Catalog.GetString("Организация для зарплаты:");
+			this.hbox19.Add(this.ylabel7);
+			global::Gtk.Box.BoxChild w129 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.ylabel7]));
+			w129.Position = 0;
+			w129.Expand = false;
+			w129.Fill = false;
+			// Container child hbox19.Gtk.Box+BoxChild
+			this.specialListCmbOrganisation = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.specialListCmbOrganisation.Name = "specialListCmbOrganisation";
+			this.specialListCmbOrganisation.AddIfNotExist = false;
+			this.specialListCmbOrganisation.DefaultFirst = false;
+			this.specialListCmbOrganisation.ShowSpecialStateAll = false;
+			this.specialListCmbOrganisation.ShowSpecialStateNot = false;
+			this.hbox19.Add(this.specialListCmbOrganisation);
+			global::Gtk.Box.BoxChild w130 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.specialListCmbOrganisation]));
+			w130.Position = 1;
+			w130.Expand = false;
+			w130.Fill = false;
+			this.vbox9.Add(this.hbox19);
+			global::Gtk.Box.BoxChild w131 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.hbox19]));
+			w131.Position = 0;
+			w131.Expand = false;
+			w131.Fill = false;
+			// Container child vbox9.Gtk.Box+BoxChild
 			this.wageParametersView = new global::Vodovoz.Views.WageCalculation.EmployeeWageParametersView();
 			this.wageParametersView.Events = ((global::Gdk.EventMask)(256));
 			this.wageParametersView.Name = "wageParametersView";
-			this.notebookMain.Add(this.wageParametersView);
-			global::Gtk.Notebook.NotebookChild w130 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.wageParametersView]));
-			w130.Position = 6;
+			this.vbox9.Add(this.wageParametersView);
+			global::Gtk.Box.BoxChild w132 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.wageParametersView]));
+			w132.Position = 1;
+			this.notebookMain.Add(this.vbox9);
+			global::Gtk.Notebook.NotebookChild w133 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.vbox9]));
+			w133.Position = 6;
 			// Notebook tab
 			this.labelWageParameters = new global::Gtk.Label();
 			this.labelWageParameters.Name = "labelWageParameters";
 			this.labelWageParameters.LabelProp = global::Mono.Unix.Catalog.GetString("Зарплата");
-			this.notebookMain.SetTabLabel(this.wageParametersView, this.labelWageParameters);
+			this.notebookMain.SetTabLabel(this.vbox9, this.labelWageParameters);
 			this.labelWageParameters.ShowAll();
 			this.vbox1.Add(this.notebookMain);
-			global::Gtk.Box.BoxChild w131 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebookMain]));
-			w131.Position = 1;
+			global::Gtk.Box.BoxChild w134 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebookMain]));
+			w134.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -125,7 +126,7 @@ namespace Vodovoz
 			//Отключаем отображение ненужных элементов.
 			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = labelCreating.Visible = false;
 
-			comboExpense.Sensitive = yspinMoney.Sensitive = yentryEmployee.Sensitive = false;
+			comboExpense.Sensitive = yspinMoney.Sensitive = yentryEmployee.Sensitive = specialListCmbOrganisation.Sensitive = false;
 
 			ConfigureDlg();
 		}
@@ -162,7 +163,8 @@ namespace Vodovoz
 
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();
 
-			entityVMEntryOrganisation.Binding.AddBinding(Entity, e => e.Organisation, w => w.Subject).InitializeFromSource();
+			specialListCmbOrganisation.ItemsList = UoW.GetAll<Organization>();
+			specialListCmbOrganisation.Binding.AddBinding(Entity, e => e.Organisation, w => w.SelectedItem).InitializeFromSource();
 
 			ytextviewDescription.Binding.AddBinding(Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource();
 

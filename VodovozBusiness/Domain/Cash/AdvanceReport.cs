@@ -173,6 +173,11 @@ namespace Vodovoz.Domain.Cash
 				yield return new ValidationResult("Должно быть выбрано подразделение",
 					new[] { this.GetPropertyName(o => o.RelatedToSubdivision) });
 			}
+			
+			if(Id == 0 && Organisation == null) {
+				yield return new ValidationResult("Организация должна быть заполнена",
+					new[] { nameof(RelatedToSubdivision) });
+			}
 
 		}
 

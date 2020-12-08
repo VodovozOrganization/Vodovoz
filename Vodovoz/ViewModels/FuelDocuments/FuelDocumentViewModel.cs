@@ -25,6 +25,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 	public class FuelDocumentViewModel : TabViewModelBase
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		
+		private FuelCashOrganisationDistributor fuelCashOrganisationDistributor = 
+			new FuelCashOrganisationDistributor(
+				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()));
 
 		public virtual IUnitOfWork UoW { get; set; }
 
@@ -297,10 +301,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 				if (FuelInMoney && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)
 				{
-					var distributor = new FuelCashOrganisationDistributor(
-						new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()));
-					
-					distributor.DistributeCash(UoW, FuelDocument);
+					fuelCashOrganisationDistributor.DistributeCash(UoW, FuelDocument);
 				}
 			} 
 			else 

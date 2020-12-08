@@ -183,6 +183,9 @@ namespace Vodovoz
 				.AddDeleteDependence<AccountExpense>(item => item.Organization)
 				.AddDeleteDependence<DocTemplate>(x => x.Organization)
 				.AddDeleteDependence<EmployeeContract>(x => x.Organization)
+				.AddClearDependence<Employee>(x => x.OrganisationForSalary)
+				.AddClearDependence<Expense>(x => x.Organisation)
+				//.AddClearDependence<AdvanceReport>(x => x.Organisation)
 				;
 
 			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>();
@@ -928,6 +931,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<Expense>()
 				.AddDeleteDependence<AdvanceClosing>(x => x.AdvanceExpense)
 				.AddDeleteDependence<FuelDocument>(x => x.FuelCashExpense)
+				.AddDeleteDependence<ExpenseCashDistributionDocument>(x => x.Expense)
 				.AddDeleteCascadeDependence(x => x.WagesOperation);
 
 			DeleteConfig.AddDeleteInfo(
@@ -995,6 +999,25 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<CashTransferOperation>()
 				.RequiredCascadeDeletion()
 				.AddDeleteDependence<CashTransferDocumentBase>(item => item.CashTransferOperation);
+
+			DeleteConfig.AddHibernateDeleteInfo<CashOrganisationDistributionDocument>()
+				.AddDeleteCascadeDependence(x => x.OrganisationCashMovementOperation);
+
+			DeleteConfig.AddHibernateDeleteInfo<IncomeCashDistributionDocument>();
+
+			DeleteConfig.AddHibernateDeleteInfo<ExpenseCashDistributionDocument>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<RouteListItemCashDistributionDocument>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryCashDistributionDocument>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<AdvanceIncomeCashDistributionDocument>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<AdvanceExpenseCashDistributionDocument>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<FuelExpenseCashDistributionDocument>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<OrganisationCashMovementOperation>();
 
 			#endregion
 

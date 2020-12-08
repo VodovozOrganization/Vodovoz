@@ -4,6 +4,9 @@ using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Operations
 {
+    [Appellative(Gender = GrammaticalGender.Feminine,
+        NominativePlural = "Операции распределения нала по юр лицу",
+        Nominative = "Операция распределения нала по юр лицу")]
     public class OrganisationCashMovementOperation : PropertyChangedBase, IDomainObject
     {
         public virtual int Id { get; set; }

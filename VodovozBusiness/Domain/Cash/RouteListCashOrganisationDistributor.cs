@@ -24,24 +24,60 @@ namespace Vodovoz.Domain.Cash
             this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         }
 
-        public void DistributeIncomeCash(IUnitOfWork uow, RouteList routeList, decimal amount)
+        public void DistributeIncomeCash(IUnitOfWork uow, RouteList routeList, Income income, decimal amount)
         {
             var cashAddresses = 
                 routeList.Addresses.Where(x => x.Order.PaymentType == PaymentType.cash || 
-                                               x.Order.PaymentType == PaymentType.BeveragesWorld);
+                                               x.Order.PaymentType == PaymentType.BeveragesWorld)
+                                   .Where(x => x.Order.ActualTotalSum > 0);
+
+            var addressCashSum = cashAddresses.Sum(x => x.AddressCashSum);
+            var orderSum = cashAddresses.Sum(x => x.Order.ActualTotalSum);
             
             foreach (var address in cashAddresses)
             {
+                var doc =
+                    uow.Session.QueryOver<RouteListItemCashDistributionDocument>()
+                        .Where(x => x.RouteListItem.Id == address.Id)
+                        .SingleOrDefault();
+
+                if (doc != null && doc.Amount == address.Order.ActualTotalSum) {
+                    continue;
+                }
+
+                if (doc != null && doc.Amount != address.Order.ActualTotalSum)
+                {
+                    var oldSum = doc.Amount;
+
+                    doc.Amount = doc.Amount + amount >= address.Order.ActualTotalSum
+                        ? address.Order.ActualTotalSum
+                        : doc.Amount + amount;
+                    doc.LastEditedTime = DateTime.Now;
+                    //doc.LastEditor = ;
+                    doc.OrganisationCashMovementOperation.Amount = doc.Amount;
+
+                    Save(uow, doc.OrganisationCashMovementOperation, doc);
+
+                    amount -= address.Order.ActualTotalSum - oldSum;
+                    
+                    if (amount <= 0) {
+                        break;
+                    }
+                    
+                    continue;
+                }
+                
                 var operation = CreateOrganisationCashMovementOperation(uow, address);
-                operation.Amount = Math.Abs(amount) > address.Order.ActualTotalSum
+                operation.Amount = amount > address.Order.ActualTotalSum
                     ? address.Order.ActualTotalSum
                     : amount;
                 
                 var routeListItemCashdistributionDoc = CreateRouteListItemCashDistributionDocument(operation, address);
+                routeListItemCashdistributionDoc.CashIncomeCategory = income.IncomeCategory;
 
                 Save(uow, operation, routeListItemCashdistributionDoc);
 
-                if (Math.Abs(amount) > address.Order.ActualTotalSum)
+                if (amount > address.Order.ActualTotalSum)
                 {
                     amount -= address.Order.ActualTotalSum;
                 }
@@ -52,7 +88,7 @@ namespace Vodovoz.Domain.Cash
             }
         }
 
-        public void DistributeExpenseCash(IUnitOfWork uow, RouteList routeList, decimal amount)
+        public void DistributeExpenseCash(IUnitOfWork uow, RouteList routeList, Expense expense, decimal amount)
         {
             var cashAddresses = 
                 routeList.Addresses.Where(x => x.Order.PaymentType == PaymentType.cash || 
@@ -60,27 +96,58 @@ namespace Vodovoz.Domain.Cash
             
             foreach (var address in cashAddresses)
             {
+                var doc =
+                    uow.Session.QueryOver<RouteListItemCashDistributionDocument>()
+                        .Where(x => x.RouteListItem.Id == address.Id)
+                        .SingleOrDefault();
+
+                if (doc != null && doc.Amount == address.Order.ActualTotalSum) {
+                    continue;
+                }
+
+                if (doc != null && doc.Amount != address.Order.ActualTotalSum)
+                {
+                    var oldSum = doc.Amount;
+
+                    doc.Amount = Math.Abs(doc.Amount - amount) >= address.Order.ActualTotalSum
+                        ? -address.Order.ActualTotalSum
+                        : doc.Amount - amount;
+                    doc.LastEditedTime = DateTime.Now;
+                    //doc.LastEditor = ;
+                    doc.OrganisationCashMovementOperation.Amount = doc.Amount;
+
+                    Save(uow, doc.OrganisationCashMovementOperation, doc);
+
+                    amount -= address.Order.ActualTotalSum + oldSum;
+                    
+                    if (amount <= 0) {
+                        break;
+                    }
+                    
+                    continue;
+                }
+
                 var operation = CreateOrganisationCashMovementOperation(uow, address);
-                operation.Amount = Math.Abs(amount) > address.Order.ActualTotalSum
+                operation.Amount = amount > address.Order.ActualTotalSum
                     ? -address.Order.ActualTotalSum
                     : -amount;
                 
                 var routeListItemCashdistributionDoc = CreateRouteListItemCashDistributionDocument(operation, address);
-
+                routeListItemCashdistributionDoc.CashExpenseCategory = expense.ExpenseCategory;
+                
                 Save(uow, operation, routeListItemCashdistributionDoc);
 
-                if (Math.Abs(amount) > address.Order.ActualTotalSum)
-                {
-                    amount += address.Order.ActualTotalSum;
+                if (amount > address.Order.ActualTotalSum) {
+                    amount -= address.Order.ActualTotalSum;
                 }
-                else
-                {
+                else {
                     break;
                 }
             }
         }
 
-        private OrganisationCashMovementOperation CreateOrganisationCashMovementOperation(IUnitOfWork uow, RouteListItem address)
+        private OrganisationCashMovementOperation CreateOrganisationCashMovementOperation(
+            IUnitOfWork uow, RouteListItem address)
         {
             var hasReceipt = orderRepository.OrderHasSentReceipt(uow, address.Order.Id);
 
@@ -93,13 +160,15 @@ namespace Vodovoz.Domain.Cash
             };
         }
 
-        private RouteListItemCashDistributionDocument CreateRouteListItemCashDistributionDocument(OrganisationCashMovementOperation operation, RouteListItem address)
+        private RouteListItemCashDistributionDocument CreateRouteListItemCashDistributionDocument(
+            OrganisationCashMovementOperation operation, RouteListItem address)
         {
             return new RouteListItemCashDistributionDocument
             {
                 Organisation = operation.Organisation,
                 CreationDate = DateTime.Now,
                 LastEditedTime = DateTime.Now,
+                //LastEditor = 
                 RouteListItem = address,
                 OrganisationCashMovementOperation = operation,
                 Amount = operation.Amount

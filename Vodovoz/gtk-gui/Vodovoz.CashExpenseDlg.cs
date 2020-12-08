@@ -42,7 +42,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelEmployee;
 
-		private global::Gamma.GtkWidgets.yComboBoxEntry yCmbEntryOrganisation;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox specialListCmbOrganisation;
 
 		private global::QS.Widgets.GtkUI.DatePicker ydateDocument;
 
@@ -270,10 +270,14 @@ namespace Vodovoz
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yCmbEntryOrganisation = new global::Gamma.GtkWidgets.yComboBoxEntry();
-			this.yCmbEntryOrganisation.Name = "yCmbEntryOrganisation";
-			this.table1.Add(this.yCmbEntryOrganisation);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.yCmbEntryOrganisation]));
+			this.specialListCmbOrganisation = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.specialListCmbOrganisation.Name = "specialListCmbOrganisation";
+			this.specialListCmbOrganisation.AddIfNotExist = false;
+			this.specialListCmbOrganisation.DefaultFirst = false;
+			this.specialListCmbOrganisation.ShowSpecialStateAll = false;
+			this.specialListCmbOrganisation.ShowSpecialStateNot = false;
+			this.table1.Add(this.specialListCmbOrganisation);
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.specialListCmbOrganisation]));
 			w21.TopAttach = ((uint)(2));
 			w21.BottomAttach = ((uint)(3));
 			w21.LeftAttach = ((uint)(1));

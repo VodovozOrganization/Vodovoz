@@ -24,6 +24,7 @@ using QSProjectsLib;
 using Vodovoz.Additions;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.Employees;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -204,6 +205,9 @@ namespace Vodovoz
 			ylblUserLogin.TooltipText = "При сохранении сотрудника создаёт нового пользователя с введённым логином и отправляет сотруднику SMS с сгенерированным паролем";
 			yentryUserLogin.Binding.AddBinding(Entity, e => e.LoginForNewUser, w => w.Text);
 			yentryUserLogin.Sensitive = CanCreateNewUser;
+
+			specialListCmbOrganisation.ItemsList = UoW.GetAll<Organization>();
+			specialListCmbOrganisation.Binding.AddBinding(Entity, e => e.OrganisationForSalary, w => w.SelectedItem).InitializeFromSource();
 
 			Entity.CheckAndFixDriverPriorities();
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()

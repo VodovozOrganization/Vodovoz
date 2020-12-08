@@ -64,7 +64,8 @@ namespace Vodovoz.HibernateMapping.Employees
 				References(x => x.Subdivision)		 .Column("subdivision_id");
 				References(x => x.User)				 .Column("user_id");
 				References(x => x.DefaultForwarder)	 .Column("default_forwarder_id");
-
+				References(x => x.OrganisationForSalary).Column("organisation_for_salary_id");
+				
 				HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse()
 										 .KeyColumn("driver_id")
 										 .AsList(x => x.Column("priority"));

@@ -1,5 +1,4 @@
 using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.HibernateMapping
@@ -21,6 +20,8 @@ namespace Vodovoz.HibernateMapping
             References(x => x.Author).Column ("author_id");
             References(x => x.LastEditor).Column ("last_editor_id");
             References(x => x.Organisation).Column("organisation_id");
+            References(x => x.CashIncomeCategory).Column("cash_income_category_id");
+            References(x => x.CashExpenseCategory).Column("cash_expense_category_id");
             References(x => x.OrganisationCashMovementOperation).Column("organisation_cash_movement_operation_id");
         }
     }
