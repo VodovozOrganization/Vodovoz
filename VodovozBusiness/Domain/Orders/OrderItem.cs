@@ -480,7 +480,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculatePrice()
 		{
-			if(IsUserPrice || PromoSet != null)
+			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed)
 				return;
 
 			Price = GetPriceByTotalCount();
