@@ -8,6 +8,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Client
 {

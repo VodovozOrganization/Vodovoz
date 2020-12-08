@@ -4,6 +4,7 @@ using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Repository.Client
 {

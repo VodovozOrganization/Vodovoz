@@ -4,6 +4,7 @@ using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Repository.Client;
 using Vodovoz.Services;
 

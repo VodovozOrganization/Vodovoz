@@ -5,6 +5,7 @@ using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.DocTemplates;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Client
 {

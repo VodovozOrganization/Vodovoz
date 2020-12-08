@@ -9,6 +9,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.OldExportTo1c.Catalogs;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repositories;

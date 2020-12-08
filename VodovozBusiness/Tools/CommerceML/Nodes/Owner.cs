@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Xml.Linq;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Tools.CommerceML.Nodes
 {

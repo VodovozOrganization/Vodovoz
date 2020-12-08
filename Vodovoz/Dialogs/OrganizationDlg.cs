@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using QS.Validation;
 using QSOrmProject;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz

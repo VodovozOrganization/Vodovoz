@@ -9,6 +9,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repository.Client;
 using QS.Project.Services;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz
 {

@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Repositories.Orders;
 
