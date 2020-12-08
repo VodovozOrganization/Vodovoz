@@ -918,16 +918,6 @@ namespace Vodovoz
 
 			#endregion
 
-			#region Права
-
-			DeleteConfig.AddHibernateDeleteInfo<TypeOfEntity>()
-				.AddDeleteDependence<EntityUserPermission>(x => x.TypeOfEntity)
-				;
-			DeleteConfig.AddHibernateDeleteInfo<EntityUserPermission>();
-			DeleteConfig.AddHibernateDeleteInfo<PresetUserPermission>();
-
-			#endregion
-
 			#region Cash
 
 			DeleteConfig.AddHibernateDeleteInfo<Income>()
