@@ -6,26 +6,20 @@ using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog;
 using QS.Project.DB;
-using QSProjectsLib;
-using QSSupportLib;
 
 namespace VodovozSalesReceiptsService
 {
 	class Service
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger();
-		static readonly string configFile = "/etc/vodovoz-sales-receipts-service.conf";
-
-		//Service
-		private static string serviceHostName;
-		private static string servicePort;
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private const string configFile = "/etc/vodovoz-sales-receipts-service.conf";
 
 		//Mysql
-		static string mysqlServerHostName;
-		static string mysqlServerPort;
-		static string mysqlUser;
-		static string mysqlPassword;
-		static string mysqlDatabase;
+		private static string mysqlServerHostName;
+		private static string mysqlServerPort;
+		private static string mysqlUser;
+		private static string mysqlPassword;
+		private static string mysqlDatabase;
 
 		public static void Main(string[] args)
 		{
@@ -33,15 +27,12 @@ namespace VodovozSalesReceiptsService
 
 			logger.Info("Чтение конфигурационного файла...");
 			IConfig serviceConfig;
-			IConfig kassaConfig;
+			
 			try {
 				IniConfigSource confFile = new IniConfigSource(configFile);
 				confFile.Reload();
 				serviceConfig = confFile.Configs["Service"];
-				serviceHostName = serviceConfig.GetString("service_host_name");
-				servicePort = serviceConfig.GetString("service_port");
 
-				kassaConfig = confFile.Configs["ModulKassa"];
 				IConfig mysqlConfig = confFile.Configs["Mysql"];
 				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
 				mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
@@ -65,23 +56,20 @@ namespace VodovozSalesReceiptsService
 					Password = mysqlPassword,
 					SslMode = MySqlSslMode.None
 				};
-
-				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
-				var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-												.ConnectionString(QSMain.ConnectionString)
-												;
+				
+				var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+					.ConnectionString(conStrBuilder.GetConnectionString(true));
 
 				OrmConfig.ConfigureOrm(
-					db_config,
-					new System.Reflection.Assembly[] {
+					dbConfig,
+					new[] {
 						System.Reflection.Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
 						System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 						System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
 						System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
 					}
 				);
-
-				MainSupport.LoadBaseParameters();
+				
 				QS.HistoryLog.HistoryMain.Enable();
 			}
 			catch(Exception ex) {
@@ -90,13 +78,19 @@ namespace VodovozSalesReceiptsService
 			}
 
 			try {
-				ReceiptServiceStarter.StartService(serviceConfig, kassaConfig);
-				UnixSignal[] signals = {
-					new UnixSignal (Signum.SIGINT),
-					new UnixSignal (Signum.SIGHUP),
-					new UnixSignal (Signum.SIGTERM)
-				};
-				UnixSignal.WaitAny(signals);
+				ReceiptServiceStarter.StartService(serviceConfig);
+				
+				if(Environment.OSVersion.Platform == PlatformID.Unix) {
+					UnixSignal[] signals = {
+						new UnixSignal (Signum.SIGINT),
+						new UnixSignal (Signum.SIGHUP),
+						new UnixSignal (Signum.SIGTERM)
+					};
+					UnixSignal.WaitAny(signals);
+				}
+				else {
+					Console.ReadLine();
+				}
 			}
 			catch(Exception e) {
 				logger.Fatal(e);

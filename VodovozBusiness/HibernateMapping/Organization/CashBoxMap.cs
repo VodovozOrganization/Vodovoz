@@ -3,11 +3,11 @@ using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.HibernateMapping
 {
-    public class CashMachineMap : ClassMap<CashMachine>
+    public class CashBoxMap : ClassMap<CashBox>
     {
-        public CashMachineMap()
+        public CashBoxMap()
         {
-            Table("cash_machines");
+            Table("cash_boxes");
 
             Id(x => x.Id).Column("id").GeneratedBy.Native();
 

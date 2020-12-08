@@ -8,6 +8,7 @@
     <RootNamespace>VodovozSalesReceiptsService</RootNamespace>
     <AssemblyName>VodovozSalesReceiptsService</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -54,6 +55,9 @@
     <Reference Include="System.Management" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SalesReceiptSender.cs" />
+    <Compile Include="FiscalizationWorker.cs" />
+    <Compile Include="ISalesReceiptSender.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Fiscalization.cs" />
@@ -68,6 +72,7 @@
     <Compile Include="SalesReceiptsService.cs" />
     <Compile Include="SalesReceiptsServiceBehavior.cs" />
     <Compile Include="SalesReceiptsServiceHost.cs" />
+    <Compile Include="PreparedReceiptNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
