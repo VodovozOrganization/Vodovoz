@@ -546,7 +546,7 @@ namespace Vodovoz
 						.AddDeleteDependence<DeliveryDocument>(x => x.RouteListItem)
 						.AddDeleteDependence<AddressTransferDocumentItem>(x => x.OldAddress)
 						.AddDeleteDependence<AddressTransferDocumentItem>(x => x.NewAddress)
-						.AddRemoveFromDependence<RouteList>(x => x.Addresses, x => x.RemoveAddress);
+						.AddRemoveFromDependence<RouteList>(x => x.Addresses);
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
 
