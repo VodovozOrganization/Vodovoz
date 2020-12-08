@@ -260,7 +260,7 @@ namespace ViewWidgets
 		{
 			using (Cairo.Context g = Gdk.CairoHelper.Create(this.GdkWindow))
 			{
-				g.SetSourceColor(color);
+				g.SetSourceRGBA(color.R, color.G, color.B, color.A);
 				g.MoveTo(coord);
 				g.Rectangle(coord,cellWidth, cellHeight);
 				g.Fill();
@@ -272,7 +272,7 @@ namespace ViewWidgets
 		{
 			using (Cairo.Context g = Gdk.CairoHelper.Create(this.GdkWindow))
 			{
-				g.SetSourceColor(color);
+				g.SetSourceRGBA(color.R, color.G, color.B, color.A);
 				g.MoveTo(GetCellCoordinates(cell.Y, cell.X));
 				g.Rectangle(GetCellCoordinates(cell.Y, cell.X), cellWidth, cellHeight);
 				g.Fill();
@@ -313,7 +313,7 @@ namespace ViewWidgets
 			
 			using (Cairo.Context g = Gdk.CairoHelper.Create(this.GdkWindow))
 			{
-				g.SetSourceColor(color);
+				g.SetSourceRGBA(color.R, color.G, color.B, color.A);
 				g.MoveTo(coord);
 				g.Rectangle(coord, cellWidth, cellHeight / 2);
 				g.Fill();
@@ -329,7 +329,7 @@ namespace ViewWidgets
 
 			using (Cairo.Context g = Gdk.CairoHelper.Create(this.GdkWindow))
 			{
-				g.SetSourceColor(color);
+				g.SetSourceRGBA(color.R, color.G, color.B, color.A);
 				g.MoveTo(coord);
 				g.Rectangle(coord, cellWidth, cellHeight / 2);
 				g.Fill();

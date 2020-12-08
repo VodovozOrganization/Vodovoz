@@ -666,41 +666,6 @@ namespace VodovozBusinessTests.Domain.Orders
 
 		#endregion
 
-		[Test(Description = "Проверка обновления точки доставки в ДС на продажу оборудования при смене точки доставки в заказе")]
-		public void UpdateDeliveryPointInSalesAgreement_OnChangeOfDeliveryPointInOrder_UpdatesDeliveryPointInEquipmentSalesAgreement()
-		{
-			// arrange
-			DeliveryPoint deliveryPointMock01 = Substitute.For<DeliveryPoint>();
-			DeliveryPoint deliveryPointMock02 = Substitute.For<DeliveryPoint>();
-			Order testOrder = new Order {
-				Client = Substitute.For<Counterparty>(),
-				DeliveryPoint = deliveryPointMock01
-			};
-			OrderAgreement salesEquipment = new OrderAgreement {
-				Id = 1,
-				AdditionalAgreement = new SalesEquipmentAgreement {
-					DeliveryPoint = deliveryPointMock01
-				},
-				Order = testOrder
-			};
-			OrderAgreement wsa = new OrderAgreement {
-				Id = 2,
-				AdditionalAgreement = new WaterSalesAgreement {
-					DeliveryPoint = deliveryPointMock01
-				},
-				Order = testOrder
-			};
-			testOrder.OrderDocuments = new List<OrderDocument> { salesEquipment, wsa };
-
-			// act
-			testOrder.DeliveryPoint = deliveryPointMock02;
-			testOrder.UpdateDeliveryPointInSalesAgreement();
-
-			// assert
-			OrderAgreement agreement = testOrder.ObservableOrderDocuments.FirstOrDefault(d => d.Id == 1) as OrderAgreement;
-			Assert.That(agreement.AdditionalAgreement.DeliveryPoint, Is.EqualTo(deliveryPointMock02));
-		}
-
 		[Test(Description = "Если кол-во отгруженных товаров по документам самовывоза совпадает с кол-вом товаров в заказе, то возвращается true")]
 		public void IsFullyShippedSelfDeliveryOrder_IfQuantityOfUnloadedGoodsIsTheSameAsQuantityOfGoodsInOrder_ThenMethodReturnsTrue()
 		{

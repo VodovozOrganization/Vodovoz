@@ -126,36 +126,6 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(testedOrderItem.Discount, Is.EqualTo(result));
 		}
 
-		[Test(Description = "Если меняем кол-во оборудования на продажу, то кол-во в его ДС так же должно меняться")]
-		public void PropCount_WhenSetCountForItemThatIsSalesEquipment_ThenCountInAdditionalAgreementAlsoChanges()
-		{
-			// arrange
-			Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
-			SalesEquipmentAgreement aa = new SalesEquipmentAgreement {
-				SalesEqipments = new List<SalesEquipment>()
-			};
-
-			var sEq = new SalesEquipment {
-				AdditionalAgreement = aa,
-				Count = 1,
-				Nomenclature = nomenclatureMock
-			};
-
-			OrderItem orderItem = new OrderItem {
-				AdditionalAgreement = aa,
-				Count = 1,
-				Nomenclature = nomenclatureMock
-			};
-
-			aa.SalesEqipments.Add(sEq);
-
-			// act
-			orderItem.Count = 2;
-
-			// assert
-			Assert.That(aa.SalesEqipments.FirstOrDefault(e => e.Nomenclature == nomenclatureMock)?.Count, Is.EqualTo(2));
-		}
-
 		[Test(Description = "При установке актуального кол-ва в 0 НДС и сумма становятся 0")]
 		public void PropActualCount_WhenSetTo0_NdsAndCurrentSumAreAlso0()
 		{

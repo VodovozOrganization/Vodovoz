@@ -6,7 +6,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class SpecialUPDDocument : OrderDocument, IPrintableRDLDocument
+	public class SpecialUPDDocument : PrintableOrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.SpecialUPD;

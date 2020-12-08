@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Linq;
+using Gtk;
 using MySql.Data.MySqlClient;
+using NHibernate.Hql.Ast.ANTLR.Tree;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.ErrorReporting;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.VersionControl;
+using QS.Services;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -14,7 +18,7 @@ namespace Vodovoz
 	{
 		public static bool NHibernateStaleObjectStateExceptionException(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
 		{
-			var staleObjectStateException = ExceptionHelper.FineExceptionTypeInInner<NHibernate.StaleObjectStateException>(exception);
+			var staleObjectStateException = ExceptionHelper.FindExceptionTypeInInner<NHibernate.StaleObjectStateException>(exception);
 			if(staleObjectStateException != null) {
 				var type = OrmConfig.FindMappingByFullClassName(staleObjectStateException.EntityName).MappedClass;
 				var objectName = DomainHelper.GetSubjectNames(type);
@@ -43,11 +47,25 @@ namespace Vodovoz
 
 		public static bool MySqlExceptionConnectionTimeout(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
 		{
-			var mysqlEx = ExceptionHelper.FineExceptionTypeInInner<MySqlException>(exception);
+			var mysqlEx = ExceptionHelper.FindExceptionTypeInInner<MySqlException>(exception);
 			var exceptions = new[] { 1159, 1161 };
 			if(mysqlEx != null && exceptions.Contains(mysqlEx.Number)) {
 				interactiveMessage.ShowMessage(ImportanceLevel.Error, "Возникла проблема с подключением к серверу, попробуйте снова.");
 				return true;
+			}
+			return false;
+		}
+
+		public static bool IsLoginFormOpen = false;
+		public static bool MySqlExceptionAuth(Exception exception, IApplicationInfo application, UserBase user, IInteractiveService interactiveMessage)
+		{
+			var mysqlEx = ExceptionHelper.FindExceptionTypeInInner<MySqlException>(exception);
+			if (mysqlEx.Message.Contains("Authentication to host"))
+			{
+				if (!IsLoginFormOpen)
+				{
+					interactiveMessage.ShowMessage(ImportanceLevel.Info, "Пароль вашего аккаунта был сброшен, смс придет в течении 15 минут, для продолжения работы перезайдите в программу");
+				}
 			}
 			return false;
 		}

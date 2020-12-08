@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
@@ -38,6 +39,7 @@ namespace Vodovoz.Core.Journal
 			Mode = JournalSelectMode.None;
 			ConfigureActions();
 			TreeView.Selection.Changed += TreeViewSelection_Changed;
+			TreeView.ButtonReleaseEvent += OnOrmtableviewButtonReleaseEvent;
 			RepresentationModel.UpdateNodes();
 		}
 
@@ -64,6 +66,50 @@ namespace Vodovoz.Core.Journal
 					SetFilter(resolvedFilterWidget);
 				}
 				hboxSearch.Visible = RepresentationModel.SearchFieldsExist;
+				UpdatePopupItems();
+			}
+		}
+		
+		public virtual List<IJournalPopupAction> PopupActions { get; set; }
+		
+		private void UpdatePopupItems()
+		{
+			if(PopupActions == null) {
+				PopupActions = new List<IJournalPopupAction>();
+			} else {
+				foreach(var pa in PopupActions) {
+					pa.MenuItem.Destroy();
+				}
+				PopupActions.Clear();
+			}
+
+			foreach(var popupItem in RepresentationModel.PopupItems) {
+				PopupActions.Add(new JournalPopupAction(popupItem));
+			}
+		}
+		
+		private Menu popupMenu;
+
+		[GLib.ConnectBefore]
+		protected void OnOrmtableviewButtonReleaseEvent (object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button == 3 && PopupActions.Any())
+			{
+				var selected = tableview.GetSelectedObjects();
+				if(popupMenu == null) {
+					popupMenu = new Menu();
+					foreach(var popupAction in PopupActions) {
+						popupMenu.Add(popupAction.MenuItem);
+					}
+				}
+				foreach(var popupAction in PopupActions) {
+					popupAction.SelectedItems = selected;
+					popupAction.CheckSensitive(selected);
+					popupAction.CheckVisibility(selected);
+				}
+				
+				popupMenu.ShowAll();
+				popupMenu.Popup();
 			}
 		}
 

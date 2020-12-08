@@ -7,7 +7,7 @@ namespace Vodovoz.Tools
 	{
 		public string GeneratePassword(int length)
 		{
-			var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+			var chars = "0123456789";
 			var random = new Random();
 			var result = new string(
 				Enumerable.Repeat(chars, length)

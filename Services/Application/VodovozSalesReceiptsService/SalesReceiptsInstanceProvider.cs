@@ -1,9 +1,9 @@
 ﻿using System;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services;
 using System.ServiceModel.Dispatcher;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace VodovozSalesReceiptsService
 {

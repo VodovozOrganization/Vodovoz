@@ -358,6 +358,19 @@ FROM route_lists rl
                AND rl.date BETWEEN @start_date AND @end_date
                AND (!rla.was_transfered OR rla.need_to_reload)
                AND oe.direction = 'Deliver'
+         UNION ALL # Adds Termanal to RouteLists Nomenclatures 
+         SELECT 
+         	 (SELECT bp.str_value FROM base_parameters bp WHERE bp.name = 'terminal_nomenclature_id') AS nom_id,
+             1 AS count,
+             rl.id AS rl_id
+         FROM route_list_addresses rla
+         LEFT JOIN route_lists rl ON rla.route_list_id
+         LEFT JOIN orders o ON rla.order_id = o.id
+         WHERE rl.not_fully_loaded
+           AND rl.date BETWEEN @start_date AND @end_date 
+           AND (!rla.was_transfered OR rla.need_to_reload)
+           AND o.payment_type = 'Terminal' 
+         GROUP BY rl_id
          ) AS T
     GROUP BY T.rl_id, T.nom_id
 ) AS nomenclatures_from_rl ON nomenclatures_from_rl.rl_id = rl.id

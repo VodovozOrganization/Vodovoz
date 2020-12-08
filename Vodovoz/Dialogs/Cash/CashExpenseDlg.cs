@@ -16,10 +16,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using Vodovoz.Dialogs.Cash;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
@@ -50,13 +47,12 @@ namespace Vodovoz
 			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
 			canCreate = userPermission.CanCreate;
 			if(!userPermission.CanCreate) {
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
+				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание расходного ордера");
 				FailInitialize = true;
 				return;
 			}
 
 			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false,  typeof(Expense))) {
-
 				MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
 				FailInitialize = true;
 				return;
@@ -80,7 +76,7 @@ namespace Vodovoz
 
 			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
 			if(!userPermission.CanRead) {
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
+				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр расходного ордера");
 				FailInitialize = true;
 				return;
 			}
@@ -171,6 +167,16 @@ namespace Vodovoz
 				buttonSave.Sensitive = false;
 				ytextviewDescription.Editable = false;
 			}
+		}
+
+		public void CopyExpenseFrom(Expense doc)
+		{
+			Entity.TypeOperation = doc.TypeOperation;
+			Entity.ExpenseCategory = doc.ExpenseCategory;
+			Entity.Description = doc.Description;
+			Entity.RelatedToSubdivision = doc.RelatedToSubdivision;
+			accessfilteredsubdivisionselectorwidget.SelectIfPossible(Entity.RelatedToSubdivision);
+			UpdateSubdivision();
 		}
 
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)

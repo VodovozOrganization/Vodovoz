@@ -10,7 +10,6 @@ using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
-using NHibernate.Proxy;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
@@ -27,6 +26,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
+using QS.Services;
 using QS.Tdi;
 using QS.Validation;
 using QSDocTemplates;
@@ -66,12 +66,15 @@ using Vodovoz.JournalFilters;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
+using Vodovoz.Representations;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
@@ -110,7 +113,7 @@ namespace Vodovoz
 		public virtual INomenclatureRepository NomenclatureRepository {
 			get {
 				if (nomenclatureRepository == null) {
-					nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository();
+					nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
 				}
 				return nomenclatureRepository;
 			}
@@ -146,7 +149,6 @@ namespace Vodovoz
 		public PanelViewType[] InfoWidgets {
 			get {
 				return new[]{
-					PanelViewType.AdditionalAgreementPanelView,
 					PanelViewType.CounterpartyView,
 					PanelViewType.DeliveryPricePanelView,
 					PanelViewType.DeliveryPointView,
@@ -316,7 +318,6 @@ namespace Vodovoz
 
 			if(Entity.PreviousOrder != null) {
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
-				//TODO Make it clickable.
 			} else
 				labelPreviousOrder.Visible = false;
 			hboxStatusButtons.Visible = orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
@@ -326,7 +327,6 @@ namespace Vodovoz
 
 			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
-			//TODO FIXME Добавить в таблицу закрывающие заказы.
 
 			//Подписывемся на изменения листов для засеривания клиента
 			Entity.ObservableOrderDocuments.ListChanged += ObservableOrderDocuments_ListChanged;
@@ -449,9 +449,9 @@ namespace Vodovoz
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 
 			commentsview4.UoW = UoWGeneric;
-
-			enumAddRentButton.ItemsEnum = typeof(OrderAgreementType);
-			enumAddRentButton.EnumItemClicked += (sender, e) => AddRentAgreement((OrderAgreementType)e.ItemEnum);
+			
+			enumAddRentButton.ItemsEnum = typeof(RentType);
+			enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
 
 			checkSelfDelivery.Toggled += (sender, e) => {
 				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
@@ -531,8 +531,7 @@ namespace Vodovoz
 			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
-
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<WaterSalesAgreement>(WaterSalesAgreement_ObjectUpdatedGeneric);
+			
 			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());
 			SetDiscountEditable();
 			SetDiscountUnitEditable();
@@ -603,7 +602,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
 				.AddColumn(!orderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
-				.SetTag("Count")
+					.SetTag("Count")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Count)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
@@ -614,7 +613,9 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Аренда")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(node => node.IsRentCategory ? node.RentString : string.Empty)
+					.AddNumericRenderer(node => node.RentCount).Editing().Digits(0)
+					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+					.AddSetter((c, node) => c.Visible = node.RentVisible)
 				.AddColumn("Цена")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
@@ -624,11 +625,8 @@ namespace Vodovoz
 						if(Entity.OrderStatus == OrderStatus.NewOrder || (Entity.OrderStatus == OrderStatus.WaitForPayment && !Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
 							c.ForegroundGdk = colorBlack;
-							if(node.AdditionalAgreement == null) {
-								return;
-							}
-							AdditionalAgreement aa = node.AdditionalAgreement.Self;
-							if(aa is WaterSalesAgreement wsa && wsa.HasFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == node.Nomenclature.Id)) {
+							var fixedPrice = Order.GetFixedPriceOrNull(node.Nomenclature);
+							if(fixedPrice != null) {
 								c.ForegroundGdk = colorGreen;
 							} else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 								c.ForegroundGdk = colorBlue;
@@ -683,9 +681,6 @@ namespace Vodovoz
 							c.Text = n.OriginalDiscountReason?.Name ?? n.DiscountReason?.Name;
 						}
 					)
-				.AddColumn("Доп. соглашение")
-					.HeaderAlignment(0.5f)
-					.AddTextRenderer(node => node.AgreementString)
 				.AddColumn("Промо-наборы").SetTag(nameof(Entity.PromotionalSets))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.PromoSet == null ? "" : node.PromoSet.Name)
@@ -818,17 +813,6 @@ namespace Vodovoz
 			bool canChangeCommentOdz = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_odz_op_comment", currentUserId);
 			textODZComments.Sensitive = canChangeCommentOdz;
 			textOPComments.Sensitive = canChangeCommentOdz;
-		}
-
-		void WaterSalesAgreement_ObjectUpdatedGeneric(EntityChangeEvent[] changeEvents)
-		{
-			foreach(var ad in changeEvents.Select(x => x.GetEntity<WaterSalesAgreement>())) {
-				foreach(var item in Entity.OrderItems) {
-					if(item.AdditionalAgreement?.Id == ad.Id)
-						UoW.Session.Refresh(item.AdditionalAgreement);
-				}
-				Entity.UpdatePrices(ad);
-			}
 		}
 
 		#endregion
@@ -1131,7 +1115,7 @@ namespace Vodovoz
 				return;
 
 			var rdlDocs = treeDocuments.GetSelectedObjects()
-									   .Cast<OrderDocument>()
+									   .OfType<PrintableOrderDocument>()
 									   .Where(d => d.PrintType == PrinterType.RDL)
 									   .ToList();
 
@@ -1150,24 +1134,12 @@ namespace Vodovoz
 			}
 
 			var odtDocs = treeDocuments.GetSelectedObjects()
-									   .Cast<OrderDocument>()
+									   .OfType<PrintableOrderDocument>()
 									   .Where(d => d.PrintType == PrinterType.ODT)
 									   .ToList();
 			if(odtDocs.Any())
 				foreach(var doc in odtDocs) {
-					if(doc is OrderAgreement) {
-						var agreement = (doc as OrderAgreement).AdditionalAgreement;
-						var type = NHibernateProxyHelper.GuessClass(agreement);
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName(type, agreement.Id),
-							() => {
-								var dialog = OrmMain.CreateObjectDialog(type, EntityUoWBuilder.ForOpenInChildUoW(agreement.Id, UoW), UnitOfWorkFactory.GetDefaultFactory);
-								if(dialog is IAgreementSaved)
-									(dialog as IAgreementSaved).AgreementSaved += AgreementSaved;
-								return dialog;
-							}
-						);
-					} else if(doc is OrderContract)
+					if(doc is OrderContract)
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<CounterpartyContract>((doc as OrderContract).Contract.Id),
 							() => {
@@ -1202,7 +1174,7 @@ namespace Vodovoz
 		private void PrintDocuments(IList<OrderDocument> docList)
 		{
 			if(docList.Any()) {
-				new DocumentPrinter().PrintAll(docList);
+				new DocumentPrinter().PrintAll(docList.OfType<PrintableOrderDocument>());
 			}
 		}
 
@@ -1283,8 +1255,9 @@ namespace Vodovoz
 		{
 			if(toggleDocuments.Active)
 				notebook1.CurrentPage = 6;
-			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments.Any(doc => doc.PrintType == PrinterType.RDL
-															   || doc.PrintType == PrinterType.ODT);
+			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments
+				.OfType<PrintableOrderDocument>()
+				.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT);
 		}
 
 		#endregion
@@ -1337,25 +1310,9 @@ namespace Vodovoz
 							   Entity.Client,
 							   Entity.Client.PersonType,
 							   Entity.PaymentType);
-			if(!contract.RepairAgreementExists()) {
-				RunRepairAgreementCreateDialog(contract);
-				return;
-			}
 			selected.FinalOrder = Entity;
 			Entity.ObservableFinalOrderService.Add(selected);
 			//TODO Add service nomenclature with price.
-		}
-
-		private void RunRepairAgreementCreateDialog(CounterpartyContract contract)
-		{
-			ITdiTab dlg;
-			string question = "Отсутствует доп. соглашение сервиса с клиентом в текущем договоре. Создать?";
-			if(MessageDialogHelper.RunQuestionDialog(question)) {
-				dlg = new RepairAgreementDlg(contract);
-				(dlg as IAgreementSaved).AgreementSaved += (sender, e) =>
-					Entity.CreateOrderAgreementDocument(e.Agreement);
-				TabParent.AddSlaveTab(this, dlg);
-			}
 		}
 
 		void TreeServiceClaim_Selection_Changed(object sender, EventArgs e)
@@ -1563,46 +1520,6 @@ namespace Vodovoz
 			}
 		}
 
-		private void AddRentAgreement(OrderAgreementType type)
-		{
-			if(Entity.IsLoadedFrom1C) {
-				return;
-			}
-
-			if(Entity.Client == null || (Entity.DeliveryPoint == null && !Entity.SelfDelivery)) {
-				MessageDialogHelper.RunWarningDialog("Для добавления оборудования должна быть выбрана точка доставки.");
-				return;
-			}
-
-			if(Entity.ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)) {
-				MessageDialogHelper.RunWarningDialog("Нельзя добавлять аренду в сервисный заказ");
-				return;
-			}
-
-			if(Entity.Contract == null) {
-				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-			}
-			if(Contract == null) {
-				switch(type) {
-					case OrderAgreementType.NonfreeRent:
-						lastChosenAction = LastChosenAction.NonFreeRentAgreement;
-						break;
-					case OrderAgreementType.DailyRent:
-						lastChosenAction = LastChosenAction.DailyRentAgreement;
-						break;
-					default:
-						lastChosenAction = LastChosenAction.FreeRentAgreement;
-						break;
-				}
-				RunContractCreateDialog(type);
-				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-				if(Entity.Contract == null) {
-					return;
-				}
-			}
-			CreateRentAgreementDialogs(Entity.Contract, type);
-		}
-
 		protected void OnButtonbuttonAddEquipmentToClientClicked(object sender, EventArgs e)
 		{
 			if(!CanAddNomenclaturesToOrder())
@@ -1697,115 +1614,7 @@ namespace Vodovoz
 
 		private void RemoveOrderItem(OrderItem item)
 		{
-			var types = new AgreementType[] {
-					AgreementType.EquipmentSales,
-					AgreementType.DailyRent,
-					AgreementType.FreeRent,
-					AgreementType.NonfreeRent
-				};
-			if(item.AdditionalAgreement != null && types.Contains(item.AdditionalAgreement.Type)) {
-				RemoveAgreementBeingCreateForEachAdding(item);
-			} else {
-				Entity.RemoveItem(item);
-			}
-		}
-
-		/// <summary>
-		/// Удаляет доп соглашения которые создаются на каждое добавление в товарах.
-		/// </summary>
-		public virtual void RemoveAgreementBeingCreateForEachAdding(OrderItem item)
-		{
-			if(item.AdditionalAgreement == null) {
-				return;
-			}
-
-			var agreement = item.AdditionalAgreement.Self;
-
-			var deletedOrderItems = Entity.ObservableOrderItems.Where(x => x.AdditionalAgreement != null
-																			&& x.AdditionalAgreement.Self == agreement)
-															   .ToList();
-			var deletedOrderDocuments = Entity.ObservableOrderDocuments.OfType<OrderAgreement>()
-																	   .Where(x => x.AdditionalAgreement != null
-																					&& x.AdditionalAgreement.Self == agreement)
-																	   .ToList();
-
-			if(Entity.Id != 0) {
-				var valid = new QSValidator<Order>(
-					Entity, new Dictionary<object, object>{
-						{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
-					}
-				);
-
-				if(!MessageDialogHelper.RunQuestionDialog("Заказ будет сохранен после удаления товара, продолжить?")
-				   || valid.RunDlgIfNotValid((Window)this.Toplevel)) {
-					return;
-				}
-
-				Type agreementType = null;
-				switch(agreement.Type) {
-					case AgreementType.NonfreeRent:
-						agreementType = typeof(NonfreeRentAgreement);
-						break;
-					case AgreementType.DailyRent:
-						agreementType = typeof(DailyRentAgreement);
-						break;
-					case AgreementType.FreeRent:
-						agreementType = typeof(FreeRentAgreement);
-						break;
-					case AgreementType.EquipmentSales:
-						agreementType = typeof(SalesEquipmentAgreement);
-						break;
-					default:
-						return;
-				}
-
-				var deletionObjects = OrmMain.GetDeletionObjects(agreementType, agreement.Id, UoW);
-
-				var delAgreement = deletionObjects.FirstOrDefault(x => x.Type == agreementType && x.Id == agreement.Id);
-				if(delAgreement != null) {
-					deletionObjects.Remove(delAgreement);
-				}
-
-				foreach(var oi in deletedOrderItems) {
-					var delObject = deletionObjects.FirstOrDefault(x => x.Type == typeof(OrderItem) && x.Id == oi.Id);
-					if(delObject != null) {
-						deletionObjects.Remove(delObject);
-					}
-				}
-				foreach(var od in deletedOrderDocuments) {
-					var delObject = deletionObjects.FirstOrDefault(x => x.Type == typeof(OrderAgreement) && x.Id == od.Id);
-					if(delObject != null) {
-						deletionObjects.Remove(delObject);
-					}
-				}
-				var autoDeletionTypes = new Type[] { typeof(PaidRentEquipment), typeof(FreeRentEquipment), typeof(SalesEquipment) };
-				if(deletionObjects.Any(x => !autoDeletionTypes.Contains(x.Type))) {
-					MessageDialogHelper.RunErrorDialog("Невозможно удалить дополнительное соглашение из-за связанных документов не относящихся к текущему заказу.");
-					return;
-				}
-			}
-
-			deletedOrderItems.ForEach(Entity.RemoveItem);
-			var agreementProxy = Entity.Contract.AdditionalAgreements.FirstOrDefault(x => x.Id == agreement.Id);
-			if(agreementProxy != null) {
-				Entity.Contract.AdditionalAgreements.Remove(agreementProxy);
-			}
-
-			//Принудительно сохраняем только, уже сохраненный в базе, заказ, 
-			//чтобы пользователь не смог вернуть товары связанные с не существующем доп соглашением, 
-			//отменив сохранение заказа
-			if(Entity.Id != 0) {
-				UoW.Delete(agreement);
-				UoW.Save();
-				UoW.Commit();
-			} else {
-				using(var deletionUoW = UnitOfWorkFactory.CreateWithoutRoot()) {
-					var deletedAgreement = deletionUoW.GetById<AdditionalAgreement>(agreement.Id);
-					deletionUoW.Delete(deletedAgreement);
-					deletionUoW.Commit();
-				}
-			}
-			Entity.UpdateDocuments();
+			Entity.RemoveItem(item);
 		}
 
 		void OrderEquipmentItemsView_OnDeleteEquipment(object sender, OrderEquipment e)
@@ -1831,20 +1640,6 @@ namespace Vodovoz
 
 		#region Создание договоров, доп соглашений
 
-		protected void CreateContractWithAgreement(Nomenclature nomenclature, int count)
-		{
-			var contract = GetActualInstanceContract(ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate));
-			Entity.Contract = contract;
-			Entity.AddContractDocument(contract);
-			AdditionalAgreement agreement = contract.GetWaterSalesAgreement(Entity.DeliveryPoint, nomenclature);
-			if(agreement == null) {
-				agreement = ClientDocumentsRepository.CreateDefaultWaterAgreement(UoW, Entity.DeliveryPoint, Entity.DeliveryDate, contract);
-				contract.AdditionalAgreements.Add(agreement);
-				Entity.CreateOrderAgreementDocument(agreement);
-				TryAddNomenclature(nomenclature, count);
-			}
-		}
-
 		CounterpartyContract GetActualInstanceContract(CounterpartyContract anotherSessionContract)
 		{
 			return UoW.GetById<CounterpartyContract>(anotherSessionContract.Id);
@@ -1858,92 +1653,6 @@ namespace Vodovoz
 		protected void OnYcomboboxReasonItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			SetDiscountUnitEditable();
-		}
-
-		void CreateRentAgreementDialogs(CounterpartyContract contract, OrderAgreementType type)
-		{
-			if(contract == null) {
-				return;
-			}
-			ITdiDialog dlg = null;
-			OrmReference refWin;
-			switch(type) {
-				case OrderAgreementType.NonfreeRent:
-					refWin = new OrmReference(typeof(PaidRentPackage)) {
-						Mode = OrmReferenceMode.Select
-					};
-					refWin.ObjectSelected += (sender, e) => {
-						dlg = new NonFreeRentAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate, (e.Subject as PaidRentPackage));
-						RunAgreementDialog(dlg);
-					};
-					TabParent.AddTab(refWin, this);
-					break;
-				case OrderAgreementType.DailyRent:
-					refWin = new OrmReference(typeof(PaidRentPackage)) {
-						Mode = OrmReferenceMode.Select
-					};
-					refWin.ObjectSelected += (sender, e) => {
-						dlg = new DailyRentAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate, (e.Subject as PaidRentPackage));
-						RunAgreementDialog(dlg);
-					};
-					TabParent.AddTab(refWin, this);
-					break;
-				case OrderAgreementType.FreeRent:
-					refWin = new OrmReference(typeof(FreeRentPackage)) {
-						Mode = OrmReferenceMode.Select
-					};
-					refWin.ObjectSelected += (sender, e) => {
-						dlg = new FreeRentAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate, (e.Subject as FreeRentPackage));
-						RunAgreementDialog(dlg);
-					};
-					TabParent.AddTab(refWin, this);
-					break;
-			}
-		}
-
-		void RunAgreementDialog(ITdiDialog dlg)
-		{
-			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
-			TabParent.AddSlaveTab(this, dlg);
-		}
-
-		void AgreementSaved(object sender, AgreementSavedEventArgs e)
-		{
-			var agreement = UoWGeneric.GetById<AdditionalAgreement>(e.Agreement.Id);
-
-			Entity.CreateOrderAgreementDocument(agreement);
-			Entity.FillItemsFromAgreement(agreement);
-			/*CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType)
-										  .AdditionalAgreements
-										  .Add(agreement);*/
-			if(!Entity.Contract.ObservableAdditionalAgreements.Contains(agreement))
-				Entity.Contract.ObservableAdditionalAgreements.Add(agreement);
-
-			var waterSalesAgreementList = Contract.AdditionalAgreements
-									   .Where(x => !x.IsCancelled)
-									   .Select(x => x.Self)
-									   .OfType<WaterSalesAgreement>();
-		}
-
-		void RunContractCreateDialog(OrderAgreementType type)
-		{
-			ITdiTab dlg;
-			var response = AskCreateContract();
-			if(response == (int)ResponseType.Yes) {
-				dlg = new CounterpartyContractDlg(Entity.Client, Entity.PaymentType,
-					OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric, Entity.Client.PersonType, Entity.PaymentType),
-					Entity.DeliveryDate);
-				(dlg as IContractSaved).ContractSaved += (sender, e) => {
-					OnContractSaved(sender, e);
-					var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-					CreateRentAgreementDialogs(contract, type);
-				};
-				TabParent.AddSlaveTab(this, dlg);
-			} else if(response == (int)ResponseType.Accept) {
-				var contract = GetActualInstanceContract(ClientDocumentsRepository.CreateDefaultContract(UoW, Entity.Client, Entity.PaymentType, Entity.DeliveryDate));
-				Entity.AddContractDocument(contract);
-				Entity.Contract = contract;
-			}
 		}
 
 		protected int AskCreateContract()
@@ -1966,29 +1675,7 @@ namespace Vodovoz
 			//будут запускаться после создания договора
 			return (int)ResponseType.Accept;
 		}
-
-		protected void RunContractAndWaterAgreementDialog(Nomenclature nomenclature, int count = 0)
-		{
-			ITdiTab dlg = new CounterpartyContractDlg(Entity.Client, Entity.PaymentType,
-							  OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric, Entity.Client.PersonType, Entity.PaymentType),
-							  Entity.DeliveryDate);
-			(dlg as IContractSaved).ContractSaved += OnContractSaved;
-			dlg.TabClosed += (sender, e) => {
-				CounterpartyContract contract =
-					CounterpartyContractRepository.GetCounterpartyContractByPaymentType(
-						UoWGeneric,
-						Entity.Client,
-						Entity.Client.PersonType,
-						Entity.PaymentType);
-				if(contract != null) {
-					bool hasWaterAgreement = contract.GetWaterSalesAgreement(Entity.DeliveryPoint, nomenclature) != null;
-					if(!hasWaterAgreement)
-						RunAdditionalAgreementWaterDialog(nomenclature, count);
-				}
-			};
-			TabParent.AddSlaveTab(this, dlg);
-		}
-
+		
 		protected void OnContractSaved(object sender, ContractSavedEventArgs args)
 		{
 			CounterpartyContract contract =
@@ -2004,19 +1691,6 @@ namespace Vodovoz
 			});
 
 			Entity.Contract = contract;
-		}
-
-		protected void RunAdditionalAgreementWaterDialog(Nomenclature nom = null, int count = 0)
-		{
-			ITdiDialog dlg = new WaterAgreementDlg(CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType), Entity.DeliveryPoint, Entity.DeliveryDate);
-			(dlg as IAgreementSaved).AgreementSaved +=
-				(sender, e) => {
-					AgreementSaved(sender, e);
-					if(nom != null) {
-						TryAddNomenclature(nom, count);
-					}
-				};
-			TabParent.AddSlaveTab(this, dlg);
 		}
 		#endregion
 
@@ -2178,15 +1852,8 @@ namespace Vodovoz
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
 		{
-			Entity.UpdateDeliveryPointInSalesAgreement();
-
-			if(!HasAgreementForDeliveryPoint()) {
-				Order originalOrder = UoW.GetById<Order>(Entity.Id);
-				Entity.DeliveryPoint = originalOrder?.DeliveryPoint;
-			}
 			CheckSameOrders();
 			Entity.ChangeOrderContract();
-			Entity.ChangeWaterAgreementDeliveryPointChanged();
 			
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
@@ -2208,7 +1875,7 @@ namespace Vodovoz
 				if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
 					UoWGeneric.Save();
 
-				var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
+				var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().OfType<PrintableOrderDocument>()
 					.Where(doc => doc.PrintType == PrinterType.RDL).ToList();
 				if(selectedPrintableRDLDocuments.Any()) {
 					new DocumentPrinter().PrintAll(selectedPrintableRDLDocuments);
@@ -2226,7 +1893,7 @@ namespace Vodovoz
 
 		protected void OnBtnOpnPrnDlgClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderDocuments.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT))
+			if(Entity.OrderDocuments.OfType<PrintableOrderDocument>().Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT))
 				TabParent.AddSlaveTab(this, new DocumentsPrinterDlg(Entity));
 		}
 
@@ -2498,25 +2165,6 @@ namespace Vodovoz
 
 		#region Service functions
 
-		bool HasAgreementForDeliveryPoint()
-		{
-			bool a = Entity.HasActualWaterSaleAgreementByDeliveryPoint();
-			if(Entity.ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare) &&
-			   !a) {
-				//У выбранной точки доставки нет соглашения о доставке воды, предлагаем создать.
-				//Если пользователь создаст соглашение, то запишется выбранная точка доставки
-				//если не создаст то ничего не произойдет и точка доставки останется прежней
-				CounterpartyContract contract = Entity.Contract ?? CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-				if(MessageDialogHelper.RunQuestionDialog("В заказе добавлена вода, а для данной точки доставки нет дополнительного соглашения о доставке воды, создать?")) {
-					ITdiDialog dlg = new WaterAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate);
-					(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
-					TabParent.AddSlaveTab(this, dlg);
-				}
-				return false;
-			}
-			return true;
-		}
-
 		/// <summary>
 		/// Is the payment type barter or cashless?
 		/// </summary>
@@ -2527,16 +2175,6 @@ namespace Vodovoz
 		/// </summary>
 		private bool IsPaymentTypeCashless() => Entity.PaymentType == PaymentType.cashless;
 		#endregion
-
-		LastChosenAction lastChosenAction = LastChosenAction.None;
-
-		private enum LastChosenAction
-		{
-			None,
-			NonFreeRentAgreement,
-			DailyRentAgreement,
-			FreeRentAgreement,
-		}
 
 		//реализация метода интерфейса ITdiTabAddedNotifier
 		public void OnTabAdded()
@@ -2613,24 +2251,6 @@ namespace Vodovoz
 			column.Visible = Entity.ObservableOrderDocuments.Any(x => x.Order.Id != x.AttachedToOrder.Id);
 		}
 
-		void Entity_ObservableOrderDocuments_ElementAdded(object aList, int[] aIdx)
-		{
-			switch(lastChosenAction) {
-				case LastChosenAction.NonFreeRentAgreement:
-					AddRentAgreement(OrderAgreementType.NonfreeRent);
-					break;
-				case LastChosenAction.DailyRentAgreement:
-					AddRentAgreement(OrderAgreementType.DailyRent);
-					break;
-				case LastChosenAction.FreeRentAgreement:
-					AddRentAgreement(OrderAgreementType.FreeRent);
-					break;
-				default:
-					break;
-			}
-			lastChosenAction = LastChosenAction.None;
-		}
-
 		void FixPrice(int id)
 		{
 			OrderItem item = Entity.ObservableOrderItems[id];
@@ -2643,20 +2263,7 @@ namespace Vodovoz
 		{
 			object[] items = treeItems.GetSelectedObjects();
 
-			if(items.Length == 0) {
-				return;
-			}
-
-			var deleteTypes = new AgreementType[] {
-				AgreementType.WaterSales,
-				AgreementType.DailyRent,
-				AgreementType.FreeRent,
-				AgreementType.NonfreeRent,
-				AgreementType.EquipmentSales
-			};
-			btnDeleteOrderItem.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null
-														   || deleteTypes.Contains((items[0] as OrderItem).AdditionalAgreement.Type)
-														  );
+			btnDeleteOrderItem.Sensitive = items.Any();
 		}
 
 		/// <summary>
@@ -2682,10 +2289,7 @@ namespace Vodovoz
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
 						HboxReturnTareReasonCategoriesShow();
 					
-					if(oItem != null && oItem.Count > 0 && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
-						OnFormOrderActions();
-					
-					if(oItem?.PaidRentEquipment == null) {
+					if(oItem == null) {
 						return;
 					}
 					
@@ -2705,9 +2309,7 @@ namespace Vodovoz
 			if(aList is GenericObservableList<OrderEquipment>) {
 				foreach(var i in aIdx) {
 					OrderEquipment oEquip = (aList as GenericObservableList<OrderEquipment>)[aIdx] as OrderEquipment;
-					if(oEquip == null
-					   || oEquip.OrderItem == null
-					   || oEquip.OrderItem.PaidRentEquipment == null) {
+					if(oEquip == null || oEquip.OrderItem == null) {
 						return;
 					}
 					if(oEquip.Count != oEquip.OrderItem.Count) {
@@ -2749,34 +2351,6 @@ namespace Vodovoz
 			OrderEquipment orderEquip = Entity.OrderEquipments.FirstOrDefault(x => x.OrderItem == orderItem);
 			if(orderEquip != null) {
 				orderEquip.Count = newCount;
-			}
-
-			OrderItem depositItem;
-			if(orderItem.PaidRentEquipment != null) {
-				if(orderItem.PaidRentEquipment.Count != newCount) {
-					orderItem.PaidRentEquipment.Count = newCount;
-					OrderItemEquipmentCountHasChanges = true;
-				}
-				depositItem = Entity.OrderItems.FirstOrDefault
-								(x => x.Nomenclature.Category == NomenclatureCategory.deposit
-								 && x.AdditionalAgreement == orderItem.AdditionalAgreement
-								 && x.PaidRentEquipment == orderItem.PaidRentEquipment);
-				if(depositItem != null) {
-					depositItem.Count = newCount;
-				}
-			}
-			if(orderItem.FreeRentEquipment != null) {
-				if(orderItem.FreeRentEquipment.Count != newCount) {
-					orderItem.FreeRentEquipment.Count = newCount;
-					OrderItemEquipmentCountHasChanges = true;
-				}
-				depositItem = Entity.OrderItems.FirstOrDefault
-								(x => x.Nomenclature.Category == NomenclatureCategory.deposit
-								 && x.AdditionalAgreement == orderItem.AdditionalAgreement
-								 && x.FreeRentEquipment == orderItem.FreeRentEquipment);
-				if(depositItem != null) {
-					depositItem.Count = newCount;
-				}
 			}
 		}
 		private void UpdateUIState()
@@ -3091,5 +2665,164 @@ namespace Vodovoz
 		{
 			Order.AddContractDocument(Order.Contract);
 		}
+
+		#region Аренда
+
+		private void AddRent(RentType rentType)
+		{
+			if (Entity.IsService) {
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Error, 
+					"Нельзя добавлять аренду в сервисный заказ", 
+					"Ошибка"
+				);
+				return;
+			}
+			switch (rentType) {
+				case RentType.NonfreeRent:
+					SelectPaidRentPackage(RentType.NonfreeRent);
+					break;
+				case RentType.DailyRent:
+					SelectPaidRentPackage(RentType.DailyRent);
+					break;
+				case RentType.FreeRent:
+					SelectFreeRentPackage();
+					break;
+			}
+		}
+		
+		#region PaidRent
+		
+		private void SelectPaidRentPackage(RentType rentType)
+		{
+			var ormReference = new OrmReference(typeof(PaidRentPackage)) {
+				Mode = OrmReferenceMode.Select
+			};
+			ormReference.ObjectSelected += (sender, e) => {
+				PaidRentPackage rentPackage = e.Subject as PaidRentPackage;
+				if (rentPackage == null) {
+					return;
+				}
+				SelectEquipmentForPaidRentPackage(rentType, rentPackage);
+			};
+			TabParent.AddTab(ormReference, this);
+		}
+
+		private void SelectEquipmentForPaidRentPackage(RentType rentType, PaidRentPackage paidRentPackage)
+		{
+			if (ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) {
+				var existingItems = Entity.OrderEquipments
+					.Where(x => x.OrderRentDepositItem != null || x.OrderRentServiceItem != null)
+					.Select(x => x.Nomenclature.Id)
+					.Distinct()
+					.ToArray();
+				
+				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentType, existingItems);
+				AddPaidRent(rentType, paidRentPackage, anyNomenclature);
+			}
+			else {
+				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, paidRentPackage.EquipmentType));
+				selectDialog.Mode = JournalSelectMode.Single;
+				selectDialog.CustomTabName("Оборудование для аренды");
+				selectDialog.ObjectSelected += (sender, e) => {
+					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
+					AddPaidRent(rentType, paidRentPackage, selectedNode.Nomenclature);
+				};
+				TabParent.AddSlaveTab(this, selectDialog);
+			}
+		}
+		
+		private void AddPaidRent(RentType rentType, PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
+		{
+			if (rentType == RentType.FreeRent) {
+				throw new InvalidOperationException($"Не правильный тип аренды {RentType.FreeRent}, возможен только {RentType.NonfreeRent} или {RentType.DailyRent}");
+			}
+			var interactiveService = ServicesConfig.InteractiveService;
+			if(equipmentNomenclature == null) {
+				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
+				return;
+			}
+
+			var stock = StockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
+			if(stock <= 0) {
+				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?")) {
+					return;
+				}
+			}
+
+			switch (rentType) {
+				case RentType.NonfreeRent:
+					Entity.AddNonFreeRent(paidRentPackage, equipmentNomenclature);
+					break;
+				case RentType.DailyRent:
+					Entity.AddDailyRent(paidRentPackage, equipmentNomenclature);
+					break;
+			}
+		}
+
+		#endregion PaidRent
+
+		#region FreeRent
+
+		private void SelectFreeRentPackage()
+		{
+			var ormReference = new OrmReference(typeof(FreeRentPackage)) {
+				Mode = OrmReferenceMode.Select
+			};
+			ormReference.ObjectSelected += (sender, e) => {
+				FreeRentPackage rentPackage = e.Subject as FreeRentPackage;
+				if (rentPackage == null) {
+					return;
+				}
+				SelectEquipmentForFreeRentPackage(rentPackage);
+			};
+			TabParent.AddTab(ormReference, this);
+		}
+
+		private void SelectEquipmentForFreeRentPackage(FreeRentPackage freeRentPackage)
+		{
+			if (ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) {
+				var existingItems = Entity.OrderEquipments
+					.Where(x => x.OrderRentDepositItem != null || x.OrderRentServiceItem != null)
+					.Select(x => x.Nomenclature.Id)
+					.Distinct()
+					.ToArray();
+				
+				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentType, existingItems);
+				AddFreeRent(freeRentPackage, anyNomenclature);
+			}
+			else {
+				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, freeRentPackage.EquipmentType));
+				selectDialog.Mode = JournalSelectMode.Single;
+				selectDialog.CustomTabName("Оборудование для аренды");
+				selectDialog.ObjectSelected += (sender, e) => {
+					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
+					AddFreeRent(freeRentPackage, selectedNode.Nomenclature);
+				};
+				TabParent.AddSlaveTab(this, selectDialog);
+			}
+		}
+		
+		private void AddFreeRent(FreeRentPackage freeRentPackage, Nomenclature equipmentNomenclature)
+		{
+			var interactiveService = ServicesConfig.InteractiveService;
+			if(equipmentNomenclature == null) {
+				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
+				return;
+			}
+
+			var stock = StockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
+			if(stock <= 0) {
+				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?")) {
+					return;
+				}
+			}
+
+			Entity.AddFreeRent(freeRentPackage, equipmentNomenclature);
+		}
+
+		#endregion FreeRent
+
+		#endregion
 	}
 }

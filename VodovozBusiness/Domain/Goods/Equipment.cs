@@ -119,32 +119,5 @@ namespace Vodovoz.Domain.Goods
 
 		#endregion
 	}
-
-	public static class EquipmentWorks
-	{
-		public static ICriterion FilterUsedEquipment (ISession session)
-		{
-			var fAgreements = session.CreateCriteria<FreeRentAgreement> ().List<FreeRentAgreement> ();
-			var nAgreements = session.CreateCriteria<NonfreeRentAgreement> ().List<NonfreeRentAgreement> ();
-			var dAgreements = session.CreateCriteria<DailyRentAgreement> ().List<DailyRentAgreement> ();
-			var IDs = new List<int> ();
-			foreach (FreeRentAgreement fr in fAgreements)
-				foreach (FreeRentEquipment eq in fr.Equipment)
-					if (eq.Equipment != null)
-						IDs.Add (eq.Equipment.Id);
-			foreach (NonfreeRentAgreement nfr in nAgreements)
-				foreach (PaidRentEquipment eq in nfr.PaidRentEquipments)
-					if (eq.Equipment != null)
-						IDs.Add (eq.Equipment.Id);
-			foreach (DailyRentAgreement dr in dAgreements)
-				foreach (PaidRentEquipment eq in dr.Equipment)
-					if (eq.Equipment != null)
-						IDs.Add (eq.Equipment.Id);
-			int[] arr = new int[IDs.Count];
-			IDs.CopyTo (arr, 0);
-
-			return Restrictions.Not (Restrictions.In ("Id", arr)); 
-		}
-	}
 }
 

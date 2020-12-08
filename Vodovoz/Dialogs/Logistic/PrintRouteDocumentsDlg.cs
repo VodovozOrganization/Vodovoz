@@ -86,15 +86,9 @@ namespace Vodovoz.Dialogs.Logistic
 				OrderDocumentType.EquipmentTransfer,
 				OrderDocumentType.DoneWorkReport,
 				OrderDocumentType.EquipmentReturn,
-				OrderDocumentType.PumpWarranty,
-				OrderDocumentType.CoolerWarranty,
 				OrderDocumentType.Torg12,
 				OrderDocumentType.ShetFactura,
-				OrderDocumentType.RefundBottleDeposit,
-				OrderDocumentType.RefundEquipmentDeposit,
-				OrderDocumentType.BottleTransfer,
-				OrderDocumentType.ProductCertificate,
-				OrderDocumentType.TransportInvoice
+				OrderDocumentType.ProductCertificate
 			};
 
 			foreach(OrderDocumentType t in Enum.GetValues(typeof(OrderDocumentType)))
@@ -211,8 +205,6 @@ namespace Vodovoz.Dialogs.Logistic
 							rlDocTypesToPrint.Add(RouteListPrintableDocuments.RouteList);
 						if(checkRouteMap.Active)
 							rlDocTypesToPrint.Add(RouteListPrintableDocuments.RouteMap);
-						if(chkLoadDocument.Active)
-							rlDocTypesToPrint.Add(RouteListPrintableDocuments.LoadDocument);
 						if(chkDocumentsOfOrders.Active)
 							oDocTypesToPrint = OrderDocTypesToPrint.Where(n => n.Selected)
 																   .Select(n => n.Type)

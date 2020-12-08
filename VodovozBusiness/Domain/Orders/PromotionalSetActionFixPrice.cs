@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using NHibernate;
@@ -61,22 +62,22 @@ namespace Vodovoz.Domain.Orders
 
 		public override void Activate(Order order)
 		{
-			var agreementsId = order.Client.CounterpartyContracts
-								.SelectMany(x => x.AdditionalAgreements)
-								.Select(x => x.Self)
-								.OfType<WaterSalesAgreement>().Select(a => a.Id);
-
-			foreach(var agreementId in agreementsId) {
-				using(var uow = UnitOfWorkFactory.CreateForRoot<WaterSalesAgreement>(agreementId)) {
-					var oldFixedPrice = uow.Root.ObservableFixedPrices.FirstOrDefault(p => p.Nomenclature.Id == Nomenclature.Id);
-					if(oldFixedPrice == null)
-						uow.Root.AddFixedPrice(Nomenclature, Price);
-					else
-						oldFixedPrice.Price = Price;
-
-					uow.Save();
-				}
+			if(order == null || order.Contract == null){
+				return;
 			}
+			IList<NomenclatureFixedPrice> fixedPrices = order.Contract.Counterparty.NomenclatureFixedPrices;
+			if(order.DeliveryPoint != null){
+				fixedPrices = order.DeliveryPoint.NomenclatureFixedPrices;
+			}
+
+			var foundFixedPrice = fixedPrices.FirstOrDefault(x => x.Nomenclature.Id == Nomenclature.Id);
+			if(foundFixedPrice == null) {
+				foundFixedPrice = new NomenclatureFixedPrice();
+				fixedPrices.Add(foundFixedPrice);
+			}
+			
+			foundFixedPrice.Nomenclature = Nomenclature;
+			foundFixedPrice.Price = Price;
 		}
 
 		public override void Deactivate(Order order)

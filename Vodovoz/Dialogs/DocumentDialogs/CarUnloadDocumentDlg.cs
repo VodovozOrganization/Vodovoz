@@ -29,6 +29,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -116,7 +117,7 @@ namespace Vodovoz
 			var hasPermitionToEditDocWithClosedRL = QS.Project.Services.ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_car_load_and_unload_docs", currentUserId);
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarUnloadEdit, Entity.Warehouse);
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
-			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository());
+			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()));
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			returnsreceptionview.Sensitive =
 				hbxTareToReturn.Sensitive =

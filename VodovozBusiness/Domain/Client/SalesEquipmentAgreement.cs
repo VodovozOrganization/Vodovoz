@@ -34,47 +34,5 @@ namespace Vodovoz.Domain.Client
 				return observableSalesEqipments;
 			}
 		}
-
-
-		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			foreach(ValidationResult result in base.Validate(validationContext))
-				yield return result;
-		}
-
-		public virtual void AddEquipment(Nomenclature nomenclature)
-		{
-			var salesEquipment = new SalesEquipment {
-				Nomenclature = nomenclature,
-				AdditionalAgreement = this,
-				Price = nomenclature.GetPrice(1),
-				Count = 1
-			};
-
-			ObservableSalesEqipments.Add(salesEquipment);
-		}
-
-		public virtual void UpdatePrice(Nomenclature nomenclature, decimal price)
-		{
-			var salesEquipment = ObservableSalesEqipments.FirstOrDefault(x => x.Nomenclature.Id == nomenclature.Id);
-			if(salesEquipment != null) {
-				salesEquipment.Price = price;
-			}
-		}
-
-		public virtual void UpdateCount(Nomenclature nomenclature, int count)
-		{
-			var salesEquipment = ObservableSalesEqipments.FirstOrDefault(x => x.Nomenclature.Id == nomenclature?.Id);
-			if(salesEquipment != null)
-				salesEquipment.Count = count;
-		}
-
-		public static IUnitOfWorkGeneric<SalesEquipmentAgreement> Create(CounterpartyContract contract)
-		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<SalesEquipmentAgreement>($"Создание нового доп. соглашения на оборудование для договора {contract.Number}");
-			uow.Root.Contract = uow.GetById<CounterpartyContract>(contract.Id);
-			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithType(uow.Root.Contract, AgreementType.EquipmentSales);
-			return uow;
-		}
 	}
 }

@@ -11,7 +11,9 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSOrmProject;
 using QS.Validation;
+using Vodovoz.Additions;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Services;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -20,21 +22,23 @@ namespace Vodovoz.Dialogs.Employees
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		public TraineeDlg()
+		public TraineeDlg(IAuthorizationService authorizationService)
 		{
+			this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Trainee>();
 			ConfigureDlg();
 		}
 
-		public TraineeDlg(int id)
+		public TraineeDlg(int id, IAuthorizationService authorizationService)
 		{
+			this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Trainee>(id);
 			ConfigureDlg();
 		}
 
-		public TraineeDlg(Trainee sub) : this(sub.Id)
+		public TraineeDlg(Trainee sub, IAuthorizationService authorizationService) : this(sub.Id, authorizationService)
 		{
 		}
 
@@ -46,6 +50,8 @@ namespace Vodovoz.Dialogs.Employees
 
 			ConfigureBindings();
 		}
+
+		private readonly IAuthorizationService authorizationService;
 
 		public void ConfigureBindings()
 		{
@@ -157,7 +163,7 @@ namespace Vodovoz.Dialogs.Employees
 			var employeeUow = UnitOfWorkFactory.CreateWithNewRoot<Employee>();
 			Personnel.ChangeTraineeToEmployee(employeeUow, Entity);
 			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),
-							  () => new EmployeeDlg(employeeUow));
+							  () => new EmployeeDlg(employeeUow, authorizationService));
 			this.OnCloseTab(false);
 		}
 

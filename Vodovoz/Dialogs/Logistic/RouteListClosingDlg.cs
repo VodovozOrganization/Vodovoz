@@ -571,7 +571,7 @@ namespace Vodovoz
 		Nomenclature DefaultBottle {
 			get {
 				if(defaultBottle == null) {
-					var db = new EntityRepositories.Goods.NomenclatureRepository().GetDefaultBottle(UoW);
+					var db = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider()).GetDefaultBottle(UoW);
 					defaultBottle = db ?? throw new Exception("Не найдена номенклатура бутыли по умолчанию, указанная в параметрах приложения: default_bottle_nomenclature");
 				}
 				return defaultBottle;
@@ -1053,7 +1053,7 @@ namespace Vodovoz
 			.Sum(item => item.Amount);
 			
 			var rlRepository = new RouteListRepository();
-			var nomenclatureRepository = new NomenclatureRepository();
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 			
 			var defectiveNomenclaturesIds = nomenclatureRepository
 				.GetNomenclatureOfDefectiveGoods(UoW)

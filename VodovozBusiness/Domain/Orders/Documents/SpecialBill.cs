@@ -9,7 +9,7 @@ using Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class SpecialBillDocument : OrderDocument, IPrintableRDLDocument
+	public class SpecialBillDocument : PrintableOrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.SpecialBill;

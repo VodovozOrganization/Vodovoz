@@ -28,6 +28,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using Vodovoz.Domain.Employees;
 using QS.Tdi;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -36,7 +37,7 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private IEmployeeRepository EmployeeRepository { get; } = EmployeeSingletonRepository.GetInstance();
-		private INomenclatureRepository nomenclatureRepository { get; } = new NomenclatureRepository();
+		private INomenclatureRepository nomenclatureRepository { get; } = new NomenclatureRepository(new NomenclatureParametersProvider());
 		private SelectableParametersReportFilter filter;
 		private InventoryDocumentItem FineEditItem;
 

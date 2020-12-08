@@ -26,6 +26,8 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.OrderItem)	.Column("order_item_id");
 			References(x => x.Nomenclature)	.Column("nomenclature_id");
 			References(x => x.CounterpartyMovementOperation).Column("counterparty_movement_operation_id").Cascade.All();
+			References(x => x.OrderRentDepositItem).Column("order_rent_deposit_item_id");
+			References(x => x.OrderRentServiceItem).Column("order_rent_service_item_id");
 		}
 	}
 }

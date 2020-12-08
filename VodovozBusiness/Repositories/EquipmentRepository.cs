@@ -16,21 +16,6 @@
 {
 	public static class EquipmentRepository
 	{
-		#region Без серийных номеров
-
-		/// <summary>
-		/// Выбирает первое имееющееся в справочнике оборудование по выбранному типу
-		/// </summary>
-		public static Nomenclature GetFirstAnyNomenclatureForRent(IUnitOfWork uow, EquipmentType type)
-		{
-			Nomenclature nomenclatureAlias = null;
-			return uow.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
-			   .Where(() => nomenclatureAlias.Type == type)
-			   .List().FirstOrDefault();
-		}
-
-		#endregion
-
 		#region С серийными номерами
 
 		public static QueryOver<Equipment> GetEquipmentWithTypesQuery(List<EquipmentType> types)

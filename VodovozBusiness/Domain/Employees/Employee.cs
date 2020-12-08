@@ -20,6 +20,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
+using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -466,6 +467,7 @@ namespace Vodovoz.Domain.Employees
 			ObservableWageParameters.Add(wageParameter);
 			return;
 		}
+
 
 		public virtual EmployeeWageParameter GetActualWageParameter(DateTime date)
 		{

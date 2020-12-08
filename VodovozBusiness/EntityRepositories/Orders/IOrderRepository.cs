@@ -5,7 +5,6 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
@@ -111,9 +110,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		OrderStatus[] GetUndeliveryStatuses();
 
-		ReceiptForOrderNode[] GetShippedOrdersWithReceiptsForDates(IUnitOfWork uow, DateTime? startDate = null);
-
-		ReceiptForOrderNode[] GetClosedSelfDeliveredOrdersWithReceiptsForDates(IUnitOfWork uow, PaymentType paymentType, OrderStatus orderStatus, DateTime? startDate = null);
+		IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(IUnitOfWork uow, DateTime? dateTime = null);
 
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order);
 
