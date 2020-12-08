@@ -89,7 +89,8 @@ namespace Vodovoz
 		IEmailsInfoProvider,
 		ICallTaskProvider,
 		ITDICloseControlTab,
-		ISmsSendProvider
+		ISmsSendProvider,
+		IFixedPricesHolderProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -149,6 +150,7 @@ namespace Vodovoz
 		public PanelViewType[] InfoWidgets {
 			get {
 				return new[]{
+					PanelViewType.FixedPricesPanelView,
 					PanelViewType.CounterpartyView,
 					PanelViewType.DeliveryPricePanelView,
 					PanelViewType.DeliveryPointView,
@@ -309,6 +311,7 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			ConfigureTrees();
 			ConfigureButtonActions();
 			ConfigureSendDocumentByEmailWidget();
@@ -562,6 +565,22 @@ namespace Vodovoz
 					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
 				} 
 			};
+		}
+
+		private void OnNomenclatureFixedPriceChanged(EntityChangeEvent[] changeevents)
+		{
+			var changedEntities = changeevents.Select(x => x.Entity).OfType<NomenclatureFixedPrice>();
+			if (changedEntities.Any(x => x.DeliveryPoint != null && DeliveryPoint != null && x.DeliveryPoint.Id == DeliveryPoint.Id)) {
+				UoW.Session.Refresh(DeliveryPoint);
+				return;
+			}
+			
+			if(changedEntities.Any(x => x.Counterparty.Id == Counterparty.Id)) {
+				UoW.Session.Refresh(Counterparty);
+				return;
+			}
+			
+			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Counterparty));
 		}
 
 		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)

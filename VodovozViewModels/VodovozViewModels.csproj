@@ -136,6 +136,7 @@
     <Compile Include="TempAdapters\ICounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\IEmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\IEntityDeleteWorker.cs" />
+    <Compile Include="TempAdapters\IFixedPricesDialogOpener.cs" />
     <Compile Include="ViewModels\Cash\ExpenseCategoryViewModel.cs" />
     <Compile Include="ViewModels\Cash\IncomeCategoryViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintViewModel.cs" />
@@ -165,6 +166,7 @@
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpenerForRouteListViewAndOrderView.cs" />
+    <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\WageDistrictLevelRateViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\EmployeeWageParameterViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\FixedWageParameterItemViewModel.cs" />

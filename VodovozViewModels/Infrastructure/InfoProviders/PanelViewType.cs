@@ -9,6 +9,7 @@
 		EmailsPanelView,
 		CallTaskPanelView,
 		ComplaintPanelView,
-		SmsSendPanelView
+		SmsSendPanelView,
+		FixedPricesPanelView
 	}
 }

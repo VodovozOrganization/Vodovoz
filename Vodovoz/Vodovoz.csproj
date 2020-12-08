@@ -426,12 +426,14 @@
     <Compile Include="ReportsParameters\CashBookReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CashBookReport.cs" />
     <Compile Include="Representations\ProductGroupVM.cs" />
+    <Compile Include="SidePanel\InfoProviders\IFixedPricesHolderProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
     <Compile Include="TempAdapters\EquipmentRepositoryForViews.cs" />
+    <Compile Include="TempAdapters\FixedPricesDialogOpener.cs" />
     <Compile Include="TempAdapters\WaterJournalFactory.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterDlg.cs" />
@@ -1474,6 +1476,8 @@
     <Compile Include="Dialogs\FreeRentPackageDlg.cs" />
     <Compile Include="Views\Goods\FixedPricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.FixedPricesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.FixedPricesPanelView.cs" />
+    <Compile Include="SidePanel\InfoViews\FixedPricesPanelView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
