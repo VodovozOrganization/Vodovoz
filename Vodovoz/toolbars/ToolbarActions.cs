@@ -765,9 +765,7 @@ public partial class MainWindow : Window
 			() => {
 				var vm = new RouteListsVM();
 				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
-				Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete")
-					? Buttons.All
-					: (Buttons.Add | Buttons.Edit);
+				Buttons buttons = Buttons.Add | Buttons.Edit;
 				return new PermissionControlledRepresentationJournal(vm, buttons);
 			}
 		);

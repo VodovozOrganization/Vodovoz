@@ -277,9 +277,15 @@ namespace Vodovoz
 
 			//make actions menu
 			var menu = new Gtk.Menu();
+			
 			var menuItem = new Gtk.MenuItem("Все заказы контрагента");
 			menuItem.Activated += AllOrders_Activated;
 			menu.Add(menuItem);
+			
+			var menuItemFixedPrices = new Gtk.MenuItem("Фикс. цены для самовывоза");
+			menuItemFixedPrices.Activated += (s, e) => OpenFixedPrices();
+			menu.Add(menuItemFixedPrices);
+			
 			menuActions.Menu = menu;
 			menu.ShowAll();
 
@@ -287,7 +293,6 @@ namespace Vodovoz
 			contactsview1.Visible = false;
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
 			rbnPrices.Toggled += OnRbnPricesToggled;
-			rbnFixedPrices.Toggled += OnRbnFixedPricesToggled;
 			SetVisibilityForCloseDeliveryComments();
 
 			int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
@@ -514,10 +519,9 @@ namespace Vodovoz
 				notebook1.CurrentPage = 10;
 		}
 
-		protected void OnRbnFixedPricesToggled(object sender, EventArgs e)
+		public void OpenFixedPrices()
 		{
-			if(rbnFixedPrices.Active)
-				notebook1.CurrentPage = 11;
+			notebook1.CurrentPage = 11;
 		}
 
 		void YEnumCounterpartyType_Changed(object sender, EventArgs e)

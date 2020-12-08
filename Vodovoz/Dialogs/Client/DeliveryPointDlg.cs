@@ -473,8 +473,13 @@ namespace Vodovoz
 
 		private void OnRadioFixedPricesToggled(object sender, EventArgs e)
 		{
-			if(radioFixedPrices.Active)
-				notebook1.CurrentPage = 3;
+			if (radioFixedPrices.Active)
+				OpenFixedPrices();
+		}
+		
+		public void OpenFixedPrices()
+		{
+			notebook1.CurrentPage = 3;
 		}
 
 		protected void OnButtonAddResponsiblePersonClicked(object sender, EventArgs e)

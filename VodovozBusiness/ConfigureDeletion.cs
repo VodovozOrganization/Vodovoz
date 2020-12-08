@@ -546,7 +546,7 @@ namespace Vodovoz
 						.AddDeleteDependence<DeliveryDocument>(x => x.RouteListItem)
 						.AddDeleteDependence<AddressTransferDocumentItem>(x => x.OldAddress)
 						.AddDeleteDependence<AddressTransferDocumentItem>(x => x.NewAddress)
-						.AddRemoveFromDependence<RouteList>(x => x.Addresses, x => x.RemoveAddress);
+						.AddRemoveFromDependence<RouteList>(x => x.Addresses);
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
 
@@ -905,16 +905,6 @@ namespace Vodovoz
 				.AddClearDependence<RouteList>(item => item.DriverWageOperation)
 				.AddClearDependence<RouteList>(item => item.ForwarderWageOperation)
 				.AddDeleteDependence<Expense>(item => item.WagesOperation);
-
-			#endregion
-
-			#region Права
-
-			DeleteConfig.AddHibernateDeleteInfo<TypeOfEntity>()
-				.AddDeleteDependence<EntityUserPermission>(x => x.TypeOfEntity)
-				;
-			DeleteConfig.AddHibernateDeleteInfo<EntityUserPermission>();
-			DeleteConfig.AddHibernateDeleteInfo<PresetUserPermission>();
 
 			#endregion
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dialogs.Logistic;
-using FluentNHibernate.Conventions;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -466,10 +465,36 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						var objectType = typeof(RouteList);
-						if(selectedNode != null && OrmMain.DeleteObject(objectType, selectedNode.Id))
-							this.UpdateNodes();
+
+						var routeList = UoW.Session.QueryOver<RouteList>()
+								.Where(x => x.Id == selectedNode.Id)
+								.SingleOrDefault<RouteList>();
+
+						var orders = new List<Vodovoz.Domain.Orders.Order>();
+
+						foreach (var address in routeList.Addresses)
+						{
+							if (address.Order.OrderStatus == Domain.Orders.OrderStatus.OnLoading 
+							 || address.Order.OrderStatus == Domain.Orders.OrderStatus.InTravelList)
+                            {
+								orders.Add(address.Order);
+							}
+						}
+
+						if (selectedNode != null && OrmMain.DeleteObject(objectType, selectedNode.Id))
+                        {
+							foreach (var order in orders)
+                            {
+								order.ChangeStatusAndCreateTasks(Domain.Orders.OrderStatus.Accepted, callTaskWorker);
+								UoW.Save(order);
+							}
+
+							UoW.Commit();
+							UpdateNodes();
+						}
 					},
-					(selectedItems) => selectedItems.Any(x => CanDeletedStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+					(selectedItems) => selectedItems.Any(x => CanDeletedStatuses.Contains((x as RouteListsVMNode).StatusEnum) 
+						&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete"))
 				));
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Выдать топливо",
