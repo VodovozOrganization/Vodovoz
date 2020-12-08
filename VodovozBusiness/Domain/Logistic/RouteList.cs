@@ -1346,7 +1346,7 @@ namespace Vodovoz.Domain.Logistic
 				};
 
 				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money:C0}");
-				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome.Money);
+				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
 					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
@@ -1360,7 +1360,7 @@ namespace Vodovoz.Domain.Logistic
 					RelatedToSubdivision = Cashier.Subdivision
 				};
 				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money:C0}");
-				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense.Money);
+				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense, cashExpense.Money);
 			}
 			IsManualAccounting = true;
 			return messages.ToArray();
@@ -1579,7 +1579,7 @@ namespace Vodovoz.Domain.Logistic
 				};
 				
 				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money}");
-				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome.Money);
+				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
 					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
@@ -1594,7 +1594,7 @@ namespace Vodovoz.Domain.Logistic
 				};
 				
 				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money}");
-				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense.Money);
+				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense, cashExpense.Money);
 			}
 
 			// Если хотя бы один fuelDocument имеет PayedForFuel то добавить пустую строку разделитель и сообщения о расходных ордерах топлива

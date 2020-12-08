@@ -1,6 +1,7 @@
 using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Cash

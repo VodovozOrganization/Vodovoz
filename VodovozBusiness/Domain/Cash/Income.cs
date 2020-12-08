@@ -153,11 +153,8 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual RouteList RouteListClosing
 		{
-			get{ return routeListClosing; }
-			set
-			{
-				SetField(ref routeListClosing, value, () => RouteListClosing);
-			}
+			get => routeListClosing;
+			set => SetField(ref routeListClosing, value, () => RouteListClosing);
 		}
 
 		private IncomeCashTransferedItem transferedBy;
@@ -179,13 +176,6 @@ namespace Vodovoz.Domain.Cash
 		public virtual string CashierReviewComment {
 			get => cashierReviewComment;
 			set => SetField(ref cashierReviewComment, value, () => CashierReviewComment);
-		}
-		
-		private Organization organisation;
-		[Display(Name = "Организация")]
-		public virtual Organization Organisation {
-			get => organisation;
-			set => SetField(ref organisation, value);
 		}
 
 		#endregion

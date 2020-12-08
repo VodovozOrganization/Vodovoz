@@ -208,7 +208,7 @@ namespace Vodovoz.Domain.Cash
 		public virtual AdvanceClosing AddAdvanceCloseItem(Income income, decimal sum)
 		{
 			if (TypeOperation != ExpenseType.Advance)
-				throw new InvalidOperationException("Метод AddAdvanceCloseItem() можно вызываться только для выдачи аванса.");
+				throw new InvalidOperationException("Метод AddAdvanceCloseItem() может вызываться только для выдачи аванса.");
 			
 			var closing = new AdvanceClosing(this, income, sum);
 			if (AdvanceCloseItems == null)
@@ -221,7 +221,7 @@ namespace Vodovoz.Domain.Cash
 		public virtual AdvanceClosing AddAdvanceCloseItem(AdvanceReport report, decimal sum)
 		{
 			if (TypeOperation != ExpenseType.Advance)
-				throw new InvalidOperationException("Метод AddAdvanceCloseItem() можно вызываться только для выдачи аванса.");
+				throw new InvalidOperationException("Метод AddAdvanceCloseItem() может вызываться только для выдачи аванса.");
 
 			var closing = new AdvanceClosing(this, report, sum);
 			if (AdvanceCloseItems == null)

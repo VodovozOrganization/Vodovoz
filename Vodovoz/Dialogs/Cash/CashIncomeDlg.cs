@@ -29,10 +29,18 @@ namespace Vodovoz
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
+		
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
 					new OrganisationParametersProvider()), OrderSingletonRepository.GetInstance());
+		
+		private IncomeCashOrganisationDistributor incomeCashOrganisationDistributor = 
+			new IncomeCashOrganisationDistributor(
+				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()));
+		
+		private AdvanceCashOrganisationDistributor advanceCashOrganisationDistributor = 
+			new AdvanceCashOrganisationDistributor();
 
 		List<Selectable<Expense>> selectableAdvances;
 
@@ -238,6 +246,9 @@ namespace Vodovoz
 			if (UoW.IsNew) {
 				DistributeCash();
 			}
+			else {
+				UpdateCashDistributionsDocuments();
+			}
 			
 			UoWGeneric.Save();
 			logger.Info ("Ok");
@@ -246,11 +257,33 @@ namespace Vodovoz
 
 		private void DistributeCash()
 		{
-			if (Entity.TypeOperation == IncomeType.DriverReport && Entity.IncomeCategory.Id == 1) {
-				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, Entity.RouteListClosing, Entity.Money);
+			if (Entity.TypeOperation == IncomeType.DriverReport && 
+			    Entity.IncomeCategory.Id == CategoryRepository.RouteListClosingIncomeCategory(UoW)?.Id) {
+				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
+			}
+
+			if (Entity.TypeOperation == IncomeType.Return) {
+				// При таком распределении авансовый отчет null
+				advanceCashOrganisationDistributor.DistributeCashForIncomeAdvance(UoW, Entity, null);
 			}
 			
-			//if()
+			incomeCashOrganisationDistributor.DistributeCashForIncome(UoW, Entity);
+		}
+		
+		private void UpdateCashDistributionsDocuments()
+		{
+			var editor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+
+			/*if (Entity.TypeOperation == IncomeType.DriverReport && Entity.IncomeCategory.Id == 1) {
+				routeListCashOrganisationDistributor.(UoW, Entity.RouteListClosing, Entity.Money);
+			}
+
+			if (Entity.TypeOperation == IncomeType.Return) {
+				// При таком распределении авансовый отчет null
+				advanceCashOrganisationDistributor.UpdateRecords(UoW, Entity, editor);
+			}
+			
+			incomeCashOrganisationDistributor.UpdateRecords(UoW, Entity, editor);*/
 		}
 
 		protected void OnButtonPrintClicked (object sender, EventArgs e)

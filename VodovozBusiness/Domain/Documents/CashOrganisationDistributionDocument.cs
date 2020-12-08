@@ -7,6 +7,9 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents
 {
+    [Appellative(Gender = GrammaticalGender.Masculine,
+        NominativePlural = "Документы распределения налички по юр лицу",
+        Nominative = "Документ распределения налички по юр лицу")]
     public class CashOrganisationDistributionDocument : PropertyChangedBase, IDomainObject
     {
         public virtual int Id { get; set; }
