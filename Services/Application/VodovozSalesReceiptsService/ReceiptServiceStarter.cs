@@ -12,14 +12,17 @@ namespace VodovozSalesReceiptsService
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-		public static void StartService(IConfig serviceConfig)
+		public static void StartService(IConfig serviceConfig, IConfig kassaConfig)
 		{
 			string serviceHostName;
 			string servicePort;
+			string baseAddress;
 
 			try {
 				serviceHostName = serviceConfig.GetString("service_host_name");
 				servicePort = serviceConfig.GetString("service_port");
+				
+				baseAddress = kassaConfig.GetString("base_address");
 			}
 			catch(Exception ex) {
 				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
@@ -31,7 +34,7 @@ namespace VodovozSalesReceiptsService
 			var fiscalizationWorker = new FiscalizationWorker(
 				OrderSingletonRepository.GetInstance(),
 				new BaseParametersProvider(),
-				new SalesReceiptSender()
+				new SalesReceiptSender(baseAddress)
 			);
 			fiscalizationWorker.Start();
 			

@@ -20,7 +20,10 @@ namespace VodovozSalesReceiptsService
     /// </summary>
     public class FiscalizationWorker
     {
-        public FiscalizationWorker(IOrderRepository orderRepository, ISalesReceiptsServiceSettings salesReceiptsServiceSettings, ISalesReceiptSender salesReceiptSender)
+        public FiscalizationWorker(
+            IOrderRepository orderRepository,
+            ISalesReceiptsServiceSettings salesReceiptsServiceSettings,
+            ISalesReceiptSender salesReceiptSender)
         {
             this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
             this.salesReceiptsServiceSettings = salesReceiptsServiceSettings ?? throw new ArgumentNullException(nameof(salesReceiptsServiceSettings));

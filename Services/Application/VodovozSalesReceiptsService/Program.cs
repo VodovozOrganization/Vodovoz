@@ -27,11 +27,13 @@ namespace VodovozSalesReceiptsService
 
 			logger.Info("Чтение конфигурационного файла...");
 			IConfig serviceConfig;
+			IConfig kassaConfig;
 			
 			try {
 				IniConfigSource confFile = new IniConfigSource(configFile);
 				confFile.Reload();
 				serviceConfig = confFile.Configs["Service"];
+				kassaConfig = confFile.Configs["ModulKassa"];
 
 				IConfig mysqlConfig = confFile.Configs["Mysql"];
 				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
@@ -78,7 +80,7 @@ namespace VodovozSalesReceiptsService
 			}
 
 			try {
-				ReceiptServiceStarter.StartService(serviceConfig);
+				ReceiptServiceStarter.StartService(serviceConfig, kassaConfig);
 				
 				if(Environment.OSVersion.Platform == PlatformID.Unix) {
 					UnixSignal[] signals = {

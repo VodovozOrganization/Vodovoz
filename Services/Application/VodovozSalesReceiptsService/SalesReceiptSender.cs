@@ -18,6 +18,18 @@ namespace VodovozSalesReceiptsService
     /// </summary>
     public class SalesReceiptSender : ISalesReceiptSender
     {
+        public SalesReceiptSender(string baseAddress)
+        {
+            this.baseAddress = baseAddress;
+            sendDocumentAddress = baseAddress + "/fn/v1/doc";
+            fiscalizationStatusAddress = baseAddress + "fn/v1/status";
+            documentStatusAddress = baseAddress + "fn/v1/doc/{0}/status";
+        }
+
+        private readonly string baseAddress;
+        private readonly string sendDocumentAddress;
+        private readonly string fiscalizationStatusAddress;
+        private readonly string documentStatusAddress;
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         
         public PreparedReceiptNode[] SendReceipts(PreparedReceiptNode[] preparedReceiptNodes, uint timeoutInSeconds = 300)
@@ -56,7 +68,7 @@ namespace VodovozSalesReceiptsService
             logger.Info($"Отправка чеков для фискального регистратора №{cashBox.Id}");
             
             using(HttpClient httpClient = GetHttpClient(cashBox)) {
-                if(!ConnectToCashMachine(httpClient, cashBox)) {
+                if(!ConnectToCashBox(httpClient, cashBox)) {
                     return;
                 }
                 
@@ -68,14 +80,7 @@ namespace VodovozSalesReceiptsService
                     var orderId = receiptNode.CashReceipt.Order.Id;
                     logger.Info($"Отправка документа №{orderId} на сервер фискализации...");
                     
-                    receiptNode.SendResultCode = SendDocument(cashBox, httpClient, receiptNode.SalesDocumentDTO);
-
-                    if(receiptNode.SendResultCode == HttpStatusCode.OK) {
-                        logger.Info($"Чек для заказа №{orderId} отправлен");
-                    }
-                    else if(receiptNode.SendResultCode != 0) {
-                        logger.Info($"Не удалось отправить чек для заказа №{orderId}. HTTP Code: {receiptNode.SendResultCode}");
-                    }
+                    receiptNode.SendResultCode = SendDocument(httpClient, receiptNode.SalesDocumentDTO, orderId);
                 }
             }
         }
@@ -93,18 +98,18 @@ namespace VodovozSalesReceiptsService
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Authorization = authentication;
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            httpClient.BaseAddress = new Uri(cashBox.BaseAddress);
+            httpClient.BaseAddress = new Uri(baseAddress);
             httpClient.Timeout = TimeSpan.FromSeconds(60);
            
             return httpClient;
         }
 
-        private bool ConnectToCashMachine(HttpClient httpClient, CashBox cashBox)
+        private bool ConnectToCashBox(HttpClient httpClient, CashBox cashBox)
         {
             try {
                 logger.Info($"Авторизация и проверка фискального регистратора №{cashBox.Id}...");
                 
-                HttpResponseMessage response = httpClient.GetAsync(cashBox.StatusPath).Result;
+                HttpResponseMessage response = httpClient.GetAsync(fiscalizationStatusAddress).Result;
                 
                 if(!response.IsSuccessStatusCode) {
                     logger.Warn("Провал. Нет ответа от сервиса.");
@@ -142,10 +147,35 @@ namespace VodovozSalesReceiptsService
             }
         }
 
-        private HttpStatusCode SendDocument(CashBox cashBox, HttpClient httpClient, SalesDocumentDTO doc)
+        private HttpStatusCode SendDocument(HttpClient httpClient, SalesDocumentDTO doc, int orderId)
         {
             try {
-                HttpResponseMessage response = httpClient.PostAsJsonAsync(cashBox.BaseAddress + cashBox.SendDocumentPath, doc).Result;
+                HttpResponseMessage response = httpClient.PostAsJsonAsync(sendDocumentAddress, doc).Result;
+
+                if(response.StatusCode == HttpStatusCode.OK) {
+                    logger.Info($"Чек для заказа №{orderId} отправлен");
+                }
+                else {
+                    logger.Info($"Не удалось отправить чек для заказа №{orderId}. HTTP Code: {response.StatusCode}. Запрашиваю актуальный статус...");
+                    try {
+                        var statusResponse = httpClient.GetAsync(String.Format(documentStatusAddress, doc.Id)).Result;
+
+                        if(statusResponse.IsSuccessStatusCode) {
+                            var documentStatusDTO = statusResponse.Content.ReadAsAsync<SalesDocumentsStatusDTO>().Result;
+                            logger.Info($"Актульный статус чека для заказа №{orderId}: {documentStatusDTO.Status}");
+                            if(new[] { DocumentStatus.Completed, DocumentStatus.WaitForCallback, DocumentStatus.Printed }.Contains(documentStatusDTO.Status)) {
+                                return HttpStatusCode.OK;
+                            }
+                        }
+                        else {
+                            logger.Info($"Не удалось получить актуальный статус чека для заказа №{orderId}");
+                        }
+                    }
+                    catch {
+                        logger.Info($"Ошибка при получении актального статуса чека для заказа №{orderId}");
+                    }
+                }
+
                 return response.StatusCode;
             }
             catch(Exception ex) {

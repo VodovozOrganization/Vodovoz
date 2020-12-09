@@ -13,7 +13,6 @@ namespace Vodovoz.HibernateMapping
 
             Map(x => x.UserName).Column("user_name");
             Map(x => x.Password).Column("password");
-            Map(x => x.BaseAddress).Column("base_address");
         }
     }
 }
