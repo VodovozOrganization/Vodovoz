@@ -2312,6 +2312,9 @@ namespace Vodovoz
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
 						HboxReturnTareReasonCategoriesShow();
 					
+					if(oItem != null && oItem.Count > 0 && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+						OnFormOrderActions();
+					
 					if(oItem == null) {
 						return;
 					}
