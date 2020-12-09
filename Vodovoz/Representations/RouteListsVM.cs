@@ -474,6 +474,7 @@ namespace Vodovoz.ViewModel
 
 						foreach (var address in routeList.Addresses)
 						{
+							UoW.Session.Refresh(address.Order);
 							if (address.Order.OrderStatus == Domain.Orders.OrderStatus.OnLoading 
 							 || address.Order.OrderStatus == Domain.Orders.OrderStatus.InTravelList)
                             {
