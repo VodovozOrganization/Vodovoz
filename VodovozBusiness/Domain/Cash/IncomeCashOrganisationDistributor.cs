@@ -55,7 +55,9 @@ namespace Vodovoz.Domain.Cash
                 Organisation = operation.Organisation,
                 CreationDate = DateTime.Now,
                 LastEditor = income.Casher,
+                Employee = income.Employee,
                 CashIncomeCategory = income.IncomeCategory,
+                CashIncomeOperationType = income.TypeOperation,
                 LastEditedTime = DateTime.Now,
                 OrganisationCashMovementOperation = operation,
                 Amount = operation.Amount

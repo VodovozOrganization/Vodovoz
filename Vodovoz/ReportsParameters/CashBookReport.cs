@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QS.Services;
 using QSReport;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.EntityRepositories.Subdivisions;
 
@@ -14,10 +15,12 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CashBookReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private string reportPath = "Cash.CashBook";
+		private string reportPath;
 		private List<Subdivision> UserSubdivisions { get; }
+		private IEnumerable<Organization> Organizations { get; }
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly ICommonServices commonServices;
+
 		public CashBookReport(ISubdivisionRepository subdivisionRepository, ICommonServices commonServices)
 		{
 			this.Build();
@@ -46,10 +49,32 @@ namespace Vodovoz.ReportsParameters
 			yspeccomboboxCashSubdivision.ItemsList = itemsList;
 			yspeccomboboxCashSubdivision.SelectedItem = UserSubdivisions.Count != 0 ? UserSubdivisions?.First() : itemsList.First();
 			#endregion
+
+			hboxOrganisations.Visible = false;
+			Organizations = UoW.GetAll<Organization>();
+			specialListCmbOrganisations.SetRenderTextFunc<Organization>(s => s.Name);
+			specialListCmbOrganisations.ItemsList = Organizations;
 			
+			int currentUserId = commonServices.UserService.CurrentUserId;
+			bool canCreateCashReportsForOrganisations = 
+				commonServices.PermissionService.ValidateUserPresetPermission("can_create_cash_reports_for_organisations", currentUserId);
+			ycheckOrganisations.Visible = canCreateCashReportsForOrganisations;
+			ycheckOrganisations.Toggled += CheckOrganisationsToggled;
+
 			buttonCreateRepot.Clicked += OnButtonCreateRepotClicked;
 		}
-		
+
+		private void CheckOrganisationsToggled(object sender, EventArgs e)
+		{
+			if(ycheckOrganisations.Active) {
+				hboxCash.Visible = false;
+				hboxOrganisations.Visible = true;
+			} else {
+				hboxCash.Visible = true;
+				hboxOrganisations.Visible = false;
+			}
+		}
+
 		private List<Subdivision> GetSubdivisionsForUser()
 		{
 			var availableSubdivisionsForUser = subdivisionRepository.GetCashSubdivisionsAvailableForUser
@@ -59,14 +84,26 @@ namespace Vodovoz.ReportsParameters
 		
 		private ReportInfo GetReportInfo()
 		{
-			string startDate = $"{dateperiodpicker.StartDate}";
-			string endDate = $"{dateperiodpicker.EndDate}";
 			bool allCashes = ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem).Name == "Все";
+
 			var parameters = new Dictionary<string, object> {
 				{ "StartDate", dateperiodpicker.StartDateOrNull.Value},
 				{ "EndDate", dateperiodpicker.EndDateOrNull.Value.AddHours(23).AddMinutes(59).AddSeconds(59) },
-				{ "Cash",  allCashes?-1:((Subdivision) yspeccomboboxCashSubdivision.SelectedItem).Id }
 			};
+
+			if (ycheckOrganisations.Active)
+			{
+				reportPath = "Cash.CashBookOrganisations";
+				parameters.Add("organisation", 
+					(specialListCmbOrganisations.SelectedItem as Organization)?.Id ?? -1);
+				parameters.Add("organisation_name", 
+					(specialListCmbOrganisations.SelectedItem as Organization)?.Name ?? string.Empty);
+			}
+			else
+			{
+				reportPath = "Cash.CashBook";
+				parameters.Add("Cash", allCashes ? -1 : ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem).Id);
+			}
 
 			return new ReportInfo {
 				Identifier = reportPath,
@@ -75,14 +112,10 @@ namespace Vodovoz.ReportsParameters
 			};
 		}
 
-		void OnUpdate(bool hide = false)
-		{
+		void OnUpdate(bool hide = false) => 
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
-		}
+		
+		protected void OnButtonCreateRepotClicked(object sender, EventArgs e) => OnUpdate(true);
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 		public string Title => "Кассовая книга";

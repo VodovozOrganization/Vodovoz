@@ -10,14 +10,6 @@ namespace Vodovoz.Domain.Documents
     public class IncomeCashDistributionDocument : CashOrganisationDistributionDocument
     {
         public virtual string Title => $"Документ прихода налички по юр лицу №{Id}";
-        
-        private Income income;
-        [Display (Name = "Приход")]
-        public virtual Income Income
-        {
-            get => income;
-            set => SetField(ref income, value);
-        }
 
         public override CashOrganisationDistributionDocType Type =>
             CashOrganisationDistributionDocType.IncomeCashDistributionDoc;

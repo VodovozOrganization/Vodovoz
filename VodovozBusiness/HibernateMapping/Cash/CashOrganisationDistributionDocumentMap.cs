@@ -18,11 +18,12 @@ namespace Vodovoz.HibernateMapping
             Map(x => x.Amount).Column ("amount");
 
             References(x => x.Author).Column ("author_id");
+            References(x => x.Employee).Column ("employee_id");
             References(x => x.LastEditor).Column ("last_editor_id");
             References(x => x.Organisation).Column("organisation_id");
-            References(x => x.CashIncomeCategory).Column("cash_income_category_id");
-            References(x => x.CashExpenseCategory).Column("cash_expense_category_id");
             References(x => x.OrganisationCashMovementOperation).Column("organisation_cash_movement_operation_id");
+            References(x => x.Income).Column ("cash_income_id");
+            References(x => x.Expense).Column ("cash_expense_id");
         }
     }
 
@@ -40,7 +41,6 @@ namespace Vodovoz.HibernateMapping
         public IncomeCashDistributionDocumentMap()
         {
             DiscriminatorValue("IncomeCashDistributionDoc");
-            References(x => x.Income).Column ("cash_income_id");
         }
     }
     
@@ -49,7 +49,6 @@ namespace Vodovoz.HibernateMapping
         public ExpenseCashDistributionDocumentMap()
         {
             DiscriminatorValue("ExpenseCashDistributionDoc");
-            References(x => x.Expense).Column ("cash_expense_id");
         }
     }
     
