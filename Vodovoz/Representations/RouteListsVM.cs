@@ -493,8 +493,7 @@ namespace Vodovoz.ViewModel
 							UpdateNodes();
 						}
 					},
-					(selectedItems) => selectedItems.Any(x => CanDeletedStatuses.Contains((x as RouteListsVMNode).StatusEnum) 
-						&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete"))
+					(selectedItems) => selectedItems.Any(x => CanDeletedStatuses.Contains((x as RouteListsVMNode).StatusEnum))
 				));
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Выдать топливо",
