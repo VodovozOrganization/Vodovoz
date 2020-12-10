@@ -149,9 +149,9 @@ namespace Vodovoz.JournalViewModels
 			NodeActionsList.Add(resetPassAction);
 		}
 
-		protected override Func<EmployeeDlg> CreateDialogFunction => () => new EmployeeDlg(authorizationService);
+		protected override Func<EmployeeDlg> CreateDialogFunction => () => new EmployeeDlg();
 
 		protected override Func<EmployeeJournalNode, EmployeeDlg> OpenDialogFunction => 
-			n => new EmployeeDlg(n.Id, authorizationService);
+			n => new EmployeeDlg(n.Id);
 	}
 }
