@@ -317,7 +317,7 @@ namespace Vodovoz.Dialogs.Logistic
 			foreach(var one in selected) {
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<Employee>(one.Employee.Id),
-					() => new EmployeeDlg(one.Employee.Id, authorizationService)
+					() => new EmployeeDlg(one.Employee.Id)
 				);
 			}
 		}

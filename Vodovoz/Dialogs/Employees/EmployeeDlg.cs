@@ -42,6 +42,7 @@ using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
+using Vodovoz.Tools;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.WageCalculation;
 
@@ -49,31 +50,41 @@ namespace Vodovoz
 {
 	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>
 	{
-		public EmployeeDlg(IAuthorizationService service)
+		public EmployeeDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Employee>();
 			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
-			this.authorizationService = service ?? throw new ArgumentNullException(nameof(service));
+			this.authorizationService = new AuthorizationService(
+				new PasswordGenerator(),
+				new MySQLUserRepository(
+					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
+					new GtkInteractiveService()));
+			
 
 			TabName = "Новый сотрудник";
 			ConfigureDlg();
 		}
 
-		public EmployeeDlg(int id, IAuthorizationService service)
+		public EmployeeDlg(int id)
 		{
 			this.Build();
 			logger.Info("Загрузка информации о сотруднике...");
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Employee>(id);
 			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
-			this.authorizationService = service ?? throw new ArgumentNullException(nameof(service));
+			
+			this.authorizationService = new AuthorizationService(
+				new PasswordGenerator(),
+				new MySQLUserRepository(
+					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
+					new GtkInteractiveService()));
 
 			ConfigureDlg();
 		}
 
-		public EmployeeDlg(Employee sub, IAuthorizationService service) : this(sub.Id, service) {}
+		public EmployeeDlg(Employee sub) : this(sub.Id) {}
 
-		public EmployeeDlg(IUnitOfWorkGeneric<Employee> uow, IAuthorizationService service)
+		public EmployeeDlg(IUnitOfWorkGeneric<Employee> uow)
 		{
 			this.Build();
 			UoWGeneric = uow;
@@ -82,7 +93,12 @@ namespace Vodovoz
 				hiddenCategory.Add(EmployeeCategory.forwarder);
 			}
 			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
-			this.authorizationService = service ?? throw new ArgumentNullException(nameof(service));
+			this.authorizationService = new AuthorizationService(
+				new PasswordGenerator(),
+				new MySQLUserRepository(
+					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
+					new GtkInteractiveService()));
+			
 			ConfigureDlg();
 		}
 		
