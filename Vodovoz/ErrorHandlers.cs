@@ -55,17 +55,15 @@ namespace Vodovoz
 			}
 			return false;
 		}
-
-		public static bool IsLoginFormOpen = false;
+		
 		public static bool MySqlExceptionAuth(Exception exception, IApplicationInfo application, UserBase user, IInteractiveService interactiveMessage)
 		{
 			var mysqlEx = ExceptionHelper.FindExceptionTypeInInner<MySqlException>(exception);
-			if (mysqlEx.Message.Contains("Authentication to host"))
+			
+			if (mysqlEx != null && mysqlEx.Message.Contains("Authentication to host"))
 			{
-				if (!IsLoginFormOpen)
-				{
-					interactiveMessage.ShowMessage(ImportanceLevel.Info, "Пароль вашего аккаунта был сброшен, смс придет в течении 15 минут, для продолжения работы перезайдите в программу");
-				}
+				interactiveMessage.ShowMessage(ImportanceLevel.Info, "Пароль вашего аккаунта был сброшен, смс придет в течении 15 минут, для продолжения работы перезайдите в программу");
+				return true;
 			}
 			return false;
 		}
