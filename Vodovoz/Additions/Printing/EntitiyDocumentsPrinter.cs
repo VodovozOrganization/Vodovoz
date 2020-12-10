@@ -59,8 +59,10 @@ namespace Vodovoz.Additions.Printing
 								successfulUpdate = (item as OrderM2Proxy).M2Proxy.UpdateM2ProxyDocumentTemplate(currentOrder.UoW);
 							(item as OrderM2Proxy).PrepareTemplate(currentOrder.UoW);
 							break;
+						case OrderDocumentType.AdditionalAgreement:
+							break;
 						default:
-							throw new NotImplementedException("Документ не поддерживается");
+							throw new NotSupportedException("Документ не поддерживается");
 					}
 					if(successfulUpdate == false) {
 						if(msgs == null)
