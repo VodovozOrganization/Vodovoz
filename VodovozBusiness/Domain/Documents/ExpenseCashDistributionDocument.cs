@@ -11,14 +11,6 @@ namespace Vodovoz.Domain.Documents
     {
         public virtual string Title => $"Документ расхода налички по юр лицу №{Id}";
 
-        private Expense expense;
-        [Display (Name = "Расход")]
-        public virtual Expense Expense
-        {
-            get => expense;
-            set => SetField(ref expense, value);
-        }
-
         public override CashOrganisationDistributionDocType Type =>
             CashOrganisationDistributionDocType.ExpenseCashDistributionDoc;
     }

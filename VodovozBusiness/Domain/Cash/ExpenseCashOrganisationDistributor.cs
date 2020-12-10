@@ -29,6 +29,8 @@ namespace Vodovoz.Domain.Cash
                 Expense = expense,
                 CreationDate = DateTime.Now,
                 LastEditor = expense.Casher,
+                Employee = expense.Employee,
+                CashExpenseOperationType = expense.TypeOperation,
                 Organisation = operation.Organisation,
                 CashExpenseCategory = expense.ExpenseCategory,
                 LastEditedTime = DateTime.Now,

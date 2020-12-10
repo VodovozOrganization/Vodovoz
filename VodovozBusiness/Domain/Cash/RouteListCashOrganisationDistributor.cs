@@ -27,12 +27,10 @@ namespace Vodovoz.Domain.Cash
         public void DistributeIncomeCash(IUnitOfWork uow, RouteList routeList, Income income, decimal amount)
         {
             var cashAddresses = 
-                routeList.Addresses.Where(x => x.Order.PaymentType == PaymentType.cash || 
-                                               x.Order.PaymentType == PaymentType.BeveragesWorld)
-                                   .Where(x => x.Order.ActualTotalSum > 0);
+                routeList.Addresses.Where(x => x.TotalCash > 0);
 
-            var addressCashSum = cashAddresses.Sum(x => x.AddressCashSum);
-            var orderSum = cashAddresses.Sum(x => x.Order.ActualTotalSum);
+            //var addressCashSum = cashAddresses.Sum(x => x.AddressCashSum);
+            //var orderSum = cashAddresses.Sum(x => x.Order.ActualTotalSum);
             
             foreach (var address in cashAddresses)
             {
@@ -72,7 +70,7 @@ namespace Vodovoz.Domain.Cash
                     ? address.Order.ActualTotalSum
                     : amount;
                 
-                var routeListItemCashdistributionDoc = CreateRouteListItemCashDistributionDocument(operation, address);
+                var routeListItemCashdistributionDoc = CreateRouteListItemCashDistributionDocument(operation, address, income);
                 routeListItemCashdistributionDoc.CashIncomeCategory = income.IncomeCategory;
 
                 Save(uow, operation, routeListItemCashdistributionDoc);
@@ -91,8 +89,7 @@ namespace Vodovoz.Domain.Cash
         public void DistributeExpenseCash(IUnitOfWork uow, RouteList routeList, Expense expense, decimal amount)
         {
             var cashAddresses = 
-                routeList.Addresses.Where(x => x.Order.PaymentType == PaymentType.cash || 
-                                               x.Order.PaymentType == PaymentType.BeveragesWorld);
+                routeList.Addresses.Where(x => x.TotalCash > 0);
             
             foreach (var address in cashAddresses)
             {
@@ -132,7 +129,7 @@ namespace Vodovoz.Domain.Cash
                     ? -address.Order.ActualTotalSum
                     : -amount;
                 
-                var routeListItemCashdistributionDoc = CreateRouteListItemCashDistributionDocument(operation, address);
+                var routeListItemCashdistributionDoc = CreateRouteListItemCashDistributionDocument(operation, address, expense);
                 routeListItemCashdistributionDoc.CashExpenseCategory = expense.ExpenseCategory;
                 
                 Save(uow, operation, routeListItemCashdistributionDoc);
@@ -161,15 +158,38 @@ namespace Vodovoz.Domain.Cash
         }
 
         private RouteListItemCashDistributionDocument CreateRouteListItemCashDistributionDocument(
-            OrganisationCashMovementOperation operation, RouteListItem address)
+            OrganisationCashMovementOperation operation, RouteListItem address, Income income)
         {
             return new RouteListItemCashDistributionDocument
             {
                 Organisation = operation.Organisation,
                 CreationDate = DateTime.Now,
                 LastEditedTime = DateTime.Now,
-                //LastEditor = 
+                Author = income.Casher,
+                LastEditor = income.Casher,
                 RouteListItem = address,
+                Employee = income.Employee,
+                CashIncomeCategory = income.IncomeCategory,
+                CashIncomeOperationType = income.TypeOperation,
+                OrganisationCashMovementOperation = operation,
+                Amount = operation.Amount
+            };
+        }
+        
+        private RouteListItemCashDistributionDocument CreateRouteListItemCashDistributionDocument(
+            OrganisationCashMovementOperation operation, RouteListItem address, Expense expense)
+        {
+            return new RouteListItemCashDistributionDocument
+            {
+                Organisation = operation.Organisation,
+                CreationDate = DateTime.Now,
+                LastEditedTime = DateTime.Now,
+                Author = expense.Casher,
+                LastEditor = expense.Casher,
+                RouteListItem = address,
+                Employee = expense.Employee,
+                CashExpenseCategory = expense.ExpenseCategory,
+                CashExpenseOperationType = expense.TypeOperation,
                 OrganisationCashMovementOperation = operation,
                 Amount = operation.Amount
             };

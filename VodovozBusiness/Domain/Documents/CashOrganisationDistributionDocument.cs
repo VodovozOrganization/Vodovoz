@@ -22,6 +22,14 @@ namespace Vodovoz.Domain.Documents
             set => SetField(ref author, value);
         }
         
+        private Employee employee;
+        [Display (Name = "Сотрудник")]
+        public virtual Employee Employee
+        {
+            get => employee;
+            set => SetField(ref employee, value);
+        }
+        
         private Employee lastEditor;
         [Display (Name = "Последний редактор документа")]
         public virtual Employee LastEditor
@@ -62,20 +70,20 @@ namespace Vodovoz.Domain.Documents
             set => SetField(ref organisationCashMovementOperation, value);
         }
         
-        private IncomeCategory cashIncomeCategory;
-        [Display (Name = "Категория прихода")]
-        public virtual IncomeCategory CashIncomeCategory
+        private Income income;
+        [Display (Name = "Приход")]
+        public virtual Income Income
         {
-            get => cashIncomeCategory;
-            set => SetField(ref cashIncomeCategory, value);
+            get => income;
+            set => SetField(ref income, value);
         }
         
-        private ExpenseCategory cashExpenseCategory;
-        [Display (Name = "Категория расхода")]
-        public virtual ExpenseCategory CashExpenseCategory
+        private Expense expense;
+        [Display (Name = "Расход")]
+        public virtual Expense Expense
         {
-            get => cashExpenseCategory;
-            set => SetField(ref cashExpenseCategory, value);
+            get => expense;
+            set => SetField(ref expense, value);
         }
         
         private decimal amount;
