@@ -573,6 +573,9 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var orderStatusForReceiptsRestriction = Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
 				new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed }.ToArray());
+			
+			var orderPaymentTypesRestriction = Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
+				new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.ToArray());
 
 			#endregion
 
@@ -586,7 +589,8 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(alwaysSendOrdersRestriction)
 				.And(orderStatusForReceiptsRestriction)
-				.And(positiveOrderSumRestriction);
+				.And(positiveOrderSumRestriction)
+				.And(orderPaymentTypesRestriction);
 
 			if(startDate.HasValue)
 				alwaysSendOrdersQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
@@ -611,7 +615,8 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(Restrictions.Not(alwaysSendOrdersRestriction))
 				.And(orderStatusForReceiptsRestriction)
-				.And(positiveOrderSumRestriction);
+				.And(positiveOrderSumRestriction)
+				.And(orderPaymentTypesRestriction);
 
 			if(startDate.HasValue)
 				uniqueOrderSumSendOrdersQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
