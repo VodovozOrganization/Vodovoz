@@ -577,7 +577,7 @@ namespace Vodovoz
 				return;
 			}
 			
-			if(changedEntities.Any(x => x.Counterparty.Id == Counterparty.Id)) {
+			if(changedEntities.Any(x => x.Counterparty != null && Counterparty != null && x.Counterparty.Id == Counterparty.Id)) {
 				UoW.Session.Refresh(Counterparty);
 				Counterparty.ReloadChildCollection(x => x.ObservableNomenclatureFixedPrices, x => x.Counterparty, UoW.Session);
 				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
