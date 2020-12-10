@@ -30,58 +30,10 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BouncyCastle.Crypto, Version=1.8.6.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
-      <HintPath>..\..\..\packages\BouncyCastle.1.8.6.1\lib\BouncyCastle.Crypto.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FluentNHibernate, Version=3.0.0.0, Culture=neutral, PublicKeyToken=8aa435e3cb308880">
-      <HintPath>..\..\..\packages\FluentNHibernate.3.0.1\lib\net461\FluentNHibernate.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Google.Protobuf, Version=3.13.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604">
-      <HintPath>..\..\..\packages\Google.Protobuf.3.13.0\lib\net45\Google.Protobuf.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="K4os.Compression.LZ4, Version=1.2.6.0, Culture=neutral, PublicKeyToken=2186fa9121ef231d">
-      <HintPath>..\..\..\packages\K4os.Compression.LZ4.1.2.6\lib\net46\K4os.Compression.LZ4.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="K4os.Compression.LZ4.Streams, Version=1.2.6.0, Culture=neutral, PublicKeyToken=2186fa9121ef231d">
-      <HintPath>..\..\..\packages\K4os.Compression.LZ4.Streams.1.2.6\lib\net46\K4os.Compression.LZ4.Streams.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MySql.Data, Version=8.0.19.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
-      <HintPath>..\..\..\packages\MySql.Data.8.0.19\lib\net452\MySql.Data.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NetTopologySuite.CoordinateSystems, Version=1.15.3.0, Culture=neutral, PublicKeyToken=f580a05016ebada1">
-      <HintPath>..\..\..\packages\NetTopologySuite.CoordinateSystems.1.15.3\lib\net45\NetTopologySuite.CoordinateSystems.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NHibernate, Version=5.3.0.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4">
-      <HintPath>..\..\..\packages\NHibernate.5.3.4\lib\net461\NHibernate.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NHibernate.Spatial, Version=5.3.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\packages\NHibernate.Spatial.5.3.0\lib\netstandard2.0\NHibernate.Spatial.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NHibernate.Spatial.MySQL, Version=5.3.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\packages\NHibernate.Spatial.MySQL.5.3.0\lib\netstandard2.0\NHibernate.Spatial.MySQL.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c">
-      <HintPath>..\..\..\packages\NLog.4.7.5\lib\net45\NLog.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.ComponentModel" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\..\..\packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -99,32 +51,6 @@
     <Reference Include="mscorlib" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web.Extensions" />
-    <Reference Include="Nini">
-      <HintPath>..\..\..\packages\Trove.Nini.1.1.0.0\lib\net20\Nini.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Buffers">
-      <HintPath>..\..\..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Numerics.Vectors">
-      <HintPath>..\..\..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Memory">
-      <HintPath>..\..\..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="Antlr3.Runtime">
-      <HintPath>..\..\..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="K4os.Hash.xxHash">
-      <HintPath>..\..\..\packages\K4os.Hash.xxHash.1.0.6\lib\net46\K4os.Hash.xxHash.dll</HintPath>
-    </Reference>
-    <Reference Include="Iesi.Collections">
-      <HintPath>..\..\..\packages\Iesi.Collections.4.0.4\lib\net461\Iesi.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="Ubiety.Dns.Core, Version=2.2.1.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
-      <HintPath>..\..\..\packages\MySql.Data.8.0.19\lib\net452\Ubiety.Dns.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -140,7 +66,6 @@
     <Compile Include="FirebaseCloudMessagingClient.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -186,6 +111,35 @@
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
       <Name>QS.Banks</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
+    <PackageReference Include="BouncyCastle" Version="1.8.6.1" />
+    <PackageReference Include="FluentNHibernate" Version="3.0.1" />
+    <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
+    <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
+    <PackageReference Include="Google.Protobuf" Version="3.13.0" />
+    <PackageReference Include="Iesi.Collections" Version="4.0.4" />
+    <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
+    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
+    <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
+    <PackageReference Include="MySql.Data" Version="8.0.19" />
+    <PackageReference Include="NetTopologySuite" Version="1.15.3" />
+    <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
+    <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
+    <PackageReference Include="NHibernate" Version="5.3.4" />
+    <PackageReference Include="NHibernate.Spatial" Version="5.3.0" />
+    <PackageReference Include="NHibernate.Spatial.MySQL" Version="5.3.0" />
+    <PackageReference Include="NLog" Version="4.7.5" />
+    <PackageReference Include="Remotion.Linq" Version="2.2.0" />
+    <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
+    <PackageReference Include="SSH.NET" Version="2016.1.0" />
+    <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
+    <PackageReference Include="Trove.Nini" Version="1.1.0" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
