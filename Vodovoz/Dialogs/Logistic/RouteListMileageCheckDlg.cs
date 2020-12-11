@@ -77,6 +77,7 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			HasChanges = true;
 			if(!editing) {
 				MessageDialogHelper.RunWarningDialog("Не достаточно прав. Обратитесь к руководителю.");
 				HasChanges = false;
@@ -176,8 +177,7 @@ namespace Vodovoz
 				Entity.UpdateFuelOperation();
 			}
 			
-			if (Entity.Status == RouteListStatus.Delivered && HasChanges)
-			{
+			if(Entity.Status == RouteListStatus.Delivered) {
 				Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
 			}
 
@@ -200,10 +200,12 @@ namespace Vodovoz
 				return;
 			}
 
+			if(Entity.Status == RouteListStatus.Delivered) {
+				Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+			}
 			Entity.AcceptMileage(CallTaskWorker);
 
 			UpdateStates();
-
 			SaveAndClose();
 		}
 
