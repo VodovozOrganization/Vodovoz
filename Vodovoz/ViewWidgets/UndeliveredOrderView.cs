@@ -48,6 +48,9 @@ namespace Vodovoz.ViewWidgets
 
 		public void ConfigureDlg(IUnitOfWork uow, UndeliveredOrder undelivery)
 		{
+			this.Sensitive = false;
+			yEForUndeliveredOrder.Changed += OnUndeliveredOrderChanged;
+
 			CanChangeProblemSource = commonServices.PermissionService.ValidateUserPresetPermission("can_change_undelivery_problem_source", commonServices.UserService.CurrentUserId);
 			this.undelivery = undelivery;
 			UoW = uow;
@@ -179,7 +182,12 @@ namespace Vodovoz.ViewWidgets
 			SetSensitivities();
 		}
 
-		void GetFines()
+        private void OnUndeliveredOrderChanged(object sender, EventArgs e)
+        {
+			this.Sensitive = true;
+		}
+
+        void GetFines()
 		{
 			List<FineItem> fineItems = new List<FineItem>();
 			foreach(Fine f in undelivery.Fines)
