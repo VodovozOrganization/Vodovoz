@@ -118,6 +118,7 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
+    <Compile Include="Models\IOrderOrganizationProvider.cs" />
     <Compile Include="NhibernateExtensions\CustomProjections.cs" />
     <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
