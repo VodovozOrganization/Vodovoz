@@ -24,12 +24,8 @@ using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using QS.Osm;
 using QS.Osm.Osrm;
-using QS.Tdi;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Parameters;
-using RouteListRepository = Vodovoz.EntityRepositories.Logistic.RouteListRepository;
 
 namespace Vodovoz
 {
@@ -42,22 +38,15 @@ namespace Vodovoz
 		List<RouteListKeepingItemNode> items;
 
 		private CallTaskWorker callTaskWorker;
-		public virtual CallTaskWorker CallTaskWorker {
-			get {
-				if(callTaskWorker == null) {
-					callTaskWorker = new CallTaskWorker(
-						CallTaskSingletonFactory.GetInstance(),
-						new CallTaskRepository(),
-						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
-						new BaseParametersProvider(),
-						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
-				}
-				return callTaskWorker;
-			}
-			set { callTaskWorker = value; }
-		}
+		public virtual CallTaskWorker CallTaskWorker =>
+			callTaskWorker ?? (callTaskWorker = new CallTaskWorker(
+				CallTaskSingletonFactory.GetInstance(),
+				new CallTaskRepository(),
+				OrderSingletonRepository.GetInstance(),
+				EmployeeSingletonRepository.GetInstance(),
+				new BaseParametersProvider(),
+				ServicesConfig.CommonServices.UserService,
+				SingletonErrorReporter.Instance));
 
 		#endregion
 
@@ -151,17 +140,6 @@ namespace Vodovoz
 			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 		}
 
-		private void ButtonAcceptFineOnClicked(object sender, EventArgs e)
-		{
-			string fineReason = "Перерасход топлива";
-
-			var fineDlg = new FineDlg(0, Entity, fineReason, Entity.Date, Entity.Driver);
-			fineDlg.Entity.FineType = FineTypes.FuelOverspending;
-			fineDlg.EntitySaved += OnFinesAdded;
-			
-			TabParent.AddSlaveTab(this, fineDlg);
-		}
-
 		#endregion
 
 		#region implemented abstract members of OrmGtkDialogBase
@@ -228,6 +206,17 @@ namespace Vodovoz
 				return;
 			}
 			Entity.ConfirmedDistance = (decimal)track.TotalDistance.Value;
+		}
+		
+		private void ButtonAcceptFineOnClicked(object sender, EventArgs e)
+		{
+			string fineReason = "Перерасход топлива";
+
+			var fineDlg = new FineDlg(0, Entity, fineReason, Entity.Date, Entity.Driver);
+			fineDlg.Entity.FineType = FineTypes.FuelOverspending;
+			fineDlg.EntitySaved += OnFinesAdded;
+			
+			TabParent.AddSlaveTab(this, fineDlg);
 		}
 
 		#endregion
