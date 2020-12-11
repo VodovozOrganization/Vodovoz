@@ -162,6 +162,7 @@ LIMIT 1
 SELECT 
 	scldi.amount as count,
 	rla.order_id,
+	mu.digits,
 	oe.id,
 	IF(oe.id IS NOT NULL,
 		CASE oe.own_type
@@ -176,6 +177,7 @@ FROM
 LEFT JOIN 
     store_car_load_documents scld ON scld.id = scldi.car_load_document_id 
 LEFT JOIN nomenclature n ON n.id = scldi.nomenclature_id
+LEFT JOIN measurement_units mu ON mu.id = n.unit_id
 LEFT JOIN route_list_addresses rla ON rla.route_list_id = scld.route_list_id 
 LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
 LEFT JOIN orders ON rla.order_id = orders.id 
@@ -203,6 +205,10 @@ GROUP BY n.id</CommandText>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -257,7 +263,7 @@ GROUP BY o2.id;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>133.5pt</Width>
+            <Width>120.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>32.9pt</Width>
@@ -1986,7 +1992,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>281.7pt</Width>
+            <Width>267.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -2121,7 +2127,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>283.4pt</Left>
+        <Left>297.8pt</Left>
         <Top>12.8pt</Top>
       </Table>
       <Line Name="Line1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2244,6 +2250,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         <FontSize>10pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >='N' + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2478,6 +2485,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         <FontSize>10pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >='N' + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2700,7 +2708,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>133.5pt</Width>
+            <Width>120.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>32.9pt</Width>
@@ -3109,8 +3117,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>286.7pt</Left>
-        <Top>61.7pt</Top>
+        <Left>299.2pt</Left>
+        <Top>61.6pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -3246,6 +3254,21 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </Filter>
         </Filters>
       </Table>
+      <Line Name="Line2" >
+        <Height>135.47pt</Height>
+        <Width>0.00pt</Width>
+        <Style>
+          <BorderStyle>
+            <Default>Dashed</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1.5pt</Default>
+          </BorderWidth>
+        </Style>
+        <Left>284.50pt</Left>
+        <Top>2.60pt</Top>
+      </Line>
     </ReportItems>
     <Height>574.2pt</Height>
     <Columns>1</Columns>
