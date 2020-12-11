@@ -3,6 +3,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Repository.Client;
 
 namespace Vodovoz.Repositories

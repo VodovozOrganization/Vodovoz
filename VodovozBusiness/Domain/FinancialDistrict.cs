@@ -5,6 +5,7 @@ using GeoAPI.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain

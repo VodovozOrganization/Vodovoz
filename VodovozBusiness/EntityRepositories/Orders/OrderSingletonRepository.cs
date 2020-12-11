@@ -14,6 +14,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.NhibernateExtensions;
@@ -590,7 +591,10 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(alwaysSendOrdersRestriction)
 				.And(orderStatusForReceiptsRestriction)
 				.And(positiveOrderSumRestriction)
-				.And(orderPaymentTypesRestriction);
+				.And(orderPaymentTypesRestriction)
+				.And(Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.Property(() => cashReceiptAlias.Id)))
+					.Add(() => !cashReceiptAlias.Sent));
 
 			if(startDate.HasValue)
 				alwaysSendOrdersQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);

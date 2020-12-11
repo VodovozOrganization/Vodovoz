@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.OldExportTo1c.Catalogs
 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {

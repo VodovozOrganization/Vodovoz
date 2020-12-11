@@ -8,7 +8,7 @@ using QS.Services;
 using QS.Navigation;
 using NHibernate;
 using NHibernate.Transform;
-using BaseOrg = Vodovoz.Domain.Organization;
+using BaseOrg = Vodovoz.Domain.Organizations.Organization;
 using NHibernate.Dialect.Function;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 using NHibernate.Criterion;
@@ -17,7 +17,6 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using Vodovoz.Repositories.Payments;
 using System.Linq;
-using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.JournalViewModels

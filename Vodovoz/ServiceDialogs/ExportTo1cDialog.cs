@@ -7,6 +7,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.ExportTo1c;
 using Vodovoz.Repositories.Orders;
 

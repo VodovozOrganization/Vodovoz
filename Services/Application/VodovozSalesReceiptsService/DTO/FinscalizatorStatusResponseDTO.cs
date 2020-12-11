@@ -5,13 +5,17 @@ namespace VodovozSalesReceiptsService.DTO
 	[DataContract]
 	public class FinscalizatorStatusResponseDTO
 	{
+		#pragma warning disable CS0169, CS0649
+		
 		[DataMember]
 		string dateTime;
 		[DataMember]
 		string status;
 		[DataMember]
 		string message;
-
+		
+		#pragma warning restore CS0169, CS0649
+		
 		public FiscalRegistratorStatus Status {
 			get {
 				switch(status.ToLower()) {

@@ -46,8 +46,12 @@ namespace VodovozSalesReceiptsService.DTO
 			set => docNum = value;
 		}
 
+		#pragma warning disable CS0414
+		
 		[DataMember(IsRequired = true)]
 		readonly string docType = "SALE";
+		
+		#pragma warning restore CS0414
 
 		[DataMember(IsRequired = true)]
 		string checkoutDateTime;			// Дата/время доставки заказа
@@ -92,7 +96,7 @@ namespace VodovozSalesReceiptsService.DTO
 		}
 
 		[DataMember]
-		string taxMode = "ENVD";
+		string taxMode;
 		public string TaxMode {
 			get => taxMode;
 			set => taxMode = value;

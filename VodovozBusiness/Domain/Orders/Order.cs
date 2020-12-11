@@ -1043,10 +1043,20 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.DeliveryDate) }
 				);
 			}
+			
 			if(SelfDelivery && PaymentType == PaymentType.ContractDoc) {
 				yield return new ValidationResult(
 					"Тип оплаты - контрактная документация невозможен для самовывоза",
 					new[] { this.GetPropertyName(o => o.PaymentType) }
+				);
+			}
+			
+			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType) 
+				&& Contract?.Organization != null && Contract.Organization.CashBox == null) 
+			{
+				yield return new ValidationResult(
+					"Ошибка программы. В заказе автоматически подобрана неверная организация",
+					new[] { nameof(Contract.Organization) }
 				);
 			}
 		}

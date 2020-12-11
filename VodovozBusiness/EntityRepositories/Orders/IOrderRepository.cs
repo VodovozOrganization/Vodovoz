@@ -6,6 +6,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Orders;
@@ -110,6 +111,9 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		OrderStatus[] GetUndeliveryStatuses();
 
+		/// <summary>
+		/// Подбирает подходящие заказы, для которых необходимо отправкить чеки контрагентам
+		/// </summary>
 		IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(IUnitOfWork uow, DateTime? dateTime = null);
 
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order);

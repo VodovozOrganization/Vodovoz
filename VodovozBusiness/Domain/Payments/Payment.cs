@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Payments
 {
