@@ -84,6 +84,52 @@ namespace Vodovoz.Parameters
 			}
 		}
 
+		public int GetIntValue(string parameterId)
+		{
+			if(!ContainsParameter(parameterId)) {
+				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})" );
+			}
+                
+			string value = GetParameterValue(parameterId);
 
+			if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
+			{
+				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
+			}
+
+			return result;
+		}
+        
+		public decimal GetDecimalValue(string parameterId)
+		{
+			if(!ContainsParameter(parameterId)) {
+				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})" );
+			}
+                
+			string value = GetParameterValue(parameterId);
+
+			if(string.IsNullOrWhiteSpace(value) || !decimal.TryParse(value, out decimal result))
+			{
+				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
+			}
+
+			return result;
+		}
+        
+		public string GetStringValue(string parameterId)
+		{
+			if(!ContainsParameter(parameterId)) {
+				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})" );
+			}
+                
+			string value = GetParameterValue(parameterId);
+
+			if(string.IsNullOrWhiteSpace(value))
+			{
+				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
+			}
+
+			return value;
+		}
 	}
 }
