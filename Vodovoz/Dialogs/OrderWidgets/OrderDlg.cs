@@ -2590,12 +2590,7 @@ namespace Vodovoz
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
 			}
-
-			var organization = UoW.GetById<Organization>(new BaseParametersProvider().GetCashlessOrganisationId);
-			if(organization == null) {
-				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. В параметрах базы не определена организация для безналичного расчета");
-				return;
-			}
+			
 			var wasHideSignature = billDocument.HideSignature;
 			billDocument.HideSignature = false;
 			ReportInfo ri = billDocument.GetReportInfo();

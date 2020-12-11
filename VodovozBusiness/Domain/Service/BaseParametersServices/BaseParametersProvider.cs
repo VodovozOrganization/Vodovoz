@@ -24,7 +24,6 @@ namespace Vodovoz.Core.DataService
 		IOrganizationProvider,
 		IProfitCategoryProvider,
 		IPotentialFreePromosetsReportDefaultsProvider,
-		IOrganisationParametersProvider,
 		ISmsPaymentServiceParametersProvider,
 		IMailjetParametersProvider,
 		IVpbxSettings,
@@ -401,42 +400,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IDefaultDeliveryDaySchedule
-
-		public int GetCashlessOrganisationId
-		{
-			get
-			{
-				if(!ParametersProvider.Instance.ContainsParameter("cashless_organization_id")) {
-					throw new InvalidProgramException("В параметрах базы не заполнено значение безнал. организации (cashless_organization_id)");
-				}
-
-				string value = ParametersProvider.Instance.GetParameterValue("cashless_organization_id");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение безнал. организации (cashless_organization_id)");
-				}
-
-				return result;
-			}
-		}
-
-		public int GetCashOrganisationId
-		{ 
-			get
-			{
-				if(!ParametersProvider.Instance.ContainsParameter("cash_organization_id")) {
-					throw new InvalidProgramException("В параметрах базы не заполнено значение нал. организации (cash_organization_id)");
-				}
-
-				string value = ParametersProvider.Instance.GetParameterValue("cash_organization_id");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение нал. организации (cash_organization_id)");
-				}
-
-				return result;
-			} 
-		}
 
 		public int GetSmsPaymentByCardFromId
 		{

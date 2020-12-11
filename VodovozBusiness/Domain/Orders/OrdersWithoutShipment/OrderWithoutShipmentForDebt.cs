@@ -10,6 +10,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using QS.HistoryLog;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -72,7 +73,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				Identifier = "Documents.BillWithoutShipmentForDebt",
 				Parameters = new Dictionary<string, object> {
 					{ "bill_ws_for_debt_id", Id },
-					{ "organization_id", new BaseParametersProvider().GetCashlessOrganisationId },
+					{ "organization_id", new OrganizationParametersProvider(ParametersProvider.Instance).GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
 					{ "special", false }
 				}

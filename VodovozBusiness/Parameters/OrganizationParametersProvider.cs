@@ -11,6 +11,10 @@ namespace Vodovoz.Parameters
         {
             this.parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }
+        
+        public int GetCashlessOrganisationId => parametersProvider.GetIntValue("cashless_organization_id");
+
+        public int GetCashOrganisationId => parametersProvider.GetIntValue("cash_organization_id");
 
         public int BeveragesWorldOrganizationId => parametersProvider.GetIntValue("beverages_world_organization_id");
 
