@@ -34,6 +34,7 @@ namespace VodovozSalesReceiptsService
         private readonly IOrderRepository orderRepository;
         private readonly ISalesReceiptsServiceSettings salesReceiptsServiceSettings;
         private readonly ISalesReceiptSender salesReceiptSender;
+        private readonly TimeSpan initialDelay = TimeSpan.FromSeconds(5);
         private readonly TimeSpan delay = TimeSpan.FromSeconds(30);
 
         /// <summary>
@@ -47,6 +48,8 @@ namespace VodovozSalesReceiptsService
         public void Start()
         {
             Task.Run(() => {
+                Task.Delay(initialDelay).Wait();
+
                 while(true) {
                     try {
                         PrepareAndSendReceipts();
@@ -137,6 +140,9 @@ namespace VodovozSalesReceiptsService
             }
 
             logger.Info($"Количество новых чеков для отправки: {receiptNodesToSend.Count} (Макс.: {maxReceiptsAllowedToSendInOneGo})");
+            if(!receiptNodesToSend.Any()) {
+                return;
+            }
 
             var result = salesReceiptSender.SendReceipts(receiptNodesToSend.ToArray());
 
@@ -189,7 +195,11 @@ namespace VodovozSalesReceiptsService
             if(sentBefore > 0) {
                 logger.Info($"{sentBefore} {NumberToTextRus.Case(sentBefore, "документ был отправлен", "документа было отправлено", "документов было отправлено")} ранее.");
             }
+
             logger.Info($"Количество чеков для переотправки: {receiptNodesToSend.Count} (Макс.: {maxReceiptsAllowedToSendInOneGo})");
+            if(!receiptNodesToSend.Any()) {
+                return;
+            }
 
             var result = salesReceiptSender.SendReceipts(receiptNodesToSend.ToArray());
 

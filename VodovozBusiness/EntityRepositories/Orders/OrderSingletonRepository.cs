@@ -591,7 +591,10 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(alwaysSendOrdersRestriction)
 				.And(orderStatusForReceiptsRestriction)
 				.And(positiveOrderSumRestriction)
-				.And(orderPaymentTypesRestriction);
+				.And(orderPaymentTypesRestriction)
+				.And(Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.Property(() => cashReceiptAlias.Id)))
+					.Add(() => !cashReceiptAlias.Sent));
 
 			if(startDate.HasValue)
 				alwaysSendOrdersQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);

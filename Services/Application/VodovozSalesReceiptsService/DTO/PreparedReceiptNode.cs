@@ -1,9 +1,8 @@
 using System.Net;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
-using VodovozSalesReceiptsService.DTO;
 
-namespace VodovozSalesReceiptsService
+namespace VodovozSalesReceiptsService.DTO
 {
     public class PreparedReceiptNode
     {

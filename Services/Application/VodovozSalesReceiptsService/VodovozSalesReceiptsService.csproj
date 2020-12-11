@@ -64,7 +64,6 @@
     <Compile Include="ISalesReceiptSender.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Fiscalization.cs" />
     <Compile Include="ReceiptServiceStarter.cs" />
     <Compile Include="DTO\FinscalizatorStatusResponseDTO.cs" />
     <Compile Include="DTO\InventPositionDTO.cs" />

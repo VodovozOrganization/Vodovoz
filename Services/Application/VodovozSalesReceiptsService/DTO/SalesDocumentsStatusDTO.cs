@@ -22,7 +22,7 @@ namespace VodovozSalesReceiptsService.DTO
     public class FiscalInfo
     {
         [JsonProperty("checkNumber")] 
-        public int CheckNumber { get; set; }
+        public long CheckNumber { get; set; }
 
         [JsonProperty("checkType")] 
         public string CheckType { get; set; }
@@ -31,10 +31,10 @@ namespace VodovozSalesReceiptsService.DTO
         public string Date { get; set; }
 
         [JsonProperty("fnDocMark")] 
-        public int FnDocMark { get; set; }
+        public long FnDocMark { get; set; }
 
         [JsonProperty("fnDocNumber")] 
-        public int FnDocNumber { get; set; }
+        public long FnDocNumber { get; set; }
 
         [JsonProperty("fnNumber")] 
         public string FnNumber { get; set; }
@@ -46,7 +46,7 @@ namespace VodovozSalesReceiptsService.DTO
         public string Qr { get; set; }
 
         [JsonProperty("shiftNumber")] 
-        public int ShiftNumber { get; set; }
+        public long ShiftNumber { get; set; }
 
         [JsonProperty("sum")]
         public double Sum { get; set; }

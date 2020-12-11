@@ -24,5 +24,12 @@ namespace Vodovoz.Domain.Organizations
             get => password;
             set => SetField(ref password, value);
         }
+        
+        private string retailPoint;
+        [Display(Name = "Точка продаж")]
+        public virtual string RetailPoint {
+            get => retailPoint;
+            set => SetField(ref retailPoint, value);
+        }
     }
 }

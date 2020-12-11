@@ -1,3 +1,5 @@
+using VodovozSalesReceiptsService.DTO;
+
 namespace VodovozSalesReceiptsService
 {
     public interface ISalesReceiptSender

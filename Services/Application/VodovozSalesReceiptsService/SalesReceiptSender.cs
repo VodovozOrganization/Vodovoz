@@ -21,7 +21,7 @@ namespace VodovozSalesReceiptsService
         public SalesReceiptSender(string baseAddress)
         {
             this.baseAddress = baseAddress;
-            sendDocumentAddress = baseAddress + "/fn/v1/doc";
+            sendDocumentAddress = baseAddress + "fn/v1/doc";
             fiscalizationStatusAddress = baseAddress + "fn/v1/status";
             documentStatusAddress = baseAddress + "fn/v1/doc/{0}/status";
         }
@@ -107,7 +107,7 @@ namespace VodovozSalesReceiptsService
         private bool ConnectToCashBox(HttpClient httpClient, CashBox cashBox)
         {
             try {
-                logger.Info($"Авторизация и проверка фискального регистратора №{cashBox.Id}...");
+                logger.Info($"Авторизация и проверка фискального регистратора №{cashBox.Id} ({cashBox.RetailPoint})...");
                 
                 HttpResponseMessage response = httpClient.GetAsync(fiscalizationStatusAddress).Result;
                 
@@ -134,10 +134,12 @@ namespace VodovozSalesReceiptsService
                         return true;
                     case FiscalRegistratorStatus.Associated:
                         logger.Warn("Клиент успешно связан с розничной точкой, " +
-                            "но касса еще ни разу не вышла на связь и не сообщила свое состояние.");
+                            $"но касса еще ни разу не вышла на связь и не сообщила свое состояние. " +
+                            $"Отправка чеков для фискального регистратора №{cashBox.Id} отменена");
                         return false;
                     default:
-                        logger.Warn($"Провал с сообщением: \"{finscalizatorStatusResponse.Message}\".");
+                        logger.Warn($"Провал с сообщением: \"{finscalizatorStatusResponse.Message}\". " +
+                            $"Отправка чеков для фискального регистратора №{cashBox.Id} отменена");
                         return false;
                 }
             }
@@ -153,10 +155,11 @@ namespace VodovozSalesReceiptsService
                 HttpResponseMessage response = httpClient.PostAsJsonAsync(sendDocumentAddress, doc).Result;
 
                 if(response.StatusCode == HttpStatusCode.OK) {
-                    logger.Info($"Чек для заказа №{orderId} отправлен");
+                    logger.Info($"Чек для заказа №{orderId} отправлен. HTTP Code: {(int)response.StatusCode} {response.StatusCode}");
                 }
                 else {
-                    logger.Info($"Не удалось отправить чек для заказа №{orderId}. HTTP Code: {response.StatusCode}. Запрашиваю актуальный статус...");
+                    logger.Warn($"Не удалось отправить чек для заказа №{orderId}. HTTP Code: {(int)response.StatusCode} {response.StatusCode}." +
+                        $" Запрашиваю актуальный статус...");
                     try {
                         var statusResponse = httpClient.GetAsync(String.Format(documentStatusAddress, doc.Id)).Result;
 
@@ -168,11 +171,12 @@ namespace VodovozSalesReceiptsService
                             }
                         }
                         else {
-                            logger.Info($"Не удалось получить актуальный статус чека для заказа №{orderId}");
+                            logger.Warn($"Не удалось получить актуальный статус чека для заказа №{orderId}. " +
+                                $"HTTP Code: {(int)statusResponse.StatusCode} {statusResponse.StatusCode}");
                         }
                     }
-                    catch {
-                        logger.Info($"Ошибка при получении актального статуса чека для заказа №{orderId}");
+                    catch(Exception ex) {
+                        logger.Error(ex, $"Ошибка при получении актального статуса чека для заказа №{orderId}");
                     }
                 }
 
