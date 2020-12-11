@@ -99,6 +99,7 @@ namespace Vodovoz.Dialogs.Employees
 				if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
 					UoWGeneric.Save();
 					RefreshParserRootObject();
+					UpdateStates();
 				} else {
 					templatewidget.CanOpenDocument = false;
 				}
