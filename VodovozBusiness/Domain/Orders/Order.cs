@@ -1050,13 +1050,20 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.PaymentType) }
 				);
 			}
-			
-			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType) 
-				&& Contract?.Organization != null && Contract.Organization.CashBox == null) 
-			{
+
+			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType)
+				&& Contract?.Organization != null && Contract.Organization.CashBox == null) {
 				yield return new ValidationResult(
 					"Ошибка программы. В заказе автоматически подобрана неверная организация",
-					new[] { nameof(Contract.Organization) }
+					new[] { nameof(Contract.Organization) });
+			}
+
+			//FIXME Удалить после 16 числа
+			if(DeliveryDate.HasValue && PaymentType == PaymentType.Terminal && DeliveryDate.Value.Date == new DateTime(2020, 12, 16)) {
+				yield return new ValidationResult(
+					"В выбранный день с Терминалами будут производится технические работы, " +
+					"данная форма оплаты недоступна. Выберете либо другую дату доставки, либо другую форму оплаты",
+					new[] { nameof(paymentType) }
 				);
 			}
 		}
