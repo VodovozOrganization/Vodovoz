@@ -1,6 +1,7 @@
 using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Cash
@@ -30,9 +31,7 @@ namespace Vodovoz.Domain.Cash
                 CreationDate = DateTime.Now,
                 LastEditor = expense.Casher,
                 Employee = expense.Employee,
-                CashExpenseOperationType = expense.TypeOperation,
                 Organisation = operation.Organisation,
-                CashExpenseCategory = expense.ExpenseCategory,
                 LastEditedTime = DateTime.Now,
                 OrganisationCashMovementOperation = operation,
                 Amount = operation.Amount
@@ -47,6 +46,26 @@ namespace Vodovoz.Domain.Cash
                 OperationTime = DateTime.Now,
                 Amount = -expense.Money
             };
+        }
+        
+        public void UpdateRecords(IUnitOfWork uow, ExpenseCashDistributionDocument document, Expense expense, Employee editor)
+        {
+            UpdateExpenseCashDistributionDocument(document, expense, editor);
+            UpdateOrganisationCashMovementOperation(document.OrganisationCashMovementOperation, expense);
+            Save(document.OrganisationCashMovementOperation, document, uow);
+        }
+        
+        private void UpdateExpenseCashDistributionDocument(ExpenseCashDistributionDocument doc, Expense expense, Employee editor)
+        {
+            doc.LastEditor = editor;
+            doc.LastEditedTime = DateTime.Now;
+            doc.Amount = -expense.Money;
+        }
+
+        private void UpdateOrganisationCashMovementOperation(OrganisationCashMovementOperation operation, Expense expense)
+        {
+            operation.Amount = -expense.Money;
+            operation.OperationTime = DateTime.Now;
         }
     }
 }

@@ -1,18 +1,11 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
-using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
-using Vodovoz.FilterViewModels.Organization;
-using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
@@ -48,8 +41,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public readonly IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory;
 
-		
-		
 		#region Permissions
 
 		public bool CanCreate => PermissionResult.CanCreate;

@@ -207,9 +207,11 @@ namespace Vodovoz.Dialogs.Cash
 			Entity.AcceptSelfDeliveryPaid(CallTaskWorker);
 
 			if (UoW.IsNew) {
+				logger.Info("Создаем документ распределения налички по юр лицу...");
 				selfDeliveryCashOrganisationDistributor.DistributeIncomeCash(UoW, Entity.Order, Entity);
 			}
 			else { 
+				logger.Info("Меняем документ распределения налички по юр лицу...");
 				selfDeliveryCashOrganisationDistributor.UpdateRecords(UoW, Entity.Order, Entity,
 					EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
 			}

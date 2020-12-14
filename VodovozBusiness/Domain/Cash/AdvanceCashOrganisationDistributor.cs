@@ -1,7 +1,6 @@
 using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Cash
@@ -13,7 +12,7 @@ namespace Vodovoz.Domain.Cash
             var operation = CreateOrganisationCashMovementOperation(advanceReport);
             operation.Amount = income.Money;
 
-            var advanceIncomeCashDistributionDoc = CreateAdvanceIncomeCashDistributionDocument(advanceReport, operation);
+            var advanceIncomeCashDistributionDoc = CreateAdvanceIncomeCashDistributionDocument(advanceReport, income, operation);
             SaveIncome(uow, operation, advanceIncomeCashDistributionDoc);
         }
 
@@ -22,17 +21,17 @@ namespace Vodovoz.Domain.Cash
             var operation = CreateOrganisationCashMovementOperation(advanceReport);
             operation.Amount = -expense.Money;
 
-            var advanceExpenseCashDistributionDoc = CreateAdvanceExpenseCashDistributionDocument(advanceReport, operation);
+            var advanceExpenseCashDistributionDoc = CreateAdvanceExpenseCashDistributionDocument(advanceReport, expense, operation);
             SaveExpense(uow, operation, advanceExpenseCashDistributionDoc);
         }
 
         private AdvanceIncomeCashDistributionDocument CreateAdvanceIncomeCashDistributionDocument(AdvanceReport advanceReport,
-            OrganisationCashMovementOperation operation)
+            Income income, OrganisationCashMovementOperation operation)
         {
             return new AdvanceIncomeCashDistributionDocument
             {
                 AdvanceReport = advanceReport,
-                CashExpenseCategory = advanceReport.ExpenseCategory,
+                Income = income,
                 Author = advanceReport.Casher,
                 CreationDate = DateTime.Now,
                 Organisation = advanceReport.Organisation,
@@ -44,12 +43,12 @@ namespace Vodovoz.Domain.Cash
         }
         
         private AdvanceExpenseCashDistributionDocument CreateAdvanceExpenseCashDistributionDocument(AdvanceReport advanceReport,
-            OrganisationCashMovementOperation operation)
+            Expense expense, OrganisationCashMovementOperation operation)
         {
             return new AdvanceExpenseCashDistributionDocument
             {
                 AdvanceReport = advanceReport,
-                CashExpenseCategory = advanceReport.ExpenseCategory,
+                Expense = expense,
                 Author = advanceReport.Casher,
                 CreationDate = DateTime.Now,
                 Organisation = advanceReport.Organisation,

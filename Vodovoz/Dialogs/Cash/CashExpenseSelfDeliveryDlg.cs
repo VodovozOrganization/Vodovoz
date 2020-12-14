@@ -36,12 +36,12 @@ namespace Vodovoz.Dialogs.Cash
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
+		
 		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
 			new SelfDeliveryCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()),
 				new SelfDeliveryCashDistributionDocumentRepository(),
 				OrderSingletonRepository.GetInstance());
-
 		
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -201,9 +201,11 @@ namespace Vodovoz.Dialogs.Cash
 			Entity.AcceptSelfDeliveryPaid(CallTaskWorker);
 			
 			if (UoW.IsNew) {
+				logger.Info("Создаем документ распределения налички по юр лицу...");
 				selfDeliveryCashOrganisationDistributor.DistributeExpenseCash(UoW, Entity.Order, Entity);
 			}
 			else { 
+				logger.Info("Меняем документ распределения налички по юр лицу...");
 				selfDeliveryCashOrganisationDistributor.UpdateRecords(UoW, Entity.Order, Entity,
 					EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
 			}
@@ -212,7 +214,6 @@ namespace Vodovoz.Dialogs.Cash
 			UoWGeneric.Save();
 			logger.Info("Ok");
 			return true;
-
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)

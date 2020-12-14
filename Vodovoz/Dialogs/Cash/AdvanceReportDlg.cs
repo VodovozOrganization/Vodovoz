@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using Gamma.Widgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -163,9 +164,11 @@ namespace Vodovoz
 
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();
 
+			specialListCmbOrganisation.ShowSpecialStateNot = true;
 			specialListCmbOrganisation.ItemsList = UoW.GetAll<Organization>();
 			specialListCmbOrganisation.Binding.AddBinding(Entity, e => e.Organisation, w => w.SelectedItem).InitializeFromSource();
-
+			specialListCmbOrganisation.ItemSelected += SpecialListCmbOrganisationOnItemSelected;
+			
 			ytextviewDescription.Binding.AddBinding(Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource();
 
 			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<RecivedAdvance>()
@@ -185,6 +188,11 @@ namespace Vodovoz
 				ytreeviewDebts.Sensitive = false;
 				ytextviewDescription.Editable = false;
 			}
+		}
+
+		private void SpecialListCmbOrganisationOnItemSelected(object sender, ItemSelectedEventArgs e)
+		{
+			FillDebt();
 		}
 
 		void HandleBatchEntityChangeHandler(EntityChangeEvent[] changeEvents)
@@ -228,12 +236,14 @@ namespace Vodovoz
 				if (newExpense != null)
 				{
 					UoWGeneric.Save(newExpense);
+					logger.Info("Создаем документ распределения расхода налички по юр лицу...");
 					distributor.DistributeCashForExpenseAdvance(UoW, newExpense, Entity);
 				}
 
 				if (newIncome != null)
 				{
 					UoWGeneric.Save(newIncome);
+					logger.Info("Создаем документ распределения прихода налички по юр лицу...");
 					distributor.DistributeCashForIncomeAdvance(UoW, newIncome, Entity);
 				}
 
@@ -266,10 +276,10 @@ namespace Vodovoz
 
 			if(ClosingSum == 0) {
 				labelChangeSum.Visible = labelChangeType.Visible = false;
-				labelCreating.Markup = String.Format("<span foreground=\"Cadet Blue\">Не выбранных авансов.</span>");
+				labelCreating.Markup = "<span foreground=\"Cadet Blue\">Не выбранных авансов.</span>";
 			} else if(Balance == 0) {
 				labelChangeSum.Visible = labelChangeType.Visible = false;
-				labelCreating.Markup = String.Format("<span foreground=\"green\">Аванс будет закрыть полностью.</span>");
+				labelCreating.Markup = "<span foreground=\"green\">Аванс будет закрыт полностью.</span>";
 			} else if(Balance < 0) {
 				labelChangeType.LabelProp = "Доплата:";
 				labelChangeSum.LabelProp = string.Format("<span foreground=\"red\">{0:C}</span>", Math.Abs(Balance));
@@ -300,7 +310,9 @@ namespace Vodovoz
 			logger.Info("Получаем долг {0}...", Entity.Accountable.ShortName);
 			//Debt = Repository.Cash.AccountableDebtsRepository.EmloyeeDebt (UoW, Entity.Accountable);
 
-			var advaces = Repository.Cash.AccountableDebtsRepository.UnclosedAdvance(UoW, Entity.Accountable, Entity.ExpenseCategory);
+			var advaces = 
+				Repository.Cash.AccountableDebtsRepository.UnclosedAdvance(UoW, Entity.Accountable, Entity.ExpenseCategory, 
+					Entity.Organisation?.Id);
 
 			Debt = advaces.Sum(a => a.UnclosedMoney);
 
@@ -337,8 +349,7 @@ namespace Vodovoz
 				get { return selected; }
 				set {
 					selected = value;
-					if(SelectChanged != null)
-						SelectChanged(this, EventArgs.Empty);
+					SelectChanged?.Invoke(this, EventArgs.Empty);
 				}
 			}
 

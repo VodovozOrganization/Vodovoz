@@ -106,6 +106,7 @@ namespace Vodovoz
 		private ISubdivisionService subdivisionService;
 		private bool canManageDriversAndForwarders;
 		private bool canManageOfficeWorkers;
+		private bool canEditOrganisationForSalary;
 		private GenericObservableList<DriverWorkScheduleNode> driverWorkDays;
 
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
@@ -119,6 +120,7 @@ namespace Vodovoz
 		{
 			canManageDriversAndForwarders = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_drivers_and_forwarders");
 			canManageOfficeWorkers = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_office_workers");
+			canEditOrganisationForSalary = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_organisation_for_salary");
 
 			ConfigureCategory();
 			ConfigureSubdivision();
@@ -208,7 +210,8 @@ namespace Vodovoz
 
 			specialListCmbOrganisation.ItemsList = UoW.GetAll<Organization>();
 			specialListCmbOrganisation.Binding.AddBinding(Entity, e => e.OrganisationForSalary, w => w.SelectedItem).InitializeFromSource();
-
+			specialListCmbOrganisation.Sensitive = canEditOrganisationForSalary;
+			
 			Entity.CheckAndFixDriverPriorities();
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
 				.AddColumn("Район").AddTextRenderer(x => x.District.DistrictName)

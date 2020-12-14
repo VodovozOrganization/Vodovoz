@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services;
 
@@ -13,134 +13,133 @@ namespace Vodovoz.Domain.Cash
     public class RouteListCashOrganisationDistributor
     {
         private readonly ICashDistributionCommonOrganisationProvider cashDistributionCommonOrganisationProvider;
+        private readonly IRouteListItemCashDistributionDocumentRepository routeListItemCashDistributionDocumentRepository;
         private readonly IOrderRepository orderRepository;
         
         public RouteListCashOrganisationDistributor(
             ICashDistributionCommonOrganisationProvider cashDistributionCommonOrganisationProvider,
+            IRouteListItemCashDistributionDocumentRepository routeListItemCashDistributionDocumentRepository,
             IOrderRepository orderRepository)
         {
             this.cashDistributionCommonOrganisationProvider =
                 cashDistributionCommonOrganisationProvider ?? throw new ArgumentNullException(nameof(cashDistributionCommonOrganisationProvider));
+            this.routeListItemCashDistributionDocumentRepository = 
+                routeListItemCashDistributionDocumentRepository ?? throw new ArgumentNullException(nameof(routeListItemCashDistributionDocumentRepository));
             this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         }
 
         public void DistributeIncomeCash(IUnitOfWork uow, RouteList routeList, Income income, decimal amount)
         {
-            var cashAddresses = 
-                routeList.Addresses.Where(x => x.TotalCash > 0);
-
-            //var addressCashSum = cashAddresses.Sum(x => x.AddressCashSum);
-            //var orderSum = cashAddresses.Sum(x => x.Order.ActualTotalSum);
+            if (amount == 0) return;
             
-            foreach (var address in cashAddresses)
+            var cashAddresses = routeList.Addresses.Where(x => x.TotalCash > 0);
+
+            if (routeList.Total >
+                routeListItemCashDistributionDocumentRepository.GetDistributedAmountOnRouteList(uow, routeList))
             {
-                var doc =
-                    uow.Session.QueryOver<RouteListItemCashDistributionDocument>()
-                        .Where(x => x.RouteListItem.Id == address.Id)
-                        .SingleOrDefault();
-
-                if (doc != null && doc.Amount == address.Order.ActualTotalSum) {
-                    continue;
-                }
-
-                if (doc != null && doc.Amount != address.Order.ActualTotalSum)
+                foreach (var address in cashAddresses)
                 {
-                    var oldSum = doc.Amount;
+                    var addressDistributedSum =
+                        routeListItemCashDistributionDocumentRepository.GetDistributedAmountOnRouteListItem(uow,
+                            address);
 
-                    doc.Amount = doc.Amount + amount >= address.Order.ActualTotalSum
-                        ? address.Order.ActualTotalSum
-                        : doc.Amount + amount;
-                    doc.LastEditedTime = DateTime.Now;
-                    //doc.LastEditor = ;
-                    doc.OrganisationCashMovementOperation.Amount = doc.Amount;
-
-                    Save(uow, doc.OrganisationCashMovementOperation, doc);
-
-                    amount -= address.Order.ActualTotalSum - oldSum;
-                    
-                    if (amount <= 0) {
-                        break;
+                    if (addressDistributedSum == address.TotalCash) {
+                        continue;
                     }
-                    
-                    continue;
-                }
-                
-                var operation = CreateOrganisationCashMovementOperation(uow, address);
-                operation.Amount = amount > address.Order.ActualTotalSum
-                    ? address.Order.ActualTotalSum
-                    : amount;
-                
-                var routeListItemCashdistributionDoc = CreateRouteListItemCashDistributionDocument(operation, address, income);
-                routeListItemCashdistributionDoc.CashIncomeCategory = income.IncomeCategory;
 
-                Save(uow, operation, routeListItemCashdistributionDoc);
+                    if (addressDistributedSum < address.TotalCash)
+                    {
+                        var oldSum = addressDistributedSum;
+                        var sum = (addressDistributedSum + amount) >= address.TotalCash
+                            ? address.TotalCash
+                            : addressDistributedSum + amount;
 
-                if (amount > address.Order.ActualTotalSum)
-                {
-                    amount -= address.Order.ActualTotalSum;
+                        var newOperation = CreateOrganisationCashMovementOperation(uow, address);
+                        newOperation.Amount = sum;
+                        var doc = 
+                            CreateRouteListItemCashDistributionDocument(newOperation, address, income);
+                        Save(uow, newOperation, doc);
+
+                        amount -= address.TotalCash - oldSum;
+
+                        if (amount <= 0) {
+                            break;
+                        }
+                    }
                 }
-                else
-                {
-                    break;
-                }
+
+                if (amount > 0)
+                    DistributeIncomeCashRemainingAmount(uow, routeList, income, amount);
             }
+            else {
+                DistributeIncomeCashRemainingAmount(uow, routeList, income, amount);
+            }
+        }
+
+        private void DistributeIncomeCashRemainingAmount(IUnitOfWork uow, RouteList routeList, Income income, decimal amount)
+        {
+            var operation = new OrganisationCashMovementOperation
+            {
+                OperationTime = DateTime.Now,
+                Organisation = cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow),
+                Amount = amount
+            };
+
+            var address = routeList.Addresses.First();
+            var document = CreateRouteListItemCashDistributionDocument(operation, address, income);
+            
+            Save(uow, operation, document);
         }
 
         public void DistributeExpenseCash(IUnitOfWork uow, RouteList routeList, Expense expense, decimal amount)
         {
-            var cashAddresses = 
-                routeList.Addresses.Where(x => x.TotalCash > 0);
+            if (amount == 0) return;
             
-            foreach (var address in cashAddresses)
+            var cashAddresses = routeList.Addresses.Where(x => x.TotalCash > 0);
+
+            if (routeList.Total <= routeListItemCashDistributionDocumentRepository.GetDistributedAmountOnRouteList(uow, routeList))
             {
-                var doc =
-                    uow.Session.QueryOver<RouteListItemCashDistributionDocument>()
-                        .Where(x => x.RouteListItem.Id == address.Id)
-                        .SingleOrDefault();
-
-                if (doc != null && doc.Amount == address.Order.ActualTotalSum) {
-                    continue;
-                }
-
-                if (doc != null && doc.Amount != address.Order.ActualTotalSum)
+                foreach (var address in cashAddresses)
                 {
-                    var oldSum = doc.Amount;
-
-                    doc.Amount = Math.Abs(doc.Amount - amount) >= address.Order.ActualTotalSum
-                        ? -address.Order.ActualTotalSum
-                        : doc.Amount - amount;
-                    doc.LastEditedTime = DateTime.Now;
-                    //doc.LastEditor = ;
-                    doc.OrganisationCashMovementOperation.Amount = doc.Amount;
-
-                    Save(uow, doc.OrganisationCashMovementOperation, doc);
-
-                    amount -= address.Order.ActualTotalSum + oldSum;
+                    var addressDistributedSum =
+                        routeListItemCashDistributionDocumentRepository.GetDistributedAmountOnRouteListItem(uow,
+                            address);
                     
+                    var sum = (addressDistributedSum - amount) >= 0
+                        ? -amount
+                        : -addressDistributedSum;
+                    
+                    var newOperation = CreateOrganisationCashMovementOperation(uow, address);
+                    newOperation.Amount = sum;
+                    var routeListItemCashdistributionDoc =
+                        CreateRouteListItemCashDistributionDocument(newOperation, address, expense);
+                    Save(uow, newOperation, routeListItemCashdistributionDoc);
+
+                    amount -= addressDistributedSum;
+
                     if (amount <= 0) {
                         break;
                     }
-                    
-                    continue;
-                }
-
-                var operation = CreateOrganisationCashMovementOperation(uow, address);
-                operation.Amount = amount > address.Order.ActualTotalSum
-                    ? -address.Order.ActualTotalSum
-                    : -amount;
-                
-                var routeListItemCashdistributionDoc = CreateRouteListItemCashDistributionDocument(operation, address, expense);
-                routeListItemCashdistributionDoc.CashExpenseCategory = expense.ExpenseCategory;
-                
-                Save(uow, operation, routeListItemCashdistributionDoc);
-
-                if (amount > address.Order.ActualTotalSum) {
-                    amount -= address.Order.ActualTotalSum;
-                }
-                else {
-                    break;
                 }
             }
+            else {
+                DistributeExpenseCashRemainingAmount(uow, routeList, expense, amount);
+            }
+        }
+        
+        private void DistributeExpenseCashRemainingAmount(IUnitOfWork uow, RouteList routeList, Expense expense, decimal amount)
+        {
+            var operation = new OrganisationCashMovementOperation
+            {
+                OperationTime = DateTime.Now,
+                Organisation = cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow),
+                Amount = -amount
+            };
+
+            var address = routeList.Addresses.First();
+            var document = CreateRouteListItemCashDistributionDocument(operation, address, expense);
+            
+            Save(uow, operation, document);
         }
 
         private OrganisationCashMovementOperation CreateOrganisationCashMovementOperation(
@@ -169,8 +168,7 @@ namespace Vodovoz.Domain.Cash
                 LastEditor = income.Casher,
                 RouteListItem = address,
                 Employee = income.Employee,
-                CashIncomeCategory = income.IncomeCategory,
-                CashIncomeOperationType = income.TypeOperation,
+                Income = income,
                 OrganisationCashMovementOperation = operation,
                 Amount = operation.Amount
             };
@@ -188,8 +186,7 @@ namespace Vodovoz.Domain.Cash
                 LastEditor = expense.Casher,
                 RouteListItem = address,
                 Employee = expense.Employee,
-                CashExpenseCategory = expense.ExpenseCategory,
-                CashExpenseOperationType = expense.TypeOperation,
+                Expense = expense,
                 OrganisationCashMovementOperation = operation,
                 Amount = operation.Amount
             };
