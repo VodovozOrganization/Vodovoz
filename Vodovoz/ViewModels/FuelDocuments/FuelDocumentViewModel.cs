@@ -259,12 +259,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return false;
 			}
 
-			/*var cashSubdivisions = subdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			var cashSubdivisions = subdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!cashSubdivisions?.Contains(Cashier.Subdivision) ?? true) {
 				ShowWarningMessage("Выдать топливо может только сотрудник кассы");
 				return false;
 			}
-*/
+			
 			return true;
 		}
 
