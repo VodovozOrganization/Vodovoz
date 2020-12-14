@@ -146,6 +146,8 @@
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
     <Compile Include="Parameters\OrganisationParametersProvider.cs" />
+    <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
+    <Compile Include="Parameters\OrganisationParametersProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
     <Compile Include="Models\Stage1OrganizationProvider.cs" />
