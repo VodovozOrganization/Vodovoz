@@ -594,6 +594,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		private bool alwaysSendReceitps;
+		[IgnoreHistoryTrace]
 		[Display(Name = "Всегда отправлять чеки")]
 		public virtual bool AlwaysSendReceitps {
 			get => alwaysSendReceitps;
