@@ -41,6 +41,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.FixedForwarderWage).Column("fixed_forwarder_wage");
 			Map(x => x.NotFullyLoaded).Column("not_fully_loaded");
 			Map(x => x.CashierReviewComment).Column("cashier_review_comment");
+			Map(x => x.WasAcceptedByCashier).Column("was_accepted_by_cashier");
 
 			References(x => x.Car).Column ("car_id");
 			References(x => x.Shift).Column ("delivery_shift_id");

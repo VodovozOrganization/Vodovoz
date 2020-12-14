@@ -210,6 +210,13 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref cashierReviewComment, value, () => CashierReviewComment);
 		}
 
+		private bool wasAcceptedByCashier;
+		[Display(Name = "Был подтверждён в диалоге закрытия МЛ")]
+		public virtual bool WasAcceptedByCashier {
+			get => wasAcceptedByCashier;
+			set => SetField(ref wasAcceptedByCashier, value);
+		}
+
 		Employee cashier;
 		[IgnoreHistoryTrace]
 		public virtual Employee Cashier {
@@ -1416,7 +1423,13 @@ namespace Vodovoz.Domain.Logistic
 			if(Status != RouteListStatus.MileageCheck) {
 				return;
 			}
-			ChangeStatusAndCreateTask(RouteListStatus.OnClosing, callTaskWorker);
+
+			if(WasAcceptedByCashier && IsConsistentWithUnloadDocument()) {
+				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
+			}
+			else {
+				ChangeStatusAndCreateTask(RouteListStatus.OnClosing, callTaskWorker);
+			}
 		}
 
 		/// <summary>
