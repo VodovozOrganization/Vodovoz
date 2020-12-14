@@ -1,15 +1,15 @@
 using System;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Services;
 
 namespace Vodovoz.Parameters
 {
     public class CashDistributionCommonOrganisationProvider : ICashDistributionCommonOrganisationProvider
     {
-        private readonly OrganisationParametersProvider organisationParametersProvider;
+        private readonly OrganizationParametersProvider organisationParametersProvider;
 
-        public CashDistributionCommonOrganisationProvider(OrganisationParametersProvider organisationParametersProvider)
+        public CashDistributionCommonOrganisationProvider(OrganizationParametersProvider organisationParametersProvider)
         {
             this.organisationParametersProvider =
                 organisationParametersProvider ?? throw new ArgumentNullException(nameof(organisationParametersProvider));
@@ -17,7 +17,7 @@ namespace Vodovoz.Parameters
 
         public Organization GetCommonOrganisation(IUnitOfWork uow)
         {
-            return uow.GetById<Organization>(organisationParametersProvider.CommonCashOrganisationDistributionId);
+            return uow.GetById<Organization>(organisationParametersProvider.CommonCashDistributionOrganisationId);
         }
     }
 }

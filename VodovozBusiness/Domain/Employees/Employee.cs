@@ -15,12 +15,12 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
-using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Employees
 {

@@ -106,8 +106,6 @@
     <Compile Include="EntityRepositories\Cash\RouteListItemCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\ISelfDeliveryCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\SelfDeliveryCashDistributionDocumentRepository.cs" />
-    <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
-    <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
     <Compile Include="EntityRepositories\Counterparty\CounterpartyContractRepository.cs" />
@@ -144,10 +142,6 @@
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
-    <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
-    <Compile Include="Parameters\OrganisationParametersProvider.cs" />
-    <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
-    <Compile Include="Parameters\OrganisationParametersProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
     <Compile Include="Models\Stage1OrganizationProvider.cs" />

@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Cash

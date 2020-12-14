@@ -38,7 +38,8 @@ namespace Vodovoz.Dialogs.Cash
 		private readonly bool canEditRectroactively;
 		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
 			new SelfDeliveryCashOrganisationDistributor(
-				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()),
+				new CashDistributionCommonOrganisationProvider(
+					new OrganizationParametersProvider(ParametersProvider.Instance)),
 				new SelfDeliveryCashDistributionDocumentRepository(),
 				OrderSingletonRepository.GetInstance());
 

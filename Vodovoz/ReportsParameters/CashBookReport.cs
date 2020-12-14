@@ -6,8 +6,8 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QS.Services;
 using QSReport;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.ReportsParameters

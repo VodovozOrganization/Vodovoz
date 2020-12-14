@@ -24,8 +24,8 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Repository.Cash;
 
@@ -41,7 +41,8 @@ namespace Vodovoz
 		
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
-				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()),
+				new CashDistributionCommonOrganisationProvider(
+					new OrganizationParametersProvider(ParametersProvider.Instance)),
 				new RouteListItemCashDistributionDocumentRepository(),
 				OrderSingletonRepository.GetInstance());
 		
@@ -50,7 +51,8 @@ namespace Vodovoz
 		
 		private FuelCashOrganisationDistributor fuelCashOrganisationDistributor = 
 			new FuelCashOrganisationDistributor(
-				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()));
+				new CashDistributionCommonOrganisationProvider(
+					new OrganizationParametersProvider(ParametersProvider.Instance)));
 
 		public CashExpenseDlg (IPermissionService permissionService)
 		{

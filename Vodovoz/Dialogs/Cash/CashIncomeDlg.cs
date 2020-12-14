@@ -20,8 +20,8 @@ using QS.Project.Services;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz
@@ -38,13 +38,15 @@ namespace Vodovoz
 		
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
-				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()),
+				new CashDistributionCommonOrganisationProvider(
+					new OrganizationParametersProvider(ParametersProvider.Instance)),
 				new RouteListItemCashDistributionDocumentRepository(),
 				OrderSingletonRepository.GetInstance());
 		
 		private IncomeCashOrganisationDistributor incomeCashOrganisationDistributor = 
 			new IncomeCashOrganisationDistributor(
-				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()));
+				new CashDistributionCommonOrganisationProvider(
+					new OrganizationParametersProvider(ParametersProvider.Instance)));
 		
 		List<Selectable<Expense>> selectableAdvances;
 

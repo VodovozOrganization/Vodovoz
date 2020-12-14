@@ -47,7 +47,8 @@ namespace Vodovoz.Domain.Logistic
 		
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
-				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()),
+				new CashDistributionCommonOrganisationProvider(
+					new OrganizationParametersProvider(ParametersProvider.Instance)),
 				new RouteListItemCashDistributionDocumentRepository(),
 				OrderSingletonRepository.GetInstance());
 		
@@ -55,7 +56,8 @@ namespace Vodovoz.Domain.Logistic
 			new ExpenseCashOrganisationDistributor();
 
 		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
-			new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider());
+			new CashDistributionCommonOrganisationProvider(
+				new OrganizationParametersProvider(ParametersProvider.Instance));
 
 		#region Свойства
 

@@ -17,7 +17,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
 using System.Linq;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Reports
 {

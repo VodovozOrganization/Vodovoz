@@ -16,7 +16,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz
 {

@@ -1,5 +1,5 @@
 using QS.DomainModel.UoW;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Services
 {

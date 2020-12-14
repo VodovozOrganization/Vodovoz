@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Operations
 {

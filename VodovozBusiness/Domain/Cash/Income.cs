@@ -12,6 +12,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Tools.CallTasks;
@@ -177,7 +178,7 @@ namespace Vodovoz.Domain.Cash
 			get => cashierReviewComment;
 			set => SetField(ref cashierReviewComment, value, () => CashierReviewComment);
 		}
-		
+
 		private Organization organisation;
 		[Display(Name = "Организация")]
 		public virtual Organization Organisation {

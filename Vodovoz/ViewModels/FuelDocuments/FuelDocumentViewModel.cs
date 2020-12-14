@@ -26,7 +26,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
-			new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider());
+			new CashDistributionCommonOrganisationProvider(
+				new OrganizationParametersProvider(ParametersProvider.Instance));
 
 		private FuelCashOrganisationDistributor fuelCashOrganisationDistributor;
 
