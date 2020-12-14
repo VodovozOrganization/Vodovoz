@@ -741,5 +741,14 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return true;
 		}
+
+		public bool OrderHasSentReceipt(IUnitOfWork uow, int orderId)
+		{
+			var receipt = uow.Session.QueryOver<CashReceipt>()
+				.Where(x => x.Order.Id == orderId)
+				.SingleOrDefault();
+
+			return receipt != null;
+		}
 	}
 }

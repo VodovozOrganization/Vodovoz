@@ -25,5 +25,8 @@ namespace Vodovoz.Parameters
         public int VodovozSouthOrganizationId => parametersProvider.GetIntValue("vodovoz_south_organization_id");
         
         public int VodovozNorthOrganizationId => parametersProvider.GetIntValue("vodovoz_north_organization_id");
+
+        public int CommonCashDistributionOrganisationId =>
+            parametersProvider.GetIntValue("common_cash_distribution_organisation_id");
     }
 }

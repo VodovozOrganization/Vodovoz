@@ -20,6 +20,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
@@ -31,6 +32,7 @@ using Vodovoz.Repository.Cash;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
+using CashRepository = Vodovoz.Repository.Cash.CashRepository;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -42,6 +44,20 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		
+		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
+			new RouteListCashOrganisationDistributor(
+				new CashDistributionCommonOrganisationProvider(
+					new OrganizationParametersProvider(ParametersProvider.Instance)),
+				new RouteListItemCashDistributionDocumentRepository(),
+				OrderSingletonRepository.GetInstance());
+		
+		private ExpenseCashOrganisationDistributor expenseCashOrganisationDistributor = 
+			new ExpenseCashOrganisationDistributor();
+
+		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
+			new CashDistributionCommonOrganisationProvider(
+				new OrganizationParametersProvider(ParametersProvider.Instance));
 
 		#region Свойства
 
@@ -1351,7 +1367,7 @@ namespace Vodovoz.Domain.Logistic
 				};
 
 				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money:C0}");
-
+				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
 					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
@@ -1365,6 +1381,7 @@ namespace Vodovoz.Domain.Logistic
 					RelatedToSubdivision = Cashier.Subdivision
 				};
 				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money:C0}");
+				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense, cashExpense.Money);
 			}
 			IsManualAccounting = true;
 			return messages.ToArray();
@@ -1382,6 +1399,7 @@ namespace Vodovoz.Domain.Logistic
 				Date = DateTime.Now,
 				Casher = this.Cashier,
 				Employee = Driver,
+				Organisation = commonOrganisationProvider.GetCommonOrganisation(UoW),
 				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}",
 				Money = Math.Round(cashInput, 0, MidpointRounding.AwayFromZero),
 				RouteListClosing = this,
@@ -1389,6 +1407,7 @@ namespace Vodovoz.Domain.Logistic
 			};
 
 			message = $"Создан расходный ордер на сумму {cashExpense.Money:C0}";
+			expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, cashExpense, true);			
 			return (message);
 		}
 
@@ -1586,7 +1605,9 @@ namespace Vodovoz.Domain.Logistic
 					RouteListClosing = this,
 					RelatedToSubdivision = Cashier.Subdivision
 				};
+				
 				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money}");
+				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
 					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
@@ -1599,7 +1620,9 @@ namespace Vodovoz.Domain.Logistic
 					RouteListClosing = this,
 					RelatedToSubdivision = Cashier.Subdivision
 				};
+				
 				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money}");
+				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense, cashExpense.Money);
 			}
 
 			// Если хотя бы один fuelDocument имеет PayedForFuel то добавить пустую строку разделитель и сообщения о расходных ордерах топлива
@@ -1614,11 +1637,9 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
-
-
-			if(cashIncome != null) UoW.Save(cashIncome);
-			if(cashExpense != null) UoW.Save(cashExpense);
-
+			if (cashIncome != null) UoW.Save(cashIncome);
+			if (cashExpense != null) UoW.Save(cashExpense);
+			
 			return messages;
 		}
 

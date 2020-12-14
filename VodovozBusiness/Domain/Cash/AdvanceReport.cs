@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions;
 
 namespace Vodovoz.Domain.Cash
@@ -88,6 +89,13 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
+		Organization organisation;
+		[Display(Name = "Организация")]
+		public virtual Organization Organisation {
+			get => organisation;
+			set => SetField(ref organisation, value);
+		}
+
 		public virtual string Title => String.Format("Авансовый отчет №{0} от {1:d}", Id, Date);
 
 		#endregion
@@ -112,9 +120,10 @@ namespace Vodovoz.Domain.Cash
 					Date = Date,
 					Employee = Accountable,
 					TypeOperation = ExpenseType.Advance,
+					Organisation = Organisation,
 					ExpenseCategory = ExpenseCategory,
 					Money = Math.Abs (balance),
-					Description = String.Format ("Доплата денежных средств сотруднику по авансовому отчету №{0}", Id),
+					Description = $"Доплата денежных средств сотруднику по авансовому отчету №{Id}",
 					AdvanceClosed = true,
 					RelatedToSubdivision = RelatedToSubdivision
 				};
@@ -128,8 +137,9 @@ namespace Vodovoz.Domain.Cash
 					Employee = Accountable,
 					ExpenseCategory = ExpenseCategory,
 					TypeOperation = IncomeType.Return,
+					Organisation = Organisation,
 					Money = Math.Abs (balance),
-					Description = String.Format ("Возврат в кассу денежных средств по авансовому отчету №{0}", Id),
+					Description = $"Возврат в кассу денежных средств по авансовому отчету №{Id}",
 					RelatedToSubdivision = RelatedToSubdivision
 				};
 				ChangeReturn = returnChange;
@@ -166,11 +176,14 @@ namespace Vodovoz.Domain.Cash
 				yield return new ValidationResult("Должно быть выбрано подразделение",
 					new[] { this.GetPropertyName(o => o.RelatedToSubdivision) });
 			}
-
+			
+			if(Id == 0 && Organisation == null) {
+				yield return new ValidationResult("Организация должна быть заполнена",
+					new[] { nameof(Organisation) });
+			}
 		}
 
 		#endregion
-
 	}
 }
 

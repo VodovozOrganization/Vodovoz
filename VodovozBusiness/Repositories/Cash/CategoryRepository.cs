@@ -30,7 +30,7 @@ namespace Vodovoz.Repository.Cash
 
 		public static IList<ExpenseCategory> ExpenseCategories (IUnitOfWork uow)
 		{
-			return uow.Session.QueryOver<ExpenseCategory> ().OrderBy (ec => ec.Name).Asc ().List ();
+			return uow.Session.QueryOver<ExpenseCategory>().OrderBy(ec => ec.Name).Asc().List();
 		}
 
 		public static IList<ExpenseCategory> ExpenseSelfDeliveryCategories(IUnitOfWork uow)
