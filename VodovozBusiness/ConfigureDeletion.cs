@@ -192,8 +192,7 @@ namespace Vodovoz
 				.AddDeleteDependence<EmployeeContract>(x => x.Organization)
 				.AddClearDependence<Employee>(x => x.OrganisationForSalary)
 				.AddClearDependence<Expense>(x => x.Organisation)
-				//.AddClearDependence<AdvanceReport>(x => x.Organisation)
-				;
+				.AddClearDependence<AdvanceReport>(x => x.Organisation);
 
 			DeleteConfig.AddHibernateDeleteInfo<FreeRentPackage>()
 				.AddClearDependence<FreeRentEquipment>(x => x.FreeRentPackage);
@@ -591,6 +590,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<RouteListItem>()
 						.AddDeleteDependence<DeliveryDocument>(x => x.RouteListItem)
+						.AddDeleteDependence<RouteListItemCashDistributionDocument>(x => x.RouteListItem)
 						.AddDeleteDependence<AddressTransferDocumentItem>(x => x.OldAddress)
 						.AddDeleteDependence<AddressTransferDocumentItem>(x => x.NewAddress)
 						.AddRemoveFromDependence<RouteList>(x => x.Addresses, x => x.RemoveAddress);
@@ -988,12 +988,13 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<Income>()
 				.AddDeleteDependence<AdvanceClosing>(x => x.Income)
-				.AddDeleteDependence<AdvanceReport>(x => x.ChangeReturn);
+				.AddDeleteDependence<AdvanceReport>(x => x.ChangeReturn)
+				.AddDeleteDependence<CashOrganisationDistributionDocument>(x => x.Income);
 
 			DeleteConfig.AddHibernateDeleteInfo<Expense>()
 				.AddDeleteDependence<AdvanceClosing>(x => x.AdvanceExpense)
 				.AddDeleteDependence<FuelDocument>(x => x.FuelCashExpense)
-				.AddDeleteDependence<ExpenseCashDistributionDocument>(x => x.Expense)
+				.AddDeleteDependence<CashOrganisationDistributionDocument>(x => x.Expense)
 				.AddDeleteCascadeDependence(x => x.WagesOperation);
 
 			DeleteConfig.AddDeleteInfo(
@@ -1002,7 +1003,9 @@ namespace Vodovoz
 					SqlSelect = "SELECT id, date FROM @tablename ",
 					DisplayString = "Авансовый отчет №{0} от {1:d}",
 					DeleteItems = new List<DeleteDependenceInfo> {
-						DeleteDependenceInfo.Create<AdvanceClosing> (item => item.AdvanceReport) //FIXME Запустить перерасчет калки закрытия. 
+						DeleteDependenceInfo.Create<AdvanceClosing> (item => item.AdvanceReport), //FIXME Запустить перерасчет калки закрытия. 
+						DeleteDependenceInfo.Create<AdvanceIncomeCashDistributionDocument> (item => item.AdvanceReport),
+						DeleteDependenceInfo.Create<AdvanceExpenseCashDistributionDocument> (item => item.AdvanceReport)
 					}
 				}.FillFromMetaInfo()
 			);
@@ -1087,7 +1090,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelDocument>()
 						.AddDeleteCascadeDependence(x => x.FuelOperation)
-						.AddDeleteCascadeDependence(x => x.FuelExpenseOperation);
+						.AddDeleteCascadeDependence(x => x.FuelExpenseOperation)
+						.AddDeleteDependence<FuelExpenseCashDistributionDocument>(x => x.FuelDocument);
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelOperation>()
 				.RequiredCascadeDeletion()

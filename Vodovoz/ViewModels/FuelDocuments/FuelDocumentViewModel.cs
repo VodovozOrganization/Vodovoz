@@ -5,7 +5,6 @@ using System.Linq;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
@@ -25,10 +24,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 	public class FuelDocumentViewModel : TabViewModelBase
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		
-		private FuelCashOrganisationDistributor fuelCashOrganisationDistributor = 
-			new FuelCashOrganisationDistributor(
-				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()));
+
+		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
+			new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider());
+
+		private FuelCashOrganisationDistributor fuelCashOrganisationDistributor;
 
 		public virtual IUnitOfWork UoW { get; set; }
 
@@ -239,6 +239,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			}
 
 			TabName = "Выдача топлива";
+			fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(commonOrganisationProvider);
 			CreateCommands();
 			Track = TrackRepository.GetTrackForRouteList(UoW, RouteList.Id);
 			if(FuelDocument.Id == 0)
@@ -296,7 +297,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return false;
 			if(FuelDocument.Id == 0) 
 			{
-				FuelDocument.CreateOperations(fuelRepository);
+				FuelDocument.CreateOperations(fuelRepository, commonOrganisationProvider);
 				RouteList.ObservableFuelDocuments.Add(FuelDocument);
 
 				if (FuelInMoney && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)

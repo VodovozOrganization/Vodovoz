@@ -20,6 +20,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
@@ -31,6 +32,7 @@ using Vodovoz.Repository.Cash;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
+using CashRepository = Vodovoz.Repository.Cash.CashRepository;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -45,11 +47,15 @@ namespace Vodovoz.Domain.Logistic
 		
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
-				new CashDistributionCommonOrganisationProvider(
-					new OrganisationParametersProvider()), OrderSingletonRepository.GetInstance());
+				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()),
+				new RouteListItemCashDistributionDocumentRepository(),
+				OrderSingletonRepository.GetInstance());
 		
 		private ExpenseCashOrganisationDistributor expenseCashOrganisationDistributor = 
 			new ExpenseCashOrganisationDistributor();
+
+		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
+			new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider());
 
 		#region Свойства
 
@@ -1378,6 +1384,7 @@ namespace Vodovoz.Domain.Logistic
 				Date = DateTime.Now,
 				Casher = this.Cashier,
 				Employee = Driver,
+				Organisation = commonOrganisationProvider.GetCommonOrganisation(UoW),
 				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}",
 				Money = Math.Round(cashInput, 0, MidpointRounding.AwayFromZero),
 				RouteListClosing = this,

@@ -119,9 +119,10 @@ namespace Vodovoz.Domain.Cash
 					Date = Date,
 					Employee = Accountable,
 					TypeOperation = ExpenseType.Advance,
+					Organisation = Organisation,
 					ExpenseCategory = ExpenseCategory,
 					Money = Math.Abs (balance),
-					Description = String.Format ("Доплата денежных средств сотруднику по авансовому отчету №{0}", Id),
+					Description = $"Доплата денежных средств сотруднику по авансовому отчету №{Id}",
 					AdvanceClosed = true,
 					RelatedToSubdivision = RelatedToSubdivision
 				};
@@ -135,8 +136,9 @@ namespace Vodovoz.Domain.Cash
 					Employee = Accountable,
 					ExpenseCategory = ExpenseCategory,
 					TypeOperation = IncomeType.Return,
+					Organisation = Organisation,
 					Money = Math.Abs (balance),
-					Description = String.Format ("Возврат в кассу денежных средств по авансовому отчету №{0}", Id),
+					Description = $"Возврат в кассу денежных средств по авансовому отчету №{Id}",
 					RelatedToSubdivision = RelatedToSubdivision
 				};
 				ChangeReturn = returnChange;
@@ -176,13 +178,11 @@ namespace Vodovoz.Domain.Cash
 			
 			if(Id == 0 && Organisation == null) {
 				yield return new ValidationResult("Организация должна быть заполнена",
-					new[] { nameof(RelatedToSubdivision) });
+					new[] { nameof(Organisation) });
 			}
-
 		}
 
 		#endregion
-
 	}
 }
 

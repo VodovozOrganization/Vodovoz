@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using Gamma.Widgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.NotifyChange;
@@ -19,29 +20,32 @@ using QS.Project.Services;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Documents;
+using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz
 {
 	public partial class CashIncomeDlg : QS.Dialog.Gtk.EntityDialogBase<Income>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-
+		
+		//Блокируем возможность выбора категории приходаЖ самовывоз - старый
+		private const int excludeIncomeCategoryId = 3;
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
 		
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
-				new CashDistributionCommonOrganisationProvider(
-					new OrganisationParametersProvider()), OrderSingletonRepository.GetInstance());
+				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()),
+				new RouteListItemCashDistributionDocumentRepository(),
+				OrderSingletonRepository.GetInstance());
 		
 		private IncomeCashOrganisationDistributor incomeCashOrganisationDistributor = 
 			new IncomeCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(new OrganisationParametersProvider()));
 		
-		private AdvanceCashOrganisationDistributor advanceCashOrganisationDistributor = 
-			new AdvanceCashOrganisationDistributor();
-
 		List<Selectable<Expense>> selectableAdvances;
 
 		public CashIncomeDlg (IPermissionService permissionService)
@@ -101,7 +105,7 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public CashIncomeDlg (Expense advance, IPermissionService permissionService) : this (permissionService) 
+		public CashIncomeDlg (Expense advance, IPermissionService permissionService) : this (permissionService)
 		{
 			if(advance.Employee == null)
 			{
@@ -113,6 +117,7 @@ namespace Vodovoz
 			Entity.TypeOperation = IncomeType.Return;
 			Entity.ExpenseCategory = advance.ExpenseCategory;
 			Entity.Employee = advance.Employee;
+			Entity.Organisation = advance.Organisation;
 			selectableAdvances.Find(x => x.Value.Id == advance.Id).Selected = true;
 		}
 
@@ -124,6 +129,11 @@ namespace Vodovoz
 		
 		void ConfigureDlg()
 		{
+			if (!UoW.IsNew) {
+				enumcomboOperation.Sensitive = false;
+				specialListCmbOrganisation.Sensitive = false;
+			}
+			
 			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
 			if(Entity.RelatedToSubdivision != null) {
 				accessfilteredsubdivisionselectorwidget.SelectIfPossible(Entity.RelatedToSubdivision);
@@ -132,18 +142,17 @@ namespace Vodovoz
 			enumcomboOperation.ItemsEnum = typeof(IncomeType);
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
-			var filterCasher = new EmployeeFilterViewModel();
-			filterCasher.Status = Domain.Employees.EmployeeStatus.IsWorking;
+			var filterCasher = new EmployeeFilterViewModel {Status = Domain.Employees.EmployeeStatus.IsWorking};
 			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
-			var filter = new EmployeeFilterViewModel();
-			filter.Status = Domain.Employees.EmployeeStatus.IsWorking;
+			var filter = new EmployeeFilterViewModel {Status = Domain.Employees.EmployeeStatus.IsWorking};
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
 
-			var filterRL = new RouteListsFilter(UoW);
-			filterRL.OnlyStatuses = new RouteListStatus[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing };
+			var filterRL = new RouteListsFilter(UoW) {
+				OnlyStatuses = new[] {RouteListStatus.EnRoute, RouteListStatus.OnClosing}
+			};
 			yEntryRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRL);
 			yEntryRouteList.Binding.AddBinding(Entity, s => s.RouteListClosing, w => w.Subject).InitializeFromSource();
 			yEntryRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
@@ -158,16 +167,28 @@ namespace Vodovoz
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<ExpenseCategory>(
-				s => comboExpense.ItemsList = CategoryRepository.ExpenseCategories (UoW)
+				s => 
+					comboExpense.ItemsList = CategoryRepository.ExpenseCategories(UoW).Where(x => 
+						x.ExpenseDocumentType != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery)
 			);
-			comboExpense.ItemsList = CategoryRepository.ExpenseCategories(UoW);
+			comboExpense.ItemsList = 
+				CategoryRepository.ExpenseCategories(UoW).Where(x => 
+					x.ExpenseDocumentType != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery);
 			comboExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<IncomeCategory>(
-				s => comboCategory.ItemsList = CategoryRepository.IncomeCategories (UoW)
+				s => 
+					comboCategory.ItemsList = CategoryRepository.IncomeCategories(UoW).Where(x =>
+						x.IncomeDocumentType != IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery && x.Id != excludeIncomeCategoryId)
 			); 
-			comboCategory.ItemsList = CategoryRepository.IncomeCategories(UoW);
+			comboCategory.ItemsList = CategoryRepository.IncomeCategories(UoW).Where(x =>
+				x.IncomeDocumentType != IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery && x.Id != excludeIncomeCategoryId);
 			comboCategory.Binding.AddBinding (Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource ();
+
+			specialListCmbOrganisation.ShowSpecialStateNot = true;
+			specialListCmbOrganisation.ItemsList = UoW.GetAll<Organization>();
+			specialListCmbOrganisation.Binding.AddBinding(Entity, e => e.Organisation, w => w.SelectedItem).InitializeFromSource();
+			specialListCmbOrganisation.ItemSelected += SpecialListCmbOrganisationOnItemSelected;
 			
 			checkNoClose.Binding.AddBinding(Entity, e => e.NoFullCloseMode, w => w.Active);
 
@@ -193,6 +214,11 @@ namespace Vodovoz
 				buttonSave.Sensitive = false;
 				accessfilteredsubdivisionselectorwidget.Sensitive = false;
 			}
+		}
+
+		private void SpecialListCmbOrganisationOnItemSelected(object sender, ItemSelectedEventArgs e)
+		{
+			FillDebts();
 		}
 
 		public void FillForRoutelist(int routelistId)
@@ -226,8 +252,7 @@ namespace Vodovoz
 				Entity.RelatedToSubdivision = accessfilteredsubdivisionselectorwidget.SelectedSubdivision;
 			}
 		}
-
-
+		
 		public override bool Save ()
 		{
 			if (Entity.TypeOperation == IncomeType.Return && UoW.IsNew && selectableAdvances != null)
@@ -261,29 +286,29 @@ namespace Vodovoz
 			    Entity.IncomeCategory.Id == CategoryRepository.RouteListClosingIncomeCategory(UoW)?.Id) {
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
 			}
-
-			if (Entity.TypeOperation == IncomeType.Return) {
-				// При таком распределении авансовый отчет null
-				advanceCashOrganisationDistributor.DistributeCashForIncomeAdvance(UoW, Entity, null);
+			else if (Entity.TypeOperation == IncomeType.Return) {
+				incomeCashOrganisationDistributor.DistributeCashForIncome(UoW, Entity, Entity.Organisation);
 			}
-			
-			incomeCashOrganisationDistributor.DistributeCashForIncome(UoW, Entity);
+			else {
+				incomeCashOrganisationDistributor.DistributeCashForIncome(UoW, Entity);
+			}
 		}
 		
 		private void UpdateCashDistributionsDocuments()
 		{
 			var editor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			var document = UoW.Session.QueryOver<CashOrganisationDistributionDocument>()
+				.Where(x => x.Income.Id == Entity.Id).List().FirstOrDefault();
 
-			/*if (Entity.TypeOperation == IncomeType.DriverReport && Entity.IncomeCategory.Id == 1) {
-				routeListCashOrganisationDistributor.(UoW, Entity.RouteListClosing, Entity.Money);
+			if (document != null)
+			{
+				switch (document.Type)
+				{
+					case CashOrganisationDistributionDocType.IncomeCashDistributionDoc:
+						incomeCashOrganisationDistributor.UpdateRecords(UoW, (IncomeCashDistributionDocument)document, Entity, editor);
+						break;
+				}
 			}
-
-			if (Entity.TypeOperation == IncomeType.Return) {
-				// При таком распределении авансовый отчет null
-				advanceCashOrganisationDistributor.UpdateRecords(UoW, Entity, editor);
-			}
-			
-			incomeCashOrganisationDistributor.UpdateRecords(UoW, Entity, editor);*/
 		}
 
 		protected void OnButtonPrintClicked (object sender, EventArgs e)
@@ -306,7 +331,8 @@ namespace Vodovoz
 		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			buttonPrint.Sensitive = Entity.TypeOperation == IncomeType.Return;
-			labelExpenseTitle.Visible = comboExpense.Visible = Entity.TypeOperation == IncomeType.Return;
+			labelExpenseTitle.Visible = comboExpense.Visible = 
+				ylabel1.Visible = specialListCmbOrganisation.Visible = Entity.TypeOperation == IncomeType.Return;
 			labelIncomeTitle.Visible = comboCategory.Visible = Entity.TypeOperation != IncomeType.Return;
 
 			labelClientTitle.Visible = yentryClient.Visible = Entity.TypeOperation == IncomeType.Payment;
@@ -340,8 +366,8 @@ namespace Vodovoz
 
 		protected void FillDebts(){
 			if (Entity.TypeOperation == IncomeType.Return && Entity.Employee != null) {
-				var advances = Repository.Cash.AccountableDebtsRepository
-					.UnclosedAdvance (UoW, Entity.Employee, Entity.ExpenseCategory);
+				var advances = AccountableDebtsRepository
+					.UnclosedAdvance(UoW, Entity.Employee, Entity.ExpenseCategory, Entity.Organisation?.Id);
 				selectableAdvances = advances.Select (advance => new Selectable<Expense> (advance))
 				.ToList ();
 				selectableAdvances.ForEach (advance => advance.SelectChanged += OnAdvanceSelectionChanged);
@@ -406,8 +432,7 @@ namespace Vodovoz
 		public bool Selected {
 			get { return selected;}
 			set{ selected = value;
-				if (SelectChanged != null)
-					SelectChanged (this, EventArgs.Empty);
+				SelectChanged?.Invoke (this, EventArgs.Empty);
 			}
 		}
 

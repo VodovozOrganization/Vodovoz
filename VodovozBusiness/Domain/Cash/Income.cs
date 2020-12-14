@@ -177,6 +177,13 @@ namespace Vodovoz.Domain.Cash
 			get => cashierReviewComment;
 			set => SetField(ref cashierReviewComment, value, () => CashierReviewComment);
 		}
+		
+		private Organization organisation;
+		[Display(Name = "Организация")]
+		public virtual Organization Organisation {
+			get => organisation;
+			set => SetField(ref organisation, value);
+		}
 
 		#endregion
 
@@ -292,6 +299,10 @@ namespace Vodovoz.Domain.Cash
 							new[] { this.GetPropertyName(o => o.ExpenseCategory) });
 
 					if(Id == 0) {
+						if (Organisation == null) {
+							yield return new ValidationResult("Организация должна быть заполнена",
+								new[] { nameof(Organisation) });
+						}
 						if(AdvanceForClosing == null || AdvanceForClosing.Count == 0) {
 							yield return new ValidationResult("Не указаны авансы которые должны быть закрыты этим возвратом в кассу.",
 								new[] { this.GetPropertyName(o => o.AdvanceForClosing) });

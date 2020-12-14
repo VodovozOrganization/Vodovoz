@@ -17,26 +17,19 @@ namespace Vodovoz.Domain.Cash
                 cashDistributionCommonOrganisationProvider ?? throw new ArgumentNullException(nameof(cashDistributionCommonOrganisationProvider));
         }
 
-        public void DistributeCashForIncome(IUnitOfWork uow, Income income)
+        public void DistributeCashForIncome(IUnitOfWork uow, Income income, Organization organisation = null)
         {
-            var org = cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow);
+            var org = organisation ?? cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow);
             var operation = CreateOrganisationCashMovementOperation(income, org);
             var incomeCashDistributionDoc = CreateIncomeCashDistributionDocument(income, operation);
             Save(operation, incomeCashDistributionDoc, uow);
         }
         
-        public void UpdateRecords(IUnitOfWork uow, Income income, Employee editor)
+        public void UpdateRecords(IUnitOfWork uow, IncomeCashDistributionDocument document, Income income, Employee editor)
         {
-            var incomeCashDistributionDoc = 
-                uow.Session.QueryOver<IncomeCashDistributionDocument>()
-                           .Where(x => x.Income.Id == income.Id)
-                           .SingleOrDefault();
-
-            if (incomeCashDistributionDoc == null) return;
-            
-            UpdateIncomeCashDistributionDocument(incomeCashDistributionDoc, income, editor);
-            UpdateOrganisationCashMovementOperation(incomeCashDistributionDoc.OrganisationCashMovementOperation, income);
-            Save(incomeCashDistributionDoc.OrganisationCashMovementOperation, incomeCashDistributionDoc, uow);
+            UpdateIncomeCashDistributionDocument(document, income, editor);
+            UpdateOrganisationCashMovementOperation(document.OrganisationCashMovementOperation, income);
+            Save(document.OrganisationCashMovementOperation, document, uow);
         }
 
         private void Save(OrganisationCashMovementOperation operation, IncomeCashDistributionDocument document, IUnitOfWork uow)
@@ -56,8 +49,6 @@ namespace Vodovoz.Domain.Cash
                 CreationDate = DateTime.Now,
                 LastEditor = income.Casher,
                 Employee = income.Employee,
-                CashIncomeCategory = income.IncomeCategory,
-                CashIncomeOperationType = income.TypeOperation,
                 LastEditedTime = DateTime.Now,
                 OrganisationCashMovementOperation = operation,
                 Amount = operation.Amount

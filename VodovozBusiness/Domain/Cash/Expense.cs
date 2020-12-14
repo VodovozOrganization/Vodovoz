@@ -352,6 +352,11 @@ namespace Vodovoz.Domain.Cash
 						yield return new ValidationResult("Статья расхода должна быть указана.",
 							new[] { this.GetPropertyName(o => o.ExpenseCategory) });
 				}
+				
+				if(Id == 0 && Organisation == null) {
+					yield return new ValidationResult("Организация должна быть заполнена",
+						new[] { nameof(Organisation) });
+				}
 			}
 
 			if(RelatedToSubdivision == null) {
