@@ -79,8 +79,8 @@ namespace Vodovoz.OldExportTo1c
 			this.NomenclatureGroupCatalog = new NomenclatureGroupCatalog(this);
 			this.OrganizationCatalog = new OrganizationCatalog(this);
 			this.WarehouseCatalog = new WarehouseCatalog(this);
-			this.CashlessOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PersonType.legal, PaymentType.cashless);
-			this.TinkoffOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PersonType.natural, PaymentType.ByCard);
+			//this.CashlessOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PersonType.legal, PaymentType.cashless);
+			//this.TinkoffOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PersonType.natural, PaymentType.ByCard);
 			this.ExchangeRules = new RulesNode();
 		}
 

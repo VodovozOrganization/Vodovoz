@@ -10,6 +10,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Repository.Client;
 using QS.Project.Services;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Models;
 
 namespace Vodovoz
 {
@@ -40,7 +42,10 @@ namespace Vodovoz
 		}
 
 		public CounterpartyContractDlg(Counterparty counterparty, PaymentType paymentType, Organization organizetion, DateTime? date):this(counterparty,organizetion){
-			var contractType =  DocTemplateRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
+			var contractType =  counterpartyContractRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
 			Entity.ContractType = contractType;
 			if(date.HasValue)
 				UoWGeneric.Root.IssueDate = date.Value;

@@ -9,11 +9,14 @@ using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
 using QS.Validation;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Models;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories;
 using Vodovoz.SidePanel;
@@ -225,10 +228,10 @@ namespace Vodovoz
 			var valid = new QSValidator<ServiceClaim> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
 				return false;
+			
+			throw new NotImplementedException();
 
-			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType 
-				(UoWGeneric, UoWGeneric.Root.Counterparty, UoWGeneric.Root.Counterparty.PersonType, UoWGeneric.Root.Payment);
-
+			CounterpartyContract contract;
 			if (contract == null) {
 				RunContractCreateDialog ();
 				return false;
@@ -295,8 +298,11 @@ namespace Vodovoz
 			                  paymentTypeString +
 			                  " формы оплаты. Создать?";
 			if (MessageDialogWorks.RunQuestionDialog (question)) {
-				dlg = new CounterpartyContractDlg (UoWGeneric.Root.Counterparty, 
-					OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric, UoWGeneric.Root.Counterparty.PersonType, UoWGeneric.Root.Payment));	
+
+				Organization organization = null;
+				throw  new NotImplementedException();
+				
+				dlg = new CounterpartyContractDlg (UoWGeneric.Root.Counterparty, organization);	
 				(dlg as IContractSaved).ContractSaved += (sender, e) => {
 					if (UoWGeneric.Root.InitialOrder != null)
 						UoWGeneric.Root.InitialOrder.ObservableOrderDocuments.Add (new OrderContract { 

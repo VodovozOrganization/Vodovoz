@@ -21,7 +21,6 @@ namespace Vodovoz.Core.DataService
 		IContactsParameters,
 		IDriverServiceParametersProvider,
 		IErrorSendParameterProvider,
-		IOrganizationProvider,
 		IProfitCategoryProvider,
 		IPotentialFreePromosetsReportDefaultsProvider,
 		ISmsPaymentServiceParametersProvider,
@@ -351,17 +350,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion
-		
-		#region IOrganizationProvider
-		public int GetMainOrganization()
-		{
-			if(!ParametersProvider.Instance.ContainsParameter("main_organization_id")) {
-				throw new InvalidProgramException("В параметрах базы не настроена организация по умолчанию (main_organization_id).");
-			}
-			return int.Parse(ParametersProvider.Instance.GetParameterValue("main_organization_id"));
-		}
-
-		#endregion IOrganizationProvider
 
 		#region IProfitCategoryProvider
 

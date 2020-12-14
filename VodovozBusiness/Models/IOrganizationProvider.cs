@@ -4,8 +4,10 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Models
 {
-    public interface IOrderOrganizationProvider
+    public interface IOrganizationProvider
     {
         Organization GetOrganization(IUnitOfWork uow, Order order);
+        
+        int GetMainOrganization();
     }
 }

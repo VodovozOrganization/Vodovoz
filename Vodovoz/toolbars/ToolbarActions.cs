@@ -56,6 +56,7 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -558,6 +559,8 @@ public partial class MainWindow : Window
 
 	void ActionPaymentFromBank_Activated(object sender, System.EventArgs e)
 	{
+		var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+		
 		var filter = new PaymentsJournalFilterViewModel();
 
 		var paymentsJournalViewModel = new PaymentsJournalViewModel(
@@ -565,7 +568,8 @@ public partial class MainWindow : Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			NavigationManagerProvider.NavigationManager,
-			OrderSingletonRepository.GetInstance()
+			OrderSingletonRepository.GetInstance(),
+			orderOrganizationProviderFactory.CreateOrderOrganizationProvider()
 		);
 
 		tdiMain.AddTab(paymentsJournalViewModel);

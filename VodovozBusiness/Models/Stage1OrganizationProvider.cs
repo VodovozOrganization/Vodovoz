@@ -9,11 +9,11 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Models
 {
-    public class Stage1OrderOrganizationProvider : IOrderOrganizationProvider
+    public class Stage1OrganizationProvider : IOrganizationProvider
     {
         private readonly IOrganizationParametersProvider organizationParametersProvider;
 
-        public Stage1OrderOrganizationProvider(IOrganizationParametersProvider organizationParametersProvider)
+        public Stage1OrganizationProvider(IOrganizationParametersProvider organizationParametersProvider)
         {
             this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
         }
@@ -92,6 +92,11 @@ namespace Vodovoz.Models
             }
 
             return uow.GetById<Organization>(organizationId);
+        }
+        
+        public int GetMainOrganization()
+        {
+            return ParametersProvider.Instance.GetIntValue("main_organization_id");
         }
     }
 }
