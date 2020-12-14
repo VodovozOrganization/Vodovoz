@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels
 			var countDuplicates = 0;
 
 			AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(UoW);
-			var org = UoW.GetById<Domain.Organization>(orgProvider.GetMainOrganization());
+			var org = UoW.GetById<Domain.Organizations.Organization>(orgProvider.GetMainOrganization());
 			var defaultProfitCategory = UoW.GetById<CategoryProfit>(profitCategoryProvider.GetDefaultProfitCategory());
 			var parserDocs = Parser.TransferDocuments.Where(x => x.RecipientInn == org.INN).ToList();
 

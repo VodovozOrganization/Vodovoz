@@ -1,6 +1,7 @@
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Models
 {

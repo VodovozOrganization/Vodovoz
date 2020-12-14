@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Models;
 using Vodovoz.Repository.Client;
 
