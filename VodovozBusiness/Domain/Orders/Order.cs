@@ -1043,10 +1043,20 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.DeliveryDate) }
 				);
 			}
+			
 			if(SelfDelivery && PaymentType == PaymentType.ContractDoc) {
 				yield return new ValidationResult(
 					"Тип оплаты - контрактная документация невозможен для самовывоза",
 					new[] { this.GetPropertyName(o => o.PaymentType) }
+				);
+			}
+
+			//FIXME Удалить после 16 числа
+			if(DeliveryDate.HasValue && PaymentType == PaymentType.Terminal && DeliveryDate.Value.Date == new DateTime(2020, 12, 16)) {
+				yield return new ValidationResult(
+					"В выбранный день с Терминалами будут производится технические работы, " +
+					"данная форма оплаты недоступна. Выберете либо другую дату доставки, либо другую форму оплаты",
+					new[] { nameof(paymentType) }
 				);
 			}
 		}
