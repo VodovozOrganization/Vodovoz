@@ -46,6 +46,10 @@ namespace Vodovoz.Controllers
                 .And(x => x.RouteListTo.Id == to.Id)
                 .SingleOrDefault() ?? new AddressTransferDocument();
             
+            foreach(var documentItem in transferDocument.AddressTransferDocumentItems) {
+                uow.Delete(documentItem);
+            }
+
             var employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(uow);
 
             if(transferDocument.Author == null)
