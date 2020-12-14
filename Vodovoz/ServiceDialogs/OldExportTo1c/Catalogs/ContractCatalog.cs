@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.OldExportTo1c.Catalogs
 {
@@ -52,9 +53,11 @@ namespace Vodovoz.OldExportTo1c.Catalogs
 			if(order.Contract != null)
 				return CreateReferenceTo(order.Contract);
 
-			var contract = new VirtualContract(order.Client,
-				                               exportData.CashlessOrganization,
-				                               $"{order.Client.VodovozInternalId}-1");
+			var contract = new VirtualContract(
+				order.Client,
+				order.Contract.Organization,
+				$"{order.Client.VodovozInternalId}-1"
+			);
 
 			return CreateReferenceTo(contract);
 		}

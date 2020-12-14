@@ -8,7 +8,7 @@ using QS.Services;
 using QS.Navigation;
 using NHibernate;
 using NHibernate.Transform;
-using BaseOrg = Vodovoz.Domain.Organization;
+using BaseOrg = Vodovoz.Domain.Organizations.Organization;
 using NHibernate.Dialect.Function;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 using NHibernate.Criterion;
@@ -17,8 +17,8 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using Vodovoz.Repositories.Payments;
 using System.Linq;
-using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Models;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -28,19 +28,22 @@ namespace Vodovoz.JournalViewModels
 		private readonly INavigationManager navigationManager;
 		private readonly ICommonServices commonServices;
 		private readonly IOrderRepository orderRepository;
+		private readonly IOrganizationProvider organizationProvider;
 
 		public PaymentsJournalViewModel(
 			PaymentsJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			IOrderRepository orderRepository
+			IOrderRepository orderRepository,
+			IOrganizationProvider organizationProvider
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал платежей из банк-клиента";
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
 			this.navigationManager = navigationManager;
 
 			RegisterPayments();
@@ -144,7 +147,8 @@ namespace Vodovoz.JournalViewModels
 					() => new PaymentLoaderViewModel(
 						unitOfWorkFactory,
 						commonServices,
-						navigationManager
+						navigationManager,
+						organizationProvider
 					),
 					//функция диалога открытия документа
 					(PaymentJournalNode node) => new ManualPaymentMatchingViewModel(

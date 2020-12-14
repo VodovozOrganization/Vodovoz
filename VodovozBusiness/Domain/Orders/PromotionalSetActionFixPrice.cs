@@ -62,10 +62,10 @@ namespace Vodovoz.Domain.Orders
 
 		public override void Activate(Order order)
 		{
-			if(order == null || order.Contract == null){
+			if(order == null){
 				return;
 			}
-			IList<NomenclatureFixedPrice> fixedPrices = order.Contract.Counterparty.NomenclatureFixedPrices;
+			IList<NomenclatureFixedPrice> fixedPrices = order.Client.NomenclatureFixedPrices;
 			if(order.DeliveryPoint != null){
 				fixedPrices = order.DeliveryPoint.NomenclatureFixedPrices;
 			}

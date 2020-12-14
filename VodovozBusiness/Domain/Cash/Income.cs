@@ -12,6 +12,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Tools.CallTasks;
@@ -153,11 +154,8 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual RouteList RouteListClosing
 		{
-			get{ return routeListClosing; }
-			set
-			{
-				SetField(ref routeListClosing, value, () => RouteListClosing);
-			}
+			get => routeListClosing;
+			set => SetField(ref routeListClosing, value, () => RouteListClosing);
 		}
 
 		private IncomeCashTransferedItem transferedBy;
@@ -179,6 +177,13 @@ namespace Vodovoz.Domain.Cash
 		public virtual string CashierReviewComment {
 			get => cashierReviewComment;
 			set => SetField(ref cashierReviewComment, value, () => CashierReviewComment);
+		}
+
+		private Organization organisation;
+		[Display(Name = "Организация")]
+		public virtual Organization Organisation {
+			get => organisation;
+			set => SetField(ref organisation, value);
 		}
 
 		#endregion
@@ -295,6 +300,10 @@ namespace Vodovoz.Domain.Cash
 							new[] { this.GetPropertyName(o => o.ExpenseCategory) });
 
 					if(Id == 0) {
+						if (Organisation == null) {
+							yield return new ValidationResult("Организация должна быть заполнена",
+								new[] { nameof(Organisation) });
+						}
 						if(AdvanceForClosing == null || AdvanceForClosing.Count == 0) {
 							yield return new ValidationResult("Не указаны авансы которые должны быть закрыты этим возвратом в кассу.",
 								new[] { this.GetPropertyName(o => o.AdvanceForClosing) });

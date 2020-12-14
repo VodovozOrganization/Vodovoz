@@ -15,6 +15,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Dialogs.Employees
@@ -99,6 +100,7 @@ namespace Vodovoz.Dialogs.Employees
 				if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
 					UoWGeneric.Save();
 					RefreshParserRootObject();
+					UpdateStates();
 				} else {
 					templatewidget.CanOpenDocument = false;
 				}

@@ -26,11 +26,8 @@ namespace VodovozSalesReceiptsService
 				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 					var ordersAndReceiptNodes = orderRepository
 						.GetOrdersForCashReceiptServiceToSend(uow, DateTime.Today.AddDays(-3)).ToList();
-					
-					var withoutReceipts = ordersAndReceiptNodes.Where(r => r.ReceiptId == null);
-					var withNotSentReceipts = ordersAndReceiptNodes.Where(r => r.ReceiptId.HasValue && r.WasSent != true);
-					
-					var receiptsToSend = withoutReceipts.Count() + withNotSentReceipts.Count();
+
+					var receiptsToSend = ordersAndReceiptNodes.Count(r => r.ReceiptId == null || r.WasSent.HasValue && !r.WasSent.Value);
 					logger.Info($"Количество чеков на отправку: {receiptsToSend}");
 					return receiptsToSend <= salesReceiptsServiceSettings.MaxUnsendedCashReceiptsForWorkingService;
 				}

@@ -20,6 +20,16 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gamma.Widgets.ySpecComboBox yspeccomboboxCashSubdivision;
 
+		private global::Gtk.HBox hboxOrganisations;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel2;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox specialListCmbOrganisations;
+
+		private global::Gtk.HBox hbox4;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckOrganisations;
+
 		private global::Gtk.Button buttonCreateRepot;
 
 		protected virtual void Build()
@@ -94,11 +104,62 @@ namespace Vodovoz.ReportsParameters
 			w6.Position = 0;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-			w7.Position = 1;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.hboxOrganisations = new global::Gtk.HBox();
+			this.hboxOrganisations.Name = "hboxOrganisations";
+			this.hboxOrganisations.Spacing = 6;
+			// Container child hboxOrganisations.Gtk.Box+BoxChild
+			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel2.Name = "ylabel2";
+			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Организация:");
+			this.hboxOrganisations.Add(this.ylabel2);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxOrganisations[this.ylabel2]));
+			w7.Position = 0;
 			w7.Expand = false;
 			w7.Fill = false;
+			// Container child hboxOrganisations.Gtk.Box+BoxChild
+			this.specialListCmbOrganisations = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.specialListCmbOrganisations.Name = "specialListCmbOrganisations";
+			this.specialListCmbOrganisations.AddIfNotExist = false;
+			this.specialListCmbOrganisations.DefaultFirst = false;
+			this.specialListCmbOrganisations.ShowSpecialStateAll = true;
+			this.specialListCmbOrganisations.ShowSpecialStateNot = false;
+			this.hboxOrganisations.Add(this.specialListCmbOrganisations);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxOrganisations[this.specialListCmbOrganisations]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
+			this.hbox2.Add(this.hboxOrganisations);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.hboxOrganisations]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox4 = new global::Gtk.HBox();
+			this.hbox4.Name = "hbox4";
+			this.hbox4.Spacing = 6;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.ycheckOrganisations = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckOrganisations.CanFocus = true;
+			this.ycheckOrganisations.Name = "ycheckOrganisations";
+			this.ycheckOrganisations.Label = global::Mono.Unix.Catalog.GetString("по юр лицам");
+			this.ycheckOrganisations.DrawIndicator = true;
+			this.ycheckOrganisations.UseUnderline = true;
+			this.hbox4.Add(this.ycheckOrganisations);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckOrganisations]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
+			this.vbox1.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateRepot = new global::Gtk.Button();
 			this.buttonCreateRepot.CanFocus = true;
@@ -106,11 +167,11 @@ namespace Vodovoz.ReportsParameters
 			this.buttonCreateRepot.UseUnderline = true;
 			this.buttonCreateRepot.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateRepot);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateRepot]));
-			w8.PackType = ((global::Gtk.PackType)(1));
-			w8.Position = 3;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateRepot]));
+			w13.PackType = ((global::Gtk.PackType)(1));
+			w13.Position = 3;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

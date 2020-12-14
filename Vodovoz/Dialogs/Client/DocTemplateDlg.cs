@@ -6,6 +6,7 @@ using QSProjectsLib;
 using QS.Validation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz
 {

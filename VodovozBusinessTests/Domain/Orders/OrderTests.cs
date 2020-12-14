@@ -32,7 +32,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void RemoveStaticGaps()
 		{
 			PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = null;
-			OrganizationRepository.GetOrganizationByPaymentTypeTestGap = null;
+			//OrganizationRepository.GetOrganizationByPaymentTypeTestGap = null;
 		}
 
 		#region OrderItemsPacks

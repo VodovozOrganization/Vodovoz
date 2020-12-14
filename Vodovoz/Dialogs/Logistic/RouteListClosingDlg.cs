@@ -62,7 +62,7 @@ namespace Vodovoz
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
-
+		
 		List<ReturnsNode> allReturnsToWarehouse;
 		private IEnumerable<DefectSource> defectiveReasons;
 		int bottlesReturnedToWarehouse;
@@ -710,14 +710,10 @@ namespace Vodovoz
 				return false;
 			}
 
-			if(HasChanges && Entity.Status == RouteListStatus.Delivered) {
-				if(Entity.Car.IsCompanyCar) {
-					Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
-				} else {
-					Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
-				}
+			if(Entity.Status == RouteListStatus.Delivered) {
+				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
-
+			
 			UoW.Save();
 
 			return true;
@@ -810,6 +806,8 @@ namespace Vodovoz
 					}
 				}
 			}
+			
+			Entity.WasAcceptedByCashier = true;
 
 			SaveAndClose();
 			
@@ -1091,8 +1089,9 @@ namespace Vodovoz
 			var inputCashOrder = (decimal)spinCashOrder.Value;
 			messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder));
 
-			if(cashIncome != null) UoW.Save(cashIncome);
-			if(cashExpense != null) UoW.Save(cashExpense);
+			if (cashIncome != null) UoW.Save(cashIncome);
+			if (cashExpense != null) UoW.Save(cashExpense);
+
 			UoW.Save();
 
 			CalculateTotal();

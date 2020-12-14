@@ -58,7 +58,7 @@
             <Width>119.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>73.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>140.7pt</Width>
@@ -297,7 +297,7 @@
           </TableRows>
         </Details>
         <Left>18.9pt</Left>
-        <Top>48.8pt</Top>
+        <Top>48.0pt</Top>
         <PageBreakAtEnd>false</PageBreakAtEnd>
         <Footer>
           <TableRows>
@@ -795,7 +795,7 @@
       <Textbox Name="Textbox42" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.94pt</Height>
         <Width>56.42pt</Width>
-        <Value>=First(Fields!expance_count,'CountExpance') + ' расходных'</Value>
+        <Value>=First({expense_count}, 'CountExpense') + ' расходных'</Value>
         <ZIndex>1</ZIndex>
         <Left>227.8pt</Left>
         <Top>239.4pt</Top>
@@ -874,7 +874,7 @@
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>16.49pt</Height>
         <Width>372.43pt</Width>
-        <Value>= "Касса " + First(Fields!name,'SubdivisionName') + " за " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " - " + Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
+        <Value>=Iif({?Cash} = -1, "Все кассы", "Касса " + First(Fields!name,'SubdivisionName'))  + " за " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " - " + Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>2.10pt</Left>
         <Top>9.80pt</Top>
@@ -932,9 +932,9 @@
       <Textbox Name="Textbox33">
         <Height>12.00pt</Height>
         <Width>72.27pt</Width>
-        <Value>=First(Fields!count_all,'CountAll')</Value>
+        <Value>=First({income_count}, "CountIncome") + First({expense_count}, "CountExpense")</Value>
         <ZIndex>1</ZIndex>
-        <Left>252.3pt</Left>
+        <Left>253.1pt</Left>
         <Top>198.7pt</Top>
         <Style>
           <BorderStyle />
@@ -967,7 +967,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>75</Timeout>
         <CommandText>##INCOME
@@ -1031,7 +1031,7 @@ WHERE IF(@Cash != -1,
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="doc_date">
           <DataField>doc_date</DataField>
         </Field>
@@ -1069,7 +1069,7 @@ WHERE id = @Cash;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="StartBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>Select
     SUM( (
@@ -1096,14 +1096,14 @@ WHERE IF(@Cash != -1, s.id IN (@Cash), 1=1);</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="balance">
           <DataField>balance</DataField>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="EndBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>Select
     SUM( (
@@ -1130,14 +1130,14 @@ WHERE IF(@Cash != -1, s.id IN (@Cash), 1=1);</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="balance">
           <DataField>balance</DataField>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="CountIncome">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     count(*) as income_count
@@ -1161,17 +1161,17 @@ WHERE IF(@Cash != -1,
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="income_count">
           <DataField>income_count</DataField>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="CountExpance">
+    <DataSet Name="CountExpense">
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    count(*) as expance_count
+    count(*) as expense_count
 
 FROM cash_expense this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
@@ -1193,53 +1193,8 @@ WHERE IF(@Cash != -1,
         </QueryParameters>
       </Query>
       <Fields >
-        <Field Name="expance_count">
-          <DataField>expance_count</DataField>
-        </Field>
-      </Fields>
-    </DataSet>
-    <DataSet Name="CountAll">
-      <Query >
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT count(T.count) as count_all From (
-    SELECT
-        this_.id as count
-    FROM cash_income this_
-             left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
-             left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-             left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id
-             left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
-    WHERE IF(@Cash != -1,
-             (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
-             (this_.date &gt;= @StartDate and this_.date &lt; @EndDate))
-    
-    UNION
-    SELECT
-        this_.id as count
-    
-    FROM cash_expense this_
-             left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
-             left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-             left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
-    WHERE IF(@Cash != -1,
-             (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
-             (this_.date &gt;= @StartDate and this_.date &lt; @EndDate))
-) as T;</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="StartDate">
-            <Value>=Parameters!StartDate</Value>
-          </QueryParameter>
-          <QueryParameter Name="EndDate">
-            <Value>=Parameters!EndDate</Value>
-          </QueryParameter>
-          <QueryParameter Name="Cash">
-            <Value>=Parameters!Cash</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields >
-        <Field Name="count_all">
-          <DataField>count_all</DataField>
+        <Field Name="expense_count">
+          <DataField>expense_count</DataField>
         </Field>
       </Fields>
     </DataSet>

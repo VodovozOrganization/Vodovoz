@@ -49,7 +49,7 @@ namespace Vodovoz.Views
 				.AddColumn("Организация")
 					.AddComboRenderer(x => x.Organization)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(ViewModel.UoW.GetAll<Domain.Organization>().ToList())
+					.FillItems(ViewModel.UoW.GetAll<Domain.Organizations.Organization>().ToList())
 					.AddSetter((c, n) => 
 						c.Editable = n.FinancialDistrictsSet.Status != DistrictsSetStatus.Active)
 				.AddColumn("")

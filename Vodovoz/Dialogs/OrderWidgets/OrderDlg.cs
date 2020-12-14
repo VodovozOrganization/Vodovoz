@@ -47,6 +47,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.StoredEmails;
@@ -67,6 +68,7 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Models;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
@@ -78,6 +80,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
+using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 
 namespace Vodovoz
 {
@@ -98,6 +101,10 @@ namespace Vodovoz
 
 		Order templateOrder;
 
+		private IOrganizationProvider organizationProvider;
+		private ICounterpartyContractRepository counterpartyContractRepository;
+		private CounterpartyContractFactory counterpartyContractFactory;
+		
 		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
@@ -311,7 +318,13 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
+			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
+			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint>(OnDeliveryPointChanged);
 			ConfigureTrees();
 			ConfigureButtonActions();
 			ConfigureSendDocumentByEmailWidget();
@@ -468,7 +481,7 @@ namespace Vodovoz
 				else
 					enumPaymentType.ClearEnumHideList();
 				
-				Entity.UpdateClientDefaultParam();
+				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 				enumPaymentType.SelectedItem = Entity.PaymentType;
 				
 				if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
@@ -565,6 +578,15 @@ namespace Vodovoz
 					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
 				} 
 			};
+		}
+
+		private void OnDeliveryPointChanged(EntityChangeEvent[] changeevents)
+		{
+			var changedEntities = changeevents.Select(x => x.Entity).OfType<DeliveryPoint>();
+			if (changedEntities.Any(x => DeliveryPoint != null && x.Id == DeliveryPoint.Id)) {
+				UoW.Session.Refresh(DeliveryPoint);
+				return;
+			}
 		}
 
 		private void OnNomenclatureFixedPriceChanged(EntityChangeEvent[] changeevents)
@@ -977,9 +999,7 @@ namespace Vodovoz
 			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
-				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
-				if(Entity.Contract == null)
-					Entity.CreateDefaultContract();
+				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 			}
 
 			Entity.AcceptOrder(employeeRepository.GetEmployeeForCurrentUser(UoW), CallTaskWorker);
@@ -1328,11 +1348,7 @@ namespace Vodovoz
 		void DoneServiceSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			ServiceClaim selected = (e.Subject as ServiceClaim);
-			var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(
-							   UoWGeneric,
-							   Entity.Client,
-							   Entity.Client.PersonType,
-							   Entity.PaymentType);
+			var contract = counterpartyContractRepository.GetCounterpartyContract( UoWGeneric, Entity);
 			selected.FinalOrder = Entity;
 			Entity.ObservableFinalOrderService.Add(selected);
 			//TODO Add service nomenclature with price.
@@ -1678,43 +1694,6 @@ namespace Vodovoz
 			SetDiscountUnitEditable();
 		}
 
-		protected int AskCreateContract()
-		{
-			MessageDialog md = new MessageDialog(
-				null,
-				DialogFlags.Modal,
-				MessageType.Question,
-				ButtonsType.YesNo,
-				$"Отсутствует договор с клиентом для формы оплаты '{Entity.PaymentType.GetEnumTitle()}'. Создать?"
-			);
-			md.SetPosition(WindowPosition.Center);
-			md.AddButton("Автоматически", ResponseType.Accept);
-			md.ShowAll();
-			//var result = md.Run();
-			md.Destroy();
-			//TODO Временно сделан выбор создания договора автоматически. 
-			//Если не понадобится возвращатся к выбору создания договора, убрать 
-			//диалог и проверить создание диалогов для доп соглашений которые должны 
-			//будут запускаться после создания договора
-			return (int)ResponseType.Accept;
-		}
-		
-		protected void OnContractSaved(object sender, ContractSavedEventArgs args)
-		{
-			CounterpartyContract contract =
-					CounterpartyContractRepository.GetCounterpartyContractByPaymentType(
-						UoWGeneric,
-						Entity.Client,
-						Entity.Client.PersonType,
-						Entity.PaymentType);
-			Entity.ObservableOrderDocuments.Add(new OrderContract {
-				Order = Entity,
-				AttachedToOrder = Entity,
-				Contract = contract
-			});
-
-			Entity.Contract = contract;
-		}
 		#endregion
 
 		#region Изменение диалога
@@ -1808,7 +1787,7 @@ namespace Vodovoz
 					} else if(Entity.Id == 0 || hideEnums.Contains(Entity.PaymentType)) {
 						enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;
 						OnEnumPaymentTypeChanged(null, e);
-						Entity.ChangeOrderContract();
+						Entity.ChangeOrderContract(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 					} else {
 						enumPaymentType.SelectedItem = Entity.PaymentType;
 					}
@@ -1876,7 +1855,7 @@ namespace Vodovoz
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
 		{
 			CheckSameOrders();
-			Entity.ChangeOrderContract();
+			Entity.ChangeOrderContract(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 			
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
@@ -1985,7 +1964,7 @@ namespace Vodovoz
 			if(Entity.DeliveryDate.HasValue) {
 				if(Entity.DeliveryDate.Value.Date != DateTime.Today.Date || MessageDialogHelper.RunWarningDialog("Подтвердите дату доставки", "Доставка сегодня? Вы уверены?", ButtonsType.YesNo)) {
 					CheckSameOrders();
-					Entity.ChangeOrderContract();
+					Entity.ChangeOrderContract(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 					return;
 				}
 				Entity.DeliveryDate = null;
@@ -2007,7 +1986,7 @@ namespace Vodovoz
 				enumPaymentType.AddEnumToHideList(hideEnums);
 			}
 			
-			Entity.UpdateClientDefaultParam();
+			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 
 			//Проверяем возможность добавления Акции "Бутыль"
 			ControlsActionBottleAccessibility();
@@ -2062,7 +2041,7 @@ namespace Vodovoz
 
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
 		{
-			Entity.ChangeOrderContract();
+			Entity.ChangeOrderContract(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 			if(Entity.PaymentType != PaymentType.ByCard)
 				entOnlineOrder.Text = string.Empty;//костыль, т.к. Entity.OnlineOrder = null не убирает почему-то текст из виджета
 		}
@@ -2589,12 +2568,7 @@ namespace Vodovoz
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
 			}
-
-			var organization = UoW.GetById<Organization>(new BaseParametersProvider().GetCashlessOrganisationId);
-			if(organization == null) {
-				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. В параметрах базы не определена организация для безналичного расчета");
-				return;
-			}
+			
 			var wasHideSignature = billDocument.HideSignature;
 			billDocument.HideSignature = false;
 			ReportInfo ri = billDocument.GetReportInfo();

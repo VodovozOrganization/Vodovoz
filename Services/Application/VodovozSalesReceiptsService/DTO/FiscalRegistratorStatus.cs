@@ -1,4 +1,4 @@
-﻿namespace VodovozSalesReceiptsService
+﻿namespace VodovozSalesReceiptsService.DTO
 {
 	public enum FiscalRegistratorStatus
 	{

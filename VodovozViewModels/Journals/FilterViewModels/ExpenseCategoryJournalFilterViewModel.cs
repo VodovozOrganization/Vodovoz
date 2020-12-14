@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using QS.Project.Filter;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 
@@ -16,6 +17,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
         {
             get => level;
             set => UpdateFilterField(ref level, value);
+        }
+        
+        private IEnumerable<int> excludedIds;
+        public virtual IEnumerable<int> ExcludedIds {
+            get => excludedIds;
+            set => UpdateFilterField(ref excludedIds, value);
         }
     }
 }

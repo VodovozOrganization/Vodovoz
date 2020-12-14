@@ -31,12 +31,14 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository.Client;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
+using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -1051,6 +1053,13 @@ namespace Vodovoz.Domain.Orders
 				);
 			}
 
+			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType)
+				&& Contract?.Organization != null && Contract.Organization.CashBox == null) {
+				yield return new ValidationResult(
+					"Ошибка программы. В заказе автоматически подобрана неверная организация",
+					new[] { nameof(Contract.Organization) });
+			}
+
 			//FIXME Удалить после 16 числа
 			if(DeliveryDate.HasValue && PaymentType == PaymentType.Terminal && DeliveryDate.Value.Date == new DateTime(2020, 12, 16)) {
 				yield return new ValidationResult(
@@ -1186,22 +1195,22 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			Contract = FindOrCreateContract(newClient);
-			OnChangeContract(true);
-		}
-
-		private void OnChangeContract(bool changedClient = false)
-		{
-			UpdateDocuments();
+			UpdateContract();
 		}
 
 		private void OnChangePaymentType()
 		{
-			ChangeContractOnChangePaymentType();
-			if(Contract == null) {
-				Contract = FindOrCreateContract(Client);
-			}
-			OnChangeContract();
+			UpdateContract();
+		}
+
+		private void UpdateContract()
+		{
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
+			var counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
+			UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+			UpdateDocuments();
 		}
 
 		#endregion
@@ -1292,15 +1301,26 @@ namespace Vodovoz.Domain.Orders
 			);
 		}
 
-		public virtual void ChangeOrderContract()
+		public virtual void ChangeOrderContract(
+			IUnitOfWork uow, 
+			ICounterpartyContractRepository counterpartyContractRepository, 
+			IOrganizationProvider organizationProvider,
+			CounterpartyContractFactory counterpartyContractFactory)
 		{
+			if(counterpartyContractRepository == null)
+				throw new ArgumentNullException(nameof(counterpartyContractRepository));
+			if(organizationProvider == null) 
+				throw new ArgumentNullException(nameof(organizationProvider));
+			if(counterpartyContractFactory == null)
+				throw new ArgumentNullException(nameof(counterpartyContractFactory));
+
 			if(Client == null || (DeliveryPoint == null && !SelfDelivery) || DeliveryDate == null) {
 				return;
 			}
 			var oldContract = Contract;
 
 			//Нахождение подходящего существующего договора
-			var actualContract = Repositories.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+			var actualContract = counterpartyContractRepository.GetCounterpartyContract(uow, this);
 
 			//Нахождение договора созданного в текущем заказе, 
 			//который можно изменить под необходимые параметры
@@ -1331,17 +1351,13 @@ namespace Vodovoz.Domain.Orders
 					&& x.Contract?.Id == Contract?.Id
 				)
 			) {
-				using(var uowContract = UnitOfWorkFactory.CreateForRoot<CounterpartyContract>(Contract.Id, $"Изменение договора в заказе")) {
-					uowContract.Root.ContractType = DocTemplateRepository.GetContractTypeForPaymentType(Client.PersonType, PaymentType);
-					uowContract.Root.Organization = Repositories.OrganizationRepository.GetOrganizationByPaymentType(uowContract, Client.PersonType, PaymentType);
-					uowContract.Save();
-				}
-				UoW.Session.Refresh(Contract);
+				Contract.ContractType = counterpartyContractRepository.GetContractTypeForPaymentType(Client.PersonType, PaymentType);
+				Contract.Organization = organizationProvider.GetOrganization(uow, this);
 				return;
 			}
 
 			if(actualContract == null) {
-				actualContract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
+				actualContract = counterpartyContractFactory.CreateContract(uow, this, DeliveryDate);
 				Contract = actualContract;
 			}
 
@@ -1373,13 +1389,28 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void CreateDefaultContract()
 		{
-			Contract = FindOrCreateContract(Client);
+			
+		}
+
+		public virtual void UpdateOrCreateContract(IUnitOfWork uow, ICounterpartyContractRepository counterpartyContractRepository, CounterpartyContractFactory contractFactory)
+		{
+			if(uow == null) throw new ArgumentNullException(nameof(uow));
+			if(counterpartyContractRepository == null)
+				throw new ArgumentNullException(nameof(counterpartyContractRepository));
+			if(contractFactory == null) throw new ArgumentNullException(nameof(contractFactory));
+
+			var counterpartyContract = counterpartyContractRepository.GetCounterpartyContract(uow, this);
+			if(counterpartyContract == null) {
+				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);
+			}
+			
+			Contract = counterpartyContract;
 			ObservableOrderDocuments.Add(new OrderContract {
 				Order = this,
 				AttachedToOrder = this,
 				Contract = Contract
 			});
-			OnChangeContract(false);
+			UpdateDocuments();
 		}
 
 		public virtual void RecalculateItemsPrice()
@@ -1397,27 +1428,6 @@ namespace Vodovoz.Domain.Orders
 			if(doNotCountWaterFromPromoSets)
 				water19L = water19L.Where(x => x.PromoSet == null);
 			return (int)water19L.Sum(x => x.Count);
-		}
-
-		/// <summary>
-		/// Находит соответсвующий типу клиента и типу оплаты контракт, если не найден создает новый
-		/// </summary>
-		private CounterpartyContract FindOrCreateContract(Counterparty client)
-		{
-			var contractType = DocTemplateRepository.GetContractTypeForPaymentType(client.PersonType, PaymentType);
-			var newContract = client.CounterpartyContracts.FirstOrDefault(x => x.ContractType == contractType && !x.IsArchive);
-			if(newContract == null) {
-				newContract = ClientDocumentsRepository.CreateDefaultContract(UoW, client, PaymentType, DeliveryDate);
-			}
-			return newContract;
-		}
-
-		//Выбирает договор соответствующий форме оплаты если такой найден
-		public virtual void ChangeContractOnChangePaymentType()
-		{
-			var org = Repositories.OrganizationRepository.GetOrganizationByPaymentType(UoW, Client.PersonType, PaymentType);
-			if((Contract == null || Contract.Organization.Id != org.Id) && Client != null)
-				Contract = Repositories.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 		}
 
 		public virtual void AddEquipmentNomenclatureToClient(Nomenclature nomenclature, IUnitOfWork UoW)
@@ -1583,8 +1593,19 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void UpdateClientDefaultParam()
+		public virtual void UpdateClientDefaultParam(
+			IUnitOfWork uow, 
+			ICounterpartyContractRepository counterpartyContractRepository, 
+			IOrganizationProvider organizationProvider,
+			CounterpartyContractFactory counterpartyContractFactory)
 		{
+			if(counterpartyContractRepository == null)
+				throw new ArgumentNullException(nameof(counterpartyContractRepository));
+			if(organizationProvider == null) 
+				throw new ArgumentNullException(nameof(organizationProvider));
+			if(counterpartyContractFactory == null)
+				throw new ArgumentNullException(nameof(counterpartyContractFactory));
+			
 			if(Client == null)
 				return;
 			if(OrderStatus != OrderStatus.NewOrder)
@@ -1600,7 +1621,7 @@ namespace Vodovoz.Domain.Orders
 				DeliveryPoint = Client.DeliveryPoints.FirstOrDefault();
 
 			PaymentType = Client.PaymentMethod;
-			ChangeOrderContract();
+			ChangeOrderContract(uow, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 		}
 
 		public virtual void SetProxyForOrder()
@@ -1836,11 +1857,11 @@ namespace Vodovoz.Domain.Orders
 		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
 		{
 			if(Contract == null) {
-				Contract = Repositories.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
-				if(Contract == null) {
-					Contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
-					AddContractDocument(Contract);
-				}
+				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+				var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
+				var counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
+				UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 			}
 			AddMasterNomenclature(nomenclature, 1, 1);
 			return Contract;

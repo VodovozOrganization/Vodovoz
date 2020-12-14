@@ -15,12 +15,12 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
-using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -308,6 +308,12 @@ namespace Vodovoz.Domain.Employees
 		public virtual string LoginForNewUser {
 			get { return loginForNewUser; }
 			set { SetField(ref loginForNewUser, value, () => LoginForNewUser); }
+		}
+		
+		Organization organisationForSalary;
+		public virtual Organization OrganisationForSalary {
+			get => organisationForSalary;
+			set => SetField(ref organisationForSalary, value);
 		}
 
 		#endregion

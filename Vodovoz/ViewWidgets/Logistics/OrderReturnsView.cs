@@ -25,12 +25,15 @@ using QS.Dialog;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Models;
+using Vodovoz.Repositories.Client;
 
 namespace Vodovoz
 {
@@ -86,6 +89,10 @@ namespace Vodovoz
 
 		IUnitOfWork uow;
 
+		private IOrganizationProvider organizationProvider;
+		private ICounterpartyContractRepository counterpartyContractRepository;
+		private CounterpartyContractFactory counterpartyContractFactory;
+		
 		public IUnitOfWork UoW {
 			get => uow;
 			set {
@@ -220,6 +227,11 @@ namespace Vodovoz
 
 		protected void Configure()
 		{
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
+			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
+			
 			canEditPrices = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
 			orderNode = new OrderNode(routeListItem.Order);
 			var counterpartyFilter = new CounterpartyFilter(UoW);
@@ -399,7 +411,7 @@ namespace Vodovoz
 
 		protected void OnYenumcomboOrderPaymentChangedByUser(object sender, EventArgs e)
 		{
-			routeListItem.Order.ChangeOrderContract();
+			routeListItem.Order.ChangeOrderContract(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 			routeListItem.RecalculateTotalCash();
 		}
 

@@ -10,6 +10,7 @@ using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Dialogs.Employees
 {

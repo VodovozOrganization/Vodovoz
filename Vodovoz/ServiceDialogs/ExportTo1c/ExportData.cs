@@ -9,6 +9,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.ExportTo1c.Catalogs;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repositories;
@@ -49,9 +50,6 @@ namespace Vodovoz.ExportTo1c
 		public OrganizationCatalog OrganizationCatalog { get; private set; }
 		public WarehouseCatalog WarehouseCatalog { get; private set; }
 
-		public Organization CashlessOrganization { get; private set; }
-		public Organization TinkoffOrganization { get; private set; }
-
 		public Export1cMode ExportMode { get; private set; }
 
 		public ExportData(IUnitOfWork uow, Export1cMode mode, DateTime dateStart, DateTime dateEnd)
@@ -80,8 +78,6 @@ namespace Vodovoz.ExportTo1c
 			this.NomenclatureGroupCatalog = new NomenclatureGroupCatalog(this);
 			this.OrganizationCatalog = new OrganizationCatalog(this);
 			this.WarehouseCatalog = new WarehouseCatalog(this);
-			this.CashlessOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PersonType.legal, PaymentType.cashless);
-			this.TinkoffOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PersonType.natural, PaymentType.ByCard);
 			this.ExchangeRules = new RulesNode();
 		}
 
@@ -100,7 +96,7 @@ namespace Vodovoz.ExportTo1c
 			exportInvoiceDocument.Properties.Add(
 				new PropertyNode("Организация",
 					Common1cTypes.ReferenceOrganization,
-					OrganizationCatalog.CreateReferenceTo(ExportMode == Export1cMode.IPForTinkoff ? TinkoffOrganization : CashlessOrganization)
+					OrganizationCatalog.CreateReferenceTo(order.Contract.Organization)
 				)
 			);
 
@@ -213,7 +209,7 @@ namespace Vodovoz.ExportTo1c
 			exportSaleDocument.Properties.Add(
 				new PropertyNode("Организация",
 					Common1cTypes.ReferenceOrganization,
-					OrganizationCatalog.CreateReferenceTo(ExportMode == Export1cMode.IPForTinkoff ? TinkoffOrganization : CashlessOrganization)
+					OrganizationCatalog.CreateReferenceTo(order.Contract.Organization)
 				)
 			);
 			exportSaleDocument.Properties.Add(

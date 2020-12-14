@@ -8,6 +8,9 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Models;
 
 namespace Vodovoz.Domain.Client
 {
@@ -78,7 +81,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty {
 			get { return counterparty; }
-			protected set { SetField(ref counterparty, value, () => Counterparty); }
+			set { SetField(ref counterparty, value, () => Counterparty); }
 		}
 
 		int contractSubNumber;
@@ -139,8 +142,12 @@ namespace Vodovoz.Domain.Client
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider); 
+			
 			if(!IsArchive && !OnCancellation) {
-				var contracts = Repositories.CounterpartyContractRepository.GetActiveContractsWithOrganization(UnitOfWorkFactory.CreateWithoutRoot("Валидация договора контрагента"), Counterparty, Organization, ContractType);
+				var contracts = counterpartyContractRepository.GetActiveContractsWithOrganization(UnitOfWorkFactory.CreateWithoutRoot("Валидация договора контрагента"), Counterparty, Organization, ContractType);
 				if(contracts.Any(c => c.Id != Id))
 					yield return new ValidationResult(
 						String.Format("У контрагента '{0}' уже есть активный договор с организацией '{1}'", Counterparty.Name, Organization.Name),
@@ -170,7 +177,7 @@ namespace Vodovoz.Domain.Client
 			uow.Root.ContractSubNumber = GenerateSubNumber(counterparty);
 			return uow;
 		}
-
+		
 		#region Функции
 
 		/// <summary>

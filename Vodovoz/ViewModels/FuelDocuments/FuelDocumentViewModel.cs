@@ -5,7 +5,6 @@ using System.Linq;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
@@ -18,12 +17,19 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using QS.Navigation;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.FuelDocuments
 {
 	public class FuelDocumentViewModel : TabViewModelBase
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
+			new CashDistributionCommonOrganisationProvider(
+				new OrganizationParametersProvider(ParametersProvider.Instance));
+
+		private FuelCashOrganisationDistributor fuelCashOrganisationDistributor;
 
 		public virtual IUnitOfWork UoW { get; set; }
 
@@ -234,6 +240,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			}
 
 			TabName = "Выдача топлива";
+			fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(commonOrganisationProvider);
 			CreateCommands();
 			Track = TrackRepository.GetTrackForRouteList(UoW, RouteList.Id);
 			if(FuelDocument.Id == 0)
@@ -252,12 +259,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return false;
 			}
 
-			var cashSubdivisions = subdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			/*var cashSubdivisions = subdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!cashSubdivisions?.Contains(Cashier.Subdivision) ?? true) {
 				ShowWarningMessage("Выдать топливо может только сотрудник кассы");
 				return false;
 			}
-
+*/
 			return true;
 		}
 
@@ -291,8 +298,13 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return false;
 			if(FuelDocument.Id == 0) 
 			{
-				FuelDocument.CreateOperations(fuelRepository);
+				FuelDocument.CreateOperations(fuelRepository, commonOrganisationProvider);
 				RouteList.ObservableFuelDocuments.Add(FuelDocument);
+
+				if (FuelInMoney && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)
+				{
+					fuelCashOrganisationDistributor.DistributeCash(UoW, FuelDocument);
+				}
 			} 
 			else 
 			{

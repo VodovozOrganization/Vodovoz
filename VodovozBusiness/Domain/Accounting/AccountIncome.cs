@@ -5,6 +5,7 @@ using QS.DomainModel.Entity;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Accounting
 {

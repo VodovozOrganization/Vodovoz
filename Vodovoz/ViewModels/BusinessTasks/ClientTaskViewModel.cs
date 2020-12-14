@@ -21,6 +21,8 @@ using Vodovoz.Filters.ViewModels;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Employees;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Models;
+using Vodovoz.Repositories.Client;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
@@ -63,6 +65,9 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		public readonly IBottlesRepository bottleRepository;
 		public readonly ICallTaskRepository callTaskRepository;
 		public readonly IPhoneRepository phoneRepository;
+		private readonly IOrganizationProvider organizationProvider;
+		private readonly ICounterpartyContractRepository counterpartyContractRepository;
+		private readonly CounterpartyContractFactory counterpartyContractFactory;
 
 		public ClientTaskViewModel(
 			IEmployeeRepository employeeRepository,
@@ -71,12 +76,18 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			IPhoneRepository phoneRepository,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			IOrganizationProvider organizationProvider,
+			ICounterpartyContractRepository counterpartyContractRepository,
+			CounterpartyContractFactory counterpartyContractFactory,
 			ICommonServices commonServices) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			this.bottleRepository = bottleRepository ?? throw new ArgumentNullException(nameof(bottleRepository));
 			this.callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
+			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
+			this.counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
+			this.counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 
 			if(uowBuilder.IsNewEntity) {
 				TabName = "Новая задача";
@@ -102,6 +113,9 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			IOrganizationProvider organizationProvider,
+			ICounterpartyContractRepository counterpartyContractRepository,
+			CounterpartyContractFactory counterpartyContractFactory,
 			int counterpartyId,
 			int deliveryPointId) 
 			: this(employeeRepository, 
@@ -109,8 +123,12 @@ namespace Vodovoz.ViewModels.BusinessTasks
 				  	callTaskRepository, 
 					phoneRepository, 
 					uowBuilder, 
-					unitOfWorkFactory, 
-					commonServices)
+					unitOfWorkFactory,
+					organizationProvider,
+					counterpartyContractRepository,
+					counterpartyContractFactory,
+					commonServices
+					)
 		{
 			Entity.Counterparty = UoW.GetById<Counterparty>(counterpartyId);
 			Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(deliveryPointId);
@@ -194,7 +212,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 					OrderDlg orderDlg = new OrderDlg();
 					orderDlg.Entity.Client = orderDlg.UoW.GetById<Counterparty>(Entity.Counterparty.Id);
-					orderDlg.Entity.UpdateClientDefaultParam();
+					orderDlg.Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 					orderDlg.Entity.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(Entity.DeliveryPoint.Id);
 
 					orderDlg.CallTaskWorker.TaskCreationInteractive = new GtkTaskCreationInteractive();
