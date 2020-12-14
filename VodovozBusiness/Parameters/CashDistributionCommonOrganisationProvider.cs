@@ -7,9 +7,9 @@ namespace Vodovoz.Parameters
 {
     public class CashDistributionCommonOrganisationProvider : ICashDistributionCommonOrganisationProvider
     {
-        private readonly OrganizationParametersProvider organisationParametersProvider;
+        private readonly IOrganizationParametersProvider organisationParametersProvider;
 
-        public CashDistributionCommonOrganisationProvider(OrganizationParametersProvider organisationParametersProvider)
+        public CashDistributionCommonOrganisationProvider(IOrganizationParametersProvider organisationParametersProvider)
         {
             this.organisationParametersProvider =
                 organisationParametersProvider ?? throw new ArgumentNullException(nameof(organisationParametersProvider));
