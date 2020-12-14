@@ -53,9 +53,11 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			if(order.Contract != null)
 				return CreateReferenceTo(order.Contract);
 
-			var contract = new VirtualContract(order.Client,
-				                               exportData.CashlessOrganization,
-				                               $"{order.Client.VodovozInternalId}-1");
+			var contract = new VirtualContract(
+				order.Client,
+				order.Contract.Organization,
+				$"{order.Client.VodovozInternalId}-1"
+			);
 
 			return CreateReferenceTo(contract);
 		}
