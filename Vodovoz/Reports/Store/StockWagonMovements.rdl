@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	'writeoff' as direction, 
@@ -108,7 +108,7 @@ GROUP BY store_movement_document.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="direction">
           <DataField>direction</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -295,7 +295,7 @@ GROUP BY store_movement_document.id</CommandText>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12pt</Height>
+              <Height>27.0pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -328,7 +328,10 @@ GROUP BY store_movement_document.id</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -350,13 +353,16 @@ GROUP BY store_movement_document.id</CommandText>
                   <ReportItems>
                     <Textbox Name="send_time">
                       <Value>=Fields!send_time.Value</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -383,8 +389,13 @@ GROUP BY store_movement_document.id</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <PaddingBottom >12pt</PaddingBottom>
+                        <PaddingTop >2pt</PaddingTop>
                       </Style>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -394,8 +405,8 @@ GROUP BY store_movement_document.id</CommandText>
         </Details>
       </Table>
     </ReportItems>
-    <Height>30.4pt</Height>
-    <Columns >1</Columns>
+    <Height>46.0pt</Height>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -427,9 +438,9 @@ GROUP BY store_movement_document.id</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
     <ReportParameter Name="warehouse_id">
       <DataType>Integer</DataType>
       <DefaultValue>
