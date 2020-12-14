@@ -88,6 +88,8 @@
     <Compile Include="Domain\WageCalculation\WageParameterItemTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
+    <Compile Include="EntityRepositories\Counterparty\CounterpartyContractRepository.cs" />
+    <Compile Include="EntityRepositories\Counterparty\ICounterpartyContractRepository.cs" />
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Orders\ExtendedReceiptForOrderNode.cs" />
@@ -118,10 +120,14 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
+    <Compile Include="Models\IOrganizationProvider.cs" />
+    <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
+    <Compile Include="Models\Stage1OrganizationProvider.cs" />
     <Compile Include="NhibernateExtensions\CustomProjections.cs" />
     <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
+    <Compile Include="Parameters\OrganizationParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -305,7 +311,6 @@
     <Compile Include="Repositories\Cash\AccountableDebtsRepository.cs" />
     <Compile Include="Repositories\Cash\CashRepository.cs" />
     <Compile Include="Repositories\Cash\CategoryRepository.cs" />
-    <Compile Include="Repositories\CounterpartyContractRepository.cs" />
     <Compile Include="Repositories\CounterpartyRepository.cs" />
     <Compile Include="Repositories\EquipmentRepository.cs" />
     <Compile Include="Repositories\EquipmentTypeRepository.cs" />
@@ -378,7 +383,7 @@
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="HibernateMapping\Documents\TransferOperationDocumentMap.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
-    <Compile Include="Services\IOrganisationParametersProvider.cs" />
+    <Compile Include="Services\IOrganizationParametersProvider.cs" />
     <Compile Include="Services\ISmsPaymentServiceParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Tools\LoggedMySqlClientDriver.cs" />
@@ -408,7 +413,7 @@
     <Compile Include="Domain\Client\SalesEquipment.cs" />
     <Compile Include="DocTemplates\EquipmentAgreementParser.cs" />
     <Compile Include="HibernateMapping\Counterparty\SalesEquipmentMap.cs" />
-    <Compile Include="Repositories\Client\ClientDocumentsRepository.cs" />
+    <Compile Include="Repositories\Client\CounterpartyContractFactory.cs" />
 	<Compile Include="Domain\Client\Tag.cs" />
     <Compile Include="HibernateMapping\Counterparty\TagMap.cs" />
 	<Compile Include="Tools\Logistic\DeliveryPriceCalculator.cs" />	
@@ -792,7 +797,6 @@
     <Compile Include="Domain\Payments\Payment.cs" />
     <Compile Include="Domain\Payments\CategoryProfit.cs" />
     <Compile Include="Domain\Payments\CategoryExpense.cs" />
-    <Compile Include="Services\IOrganizationProvider.cs" />
     <Compile Include="HibernateMapping\Accounting\CategoryProfitMap.cs" />
     <Compile Include="HibernateMapping\Accounting\PaymentMap.cs" />
     <Compile Include="Services\IProfitCategoryProvider.cs" />

@@ -17,6 +17,8 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Models;
+using Vodovoz.Repositories.Client;
 
 namespace Vodovoz.Dialogs
 {
@@ -31,6 +33,10 @@ namespace Vodovoz.Dialogs
 		private ICallTaskRepository callTaskRepository { get; set; } = new CallTaskRepository();
 		private IPhoneRepository phoneRepository { get; set; } = new PhoneRepository();
 
+		private IOrganizationProvider organizationProvider;
+		private ICounterpartyContractRepository counterpartyContractRepository;
+		private CounterpartyContractFactory counterpartyContractFactory;
+		
 		public CallTaskDlg()
 		{
 			this.Build();
@@ -63,6 +69,11 @@ namespace Vodovoz.Dialogs
 
 		private void ConfigureDlg()
 		{
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
+			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
+			
 			buttonReportByClient.Sensitive = Entity.Counterparty != null;
 			buttonReportByDP.Sensitive = Entity.DeliveryPoint != null;
 
@@ -194,7 +205,7 @@ namespace Vodovoz.Dialogs
 
 			OrderDlg orderDlg = new OrderDlg();
 			orderDlg.Entity.Client = orderDlg.UoW.GetById<Counterparty>(Entity.Counterparty.Id);
-			orderDlg.Entity.UpdateClientDefaultParam();
+			orderDlg.Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 			orderDlg.Entity.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(Entity.DeliveryPoint.Id);
 
 			orderDlg.CallTaskWorker.TaskCreationInteractive = new GtkTaskCreationInteractive();
