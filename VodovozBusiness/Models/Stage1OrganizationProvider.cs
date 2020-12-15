@@ -78,11 +78,11 @@ namespace Vodovoz.Models
                 case PaymentType.ContractDoc:
                     organizationId = organizationParametersProvider.VodovozOrganizationId;
                     break;
+                case PaymentType.ByCard:
                 case PaymentType.cash:
                     organizationId = organizationParametersProvider.SosnovcevOrganizationId;
                     break;
                 case PaymentType.Terminal:
-                case PaymentType.ByCard:
                     organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
                     break;
                 case PaymentType.BeveragesWorld:
