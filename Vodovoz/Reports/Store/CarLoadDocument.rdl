@@ -185,6 +185,7 @@ LEFT JOIN order_equipment oe ON oe.order_id = orders.id
 WHERE
 	scld.id = @id
 	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle', 'CashEquipment')
+	AND n.online_store_external_id IS NULL
 	AND IF(n.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
 GROUP BY n.id</CommandText>
         <QueryParameters>
