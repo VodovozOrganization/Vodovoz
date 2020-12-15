@@ -32,7 +32,6 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.TempAdapters;
 using Vodovoz.Models;
@@ -187,6 +186,10 @@ namespace Vodovoz
 			ycheckIsArchived.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_arc_counterparty_and_deliverypoint");
 
 			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
+
+			ycheckExpirationDateControl.Binding.AddBinding(Entity, e => e.SpecialExpireDatePercentCheck, w => w.Active).InitializeFromSource();
+			yspinExpirationDatePercent.Binding.AddBinding(Entity, e => e.SpecialExpireDatePercentCheck, w => w.Visible).InitializeFromSource();
+			yspinExpirationDatePercent.Binding.AddBinding(Entity, e => e.SpecialExpireDatePercent, w => w.ValueAsDecimal).InitializeFromSource();
 
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
 			if (Entity.IsChainStore)
