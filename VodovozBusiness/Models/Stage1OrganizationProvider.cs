@@ -24,14 +24,14 @@ namespace Vodovoz.Models
             if (uow == null) throw new ArgumentNullException(nameof(uow));
             if (order == null) throw new ArgumentNullException(nameof(order));
             
-            if (order.SelfDelivery) {
-                return GetOrganizationForSelfDelivery(uow, order.PaymentType);
-            }
-
             if(IsOnlineStoreOrder(order)) {
                 return GetOrganizationForOnlineStore(uow);
             }
             
+            if (order.SelfDelivery) {
+                return GetOrganizationForSelfDelivery(uow, order.PaymentType);
+            }
+
             return GetOrganizationForOtherOptions(uow, order.PaymentType);
         }
 
