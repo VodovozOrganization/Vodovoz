@@ -1056,7 +1056,7 @@ namespace Vodovoz.Domain.Orders
 			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType)
 				&& Contract?.Organization != null && Contract.Organization.CashBox == null) {
 				yield return new ValidationResult(
-					"Ошибка программы. В заказе автоматически подобрана неверная организация",
+					"Ошибка программы. В заказе автоматически подобрана неверная организация или к организации не привязан кассовый аппарат",
 					new[] { nameof(Contract.Organization) });
 			}
 
