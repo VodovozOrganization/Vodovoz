@@ -1203,18 +1203,47 @@ namespace Vodovoz.Domain.Orders
 			UpdateContract();
 		}
 
+		private OrderOrganizationProviderFactory orderOrganizationProviderFactory;
+		private IOrganizationProvider orderOrganizationProvider;
+		private CounterpartyContractRepository counterpartyContractRepository;
+		private CounterpartyContractFactory counterpartyContractFactory;
+		
 		private void UpdateContract()
 		{
-			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
-			var counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
+			if(orderOrganizationProviderFactory == null) {
+				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
+				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
+			}
+			
 			UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 			UpdateDocuments();
 		}
 
 		#endregion
 
+		#region Добавление/удаление товаров
+		private void AddOrderItem(OrderItem orderItem)
+		{
+			if(ObservableOrderItems.Contains(orderItem)) {
+				return;
+			}
+			ObservableOrderItems.Add(orderItem);
+			UpdateContract();
+		}
+		
+		private void RemoveOrderItem(OrderItem orderItem)
+		{
+			if(!ObservableOrderItems.Contains(orderItem)) {
+				return;
+			}
+			ObservableOrderItems.Remove(orderItem);
+			UpdateContract();
+		}
+
+		#endregion
+		
 		#region Функции
 
 		/// <summary>
@@ -1475,13 +1504,14 @@ namespace Vodovoz.Domain.Orders
 			if(cnt.HasValue)
 				count = cnt.Value;
 
-			ObservableOrderItems.Add(new OrderItem {
+			var newItem = new OrderItem {
 				Order = this,
 				Count = count,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)
-			});
+			};
+			AddOrderItem(newItem);
 		}
 
 		public virtual void AddItemWithNomenclatureForSale(OrderItem orderItem)
@@ -1491,7 +1521,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 
 			orderItem.Order = this;
-			ObservableOrderItems.Add(orderItem);
+			AddOrderItem(orderItem);
 		}
 
 		/// <summary>
@@ -1507,13 +1537,14 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			ObservableOrderItems.Add(new OrderItem {
+			var newItem = new OrderItem {
 				Order = this,
 				Count = count,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)
-			});
+			};
+			AddOrderItem(newItem);
 
 			Nomenclature followingNomenclature = new NomenclatureRepository(new NomenclatureParametersProvider()).GetNomenclatureToAddWithMaster(UoW);
 			if(quantityOfFollowingNomenclatures > 0 && !ObservableOrderItems.Any(i => i.Nomenclature.Id == followingNomenclature.Id))
@@ -1548,7 +1579,7 @@ namespace Vodovoz.Domain.Orders
 				DiscountReason = reason,
 				PromoSet = proSet
 			};
-			ObservableOrderItems.Add(oi);
+			AddOrderItem(oi);
 		}
 
 		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
@@ -1660,7 +1691,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(IsDeliveryForFree) {
 				if(deliveryPriceItem != null)
-					ObservableOrderItems.Remove(deliveryPriceItem);
+					RemoveOrderItem(deliveryPriceItem);
 				return false;
 			}
 			#endregion
@@ -1683,7 +1714,7 @@ namespace Vodovoz.Domain.Orders
 					var delivery = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == paidDeliveryNomenclatureId);
 
 					if (delivery == null) {
-						ObservableOrderItems.Add(deliveryPriceItem);
+						AddOrderItem(deliveryPriceItem);
 						return true;
 					}
 					else
@@ -1698,7 +1729,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if(deliveryPriceItem != null)
-				ObservableOrderItems.Remove(deliveryPriceItem);
+				RemoveOrderItem(deliveryPriceItem);
 			return false;
 		}
 
@@ -1711,12 +1742,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(orderItem.Nomenclature.Category != NomenclatureCategory.additional)
 				return;
-			ObservableOrderItems.Add(new OrderItem {
+			var newItem = new OrderItem {
 				Order = this,
 				Count = orderItem.Count,
 				Nomenclature = orderItem.Nomenclature,
 				Price = orderItem.Price
-			});
+			};
+			AddOrderItem(newItem);
 		}
 
 		/// <summary>
@@ -1728,13 +1760,14 @@ namespace Vodovoz.Domain.Orders
 			if(orderItem.Nomenclature.Category != NomenclatureCategory.additional && orderItem.Nomenclature.Category != NomenclatureCategory.bottle &&
 				orderItem.Nomenclature.Category != NomenclatureCategory.service)
 				return;
-			ObservableOrderItems.Add(new OrderItem {
+			var newItem = new OrderItem {
 				Order = this,
 				Count = orderItem.Nomenclature.Category == NomenclatureCategory.service ? 1 : 0,
 				Equipment = orderItem.Equipment,
 				Nomenclature = orderItem.Nomenclature,
 				Price = orderItem.Price
-			});
+			};
+			AddOrderItem(newItem);
 		}
 
 		public virtual void AddNomenclature(
@@ -1904,22 +1937,21 @@ namespace Vodovoz.Domain.Orders
 					disc = orderItem.Discount;
 				}
 
-				ObservableOrderItems.Add(
-					new OrderItem {
-						Order = this,
-						Nomenclature = orderItem.Nomenclature,
-						Equipment = orderItem.Equipment,
-						PromoSet = orderItem.PromoSet,
-						Price = orderItem.Price,
-						IsUserPrice = orderItem.IsUserPrice,
-						Count = orderItem.Count,
-						IncludeNDS = orderItem.IncludeNDS,
-						IsDiscountInMoney = orderItem.IsDiscountInMoney,
-						DiscountMoney = discMoney,
-						Discount = disc,
-						DiscountReason = orderItem.DiscountReason ?? orderItem.OriginalDiscountReason
-					}
-				);
+				var newItem = new OrderItem {
+					Order = this,
+					Nomenclature = orderItem.Nomenclature,
+					Equipment = orderItem.Equipment,
+					PromoSet = orderItem.PromoSet,
+					Price = orderItem.Price,
+					IsUserPrice = orderItem.IsUserPrice,
+					Count = orderItem.Count,
+					IncludeNDS = orderItem.IncludeNDS,
+					IsDiscountInMoney = orderItem.IsDiscountInMoney,
+					DiscountMoney = discMoney,
+					Discount = disc,
+					DiscountReason = orderItem.DiscountReason ?? orderItem.OriginalDiscountReason
+				};
+				AddOrderItem(newItem);
 			}
 			RecalculateItemsPrice();
 		}
@@ -2275,13 +2307,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(item.Count == 0
 			   && !OrderEquipments.Any(x => x.OrderItem == item)) {
-				ObservableOrderItems.Remove(item);
+				RemoveOrderItem(item);
 			}
 		}
 
 		public virtual void RemoveItem(OrderItem item)
 		{
-			ObservableOrderItems.Remove(item);
+			RemoveOrderItem(item);
 			DeleteOrderEquipmentOnOrderItem(item);
 			UpdateDocuments();
 		}
@@ -3357,13 +3389,13 @@ namespace Vodovoz.Domain.Orders
 			OrderItem orderRentDepositItem = GetExistingNonFreeRentDepositItem(paidRentPackage);
 			if(orderRentDepositItem == null) {
 				orderRentDepositItem = CreateNewNonFreeRentDepositItem(paidRentPackage);
-				ObservableOrderItems.Add(orderRentDepositItem);
+				AddOrderItem(orderRentDepositItem);
 			}
 			
 			OrderItem orderRentServiceItem = GetExistingNonFreeRentServiceItem(paidRentPackage);
 			if(orderRentServiceItem == null) {
 				orderRentServiceItem = CreateNewNonFreeRentServiceItem(paidRentPackage);
-				ObservableOrderItems.Add(orderRentServiceItem);
+				AddOrderItem(orderRentServiceItem);
 			}
 
 			OrderEquipment orderRentEquipment = GetExistingRentEquipmentItem(equipmentNomenclature, orderRentDepositItem, orderRentServiceItem);
@@ -3438,13 +3470,13 @@ namespace Vodovoz.Domain.Orders
 			OrderItem orderRentDepositItem = GetExistingDailyRentDepositItem(paidRentPackage);
 			if(orderRentDepositItem == null) {
 				orderRentDepositItem = CreateNewDailyRentDepositItem(paidRentPackage);
-				ObservableOrderItems.Add(orderRentDepositItem);
+				AddOrderItem(orderRentDepositItem);
 			}
 			
 			OrderItem orderRentServiceItem = GetExistingDailyRentServiceItem(paidRentPackage);
 			if(orderRentServiceItem == null) {
 				orderRentServiceItem = CreateNewDailyRentServiceItem(paidRentPackage);
-				ObservableOrderItems.Add(orderRentServiceItem);
+				AddOrderItem(orderRentServiceItem);
 			}
 
 			OrderEquipment orderRentEquipment = GetExistingRentEquipmentItem(equipmentNomenclature, orderRentDepositItem, orderRentServiceItem);
@@ -3519,7 +3551,7 @@ namespace Vodovoz.Domain.Orders
 			OrderItem orderRentDepositItem = GetExistingFreeRentDepositItem(freeRentPackage);
 			if(orderRentDepositItem == null) {
 				orderRentDepositItem = CreateNewFreeRentDepositItem(freeRentPackage);
-				ObservableOrderItems.Add(orderRentDepositItem);
+				AddOrderItem(orderRentDepositItem);
 			}
 
 			OrderEquipment orderRentEquipment = GetExistingRentEquipmentItem(equipmentNomenclature, orderRentDepositItem);
