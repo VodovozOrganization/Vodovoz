@@ -1521,6 +1521,12 @@ namespace Vodovoz
 					return;
 				}
 
+			if(Entity.DeliveryDate == null) {
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					"Сначала необходимо выбрать дату доставки.");
+				return;
+			}
+			
 			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
 		}
 
@@ -1627,6 +1633,12 @@ namespace Vodovoz
 
 		public void FillOrderItems(Order order)
 		{
+			if(Entity.DeliveryDate == null) {
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					"Сначала необходимо выбрать дату доставки.");
+				return;
+			}
+			
 			if(Entity.OrderStatus != OrderStatus.NewOrder
 			   || Entity.ObservableOrderItems.Any() && !MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите удалить все позиции текущего из заказа и заполнить его позициями из выбранного?")) {
 				return;
