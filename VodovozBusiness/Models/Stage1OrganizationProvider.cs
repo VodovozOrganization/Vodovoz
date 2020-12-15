@@ -13,10 +13,12 @@ namespace Vodovoz.Models
     public class Stage1OrganizationProvider : IOrganizationProvider
     {
         private readonly IOrganizationParametersProvider organizationParametersProvider;
+        private readonly IOrderPrametersProvider orderPrametersProvider;
 
-        public Stage1OrganizationProvider(IOrganizationParametersProvider organizationParametersProvider)
+        public Stage1OrganizationProvider(IOrganizationParametersProvider organizationParametersProvider, IOrderPrametersProvider orderPrametersProvider)
         {
             this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+            this.orderPrametersProvider = orderPrametersProvider ?? throw new ArgumentNullException(nameof(orderPrametersProvider));
         }
         
         public Organization GetOrganization(IUnitOfWork uow, Order order)
@@ -31,8 +33,8 @@ namespace Vodovoz.Models
             if (order.SelfDelivery) {
                 return GetOrganizationForSelfDelivery(uow, order.PaymentType);
             }
-
-            return GetOrganizationForOtherOptions(uow, order.PaymentType);
+            
+            return GetOrganizationForOtherOptions(uow, order);
         }
 
         private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, PaymentType paymentType)
@@ -69,16 +71,15 @@ namespace Vodovoz.Models
             return uow.GetById<Organization>(organizationParametersProvider.VodovozSouthOrganizationId);
         }
         
-        private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType)
+        private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, Order order)
         {
             int organizationId = 0;
-            switch(paymentType) {
+            switch(order.PaymentType) {
                 case PaymentType.barter:
                 case PaymentType.cashless:
                 case PaymentType.ContractDoc:
                     organizationId = organizationParametersProvider.VodovozOrganizationId;
                     break;
-                case PaymentType.ByCard:
                 case PaymentType.cash:
                     organizationId = organizationParametersProvider.SosnovcevOrganizationId;
                     break;
@@ -88,8 +89,16 @@ namespace Vodovoz.Models
                 case PaymentType.BeveragesWorld:
                     organizationId = organizationParametersProvider.BeveragesWorldOrganizationId;
                     break;
+                case PaymentType.ByCard:
+                    if(order.PaymentByCardFrom != null && order.PaymentByCardFrom.Id == orderPrametersProvider.PaymentByCardFromMobileAppId) {
+                        organizationId = organizationParametersProvider.SosnovcevOrganizationId;
+                    }
+                    else {
+                        organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
+                    }
+                    break;
                 default:
-                    throw new NotSupportedException($"Тип оплаты {paymentType} не поддерживается, невозможно подобрать организацию.");
+                    throw new NotSupportedException($"Тип оплаты {order.PaymentType} не поддерживается, невозможно подобрать организацию.");
             }
 
             return uow.GetById<Organization>(organizationId);

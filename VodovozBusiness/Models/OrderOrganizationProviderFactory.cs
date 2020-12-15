@@ -7,7 +7,8 @@ namespace Vodovoz.Models
         public IOrganizationProvider CreateOrderOrganizationProvider()
         {
             var organizationParametersProvider = new OrganizationParametersProvider(ParametersProvider.Instance); 
-            return new Stage1OrganizationProvider(organizationParametersProvider);
+            var orderParametersProvider = new OrderPrametersProvider(ParametersProvider.Instance); 
+            return new Stage1OrganizationProvider(organizationParametersProvider, orderParametersProvider);
         }
     }
 }
