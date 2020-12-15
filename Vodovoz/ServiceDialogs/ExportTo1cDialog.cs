@@ -51,9 +51,10 @@ namespace Vodovoz
 				.OfType<CatalogObjectNode>()
 				.Count(node => node.Type == Common1cTypes.ReferenceNomenclature)
 				.ToString();
-			this.labelTotalSales.Text = exportData.Objects
+			this.labelTotalSales.Text = (exportData.Objects
 				.OfType<SalesDocumentNode>()
 				.Count()
+				+ exportData.Objects.OfType<RetailDocumentNode>().Count())
 				.ToString();
 			this.labelTotalSum.Text = exportData.OrdersTotalSum.ToString("C");
 			this.labelExportedSum.Markup = String.Format("<span foreground=\"{1}\">{0:C}</span>",
