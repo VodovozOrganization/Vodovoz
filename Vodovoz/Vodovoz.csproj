@@ -635,6 +635,7 @@
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\ReferenceNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\RulesNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\SalesDocumentNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\RetailDocumentNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\TableNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\TableRecordNode.cs" />
     <Compile Include="gtk-gui\Vodovoz.DocTemplateDlg.cs" />
