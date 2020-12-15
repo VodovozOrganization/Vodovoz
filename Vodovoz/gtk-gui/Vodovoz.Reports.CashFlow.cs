@@ -86,8 +86,8 @@ namespace Vodovoz.Reports
 			this.checkDetail.Xalign = 0F;
 			this.table1.Add(this.checkDetail);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.checkDetail]));
-			w2.TopAttach = ((uint)(6));
-			w2.BottomAttach = ((uint)(7));
+			w2.TopAttach = ((uint)(4));
+			w2.BottomAttach = ((uint)(5));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -96,13 +96,13 @@ namespace Vodovoz.Reports
 			this.checkOrganisations = new global::Gtk.CheckButton();
 			this.checkOrganisations.CanFocus = true;
 			this.checkOrganisations.Name = "checkOrganisations";
-			this.checkOrganisations.Label = global::Mono.Unix.Catalog.GetString("по юр лицам");
+			this.checkOrganisations.Label = global::Mono.Unix.Catalog.GetString("По юр лицам");
 			this.checkOrganisations.DrawIndicator = true;
 			this.checkOrganisations.UseUnderline = true;
 			this.table1.Add(this.checkOrganisations);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.checkOrganisations]));
-			w3.TopAttach = ((uint)(5));
-			w3.BottomAttach = ((uint)(6));
+			w3.TopAttach = ((uint)(3));
+			w3.BottomAttach = ((uint)(4));
 			w3.LeftAttach = ((uint)(1));
 			w3.RightAttach = ((uint)(2));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -263,8 +263,8 @@ namespace Vodovoz.Reports
 			this.specialListCmbCashSubdivisions.ShowSpecialStateNot = false;
 			this.table1.Add(this.specialListCmbCashSubdivisions);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.specialListCmbCashSubdivisions]));
-			w17.TopAttach = ((uint)(3));
-			w17.BottomAttach = ((uint)(4));
+			w17.TopAttach = ((uint)(5));
+			w17.BottomAttach = ((uint)(6));
 			w17.LeftAttach = ((uint)(1));
 			w17.RightAttach = ((uint)(2));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -278,8 +278,8 @@ namespace Vodovoz.Reports
 			this.specialListCmbOrganisations.ShowSpecialStateNot = false;
 			this.table1.Add(this.specialListCmbOrganisations);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.specialListCmbOrganisations]));
-			w18.TopAttach = ((uint)(4));
-			w18.BottomAttach = ((uint)(5));
+			w18.TopAttach = ((uint)(6));
+			w18.BottomAttach = ((uint)(7));
 			w18.LeftAttach = ((uint)(1));
 			w18.RightAttach = ((uint)(2));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -315,8 +315,8 @@ namespace Vodovoz.Reports
 			this.ylblCashSubdivisions.LabelProp = global::Mono.Unix.Catalog.GetString("Кассы:");
 			this.table1.Add(this.ylblCashSubdivisions);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.ylblCashSubdivisions]));
-			w21.TopAttach = ((uint)(3));
-			w21.BottomAttach = ((uint)(4));
+			w21.TopAttach = ((uint)(5));
+			w21.BottomAttach = ((uint)(6));
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -326,8 +326,8 @@ namespace Vodovoz.Reports
 			this.ylblOrganisations.LabelProp = global::Mono.Unix.Catalog.GetString("Организации:");
 			this.table1.Add(this.ylblOrganisations);
 			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.ylblOrganisations]));
-			w22.TopAttach = ((uint)(4));
-			w22.BottomAttach = ((uint)(5));
+			w22.TopAttach = ((uint)(6));
+			w22.BottomAttach = ((uint)(7));
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);

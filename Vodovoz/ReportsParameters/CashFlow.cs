@@ -27,7 +27,7 @@ namespace Vodovoz.Reports
 		private readonly ICommonServices commonServices;
 
 		private IEnumerable<Subdivision> UserSubdivisions { get; }
-		private IEnumerable<Organization> Organizations { get; }
+		private IEnumerable<Organization> Organisations { get; }
 
 		ExpenseCategory allItem = new ExpenseCategory{
 			Name = "Все"
@@ -67,9 +67,9 @@ namespace Vodovoz.Reports
 			specialListCmbCashSubdivisions.ItemsList = UserSubdivisions;
 
 			ylblOrganisations.Visible = specialListCmbOrganisations.Visible = false;
-			Organizations = UoW.GetAll<Organization>();
+			Organisations = UoW.GetAll<Organization>();
 			specialListCmbOrganisations.SetRenderTextFunc<Organization>(s => s.Name);
-			specialListCmbOrganisations.ItemsList = Organizations;
+			specialListCmbOrganisations.ItemsList = Organisations;
 			
 			int currentUserId = commonServices.UserService.CurrentUserId;
 			bool canCreateCashReportsForOrganisations = 
@@ -204,7 +204,7 @@ namespace Vodovoz.Reports
 			}
 			
 			if (specialListCmbOrganisations.SelectedItem == null) {
-				organisations = Organizations.Any() ? Organizations.Select(x => x.Id) : new[] {-1};
+				organisations = Organisations.Any() ? Organisations.Select(x => x.Id) : new[] {-1};
 			}
 			else {
 				organisations = new[] {(specialListCmbOrganisations.SelectedItem as Organization).Id};
