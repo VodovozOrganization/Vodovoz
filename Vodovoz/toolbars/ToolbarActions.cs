@@ -66,6 +66,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Interfaces;
 using Action = Gtk.Action;
+using Vodovoz.Old1612ExportTo1c;
 
 public partial class MainWindow : Window
 {
@@ -179,7 +180,7 @@ public partial class MainWindow : Window
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		ActionPaymentFromBank = new Action("ActionPaymentFromBank", "Загрузка выписки из банк-клиента", null, "table");
 		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с 8.3", null, "table");
-		ActionOldExportTo1c = new Action("ActionOldExportTo1c", "Выгрузка в 1с 8.2", null, "table");
+		ActionOldExportTo1c = new Action("ActionOldExportTo1c", "Выгрузка в 1с 8.3 (до 16.12.2020)", null, "table");
 		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
 		ActionImportFromTinkoff = new Action("ActionImportFromTinkoff", "Загрузка выписки из ЛК Тинькофф", null, "table");
 		ActionAccountingTable = new Action("ActionAccountingTable", "Операции по счету", null, "table");
@@ -733,8 +734,8 @@ public partial class MainWindow : Window
 	void ActionOldExportTo1c_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<OldExportTo1cDialog>(),
-			() => new OldExportTo1cDialog()
+			TdiTabBase.GenerateHashName<Old1612ExportTo1cDialog>(),
+			() => new Old1612ExportTo1cDialog(UnitOfWorkFactory.GetDefaultFactory)
 		);
 	}
 

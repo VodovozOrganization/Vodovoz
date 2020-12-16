@@ -68,9 +68,10 @@ namespace Vodovoz
                 .Count(node => node.Type == Common1cTypes.ReferenceNomenclature)
                 .ToString();
 
-            labelTotalSales.Text = exportData.Objects
+            labelTotalSales.Text = (exportData.Objects
                 .OfType<SalesDocumentNode>()
                 .Count()
+				+ exportData.Objects.OfType<RetailDocumentNode>().Count())
                 .ToString();
 
             labelTotalSum.Text = exportData.OrdersTotalSum.ToString("C", CultureInfo.GetCultureInfo("ru-RU"));
