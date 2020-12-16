@@ -1222,7 +1222,23 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+			UpdateContractDocument();
 			UpdateDocuments();
+		}
+
+		private void UpdateContractDocument()
+		{
+			var contractDocuments = OrderDocuments.Where(x =>
+				x.Type == OrderDocumentType.Contract && x.Order == this && x.AttachedToOrder == this);
+			if(!contractDocuments.Any()) {
+				return;
+			}
+
+			foreach(var contractDocument in contractDocuments.ToList()) {
+				ObservableOrderDocuments.Remove(contractDocument);
+			}
+			
+			AddContractDocument(Contract);
 		}
 
 		#endregion
@@ -1325,6 +1341,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddContractDocument(CounterpartyContract contract)
 		{
+			if(ObservableOrderDocuments.OfType<OrderContract>().Any(x => x.Contract == contract)) {
+				return;
+			}
 			ObservableOrderDocuments.Add(
 				new OrderContract {
 					Order = this,
@@ -1438,11 +1457,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			Contract = counterpartyContract;
-			ObservableOrderDocuments.Add(new OrderContract {
-				Order = this,
-				AttachedToOrder = this,
-				Contract = Contract
-			});
+			UpdateContractDocument();
 			UpdateDocuments();
 		}
 
