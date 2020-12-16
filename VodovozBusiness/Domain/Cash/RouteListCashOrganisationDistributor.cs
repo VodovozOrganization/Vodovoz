@@ -150,9 +150,9 @@ namespace Vodovoz.Domain.Cash
             return new OrganisationCashMovementOperation
             {
                 OperationTime = DateTime.Now,
-                Organisation = /*hasReceipt
-                    ?*/ address.Order.Contract.Organization
-                    /*: cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow),*/
+                Organisation = hasReceipt
+                    ? address.Order.Contract.Organization
+                    : cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow)
             };
         }
 
