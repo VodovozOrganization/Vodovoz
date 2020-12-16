@@ -12,6 +12,10 @@ namespace Vodovoz.Domain.Cash
         {
             var operation = CreateOrganisationCashMovementOperation(expense, isSalary);
             var expenseCashDistributionDoc = CreateExpenseCashDistributionDocument(expense, operation);
+
+            if (isSalary)
+                expense.Organisation = operation.Organisation;
+                
             Save(operation, expenseCashDistributionDoc, uow);
         }
 
