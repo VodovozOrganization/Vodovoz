@@ -972,23 +972,31 @@
         <Timeout>75</Timeout>
         <CommandText>##INCOME
 SELECT codd.last_edited_time as doc_date,
-       codd.id as doc_id,
-       CONCAT_WS
-           (
-               '.',
-               NULLIF(LEFT(employeeal1_.name, 1), ''),
-               NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
-               employeeal1_.last_name
-           ) as name,
+       ci.id as doc_id,
+       IF(employeeal1_.name is null,
+          CONCAT_WS
+              (
+                  '.',
+                  NULLIF(LEFT(author.name, 1), ''),
+                  NULLIF(LEFT(author.patronymic, 1), ''),
+                  author.last_name
+              ),
+          CONCAT_WS
+              (
+                  '.',
+                  NULLIF(LEFT(employeeal1_.name, 1), ''),
+                  NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
+                  employeeal1_.last_name
+              )) as name,
        codd.amount as income,
        0 as expense,
        codd.organisation_id
 
 FROM cash_organisation_distribution_documents codd
-         left join employees employeeal1_ on codd.employee_id = employeeal1_.id
-#если выбран пункт Все кассы
-WHERE codd.amount &gt; 0
-  AND IF(@organisation != -1,
+    join cash_income ci on codd.cash_income_id = ci.id
+    left join employees employeeal1_ on codd.employee_id = employeeal1_.id
+    left join employees author on codd.author_id = author.id
+WHERE IF(@organisation != -1,
          (codd.organisation_id = @organisation and codd.last_edited_time BETWEEN @StartDate and @EndDate),
          (codd.last_edited_time BETWEEN @StartDate and @EndDate))
 
@@ -996,25 +1004,33 @@ UNION
 
 ##EXPENCE
 SELECT codd.last_edited_time as doc_date,
-       codd.id as doc_id,
-       CONCAT_WS
-           (
-               '.',
-               NULLIF(LEFT(employeeal1_.name, 1), ''),
-               NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
-               employeeal1_.last_name
-           ) as name,
+       ce.id as doc_id,
+       IF(employeeal1_.name is null,
+          CONCAT_WS
+              (
+                  '.',
+                  NULLIF(LEFT(author.name, 1), ''),
+                  NULLIF(LEFT(author.patronymic, 1), ''),
+                  author.last_name
+              ),
+          CONCAT_WS
+              (
+                  '.',
+                  NULLIF(LEFT(employeeal1_.name, 1), ''),
+                  NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
+                  employeeal1_.last_name
+              )) as name,
        0 as income,
        -codd.amount as expance,
        codd.organisation_id
 
 FROM cash_organisation_distribution_documents codd
-         left join employees employeeal1_ on codd.employee_id = employeeal1_.id
-WHERE codd.amount &lt; 0
-  AND IF(@organisation != -1,
+     join cash_expense ce on codd.cash_expense_id = ce.id
+     left join employees employeeal1_ on codd.employee_id = employeeal1_.id
+     left join employees author on codd.author_id = author.id
+WHERE IF(@organisation != -1,
          (codd.organisation_id = @organisation and codd.last_edited_time BETWEEN @StartDate and @EndDate),
-         (codd.last_edited_time BETWEEN @StartDate and @EndDate));
-</CommandText>
+         (codd.last_edited_time BETWEEN @StartDate and @EndDate));</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
