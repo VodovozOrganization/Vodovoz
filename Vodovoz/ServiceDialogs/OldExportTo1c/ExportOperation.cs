@@ -41,8 +41,6 @@ namespace Vodovoz.OldExportTo1c
 				Result.AddOrder(orders[i]);
 				i++;
 			}
-
-			Result.FinishRetailDocuments();
 		}
 
 		public void Dispose()

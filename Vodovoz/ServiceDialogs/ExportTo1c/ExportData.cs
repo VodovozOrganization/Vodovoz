@@ -313,8 +313,7 @@ namespace Vodovoz.ExportTo1c
 				exportRetailDocument.Properties.Add(
 					new PropertyNode("Организация",
 						Common1cTypes.ReferenceOrganization,
-						Organization)
-					)
+						OrganizationCatalog.CreateReferenceTo(order.Contract.Organization))
 				);
 				exportRetailDocument.Properties.Add(
 					new PropertyNode("Комментарий",
@@ -496,7 +495,7 @@ namespace Vodovoz.ExportTo1c
 				)
 			);
 
-			var vat = VAT.No;
+			var vat = VAT.No.GetAttribute<Value1c>().Value;
 			record.Properties.Add(
 				new PropertyNode("СтавкаНДС",
 					Common1cTypes.EnumVAT,
