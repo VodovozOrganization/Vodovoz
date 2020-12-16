@@ -22,7 +22,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Core.DataService;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Documents;
-using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Tools;
@@ -37,11 +36,7 @@ namespace Vodovoz.Dialogs.Cash
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
 		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
-			new SelfDeliveryCashOrganisationDistributor(
-				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(ParametersProvider.Instance)),
-				new SelfDeliveryCashDistributionDocumentRepository(),
-				OrderSingletonRepository.GetInstance());
+			new SelfDeliveryCashOrganisationDistributor(new SelfDeliveryCashDistributionDocumentRepository());
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
