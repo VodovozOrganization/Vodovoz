@@ -341,7 +341,8 @@ namespace Vodovoz.Domain.Orders
 						case PaymentType.Terminal:
 							break;
 					}
-					UpdateContract();
+
+					UpdateContractOnPaymentTypeChanged();
 				}
 			}
 		}
@@ -1198,18 +1199,36 @@ namespace Vodovoz.Domain.Orders
 			UpdateContract();
 		}
 
+		private void UpdateContractOnPaymentTypeChanged()
+		{
+			UpdateContract(true);
+		}
+
 		private OrderOrganizationProviderFactory orderOrganizationProviderFactory;
 		private IOrganizationProvider orderOrganizationProvider;
 		private CounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
 		
-		private void UpdateContract()
+		private void UpdateContract(bool onPaymentTypeChanged = false)
 		{
+			if(!NHibernate.NHibernateUtil.IsInitialized(Client)
+			   || !NHibernate.NHibernateUtil.IsInitialized(Contract)) {
+				return;
+			}
+			
 			if(orderOrganizationProviderFactory == null) {
 				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
+			}
+			
+			if(CreateDate != null 
+			   && CreateDate <= new DateTime(2020, 12, 16) 
+			   && Contract != null 
+			   && !onPaymentTypeChanged
+			   && Contract.Counterparty == Client) {
+				return;
 			}
 			
 			UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
@@ -1428,22 +1447,18 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void CreateDefaultContract()
-		{
-			
-		}
-
 		public virtual void UpdateOrCreateContract(IUnitOfWork uow, ICounterpartyContractRepository counterpartyContractRepository, CounterpartyContractFactory contractFactory)
 		{
 			if(!NHibernate.NHibernateUtil.IsInitialized(Client)
 			|| !NHibernate.NHibernateUtil.IsInitialized(Contract)) {
 				return;
 			}
+			
 			if(uow == null) throw new ArgumentNullException(nameof(uow));
 			if(counterpartyContractRepository == null)
 				throw new ArgumentNullException(nameof(counterpartyContractRepository));
 			if(contractFactory == null) throw new ArgumentNullException(nameof(contractFactory));
-			if(Contract == null) {
+			if(Client == null) {
 				return;
 			}
 
