@@ -25,6 +25,9 @@ namespace Vodovoz.EntityRepositories
 		{
 			if(uow == null) throw new ArgumentNullException(nameof(uow));
 			if(order == null) throw new ArgumentNullException(nameof(order));
+			if(order.Client == null) {
+				return null;
+			}
 
 			var personType = order.Client.PersonType;
 			var paymentType = order.PaymentType;
