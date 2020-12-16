@@ -256,6 +256,9 @@ namespace Vodovoz
 				}
 				foreach(var selectedId in selectedIds) {
 					var order = RouteListUoW.GetById<Order>(selectedId);
+					if(order == null) {
+						return;
+					}
 					RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};

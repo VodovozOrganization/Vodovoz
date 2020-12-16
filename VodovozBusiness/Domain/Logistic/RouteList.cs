@@ -589,6 +589,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual RouteListItem AddAddressFromOrder(Order order)
 		{
+			if(order == null) throw new ArgumentNullException(nameof(order));
+
 			if(order.DeliveryPoint == null)
 				throw new NullReferenceException("В маршрутный нельзя добавить заказ без точки доставки.");
 			var item = new RouteListItem(this, order, RouteListItemStatus.EnRoute) {
