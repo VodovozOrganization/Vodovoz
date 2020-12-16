@@ -13,5 +13,7 @@ namespace Vodovoz.Parameters
         }
 
         public int PaymentByCardFromMobileAppId => parametersProvider.GetIntValue("PaymentByCardFromMobileAppId");
+
+        public int PaymentByCardFromSiteId => parametersProvider.GetIntValue("PaymentByCardFromSiteId");
     }
 }
