@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -59,6 +59,66 @@ namespace Vodovoz.EntityRepositories.Logistic
 			}
 
 			return query;
+		}
+
+		public IList<GoodsInRouteListResultWithSpecialRequirements> GetGoodsAndEquipsInRLWithSpecialRequirements(
+			IUnitOfWork uow,
+			RouteList routeList,
+			ISubdivisionRepository subdivisionRepository = null,
+			Warehouse warehouse = null)
+		{
+			if (subdivisionRepository == null && warehouse != null)
+			{
+				throw new ArgumentNullException(nameof(subdivisionRepository));
+			}
+
+			List<GoodsInRouteListResultWithSpecialRequirements> result = new List<GoodsInRouteListResultWithSpecialRequirements>();
+
+			GoodsInRouteListResult terminal = null;
+
+			if (warehouse != null)
+			{
+				var cashSubdivisions = subdivisionRepository.GetCashSubdivisions(uow);
+				if (cashSubdivisions.Contains(warehouse.OwningSubdivision))
+				{
+					terminal = GetTerminalInRL(uow, routeList, warehouse);
+				}
+				else
+				{
+					result.AddRange(GetGoodsInRLWithoutEquipmentsWithSpecialRequirements(uow, routeList).ToList());
+					result.AddRange(GetEquipmentsInRLWithSpecialRequirements(uow, routeList).ToList());
+				}
+			}
+			else
+			{
+				result.AddRange(GetGoodsInRLWithoutEquipmentsWithSpecialRequirements(uow, routeList).ToList());
+				result.AddRange(GetEquipmentsInRLWithSpecialRequirements(uow, routeList).ToList());
+
+				terminal = GetTerminalInRL(uow, routeList);
+			}
+
+			if (terminal != null)
+			{
+				var terminalWithExpirationDate = new GoodsInRouteListResultWithSpecialRequirements()
+				{
+					Amount = terminal.Amount,
+					ExpireDatePercent = 0,
+					NomenclatureId = terminal.NomenclatureId
+				};
+				result.Add(terminalWithExpirationDate);
+			}
+
+			return result
+				.GroupBy(
+					x => x.NomenclatureName,
+					x => x,
+					(key, value) => new GoodsInRouteListResultWithSpecialRequirements()
+					{
+						NomenclatureName = key,
+						NomenclatureId = value.FirstOrDefault().NomenclatureId,
+						ExpireDatePercent = value.FirstOrDefault().ExpireDatePercent,
+						Amount = value.Sum(x => x.Amount)
+					}).ToList();
 		}
 
 		public IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(
@@ -127,8 +187,95 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return orderitemsQuery.SelectList(list => list
 				.SelectGroup(() => OrderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
-			    .TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
+				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();
+		}
+
+		public IList<GoodsInRouteListResultWithSpecialRequirements> GetGoodsInRLWithoutEquipmentsWithSpecialRequirements(IUnitOfWork uow, RouteList routeList)
+		{
+			GoodsInRouteListResultWithSpecialRequirements resultAlias = null;
+			Vodovoz.Domain.Orders.Order orderAlias = null;
+			OrderItem orderItemsAlias = null;
+			Counterparty counterpartyAlias = null;
+			Nomenclature OrderItemNomenclatureAlias = null;
+
+			var ordersQuery = QueryOver.Of(() => orderAlias);
+
+			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
+				.Where(r => r.RouteList.Id == routeList.Id)
+				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
+				.Select(r => r.Order.Id);
+			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
+
+			var orderitemsQuery = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
+				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
+				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
+				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Where(() => OrderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
+
+			return orderitemsQuery.SelectList(list => list
+				.Select(
+					Projections.GroupProperty(
+						Projections.Conditional(
+							Restrictions.And(
+								Restrictions.Where(() => counterpartyAlias.SpecialExpireDatePercentCheck),
+								Restrictions.Where(() => OrderItemNomenclatureAlias.Category == NomenclatureCategory.water)
+							),
+							Projections.SqlFunction( 
+								new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?1, ' >', ?2, '% срока годности')"),
+								NHibernateUtil.String,
+								Projections.Property(() => OrderItemNomenclatureAlias.Name),
+								Projections.Cast(NHibernateUtil.String, Projections.Property(() => counterpartyAlias.SpecialExpireDatePercent))
+							), 
+							Projections.Property(() => OrderItemNomenclatureAlias.Name)
+						)
+					)
+				).WithAlias(() => resultAlias.NomenclatureName)
+				.Select(
+					Projections.Conditional(
+						Restrictions.And(
+							Restrictions.Where(() => counterpartyAlias.SpecialExpireDatePercentCheck),
+							Restrictions.Where(() => OrderItemNomenclatureAlias.Category == NomenclatureCategory.water)
+						),
+						Projections.Property(() => counterpartyAlias.SpecialExpireDatePercent),
+						Projections.Constant(null, NHibernateUtil.Decimal)
+					)
+				).WithAlias(() => resultAlias.ExpireDatePercent)
+				.Select(() => OrderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+				.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
+			    .TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
+				.List<GoodsInRouteListResultWithSpecialRequirements>();
+		}
+
+		public IList<GoodsInRouteListResultWithSpecialRequirements> GetEquipmentsInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList)
+		{
+			GoodsInRouteListResultWithSpecialRequirements resultAlias = null;
+			Vodovoz.Domain.Orders.Order orderAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+			Nomenclature OrderEquipmentNomenclatureAlias = null;
+
+			//Выбирается список Id заказов находящихся в МЛ
+			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
+			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
+				.Where(r => r.RouteList.Id == routeList.Id)
+				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
+				.Select(r => r.Order.Id);
+			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
+
+			var orderEquipmentsQuery = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
+				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
+				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
+				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias);
+
+			return orderEquipmentsQuery
+				.SelectList(list => list
+				   .SelectGroup(() => OrderEquipmentNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+							.Select(Projections.Sum(
+					   Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => orderEquipmentAlias.Count)))).WithAlias(() => resultAlias.Amount)
+				)
+				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
+				.List<GoodsInRouteListResultWithSpecialRequirements>();
 		}
 
 		public IList<GoodsInRouteListResult> GetEquipmentsInRL(IUnitOfWork uow, RouteList routeList)
@@ -437,6 +584,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 	public class GoodsInRouteListResult
 	{
 		public int NomenclatureId { get; set; }
+		public decimal Amount { get; set; }
+	}
+
+	public class GoodsInRouteListResultWithSpecialRequirements
+	{
+		public int NomenclatureId { get; set; }
+		public string NomenclatureName { get; set; }
+		public decimal? ExpireDatePercent { get; set; } = null;
 		public decimal Amount { get; set; }
 	}
 

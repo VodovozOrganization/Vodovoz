@@ -99,7 +99,7 @@ namespace Vodovoz.Domain.Documents
 			if(RouteList == null || (Warehouse == null && warehouseOnly))
 				return;
 
-			var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRL(uow, RouteList, subdivisionRepository, warehouseOnly ? Warehouse : null);
+			var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRLWithSpecialRequirements(uow, RouteList, subdivisionRepository, warehouseOnly ? Warehouse : null);
 			var nomenclatures = uow.GetById<Nomenclature>(goodsAndEquips.Select(x => x.NomenclatureId).ToArray());
 
 			foreach(var inRoute in goodsAndEquips) {
@@ -107,6 +107,7 @@ namespace Vodovoz.Domain.Documents
 					new CarLoadDocumentItem {
 						Document = this,
 						Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
+						ExpireDatePercent = inRoute.ExpireDatePercent,
 						AmountInRouteList = inRoute.Amount,
 						Amount = inRoute.Amount
 					}
@@ -121,10 +122,10 @@ namespace Vodovoz.Domain.Documents
 
 			if(RouteList == null)
 				return;
-			var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRL(uow, RouteList, null);
+			var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRLWithSpecialRequirements(uow, RouteList, null);
 
 			foreach(var item in Items) {
-				var aGoods = goodsAndEquips.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
+				var aGoods = goodsAndEquips.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id && x.ExpireDatePercent == item.ExpireDatePercent);
 				if(aGoods != null) {
 					item.AmountInRouteList = aGoods.Amount;
 				}

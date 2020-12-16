@@ -16,7 +16,10 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    nomenclature.name AS nomenclature,
+    IF (scldi.item_expiration_date_percent IS NOT NULL
+    	AND nomenclature.category = 'water',
+    	CONCAT(nomenclature.name, " &gt;", scldi.item_expiration_date_percent, " срока годности"),
+    nomenclature.name) AS nomenclature,
     nomenclature.category,
     measurement_units.name AS unit,
     measurement_units.digits AS digits,
@@ -43,7 +46,7 @@ LEFT JOIN
 WHERE scld.id = @id
   AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
   AND IF(nomenclature.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
-GROUP BY nomenclature.id
+GROUP BY nomenclature
 ORDER BY clmn_for_sorting;</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
