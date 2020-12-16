@@ -27,5 +27,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		int BottlesUnloadedByCarUnloadedDocuments(IUnitOfWork uow, int emptyBottleId, int routeListId, params int[] exceptDocumentIds);
 		RouteList GetRouteListByOrder(IUnitOfWork uow, Domain.Orders.Order order);
 		bool RouteListWasChanged(RouteList routeList);
-	}
+        IList<GoodsInRouteListResultWithSpecialRequirements> GetGoodsAndEquipsInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList, ISubdivisionRepository subdivisionRepository = null, Warehouse warehouse = null);
+    }
 }
