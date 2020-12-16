@@ -283,8 +283,16 @@ namespace Vodovoz
 
 		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			ylabel1.Visible = specialListCmbOrganisation.Visible = 
-				!(Entity.TypeOperation == ExpenseType.Salary || Entity.TypeOperation == ExpenseType.EmployeeAdvance);
+			if (Entity.TypeOperation == ExpenseType.Salary || Entity.TypeOperation == ExpenseType.EmployeeAdvance) {
+				if (Entity.Organisation != null) {
+					Entity.Organisation = null;
+				}
+
+				ylabel1.Visible = specialListCmbOrganisation.Visible = false;
+			}
+			else {
+				ylabel1.Visible = specialListCmbOrganisation.Visible = true;
+			}
 
 			UpdateEmployeeBalaceInfo();
 		}
