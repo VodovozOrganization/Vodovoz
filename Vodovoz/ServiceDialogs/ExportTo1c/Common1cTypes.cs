@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Vodovoz.ExportTo1c
 {
@@ -9,6 +9,7 @@ namespace Vodovoz.ExportTo1c
 		public static readonly string Numeric = "Число";
 		public static readonly string Date = "Дата";
 		public static readonly string SalesDocument = "ДокументСсылка.РеализацияТоваровУслуг";
+		public static readonly string RetailDocument = "ДокументСсылка.ОтчетОРозничныхПродажах";
 		public static readonly string InvoiceDocument = "ДокументСсылка.СчетФактураВыданный";
 		public static readonly string EnumNaturalOrLegal = "ПеречислениеСсылка.ЮридическоеФизическоеЛицо";
 		public static readonly string EnumWarehouseTypes = "ПеречислениеСсылка.ТипыСкладов";
