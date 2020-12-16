@@ -1510,6 +1510,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.FixedPricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.FixedPricesPanelView.cs" />
     <Compile Include="SidePanel\InfoViews\FixedPricesPanelView.cs" />
+    <Compile Include="ServiceDialogs\Old1612ExportTo1cDialog.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Old1612ExportTo1c.Old1612ExportTo1cDialog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

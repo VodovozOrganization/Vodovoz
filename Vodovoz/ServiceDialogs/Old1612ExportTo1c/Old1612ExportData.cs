@@ -13,6 +13,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Old1612ExportTo1c.Catalogs;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repositories;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Old1612ExportTo1c
 {
@@ -49,7 +50,7 @@ namespace Vodovoz.Old1612ExportTo1c
 		public NomenclatureGroupCatalog NomenclatureGroupCatalog { get; private set; }
 		public OrganizationCatalog OrganizationCatalog { get; private set; }
 		public WarehouseCatalog WarehouseCatalog { get; private set; }
-
+		private Organization cashlessOrganization;
 		public Export1cMode ExportMode { get; private set; }
 
 		public ExportData(IUnitOfWork uow, Export1cMode mode, DateTime dateStart, DateTime dateEnd)
@@ -79,6 +80,9 @@ namespace Vodovoz.Old1612ExportTo1c
 			this.OrganizationCatalog = new OrganizationCatalog(this);
 			this.WarehouseCatalog = new WarehouseCatalog(this);
 			this.ExchangeRules = new RulesNode();
+			var orgProvider = new OrganizationParametersProvider(ParametersProvider.Instance);
+			this.cashlessOrganization = UoW.GetById<Organization>(orgProvider.GetCashlessOrganisationId);
+
 		}
 
 		public void AddOrder(Order order)
@@ -96,7 +100,7 @@ namespace Vodovoz.Old1612ExportTo1c
 			exportInvoiceDocument.Properties.Add(
 				new PropertyNode("Организация",
 					Common1cTypes.ReferenceOrganization,
-					OrganizationCatalog.CreateReferenceTo(order.Contract.Organization)
+					OrganizationCatalog.CreateReferenceTo(cashlessOrganization)
 				)
 			);
 
