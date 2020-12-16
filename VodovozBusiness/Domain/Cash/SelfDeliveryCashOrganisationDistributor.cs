@@ -5,32 +5,23 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Documents;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Cash
 {
     public class SelfDeliveryCashOrganisationDistributor
     {
-        private readonly ICashDistributionCommonOrganisationProvider cashDistributionCommonOrganisationProvider;
         private readonly ISelfDeliveryCashDistributionDocumentRepository selfDeliveryCashDistributionDocumentRepository;
-        private readonly IOrderRepository orderRepository;
 
         public SelfDeliveryCashOrganisationDistributor(
-            ICashDistributionCommonOrganisationProvider cashDistributionCommonOrganisationProvider,
-            ISelfDeliveryCashDistributionDocumentRepository selfDeliveryCashDistributionDocumentRepository,
-            IOrderRepository orderRepository)
+            ISelfDeliveryCashDistributionDocumentRepository selfDeliveryCashDistributionDocumentRepository)
         {
-            this.cashDistributionCommonOrganisationProvider =
-                cashDistributionCommonOrganisationProvider ?? throw new ArgumentNullException(nameof(cashDistributionCommonOrganisationProvider));
             this.selfDeliveryCashDistributionDocumentRepository =
                 selfDeliveryCashDistributionDocumentRepository ?? throw new ArgumentNullException(nameof(selfDeliveryCashDistributionDocumentRepository));
-            this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         }
 
         public void DistributeIncomeCash(IUnitOfWork uow, Order selfDeliveryOrder, Income income)
         {
-            var operation = CreateOrganisationCashMovementOperation(uow, selfDeliveryOrder, income);
+            var operation = CreateOrganisationCashMovementOperation(selfDeliveryOrder, income);
             var selfDeliveryCashDistributionDoc = CreateSelfDeliveryCashDistributionDocument(operation, selfDeliveryOrder, income);
 
             Save(uow, operation, selfDeliveryCashDistributionDoc);
@@ -38,38 +29,30 @@ namespace Vodovoz.Domain.Cash
 
         public void DistributeExpenseCash(IUnitOfWork uow, Order selfDeliveryOrder, Expense expense)
         {
-            var operation = CreateOrganisationCashMovementOperation(uow, selfDeliveryOrder, expense);
+            var operation = CreateOrganisationCashMovementOperation(selfDeliveryOrder, expense);
             var selfDeliveryCashDistributionDoc = CreateSelfDeliveryCashDistributionDocument(operation, selfDeliveryOrder, expense);
 
             Save(uow, operation, selfDeliveryCashDistributionDoc);
         }
 
         private OrganisationCashMovementOperation CreateOrganisationCashMovementOperation(
-            IUnitOfWork uow, Order selfDeliveryOrder, Expense expense)
+            Order selfDeliveryOrder, Expense expense)
         {
-            var hasReceipt = orderRepository.OrderHasSentReceipt(uow, selfDeliveryOrder.Id);
-
             return new OrganisationCashMovementOperation
             {
                 OperationTime = DateTime.Now,
-                Organisation = hasReceipt
-                    ? selfDeliveryOrder.Contract.Organization
-                    : cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow),
+                Organisation = selfDeliveryOrder.Contract.Organization,
                 Amount = -expense.Money
             };
         }
         
         private OrganisationCashMovementOperation CreateOrganisationCashMovementOperation(
-            IUnitOfWork uow, Order selfDeliveryOrder, Income income)
+            Order selfDeliveryOrder, Income income)
         {
-            var hasReceipt = orderRepository.OrderHasSentReceipt(uow, selfDeliveryOrder.Id);
-
             return new OrganisationCashMovementOperation
             {
                 OperationTime = DateTime.Now,
-                Organisation = hasReceipt
-                    ? selfDeliveryOrder.Contract.Organization
-                    : cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow),
+                Organisation = selfDeliveryOrder.Contract.Organization,
                 Amount = income.Money
             };
         }
@@ -124,7 +107,7 @@ namespace Vodovoz.Domain.Cash
 
             if (selfDeliveryCashDistributionDoc == null) return;
 
-            UpdateDocument(uow, selfDeliveryCashDistributionDoc, income, selfDeliveryOrder, editor);
+            UpdateDocument(selfDeliveryCashDistributionDoc, income, selfDeliveryOrder, editor);
             UpdateOperation(selfDeliveryCashDistributionDoc);
             Save(uow, selfDeliveryCashDistributionDoc.OrganisationCashMovementOperation, selfDeliveryCashDistributionDoc);
         }
@@ -136,7 +119,7 @@ namespace Vodovoz.Domain.Cash
 
             if (selfDeliveryCashDistributionDoc == null) return;
 
-            UpdateDocument(uow, selfDeliveryCashDistributionDoc, expense, selfDeliveryOrder, editor);
+            UpdateDocument(selfDeliveryCashDistributionDoc, expense, selfDeliveryOrder, editor);
             UpdateOperation(selfDeliveryCashDistributionDoc);
             Save(uow, selfDeliveryCashDistributionDoc.OrganisationCashMovementOperation, selfDeliveryCashDistributionDoc);
         }
@@ -150,7 +133,7 @@ namespace Vodovoz.Domain.Cash
                 selfDeliveryCashDistributionDocument.Amount;
         }
 
-        private void UpdateDocument(IUnitOfWork uow, SelfDeliveryCashDistributionDocument selfDeliveryCashDistributionDocument,
+        private void UpdateDocument(SelfDeliveryCashDistributionDocument selfDeliveryCashDistributionDocument,
             Income income, Order selfDeliveryOrder, Employee editor)
         {
             selfDeliveryCashDistributionDocument.LastEditedTime = DateTime.Now;
@@ -158,16 +141,12 @@ namespace Vodovoz.Domain.Cash
             selfDeliveryCashDistributionDocument.Amount = income.Money;
 
             if (selfDeliveryCashDistributionDocument.Order.Id != selfDeliveryOrder.Id) {
-                var hasReceipt = orderRepository.OrderHasSentReceipt(uow, selfDeliveryOrder.Id);
-                
                 selfDeliveryCashDistributionDocument.Order = selfDeliveryOrder;
-                selfDeliveryCashDistributionDocument.Organisation = hasReceipt
-                    ? selfDeliveryOrder.Contract.Organization
-                    : cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow);
+                selfDeliveryCashDistributionDocument.Organisation = selfDeliveryOrder.Contract.Organization;
             }
         }
         
-        private void UpdateDocument(IUnitOfWork uow, SelfDeliveryCashDistributionDocument selfDeliveryCashDistributionDocument,
+        private void UpdateDocument(SelfDeliveryCashDistributionDocument selfDeliveryCashDistributionDocument,
             Expense expense, Order selfDeliveryOrder, Employee editor)
         {
             selfDeliveryCashDistributionDocument.LastEditedTime = DateTime.Now;
@@ -175,12 +154,8 @@ namespace Vodovoz.Domain.Cash
             selfDeliveryCashDistributionDocument.Amount = -expense.Money;
             
             if (selfDeliveryCashDistributionDocument.Order.Id != selfDeliveryOrder.Id) {
-                var hasReceipt = orderRepository.OrderHasSentReceipt(uow, selfDeliveryOrder.Id);
-                
                 selfDeliveryCashDistributionDocument.Order = selfDeliveryOrder;
-                selfDeliveryCashDistributionDocument.Organisation = hasReceipt
-                    ? selfDeliveryOrder.Contract.Organization
-                    : cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow);
+                selfDeliveryCashDistributionDocument.Organisation = selfDeliveryOrder.Contract.Organization;
             }
         }
     }
