@@ -341,10 +341,7 @@ namespace Vodovoz.Domain.Orders
 						case PaymentType.Terminal:
 							break;
 					}
-					
-					//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
-					if(Client != null && orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
-						OnChangePaymentType();
+					UpdateContract();
 				}
 			}
 		}
@@ -1198,12 +1195,6 @@ namespace Vodovoz.Domain.Orders
 			if(newClient == null || Client == null || newClient.Id == Client.Id) {
 				return;
 			}
-
-			UpdateContract();
-		}
-
-		private void OnChangePaymentType()
-		{
 			UpdateContract();
 		}
 
@@ -1222,8 +1213,6 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
-			UpdateContractDocument();
-			UpdateDocuments();
 		}
 
 		private void UpdateContractDocument()
@@ -1446,10 +1435,17 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateOrCreateContract(IUnitOfWork uow, ICounterpartyContractRepository counterpartyContractRepository, CounterpartyContractFactory contractFactory)
 		{
+			if(!NHibernate.NHibernateUtil.IsInitialized(Client)
+			|| !NHibernate.NHibernateUtil.IsInitialized(Contract)) {
+				return;
+			}
 			if(uow == null) throw new ArgumentNullException(nameof(uow));
 			if(counterpartyContractRepository == null)
 				throw new ArgumentNullException(nameof(counterpartyContractRepository));
 			if(contractFactory == null) throw new ArgumentNullException(nameof(contractFactory));
+			if(Contract == null) {
+				return;
+			}
 
 			var counterpartyContract = counterpartyContractRepository.GetCounterpartyContract(uow, this);
 			if(counterpartyContract == null) {
