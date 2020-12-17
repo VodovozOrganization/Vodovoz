@@ -63,7 +63,7 @@ namespace Vodovoz.Models
 
         private bool IsOnlineStoreOrder(Order order)
         {
-            return order.OrderItems.Any(x => x.Nomenclature.OnlineStore != null);
+            return order.OrderItems.Any(x => x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != orderPrametersProvider.OldInternalOnlineStoreId);
         }
         
         private Organization GetOrganizationForOnlineStore(IUnitOfWork uow)
