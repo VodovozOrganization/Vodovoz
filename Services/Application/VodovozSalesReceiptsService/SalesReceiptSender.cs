@@ -112,23 +112,23 @@ namespace VodovozSalesReceiptsService
                 HttpResponseMessage response = httpClient.GetAsync(fiscalizationStatusAddress).Result;
                 
                 if(!response.IsSuccessStatusCode) {
-                    logger.Warn("Провал. Нет ответа от сервиса.");
+                    logger.Warn($"Провал. Нет ответа от сервиса. Регистратор №{cashBox.Id}");
                     return false;
                 }
                 
                 var finscalizatorStatusResponse = response.Content.ReadAsAsync<FinscalizatorStatusResponseDTO>().Result;
                 
                 if(finscalizatorStatusResponse == null) {
-                    logger.Warn("Провал. Нет удалось прочитать ответ от сервиса.");
+                    logger.Warn($"Провал. Нет удалось прочитать ответ от сервиса. Регистратор №{cashBox.Id}");
                     return false;
                 }
 
                 switch(finscalizatorStatusResponse.Status) {
                     case FiscalRegistratorStatus.Ready:
-                        logger.Info("Соединение с фискальным накопителем установлено и его состояние позволяет фискализировать чеки.");
+                        logger.Info($"Соединение с фискальным накопителем №{cashBox.Id} установлено и его состояние позволяет фискализировать чеки.");
                         return true;
                     case FiscalRegistratorStatus.Failed:
-                        logger.Warn("Проблемы получения статуса фискального накопителя. " +
+                        logger.Warn($"Проблемы получения статуса фискального накопителя №{cashBox.Id}. " +
                             "Этот статус не препятствует добавлению документов для фискализации. " +
                             "Все документы будут добавлены в очередь на сервере и дождутся момента когда касса будет в состоянии их фискализировать.");
                         return true;
@@ -144,7 +144,7 @@ namespace VodovozSalesReceiptsService
                 }
             }
             catch(Exception ex) {
-                logger.Error(ex, "Ошибка при авторизации и проверки фискального регистратора");
+                logger.Error(ex, $"Ошибка при авторизации и проверки фискального регистратора №{cashBox.Id}");
                 return false;
             }
         }
