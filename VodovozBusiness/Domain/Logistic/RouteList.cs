@@ -864,8 +864,8 @@ namespace Vodovoz.Domain.Logistic
 					if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading) {
 						Status = RouteListStatus.Confirmed;
 						foreach(var address in Addresses) {
-							if(address.Order.OrderStatus < OrderStatus.InTravelList) {
-								address.Order.ChangeStatusAndCreateTasks(OrderStatus.InTravelList, callTaskWorker);
+							if(address.Order.OrderStatus < OrderStatus.OnLoading) {
+								address.Order.ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 							}
 						}
 					} else {
@@ -963,6 +963,11 @@ namespace Vodovoz.Domain.Logistic
 				case RouteListStatus.New:
 					if(Status == RouteListStatus.Confirmed || Status == RouteListStatus.InLoading) {
 						Status = RouteListStatus.New;
+						foreach(var address in Addresses) {
+							if(address.Order.OrderStatus == OrderStatus.OnLoading) {
+								address.Order.ChangeStatus(OrderStatus.InTravelList);
+							}
+						}
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
 					}
@@ -971,8 +976,9 @@ namespace Vodovoz.Domain.Logistic
 					if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading) {
 						Status = RouteListStatus.Confirmed;
 						foreach(var address in Addresses) {
-							if(address.Order.OrderStatus < OrderStatus.OnLoading)
+							if(address.Order.OrderStatus < OrderStatus.OnLoading) {
 								address.Order.ChangeStatus(OrderStatus.OnLoading);
+							}
 						}
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
