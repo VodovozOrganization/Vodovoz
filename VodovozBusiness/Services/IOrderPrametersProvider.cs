@@ -5,5 +5,7 @@ namespace Vodovoz.Services
         int PaymentByCardFromMobileAppId { get; }
         
         int PaymentByCardFromSiteId { get; }
+        
+        int OldInternalOnlineStoreId { get; }
     }
 }
