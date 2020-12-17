@@ -113,6 +113,7 @@ namespace Vodovoz.Domain
             Order.OnlineOrder = ExternalId;
             Order.PaymentType = PaymentType.ByCard;    
             Order.PaymentByCardFrom = paymentFrom;
+            Order.ForceUpdateContract();
 
             foreach (var routeListItem in uow.Session.QueryOver<RouteListItem>().Where(x => x.Order.Id == Order.Id).List<RouteListItem>()) {
                 routeListItem.RecalculateTotalCash();
