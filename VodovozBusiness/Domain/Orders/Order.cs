@@ -1236,11 +1236,6 @@ namespace Vodovoz.Domain.Orders
 		
 		public virtual void ForceUpdateContract()
 		{
-			if(!NHibernate.NHibernateUtil.IsInitialized(Client)
-			   || !NHibernate.NHibernateUtil.IsInitialized(Contract)) {
-				return;
-			}
-			
 			if(orderOrganizationProviderFactory == null) {
 				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
