@@ -1233,6 +1233,25 @@ namespace Vodovoz.Domain.Orders
 			
 			UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 		}
+		
+		public virtual void ForceUpdateContract()
+		{
+			if(!NHibernate.NHibernateUtil.IsInitialized(Client)
+			   || !NHibernate.NHibernateUtil.IsInitialized(Contract)) {
+				return;
+			}
+			
+			if(orderOrganizationProviderFactory == null) {
+				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
+				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
+			}
+			
+			UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+		}
+		
+		
 
 		private void UpdateContractDocument()
 		{
