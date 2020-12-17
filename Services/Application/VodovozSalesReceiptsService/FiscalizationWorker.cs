@@ -10,6 +10,7 @@ using QS.Utilities;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using VodovozSalesReceiptsService.DTO;
 
@@ -94,11 +95,11 @@ namespace VodovozSalesReceiptsService
                 }
                 logger.Info($"Общее количество чеков для отправки: {receiptsToSend}");
 
-                var cashierName = uow.GetById<Employee>(salesReceiptsServiceSettings.DefaultSalesReceiptCashierId).ShortName;
+                var cashierNameIP = uow.GetById<Employee>(salesReceiptsServiceSettings.DefaultSalesReceiptCashierId).ShortName;
 
                 int notValidCount = 0;
-                SendForOrdersWithoutReceipts(uow, withoutReceipts, cashierName, ref notValidCount);
-                SendForOrdersWithNotSendReceipts(uow, withNotSentReceipts, cashierName, ref notValidCount);
+                SendForOrdersWithoutReceipts(uow, withoutReceipts, cashierNameIP, ref notValidCount);
+                SendForOrdersWithNotSendReceipts(uow, withNotSentReceipts, cashierNameIP, ref notValidCount);
 
                 uow.Commit();
 
@@ -108,15 +109,27 @@ namespace VodovozSalesReceiptsService
             }
         }
 
-        private void SendForOrdersWithoutReceipts(IUnitOfWork uow, IEnumerable<ReceiptForOrderNode> nodes, string cashierName, ref int notValidCount)
+        private void SendForOrdersWithoutReceipts(IUnitOfWork uow, IEnumerable<ReceiptForOrderNode> nodes, string cashierNameIP, ref int notValidCount)
         {
+            var orgParamProvider = new OrganizationParametersProvider(ParametersProvider.Instance);
+            var southOrganization = orgParamProvider.VodovozSouthOrganizationId;
+            var northOrganization = orgParamProvider.VodovozNorthOrganizationId;
+
             IList<PreparedReceiptNode> receiptNodesToSend = new List<PreparedReceiptNode>();
 
             foreach(var order in uow.GetById<Order>(nodes.Select(x => x.OrderId))) {
                 var newReceipt = new CashReceipt { Order = order };
-                var doc = new SalesDocumentDTO(order, cashierName);
+                var doc = new SalesDocumentDTO(order, cashierNameIP);
 
                 if(doc.IsValid && order.Contract?.Organization?.CashBox != null) {
+
+                    if(order.Contract.Organization.Id == southOrganization) {
+                        doc.CashierName = "Соболева Т.В.";
+                    }
+                    else if(order.Contract.Organization.Id == northOrganization) {
+                        doc.CashierName = "Житкевич Л.Д.";
+                    }
+                    
                     receiptNodesToSend.Add(new PreparedReceiptNode {
                         CashReceipt = newReceipt,
                         SalesDocumentDTO = doc,
@@ -153,8 +166,12 @@ namespace VodovozSalesReceiptsService
             }
         }
 
-        private void SendForOrdersWithNotSendReceipts(IUnitOfWork uow, IList<ReceiptForOrderNode> nodes, string cashierName, ref int notValidCount)
+        private void SendForOrdersWithNotSendReceipts(IUnitOfWork uow, IList<ReceiptForOrderNode> nodes, string cashierNameIP, ref int notValidCount)
         {
+            var orgParamProvider = new OrganizationParametersProvider(ParametersProvider.Instance);
+            var southOrganization = orgParamProvider.VodovozSouthOrganizationId;
+            var northOrganization = orgParamProvider.VodovozNorthOrganizationId;
+            
             IList<PreparedReceiptNode> receiptNodesToSend = new List<PreparedReceiptNode>();
             int sentBefore = 0;
 
@@ -167,9 +184,17 @@ namespace VodovozSalesReceiptsService
                     continue;
                 }
 
-                var doc = new SalesDocumentDTO(receipt.Order, cashierName);
+                var doc = new SalesDocumentDTO(receipt.Order, cashierNameIP);
 
                 if(doc.IsValid && receipt.Order.Contract?.Organization?.CashBox != null) {
+                    
+                    if(receipt.Order.Contract.Organization.Id == southOrganization) {
+                        doc.CashierName = "Соболева Т.В.";
+                    }
+                    else if(receipt.Order.Contract.Organization.Id == northOrganization) {
+                        doc.CashierName = "Житкевич Л.Д.";
+                    }
+                    
                     receiptNodesToSend.Add(new PreparedReceiptNode {
                         CashReceipt = receipt,
                         SalesDocumentDTO = doc,
