@@ -42,6 +42,7 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
@@ -51,6 +52,10 @@ namespace Vodovoz
 {
 	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>
 	{
+		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
+			new CashDistributionCommonOrganisationProvider(
+				new OrganizationParametersProvider(ParametersProvider.Instance));
+		
 		public EmployeeDlg()
 		{
 			this.Build();
@@ -118,6 +123,10 @@ namespace Vodovoz
 		
 		private void ConfigureDlg()
 		{
+			if (Entity.Id == 0) {
+				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
+			}
+			
 			canManageDriversAndForwarders = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_drivers_and_forwarders");
 			canManageOfficeWorkers = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_office_workers");
 			canEditOrganisationForSalary = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_organisation_for_salary");
