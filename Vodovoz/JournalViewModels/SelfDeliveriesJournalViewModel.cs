@@ -60,6 +60,7 @@ namespace Vodovoz.Representations
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			Employee authorAlias = null;
+			CounterpartyContract contractAlias = null;
 
 			var depositReturnQuery = QueryOver.Of(() => orderDepositItemAlias)
 				.Select(Projections.Sum(
@@ -103,6 +104,14 @@ namespace Vodovoz.Representations
 				bool paymentAfterShipment = false || FilterViewModel.PaymentOrder == PaymentOrder.AfterShipment;
 				query.Where(o => o.PayAfterShipment == paymentAfterShipment);
 			}
+			
+			if (FilterViewModel.Organisation != null) {
+				query.Where(() => contractAlias.Organization.Id == FilterViewModel.Organisation.Id);
+			}
+			
+			if (FilterViewModel.PaymentByCardFrom != null) {
+				query.Where(o => o.PaymentByCardFrom.Id == FilterViewModel.PaymentByCardFrom.Id);
+			}
 
 			query
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
@@ -111,6 +120,7 @@ namespace Vodovoz.Representations
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => orderAlias.OrderDepositItems, () => orderDepositItemAlias)
+				.Left.JoinAlias(o => o.Contract, () => contractAlias)
 				.JoinEntityAlias(() => incomeAlias, () => orderAlias.Id == incomeAlias.Order.Id, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => expenseAlias, () => orderAlias.Id == expenseAlias.Order.Id, JoinType.LeftOuterJoin);
 
