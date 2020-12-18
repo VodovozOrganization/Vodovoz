@@ -1482,6 +1482,9 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			Contract = counterpartyContract;
+			foreach(var orderItem in OrderItems) {
+				orderItem.CalculateVATType();
+			}
 			UpdateContractDocument();
 			UpdateDocuments();
 		}

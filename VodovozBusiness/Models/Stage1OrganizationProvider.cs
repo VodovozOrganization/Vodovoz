@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -111,6 +112,24 @@ namespace Vodovoz.Models
             }
 
             return uow.GetById<Organization>(organizationId);
+        }
+        
+        public Organization GetOrganizationForOrderWithoutShipment(IUnitOfWork uow, OrderWithoutShipmentForAdvancePayment order)
+        {
+            if (uow == null) throw new ArgumentNullException(nameof(uow));
+            if (order == null) throw new ArgumentNullException(nameof(order));
+
+            int organizationId = organizationParametersProvider.VodovozOrganizationId;
+            if(IsOnlineStoreOrderWithoutShipment(order)) {
+                organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
+            }
+            
+            return uow.GetById<Organization>(organizationId);
+        }
+        
+        private bool IsOnlineStoreOrderWithoutShipment(OrderWithoutShipmentForAdvancePayment order)
+        {
+            return order.OrderWithoutDeliveryForAdvancePaymentItems.Any(x => x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != orderPrametersProvider.OldInternalOnlineStoreId);
         }
         
         public int GetMainOrganization()
