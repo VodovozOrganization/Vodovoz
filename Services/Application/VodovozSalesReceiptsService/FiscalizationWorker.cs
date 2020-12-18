@@ -1,17 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using NHibernate;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Utilities;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 using VodovozSalesReceiptsService.DTO;
 
 namespace VodovozSalesReceiptsService
@@ -23,20 +20,17 @@ namespace VodovozSalesReceiptsService
     {
         public FiscalizationWorker(
             IOrderRepository orderRepository,
-            ISalesReceiptsServiceSettings salesReceiptsServiceSettings,
             ISalesReceiptSender salesReceiptSender)
         {
             this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-            this.salesReceiptsServiceSettings = salesReceiptsServiceSettings ?? throw new ArgumentNullException(nameof(salesReceiptsServiceSettings));
             this.salesReceiptSender = salesReceiptSender ?? throw new ArgumentNullException(nameof(salesReceiptSender));
         }
 
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly IOrderRepository orderRepository;
-        private readonly ISalesReceiptsServiceSettings salesReceiptsServiceSettings;
         private readonly ISalesReceiptSender salesReceiptSender;
         private readonly TimeSpan initialDelay = TimeSpan.FromSeconds(5);
-        private readonly TimeSpan delay = TimeSpan.FromSeconds(30);
+        private readonly TimeSpan delay = TimeSpan.FromSeconds(45);
 
         /// <summary>
         /// Максимальное число чеков которое можно отправить <see cref="FiscalizationWorker"/> за один цикл 
@@ -94,12 +88,10 @@ namespace VodovozSalesReceiptsService
                     return;
                 }
                 logger.Info($"Общее количество чеков для отправки: {receiptsToSend}");
-
-                var cashierNameIP = uow.GetById<Employee>(salesReceiptsServiceSettings.DefaultSalesReceiptCashierId).ShortName;
-
+                
                 int notValidCount = 0;
-                SendForOrdersWithoutReceipts(uow, withoutReceipts, cashierNameIP, ref notValidCount);
-                SendForOrdersWithNotSendReceipts(uow, withNotSentReceipts, cashierNameIP, ref notValidCount);
+                SendForOrdersWithoutReceipts(uow, withoutReceipts, ref notValidCount);
+                SendForOrdersWithNotSendReceipts(uow, withNotSentReceipts, ref notValidCount);
 
                 uow.Commit();
 
@@ -109,32 +101,27 @@ namespace VodovozSalesReceiptsService
             }
         }
 
-        private void SendForOrdersWithoutReceipts(IUnitOfWork uow, IEnumerable<ReceiptForOrderNode> nodes, string cashierNameIP, ref int notValidCount)
+        private void SendForOrdersWithoutReceipts(IUnitOfWork uow, IEnumerable<ReceiptForOrderNode> nodes, ref int notValidCount)
         {
-            var orgParamProvider = new OrganizationParametersProvider(ParametersProvider.Instance);
-            var southOrganization = orgParamProvider.VodovozSouthOrganizationId;
-            var northOrganization = orgParamProvider.VodovozNorthOrganizationId;
-
             IList<PreparedReceiptNode> receiptNodesToSend = new List<PreparedReceiptNode>();
 
             foreach(var order in uow.GetById<Order>(nodes.Select(x => x.OrderId))) {
                 var newReceipt = new CashReceipt { Order = order };
-                var doc = new SalesDocumentDTO(order, cashierNameIP);
+                var doc = new SalesDocumentDTO(order, order.Contract?.Organization?.Leader?.ShortName);
 
                 if(doc.IsValid && order.Contract?.Organization?.CashBox != null) {
 
-                    if(order.Contract.Organization.Id == southOrganization) {
-                        doc.CashierName = "Соболева Т.В.";
-                    }
-                    else if(order.Contract.Organization.Id == northOrganization) {
-                        doc.CashierName = "Житкевич Л.Д.";
-                    }
-                    
-                    receiptNodesToSend.Add(new PreparedReceiptNode {
+                    var newPreparedReceiptNode = new PreparedReceiptNode {
                         CashReceipt = newReceipt,
                         SalesDocumentDTO = doc,
                         CashBox = order.Contract.Organization.CashBox
-                    });
+                    };
+
+                    if(!NHibernateUtil.IsInitialized(newPreparedReceiptNode.CashBox)) {
+                        NHibernateUtil.Initialize(newPreparedReceiptNode.CashBox);
+                    }
+                    
+                    receiptNodesToSend.Add(newPreparedReceiptNode);
 
                     if(receiptNodesToSend.Count >= maxReceiptsAllowedToSendInOneGo) {
                         break;
@@ -166,40 +153,32 @@ namespace VodovozSalesReceiptsService
             }
         }
 
-        private void SendForOrdersWithNotSendReceipts(IUnitOfWork uow, IList<ReceiptForOrderNode> nodes, string cashierNameIP, ref int notValidCount)
+        private void SendForOrdersWithNotSendReceipts(IUnitOfWork uow, IEnumerable<ReceiptForOrderNode> nodes, ref int notValidCount)
         {
-            var orgParamProvider = new OrganizationParametersProvider(ParametersProvider.Instance);
-            var southOrganization = orgParamProvider.VodovozSouthOrganizationId;
-            var northOrganization = orgParamProvider.VodovozNorthOrganizationId;
-            
             IList<PreparedReceiptNode> receiptNodesToSend = new List<PreparedReceiptNode>();
             int sentBefore = 0;
 
-            foreach(var receipt in uow.GetById<CashReceipt>(nodes.Select(n => {
-                Debug.Assert(n.ReceiptId != null, "n.ReceiptId != null");
-                return n.ReceiptId.Value;
-            }))) {
+            foreach(var receipt in uow.GetById<CashReceipt>(nodes.Select(n => n.ReceiptId).Where(x => x.HasValue).Select(x => x.Value))) {
                 if(receipt.Sent) {
                     sentBefore++;
                     continue;
                 }
 
-                var doc = new SalesDocumentDTO(receipt.Order, cashierNameIP);
+                var doc = new SalesDocumentDTO(receipt.Order, receipt.Order.Contract?.Organization?.Leader?.ShortName);
 
                 if(doc.IsValid && receipt.Order.Contract?.Organization?.CashBox != null) {
-                    
-                    if(receipt.Order.Contract.Organization.Id == southOrganization) {
-                        doc.CashierName = "Соболева Т.В.";
-                    }
-                    else if(receipt.Order.Contract.Organization.Id == northOrganization) {
-                        doc.CashierName = "Житкевич Л.Д.";
-                    }
-                    
-                    receiptNodesToSend.Add(new PreparedReceiptNode {
+
+                    var newPreparedReceiptNode = new PreparedReceiptNode {
                         CashReceipt = receipt,
                         SalesDocumentDTO = doc,
                         CashBox = receipt.Order.Contract.Organization.CashBox
-                    });
+                    };
+
+                    if(!NHibernateUtil.IsInitialized(newPreparedReceiptNode.CashBox)) {
+                        NHibernateUtil.Initialize(newPreparedReceiptNode.CashBox);
+                    }
+
+                    receiptNodesToSend.Add(newPreparedReceiptNode);
 
                     if(receiptNodesToSend.Count >= maxReceiptsAllowedToSendInOneGo) {
                         break;
