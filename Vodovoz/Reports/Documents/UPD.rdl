@@ -23,7 +23,7 @@
 	measurement_units.name AS mu_name,
 	IFNULL(actual_count, count) AS count,
 	order_items.price AS item_price,
-	order_items.include_nds,
+	IFNULL(order_items.include_nds, 0),
 	order_items.discount AS item_discount,
 	order_items.discount_money AS item_discount_money,
 	CASE nomenclature.vat
