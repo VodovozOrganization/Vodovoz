@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
-using Gamma.Widgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -32,6 +31,7 @@ namespace Vodovoz
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
+		private readonly AdvanceCashOrganisationDistributor distributor = new AdvanceCashOrganisationDistributor();
 
 		protected decimal Debt {
 			get {
@@ -167,8 +167,7 @@ namespace Vodovoz
 			specialListCmbOrganisation.ShowSpecialStateNot = true;
 			specialListCmbOrganisation.ItemsList = UoW.GetAll<Organization>();
 			specialListCmbOrganisation.Binding.AddBinding(Entity, e => e.Organisation, w => w.SelectedItem).InitializeFromSource();
-			specialListCmbOrganisation.ItemSelected += SpecialListCmbOrganisationOnItemSelected;
-			
+
 			ytextviewDescription.Binding.AddBinding(Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource();
 
 			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<RecivedAdvance>()
@@ -190,11 +189,6 @@ namespace Vodovoz
 			}
 		}
 
-		private void SpecialListCmbOrganisationOnItemSelected(object sender, ItemSelectedEventArgs e)
-		{
-			FillDebt();
-		}
-
 		void HandleBatchEntityChangeHandler(EntityChangeEvent[] changeEvents)
 		{
 			UpdateExpenseCategories();
@@ -209,7 +203,7 @@ namespace Vodovoz
 		{
 			UpdateSubdivision();
 		}
-
+		
 		private void UpdateSubdivision()
 		{
 			if(accessfilteredsubdivisionselectorwidget.SelectedSubdivision != null && accessfilteredsubdivisionselectorwidget.NeedChooseSubdivision) {
@@ -228,20 +222,17 @@ namespace Vodovoz
 			Expense newExpense;
 			bool needClosing = UoWGeneric.IsNew;
 			UoWGeneric.Save(); // Сохраняем сначала отчет, так как нужно получить Id.
-			var distributor = new AdvanceCashOrganisationDistributor();
 			if(needClosing) {
 				var closing = Entity.CloseAdvances(out newExpense, out newIncome,
 					advanceList.Where(a => a.Selected).Select(a => a.Advance).ToList());
 
-				if (newExpense != null)
-				{
+				if (newExpense != null) {
 					UoWGeneric.Save(newExpense);
 					logger.Info("Создаем документ распределения расхода налички по юр лицу...");
 					distributor.DistributeCashForExpenseAdvance(UoW, newExpense, Entity);
 				}
 
-				if (newIncome != null)
-				{
+				if (newIncome != null) {
 					UoWGeneric.Save(newIncome);
 					logger.Info("Создаем документ распределения прихода налички по юр лицу...");
 					distributor.DistributeCashForIncomeAdvance(UoW, newIncome, Entity);
