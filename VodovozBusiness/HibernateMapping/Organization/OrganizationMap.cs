@@ -20,6 +20,7 @@ namespace Vodovoz.HibernateMapping
             Map(x => x.Email).Column("email");
             Map(x => x.Address).Column("address");
             Map(x => x.JurAddress).Column("jur_address");
+            Map(x => x.WithoutVAT).Column("without_vat").ReadOnly();
 
             References(x => x.Leader).Column("leader_id");
             References(x => x.Buhgalter).Column("buhgalter_id");

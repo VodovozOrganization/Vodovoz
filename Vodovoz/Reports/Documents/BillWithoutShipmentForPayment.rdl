@@ -158,7 +158,7 @@ WHERE
     sum(IFNULL(actual_count, count)) AS count,
     sum(order_items.actual_count) AS actual_count,
     order_items.price AS item_price,
-    sum(order_items.include_nds) AS include_nds,
+    sum(IFNULL(order_items.include_nds, 0)) AS include_nds,
     sum(order_items.discount) AS discount,
     sum(order_items.discount_money) AS discount_money,
     sum(order_items.price * IFNULL(actual_count, count)) AS sum,
