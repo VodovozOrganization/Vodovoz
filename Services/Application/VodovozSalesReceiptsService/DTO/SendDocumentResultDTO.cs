@@ -11,7 +11,7 @@ namespace VodovozSalesReceiptsService.DTO
         public int StatusCode { get; set; }
         
         [JsonProperty("error")] 
-        public int ErrorStatusCodeName { get; set; }
+        public string ErrorStatusCodeName { get; set; }
         
         [JsonProperty("message")] 
         public string Message { get; set; }
