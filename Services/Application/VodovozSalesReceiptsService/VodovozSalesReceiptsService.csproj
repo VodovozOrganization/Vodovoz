@@ -58,6 +58,7 @@
     <Compile Include="DTO\FiscalRegistratorStatus.cs" />
     <Compile Include="DTO\PreparedReceiptNode.cs" />
     <Compile Include="DTO\SalesDocumentsStatusDTO.cs" />
+    <Compile Include="DTO\SendDocumentResultDTO.cs" />
     <Compile Include="SalesReceiptSender.cs" />
     <Compile Include="FiscalizationWorker.cs" />
     <Compile Include="ISalesReceiptSender.cs" />

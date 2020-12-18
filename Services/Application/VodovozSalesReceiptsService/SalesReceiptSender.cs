@@ -159,8 +159,16 @@ namespace VodovozSalesReceiptsService
                     logger.Info($"Чек для заказа №{orderId} отправлен. HTTP Code: {(int)response.StatusCode} {response.StatusCode}");
                 }
                 else {
-                    logger.Warn($"Не удалось отправить чек для заказа №{orderId}. HTTP Code: {(int)response.StatusCode} {response.StatusCode}." +
-                        $" Запрашиваю актуальный статус...");
+                    SendDocumentResultDTO sendDocumentResult = new SendDocumentResultDTO();
+                    try {
+                        sendDocumentResult = response.Content.ReadAsAsync<SendDocumentResultDTO>().Result;
+                    }
+                    catch(Exception e) {
+                        logger.Error(e, "Ошибка при чтении результата отправки");
+                    }
+                    
+                    logger.Warn($"Не удалось отправить чек для заказа №{orderId}. HTTP Code: {(int)response.StatusCode} {response.StatusCode}. " +
+                        $"Message: {sendDocumentResult.Message ?? "Ошибка чтения"}. Запрашиваю актуальный статус...");
                     try {
                         var statusResponse = httpClient.GetAsync(String.Format(documentStatusAddress, doc.Id)).Result;
 
