@@ -15,6 +15,7 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -308,6 +309,12 @@ namespace Vodovoz.Domain.Employees
 			get { return loginForNewUser; }
 			set { SetField(ref loginForNewUser, value, () => LoginForNewUser); }
 		}
+		
+		Organization organisationForSalary;
+		public virtual Organization OrganisationForSalary {
+			get => organisationForSalary;
+			set => SetField(ref organisationForSalary, value);
+		}
 
 		#endregion
 
@@ -466,6 +473,7 @@ namespace Vodovoz.Domain.Employees
 			ObservableWageParameters.Add(wageParameter);
 			return;
 		}
+
 
 		public virtual EmployeeWageParameter GetActualWageParameter(DateTime date)
 		{

@@ -4,6 +4,7 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
@@ -13,8 +14,10 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
+using Vodovoz.NhibernateExtensions;
 using Vodovoz.Repositories.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -101,39 +104,66 @@ namespace Vodovoz.EntityRepositories.Orders
 				.List();
 		}
 
-		public IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork UoW, Export1cMode mode, DateTime startDate, DateTime endDate)
+		public IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork uow, Export1cMode mode, DateTime startDate, DateTime endDate, Organization organization = null)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 
-			var export1cSubquerySum = QueryOver.Of(() => orderItemAlias)
-									   .Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-									   .Select(Projections.Sum(
-										   Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
-																   NHibernateUtil.Decimal,
-																   Projections.Conditional(
-																	   Restrictions.IsNotNull(Projections.Property<OrderItem>(x => x.ActualCount)),
-																	   Projections.Property<OrderItem>(x => x.ActualCount),
-																	   Projections.Property<OrderItem>(x => x.Count)
-																	  ),
-																   Projections.Property<OrderItem>(x => x.Price),
-																   Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( 1 - ?1 / 100 )"),
-																						   NHibernateUtil.Decimal,
-																						   Projections.Property<OrderItem>(x => x.Discount)
-																						  )
-																  )
-										  ))
-									   ;
+			var export1CSubquerySum = QueryOver.Of(() => orderItemAlias)
+					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+					.Select(Projections.Sum(
+						Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
+							NHibernateUtil.Decimal,
+							Projections.Conditional(
+								Restrictions.IsNotNull(Projections.Property<OrderItem>(x => x.ActualCount)),
+								Projections.Property<OrderItem>(x => x.ActualCount),
+								Projections.Property<OrderItem>(x => x.Count)
+							),
+							Projections.Property<OrderItem>(x => x.Price),
+							Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( 1 - ?1 / 100 )"),
+								NHibernateUtil.Decimal,
+								Projections.Property<OrderItem>(x => x.Discount)
+							)
+						)
+					))
+				;
 
-			var query = UoW.Session.QueryOver(() => orderAlias)
-					  .Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
-					  .Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
-					  .Where(Subqueries.Le(0.01, export1cSubquerySum.DetachedCriteria));
-			if(mode == Export1cMode.IPForTinkoff) {
-				query.Where(o => o.PaymentType == PaymentType.ByCard)
-					.Where(o => o.OnlineOrder != null);
-			} else {
-				query.Where(o => o.PaymentType == PaymentType.cashless);
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
+				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate);
+
+			if(organization != null) {
+				CounterpartyContract counterpartyContractAlias = null;
+
+				query.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
+					.Where(() => counterpartyContractAlias.Organization.Id == organization.Id);
+			}
+
+			switch(mode) {
+				case Export1cMode.BuhgalteriaOOO:
+					query.Where(o => o.PaymentType == PaymentType.cashless)
+						.And(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
+					break;
+				case Export1cMode.BuhgalteriaOOONew:
+					CashReceipt cashReceiptAlias = null;
+					
+					query.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
+						.Where(Restrictions.Disjunction()
+							.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+							.Add(Restrictions.Conjunction()
+								.Add(Restrictions.IsNotNull(Projections.Property(() => cashReceiptAlias.Id)))
+								.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
+								new[] { PaymentType.cash, PaymentType.ByCard, PaymentType.Terminal }))
+							)
+						);
+					break;
+				case Export1cMode.IPForTinkoff:
+					query.Where(o => o.PaymentType == PaymentType.ByCard)
+						.And(o => o.OnlineOrder != null)
+						.And(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
 			}
 
 			return query.List();
@@ -507,90 +537,120 @@ namespace Vodovoz.EntityRepositories.Orders
 				};
 		}
 
-		public ReceiptForOrderNode[] GetShippedOrdersWithReceiptsForDates(IUnitOfWork uow, DateTime? startDate = null)
+
+
+		public IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(IUnitOfWork uow, DateTime? startDate = null)
 		{
+			#region Aliases Restrictions Projections
+
+			ReceiptForOrderNode resultAlias = null;
+			ExtendedReceiptForOrderNode extendedReceiptForOrderNodeAlias = null;
+			
 			OrderItem orderItemAlias = null;
 			VodovozOrder orderAlias = null;
-			ReceiptForOrderNode resultAlias = null;
+			CashReceipt cashReceiptAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
+			Counterparty counterpartyAlias = null;
 
-			var orderPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.ByCard, PaymentType.Terminal };
-			var orderStatusesForReceipts = new OrderStatus[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+			var orderSumProjection = Projections.Sum(
+				Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.Decimal, "CAST(IFNULL(?1 * ?2 - ?3, 0) AS DECIMAL(14,2))"),
+					NHibernateUtil.Decimal,
+					Projections.Property(() => orderItemAlias.Count),
+					Projections.Property(() => orderItemAlias.Price),
+					Projections.Property(() => orderItemAlias.DiscountMoney)
+				)
+			);
 
-			var result = uow.Session.QueryOver<CashReceipt>()
-								 .Right.JoinAlias(r => r.Order, () => orderAlias)
-								 .Where(() => orderAlias.PaymentType.IsIn(orderPaymentTypes))
-								 .Where(() => orderAlias.OrderStatus.IsIn(orderStatusesForReceipts))
-								 .Where(() => !orderAlias.SelfDelivery);
+			var positiveOrderSumRestriction = Restrictions.Gt(orderSumProjection, 0);
 
-			if(startDate.HasValue)
-				result.Where(() => orderAlias.DeliveryDate >= startDate.Value);
+			var alwaysSendOrdersRestriction = Restrictions.Disjunction()
+				.Add(() => productGroupAlias.IsOnlineStore)
+				.Add(() => counterpartyAlias.AlwaysSendReceitps)
+				.Add(() => orderAlias.SelfDelivery)
+				.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
+					new[] { PaymentType.ByCard, PaymentType.Terminal }.ToArray()));
 
-			result.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-					   .Where(
-							Restrictions.Gt(
-								Projections.Sum(
-									Projections.SqlFunction(
-										new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1 * ?2 - ?3, 0)"),
-										NHibernateUtil.Decimal,
-										Projections.Property(() => orderItemAlias.Count),
-										Projections.Property(() => orderItemAlias.Price),
-										Projections.Property(() => orderItemAlias.DiscountMoney)
-									)
-								),
-								0
-							)
-					   )
-					  .SelectList(
-					   		list => list.Select(r => r.Id).WithAlias(() => resultAlias.ReceiptId)
-										.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
-										.Select(r => r.Sent).WithAlias(() => resultAlias.WasSent)
-					  )
-					  .TransformUsing(Transformers.AliasToBean<ReceiptForOrderNode>())
-				  ;
-			return result.List<ReceiptForOrderNode>().ToArray();
-		}
+			var orderStatusForReceiptsRestriction = Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
+				new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed }.ToArray());
+			
+			var orderPaymentTypesRestriction = Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
+				new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.ToArray());
 
-		public ReceiptForOrderNode[] GetClosedSelfDeliveredOrdersWithReceiptsForDates(IUnitOfWork uow, 
-																						PaymentType paymentType, 
-																						OrderStatus orderStatus, 
-																						DateTime? startDate = null)
-		{
-			OrderItem orderItemAlias = null;
-			VodovozOrder orderAlias = null;
-			ReceiptForOrderNode resultAlias = null;
+			#endregion
 
-			var result = uow.Session.QueryOver<CashReceipt>()
-								 .Right.JoinAlias(r => r.Order, () => orderAlias)
-								 .Where(() => orderAlias.PaymentType == paymentType)
-								 .Where(() => orderAlias.OrderStatus == orderStatus)
-								 .Where(() => orderAlias.SelfDelivery);
+			#region AlwaysSendOrders
+
+			var alwaysSendOrdersQuery = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
+				.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Where(alwaysSendOrdersRestriction)
+				.And(orderStatusForReceiptsRestriction)
+				.And(positiveOrderSumRestriction)
+				.And(orderPaymentTypesRestriction)
+				.And(Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.Property(() => cashReceiptAlias.Id)))
+					.Add(() => !cashReceiptAlias.Sent));
 
 			if(startDate.HasValue)
-				result.Where(() => orderAlias.DeliveryDate >= startDate.Value);
+				alwaysSendOrdersQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
 
-			result.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-					   .Where(
-							Restrictions.Gt(
-								Projections.Sum(
-									Projections.SqlFunction(
-										new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1 * ?2 - ?3, 0)"),
-										NHibernateUtil.Decimal,
-										Projections.Property(() => orderItemAlias.Count),
-										Projections.Property(() => orderItemAlias.Price),
-										Projections.Property(() => orderItemAlias.DiscountMoney)
-									)
-								),
-								0
-							)
-					   )
-					  .SelectList(
-					   		list => list.Select(r => r.Id).WithAlias(() => resultAlias.ReceiptId)
-										.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
-										.Select(r => r.Sent).WithAlias(() => resultAlias.WasSent)
-					  )
-					  .TransformUsing(Transformers.AliasToBean<ReceiptForOrderNode>())
-				  ;
-			return result.List<ReceiptForOrderNode>().ToArray();
+			var alwaysSendOrderNodes = alwaysSendOrdersQuery
+				.SelectList(list => list
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => cashReceiptAlias.Id).WithAlias(() => resultAlias.ReceiptId)
+					.Select(() => cashReceiptAlias.Sent).WithAlias(() => resultAlias.WasSent))
+				.TransformUsing(Transformers.AliasToBean<ReceiptForOrderNode>())
+				.Future<ReceiptForOrderNode>();
+
+			#endregion
+
+			#region UniqueOrderSumSendOrders
+
+			var uniqueOrderSumSendOrdersQuery = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
+				.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Where(Restrictions.Not(alwaysSendOrdersRestriction))
+				.And(orderStatusForReceiptsRestriction)
+				.And(positiveOrderSumRestriction)
+				.And(orderPaymentTypesRestriction);
+
+			if(startDate.HasValue)
+				uniqueOrderSumSendOrdersQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
+
+			var notUniqueOrderSumSendOrders = uniqueOrderSumSendOrdersQuery
+				.SelectList(list => list
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.OrderId)
+					.Select(orderSumProjection).WithAlias(() => extendedReceiptForOrderNodeAlias.OrderSum)
+					.Select(CustomProjections.Date(() => orderAlias.DeliveryDate)).WithAlias(() => extendedReceiptForOrderNodeAlias.DeliveryDate)
+					.Select(() => cashReceiptAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.ReceiptId)
+					.Select(() => cashReceiptAlias.Sent).WithAlias(() => extendedReceiptForOrderNodeAlias.WasSent))
+				.TransformUsing(Transformers.AliasToBean<ExtendedReceiptForOrderNode>())
+				.List<ExtendedReceiptForOrderNode>();
+			
+			var alreadySentOrders = new List<ExtendedReceiptForOrderNode>(notUniqueOrderSumSendOrders.Where(x => x.WasSent.HasValue && x.WasSent.Value));
+			var uniqueOrderSumSendNodes = new List<ExtendedReceiptForOrderNode>();
+
+			foreach(var node in notUniqueOrderSumSendOrders.Where(x => !x.WasSent.HasValue || !x.WasSent.Value)) {
+				if(alreadySentOrders.All(x => x.OrderSum != node.OrderSum || x.DeliveryDate != node.DeliveryDate) 
+					&& uniqueOrderSumSendNodes.All(x => x.OrderSum != node.OrderSum || x.DeliveryDate != node.DeliveryDate)) 
+				{
+					uniqueOrderSumSendNodes.Add(node);
+				}
+			}
+			var uniqueOrderSumSendOrderNodes = uniqueOrderSumSendNodes.Select(x => new ReceiptForOrderNode
+				{ OrderId = x.OrderId, ReceiptId = x.ReceiptId, WasSent = x.WasSent });
+
+			#endregion
+
+			return alwaysSendOrderNodes.Union(uniqueOrderSumSendOrderNodes);
 		}
 
 		public SmsPaymentStatus? GetOrderPaymentStatus(IUnitOfWork uow, int orderId)
@@ -635,7 +695,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.Select(
 					Projections.Sum(
-						Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * IFNULL(?2, ?3) - ?4)"),
+						Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3) - ?4, 2)"),
 							NHibernateUtil.Decimal, new IProjection[] {
 								Projections.Property(() => orderItemAlias.Price),
 								Projections.Property(() => orderItemAlias.ActualCount),
@@ -680,6 +740,15 @@ namespace Vodovoz.EntityRepositories.Orders
 				return false;
 
 			return true;
+		}
+
+		public bool OrderHasSentReceipt(IUnitOfWork uow, int orderId)
+		{
+			var receipt = uow.Session.QueryOver<CashReceipt>()
+				.Where(x => x.Order.Id == orderId)
+				.SingleOrDefault();
+
+			return receipt != null;
 		}
 	}
 }

@@ -154,6 +154,7 @@ namespace Vodovoz.Views.Logistic
 			this.vbox5.Spacing = 6;
 			// Container child vbox5.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(6)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -298,7 +299,7 @@ namespace Vodovoz.Views.Logistic
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Время работы водителей:");
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Начало работы водителей");
 			this.label3.Justify = ((global::Gtk.Justification)(1));
 			this.table2.Add(this.label3);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table2[this.label3]));

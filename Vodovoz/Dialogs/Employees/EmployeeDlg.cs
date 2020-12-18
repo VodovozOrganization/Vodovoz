@@ -27,6 +27,7 @@ using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service.BaseParametersServices;
@@ -41,7 +42,9 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Tools;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.WageCalculation;
 
@@ -49,11 +52,22 @@ namespace Vodovoz
 {
 	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>
 	{
+		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
+			new CashDistributionCommonOrganisationProvider(
+				new OrganizationParametersProvider(ParametersProvider.Instance));
+		
 		public EmployeeDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Employee>();
 			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
+			this.authorizationService = new AuthorizationService(
+				new PasswordGenerator(),
+				new MySQLUserRepository(
+					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
+					new GtkInteractiveService()));
+			
+
 			TabName = "Новый сотрудник";
 			ConfigureDlg();
 		}
@@ -64,6 +78,13 @@ namespace Vodovoz
 			logger.Info("Загрузка информации о сотруднике...");
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Employee>(id);
 			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
+			
+			this.authorizationService = new AuthorizationService(
+				new PasswordGenerator(),
+				new MySQLUserRepository(
+					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
+					new GtkInteractiveService()));
+
 			ConfigureDlg();
 		}
 
@@ -78,12 +99,19 @@ namespace Vodovoz
 				hiddenCategory.Add(EmployeeCategory.forwarder);
 			}
 			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
+			this.authorizationService = new AuthorizationService(
+				new PasswordGenerator(),
+				new MySQLUserRepository(
+					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
+					new GtkInteractiveService()));
+			
 			ConfigureDlg();
 		}
 		
 		private ISubdivisionService subdivisionService;
 		private bool canManageDriversAndForwarders;
 		private bool canManageOfficeWorkers;
+		private bool canEditOrganisationForSalary;
 		private GenericObservableList<DriverWorkScheduleNode> driverWorkDays;
 
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
@@ -91,11 +119,17 @@ namespace Vodovoz
 		private readonly List<EmployeeCategory> hiddenCategory = new List<EmployeeCategory>();
 		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence, EmployeeDocumentType.ForeignCitizenPassport };
 		private readonly EmployeeDocumentType[] hiddenForForeignCitizen = { EmployeeDocumentType.MilitaryID, EmployeeDocumentType.NavyPassport, EmployeeDocumentType.OfficerCertificate };
-
+		private readonly IAuthorizationService authorizationService;
+		
 		private void ConfigureDlg()
 		{
+			if (Entity.Id == 0) {
+				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
+			}
+			
 			canManageDriversAndForwarders = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_drivers_and_forwarders");
 			canManageOfficeWorkers = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_office_workers");
+			canEditOrganisationForSalary = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_organisation_for_salary");
 
 			ConfigureCategory();
 			ConfigureSubdivision();
@@ -183,6 +217,10 @@ namespace Vodovoz
 			yentryUserLogin.Binding.AddBinding(Entity, e => e.LoginForNewUser, w => w.Text);
 			yentryUserLogin.Sensitive = CanCreateNewUser;
 
+			specialListCmbOrganisation.ItemsList = UoW.GetAll<Organization>();
+			specialListCmbOrganisation.Binding.AddBinding(Entity, e => e.OrganisationForSalary, w => w.SelectedItem).InitializeFromSource();
+			specialListCmbOrganisation.Sensitive = canEditOrganisationForSalary;
+			
 			Entity.CheckAndFixDriverPriorities();
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
 				.AddColumn("Район").AddTextRenderer(x => x.District.DistrictName)
@@ -428,57 +466,13 @@ namespace Vodovoz
 			UoWGeneric.Save(Entity);
 
 			#region Попытка сохранить логин для нового юзера
-			if(!String.IsNullOrEmpty(Entity.LoginForNewUser) && InstantSmsServiceSetting.SendingAllowed) {
-				var user = new User {
-					Login = Entity.LoginForNewUser,
-					Name = Entity.FullName,
-					NeedPasswordChange = true
-				};
-				bool cont = MessageDialogHelper.RunQuestionDialog($"При сохранении работника будет создан \nпользователь с логином {user.Login} \nи на " +
-					$"указанный номер +7{Entity.GetPhoneForSmsNotification()}\nбудет выслана SMS с временным паролем\n\t\t\tПродолжить?");
-				if(!cont)
-					return false;
-
-				var password = new Tools.PasswordGenerator().GeneratePassword(5);
-				//Сразу пишет в базу
-				var result = mySQLUserRepository.CreateLogin(user.Login, password);
-				if(result) {
-					try {
-						mySQLUserRepository.UpdatePrivileges(user.Login, false);
-					} catch {
-						mySQLUserRepository.DropUser(user.Login);
-						throw;
-					}
-					UoWGeneric.Save(user);
-
-					logger.Info("Идёт отправка sms (до 10 секунд)...");
-					bool sendResult = false;
-					try {
-						sendResult = SendPasswordByPhone(password);
-					} catch(TimeoutException) {
-						RemoveUserData(user);
-						logger.Info("Ошибка при отправке sms");
-						MessageDialogHelper.RunErrorDialog("Сервис отправки Sms временно недоступен\n");
-						return false;
-					} catch {
-						RemoveUserData(user);
-						logger.Info("Ошибка при отправке sms");
-						throw;
-					}
-					if(!sendResult) {
-						//Если не получилось отправить смс с паролем - удаляем пользователя
-						RemoveUserData(user);
-						logger.Info("Ошибка при отправке sms");
-						return false;
-					}
-					logger.Info("Sms успешно отправлено");
-					Entity.User = user;
-				} else {
-					MessageDialogHelper.RunErrorDialog("Не получилось создать нового пользователя");
+			if(!String.IsNullOrEmpty(Entity.LoginForNewUser) && InstantSmsServiceSetting.SendingAllowed)
+			{
+				if (!authorizationService.TryToSaveUser(Entity, UoWGeneric))
+				{
 					return false;
 				}
 			}
-
 			#endregion
 
 			logger.Info("Сохраняем сотрудника...");
@@ -495,26 +489,6 @@ namespace Vodovoz
 			}
 			logger.Info("Ok");
 			return true;
-		}
-
-		private void RemoveUserData(User user)
-		{
-			UoWGeneric.Delete(user);
-			UoWGeneric.Session.Flush();
-			mySQLUserRepository.DropUser(user.Login);
-		}
-
-		private bool SendPasswordByPhone(string password)
-		{
-			SmsSender sender = new SmsSender();
-			var result = sender.SendPasswordToEmployee(new BaseParametersProvider(), Entity, password);
-			if(result.MessageStatus == SmsMessageStatus.Ok) {
-				MessageDialogHelper.RunInfoDialog("Sms с паролем отправлена успешно");
-				return true;
-			} else {
-				MessageDialogHelper.RunErrorDialog(result.ErrorDescription, "Ошибка при отправке Sms");
-				return false;
-			}
 		}
 
 		protected void OnRussianCitizenToggled(object sender, EventArgs e)

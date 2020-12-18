@@ -12,12 +12,14 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.WageCalculation;
@@ -29,9 +31,9 @@ namespace Vodovoz
 {
 	public partial class RouteListAddressesTransferringDlg : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 		private readonly IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository;
 		private readonly ITerminalNomenclatureProvider terminalNomenclatureProvider;
 
@@ -95,6 +97,7 @@ namespace Vodovoz
 			var vmFrom = new RouteListsVM(filterFrom);
 			GC.KeepAlive(vmFrom);
 			yentryreferenceRLFrom.RepresentationModel = vmFrom;
+			yentryreferenceRLFrom.JournalButtons = QS.Project.Dialogs.GtkUI.Buttons.Add | QS.Project.Dialogs.GtkUI.Buttons.Edit;
 			yentryreferenceRLFrom.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			var filterTo = new RouteListsFilter(UoW);
@@ -112,6 +115,7 @@ namespace Vodovoz
 			);
 			var vmTo = new RouteListsVM(filterTo);
 			yentryreferenceRLTo.RepresentationModel = vmTo;
+			yentryreferenceRLTo.JournalButtons = QS.Project.Dialogs.GtkUI.Buttons.Add | QS.Project.Dialogs.GtkUI.Buttons.Edit;
 			yentryreferenceRLTo.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			yentryreferenceRLFrom.Changed += YentryreferenceRLFrom_Changed;
@@ -338,9 +342,12 @@ namespace Vodovoz
 
 				if(routeListTo.ClosingFilled)
 					newItem.FirstFillClosing(UoW, wageParameterService);
+
 				UoW.Save(item);
 				UoW.Save(newItem);
 			}
+			
+			UpdateTranferDocuments(routeListFrom, routeListTo);
 
 			if(routeListFrom.Status == RouteListStatus.Closed) {
 				messages.AddRange(routeListFrom.UpdateMovementOperations());
@@ -382,22 +389,23 @@ namespace Vodovoz
 
 		protected void OnButtonRevertClicked(object sender, EventArgs e)
 		{
-			var toRevert = ytreeviewRLTo.GetSelectedObjects<RouteListItemNode>()
-										.Where(x => x.WasTransfered).Select(x => x.RouteListItem);
+			var toRevert = ytreeviewRLTo
+				.GetSelectedObjects<RouteListItemNode>()
+				.Where(x => x.WasTransfered)
+				.Select(x => x.RouteListItem)
+				.ToList();
+			
 			foreach(var address in toRevert) {
 				if(address.Status == RouteListItemStatus.Transfered) {
 					MessageDialogHelper.RunWarningDialog(String.Format("Адрес {0} сам перенесен в МЛ №{1}. Отмена этого переноса не возможна. Сначала нужно отменить перенос в {1} МЛ.", address?.Order?.DeliveryPoint.ShortAddress, address.TransferedTo?.RouteList.Id));
 					continue;
 				}
 
-				RouteListItem pastPlace = null;
-				if(yentryreferenceRLFrom.Subject != null) {
-					pastPlace = (yentryreferenceRLFrom.Subject as RouteList)
-						.Addresses.FirstOrDefault(x => x.TransferedTo != null && x.TransferedTo.Id == address.Id);
-				}
-				if(pastPlace == null) {
-					pastPlace = new RouteListItemRepository().GetTransferedFrom(UoW, address);
-				}
+				RouteListItem pastPlace = 
+					(yentryreferenceRLFrom.Subject as RouteList)
+						?.Addresses
+						?.FirstOrDefault(x => x.TransferedTo != null && x.TransferedTo.Id == address.Id)
+					?? new RouteListItemRepository().GetTransferedFrom(UoW, address);
 
 				if(pastPlace != null) {
 					pastPlace.SetStatusWithoutOrderChange(address.Status);
@@ -405,19 +413,27 @@ namespace Vodovoz
 					pastPlace.TransferedTo = null;
 					if(pastPlace.RouteList.ClosingFilled)
 						pastPlace.FirstFillClosing(UoW, wageParameterService);
+					
+					UpdateTranferDocuments(pastPlace.RouteList, address.RouteList);
 					UoW.Save(pastPlace);
 				}
 				address.RouteList.ObservableAddresses.Remove(address);
+
 				UoW.Save(address.RouteList);
 			}
 
-			foreach (var routeListItem in toRevert)
-			{
+			foreach (var routeListItem in toRevert) {
 				routeListItem.RecalculateTotalCash();
 			}
-			
+
 			UoW.Commit();
 			UpdateNodes();
+		}
+
+		private void UpdateTranferDocuments(RouteList from, RouteList to)
+		{
+			var addressTransferController = new AddressTransferController(EmployeeSingletonRepository.GetInstance());
+			addressTransferController.UpdateDocuments(from, to, UoW);
 		}
 
 		public override void Destroy()

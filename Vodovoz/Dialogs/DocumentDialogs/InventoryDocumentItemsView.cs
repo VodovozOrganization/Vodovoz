@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Gtk;
 using Gdk;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -22,7 +23,7 @@ namespace Vodovoz
 	{
 		InventoryDocumentItem FineEditItem;
 
-		INomenclatureRepository nomenclatureRepository { get; } = new NomenclatureRepository();
+		INomenclatureRepository nomenclatureRepository { get; } = new NomenclatureRepository(new NomenclatureParametersProvider());
 
 		public InventoryDocumentItemsView()
 		{

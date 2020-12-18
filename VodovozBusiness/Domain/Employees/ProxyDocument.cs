@@ -4,6 +4,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Employees
 {

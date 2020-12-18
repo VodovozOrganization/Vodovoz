@@ -20,6 +20,7 @@ using Vodovoz.Dialogs;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -187,7 +188,10 @@ namespace Vodovoz
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadSofiyskaya, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.OrderOfAddresses, false);
-			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, !(Entity.Status == RouteListStatus.Confirmed));
+			bool IsLoadDocumentPrintable = ServicesConfig.CommonServices.CurrentPermissionService
+											.ValidatePresetPermission("can_print_car_load_document");
+			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, IsLoadDocumentPrintable
+																			  && !(Entity.Status == RouteListStatus.Confirmed));
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments)e.ItemEnum);
 			CheckCarLoadDocuments();
 
@@ -378,11 +382,10 @@ namespace Vodovoz
 						}
 					} else {
 						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
-						var forShipment = warehouseRepository.WarehouseForShipment(UoW, Entity.Id);
 						var needTerminal = Entity.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
-						
-						if(!forShipment.Any() && !needTerminal) {
-							if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
+
+						if(!Entity.NeedToLoad && !needTerminal) {
+							if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
 								valid = new QSValidator<RouteList>(
 									Entity,
 									new Dictionary<object, object> {

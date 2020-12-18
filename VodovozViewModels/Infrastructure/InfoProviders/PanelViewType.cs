@@ -4,12 +4,12 @@
 	{
 		CounterpartyView,
 		DeliveryPointView,
-		AdditionalAgreementPanelView,
 		DeliveryPricePanelView,
 		UndeliveredOrdersPanelView,
 		EmailsPanelView,
 		CallTaskPanelView,
 		ComplaintPanelView,
-		SmsSendPanelView
+		SmsSendPanelView,
+		FixedPricesPanelView
 	}
 }

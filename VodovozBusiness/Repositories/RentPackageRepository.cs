@@ -14,7 +14,7 @@ namespace Vodovoz.Repositories
 				.SingleOrDefault();
 			return package;
 		}
-
+		
 		public static PaidRentPackage GetPaidRentPackage (IUnitOfWork uow, EquipmentType equipmentType)
 		{
 			var package = uow.Session.QueryOver<PaidRentPackage>()

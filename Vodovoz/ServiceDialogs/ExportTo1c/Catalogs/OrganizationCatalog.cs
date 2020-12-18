@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
 	public class OrganizationCatalog:GenericCatalog<Organization>
 	{
-		static readonly string defaultOrganizationCode = "00003";
 		public OrganizationCatalog(ExportData exportData)
 			:base(exportData)
 		{			
@@ -19,11 +19,10 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		public override ReferenceNode CreateReferenceTo(Organization organization)
 		{
 			int id = GetReferenceId(organization);
-			var code1c = defaultOrganizationCode;
 			return new ReferenceNode(id,
-				new PropertyNode("Код",
+				new PropertyNode("ИНН",
 					Common1cTypes.String,
-					code1c
+					organization.INN
 				)		
 			);
 		}

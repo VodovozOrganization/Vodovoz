@@ -42,9 +42,9 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref lastEditedTime, value, () => LastEditedTime); }
 		}
 
-		public virtual string DateString { get { return TimeStamp.ToShortDateString () + " " + TimeStamp.ToShortTimeString (); } }
+		public virtual string DateString => TimeStamp.ToShortDateString () + " " + TimeStamp.ToShortTimeString ();
 
-		public virtual string Number { get { return Id.ToString (); } }
+		public virtual string Number => Id.ToString ();
 
 		#region static
 
@@ -72,6 +72,8 @@ namespace Vodovoz.Domain.Documents
 					return typeof(ShiftChangeWarehouseDocument);
 				case DocumentType.RegradingOfGoodsDocument:
 					return typeof(RegradingOfGoodsDocument);
+				case DocumentType.DeliveryDocument:
+					return typeof(DeliveryDocument);
 			}
 			throw new NotSupportedException();
 		}
@@ -100,7 +102,9 @@ namespace Vodovoz.Domain.Documents
 		[Display(Name = "Акт передачи склада")]
 		ShiftChangeDocument,
 		[Display (Name = "Пересортица товаров")]
-		RegradingOfGoodsDocument
+		RegradingOfGoodsDocument,
+		[Display (Name = "Документ доставки")]
+		DeliveryDocument
 	}
 
 	public class DocumentTypeStringType : NHibernate.Type.EnumStringType

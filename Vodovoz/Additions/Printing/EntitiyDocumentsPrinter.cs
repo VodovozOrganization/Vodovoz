@@ -46,14 +46,9 @@ namespace Vodovoz.Additions.Printing
 			List<string> msgs = null;
 			bool? successfulUpdate = null;
 
-			foreach(var item in currentOrder.OrderDocuments) {
+			foreach(var item in currentOrder.OrderDocuments.OfType<PrintableOrderDocument>()) {
 				if(item is IPrintableOdtDocument) {
 					switch(item.Type) {
-						case OrderDocumentType.AdditionalAgreement:
-							if((item as IPrintableOdtDocument).GetTemplate() == null)
-								successfulUpdate = (item as OrderAgreement).AdditionalAgreement.UpdateContractTemplate(currentOrder.UoW);
-							(item as OrderAgreement).PrepareTemplate(currentOrder.UoW);
-							break;
 						case OrderDocumentType.Contract:
 							if((item as IPrintableOdtDocument).GetTemplate() == null)
 								successfulUpdate = (item as OrderContract).Contract.UpdateContractTemplate(currentOrder.UoW);
@@ -64,8 +59,10 @@ namespace Vodovoz.Additions.Printing
 								successfulUpdate = (item as OrderM2Proxy).M2Proxy.UpdateM2ProxyDocumentTemplate(currentOrder.UoW);
 							(item as OrderM2Proxy).PrepareTemplate(currentOrder.UoW);
 							break;
+						case OrderDocumentType.AdditionalAgreement:
+							break;
 						default:
-							throw new NotImplementedException("Документ не поддерживается");
+							throw new NotSupportedException("Документ не поддерживается");
 					}
 					if(successfulUpdate == false) {
 						if(msgs == null)

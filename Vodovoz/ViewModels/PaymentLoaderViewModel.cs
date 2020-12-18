@@ -12,12 +12,14 @@ using Vodovoz.Domain.Payments;
 using NLog;
 using Vodovoz.Repositories.Payments;
 using QS.Commands;
+using Vodovoz.Models;
 using Vodovoz.Repositories;
 
 namespace Vodovoz.ViewModels
 {
 	public class PaymentLoaderViewModel : DialogTabViewModelBase
 	{
+		private readonly IOrganizationProvider organizationProvider;
 		private Logger logger = LogManager.GetCurrentClassLogger();
 		double progress;
 
@@ -31,9 +33,10 @@ namespace Vodovoz.ViewModels
 		public IList<CategoryProfit> ProfitCategories { get; private set; }
 		public event Action<string, double> UpdateProgress;
 
-		public PaymentLoaderViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigationManager) 
+		public PaymentLoaderViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigationManager, IOrganizationProvider organizationProvider) 
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
+			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 
 			ObservablePayments = new GenericObservableList<Payment>();
@@ -106,7 +109,7 @@ namespace Vodovoz.ViewModels
 			Parser.Parse();
 
 			UpdateProgress?.Invoke("Сопоставляем полученные платежи...", progress);
-			MatchPayments(new BaseParametersProvider(), new BaseParametersProvider());
+			MatchPayments(organizationProvider, new BaseParametersProvider());
 		}
 
 		public void MatchPayments(IOrganizationProvider orgProvider, IProfitCategoryProvider profitCategoryProvider)
@@ -115,7 +118,7 @@ namespace Vodovoz.ViewModels
 			var countDuplicates = 0;
 
 			AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(UoW);
-			var org = OrganizationRepository.GetMainOrganization(UoW, orgProvider.GetMainOrganization());
+			var org = UoW.GetById<Domain.Organizations.Organization>(orgProvider.GetMainOrganization());
 			var defaultProfitCategory = UoW.GetById<CategoryProfit>(profitCategoryProvider.GetDefaultProfitCategory());
 			var parserDocs = Parser.TransferDocuments.Where(x => x.RecipientInn == org.INN).ToList();
 
@@ -123,13 +126,13 @@ namespace Vodovoz.ViewModels
 
 			foreach(var doc in parserDocs){
 
-				var curDoc = ObservablePayments.SingleOrDefault(x => x.Date.Year == doc.Date.Year
+				var curDoc = ObservablePayments.SingleOrDefault(x => x.Date == doc.Date
 																&& x.PaymentNum == int.Parse(doc.DocNum)
 																&& x.CounterpartyInn == doc.PayerInn
 																&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount);
 
 				if(PaymentsRepository.PaymentFromBankClientExists(UoW,
-															   	doc.Date.Year,
+															   	doc.Date,
 															   	int.Parse(doc.DocNum),
 															   	doc.PayerInn,
 															   	doc.PayerCurrentAccount) || curDoc != null) {

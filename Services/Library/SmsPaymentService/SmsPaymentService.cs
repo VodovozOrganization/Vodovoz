@@ -7,9 +7,15 @@ using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -128,7 +134,18 @@ namespace SmsPaymentService
                 }
                 
                 using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-                    var payment = uow.Session.QueryOver<SmsPayment>().Where(x => x.ExternalId == externalId).Take(1).SingleOrDefault();
+
+                    SmsPayment payment;
+
+                    try {
+                        payment = uow.Session.QueryOver<SmsPayment>().Where(x => x.ExternalId == externalId).Take(1).SingleOrDefault();
+                    }
+                    catch (Exception e) {
+                        logger.Error(e, "При загрузке платежа по externalId произошла ошибка, записываю данные файл...");
+                        smsPaymentFileCache.WritePaymentCache(null, externalId);
+                        return new StatusCode(HttpStatusCode.OK);
+                    }
+                    
                     if (payment == null) {
                         logger.Error($"Запрос на изменение статуса платежа указывает на несуществующий платеж (externalId: {externalId})"); 
                         return new StatusCode(HttpStatusCode.UnsupportedMediaType);
@@ -158,8 +175,15 @@ namespace SmsPaymentService
                         
                         orderId = payment.Order.Id;
                         logger.Info($"Статус платежа с externalId: {payment.ExternalId} изменён c {oldStatus} на {status}");
+
+                        #region OrderStatusChanged
                         if(oldPaymentType != payment.Order.PaymentType)
-                            logger.Info($"Тип оплаты заказа № {payment.Order.Id} изменён c {oldPaymentType} на {payment.Order.PaymentType}");
+                        {
+                            logger.Info(
+                                $"Тип оплаты заказа № {payment.Order.Id} изменён c {oldPaymentType} на {payment.Order.PaymentType}");
+                        }
+                        #endregion
+                        
                     }
                     catch (Exception e) {
                         logger.Error(e, "При сохранении платежа произошла ошибка, записываю в файл...");

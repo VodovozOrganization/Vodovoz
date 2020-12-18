@@ -3,6 +3,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Goods
 {
@@ -65,5 +66,6 @@ namespace Vodovoz.EntityRepositories.Goods
 		/// Идентификатор для группы товаров, принадлежащей интернет-магазину
 		/// </summary>
 		int GetIdentifierOfOnlineShopGroup();
+		decimal GetWaterPriceIncrement { get; }
 	}
 }

@@ -20,7 +20,7 @@ namespace VodovozSalesReceiptsService.DTO
 				InventPositions.Add(
 					new InventPositionDTO {
 						Name = item.Nomenclature.OfficialName,
-						PriceWithoutDiscount = item.Price,
+						PriceWithoutDiscount = Math.Round(item.Price, 2),
 						Quantity = item.Count,
 						DiscSum = item.DiscountMoney,
 						VatTag = (int)VatTag.VatFree
@@ -28,7 +28,7 @@ namespace VodovozSalesReceiptsService.DTO
 				);
 			}
 			MoneyPositions = new List<MoneyPositionDTO> {
-				new MoneyPositionDTO(order, order.OrderItems.Sum(i => i.Price * i.Count - i.DiscountMoney))
+				new MoneyPositionDTO(order, Math.Round(order.OrderItems.Sum(i => i.Price * i.Count - i.DiscountMoney), 2))
 			};
 		}
 
@@ -46,8 +46,12 @@ namespace VodovozSalesReceiptsService.DTO
 			set => docNum = value;
 		}
 
+		#pragma warning disable CS0414
+		
 		[DataMember(IsRequired = true)]
 		readonly string docType = "SALE";
+		
+		#pragma warning restore CS0414
 
 		[DataMember(IsRequired = true)]
 		string checkoutDateTime;			// Дата/время доставки заказа
@@ -92,7 +96,7 @@ namespace VodovozSalesReceiptsService.DTO
 		}
 
 		[DataMember]
-		string taxMode = "ENVD";
+		string taxMode;
 		public string TaxMode {
 			get => taxMode;
 			set => taxMode = value;

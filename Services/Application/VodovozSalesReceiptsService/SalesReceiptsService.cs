@@ -2,8 +2,6 @@
 using System.Linq;
 using NLog;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services;
 
@@ -13,7 +11,7 @@ namespace VodovozSalesReceiptsService
 	{
 		private readonly ISalesReceiptsServiceSettings salesReceiptsServiceSettings;
 		private readonly IOrderRepository orderRepository;
-		ILogger logger = LogManager.GetCurrentClassLogger();
+		private readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
 		public SalesReceiptsService(ISalesReceiptsServiceSettings salesReceiptsServiceSettings, IOrderRepository orderRepository)
 		{
@@ -26,17 +24,12 @@ namespace VodovozSalesReceiptsService
 			logger.Info("Запрос статуса службы отправки кассовых чеков");
 			try {
 				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-					int receiptsToSend = 0;
-					var ordersAndReceiptNodes = GetReceiptsForOrders(uow);
-					var withoutReceipts = ordersAndReceiptNodes.Where(r => r.ReceiptId == null);
-					var withNotSentReceipts = ordersAndReceiptNodes.Where(r => r.ReceiptId.HasValue && r.WasSent != true);
-					receiptsToSend = withoutReceipts.Count() + withNotSentReceipts.Count();
+					var ordersAndReceiptNodes = orderRepository
+						.GetOrdersForCashReceiptServiceToSend(uow, DateTime.Today.AddDays(-3)).ToList();
 
+					var receiptsToSend = ordersAndReceiptNodes.Count(r => r.ReceiptId == null || r.WasSent.HasValue && !r.WasSent.Value);
 					logger.Info($"Количество чеков на отправку: {receiptsToSend}");
-					if(receiptsToSend > salesReceiptsServiceSettings.MaxUnsendedCashReceiptsForWorkingService) {
-						return false;
-					}
-					return true;
+					return receiptsToSend <= salesReceiptsServiceSettings.MaxUnsendedCashReceiptsForWorkingService;
 				}
 			}
 			catch(Exception ex) {
@@ -44,25 +37,6 @@ namespace VodovozSalesReceiptsService
 				return false;
 			}
 		}
-
-		public ReceiptForOrderNode[] GetReceiptsForOrders(IUnitOfWork uow)
-		{
-			ReceiptForOrderNode[] notSelfDeliveredOrderIds = null;
-			ReceiptForOrderNode[] selfDeliveredOrderIds = null;
-
-			notSelfDeliveredOrderIds = orderRepository.GetShippedOrdersWithReceiptsForDates(
-																	uow,
-																	DateTime.Today.AddDays(-3));
-
-			selfDeliveredOrderIds = orderRepository.GetClosedSelfDeliveredOrdersWithReceiptsForDates(
-																	uow,
-																	PaymentType.cash,
-																	OrderStatus.Closed,
-																	DateTime.Today.AddDays(-3));
-
-			var orderIds = notSelfDeliveredOrderIds.Union(selfDeliveredOrderIds).ToArray();
-
-			return orderIds;
-		}
+		
 	}
 }

@@ -6,6 +6,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz
 {
@@ -112,15 +113,7 @@ namespace Vodovoz
 			if(DocumentUoW.Root.Items.Any() && !MessageDialogHelper.RunQuestionDialog("Список будет очищен. Продолжить?"))
 				return;
 
-			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), false);
-			if(DocumentUoW.Root.Items.Any(i => !i.Nomenclature.Warehouses.Any())) {
-				string str = "";
-				foreach(var nomenclarure in DocumentUoW.Root.Items.Where(i => !i.Nomenclature.Warehouses.Any()))
-					str = string.Join("\n", nomenclarure.Nomenclature.Name);
-				MessageDialogHelper.RunErrorWithSecondaryTextDialog("В МЛ есть номенклатура не привязанная к складу.", str);
-			}
-
-			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), true);
+			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), new SubdivisionRepository(), true);
 			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, new RouteListRepository());
 			if(DocumentUoW.Root.Warehouse != null) {
 				DocumentUoW.Root.UpdateStockAmount(DocumentUoW);
@@ -132,7 +125,7 @@ namespace Vodovoz
 		{
 			if(DocumentUoW.Root.Items.Any() && !MessageDialogHelper.RunQuestionDialog("Список будет очищен. Продолжить?"))
 				return;
-			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), false);
+			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), null, false);
 
 			var items = DocumentUoW.Root.Items;
 			string errorNomenclatures = string.Empty;

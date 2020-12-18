@@ -58,45 +58,6 @@ namespace Vodovoz
 			ySpecCmbOwner.ItemsList = SubdivisionsRepository.GetAllDepartments(UoW);
 			ySpecCmbOwner.Binding.AddBinding(Entity, s => s.OwningSubdivision, w => w.SelectedItem).InitializeFromSource();
 	
-			#region Вкладка "Отгружаемые номенклатуры"
-
-			repTreeViewNomenclatures.ColumnsConfig = ColumnsConfigFactory.Create<Nomenclature>()
-				.AddColumn("Название").AddTextRenderer(node => node.OfficialName)
-				.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
-				.Finish();
-			repTreeViewNomenclatures.SetItemsSource(Entity.ObservableNomenclatures);
-			repTreeViewNomenclatures.Selection.Changed += (sender, e) => {
-				selectedNomenclature = repTreeViewNomenclatures.GetSelectedObject<Nomenclature>();
-				btnRemoveNomenclature.Sensitive = selectedNomenclature != null;
-			};
-			btnRemoveNomenclature.Sensitive = selectedNomenclature != null;
-
-			#endregion
-		}
-
-		protected void OnBtnAddNomenclatureClicked(object sender, EventArgs e)
-		{
-			var refWin = new OrmReference(NomenclatureRepository.NomenclatureOfGoodsOnlyQuery()) {
-				ButtonMode = ReferenceButtonMode.None,
-				Mode = OrmReferenceMode.MultiSelect
-			};
-			refWin.ObjectSelected += RefWin_ObjectSelected;
-			TabParent.AddSlaveTab(this, refWin);
-		}
-
-		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			var nomenclatures = e.Subjects.OfType<Nomenclature>();
-			foreach(var n in nomenclatures) {
-				if(n != null && !Entity.ObservableNomenclatures.Any(x => x.Id == n.Id))
-					Entity.ObservableNomenclatures.Add(n);
-			}
-		}
-
-		protected void OnBtnRemoveNomenclatureClicked(object sender, EventArgs e)
-		{
-			if(selectedNomenclature != null)
-				Entity.ObservableNomenclatures.Remove(selectedNomenclature);
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase

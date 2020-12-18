@@ -23,22 +23,24 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.JournalNodes;
 using Vodovoz.Footers.ViewModels;
+using Vodovoz.Models;
+using Vodovoz.Repositories.Client;
 using Vodovoz.ViewModels;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class BusinessTasksJournalViewModel : FilterableMultipleEntityJournalViewModelBase<BusinessTaskJournalNode, CallTaskFilterViewModel>
 	{
-		//private int taskCount = 2;
-
 		readonly BusinessTasksJournalFooterViewModel footerViewModel;
-		//private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		readonly ICommonServices commonServices;
 
 		readonly IEmployeeRepository employeeRepository;
 		readonly IBottlesRepository bottleRepository;
 		readonly ICallTaskRepository callTaskRepository;
 		readonly IPhoneRepository phoneRepository;
+		private readonly IOrganizationProvider organizationProvider;
+		private readonly ICounterpartyContractRepository counterpartyContractRepository;
+		private readonly CounterpartyContractFactory counterpartyContractFactory;
 
 		public BusinessTasksJournalActionsViewModel actionsViewModel { get; set; }
 
@@ -50,7 +52,10 @@ namespace Vodovoz.JournalViewModels
 			IEmployeeRepository employeeRepository,
 			IBottlesRepository bottleRepository,
 			ICallTaskRepository callTaskRepository,
-			IPhoneRepository phoneRepository
+			IPhoneRepository phoneRepository,
+			IOrganizationProvider organizationProvider,
+			ICounterpartyContractRepository counterpartyContractRepository,
+			CounterpartyContractFactory counterpartyContractFactory
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал задач для обзвона";
@@ -58,20 +63,17 @@ namespace Vodovoz.JournalViewModels
 			this.bottleRepository = bottleRepository;
 			this.callTaskRepository = callTaskRepository;
 			this.phoneRepository = phoneRepository;
+			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
+			this.counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
+			this.counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			this.footerViewModel = footerViewModel;
-			//this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
-			//Footer = footerViewModel;
-
 			actionsViewModel = new BusinessTasksJournalActionsViewModel();
-			//RawJournalActions = actionsViewModel;
-			//RawJournalActions.JAModel = new JournalActionsModel();
 
 			RegisterTasks();
 			
 			var threadLoader = DataLoader as ThreadDataLoader<BusinessTaskJournalNode>;
-			//threadLoader.MergeInOrderBy(x => x.Id, false);
 
 			FinishJournalConfiguration();
 
@@ -79,8 +81,6 @@ namespace Vodovoz.JournalViewModels
 				typeof(ClientTask),
 				typeof(PaymentTask)
 			);
-
-			//SelectionMode = JournalSelectionMode.Single;
 
 			DataLoader.ItemsListUpdated += (sender, e) => GetStatistics();
 		}
@@ -192,10 +192,6 @@ namespace Vodovoz.JournalViewModels
 				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
 				)
 			.TransformUsing(Transformers.AliasToBean<BusinessTaskJournalNode<ClientTask>>());
-			//.List<BusinessTasksJournalNode>();
-			//taskCount = tasks.Count;
-			//tasks = SortResult(tasks).ToList();
-			//GetStatistics();
 
 			return tasks;
 		}
@@ -268,55 +264,9 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => callTaskAlias.ImportanceDegree).WithAlias(() => resultAlias.ImportanceDegree)
 				   .Select(() => callTaskAlias.IsTaskComplete).WithAlias(() => resultAlias.IsTaskComplete))
 			.TransformUsing(Transformers.AliasToBean<BusinessTaskJournalNode<PaymentTask>>());
-			//.List<BusinessTasksJournalNode>();
-			//taskCount = tasks.Count;
-			//tasks = SortResult(tasks).ToList();
 
 			return tasks;
 		}
-
-		/*
-		private IEnumerable<ClientTaskJournalNode> SortResult(IEnumerable<ClientTaskJournalNode> tasks)
-		{
-			IEnumerable<ClientTaskJournalNode> result;
-			switch(FilterViewModel.SortingParam) {
-				case SortingParamType.DebtByAddress:
-					result = tasks.OrderBy(x => x.DebtByAddress);
-					break;
-				case SortingParamType.DebtByClient:
-					result = tasks.OrderBy(x => x.DebtByClient);
-					break;
-				case SortingParamType.AssignedEmployee:
-					result = tasks.OrderBy(x => x.AssignedEmployeeName);
-					break;
-				case SortingParamType.Client:
-					result = tasks.OrderBy(x => x.ClientName);
-					break;
-				case SortingParamType.Deadline:
-					result = tasks.OrderBy(x => x.Deadline);
-					break;
-				case SortingParamType.DeliveryPoint:
-					result = tasks.OrderBy(x => x.AddressName);
-					break;
-				case SortingParamType.Id:
-					result = tasks.OrderBy(x => x.Id);
-					break;
-				case SortingParamType.ImportanceDegree:
-					result = tasks.OrderBy(x => x.ImportanceDegree);
-					break;
-				case SortingParamType.Status:
-					result = tasks.OrderBy(x => x.TaskStatus);
-					break;
-				default:
-					throw new NotImplementedException();
-			}
-
-			if(FilterViewModel.SortingDirection == SortingDirectionType.FromBiggerToSmaller)
-				result = result.Reverse();
-
-			return result;
-		}
-		*/
 
 		public void GetStatistics()
 		{
@@ -357,6 +307,9 @@ namespace Vodovoz.JournalViewModels
 						phoneRepository,
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
+						organizationProvider,
+						counterpartyContractRepository,
+						counterpartyContractFactory,
 						commonServices
 					),
 					//функция диалога открытия документа
@@ -367,6 +320,9 @@ namespace Vodovoz.JournalViewModels
 						phoneRepository,
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
+						organizationProvider,
+						counterpartyContractRepository,
+						counterpartyContractFactory,
 						commonServices
 					),
 					//функция идентификации документа 

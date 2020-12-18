@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gtk;
+using QS.DomainModel.NotifyChange;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.SidePanel.InfoViews;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.SidePanels;
 
 namespace Vodovoz.SidePanel
 {
@@ -17,8 +20,6 @@ namespace Vodovoz.SidePanel
 					return new CounterpartyPanelView();
 				case PanelViewType.DeliveryPointView:
 					return new DeliveryPointPanelView();
-				case PanelViewType.AdditionalAgreementPanelView:
-					return new AdditionalAgreementPanelView();
 				case PanelViewType.DeliveryPricePanelView:
 					return new DeliveryPricePanelView();
 				case PanelViewType.UndeliveredOrdersPanelView:
@@ -31,6 +32,10 @@ namespace Vodovoz.SidePanel
 					return new ComplaintPanelView(new ComplaintsRepository());
 				case PanelViewType.SmsSendPanelView:
 					return new SmsSendPanelView();
+				case PanelViewType.FixedPricesPanelView:
+					var fixedPricesDialogOpener = new FixedPricesDialogOpener();
+					FixedPricesPanelViewModel fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener);
+					return new FixedPricesPanelView(fixedPricesPanelViewModel);
 				default:
 					throw new NotSupportedException();
 			}

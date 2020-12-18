@@ -5,8 +5,8 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Orders;
@@ -93,7 +93,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		QueryOver<Domain.Orders.Order> GetOrdersForRLEditingQuery(DateTime date, bool showShipped);
 
-		IList<Domain.Orders.Order> GetOrdersToExport1c8(IUnitOfWork UoW, Export1cMode mode, DateTime startDate, DateTime endDate);
+		IList<Domain.Orders.Order> GetOrdersToExport1c8(IUnitOfWork uow, Export1cMode mode, DateTime startDate, DateTime endDate, Organization organization = null);
 
 		QueryOver<Domain.Orders.Order> GetSelfDeliveryOrdersForPaymentQuery();
 
@@ -111,9 +111,10 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		OrderStatus[] GetUndeliveryStatuses();
 
-		ReceiptForOrderNode[] GetShippedOrdersWithReceiptsForDates(IUnitOfWork uow, DateTime? startDate = null);
-
-		ReceiptForOrderNode[] GetClosedSelfDeliveredOrdersWithReceiptsForDates(IUnitOfWork uow, PaymentType paymentType, OrderStatus orderStatus, DateTime? startDate = null);
+		/// <summary>
+		/// Подбирает подходящие заказы, для которых необходимо отправкить чеки контрагентам
+		/// </summary>
+		IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(IUnitOfWork uow, DateTime? dateTime = null);
 
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order);
 
@@ -123,6 +124,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		IList<PaymentItem> GetPaymentItemsForOrder(IUnitOfWork uow, int orderId);
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
+		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 	}
 
 	public class ClientEquipmentNode

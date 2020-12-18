@@ -56,11 +56,14 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		decimal primeCost;
+
 		[Min(0)]
 		[Display(Name = "Цена")]
 		public virtual decimal PrimeCost {
-			get { return IncomeGoodsOperation.PrimeCost; }
+			get { return primeCost; }
 			set {
+				SetField(ref primeCost, value, () => PrimeCost);
 				if(value != IncomeGoodsOperation.PrimeCost)
 					IncomeGoodsOperation.PrimeCost = value;
 			}

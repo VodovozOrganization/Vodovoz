@@ -86,7 +86,7 @@ namespace Vodovoz.Views
 				.AddColumn("№ заказа").AddTextRenderer(node => node.Id.ToString()).XAlign(0.5f)
 				.AddColumn("Статус").AddEnumRenderer(node => node.OrderStatus)
 				.AddColumn("Дата заказа").AddTextRenderer(node => node.OrderDate.ToShortDateString()).XAlign(0.5f)
-				.AddColumn("Сумма заказа, р.").AddTextRenderer(node => node.ActualOrderSum.ToString()).XAlign(0.5f)
+				.AddColumn("Сумма заказа, р.").AddTextRenderer(node => $"{node.ActualOrderSum}").XAlign(0.5f)
 				.AddColumn("Прошлые оплаты, р.").AddNumericRenderer(node => node.LastPayments).Digits(2)
 				.AddColumn("Текущая оплата, р.").AddNumericRenderer(node => node.CurrentPayment).Editing().Digits(2)
 					.Adjustment(new Adjustment(0, 0, 10000000, 1, 10, 10)).EditedEvent(TreeViewCurentPaymentEdited)
@@ -108,7 +108,7 @@ namespace Vodovoz.Views
 					.AddTextRenderer(node => node.OrderDate.ToShortDateString())
 					.XAlign(0.5f)
 				.AddColumn("Сумма заказа, р.")
-					.AddTextRenderer(node => node.ActualOrderSum.ToString())
+					.AddTextRenderer(node => $"{node.ActualOrderSum}")
 					.XAlign(0.5f)
 				.AddColumn("Прошлая оплата, р.")
 					.AddNumericRenderer(node => node.LastPayments)
@@ -128,7 +128,6 @@ namespace Vodovoz.Views
 
 			yTreeViewAllocatedOrders.ItemsDataSource = ViewModel.ListAllocatedNodes;
 			yTreeViewAllocatedOrders.Binding.AddBinding(ViewModel, vm => vm.CanRevertPayFromOrder, w => w.Sensitive).InitializeFromSource();
-			//UpdateNodes(this, EventArgs.Empty);
 		}
 
 		#region Переключение вкладок

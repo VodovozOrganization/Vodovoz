@@ -85,10 +85,6 @@ namespace Vodovoz.HibernateMapping
 
 			HasMany(x => x.NomenclaturePrice).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.Images).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
-			HasManyToMany(x => x.Warehouses).Table("nomenclatures_to_warehouses")
-											.ParentKeyColumn("nomenclature_id")
-											.ChildKeyColumn("warehouse_id")
-											.LazyLoad();
 		}
 	}
 }

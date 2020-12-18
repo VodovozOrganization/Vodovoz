@@ -439,6 +439,23 @@ namespace Vodovoz.Domain.Client
 			get => haveResidue;
 			set => SetField(ref haveResidue, value, () => HaveResidue);
 		}
+		
+		private IList<NomenclatureFixedPrice> nomenclatureFixedPrices = new List<NomenclatureFixedPrice>();
+		[Display(Name = "Фиксированные цены")]
+		public virtual IList<NomenclatureFixedPrice> NomenclatureFixedPrices {
+			get => nomenclatureFixedPrices;
+			set => SetField(ref nomenclatureFixedPrices, value);
+		}
+
+		private GenericObservableList<NomenclatureFixedPrice> observableNomenclatureFixedPrices;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<NomenclatureFixedPrice> ObservableNomenclatureFixedPrices {
+			get {
+				if (observableNomenclatureFixedPrices == null)
+					observableNomenclatureFixedPrices = new GenericObservableList<NomenclatureFixedPrice>(NomenclatureFixedPrices);
+				return observableNomenclatureFixedPrices;
+			}
+		}
 
 		#region Временные поля для хранения фиксированных цен из 1с
 
@@ -729,6 +746,12 @@ namespace Vodovoz.Domain.Client
 						new[] { this.GetPropertyName(o => o.Organization) });
 			}
 
+			foreach (var fixedPrice in NomenclatureFixedPrices) {
+				var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
+				foreach (var fixedPriceValidationResult in fixedPriceValidationResults) {
+					yield return fixedPriceValidationResult;
+				}
+			}
 		}
 
 		#endregion

@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Employees
 {

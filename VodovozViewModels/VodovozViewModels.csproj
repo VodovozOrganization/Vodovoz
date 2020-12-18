@@ -113,11 +113,13 @@
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
     <Compile Include="Journals\FilterViewModels\ExpenseCategoryJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\FinancialDistrictsSetsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\IncomeCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictsSetJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\DistrictsSetJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\ExpenseCategoryJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\FinancialDistrictsSetsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\IncomeCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalSelectors\ExpanceCategoryAutoCompleteSelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
@@ -126,6 +128,7 @@
     <Compile Include="Journals\JournalViewModels\Cash\ExpenseCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\FinancialDistrictsSetsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -133,6 +136,7 @@
     <Compile Include="TempAdapters\ICounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\IEmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\IEntityDeleteWorker.cs" />
+    <Compile Include="TempAdapters\IFixedPricesDialogOpener.cs" />
     <Compile Include="ViewModels\Cash\ExpenseCategoryViewModel.cs" />
     <Compile Include="ViewModels\Cash\IncomeCategoryViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintViewModel.cs" />
@@ -153,6 +157,7 @@
     <Compile Include="Infrastructure\InfoProviders\IComplaintsInfoProvider.cs" />
     <Compile Include="Infrastructure\InfoProviders\IInfoProvider.cs" />
     <Compile Include="Infrastructure\InfoProviders\PanelViewType.cs" />
+    <Compile Include="ViewModels\Goods\FixedPriceItemViewModel.cs" />
     <Compile Include="ViewModels\Logistic\AcceptBeforeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictsSetActivationViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
@@ -161,6 +166,7 @@
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpenerForRouteListViewAndOrderView.cs" />
+    <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\WageDistrictLevelRateViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\EmployeeWageParameterViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\FixedWageParameterItemViewModel.cs" />
@@ -239,6 +245,8 @@
     <Compile Include="Journals\FilterViewModels\Organization\SubdivisionFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
     <Compile Include="Journals\Nodes\Cash\FuelDocumentJournalNode.cs" />
+    <Compile Include="ViewModels\FinancialDistrictsSetViewModel.cs" />
+    <Compile Include="ViewModels\Goods\FixedPricesViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />
@@ -268,6 +276,7 @@
     <Folder Include="Journals\FilterViewModels\" />
     <Folder Include="Journals\Nodes\" />
     <Folder Include="Journals\Nodes\Cash\" />
+    <Folder Include="ViewModels\Goods\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
@@ -317,6 +326,10 @@
     <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</Project>
       <Name>VodovozInfrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
+      <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
+      <Name>QS.HistoryLog</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

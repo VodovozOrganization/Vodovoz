@@ -62,7 +62,7 @@ namespace Vodovoz
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
-
+		
 		List<ReturnsNode> allReturnsToWarehouse;
 		private IEnumerable<DefectSource> defectiveReasons;
 		int bottlesReturnedToWarehouse;
@@ -323,7 +323,9 @@ namespace Vodovoz
 			referenceForwarder.Sensitive = editing;
 			referenceLogistican.Sensitive = editing;
 			datePickerDate.Sensitive = editing;
-			ycheckConfirmDifferences.Sensitive = editing && Entity.Status == RouteListStatus.OnClosing;
+			ycheckConfirmDifferences.Sensitive = editing &&
+				(Entity.Status == RouteListStatus.OnClosing || 
+				 Entity.Status == RouteListStatus.Delivered);
 			ytextClosingComment.Sensitive = editing;
 			routeListAddressesView.IsEditing = editing;
 			ycheckHideCells.Sensitive = editing;
@@ -569,7 +571,7 @@ namespace Vodovoz
 		Nomenclature DefaultBottle {
 			get {
 				if(defaultBottle == null) {
-					var db = new EntityRepositories.Goods.NomenclatureRepository().GetDefaultBottle(UoW);
+					var db = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider()).GetDefaultBottle(UoW);
 					defaultBottle = db ?? throw new Exception("Не найдена номенклатура бутыли по умолчанию, указанная в параметрах приложения: default_bottle_nomenclature");
 				}
 				return defaultBottle;
@@ -589,6 +591,9 @@ namespace Vodovoz
 			Entity.CalculateWages(wageParameterService);
 			decimal driverWage = Entity.GetDriversTotalWage();
 			decimal forwarderWage = Entity.GetForwardersTotalWage();
+			decimal acceptedDriverWage = Entity.DriverWageOperation?.Money ?? 0;
+			decimal acceptedForwarderWage = Entity.ForwarderWageOperation?.Money ?? 0;
+
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = string.Format(
 				"Сот. связь: {0} {1}",
@@ -619,9 +624,12 @@ namespace Vodovoz
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = string.Format(
-				"ЗП вод.: <b>{0}</b> {2}" + "  " + "ЗП эксп.: <b>{1}</b> {2}",
+				"ЗП вод.: <b>{0}</b> {4}" + "  " + "ЗП эксп.: <b>{2}</b> {4}" + " " + 
+				"Подтв.: ЗП вод.: <b>{1}</b> {4}" + "  " + "ЗП эксп.: <b>{3}</b> {4}",
 				driverWage,
+				acceptedDriverWage,
 				forwarderWage,
+				acceptedForwarderWage,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelEmptyBottlesFommula.Markup = string.Format("Тара: <b>{0}</b><sub>(выгружено на склад)</sub> - <b>{1}</b><sub>(по документам)</sub> =",
@@ -702,9 +710,8 @@ namespace Vodovoz
 				return false;
 			}
 
-			if (HasChanges && Entity.Status == RouteListStatus.Delivered)
-			{
-				Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
+			if(Entity.Status == RouteListStatus.Delivered) {
+				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
 			
 			UoW.Save();
@@ -786,7 +793,22 @@ namespace Vodovoz
 				
 				PerformanceHelper.AddTimePoint("Создано задание на обзвон");
 			}
+
+			if(Entity.Status == RouteListStatus.Delivered) {
+				if(routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0)
+				&& !Entity.DifferencesConfirmed) {
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
+				} else {
+					if(Entity.Car.IsCompanyCar) {
+						Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+					} else {
+						Entity.ChangeStatusAndCreateTask(RouteListStatus.Closed, CallTaskWorker);
+					}
+				}
+			}
 			
+			Entity.WasAcceptedByCashier = true;
+
 			SaveAndClose();
 			
 			PerformanceHelper.AddTimePoint("Сохранение и закрытие завершено");
@@ -1029,7 +1051,7 @@ namespace Vodovoz
 			.Sum(item => item.Amount);
 			
 			var rlRepository = new RouteListRepository();
-			var nomenclatureRepository = new NomenclatureRepository();
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 			
 			var defectiveNomenclaturesIds = nomenclatureRepository
 				.GetNomenclatureOfDefectiveGoods(UoW)
@@ -1067,8 +1089,9 @@ namespace Vodovoz
 			var inputCashOrder = (decimal)spinCashOrder.Value;
 			messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder));
 
-			if(cashIncome != null) UoW.Save(cashIncome);
-			if(cashExpense != null) UoW.Save(cashExpense);
+			if (cashIncome != null) UoW.Save(cashIncome);
+			if (cashExpense != null) UoW.Save(cashExpense);
+
 			UoW.Save();
 
 			CalculateTotal();

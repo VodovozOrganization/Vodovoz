@@ -1608,21 +1608,7 @@
 	IFNULL(SUM(bottles_movement_operations.returned),
 			0) AS empty_bottles,
 	IFNULL(SUM(bottles_movement_operations.delivered), 0) AS full_bottles,
-	IFNULL(CASE
-				WHEN 
-					IFNULL(
-						COUNT(
-							IF(
-								Adresses.status = 'Overdue' OR Adresses.status = 'Canceled',
-								NULL,
-								Adresses.id
-							)
-						),
-						0
-					) = 0 THEN 0
-				WHEN fixed_driver_wage &gt; 0 THEN fixed_driver_wage
-				ELSE SUM(Adresses.driver_wage) + SUM(Adresses.driver_wage_surcharge)
-			END,
+	IFNULL(wages_movement_operations.money,
 			0) AS wage,
 	IFNULL(COUNT(IF(Adresses.status = 'Overdue'
 					OR Adresses.status = 'Canceled' OR Adresses.transfered_to_id IS NOT NULL,
@@ -1648,6 +1634,8 @@ FROM
 		OR Adresses.trans_rl_driver IS NULL)
 		LEFT JOIN
 	bottles_movement_operations ON bottles_movement_operations.order_id = Adresses.order_id AND Adresses.transfered_to_id IS NULL
+        LEFT JOIN 
+        wages_movement_operations ON route_lists.driver_wages_movement_operations_id = wages_movement_operations.id
 WHERE
 	route_lists.driver_id = @driver_id
 		AND date &gt;= @start_date

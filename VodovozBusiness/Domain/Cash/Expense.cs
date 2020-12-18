@@ -13,6 +13,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Tools.CallTasks;
@@ -170,6 +171,13 @@ namespace Vodovoz.Domain.Cash
 			set => SetField(ref cashTransferDocument, value, () => CashTransferDocument);
 		}
 
+		private Organization organisation;
+		[Display(Name = "Организация")]
+		public virtual Organization Organisation {
+			get => organisation;
+			set => SetField(ref organisation, value);
+		}
+		
 		#endregion
 
 		#region Вычисляемые
@@ -201,7 +209,7 @@ namespace Vodovoz.Domain.Cash
 		public virtual AdvanceClosing AddAdvanceCloseItem(Income income, decimal sum)
 		{
 			if (TypeOperation != ExpenseType.Advance)
-				throw new InvalidOperationException("Метод AddAdvanceCloseItem() можно вызываться только для выдачи аванса.");
+				throw new InvalidOperationException("Метод AddAdvanceCloseItem() может вызываться только для выдачи аванса.");
 			
 			var closing = new AdvanceClosing(this, income, sum);
 			if (AdvanceCloseItems == null)
@@ -214,7 +222,7 @@ namespace Vodovoz.Domain.Cash
 		public virtual AdvanceClosing AddAdvanceCloseItem(AdvanceReport report, decimal sum)
 		{
 			if (TypeOperation != ExpenseType.Advance)
-				throw new InvalidOperationException("Метод AddAdvanceCloseItem() можно вызываться только для выдачи аванса.");
+				throw new InvalidOperationException("Метод AddAdvanceCloseItem() может вызываться только для выдачи аванса.");
 
 			var closing = new AdvanceClosing(this, report, sum);
 			if (AdvanceCloseItems == null)
@@ -344,6 +352,13 @@ namespace Vodovoz.Domain.Cash
 					if(ExpenseCategory == null)
 						yield return new ValidationResult("Статья расхода должна быть указана.",
 							new[] { this.GetPropertyName(o => o.ExpenseCategory) });
+				}
+
+				if (TypeOperation != ExpenseType.Salary && TypeOperation != ExpenseType.EmployeeAdvance) {
+					if (Id == 0 && Organisation == null) {
+						yield return new ValidationResult("Организация должна быть заполнена",
+							new[] {nameof(Organisation)});
+					}
 				}
 			}
 

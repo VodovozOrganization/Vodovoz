@@ -385,7 +385,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>={create_date}</Value>
+                      <Value>={delivery_date}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -853,6 +853,7 @@
         <CommandText>SELECT
     orders.id AS order_num,
     orders.create_date AS create_date, # для сортировки
+    orders.delivery_date AS delivery_date,
     counterparty.name AS counterparty_name,
     counterparty.inn AS INN,
     IF(orders.author_employee_id IS NOT NULL,
@@ -913,11 +914,12 @@ FROM
         LEFT JOIN
     employees ON employees.id = orders.author_employee_id
 WHERE
-  DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY) &lt;= '2020-11-6'
+  DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY) &lt;= DATE(@date)
   AND orders.order_payment_status IN ('UnPaid', 'PartiallyPaid')
   AND counterparty.is_chain_store = 1
   AND orders.payment_type = 'cashless'
   AND orders.order_status NOT IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
+  AND (orders.order_status &lt;&gt; 'WaitForPayment' OR (orders.pay_after_shipment = 1 AND orders.self_delivery = 1))
   AND (@counterparty_id = -1 OR counterparty.id = @counterparty_id )
   AND (@sell_manager_id = -1 OR counterparty.sales_manager_id = @sell_manager_id)
   AND (@order_author_id = -1 OR orders.author_employee_id = @order_author_id)
@@ -984,6 +986,10 @@ ORDER BY estimated_payment_date
         </Field>
         <Field Name="debt">
           <DataField>debt</DataField>
+        </Field>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>

@@ -21,15 +21,44 @@ namespace Vodovoz.Core.DataService
 		IContactsParameters,
 		IDriverServiceParametersProvider,
 		IErrorSendParameterProvider,
-		IOrganizationProvider,
 		IProfitCategoryProvider,
 		IPotentialFreePromosetsReportDefaultsProvider,
-		IOrganisationParametersProvider,
 		ISmsPaymentServiceParametersProvider,
 		IMailjetParametersProvider,
 		IVpbxSettings,
 		ITerminalNomenclatureProvider
 	{
+
+		#region IStandartNomenclatures
+
+		public int GetForfeitId()
+		{
+			if(!ParametersProvider.Instance.ContainsParameter("forfeit_nomenclature_id")) {
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура бутыли по умолчанию (forfeit_nomenclature_id).");
+			}
+			return int.Parse(ParametersProvider.Instance.GetParameterValue("forfeit_nomenclature_id"));
+		}
+		
+		public int GetReturnedBottleNomenclatureId
+		{
+			get
+			{
+				if(!ParametersProvider.Instance.ContainsParameter("returned_bottle_nomenclature_id")) {
+					throw new InvalidProgramException("В параметрах базы не заполнено значение id стандартной номенклатуры на возврат (returned_bottle_nomenclature_id)");
+				}
+
+				string value = ParametersProvider.Instance.GetParameterValue("returned_bottle_nomenclature_id");
+
+				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
+					throw new InvalidProgramException("В параметрах базы неверно заполнено значение id стандартной номенклатуры на возврат (returned_bottle_nomenclature_id)");
+				}
+
+				return result;
+			}
+		}
+
+		#endregion
+		
 		public string GetDefaultBaseForErrorSend()
 		{
 			if(!ParametersProvider.Instance.ContainsParameter("base_for_error_send")) {
@@ -44,14 +73,6 @@ namespace Vodovoz.Core.DataService
 				throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
 			}
 			return int.Parse(ParametersProvider.Instance.GetParameterValue("row_count_for_error_log"));
-		}
-
-		public int GetForfeitId()
-		{
-			if(!ParametersProvider.Instance.ContainsParameter("forfeit_nomenclature_id")) {
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура бутыли по умолчанию (forfeit_nomenclature_id).");
-			}
-			return int.Parse(ParametersProvider.Instance.GetParameterValue("forfeit_nomenclature_id"));
 		}
 
 		public int GetDiscountForStockBottle()
@@ -329,17 +350,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion
-		
-		#region IOrganizationProvider
-		public int GetMainOrganization()
-		{
-			if(!ParametersProvider.Instance.ContainsParameter("main_organization_id")) {
-				throw new InvalidProgramException("В параметрах базы не настроена организация по умолчанию (main_organization_id).");
-			}
-			return int.Parse(ParametersProvider.Instance.GetParameterValue("main_organization_id"));
-		}
-
-		#endregion IOrganizationProvider
 
 		#region IProfitCategoryProvider
 
@@ -378,42 +388,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IDefaultDeliveryDaySchedule
-
-		public int GetCashlessOrganisationId
-		{
-			get
-			{
-				if(!ParametersProvider.Instance.ContainsParameter("cashless_organization_id")) {
-					throw new InvalidProgramException("В параметрах базы не заполнено значение безнал. организации (cashless_organization_id)");
-				}
-
-				string value = ParametersProvider.Instance.GetParameterValue("cashless_organization_id");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение безнал. организации (cashless_organization_id)");
-				}
-
-				return result;
-			}
-		}
-
-		public int GetCashOrganisationId
-		{ 
-			get
-			{
-				if(!ParametersProvider.Instance.ContainsParameter("cash_organization_id")) {
-					throw new InvalidProgramException("В параметрах базы не заполнено значение нал. организации (cash_organization_id)");
-				}
-
-				string value = ParametersProvider.Instance.GetParameterValue("cash_organization_id");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение нал. организации (cash_organization_id)");
-				}
-
-				return result;
-			} 
-		}
 
 		public int GetSmsPaymentByCardFromId
 		{

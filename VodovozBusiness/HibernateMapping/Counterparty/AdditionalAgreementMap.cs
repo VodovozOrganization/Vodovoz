@@ -60,7 +60,6 @@
 		public WaterSalesAgreementMap()
 		{
 			DiscriminatorValue ("WaterSales");
-			HasMany(x => x.FixedPrices).KeyColumn("agreement_id").Inverse().Cascade.AllDeleteOrphan().LazyLoad();
 		}
 	}
 

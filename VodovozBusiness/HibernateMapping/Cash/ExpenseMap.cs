@@ -27,6 +27,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.RelatedToSubdivision).Column("related_to_subdivision_id");
 			References(x => x.TransferedBy).Column("expense_transfered_item_id");
 			References(x => x.CashTransferDocument).Column("cash_transfer_document_id").Cascade.All();
+			References(x => x.Organisation).Column("organisation_id");
 
 			HasMany(x => x.AdvanceCloseItems).Cascade.AllDeleteOrphan ().Inverse ().LazyLoad ().KeyColumn ("expense_id");
 		}

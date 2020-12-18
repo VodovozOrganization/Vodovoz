@@ -593,6 +593,28 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		private bool alwaysSendReceitps;
+		[IgnoreHistoryTrace]
+		[Display(Name = "Всегда отправлять чеки")]
+		public virtual bool AlwaysSendReceitps {
+			get => alwaysSendReceitps;
+			set => SetField(ref alwaysSendReceitps, value);
+		}
+
+		private IList<NomenclatureFixedPrice> nomenclatureFixedPrices = new List<NomenclatureFixedPrice>();
+		[Display(Name = "Фиксированные цены")]
+		public virtual IList<NomenclatureFixedPrice> NomenclatureFixedPrices {
+			get => nomenclatureFixedPrices;
+			set => SetField(ref nomenclatureFixedPrices, value);
+		}
+
+		private GenericObservableList<NomenclatureFixedPrice> observableNomenclatureFixedPrices;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<NomenclatureFixedPrice> ObservableNomenclatureFixedPrices {
+			get => observableNomenclatureFixedPrices ?? (observableNomenclatureFixedPrices =
+				new GenericObservableList<NomenclatureFixedPrice>(NomenclatureFixedPrices));
+		}
+
 		#region Calculated Properties
 
 		public virtual string RawJurAddress {
@@ -851,6 +873,13 @@ namespace Vodovoz.Domain.Client
 			
 			if(Id == 0 && PersonType == PersonType.legal && TaxType == TaxType.None)
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Налогообложение\"");
+
+			foreach (var fixedPrice in NomenclatureFixedPrices) {
+				var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
+				foreach (var fixedPriceValidationResult in fixedPriceValidationResults) {
+					yield return fixedPriceValidationResult;
+				}
+			}
 		}
 
 		#endregion

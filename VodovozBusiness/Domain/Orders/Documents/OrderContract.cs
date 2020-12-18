@@ -7,7 +7,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class OrderContract : OrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
+	public class OrderContract : PrintableOrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
 	{
 		#region implemented abstract members of OrderDocument
 

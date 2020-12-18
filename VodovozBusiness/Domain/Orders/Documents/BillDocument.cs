@@ -6,10 +6,11 @@ using QS.Print;
 using QS.Report;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-    public class BillDocument : OrderDocument, IPrintableRDLDocument, ISignableDocument
+    public class BillDocument : PrintableOrderDocument, IPrintableRDLDocument, ISignableDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.Bill;
@@ -23,7 +24,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				Identifier = "Documents.Bill",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
-					{ "organization_id", new BaseParametersProvider().GetCashlessOrganisationId },
+					{ "organization_id", new OrganizationParametersProvider(ParametersProvider.Instance).GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
 					{ "special", false }
 				}

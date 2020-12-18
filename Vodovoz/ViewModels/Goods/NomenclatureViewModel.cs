@@ -152,10 +152,6 @@ namespace Vodovoz.ViewModels.Goods
 			Entity.Images.Remove(PopupMenuOn);
 			PopupMenuOn = null;
 		}
-
-		public void AddWarehouse(Warehouse warehouse) {
-			Entity.AddWarehouse(warehouse);
-		}
 		
 		public void OnEnumTypeChanged(object sender, EventArgs e) {
 			if(Entity.Category != NomenclatureCategory.deposit) {
@@ -185,17 +181,6 @@ namespace Vodovoz.ViewModels.Goods
 		
 		#region Commands
 
-		private DelegateCommand removeWarehouseCommand = null;
-		public DelegateCommand RemoveWarehouseCommand =>
-			removeWarehouseCommand ?? (removeWarehouseCommand = new DelegateCommand(
-				() => {
-					Entity.RemoveWarehouse(SelectedWarehouse);
-				},
-				() => SelectedWarehouse != null
-			)
-			
-		);
-		
 		private DelegateCommand saveCommand = null;
 		public DelegateCommand SaveCommand =>
 			saveCommand ?? (saveCommand = new DelegateCommand(

@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -150,7 +151,7 @@ namespace Vodovoz.Filters.ViewModels
 					nomenclatureVM =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartyVM,
-							new NomenclatureRepository(), UserSingletonRepository.GetInstance());
+							new NomenclatureRepository(new NomenclatureParametersProvider()), UserSingletonRepository.GetInstance());
 				}
 				return nomenclatureVM;
 			}

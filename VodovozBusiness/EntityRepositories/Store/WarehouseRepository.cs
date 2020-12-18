@@ -9,7 +9,6 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.EntityRepositories.Store
@@ -19,92 +18,6 @@ namespace Vodovoz.EntityRepositories.Store
 		public IList<Warehouse> GetActiveWarehouse(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<Warehouse>().WhereNot(x => x.IsArchive).List<Warehouse>();
-		}
-
-		public IList<Warehouse> WarehouseForShipment(IUnitOfWork uow, int routeListId)
-		{
-			Vodovoz.Domain.Orders.Order orderAlias = null;
-			OrderItem orderItemsAlias = null;
-			OrderEquipment orderEquipmentAlias = null;
-			Nomenclature orderItemNomenclatureAlias = null,
-				orderEquipmentNomenclatureAlias = null,
-				resultNomenclatureAlias = null;
-			Warehouse warehouseAlias = null;
-
-			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
-
-			var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem>()
-				.Where(r => r.RouteList.Id == routeListId)
-				.Where(x => x.WasTransfered == false || (x.WasTransfered && x.NeedToReload))
-				.Select(r => r.Order.Id);
-			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
-
-			var orderitemsSubqury = QueryOver.Of<OrderItem>(() => orderItemsAlias)
-				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
-				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
-				.Select(n => n.Nomenclature.Id)
-				.Where(() => orderItemNomenclatureAlias.NoDelivey == false);
-			var orderEquipmentSubquery = QueryOver.Of<OrderEquipment>(() => orderEquipmentAlias)
-				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
-				.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)
-				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
-				.JoinAlias(e => e.Nomenclature, () => orderEquipmentNomenclatureAlias)
-				.SelectList(list => list.Select(() => orderEquipmentNomenclatureAlias.Id));
-
-			var warehouses = uow.Session.QueryOver<Nomenclature>(() => resultNomenclatureAlias)
-				.Where(new Disjunction()
-					.Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderitemsSubqury))
-					.Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderEquipmentSubquery))
-				)
-				.JoinAlias(() => resultNomenclatureAlias.Warehouses, () => warehouseAlias)
-				.Select(Projections.Distinct(Projections.Entity<Warehouse>(() => warehouseAlias)))
-				.List<Warehouse>();
-
-			return warehouses;
-		}
-
-		public IList<Warehouse> WarehouseForReception(IUnitOfWork uow, int id)
-		{
-			Vodovoz.Domain.Orders.Order orderAlias = null;
-			OrderItem orderItemsAlias = null;
-			OrderEquipment orderEquipmentAlias = null, orderNewEquipmentAlias = null;
-			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null, OrderNewEquipmentNomenclatureAlias = null, resultNomenclatureAlias = null;
-			Warehouse warehouseAlias = null;
-
-			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
-
-			var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem>()
-				.Where(r => r.RouteList.Id == id)
-				.Select(r => r.Order.Id);
-			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
-
-			var orderitemsSubqury = QueryOver.Of<OrderItem>(() => orderItemsAlias)
-				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
-				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
-				.Select(n => n.Nomenclature.Id);
-			var orderEquipmentSubquery = QueryOver.Of<OrderEquipment>(() => orderEquipmentAlias)
-				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
-				.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)
-				.JoinQueryOver(() => orderEquipmentAlias.Equipment)
-				.JoinAlias(e => e.Nomenclature, () => OrderEquipmentNomenclatureAlias)
-				.SelectList(list => list.Select(() => OrderEquipmentNomenclatureAlias.Id));
-			var orderNewEquipmentSubquery = QueryOver.Of<OrderEquipment>(() => orderNewEquipmentAlias)
-				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
-				.JoinAlias(() => orderNewEquipmentAlias.Order, () => orderAlias)
-				.JoinAlias(() => orderNewEquipmentAlias.Nomenclature, () => OrderNewEquipmentNomenclatureAlias)
-				.SelectList(list => list.Select(() => OrderNewEquipmentNomenclatureAlias.Id));
-
-			var warehouses = uow.Session.QueryOver<Nomenclature>(() => resultNomenclatureAlias)
-				.Where(new Disjunction()
-					.Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderitemsSubqury))
-					.Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderEquipmentSubquery))
-					.Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderNewEquipmentSubquery))
-				)
-				.JoinAlias(() => resultNomenclatureAlias.Warehouses, () => warehouseAlias)
-				.Select(Projections.Distinct(Projections.Entity<Warehouse>(() => warehouseAlias)))
-				.List<Warehouse>();
-
-			return warehouses;
 		}
 
 		public IList<Warehouse> WarehousesForPublishOnlineStore(IUnitOfWork uow)

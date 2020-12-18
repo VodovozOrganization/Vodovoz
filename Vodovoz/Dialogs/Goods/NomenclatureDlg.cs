@@ -159,21 +159,6 @@ namespace Vodovoz
 			yspinbuttonPurchasePrice.Binding.AddBinding(Entity, s => s.PurchasePrice, w => w.ValueAsDecimal).InitializeFromSource();
 			UpdateVisibilityForEshopParam();
 
-			#region Вкладка "Склады отгрузки"
-
-			repTreeViewWarehouses.ColumnsConfig = ColumnsConfigFactory.Create<Warehouse>()
-				.AddColumn("Название").AddTextRenderer(node => node.Name)
-				.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
-				.Finish();
-			repTreeViewWarehouses.SetItemsSource(Entity.ObservableWarehouses);
-			repTreeViewWarehouses.Selection.Changed += (sender, e) => {
-				selectedWarehouse = repTreeViewWarehouses.GetSelectedObject<Warehouse>();
-				btnRemoveWarehouse.Sensitive = selectedWarehouse != null;
-			};
-			btnRemoveWarehouse.Sensitive = selectedWarehouse != null;
-
-			#endregion
-
 			#region Вкладка характиристики
 
 			ytextDescription.Binding.AddBinding(Entity, e => e.Description, w => w.Buffer.Text).InitializeFromSource();
@@ -319,28 +304,22 @@ namespace Vodovoz
 				notebook1.CurrentPage = 0;
 		}
 
-		protected void OnRadioWarehousesToggled(object sender, EventArgs e)
-		{
-			if(radioWarehouses.Active)
-				notebook1.CurrentPage = 1;
-		}
-
 		protected void OnRadioEquipmentToggled(object sender, EventArgs e)
 		{
 			if(radioEquipment.Active)
-				notebook1.CurrentPage = 2;
+				notebook1.CurrentPage = 1;
 		}
 
 		protected void OnRadioCharacteristicsToggled(object sender, EventArgs e)
 		{
 			if(radioCharacteristics.Active)
-				notebook1.CurrentPage = 3;
+				notebook1.CurrentPage = 2;
 		}
 
 		protected void OnRadioImagesToggled(object sender, EventArgs e)
 		{
 			if(radioImages.Active) {
-				notebook1.CurrentPage = 4;
+				notebook1.CurrentPage = 3;
 				ImageTabOpen();
 			}
 		}
@@ -348,7 +327,7 @@ namespace Vodovoz
 		protected void OnRadioPriceToggled(object sender, EventArgs e)
 		{
 			if(radioPrice.Active)
-				notebook1.CurrentPage = 5;
+				notebook1.CurrentPage = 4;
 		}
 
 		#endregion
@@ -430,31 +409,6 @@ namespace Vodovoz
 		protected void OnDependsOnNomenclatureChanged(object sender, EventArgs e)
 		{
 			radioPrice.Sensitive = Entity.DependsOnNomenclature == null;
-		}
-
-		protected void OnBtnAddWarehouseClicked(object sender, EventArgs e)
-		{
-			var refWin = new OrmReference(StoreDocumentHelper.GetWarehouseQuery()) {
-				ButtonMode = ReferenceButtonMode.None,
-				Mode = OrmReferenceMode.MultiSelect
-			};
-			refWin.ObjectSelected += RefWin_ObjectSelected;
-			TabParent.AddSlaveTab(this, refWin);
-		}
-
-		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			var warehouses = e.Subjects.OfType<Warehouse>();
-			foreach(var w in warehouses) {
-				if(w != null && !Entity.ObservableWarehouses.Any(x => x.Id == w.Id))
-					Entity.ObservableWarehouses.Add(w);
-			}
-		}
-
-		protected void OnBtnRemoveWarehouseClicked(object sender, EventArgs e)
-		{
-			if(selectedWarehouse != null)
-				Entity.ObservableWarehouses.Remove(selectedWarehouse);
 		}
 
 		protected void OnEnumTypeChangedByUser(object sender, EventArgs e)

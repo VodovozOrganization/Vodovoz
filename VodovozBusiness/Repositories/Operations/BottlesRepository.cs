@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Repository.Operations
 {
@@ -44,7 +45,7 @@ namespace Vodovoz.Repository.Operations
 		{
 			return new EntityRepositories.Operations.BottlesRepository().GetEmptyBottlesFromClientByOrder(
 				uow,
-				new EntityRepositories.Goods.NomenclatureRepository(),
+				new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider()),
 				order,
 				excludeDocument
 			);

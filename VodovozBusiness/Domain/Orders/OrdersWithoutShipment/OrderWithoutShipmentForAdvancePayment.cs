@@ -13,6 +13,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using QS.HistoryLog;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -67,6 +68,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, bool discountInMoney = false, DiscountReason discountReason = null, PromotionalSet proSet = null)
 		{
 			OrderWithoutShipmentForAdvancePaymentItem oi = new OrderWithoutShipmentForAdvancePaymentItem {
+				OrderWithoutDeliveryForAdvancePayment = this,
 				Count = count,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1),
@@ -82,8 +84,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			var acceptableCategories = Nomenclature.GetCategoriesForSale();
 			if(orderItem?.Nomenclature == null || !acceptableCategories.Contains(orderItem.Nomenclature.Category))
 				return;
-
-			orderItem.OrderWithoutDeliveryForAdvancePayment = this;
+			
 			ObservableOrderWithoutDeliveryForAdvancePaymentItems.Add(orderItem);
 		}
 
@@ -103,7 +104,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				Identifier = "Documents.BillWithoutShipmentForAdvancePayment",
 				Parameters = new Dictionary<string, object> {
 					{ "bill_ws_for_advance_payment_id", Id },
-					{ "organization_id", new BaseParametersProvider().GetCashlessOrganisationId },
+					{ "organization_id", new OrganizationParametersProvider(ParametersProvider.Instance).GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
 					{ "special", false }
 				}

@@ -8,6 +8,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.Parameters;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Tools;
 
@@ -167,10 +168,15 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual string Title => string.Format("{0} №{1}", this.GetType().GetSubjectName(), Id);
 
-		public virtual void CreateOperations(IFuelRepository fuelRepository)
+		public virtual void CreateOperations(IFuelRepository fuelRepository, 
+			CashDistributionCommonOrganisationProvider commonOrganisationProvider)
 		{
 			if(fuelRepository == null) {
 				throw new ArgumentNullException(nameof(fuelRepository));
+			}
+			
+			if(commonOrganisationProvider == null) {
+				throw new ArgumentNullException(nameof(commonOrganisationProvider));
 			}
 
 			ExpenseCategory expenseCategory = CategoryRepository.FuelDocumentExpenseCategory(UoW);
@@ -190,7 +196,7 @@ namespace Vodovoz.Domain.Logistic
 			try {
 				CreateFuelOperation();
 				CreateFuelExpenseOperation();
-				CreateFuelCashExpense(expenseCategory);
+				CreateFuelCashExpense(expenseCategory, commonOrganisationProvider);
 			} catch(Exception ex) {
 				//восстановление исходного состояния
 				FuelOperation = null;
@@ -257,7 +263,8 @@ namespace Vodovoz.Domain.Logistic
 			};
 		}
 
-		private void CreateFuelCashExpense(ExpenseCategory expenseCategory)
+		private void CreateFuelCashExpense(ExpenseCategory expenseCategory, 
+			CashDistributionCommonOrganisationProvider commonOrganisationProvider)
 		{
 			if(FuelPaymentType.HasValue && FuelPaymentType.Value == Logistic.FuelPaymentType.Cashless)
 				return;
@@ -272,10 +279,11 @@ namespace Vodovoz.Domain.Logistic
 
 			FuelCashExpense = new Expense {
 				ExpenseCategory = expenseCategory,
-				TypeOperation = ExpenseType.Expense,
+				TypeOperation = ExpenseType.Advance,
 				Date = Date,
 				Casher = Author,
 				Employee = Driver,
+				Organisation = commonOrganisationProvider.GetCommonOrganisation(UoW),
 				RelatedToSubdivision = Subdivision,
 				Description = $"Оплата топлива по МЛ №{RouteList.Id}",
 				Money = Math.Round(PayedForFuel.Value, 2, MidpointRounding.AwayFromZero)

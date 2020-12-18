@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz
 {
@@ -30,6 +31,7 @@ namespace Vodovoz
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
+		private readonly AdvanceCashOrganisationDistributor distributor = new AdvanceCashOrganisationDistributor();
 
 		protected decimal Debt {
 			get {
@@ -125,7 +127,7 @@ namespace Vodovoz
 			//Отключаем отображение ненужных элементов.
 			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = labelCreating.Visible = false;
 
-			comboExpense.Sensitive = yspinMoney.Sensitive = yentryEmployee.Sensitive = false;
+			comboExpense.Sensitive = yspinMoney.Sensitive = yentryEmployee.Sensitive = specialListCmbOrganisation.Sensitive = false;
 
 			ConfigureDlg();
 		}
@@ -162,6 +164,10 @@ namespace Vodovoz
 
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();
 
+			specialListCmbOrganisation.ShowSpecialStateNot = true;
+			specialListCmbOrganisation.ItemsList = UoW.GetAll<Organization>();
+			specialListCmbOrganisation.Binding.AddBinding(Entity, e => e.Organisation, w => w.SelectedItem).InitializeFromSource();
+
 			ytextviewDescription.Binding.AddBinding(Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource();
 
 			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<RecivedAdvance>()
@@ -197,7 +203,7 @@ namespace Vodovoz
 		{
 			UpdateSubdivision();
 		}
-
+		
 		private void UpdateSubdivision()
 		{
 			if(accessfilteredsubdivisionselectorwidget.SelectedSubdivision != null && accessfilteredsubdivisionselectorwidget.NeedChooseSubdivision) {
@@ -220,10 +226,17 @@ namespace Vodovoz
 				var closing = Entity.CloseAdvances(out newExpense, out newIncome,
 					advanceList.Where(a => a.Selected).Select(a => a.Advance).ToList());
 
-				if(newExpense != null)
+				if (newExpense != null) {
 					UoWGeneric.Save(newExpense);
-				if(newIncome != null)
+					logger.Info("Создаем документ распределения расхода налички по юр лицу...");
+					distributor.DistributeCashForExpenseAdvance(UoW, newExpense, Entity);
+				}
+
+				if (newIncome != null) {
 					UoWGeneric.Save(newIncome);
+					logger.Info("Создаем документ распределения прихода налички по юр лицу...");
+					distributor.DistributeCashForIncomeAdvance(UoW, newIncome, Entity);
+				}
 
 				advanceList.Where(a => a.Selected).Select(a => a.Advance).ToList().ForEach(a => UoWGeneric.Save(a));
 				closing.ForEach(c => UoWGeneric.Save(c));
@@ -254,10 +267,10 @@ namespace Vodovoz
 
 			if(ClosingSum == 0) {
 				labelChangeSum.Visible = labelChangeType.Visible = false;
-				labelCreating.Markup = String.Format("<span foreground=\"Cadet Blue\">Не выбранных авансов.</span>");
+				labelCreating.Markup = "<span foreground=\"Cadet Blue\">Не выбранных авансов.</span>";
 			} else if(Balance == 0) {
 				labelChangeSum.Visible = labelChangeType.Visible = false;
-				labelCreating.Markup = String.Format("<span foreground=\"green\">Аванс будет закрыть полностью.</span>");
+				labelCreating.Markup = "<span foreground=\"green\">Аванс будет закрыт полностью.</span>";
 			} else if(Balance < 0) {
 				labelChangeType.LabelProp = "Доплата:";
 				labelChangeSum.LabelProp = string.Format("<span foreground=\"red\">{0:C}</span>", Math.Abs(Balance));
@@ -288,7 +301,9 @@ namespace Vodovoz
 			logger.Info("Получаем долг {0}...", Entity.Accountable.ShortName);
 			//Debt = Repository.Cash.AccountableDebtsRepository.EmloyeeDebt (UoW, Entity.Accountable);
 
-			var advaces = Repository.Cash.AccountableDebtsRepository.UnclosedAdvance(UoW, Entity.Accountable, Entity.ExpenseCategory);
+			var advaces = 
+				Repository.Cash.AccountableDebtsRepository.UnclosedAdvance(UoW, Entity.Accountable, Entity.ExpenseCategory, 
+					Entity.Organisation?.Id);
 
 			Debt = advaces.Sum(a => a.UnclosedMoney);
 
@@ -325,8 +340,7 @@ namespace Vodovoz
 				get { return selected; }
 				set {
 					selected = value;
-					if(SelectChanged != null)
-						SelectChanged(this, EventArgs.Empty);
+					SelectChanged?.Invoke(this, EventArgs.Empty);
 				}
 			}
 

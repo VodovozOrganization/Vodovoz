@@ -2,10 +2,14 @@
 using System.Data;
 using Dialogs.Employees;
 using Gtk;
+using InstantSmsService;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -38,16 +42,22 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.EntityRepositories.Store;
 using QS.Project.Journal;
+using QS.Project.Repositories;
+using QS.Project.Services.GtkUI;
+using Vodovoz.Additions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Models;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -56,6 +66,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Interfaces;
 using Action = Gtk.Action;
+using Vodovoz.Old1612ExportTo1c;
 
 public partial class MainWindow : Window
 {
@@ -101,6 +112,7 @@ public partial class MainWindow : Window
 	Action ActionExportImportNomenclatureCatalog;
 	Action ActionTransferBankDocs;
 	Action ActionPaymentFromBank;
+	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
 	Action ActionExportTo1c;
@@ -122,23 +134,28 @@ public partial class MainWindow : Window
 	public void BuildToolbarActions()
 	{
 		#region Creating actions
+
 		//Заказы
 		ActionOrdersTable = new Action("ActionOrdersTable", "Журнал заказов", null, "table");
 		ActionAddOrder = new Action("ActionAddOrder", "Новый заказ", null, "table");
 		ActionLoadOrders = new Action("ActionLoadOrders", "Загрузить из 1С", null, "table");
 		ActionDeliveryPrice = new Action("ActionDeliveryPrice", "Стоимость доставки", null, null);
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
+
 		//CRM
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
+
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
+
 		//Склад
 		ActionWarehouseDocuments = new Action("ActionWarehouseDocuments", "Журнал документов", null, "table");
 		ActionReadyForShipment = new Action("ActionReadyForShipment", "Готовые к погрузке", null, "table");
 		ActionReadyForReception = new Action("ActionReadyForReception", "Готовые к разгрузке", null, "table");
 		ActionWarehouseStock = new Action("ActionWarehouseStock", "Складские остатки", null, "table");
 		ActionClientBalance = new Action("ActionClientBalance", "Оборудование у клиентов", null, "table");
+
 		//Логистика
 		ActionRouteListTable = new Action("ActionRouteListTable", "Журнал МЛ", null, "table");
 		ActionAtWorks = new Action("ActionAtWorks", "На работе", null, "table");
@@ -149,6 +166,7 @@ public partial class MainWindow : Window
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
+
 		//Касса
 		ActionCashDocuments = new Action("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action("ActionAccountableDebt", "Долги сотрудников", null, "table");
@@ -162,23 +180,27 @@ public partial class MainWindow : Window
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		ActionPaymentFromBank = new Action("ActionPaymentFromBank", "Загрузка выписки из банк-клиента", null, "table");
 		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с 8.3", null, "table");
-		ActionOldExportTo1c = new Action("ActionOldExportTo1c", "Выгрузка в 1с 8.2", null, "table");
+		ActionOldExportTo1c = new Action("ActionOldExportTo1c", "Выгрузка в 1с 8.3 (до 16.12.2020)", null, "table");
 		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
 		ActionImportFromTinkoff = new Action("ActionImportFromTinkoff", "Загрузка выписки из ЛК Тинькофф", null, "table");
 		ActionAccountingTable = new Action("ActionAccountingTable", "Операции по счету", null, "table");
 		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
+		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
+
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
 		ActionRevisionBottlesAndDeposits = new Action("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
 		ActionResidue = new Action("ActionResidue", "Ввод остатков", null, "table");
 		ActionTransferOperationJournal = new Action("ActionTransferOperationJournal", "Переносы между точками доставки", null, "table");
+	
 		//Кадры
 		ActionEmployeeWorkChart = new Action("ActionEmployeeWorkChart", "График работы сотрудников", null, "table");
 		ActionFinesJournal = new Action("ActionFinesJournal", "Штрафы", null, "table");
 		ActionPremiumJournal = new Action("ActionPremiumJournal", "Премии", null, "table");
 		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Журнал доверенностей", null, "table");
 		ActionDistricts = new Action("ActionDistricts", "Версии районов", null, "table");
+
 		//Suppliers
 		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
@@ -187,12 +209,14 @@ public partial class MainWindow : Window
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup("ToolbarActions");
+
 		//Заказы
 		w1.Add(ActionOrdersTable, null);
 		w1.Add(ActionAddOrder, null);
 		w1.Add(ActionLoadOrders, null);
 		w1.Add(ActionDeliveryPrice, null);
 		w1.Add(ActionUndeliveredOrders, null);
+
 		//
 		w1.Add(ActionServiceClaims, null);
 		w1.Add(ActionWarehouseDocuments, null);
@@ -200,9 +224,11 @@ public partial class MainWindow : Window
 		w1.Add(ActionReadyForReception, null);
 		w1.Add(ActionWarehouseStock, null);
 		w1.Add(ActionClientBalance, null);
+
 		//CRM
 		w1.Add(ActionCallTasks, null);
 		w1.Add(ActionBottleDebtors, null);
+
 		//Логистика
 		w1.Add(ActionRouteListTable, null);
 		w1.Add(ActionAtWorks, null);
@@ -228,6 +254,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionReportDebtorsBottles, null);
 		w1.Add(ActionTransferBankDocs, null);
 		w1.Add(ActionPaymentFromBank, null);
+		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionAccountingTable, null);
 		w1.Add(ActionAccountFlow, null);
 		w1.Add(ActionExportTo1c, null);
@@ -239,6 +266,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionRouteListAddressesTransferring, null);
 		w1.Add(ActionTransferOperationJournal, null);
 		w1.Add(ActionDistricts, null);
+
 		//Suppliers
 		w1.Add(ActionNewRequestToSupplier, null);
 		w1.Add(ActionJournalOfRequestsToSuppliers, null);
@@ -289,6 +317,7 @@ public partial class MainWindow : Window
 		ActionReportDebtorsBottles.Activated += ActionReportDebtorsBottles_Activated;
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionPaymentFromBank.Activated += ActionPaymentFromBank_Activated;
+		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
@@ -310,7 +339,7 @@ public partial class MainWindow : Window
 	}
 
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e) {
-		var nomenclatureRepository = new NomenclatureRepository();
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
@@ -338,7 +367,7 @@ public partial class MainWindow : Window
 	}
 
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e) {
-		var nomenclatureRepository = new NomenclatureRepository();
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
@@ -455,7 +484,7 @@ public partial class MainWindow : Window
 
 	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)
 	{
-		INomenclatureRepository nomenclatureRepository = new NomenclatureRepository();
+		INomenclatureRepository nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
 		tdiMain.OpenTab(
 			"ExportImportNomenclatureCatalog",
@@ -470,9 +499,14 @@ public partial class MainWindow : Window
 
 	void ActionAtWorks_Activated(object sender, System.EventArgs e)
 	{
+		var authService = new AuthorizationService(
+			new PasswordGenerator(),
+			new MySQLUserRepository(
+				new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
+				new GtkInteractiveService()));
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AtWorksDlg>(),
-			() => new AtWorksDlg()
+			() => new AtWorksDlg(authService)
 		);
 	}
 
@@ -526,6 +560,8 @@ public partial class MainWindow : Window
 
 	void ActionPaymentFromBank_Activated(object sender, System.EventArgs e)
 	{
+		var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+		
 		var filter = new PaymentsJournalFilterViewModel();
 
 		var paymentsJournalViewModel = new PaymentsJournalViewModel(
@@ -533,7 +569,25 @@ public partial class MainWindow : Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			NavigationManagerProvider.NavigationManager,
-			OrderSingletonRepository.GetInstance()
+			OrderSingletonRepository.GetInstance(),
+			orderOrganizationProviderFactory.CreateOrderOrganizationProvider()
+		);
+
+		tdiMain.AddTab(paymentsJournalViewModel);
+	}
+
+	void ActionFinancialDistrictsSetsJournal_Activated(object sender, EventArgs e)
+	{
+		var filter = new FinancialDistrictsSetsJournalFilterViewModel { HidenByDefault = true };
+
+		var paymentsJournalViewModel = new FinancialDistrictsSetsJournalViewModel(
+			filter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			VodovozGtkServicesConfig.EmployeeService,
+			new EntityDeleteWorker(), 
+			true, 
+			true
 		);
 
 		tdiMain.AddTab(paymentsJournalViewModel);
@@ -673,15 +727,15 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
-			() => new ExportTo1cDialog()
+			() => new ExportTo1cDialog(UnitOfWorkFactory.GetDefaultFactory)
 		);
 	}
 
 	void ActionOldExportTo1c_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<OldExportTo1cDialog>(),
-			() => new OldExportTo1cDialog()
+			TdiTabBase.GenerateHashName<Old1612ExportTo1cDialog>(),
+			() => new Old1612ExportTo1cDialog(UnitOfWorkFactory.GetDefaultFactory)
 		);
 	}
 
@@ -716,9 +770,7 @@ public partial class MainWindow : Window
 			() => {
 				var vm = new RouteListsVM();
 				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
-				Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete")
-					? Buttons.All
-					: (Buttons.Add | Buttons.Edit);
+				Buttons buttons = Buttons.Add | Buttons.Edit;
 				return new PermissionControlledRepresentationJournal(vm, buttons);
 			}
 		);
@@ -835,7 +887,7 @@ public partial class MainWindow : Window
 	}
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e) {
-		var nomenclatureRepository = new NomenclatureRepository();
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,

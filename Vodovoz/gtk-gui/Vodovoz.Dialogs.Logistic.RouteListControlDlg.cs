@@ -20,12 +20,6 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewNotLoaded;
 
-		private global::Gtk.Label label1;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
-
-		private global::Gamma.GtkWidgets.yTreeView ytreeviewNotAttached;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -110,28 +104,6 @@ namespace Vodovoz.Dialogs.Logistic
 			this.vbox1.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
 			w10.Position = 2;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.label1 = new global::Gtk.Label();
-			this.label1.Name = "label1";
-			this.label1.Xalign = 0F;
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Номенклатуры не привязанные к складу:");
-			this.vbox1.Add(this.label1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.label1]));
-			w11.Position = 3;
-			w11.Expand = false;
-			w11.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
-			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.ytreeviewNotAttached = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewNotAttached.CanFocus = true;
-			this.ytreeviewNotAttached.Name = "ytreeviewNotAttached";
-			this.GtkScrolledWindow1.Add(this.ytreeviewNotAttached);
-			this.vbox1.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
-			w13.Position = 4;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

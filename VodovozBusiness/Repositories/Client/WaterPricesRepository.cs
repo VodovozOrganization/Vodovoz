@@ -154,24 +154,6 @@ namespace Vodovoz.Repositories.Client
 			completeTable.AddRange(GetWaterPrices(uow));
 			return completeTable;
 		}
-	
-		public static WaterSalesAgreement FillWaterFixedPrices (IUnitOfWork UoW, WaterSalesAgreement agreement, List<WaterSalesAgreementFixedPrice> fixedPrices)
-		{
-			WaterSalesAgreement result = null;
-			using(var uow = UnitOfWorkFactory.CreateForRoot<WaterSalesAgreement>(agreement.Id)) {
-				foreach(var fixPrice in fixedPrices) {
-					var existsPrice = uow.Root.FixedPrices.FirstOrDefault(x => x.Nomenclature == fixPrice.Nomenclature);
-					if(existsPrice != null) {
-						existsPrice.Price = fixPrice.Price;
-					}else {
-						uow.Root.AddFixedPrice(fixPrice.Nomenclature, fixPrice.Price);
-					}
-				}
-				uow.Save();
-				result = UoW.GetById<WaterSalesAgreement>(uow.Root.Id);
-			}
-			return result;
-		}
 	}
 
 	public class WaterPriceNode : PatternField

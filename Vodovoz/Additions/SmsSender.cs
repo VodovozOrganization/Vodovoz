@@ -7,8 +7,19 @@ namespace Vodovoz.Additions
 {
     public class SmsSender
     {
-        public ResultMessage SendPasswordToEmployee(ISmsNotifierParametersProvider smsNotifierParametersProvider, Employee employee, string password)
+        private readonly ISmsNotifierParametersProvider smsNotifierParametersProvider;
+        private readonly IInstantSmsService service;
+        public SmsSender(ISmsNotifierParametersProvider smsNotifierParametersProvider, IInstantSmsService service)
         {
+            this.smsNotifierParametersProvider = smsNotifierParametersProvider ??
+                                                 throw new ArgumentNullException(nameof(smsNotifierParametersProvider));
+            this.service = service ?? throw new ArgumentNullException(nameof(service));
+        }
+        
+        public ResultMessage SendPassword( string phone, string login, string password)
+        {
+            #region Формирование
+            
             if(!smsNotifierParametersProvider.IsSmsNotificationsEnabled) {
                 return new ResultMessage { ErrorDescription = "Sms уведомления выключены" };
             }
@@ -16,26 +27,23 @@ namespace Vodovoz.Additions
                 return new ResultMessage { ErrorDescription = "Был передан неверный пароль" };
             }
 
-            //формирование номера мобильного телефона
-            string stringPhoneNumber = employee.GetPhoneForSmsNotification();
-            if(stringPhoneNumber == null)
-                return new ResultMessage { ErrorDescription = "Не найден подходящий телефон для отправки Sms" };
-
-            string phoneNumber = $"+7{stringPhoneNumber}";
-
-            string messageText = $"Логин: {employee.LoginForNewUser}\nПароль: {password}";
-
-            var smsNotification = new InstantSmsMessage {
-                MessageText = messageText,
-                MobilePhone = phoneNumber,
-                ExpiredTime = DateTime.Now.AddMinutes(10)
-            };
-
-            IInstantSmsService service = InstantSmsServiceSetting.GetInstantSmsService();
+            string messageText = $"Логин: {login}\nПароль: {password}";
+            
             if(service == null) {
                 return new ResultMessage { ErrorDescription = "Сервис отправки Sms не работает, обратитесь в РПО." };
             }
+            
+            var smsNotification = new InstantSmsMessage {
+                MessageText = messageText,
+                MobilePhone = phone,
+                ExpiredTime = DateTime.Now.AddMinutes(10)
+            };
+
+            #endregion
+            
             return service.SendSms(smsNotification);
         }
+        
+        
     }
 }

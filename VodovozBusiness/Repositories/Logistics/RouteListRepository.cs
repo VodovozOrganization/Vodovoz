@@ -6,7 +6,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Repository.Logistics
@@ -30,24 +29,6 @@ namespace Vodovoz.Repository.Logistics
 		public static QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds)
 		{
 			return new EntityRepositories.Logistic.RouteListRepository().GetRoutesAtDay(date, geographicGroupsIds);
-		}
-
-		[Obsolete]
-		public static IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
-		{
-			return new EntityRepositories.Logistic.RouteListRepository().GetGoodsAndEquipsInRL(uow, routeList, warehouse);
-		}
-
-		[Obsolete]
-		public static IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
-		{
-			return new EntityRepositories.Logistic.RouteListRepository().GetGoodsInRLWithoutEquipments(uow, routeList, warehouse);
-		}
-
-		[Obsolete]
-		public static IList<GoodsInRouteListResult> GetEquipmentsInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
-		{
-			return new EntityRepositories.Logistic.RouteListRepository().GetEquipmentsInRL(uow, routeList, warehouse);
 		}
 
 		[Obsolete]

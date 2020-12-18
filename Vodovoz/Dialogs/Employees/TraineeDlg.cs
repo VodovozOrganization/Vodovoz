@@ -11,7 +11,9 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSOrmProject;
 using QS.Validation;
+using Vodovoz.Additions;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Services;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -27,14 +29,14 @@ namespace Vodovoz.Dialogs.Employees
 			ConfigureDlg();
 		}
 
-		public TraineeDlg(int id)
+		public TraineeDlg(int id, IAuthorizationService authorizationService)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Trainee>(id);
 			ConfigureDlg();
 		}
 
-		public TraineeDlg(Trainee sub) : this(sub.Id)
+		public TraineeDlg(Trainee sub, IAuthorizationService authorizationService) : this(sub.Id, authorizationService)
 		{
 		}
 

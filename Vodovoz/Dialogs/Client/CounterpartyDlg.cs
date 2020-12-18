@@ -6,7 +6,6 @@ using NLog;
 using QS.Banks.Domain;
 using Vodovoz.Domain.Contacts;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
@@ -15,7 +14,6 @@ using QS.Project.Journal.EntitySelector;
 using QSOrmProject;
 using QSProjectsLib;
 using QS.Validation;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
@@ -33,6 +31,14 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.ViewModels.ViewModels.Goods;
+using Vodovoz.TempAdapters;
+using Vodovoz.Models;
+using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz
 {
@@ -47,7 +53,7 @@ namespace Vodovoz
 		public virtual INomenclatureRepository NomenclatureRepository {
 			get {
 				if(nomenclatureRepository == null) {
-					nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository();
+					nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
 				};
 				return nomenclatureRepository;
 			}
@@ -271,9 +277,15 @@ namespace Vodovoz
 
 			//make actions menu
 			var menu = new Gtk.Menu();
+			
 			var menuItem = new Gtk.MenuItem("Все заказы контрагента");
 			menuItem.Activated += AllOrders_Activated;
 			menu.Add(menuItem);
+			
+			var menuItemFixedPrices = new Gtk.MenuItem("Фикс. цены для самовывоза");
+			menuItemFixedPrices.Activated += (s, e) => OpenFixedPrices();
+			menu.Add(menuItemFixedPrices);
+			
 			menuActions.Menu = menu;
 			menu.ShowAll();
 
@@ -291,7 +303,20 @@ namespace Vodovoz
 			datatable4.Sensitive = canEditCounterpartyDetails;
 			entryFullName.Sensitive = canEditCounterpartyDetails;
 
+			var waterFixedPricesGenerator = new WaterFixedPricesGenerator(NomenclatureRepository);
+			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
+			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory, waterFixedPricesGenerator);
+			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
+			var nomSelectorFactory = new NomenclatureSelectorFactory();
+			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
+			fixedpricesview.ViewModel = fixedPricesViewModel;
+
 			//accountsView.
+
+			ycheckAlwaysSendReceitps.Binding.AddBinding(Entity, e => e.AlwaysSendReceitps, w => w.Active).InitializeFromSource();
+            ycheckAlwaysSendReceitps.Visible =
+                ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_cash_receipts");
+            
 			#region Особая печать
 
 			ytreeviewSpecialNomenclature.ColumnsConfig = ColumnsConfigFactory.Create<SpecialNomenclature>()
@@ -492,6 +517,11 @@ namespace Vodovoz
 		{
 			if(rbnPrices.Active)
 				notebook1.CurrentPage = 10;
+		}
+
+		public void OpenFixedPrices()
+		{
+			notebook1.CurrentPage = 11;
 		}
 
 		void YEnumCounterpartyType_Changed(object sender, EventArgs e)

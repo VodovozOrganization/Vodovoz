@@ -35,37 +35,6 @@ namespace Vodovoz.Domain.Client
 				return observableEquipment;
 			}
 		}
-
-		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
-		{
-			foreach (ValidationResult result in base.Validate (validationContext))
-				yield return result;
-			
-			if (!PaidRentEquipments.Any())
-				yield return new ValidationResult("Необходимо добавить в список оборудование.", new[] { "Equipment" });
-			
-			if(RentMonths == null)
-				yield return new ValidationResult("Поле \"Оплатить месяцев\" должно быть заполнено.", new[] { "RentMonths" });
-		}
-
-		public static IUnitOfWorkGeneric<NonfreeRentAgreement> Create (CounterpartyContract contract)
-		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<NonfreeRentAgreement> ($"Создание нового доп. соглашения платной аренды для договора {contract.Number}.");
-			uow.Root.Contract = uow.GetById<CounterpartyContract>(contract.Id);
-			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithType (uow.Root.Contract, AgreementType.NonfreeRent);
-			return uow;
-		}
-
-		public virtual void RemoveEquipment(PaidRentEquipment paidEquipment)
-		{
-			foreach (PaidRentEquipment eq in this.ObservableEquipment.CreateList())
-			{
-				if (eq == paidEquipment)
-				{
-					ObservableEquipment.Remove(eq);
-				}
-			}
-		}
 	}
 	
 }

@@ -1,94 +1,50 @@
 ﻿using System;
-using System.Net.Http.Headers;
 using System.ServiceModel;
 using System.ServiceModel.Web;
-using System.Text;
 using Nini.Config;
 using NLog;
 using Vodovoz.Core.DataService;
-using Vodovoz.Services;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Repositories.Orders;
 
 namespace VodovozSalesReceiptsService
 {
 	public static class ReceiptServiceStarter
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger();
-		static System.Timers.Timer orderRoutineTimer;
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		public static void StartService(IConfig serviceConfig, IConfig kassaConfig)
 		{
 			string serviceHostName;
 			string servicePort;
-
 			string baseAddress;
-			string userNameForService;
-			string pwdForService;
-			
-			bool isWorkInProgress = false;
 
 			try {
 				serviceHostName = serviceConfig.GetString("service_host_name");
 				servicePort = serviceConfig.GetString("service_port");
-
+				
 				baseAddress = kassaConfig.GetString("base_address");
-				userNameForService = kassaConfig.GetString("user_name");
-				pwdForService = kassaConfig.GetString("password");
 			}
 			catch(Exception ex) {
 				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
 				return;
 			}
-			var authentication = new AuthenticationHeaderValue(
-				"Basic",
-				Convert.ToBase64String(
-				Encoding.GetEncoding("ISO-8859-1")
-						.GetBytes(string.Format("{0}:{1}", userNameForService, pwdForService))
-				)
-			);
 
 			logger.Info("Запуск службы фискализации и печати кассовых чеков...");
 
-			orderRoutineTimer = new System.Timers.Timer(30000d);
-			orderRoutineTimer.Elapsed += (sender, e) => {
-				if(isWorkInProgress)
-					return;
-				isWorkInProgress = true;
-
-				try
-				{
-					orderRoutineTimer.Interval = 180000d; //3 минуты
-					if(DateTime.Now.Hour >= 1 && DateTime.Now.Hour < 5) {
-						var fiveHrsOfToday = DateTime.Today.AddHours(5);
-						orderRoutineTimer.Interval = fiveHrsOfToday.Subtract(DateTime.Now).TotalMilliseconds;//миллисекунд до 5 утра
-						logger.Info("Ночь. Не пытаемся отсылать чеки с 1 до 5 утра.");
-						return;
-					}
-					
-					Fiscalization.RunAsync(baseAddress, authentication).GetAwaiter().GetResult();
-				}
-				catch (Exception ex)
-				{
-					logger.Error(ex, "Исключение при выполение фоновой задачи.");
-				}
-				finally
-				{
-					isWorkInProgress = false;
-				}
-			};
-			orderRoutineTimer.Start();
+			var fiscalizationWorker = new FiscalizationWorker(
+				OrderSingletonRepository.GetInstance(),
+				new SalesReceiptSender(baseAddress)
+			);
+			fiscalizationWorker.Start();
+			
 			logger.Info("Служба фискализации запущена");
 
-			SalesReceiptsInstanceProvider salesReceiptsInstanceProvider = new SalesReceiptsInstanceProvider(
-					new BaseParametersProvider(),
-					OrderSingletonRepository.GetInstance()
-				);
+			var salesReceiptsInstanceProvider = new SalesReceiptsInstanceProvider(new BaseParametersProvider(), OrderSingletonRepository.GetInstance());
 			WebServiceHost salesReceiptsHost = new SalesReceiptsServiceHost(salesReceiptsInstanceProvider);
 			salesReceiptsHost.AddServiceEndpoint(
 				typeof(ISalesReceiptsService),
 				new WebHttpBinding(),
-				String.Format("http://{0}:{1}/SalesReceipts", serviceHostName, servicePort)
+				$"http://{serviceHostName}:{servicePort}/SalesReceipts"
 			);
 			salesReceiptsHost.Open();
 			logger.Info("Запущена служба мониторинга отправки чеков");

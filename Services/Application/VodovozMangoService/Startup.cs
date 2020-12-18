@@ -31,6 +31,7 @@ namespace VodovozMangoService
             connectionStringBuilder.UserID = Configuration["Mysql:mysql_user"];;
             connectionStringBuilder.Password = Configuration["Mysql:mysql_password"];;
             connectionStringBuilder.SslMode = MySqlSslMode.None;
+            connectionStringBuilder.DefaultCommandTimeout = 5;
             
             services.AddSingleton(x =>
                 new MySqlConnection(connectionStringBuilder.GetConnectionString(true)));

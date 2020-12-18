@@ -82,30 +82,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 			labelNextService.Text = nextServiceText;
 			var agreements = AdditionalAgreementRepository.GetActiveAgreementsForDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
-			var dailyAgreements = agreements
-				.OfType<DailyRentAgreement>()
-				.OrderBy(a => a.EndDate);
-			vboxRent.Visible = dailyAgreements.Any();
-			var rentText = string.Join(
-				"\n",
-				dailyAgreements.Select(a => string.Format(
-					"{0} - A до {1}",
-					a.AgreementNumber,
-					a.EndDate.ToShortDateString()
-				)).ToArray()
-			);
-			labelRent.Text = rentText;
-			var freeRent = agreements.OfType<FreeRentAgreement>();
-			var requiredBottlesThisMonth = freeRent.SelectMany(a => a.Equipment).Sum(eq => eq.WaterAmount);
-			var monthStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-			var monthEnd = monthStart.AddMonths(1).AddDays(-1);
-			var bottlesThisMonth = DeliveryPointRepository.GetBottlesOrderedForPeriod(InfoProvider.UoW, DeliveryPoint, monthStart, monthEnd);
-			var bottlesLeftToOrder = requiredBottlesThisMonth - bottlesThisMonth;
-			var leftToOrderText = "";
-			if(bottlesLeftToOrder > 0)
-				leftToOrderText = string.Format(" (осталось: {0})", bottlesLeftToOrder);
-			labelBottlesPerMonth.Text = string.Format("{0} из {1}{2}", bottlesThisMonth, requiredBottlesThisMonth, leftToOrderText);
-
 			/*Отключено из-за ошибки. Задачи I-1221 и I-1020
 			if(fixedPricesList != null)
 				fixedPricesList.ToList().ForEach(x => InfoProvider.UoW.Session.Evict(x));*/

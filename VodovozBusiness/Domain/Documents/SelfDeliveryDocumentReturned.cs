@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
@@ -97,7 +98,7 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
+		public virtual void CreateOperation(Warehouse warehouse, Counterparty counterparty, DateTime time)
 		{
 			WarehouseMovementOperation = new WarehouseMovementOperation
 				{
@@ -107,14 +108,27 @@ namespace Vodovoz.Domain.Documents
 					Nomenclature = Nomenclature,
 					Equipment = Equipment
 				};
+
+			CounterpartyMovementOperation = new CounterpartyMovementOperation 
+				{
+					WriteoffCounterparty = counterparty,
+					Amount = Amount,
+					OperationTime = time,
+					Nomenclature = Nomenclature,
+					Equipment = Equipment
+				};
 		}
 
-		public virtual void UpdateOperation(Warehouse warehouse)
+		public virtual void UpdateOperation(Warehouse warehouse, Counterparty counterparty)
 		{
 			WarehouseMovementOperation.IncomingWarehouse = warehouse;
 			WarehouseMovementOperation.WriteoffWarehouse = null;
 			WarehouseMovementOperation.Amount = Amount;
 			WarehouseMovementOperation.Equipment = Equipment;
+
+			CounterpartyMovementOperation.WriteoffCounterparty = counterparty;
+			CounterpartyMovementOperation.Amount = Amount;
+			CounterpartyMovementOperation.Equipment = Equipment;
 		}
 
 		#endregion

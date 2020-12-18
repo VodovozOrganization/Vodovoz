@@ -17,6 +17,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
 using System.Linq;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Reports
 {
@@ -25,7 +26,8 @@ namespace Vodovoz.Reports
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly ICommonServices commonServices;
 
-		private List<Subdivision> UserSubdivisions { get; }
+		private IEnumerable<Subdivision> UserSubdivisions { get; }
+		private IEnumerable<Organization> Organisations { get; }
 
 		ExpenseCategory allItem = new ExpenseCategory{
 			Name = "Все"
@@ -60,17 +62,36 @@ namespace Vodovoz.Reports
 			comboExpenseCategory.SetCellDataFunc(comboExpenseCategory.Cells[0], HandleCellLayoutDataFunc);
 			comboExpenseCategory.SetActiveIter(model.IterFromNode(allItem));
 
-			specialListCmbCashSubdivisions.SetRenderTextFunc<Subdivision>(s => s.Name);
 			UserSubdivisions = GetSubdivisionsForUser();
+			specialListCmbCashSubdivisions.SetRenderTextFunc<Subdivision>(s => s.Name);
 			specialListCmbCashSubdivisions.ItemsList = UserSubdivisions;
+
+			ylblOrganisations.Visible = specialListCmbOrganisations.Visible = false;
+			Organisations = UoW.GetAll<Organization>();
+			specialListCmbOrganisations.SetRenderTextFunc<Organization>(s => s.Name);
+			specialListCmbOrganisations.ItemsList = Organisations;
+			
+			int currentUserId = commonServices.UserService.CurrentUserId;
+			bool canCreateCashReportsForOrganisations = 
+				commonServices.PermissionService.ValidateUserPresetPermission("can_create_cash_reports_for_organisations", currentUserId);
+			checkOrganisations.Visible = canCreateCashReportsForOrganisations;
+			checkOrganisations.Toggled += CheckOrganisationsToggled;
 		}
 
-		private List<Subdivision> GetSubdivisionsForUser()
+		void CheckOrganisationsToggled(object sender, EventArgs e)
 		{
-			var availableSubdivisionsForUser = subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, commonServices.UserService.GetCurrentUser(UoW));
-
-			return new List<Subdivision>(availableSubdivisionsForUser);
+			if(checkOrganisations.Active) {
+				ylblCashSubdivisions.Visible = specialListCmbCashSubdivisions.Visible = false;
+				ylblOrganisations.Visible = specialListCmbOrganisations.Visible = true;
+			}
+			else {
+				ylblCashSubdivisions.Visible = specialListCmbCashSubdivisions.Visible = true;
+				ylblOrganisations.Visible = specialListCmbOrganisations.Visible = false;
+			}
 		}
+
+		private IEnumerable<Subdivision> GetSubdivisionsForUser() => 
+			subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, commonServices.UserService.GetCurrentUser(UoW));
 
 		void HandleCellLayoutDataFunc (Gtk.CellLayout cell_layout, CellRenderer cell, Gtk.TreeModel tree_model, Gtk.TreeIter iter)
 		{
@@ -86,44 +107,69 @@ namespace Vodovoz.Reports
 
 		#endregion
 
-		void OnUpdate (bool hide = false)
-		{
-			if (LoadReport != null) {
-				LoadReport (this, new LoadReportEventArgs (GetReportInfo (), hide));
-			}
-		}
+		void OnUpdate (bool hide = false) => 
+			LoadReport?.Invoke (this, new LoadReportEventArgs (GetReportInfo (), hide));
 
-		protected void OnButtonRunClicked (object sender, EventArgs e)
-		{
-			OnUpdate (true);
-		}
+		protected void OnButtonRunClicked (object sender, EventArgs e) => OnUpdate (true);
 
 		private ReportInfo GetReportInfo ()
 		{
 			string ReportName;
-			if (checkDetail.Active) {
-				if (comboPart.SelectedItem.Equals (Gamma.Widgets.SpecialComboState.All))
-					ReportName = "Cash.CashFlowDetail";
-				else if (comboPart.SelectedItem.Equals (ReportParts.IncomeAll))
-					ReportName = "Cash.CashFlowDetailIncomeAll";
-				else if (comboPart.SelectedItem.Equals (ReportParts.Income))
-					ReportName = "Cash.CashFlowDetailIncome";
-				else if (comboPart.SelectedItem.Equals (ReportParts.IncomeReturn))
-					ReportName = "Cash.CashFlowDetailIncomeReturn";
-				else if (comboPart.SelectedItem.Equals (ReportParts.ExpenseAll))
-					ReportName = "Cash.CashFlowDetailExpenseAll";
-				else if (comboPart.SelectedItem.Equals (ReportParts.Expense))
-					ReportName = "Cash.CashFlowDetailExpense";
-				else if (comboPart.SelectedItem.Equals (ReportParts.Advance))
-					ReportName = "Cash.CashFlowDetailAdvance";
-				else if (comboPart.SelectedItem.Equals (ReportParts.AdvanceReport))
-					ReportName = "Cash.CashFlowDetailAdvanceReport";
-				else if (comboPart.SelectedItem.Equals (ReportParts.UnclosedAdvance))
-					ReportName = "Cash.CashFlowDetailUnclosedAdvance";
-				else
-					throw new InvalidOperationException ("Неизвестный раздел.");
-			} else
-				ReportName = "Cash.CashFlow";
+			switch (checkOrganisations.Active)
+			{
+				case true:
+					if (checkDetail.Active) {
+						if (comboPart.SelectedItem.Equals (Gamma.Widgets.SpecialComboState.All))
+							ReportName = "Cash.CashFlowDetailOrganisations";
+						else if (comboPart.SelectedItem.Equals (ReportParts.IncomeAll))
+							ReportName = "Cash.CashFlowDetailIncomeAllOrganisations";
+						else if (comboPart.SelectedItem.Equals (ReportParts.Income))
+							ReportName = "Cash.CashFlowDetailIncomeOrganisations";
+						else if (comboPart.SelectedItem.Equals (ReportParts.IncomeReturn))
+							ReportName = "Cash.CashFlowDetailIncomeReturnOrganisations";
+						else if (comboPart.SelectedItem.Equals (ReportParts.ExpenseAll))
+							ReportName = "Cash.CashFlowDetailExpenseAllOrganisations";
+						else if (comboPart.SelectedItem.Equals (ReportParts.Expense))
+							ReportName = "Cash.CashFlowDetailExpenseOrganisations";
+						else if (comboPart.SelectedItem.Equals (ReportParts.Advance))
+							ReportName = "Cash.CashFlowDetailAdvanceOrganisations";
+						else if (comboPart.SelectedItem.Equals (ReportParts.AdvanceReport))
+							ReportName = "Cash.CashFlowDetailAdvanceReportOrganisations";
+						else if (comboPart.SelectedItem.Equals (ReportParts.UnclosedAdvance))
+							ReportName = "Cash.CashFlowDetailUnclosedAdvanceOrganisations";
+						else
+							throw new InvalidOperationException ("Неизвестный раздел.");
+					} else
+						ReportName = "Cash.CashFlowOrganisations";
+
+					break;
+					default:
+						if (checkDetail.Active) {
+							if (comboPart.SelectedItem.Equals (Gamma.Widgets.SpecialComboState.All))
+								ReportName = "Cash.CashFlowDetail";
+							else if (comboPart.SelectedItem.Equals (ReportParts.IncomeAll))
+								ReportName = "Cash.CashFlowDetailIncomeAll";
+							else if (comboPart.SelectedItem.Equals (ReportParts.Income))
+								ReportName = "Cash.CashFlowDetailIncome";
+							else if (comboPart.SelectedItem.Equals (ReportParts.IncomeReturn))
+								ReportName = "Cash.CashFlowDetailIncomeReturn";
+							else if (comboPart.SelectedItem.Equals (ReportParts.ExpenseAll))
+								ReportName = "Cash.CashFlowDetailExpenseAll";
+							else if (comboPart.SelectedItem.Equals (ReportParts.Expense))
+								ReportName = "Cash.CashFlowDetailExpense";
+							else if (comboPart.SelectedItem.Equals (ReportParts.Advance))
+								ReportName = "Cash.CashFlowDetailAdvance";
+							else if (comboPart.SelectedItem.Equals (ReportParts.AdvanceReport))
+								ReportName = "Cash.CashFlowDetailAdvanceReport";
+							else if (comboPart.SelectedItem.Equals (ReportParts.UnclosedAdvance))
+								ReportName = "Cash.CashFlowDetailUnclosedAdvance";
+							else
+								throw new InvalidOperationException ("Неизвестный раздел.");
+						} else
+							ReportName = "Cash.CashFlow";
+
+						break;
+			}
 
 			var inCat = 
 				comboIncomeCategory.SelectedItem == null
@@ -136,6 +182,7 @@ namespace Vodovoz.Reports
 			var exCategory = (ExpenseCategory)comboExpenseCategory.Model.GetValue(iter, 0);
 			bool exCategorySelected = exCategory != allItem;
 			var ids = new List<int>();
+			
 			if (exCategorySelected)
 				FineIds(ids, exCategory);
 			else
@@ -147,17 +194,20 @@ namespace Vodovoz.Reports
 			var employeeName = yentryrefEmployee.Subject == null ? "" : (yentryrefEmployee.Subject as Employee).ShortName;
 
 			IEnumerable<int> cashSubdivisions;
+			IEnumerable<int> organisations;
 			
 			if (specialListCmbCashSubdivisions.SelectedItem == null) {
-				if (UserSubdivisions.Any())
-					cashSubdivisions = UserSubdivisions.Select(x => x.Id);
-				else {
-					cashSubdivisions = new[] {-1};
-				}
+				cashSubdivisions = UserSubdivisions.Any() ? UserSubdivisions.Select(x => x.Id) : new[] {-1};
 			}
 			else {
-				cashSubdivisions = UserSubdivisions.Where(x => x.Id == (specialListCmbCashSubdivisions.SelectedItem as Subdivision).Id)
-				                                   .Select(x => x.Id);
+				cashSubdivisions = new[] {(specialListCmbCashSubdivisions.SelectedItem as Subdivision).Id};
+			}
+			
+			if (specialListCmbOrganisations.SelectedItem == null) {
+				organisations = Organisations.Any() ? Organisations.Select(x => x.Id) : new[] {-1};
+			}
+			else {
+				organisations = new[] {(specialListCmbOrganisations.SelectedItem as Organization).Id};
 			}
 			
 			var cashSubdivisionsName = specialListCmbCashSubdivisions.SelectedItem == null ?
@@ -166,7 +216,7 @@ namespace Vodovoz.Reports
 				                  .Select(x => x.Name)
 				                  .SingleOrDefault();
 
-			return new ReportInfo {
+			var reportInfo =  new ReportInfo {
 				Identifier = ReportName,
 				Parameters = new Dictionary<string, object> {
 					{ "StartDate", dateStart.DateOrNull.Value },
@@ -177,11 +227,25 @@ namespace Vodovoz.Reports
 					{ "Casher", casherId },
 					{ "Employee", employeeId },
 					{ "CasherName", casherName },
-					{ "EmployeeName", employeeName },
-					{ "cash_subdivisions", cashSubdivisions },
-					{ "cash_subdivisions_name", cashSubdivisionsName }
+					{ "EmployeeName", employeeName }
 				}
 			};
+
+			if (checkOrganisations.Active)
+			{
+				reportInfo.Parameters.Add("organisations", organisations);
+				reportInfo.Parameters.Add("organisation_name",
+					(specialListCmbOrganisations.SelectedItem as Organization) != null
+						? (specialListCmbOrganisations.SelectedItem as Organization).Name
+						: "Все организации");
+			}
+			else
+			{
+				reportInfo.Parameters.Add("cash_subdivisions", cashSubdivisions);
+				reportInfo.Parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
+			}
+
+			return reportInfo;
 		}
 
 		private void FineIds(IList<int> result, ExpenseCategory cat)

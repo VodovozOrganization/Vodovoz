@@ -159,6 +159,8 @@ namespace Vodovoz.Dialogs.Email
 		public void UpdateEmails()
 		{
 			StoredEmails.Clear();
+			
+			if (Document == null) return;
 
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{

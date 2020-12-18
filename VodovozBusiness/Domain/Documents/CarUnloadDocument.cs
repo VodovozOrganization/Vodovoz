@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
+using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -11,6 +11,7 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
@@ -24,30 +25,26 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class CarUnloadDocument : Document, IValidatableObject
 	{
-		public CarUnloadDocument() { }
+
+		#region Сохраняемые свойства
 
 		public override DateTime TimeStamp {
 			get => base.TimeStamp;
 			set {
 				base.TimeStamp = value;
-				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
+				if(!NHibernateUtil.IsInitialized(Items))
 					return;
-				foreach(var item in Items) {
-					if(item.MovementOperation.OperationTime != TimeStamp)
-						item.MovementOperation.OperationTime = TimeStamp;
-				}
+				UpdateOperationsTime();
 			}
 		}
 
-		RouteList routeList;
-
+		private RouteList routeList;
 		public virtual RouteList RouteList {
 			get => routeList;
 			set => SetField(ref routeList, value, () => RouteList);
 		}
 
-		Warehouse warehouse;
-
+		private Warehouse warehouse;
 		public virtual Warehouse Warehouse {
 			get => warehouse;
 			set {
@@ -56,8 +53,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		IList<CarUnloadDocumentItem> items = new List<CarUnloadDocumentItem>();
-
+		private IList<CarUnloadDocumentItem> items = new List<CarUnloadDocumentItem>();
 		[Display(Name = "Строки")]
 		public virtual IList<CarUnloadDocumentItem> Items {
 			get => items;
@@ -67,7 +63,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		GenericObservableList<CarUnloadDocumentItem> observableItems;
+		private GenericObservableList<CarUnloadDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<CarUnloadDocumentItem> ObservableItems {
 			get {
@@ -77,30 +73,32 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		string comment;
-
+		private string comment;
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get => comment;
 			set => SetField(ref comment, value, () => Comment);
 		}
 
-		#region Не сохраняемые
+		#endregion
+
+		#region Не сохраняемые свойства
 
 		public virtual int DefBottleId { get; protected set; }
 
-		public virtual string Title => string.Format("Разгрузка автомобиля №{0} от {1:d}", Id, TimeStamp);
+		public virtual string Title => $"Разгрузка автомобиля №{Id} от {TimeStamp:d}";
 
-		int returnedTareBefore;
-		[PropertyChangedAlso("ReturnedTareBeforeText")]
+		private int returnedTareBefore;
+		[PropertyChangedAlso(nameof(ReturnedTareBeforeText))]
 		public virtual int ReturnedTareBefore {
 			get => returnedTareBefore;
 			set => SetField(ref returnedTareBefore, value, () => ReturnedTareBefore);
 		}
 
-		public virtual string ReturnedTareBeforeText => ReturnedTareBefore > 0 ? string.Format("Возвращено другими разгрузками: {0} бут.", ReturnedTareBefore) : string.Empty;
+		public virtual string ReturnedTareBeforeText => ReturnedTareBefore > 0 ? $"Возвращено другими разгрузками: {ReturnedTareBefore} бут."
+			: string.Empty;
 
-		int tareToReturn;
+		private int tareToReturn;
 		public virtual int TareToReturn {
 			get => tareToReturn;
 			set => SetField(ref tareToReturn, value, () => TareToReturn);
@@ -108,48 +106,7 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion
 
-		#region IValidatableObject implementation
-
-		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			if(Author == null)
-				yield return new ValidationResult("Не указан кладовщик.",
-					new[] { this.GetPropertyName(o => o.Author) });
-			if(RouteList == null)
-				yield return new ValidationResult("Не указан маршрутный лист, по которому осуществляется разгрузка.",
-					new[] { this.GetPropertyName(o => o.RouteList) });
-
-			if(Warehouse == null)
-				yield return new ValidationResult("Не указан склад разгрузки.",
-					new[] { this.GetPropertyName(o => o.Warehouse) });
-
-			foreach(var item in Items) {
-				if(item.MovementOperation.Nomenclature.Category == NomenclatureCategory.bottle && item.MovementOperation.Amount < 0)
-					yield return new ValidationResult(
-						string.Format("Для оборудования {0}, нельзя указывать отрицательное значение.", item.MovementOperation.Nomenclature.Name),
-						new[] { this.GetPropertyName(o => o.Items) }
-					);
-
-				if(item.MovementOperation.Nomenclature.IsDefectiveBottle && item.TypeOfDefect == null)
-					yield return new ValidationResult(
-						string.Format("Для брака {0} необходимо указать его вид", item.MovementOperation.Nomenclature.Name),
-						new[] { this.GetPropertyName(o => o.Items) }
-					);
-			}
-
-			var hasDublicateServiceClaims = Items
-				.Where(item => item.ServiceClaim != null)
-				.GroupBy(item => item.ServiceClaim)
-				.Any(g => g.Count() > 1);
-
-			if(hasDublicateServiceClaims)
-				yield return new ValidationResult(
-					"Имеются продублированные заявки на сервис.",
-					new[] { this.GetPropertyName(o => o.Items) }
-				);
-		}
-
-		#endregion
+		#region Публичные функции
 
 		public virtual void InitializeDefaultValues(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository)
 		{
@@ -165,48 +122,52 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Add(item);
 		}
 
-		public virtual void AddItem(ReciveTypes reciveType, Nomenclature nomenclature, Equipment equipment, 
-		                            decimal amount, Service.ServiceClaim serviceClaim, int terminalId, string redhead = null, 
-		                            DefectSource source = DefectSource.None, CullingCategory typeOfDefect = null)
+		public virtual void AddItem(
+			ReciveTypes reciveType, 
+			Nomenclature nomenclature, 
+			Equipment equipment, 
+			decimal amount, 
+			ServiceClaim serviceClaim,
+			string redhead = null, 
+			DefectSource source = DefectSource.None, 
+			CullingCategory typeOfDefect = null)
 		{
-			var operation = new WarehouseMovementOperation {
+			var warehouseMovementOperation = new WarehouseMovementOperation {
 				Amount = amount,
 				Nomenclature = nomenclature,
 				IncomingWarehouse = Warehouse,
 				Equipment = equipment,
 				OperationTime = TimeStamp
 			};
+			
+			var employeeNomenclatureMovementOperation = new EmployeeNomenclatureMovementOperation {
+				Amount = -amount,
+				Nomenclature = nomenclature,
+				Employee = RouteList.Driver,
+				OperationTime = TimeStamp
+			};
 
 			var item = new CarUnloadDocumentItem {
 				ReciveType = reciveType,
-				MovementOperation = operation,
+				WarehouseMovementOperation = warehouseMovementOperation,
+				EmployeeNomenclatureMovementOperation = employeeNomenclatureMovementOperation,
 				ServiceClaim = serviceClaim,
 				Redhead = redhead,
 				DefectSource = source,
 				TypeOfDefect = typeOfDefect
 			};
 
-			if (nomenclature.Id == terminalId) {
-				var terminalMovementOperation = new EmployeeNomenclatureMovementOperation {
-					Amount = -(int)amount,
-					Nomenclature = nomenclature,
-					Employee = RouteList.Driver,
-					OperationTime = TimeStamp
-				};
-
-				item.EmployeeNomenclatureMovementOperation = terminalMovementOperation;
-			}
-			
 			AddItem(item);
 		}
 
 		public virtual void UpdateWarehouse()
 		{
-			if(Warehouse != null) {
-				foreach(var item in Items) {
-					if(item.MovementOperation != null) {
-						item.MovementOperation.IncomingWarehouse = Warehouse;
-					}
+			if(Warehouse == null)
+				return;
+			
+			foreach(var item in Items) {
+				if(item.WarehouseMovementOperation != null) {
+					item.WarehouseMovementOperation.IncomingWarehouse = Warehouse;
 				}
 			}
 		}
@@ -221,10 +182,71 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual bool IsDefaultBottle(CarUnloadDocumentItem item)
 		{
-			if(item.MovementOperation?.Nomenclature.Id != DefBottleId)
+			if(item.WarehouseMovementOperation?.Nomenclature.Id != DefBottleId)
 				return false;
-			TareToReturn += (int)(item.MovementOperation?.Amount ?? 0);
+			TareToReturn += (int)(item.WarehouseMovementOperation?.Amount ?? 0);
 			return true;
 		}
+
+		#endregion
+
+		#region Приватные функции
+
+		private void UpdateOperationsTime()
+		{
+			foreach(var item in Items) {
+				if(item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.OperationTime != TimeStamp)
+					item.WarehouseMovementOperation.OperationTime = TimeStamp;
+				if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.OperationTime != TimeStamp)
+					item.EmployeeNomenclatureMovementOperation.OperationTime = TimeStamp;
+			}
+		}
+
+		#endregion
+
+		#region IValidatableObject implementation
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Author == null)
+				yield return new ValidationResult("Не указан кладовщик.",
+					new[] { nameof(Author) });
+			if(RouteList == null)
+				yield return new ValidationResult("Не указан маршрутный лист, по которому осуществляется разгрузка.",
+					new[] { nameof(RouteList) });
+
+			if(Warehouse == null)
+				yield return new ValidationResult("Не указан склад разгрузки.",
+					new[] { nameof(Warehouse) });
+
+			foreach(var item in Items) {
+				if(item.WarehouseMovementOperation.Nomenclature.Category == NomenclatureCategory.bottle && item.WarehouseMovementOperation.Amount < 0) {
+					yield return new ValidationResult(
+						$"Для оборудования {item.WarehouseMovementOperation.Nomenclature.Name}, нельзя указывать отрицательное значение.",
+						new[] { nameof(Items) }
+					);
+				}
+				if(item.WarehouseMovementOperation.Nomenclature.IsDefectiveBottle && item.TypeOfDefect == null) {
+					yield return new ValidationResult(
+						$"Для брака {item.WarehouseMovementOperation.Nomenclature.Name} необходимо указать его вид",
+						new[] { nameof(Items) }
+					);
+				}
+			}
+
+			var hasDublicateServiceClaims = Items
+				.Where(item => item.ServiceClaim != null)
+				.GroupBy(item => item.ServiceClaim)
+				.Any(g => g.Count() > 1);
+
+			if(hasDublicateServiceClaims) {
+				yield return new ValidationResult(
+					"Имеются продублированные заявки на сервис.",
+					new[] { nameof(Items) }
+				);
+			}
+		}
+
+		#endregion
 	}
 }

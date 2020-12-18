@@ -1,15 +1,26 @@
 ﻿using System;
+using System.Linq;
+using InstantSmsService;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
+using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Project.Journal;
+using QS.Project.Repositories;
+using QS.Project.Services.GtkUI;
 using QS.Services;
+using Vodovoz.Additions;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
+using Vodovoz.Tools;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -26,8 +37,17 @@ namespace Vodovoz.JournalViewModels
 		)
 		{
 			this.TabName = "Журнал сотрудников";
-			UpdateOnChanges(typeof(Employee));
+			var instantSmsService = InstantSmsServiceSetting.GetInstantSmsService();
+		
+			this.authorizationService = new AuthorizationService(
+				new PasswordGenerator(),
+				new MySQLUserRepository(
+					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
+					new GtkInteractiveService()));
+				UpdateOnChanges(typeof(Employee));
 		}
+
+		private readonly IAuthorizationService authorizationService;
 
 		protected override Func<IUnitOfWork, IQueryOver<Employee>> ItemsSourceQueryFunction => (uow) => {
 			EmployeeJournalNode resultAlias = null;
@@ -63,11 +83,17 @@ namespace Vodovoz.JournalViewModels
 				;
 				query.WithSubquery.WhereProperty(e => e.Id).In(subquery);
 			}
+			
+			var employeeProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?1, ?2, ?3)"),
+				NHibernateUtil.String,
+				Projections.Property(() => employeeAlias.LastName),
+				Projections.Property(() => employeeAlias.Name),
+				Projections.Property(() => employeeAlias.Patronymic)
+			);
 
 			query.Where(GetSearchCriterion(
-				() => employeeAlias.Name,
-				() => employeeAlias.LastName,
-				() => employeeAlias.Patronymic
+				() => employeeProjection
 			));
 
 			var result = query
@@ -88,8 +114,44 @@ namespace Vodovoz.JournalViewModels
 			return result;
 		};
 
+		private void ResetPasswordForEmployee(Employee employee)
+		{
+			var passGenerator = new PasswordGenerator();
+			var result = authorizationService.ResetPassword(employee, passGenerator.GeneratePassword(5));
+			if (result.MessageStatus == SmsMessageStatus.Ok)
+			{
+				MessageDialogHelper.RunInfoDialog("Sms с паролем отправлена успешно");
+			} else {
+				MessageDialogHelper.RunErrorDialog(result.ErrorDescription, "Ошибка при отправке Sms");
+			}
+		}
+
+		protected override void CreatePopupActions()
+		{
+			base.CreatePopupActions();
+			
+			var resetPassAction = new JournalAction(
+				"Сбросить пароль",
+				x => true,
+				x => true, 
+				selectedItems =>
+			{
+				var selectedNodes = selectedItems.Cast<EmployeeJournalNode>();
+				var selectedNode = selectedNodes.FirstOrDefault();
+				if (selectedNode != null)
+				{
+					var employee = UoW.GetById<Employee>(selectedNode.Id);
+					ResetPasswordForEmployee(employee);
+				}
+			});
+			
+			PopupActionsList.Add(resetPassAction);
+			NodeActionsList.Add(resetPassAction);
+		}
+
 		protected override Func<EmployeeDlg> CreateDialogFunction => () => new EmployeeDlg();
 
-		protected override Func<EmployeeJournalNode, EmployeeDlg> OpenDialogFunction => n => new EmployeeDlg(n.Id);
+		protected override Func<EmployeeJournalNode, EmployeeDlg> OpenDialogFunction => 
+			n => new EmployeeDlg(n.Id);
 	}
 }

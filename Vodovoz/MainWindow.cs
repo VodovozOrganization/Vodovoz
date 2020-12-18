@@ -37,6 +37,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.Domain.Store;
@@ -78,6 +79,7 @@ using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
+using Vodovoz.Parameters;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -118,6 +120,7 @@ public partial class MainWindow : Gtk.Window
 		ActionDriverWages.Sensitive = hasAccessToSalaries;
 		ActionWagesOperations.Sensitive = hasAccessToSalaries;
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries;
+		ActionDriversWageBalance.Visible = hasAccessToSalaries;
 
 		ActionWage.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
 
@@ -365,7 +368,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionNomenclatureActivated(object sender, EventArgs e)
 	{
-		var nomenclatureRepository = new NomenclatureRepository();
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
@@ -429,12 +432,6 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionCounterpartyPostActivated(object sender, EventArgs e)
 	{
 		OrmReference refWin = new OrmReference(typeof(Post));
-		tdiMain.AddTab(refWin);
-	}
-
-	protected void OnActionFreeRentPackageActivated(object sender, EventArgs e)
-	{
-		OrmReference refWin = new OrmReference(typeof(FreeRentPackage));
 		tdiMain.AddTab(refWin);
 	}
 
@@ -722,7 +719,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
 
-		var nomenclatureRepository = new NomenclatureRepository();
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
 		IEntityAutocompleteSelectorFactory employeeSelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
@@ -876,7 +873,7 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionProducedProductionReportActivated(object sender, EventArgs e)
 	{
 		#region DependencyCreation
-		var nomenclatureRepository = new NomenclatureRepository();
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
@@ -1369,7 +1366,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e)
 	{
-		var nomenclatureRepository = new NomenclatureRepository();
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,

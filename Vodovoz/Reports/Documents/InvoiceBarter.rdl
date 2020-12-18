@@ -299,7 +299,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -350,7 +350,7 @@ WHERE NOT EXISTS (
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.String</TypeName>
@@ -692,7 +692,7 @@ payment_type='ToClient'</CommandText>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >="N" + {digits}</Format>
+                        <Format>="N" + {digits}</Format>
                       </Style>
                       <Visibility>
                         <Hidden>
@@ -923,7 +923,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=SUM({total_wo_disc})</Value>
                     </Textbox>
@@ -1595,7 +1595,7 @@ payment_type='ToClient'</CommandText>
       <Textbox Name="Textbox79" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>17.25pt</Height>
         <Width>335.29pt</Width>
-        <Value>='Товарный чек № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
+        <Value>='Заказ № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
         <ZIndex>1</ZIndex>
         <Left>121.60pt</Left>
         <Top>35.70pt</Top>
@@ -1605,21 +1605,6 @@ payment_type='ToClient'</CommandText>
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <FontSize>14pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox80" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>13.50pt</Height>
-        <Width>154.33pt</Width>
-        <Value>= "Исполнитель: " +Max({author}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>224.8pt</Left>
-        <Top>17.6pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontSize>9pt</FontSize>
-          <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox81" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">

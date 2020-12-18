@@ -15,80 +15,76 @@ namespace Vodovoz.Domain.Documents
 	{
 		public virtual int Id { get; set; }
 
-		CarUnloadDocument document;
-
+		private CarUnloadDocument document;
 		public virtual CarUnloadDocument Document {
-			get { return document; }
+			get => document;
 			set { SetField (ref document, value, () => Document); }
 		}
 
-		ReciveTypes reciveType;
-
+		private ReciveTypes reciveType;
 		public virtual ReciveTypes ReciveType { 
-			get { return reciveType; } 
+			get => reciveType;
 			set { SetField (ref reciveType, value, () => ReciveType); }
 		}
 
-		WarehouseMovementOperation movementOperation;
-
-		public virtual WarehouseMovementOperation MovementOperation { 
-			get { return movementOperation; }
-			set { SetField (ref movementOperation, value, () => MovementOperation); }
+		private WarehouseMovementOperation warehouseMovementOperation;
+		public virtual WarehouseMovementOperation WarehouseMovementOperation { 
+			get => warehouseMovementOperation;
+			set { SetField (ref warehouseMovementOperation, value, () => WarehouseMovementOperation); }
 		}
-		
-		EmployeeNomenclatureMovementOperation employeeNomenclatureMovementOperation;
+
+		private EmployeeNomenclatureMovementOperation employeeNomenclatureMovementOperation;
 		public virtual EmployeeNomenclatureMovementOperation EmployeeNomenclatureMovementOperation { 
 			get => employeeNomenclatureMovementOperation;
 			set => SetField (ref employeeNomenclatureMovementOperation, value);
 		}
 
 		ServiceClaim serviceClaim;
-
 		[Display (Name = "Заявка на сервис")]
 		public virtual ServiceClaim ServiceClaim {
-			get { return serviceClaim; }
+			get => serviceClaim;
 			set { SetField (ref serviceClaim, value, () => ServiceClaim); }
 		}
 
 		string redhead;
 		[Display(Name = "№ кулера")]
 		public virtual string Redhead {
-			get { return redhead; }
+			get => redhead;
 			set { SetField(ref redhead, value, () => Redhead); }
 		}
 
 		CullingCategory typeOfDefect;
 		[Display(Name = "Тип брака")]
 		public virtual CullingCategory TypeOfDefect {
-			get { return typeOfDefect; }
+			get => typeOfDefect;
 			set { SetField(ref typeOfDefect, value, () => TypeOfDefect); }
 		}
 
 		DefectSource defectSource;
 		[Display(Name = "Источник брака")]
 		public virtual DefectSource DefectSource {
-			get { return defectSource; }
+			get => defectSource;
 			set { SetField(ref defectSource, value, () => DefectSource); }
 		}
 
 		public virtual string Title =>
 			String.Format("[{2}] {0} - {1}",
-				MovementOperation.Nomenclature.Name,
-				MovementOperation.Nomenclature.Unit.MakeAmountShortStr(MovementOperation.Amount),
+				WarehouseMovementOperation.Nomenclature.Name,
+				WarehouseMovementOperation.Nomenclature.Unit.MakeAmountShortStr(WarehouseMovementOperation.Amount),
 				document.Title);
 	}
 
 	public enum ReciveTypes
 	{
-		[Display (Name = "Возврат тары")]
+		[Display(Name = "Возврат тары")]
 		Bottle,
-		[Display (Name = "Оборудование по заявкам")]
+		[Display(Name = "Оборудование по заявкам")]
 		Equipment,
-		[Display (Name = "Возврат недовоза")]
+		[Display(Name = "Возврат недовоза")]
 		Returnes,
 		[Display(Name = "Брак")]
 		Defective,
-		[Display (Name = "Возврат кассового оборудования")]
+		[Display(Name = "Возврат кассового оборудования")]
 		ReturnCashEquipment
 	}
 

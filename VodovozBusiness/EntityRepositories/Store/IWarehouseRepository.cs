@@ -9,10 +9,6 @@ namespace Vodovoz.EntityRepositories.Store
 	{
 		IList<Warehouse> GetActiveWarehouse(IUnitOfWork uow);
 
-		IList<Warehouse> WarehouseForShipment(IUnitOfWork uow, int routeListId);
-
-		IList<Warehouse> WarehouseForReception(IUnitOfWork uow, int id);
-
 		IList<Warehouse> WarehousesForPublishOnlineStore(IUnitOfWork uow);
 
 		IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId, IEnumerable<int> nomenclatureIds);

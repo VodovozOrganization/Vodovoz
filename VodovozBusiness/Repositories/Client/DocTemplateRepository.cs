@@ -4,37 +4,12 @@ using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Repository.Client
 {
 	public static class DocTemplateRepository
 	{
-		public static ContractType GetContractTypeForPaymentType(PersonType clientType, PaymentType paymentType)
-		{
-			switch(paymentType) {
-				case PaymentType.cash:
-				case PaymentType.ByCard:
-				case PaymentType.Terminal:
-					if(clientType == PersonType.legal) {
-						return ContractType.CashUL;
-					}else {
-						return ContractType.CashFL;
-					}
-				case PaymentType.BeveragesWorld:
-					if(clientType == PersonType.legal) {
-						return ContractType.CashBeveragesUL;
-					} else {
-						return ContractType.CashBeveragesFL;
-					}
-				case PaymentType.cashless:
-				case PaymentType.ContractDoc:
-					return ContractType.Cashless;
-				case PaymentType.barter:
-					return ContractType.Barter;
-				default:
-					return ContractType.Cashless;
-			}
-		}
 
 		/// <summary>
 		/// Получаем первый подходящий шаболон документа по указанным критериям.

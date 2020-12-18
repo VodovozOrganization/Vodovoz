@@ -16,21 +16,6 @@
 {
 	public static class EquipmentRepository
 	{
-		#region Без серийных номеров
-
-		/// <summary>
-		/// Выбирает первое имееющееся в справочнике оборудование по выбранному типу
-		/// </summary>
-		public static Nomenclature GetFirstAnyNomenclatureForRent(IUnitOfWork uow, EquipmentType type)
-		{
-			Nomenclature nomenclatureAlias = null;
-			return uow.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
-			   .Where(() => nomenclatureAlias.Type == type)
-			   .List().FirstOrDefault();
-		}
-
-		#endregion
-
 		#region С серийными номерами
 
 		public static QueryOver<Equipment> GetEquipmentWithTypesQuery(List<EquipmentType> types)
@@ -211,7 +196,7 @@
 			Equipment equipmentAlias = null;
 			var unloadedEquipmentIdsQuery = QueryOver.Of<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeList.Id)
 				.JoinAlias(doc => doc.Items, () => unloadItemAlias)
-				.JoinAlias(() => unloadItemAlias.MovementOperation, () => operationAlias)
+				.JoinAlias(() => unloadItemAlias.WarehouseMovementOperation, () => operationAlias)
 				.JoinAlias(() => operationAlias.Equipment, () => equipmentAlias)
 				.Select(op => equipmentAlias.Id);
 			return uow.Session.QueryOver<Equipment>(() => equipmentAlias).WithSubquery.WhereProperty(() => equipmentAlias.Id).In(unloadedEquipmentIdsQuery).List();

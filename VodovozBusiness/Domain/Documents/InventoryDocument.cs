@@ -168,10 +168,15 @@ namespace Vodovoz.Domain.Documents
 						});
 				}
 			}
-			foreach(var item in Items)
-			{
-				if (!inStock.ContainsKey(item.Nomenclature.Id))
-					item.AmountInDB = 0;
+
+			var itemsToRemove = new List<InventoryDocumentItem>();
+			foreach(var item in Items) {
+				if(!inStock.ContainsKey(item.Nomenclature.Id))
+					itemsToRemove.Add(item);
+			}
+
+			foreach(var item in itemsToRemove) {
+				ObservableItems.Remove(item);
 			}
 		}
 
