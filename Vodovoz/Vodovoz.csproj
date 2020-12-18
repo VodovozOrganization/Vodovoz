@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1513,6 +1513,10 @@
     <Compile Include="SidePanel\InfoViews\FixedPricesPanelView.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1cDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.Old1612ExportTo1c.Old1612ExportTo1cDialog.cs" />
+    <Compile Include="Views\Store\MovementWagonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Store.MovementWagonView.cs" />
+    <Compile Include="JournalViewers\MovementWagonJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.MovementWagonJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
