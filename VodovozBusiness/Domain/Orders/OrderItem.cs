@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -33,7 +34,7 @@ namespace Vodovoz.Domain.Orders
 			get => order;
 			set {
 				if(SetField(ref order, value, () => Order))
-					RecalculateNDS();
+					RecalculateVAT();
 			}
 		}
 
@@ -44,24 +45,7 @@ namespace Vodovoz.Domain.Orders
 			get => nomenclature;
 			set {
 				if(SetField(ref nomenclature, value, () => Nomenclature)) {
-					if(Id == 0)//ставку устанавливаем только для новых строк заказа
-						switch(value.VAT) {
-							case VAT.No:
-								ValueAddedTax = 0m;
-								break;
-							case VAT.Vat10:
-								ValueAddedTax = 0.10m;
-								break;
-							case VAT.Vat18:
-								ValueAddedTax = 0.18m;
-								break;
-							case VAT.Vat20:
-								ValueAddedTax = 0.20m;
-								break;
-							default:
-								ValueAddedTax = 0m;
-								break;
-						}
+					CalculateVATType();
 				}
 			}
 		}
@@ -88,7 +72,7 @@ namespace Vodovoz.Domain.Orders
 
 				if(SetField(ref price, value, () => Price)) {
 					RecalculateDiscount();
-					RecalculateNDS();
+					RecalculateVAT();
 				}
 			}
 		}
@@ -109,7 +93,7 @@ namespace Vodovoz.Domain.Orders
 				if(SetField(ref count, value)) {
 					Order?.RecalculateItemsPrice();
 					RecalculateDiscount();
-					RecalculateNDS();
+					RecalculateVAT();
 					Order?.UpdateRentsCount();
 				}
 			}
@@ -121,15 +105,15 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(SetField(ref actualCount, value)) {
 					RecalculateDiscount();
-					RecalculateNDS();
+					RecalculateVAT();
 				}
 			}
 		}
 
-		decimal includeNDS;
+		decimal? includeNDS;
 
 		[Display(Name = "Включая НДС")]
-		public virtual decimal IncludeNDS {
+		public virtual decimal? IncludeNDS {
 			get => includeNDS;
 			set => SetField(ref includeNDS, value, () => IncludeNDS);
 		}
@@ -141,7 +125,7 @@ namespace Vodovoz.Domain.Orders
 			get => isDiscountInMoney;
 			set {
 				if(SetField(ref isDiscountInMoney, value, () => IsDiscountInMoney))
-					RecalculateNDS();
+					RecalculateVAT();
 			}
 		}
 
@@ -155,7 +139,7 @@ namespace Vodovoz.Domain.Orders
 					DiscountReason = null;
 				}
 				if(SetField(ref discount, value, () => Discount)) {
-					RecalculateNDS();
+					RecalculateVAT();
 				}
 			}
 		}
@@ -174,12 +158,11 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal DiscountMoney {
 			get => discountMoney;
 			set {
-				//value = value > Price * CurrentCount ? Price * CurrentCount : value;
 				if(value != discountMoney && value == 0) {
 					DiscountReason = null;
 				}
 				if(SetField(ref discountMoney, value, () => DiscountMoney))
-					RecalculateNDS();
+					RecalculateVAT();
 			}
 		}
 
@@ -528,10 +511,74 @@ namespace Vodovoz.Domain.Orders
 
 		#region Внутрение
 
-		void RecalculateNDS()
+		public virtual void CalculateVATType()
 		{
-			if(ValueAddedTax.HasValue)
+			if(!NHibernateUtil.IsInitialized(Nomenclature)) {
+				NHibernateUtil.Initialize(Nomenclature);
+			}
+			
+			if(!NHibernateUtil.IsInitialized(Order)) {
+				NHibernateUtil.Initialize(Order);
+			}
+			
+			if(Order == null || Nomenclature == null) {
+				return;
+			}
+			
+			VAT vat = CanUseVAT() ? Nomenclature.VAT : VAT.No;
+			
+			switch(vat) {
+				case VAT.No:
+					ValueAddedTax = 0m;
+					break;
+				case VAT.Vat10:
+					ValueAddedTax = 0.10m;
+					break;
+				case VAT.Vat18:
+					ValueAddedTax = 0.18m;
+					break;
+				case VAT.Vat20:
+					ValueAddedTax = 0.20m;
+					break;
+				default:
+					ValueAddedTax = 0m;
+					break;
+			}
+
+			RecalculateVAT();
+		}
+		
+		private void RecalculateVAT()
+		{
+			if(Order == null) {
+				return;
+			}
+			if(!CanUseVAT()) {
+				IncludeNDS = null;
+				return;
+			}
+			
+			if(CanUseVAT() && IncludeNDS.HasValue) {
+				return;
+			}
+			
+			if(CanUseVAT() && ValueAddedTax.HasValue) {
 				IncludeNDS = Math.Round(ActualSum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
+			}
+		}
+
+		private bool CanUseVAT()
+		{
+			if(!NHibernateUtil.IsInitialized(Order)) {
+				NHibernateUtil.Initialize(Order);
+			}
+
+			bool canUseVAT = true;
+			if(Order.Contract?.Organization != null) {
+				canUseVAT = !Order.Contract.Organization.WithoutVAT;
+			}
+
+			return canUseVAT;
 		}
 
 		#endregion

@@ -445,7 +445,7 @@ namespace Vodovoz.ExportTo1c
 					new PropertyNode(
 						"СуммаНДС",
 						Common1cTypes.Numeric,
-						orderItem.IncludeNDS //FIXME Нужно будет сделать что бы всегда соответствало количетству.
+						orderItem.IncludeNDS ?? 0 //FIXME Нужно будет сделать что бы всегда соответствало количетству.
 					)
 				);
 			} else {

@@ -138,6 +138,13 @@ namespace Vodovoz.Domain.Organizations
             get => cashBox;
             set => SetField(ref cashBox, value);
         }
+        
+        private bool withoutVAT;
+        [Display(Name = "Без НДС")]
+        public virtual bool WithoutVAT {
+            get => withoutVAT;
+            set => SetField(ref withoutVAT, value);
+        }
 
         #endregion
     }
