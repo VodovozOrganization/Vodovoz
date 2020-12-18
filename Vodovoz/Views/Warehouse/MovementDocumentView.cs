@@ -6,6 +6,9 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Documents;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.Journals;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 
 namespace Vodovoz.Views.Warehouse
 {
@@ -29,8 +32,13 @@ namespace Vodovoz.Views.Warehouse
 			ylabelDiscrepancyAccepterValue.Binding.AddBinding(ViewModel.Entity, e => e.DiscrepancyAccepter, w => w.Visible, new NullToBooleanConverter()).InitializeFromSource();
 			ylabelDiscrepancyAccepter.Binding.AddBinding(ViewModel.Entity, e => e.DiscrepancyAccepter, w => w.Visible, new NullToBooleanConverter()).InitializeFromSource();
 
-			yentryrefWagon.SubjectType = typeof(MovementWagon);
+			//yentryrefWagon.SubjectType = typeof(MovementWagon);
+			yentryrefWagon.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<MovementWagon, MovementWagonJournalViewModel, MovementWagonJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
+				);
 			yentryrefWagon.Binding.AddBinding(ViewModel.Entity, e => e.MovementWagon, w => w.Subject).InitializeFromSource();
+
+			yentryrefWagon.CanEditReference = false;
 			yentryrefWagon.Binding.AddBinding(ViewModel, vm => vm.CanChangeWagon, w => w.Sensitive).InitializeFromSource();
 			ylabelWagon.Binding.AddBinding(ViewModel, vm => vm.CanVisibleWagon, w => w.Visible).InitializeFromSource();
 			yentryrefWagon.Binding.AddBinding(ViewModel, vm => vm.CanVisibleWagon, w => w.Visible).InitializeFromSource();

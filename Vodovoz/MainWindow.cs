@@ -80,6 +80,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
 using Vodovoz.Parameters;
+using Vodovoz.Journals;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -651,10 +653,9 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionTransportationWagonActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<MovementWagon>(),
-			() => new OrmReference(typeof(MovementWagon))
-		);
+		var movingWagonFilter = new MovementWagonJournalFilterViewModel();
+		var movingWagonJournal = new MovementWagonJournalViewModel(movingWagonFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(movingWagonJournal);
 	}
 
 	protected void OnActionRegrandingOfGoodsTempalteActivated(object sender, EventArgs e)

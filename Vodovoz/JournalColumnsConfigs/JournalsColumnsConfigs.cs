@@ -18,14 +18,14 @@ using Vodovoz.Representations;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalNodes;
-using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using WrapMode = Pango.WrapMode;
+using Vodovoz.Journals;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
-	public static class JournalsColumnsConfigs
+    public static class JournalsColumnsConfigs
 	{
 		static Gdk.Color colorBlack = new Gdk.Color(0, 0, 0);
 		static Gdk.Color colorRed = new Gdk.Color(0xfe, 0x5c, 0x5c);
@@ -479,6 +479,13 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Модель").AddTextRenderer(x => x.Model).WrapWidth(300).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Гос. номер").AddTextRenderer(x => x.RegistrationNumber)
 					.AddColumn("Водитель").AddTextRenderer(x => x.DriverName)
+					.Finish()
+			);
+
+			TreeViewColumnsConfigFactory.Register<MovementWagonJournalViewModel>(
+				() => FluentColumnsConfig<MovementWagonJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(x => x.Name)
 					.Finish()
 			);
 

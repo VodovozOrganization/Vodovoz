@@ -38,7 +38,7 @@ namespace Vodovoz.Views.Warehouse
 
 		private global::Gtk.HBox hboxWagon;
 
-		private global::Gamma.Widgets.yEntryReference yentryrefWagon;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry yentryrefWagon;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelAuthor;
 
@@ -254,14 +254,12 @@ namespace Vodovoz.Views.Warehouse
 			this.hboxWagon.Name = "hboxWagon";
 			this.hboxWagon.Spacing = 6;
 			// Container child hboxWagon.Gtk.Box+BoxChild
-			this.yentryrefWagon = new global::Gamma.Widgets.yEntryReference();
+			this.yentryrefWagon = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.yentryrefWagon.Events = ((global::Gdk.EventMask)(256));
 			this.yentryrefWagon.Name = "yentryrefWagon";
 			this.hboxWagon.Add(this.yentryrefWagon);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxWagon[this.yentryrefWagon]));
 			w17.Position = 0;
-			w17.Expand = false;
-			w17.Fill = false;
 			this.tableInfo.Add(this.hboxWagon);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableInfo[this.hboxWagon]));
 			w18.TopAttach = ((uint)(3));
