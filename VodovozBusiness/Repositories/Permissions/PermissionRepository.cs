@@ -41,12 +41,6 @@ namespace Vodovoz.Repositories.Permissions
 		{
 			return new EntityRepositories.Permissions.PermissionRepository().GetAllSubdivisionForUserEntityPermissions(uow, userId);
 		}
-
-		public static bool HasAccessToClosingRoutelist()
-		{
-			return new EntityRepositories.Permissions.PermissionRepository().HasAccessToClosingRoutelist(SubdivisionParametersProvider.Instance, EmployeeSingletonRepository.GetInstance());
-		}
 	}
-
 
 }
