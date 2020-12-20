@@ -3,8 +3,10 @@ using System.Linq;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Services;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Permissions
@@ -104,16 +106,10 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.SingleOrDefault();
 		}
 
-		public bool HasAccessToClosingRoutelist(ISubdivisionService subdivisionService, IEmployeeRepository employeeRepository)
+		public bool HasAccessToClosingRoutelist(IUnitOfWork uow, ISubdivisionRepository subdivisionRepository , IEmployeeRepository employeeRepository, IUserService userService)
 		{
-			int restrictSubdivision = subdivisionService.GetSubdivisionIdForRLAccept();
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				var userSubdivision = employeeRepository.GetEmployeeForCurrentUser(uow).Subdivision;
-				if(userSubdivision == null) {
-					return false;
-				}
-				return userSubdivision.Id != restrictSubdivision;
-			}
+			return userService.GetCurrentUser(uow).IsAdmin
+				|| subdivisionRepository.GetCashSubdivisions(uow).Contains(employeeRepository.GetEmployeeForCurrentUser(uow).Subdivision);
 		}
 
 		public HierarchicalPresetSubdivisionPermission GetPresetSubdivisionPermission(IUnitOfWork uow, Subdivision subdivision, string permission)
