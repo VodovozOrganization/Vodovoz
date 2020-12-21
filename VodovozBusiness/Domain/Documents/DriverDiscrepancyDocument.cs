@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -9,9 +9,9 @@ using Vodovoz.Domain.Logistic;
 namespace Vodovoz.Domain.Documents
 {
     [Appellative(Gender = GrammaticalGender.Masculine,
-        NominativePlural = "документы доставки",
-        Nominative = "документ доставки")]
-    public class DeliveryDocument : Document
+        Nominative = "документ расхождения разгрузки водителя",
+        NominativePlural = "документы расхождения разгрузки водителя")]
+    public class DriverDiscrepancyDocument : Document
     {
         #region Сохраняемые свойства
 
@@ -25,23 +25,24 @@ namespace Vodovoz.Domain.Documents
             }
         }
 
-        private RouteListItem routeListItem;
-        public virtual RouteListItem RouteListItem {
-            get => routeListItem;
-            set => SetField(ref routeListItem, value, () => RouteListItem);
+        private RouteList routeList;
+        [Display(Name = "Маршрутный лист")]
+        public virtual RouteList RouteList {
+            get => routeList;
+            set => SetField(ref routeList, value);
         }
         
-        private IList<DeliveryDocumentItem> items = new List<DeliveryDocumentItem>();
-        [Display(Name = "Строки документа доставки")]
-        public virtual IList<DeliveryDocumentItem> Items {
+        private IList<DriverDiscrepancyDocumentItem> items = new List<DriverDiscrepancyDocumentItem>();
+        [Display(Name = "Строки документа расхождения разгрузки водителя")]
+        public virtual IList<DriverDiscrepancyDocumentItem> Items {
             get => items;
-            set => SetField(ref items, value, () => Items);
+            set => SetField(ref items, value);
         }
 
-        private GenericObservableList<DeliveryDocumentItem> observableItems;
+        private GenericObservableList<DriverDiscrepancyDocumentItem> observableItems;
         //FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-        public virtual GenericObservableList<DeliveryDocumentItem> ObservableItems => 
-            observableItems ?? (observableItems = new GenericObservableList<DeliveryDocumentItem>(Items));
+        public virtual GenericObservableList<DriverDiscrepancyDocumentItem> ObservableItems => 
+            observableItems ?? (observableItems = new GenericObservableList<DriverDiscrepancyDocumentItem>(Items));
 
         #endregion
 
