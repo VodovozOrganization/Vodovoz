@@ -859,6 +859,12 @@
     <Compile Include="Domain\Client\AdditionalAgreement.cs" />
     <Compile Include="Models\IFixedPricesModel.cs" />
     <Compile Include="Models\CounterpartyFixedPricesModel.cs" />
+    <Compile Include="Journal\INodeAutocompleteSelector.cs" />
+    <Compile Include="Journal\INodeSelector.cs" />
+    <Compile Include="Journal\JournalSelectedNodesNodesEventArgs.cs" />
+    <Compile Include="Journal\INodeSelectorFactory.cs" />
+    <Compile Include="Journal\INodeAutocompleteSelectorFactory.cs" />
+    <Compile Include="Journal\NodeAutocompleteSelectorFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -944,6 +950,7 @@
     <Folder Include="HibernateMapping\BusinessTasks\" />
     <Folder Include="Domain\Orders\OrdersWithoutShipment\" />
     <Folder Include="Models\" />
+    <Folder Include="Journal\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">

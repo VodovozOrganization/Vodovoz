@@ -1034,7 +1034,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionHistoryLogActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(new QS.HistoryLog.Dialogs.HistoryView());
+		tdiMain.AddTab(new Vodovoz.Dialogs.HistoryView());
 	}
 
 	protected void OnAction45Activated(object sender, EventArgs e)

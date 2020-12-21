@@ -22,6 +22,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using WrapMode = Pango.WrapMode;
 using Vodovoz.Journals;
+using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -776,6 +777,45 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => 
 							c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? colorDarkGrey : colorBlack)
+					.Finish()
+			);
+
+
+			//UserJournalViewModel
+			TreeViewColumnsConfigFactory.Register<UserJournalViewModel>(
+				() => FluentColumnsConfig<UserJournalNode>.Create()
+					.AddColumn("Код")
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Имя")
+						.AddTextRenderer(node => node.Name)
+					.AddColumn("Логин")
+						.AddTextRenderer(node => node.Login)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) =>
+							c.ForegroundGdk = n.Deactivated ? colorDarkGrey : colorBlack)
+					.Finish()
+			);
+
+			//HistoryTraceObjectJournalViewModel
+			TreeViewColumnsConfigFactory.Register<HistoryTraceObjectJournalViewModel>(
+				() => FluentColumnsConfig<HistoryTraceObjectNode>.Create()
+					.AddColumn("Имя")
+						.AddTextRenderer(node => node.DisplayName)
+					.AddColumn("Тип")
+						.AddTextRenderer(node => node.ObjectType.ToString())
+					.AddColumn("")
+					.Finish()
+			);
+
+			//HistoryTracePropertyJournalViewModel
+			TreeViewColumnsConfigFactory.Register<HistoryTracePropertyJournalViewModel>(
+				() => FluentColumnsConfig<HistoryTracePropertyNode>.Create()
+					.AddColumn("Имя")
+						.AddTextRenderer(node => node.PropertyName)
+					.AddColumn("Тип")
+						.AddTextRenderer(node => node.PropertyPath)
+					.AddColumn("")
 					.Finish()
 			);
 		}
