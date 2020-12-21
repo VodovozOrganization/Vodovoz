@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.Widgets;
 using NHibernate;
 using NHibernate.Criterion;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.HistoryLog.Domain;
@@ -24,7 +25,7 @@ namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.DisplayName("Просмотр журнала изменений")]
 	[WidgetWindow(DefaultWidth = 852, DefaultHeight = 600)]
-	public partial class HistoryView : QS.Dialog.Gtk.TdiTabBase
+	public partial class HistoryView : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		List<ChangedEntity> changedEntities;
@@ -35,9 +36,9 @@ namespace Vodovoz.Dialogs
 		private IDiffFormatter diffFormatter = new PangoDiffFormater();
 		private HistoryTracePropertyJournalViewModel historyTracePropertyJournalViewModel;
 
-		IUnitOfWork UoW;
+        public IUnitOfWork UoW { get; private set; }
 
-		public HistoryView()
+        public HistoryView()
 		{
 			this.Build();
 

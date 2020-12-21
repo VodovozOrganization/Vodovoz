@@ -8,6 +8,7 @@ using Gamma.Binding.Core;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
+using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi;
@@ -141,7 +142,7 @@ namespace Vodovoz.JournalViewers
 				return;
 			}
 
-			InternalSetEntryText(Subject.ToString()); // Заголовок???
+			InternalSetEntryText(DomainHelper.GetTitle(Subject)); // Тащит DomainModelEntity, надо избавиться
 		}
 
 		private void InternalSetEntryText(string text)
@@ -195,9 +196,6 @@ namespace Vodovoz.JournalViewers
 				logger.Warn("Родительская вкладка не найдена.");
 				return;
 			}
-
-			//ITdiTab dlg = entityConfig.CreateDialog(Subject);
-			//mytab.TabParent.AddTab(dlg, mytab);
 		}
 
 		protected virtual void OnChanged()
