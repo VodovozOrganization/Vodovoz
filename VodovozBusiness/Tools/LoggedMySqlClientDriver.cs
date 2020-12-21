@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.Linq;
 using NHibernate.Driver;
 using NLog;
@@ -31,7 +32,7 @@ namespace Vodovoz.Tools
 				string parameterValue;
 
 				if(parameter.Value != DBNull.Value && (parameter.DbType == DbType.Date || parameter.DbType == DbType.DateTime)) {
-					parameterValue = ((DateTime)parameter.Value).ToString("yyyy-MM-dd hh:mm:ss");
+					parameterValue = ((DateTime)parameter.Value).ToString("s", CultureInfo.CreateSpecificCulture("ru-RU"));
 				}
 				else {
 					parameterValue = parameter.Value.ToString();
