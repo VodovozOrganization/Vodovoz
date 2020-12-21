@@ -336,5 +336,9 @@ namespace Vodovoz.JournalViewers
 			cts.Cancel();
 			base.OnDestroyed();
 		}
+
+		protected void OnButtonViewEntityClicked(object sender, EventArgs e)
+		{
+		}
 	}
 }

@@ -81,6 +81,11 @@ namespace Vodovoz.JournalViewers
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.entryObject.FocusOutEvent += new global::Gtk.FocusOutEventHandler(this.OnEntryObjectFocusOutEvent);
+			this.entryObject.Changed += new global::System.EventHandler(this.OnEntryObjectChanged);
+			this.buttonClear.Clicked += new global::System.EventHandler(this.OnButtonClearClicked);
+			this.buttonSelectEntity.Clicked += new global::System.EventHandler(this.OnButtonSelectEntityClicked);
+			this.buttonViewEntity.Clicked += new global::System.EventHandler(this.OnButtonViewEntityClicked);
 		}
 	}
 }

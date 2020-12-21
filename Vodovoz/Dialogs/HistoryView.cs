@@ -41,6 +41,8 @@ namespace Vodovoz.Dialogs
 		{
 			this.Build();
 
+			historyTracePropertyJournalViewModel = new HistoryTracePropertyJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices.InteractiveService);
+
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			comboAction.ItemsEnum = typeof(EntityChangeOperation);

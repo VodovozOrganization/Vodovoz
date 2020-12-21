@@ -2,6 +2,7 @@
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Employees;
@@ -48,8 +49,15 @@ namespace Vodovoz.Journals
             return result;
         };
 
-        protected override Func<UserViewModel> CreateDialogFunction => () => throw new NotImplementedException();
+        protected override Func<UserViewModel> CreateDialogFunction => () => new UserViewModel(
+			   EntityUoWBuilder.ForCreate(),
+			   UnitOfWorkFactory,
+			   commonServices
+		   );
 
-        protected override Func<UserJournalNode, UserViewModel> OpenDialogFunction => (node) => throw new NotImplementedException();
+		protected override Func<UserJournalNode, UserViewModel> OpenDialogFunction => (node) => new UserViewModel(
+			   EntityUoWBuilder.ForOpen(node.Id),
+			   UnitOfWorkFactory,
+			   commonServices);
     }
 }

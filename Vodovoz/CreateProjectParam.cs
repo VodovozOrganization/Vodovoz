@@ -163,6 +163,7 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.Views.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -241,6 +242,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<NomenclatureViewModel, NomenclatureView>()
 				.RegisterWidgetForTabViewModel<FinancialDistrictsSetViewModel, FinancialDistrictsSetView>()
 				.RegisterWidgetForTabViewModel<MovementWagonViewModel, MovementWagonView>()
+				.RegisterWidgetForTabViewModel<UserViewModel, UserView>()
 				;
 
 			//Регистрация виджетов
@@ -279,6 +281,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<FinancialDistrictsSetsJournalFilterViewModel, FinancialDistrictsSetsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<FixedPricesViewModel, FixedPricesView>()
 				.RegisterWidgetForWidgetViewModel<MovementWagonJournalFilterViewModel, MovementWagonJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<UserJournalFilterViewModel, UserJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
