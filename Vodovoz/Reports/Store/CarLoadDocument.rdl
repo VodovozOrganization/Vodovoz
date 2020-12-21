@@ -18,7 +18,7 @@
         <CommandText>SELECT
     IF (scldi.item_expiration_date_percent IS NOT NULL
     	AND nomenclature.category = 'water',
-    	CONCAT(nomenclature.name, " &gt;", scldi.item_expiration_date_percent, " срока годности"),
+    	CONCAT(nomenclature.name, " &gt;", scldi.item_expiration_date_percent, "% срока годности"),
     nomenclature.name) AS nomenclature,
     nomenclature.category,
     measurement_units.name AS unit,
@@ -82,7 +82,7 @@ ORDER BY clmn_for_sorting;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Doc">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	route_lists.id AS route_list_id,
@@ -127,7 +127,7 @@ LIMIT 1
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -159,7 +159,7 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Equipment">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>#OrderItem
 SELECT 
@@ -197,7 +197,7 @@ GROUP BY n.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="official_name">
           <DataField>official_name</DataField>
           <TypeName>System.String</TypeName>
@@ -217,7 +217,7 @@ GROUP BY n.id</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="EquipmentOnlineStore">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT o2.e_shop_order FROM store_car_load_documents scld 
 INNER JOIN store_car_load_document_items scldi ON scldi.car_load_document_id = scld.id 
@@ -236,7 +236,7 @@ GROUP BY o2.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="e_shop_order">
           <DataField>e_shop_order</DataField>
           <TypeName>System.Int32</TypeName>
@@ -2254,7 +2254,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         <FontSize>10pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >='N' + {digits}</Format>
+                        <Format>='N' + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2489,7 +2489,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         <FontSize>10pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >='N' + {digits}</Format>
+                        <Format>='N' + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3258,7 +3258,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </Filter>
         </Filters>
       </Table>
-      <Line Name="Line2" >
+      <Line Name="Line2">
         <Height>135.47pt</Height>
         <Width>0.00pt</Width>
         <Style>
@@ -3293,7 +3293,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="id">
       <DataType>Integer</DataType>
       <DefaultValue>

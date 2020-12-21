@@ -771,7 +771,7 @@ namespace Vodovoz
 			this.ycheckExpirationDateControl = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckExpirationDateControl.CanFocus = true;
 			this.ycheckExpirationDateControl.Name = "ycheckExpirationDateControl";
-			this.ycheckExpirationDateControl.Label = global::Mono.Unix.Catalog.GetString("Контроль срока годности");
+			this.ycheckExpirationDateControl.Label = global::Mono.Unix.Catalog.GetString("Контроль срока годности %");
 			this.ycheckExpirationDateControl.DrawIndicator = true;
 			this.ycheckExpirationDateControl.UseUnderline = true;
 			this.table5.Add(this.ycheckExpirationDateControl);
