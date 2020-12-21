@@ -1517,6 +1517,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Store.MovementWagonView.cs" />
     <Compile Include="JournalViewers\MovementWagonJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.MovementWagonJournalFilterView.cs" />
+    <Compile Include="JournalViewers\NodeViewModelEntry.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.NodeViewModelEntry.cs" />
+    <Compile Include="Dialogs\HistoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.HistoryView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -251,6 +251,14 @@
     <Compile Include="Journals\Nodes\Cash\FuelDocumentJournalNode.cs" />
     <Compile Include="ViewModels\FinancialDistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Goods\FixedPricesViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\HistoryTracePropertyNode.cs" />
+    <Compile Include="Journals\JournalNodes\HistoryTraceObjectNode.cs" />
+    <Compile Include="Journals\JournalViewModels\HistoryTrace\HistoryTracePropertyJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\HistoryTrace\HistoryTraceObjectJournalViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Employees\UserJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\UserJournalViewModel.cs" />
+    <Compile Include="ViewModels\Users\UserViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />
