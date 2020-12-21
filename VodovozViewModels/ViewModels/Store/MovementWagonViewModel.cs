@@ -14,8 +14,8 @@ namespace Vodovoz.ViewModels.ViewModels.Store
             ICommonServices commonServices)
             : base(ctorParam, unitOfWorkFactory, commonServices)
         {
-            if (!CanRead)
-                AbortOpening("У вас недостаточно прав для просмотра");
+            if (!CanCreateOrUpdate)
+                AbortOpening("У вас недостаточно прав");
             TabName = "Фуры";
         }
 
