@@ -558,10 +558,6 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 			
-			if(CanUseVAT() && IncludeNDS.HasValue) {
-				return;
-			}
-			
 			if(CanUseVAT() && ValueAddedTax.HasValue) {
 				IncludeNDS = Math.Round(ActualSum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
 			}
