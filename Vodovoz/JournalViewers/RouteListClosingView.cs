@@ -126,6 +126,7 @@ namespace Vodovoz
 				if(rl == null) {
 					return;
 				}
+				UoW.Session.Refresh(rl);
 				rl.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, callTaskWorker);
 				rl.WasAcceptedByCashier = false;
 				UoW.Save(rl);
