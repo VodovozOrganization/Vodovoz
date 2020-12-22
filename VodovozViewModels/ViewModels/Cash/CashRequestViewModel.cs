@@ -61,15 +61,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             else
                 TabName = $"{Entity.Title}";
 
-            #region Permissions
-
-            // CanRevertPayFromOrder = CommonServices.PermissionService.ValidateUserPresetPermission("can_revert_pay_from_order", CurrentUser.Id);
-           
             int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-            // UserRole = getUserRole(userId);
-            UserRole = UserRole.RequestCreator;
-
-            #endregion Permissions
+            UserRole = getUserRole(userId);
         }
 
         #region Commands
@@ -185,8 +178,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                                                 Entity.State == CashRequest.States.PartiallyClosed ||
                                                 Entity.State == CashRequest.States.Canceled;
         public bool CanCancel=> Entity.State == CashRequest.States.Submited || 
-                                ((Entity.State == CashRequest.States.Agreed ||
-                                  Entity.State == CashRequest.States.GivenForTake) && UserRole == UserRole.Coordinator);
+                                ((Entity.State == CashRequest.States.GivenForTake) && UserRole == UserRole.Coordinator);
 
         #endregion Permissions
         
@@ -238,15 +230,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             return builder.ToString();
         }
 
-        // protected override void BeforeSave()
-        // {
-        //     foreach (CashRequestSumItem cashRequestSumItem in Entity.ObservableSums)
-        //     {
-        //         cashRequestSumItem.CashRequest = Entity;
-        //         UoW.Save(cashRequestSumItem);
-        //     }    
-        // }
-        
         public bool AfterSave(out string messageText)
         {
             if (SumsGiven.Count != 0) {
