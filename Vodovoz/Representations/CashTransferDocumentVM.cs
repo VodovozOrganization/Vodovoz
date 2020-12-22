@@ -16,6 +16,7 @@ using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModelBased;
 using Vodovoz.Repository.Cash;
+using Vodovoz.JournalFilters.Cash;
 
 namespace Vodovoz.Representations
 {
@@ -25,13 +26,20 @@ namespace Vodovoz.Representations
 
 		private CashTransferDocumentVMNode resultAlias = null;
 
-		public CashTransferDocumentVM(IUnitOfWorkFactory unitOfWorkFactory)
+        public CashTransferDocumentsFilter Filter
+        {
+            get => RepresentationFilter as CashTransferDocumentsFilter;
+            set => RepresentationFilter = value as IRepresentationFilter;
+        }
+
+        public CashTransferDocumentVM(IUnitOfWorkFactory unitOfWorkFactory, CashTransferDocumentsFilter cashTransferDocumentsFilter)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			RepresentationFilter = null;
-			JournalFilter = null;
+			Filter = cashTransferDocumentsFilter;
+            Filter.UoW = UoW;
+            JournalFilter = Filter;
 
 			RegisterIncomeTransfer();
 			RegisterCommonTransfer();
@@ -84,7 +92,11 @@ namespace Vodovoz.Representations
 
 				var incomeTransferQuery = UoW.Session.QueryOver<IncomeCashTransferDocument>(() => incomeTransferAlias);
 
-				incomeTransferResultList = incomeTransferQuery
+                if(Filter.CashTransferDocumentStatus != null ) {
+                    incomeTransferQuery.Where(ctd => ctd.Status == Filter.CashTransferDocumentStatus);
+                }
+
+                incomeTransferResultList = incomeTransferQuery
 					.JoinQueryOver(() => incomeTransferAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => incomeTransferAlias.CashierSender, () => cashierSenderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => incomeTransferAlias.CashierReceiver, () => cashierReceiverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -160,7 +172,12 @@ namespace Vodovoz.Representations
 
 				var commonTransferQuery = UoW.Session.QueryOver<CommonCashTransferDocument>(() => commonTransferAlias);
 
-				commonTransferResultList = commonTransferQuery
+                if (Filter.CashTransferDocumentStatus != null)
+                {
+                    commonTransferQuery.Where(ctd => ctd.Status == Filter.CashTransferDocumentStatus);
+                }
+
+                commonTransferResultList = commonTransferQuery
 					.JoinQueryOver(() => commonTransferAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => commonTransferAlias.CashierSender, () => cashierSenderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => commonTransferAlias.CashierReceiver, () => cashierReceiverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
