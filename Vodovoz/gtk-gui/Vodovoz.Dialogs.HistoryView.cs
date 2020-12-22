@@ -360,6 +360,12 @@ namespace Vodovoz.Dialogs
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.selectperiod.DatesChanged += new global::System.EventHandler(this.OnSelectperiodDatesChanged);
+			this.entrySearchValue.Activated += new global::System.EventHandler(this.OnEntrySearchValueActivated);
+			this.entrySearchEntity.Activated += new global::System.EventHandler(this.OnEntrySearchEntityActivated);
+			this.comboAction.Changed += new global::System.EventHandler(this.OnComboActionChanged);
+			this.buttonSearch.Clicked += new global::System.EventHandler(this.OnButtonSearchClicked);
+			this.btnFilter.Clicked += new global::System.EventHandler(this.OnBtnFilterClicked);
 		}
 	}
 }
