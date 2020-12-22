@@ -61,15 +61,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             else
                 TabName = $"{Entity.Title}";
 
-            #region Permissions
-
-            // CanRevertPayFromOrder = CommonServices.PermissionService.ValidateUserPresetPermission("can_revert_pay_from_order", CurrentUser.Id);
-           
             int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-            // UserRole = getUserRole(userId);
-            UserRole = UserRole.RequestCreator;
-
-            #endregion Permissions
+            UserRole = getUserRole(userId);
         }
 
         #region Commands
@@ -238,15 +231,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             return builder.ToString();
         }
 
-        // protected override void BeforeSave()
-        // {
-        //     foreach (CashRequestSumItem cashRequestSumItem in Entity.ObservableSums)
-        //     {
-        //         cashRequestSumItem.CashRequest = Entity;
-        //         UoW.Save(cashRequestSumItem);
-        //     }    
-        // }
-        
         public bool AfterSave(out string messageText)
         {
             if (SumsGiven.Count != 0) {

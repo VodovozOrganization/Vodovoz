@@ -199,19 +199,7 @@ namespace Vodovoz.Domain.Cash
             get => organization;
             set => SetField(ref organization, value);
         }
-        //Подтвердить
-        //Согласовать
-        //Передать на выдачу
-        //Отменить
-        //Отправить на пересогласование SubmitForRenegotiation
-        
-        //Баланс по нашим организациям
-        //Наша организация
-        //Статья расхода
-        
-        //Причина отправки на пересогласование
-        //Причина отмены
-        
+
         private IList<CashRequestSumItem> sums = new List<CashRequestSumItem>();
         [Display(Name = "Суммы")]
         public virtual IList<CashRequestSumItem> Sums  {
@@ -301,8 +289,6 @@ namespace Vodovoz.Domain.Cash
                     "Необходимо заполнить организацию",
                     new[] { this.GetPropertyName(o => o.Basis)});
             }
-            
-            
         }
         #endregion IValidatableObject implementation
 

@@ -3,7 +3,6 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Views.GtkUI;
@@ -148,7 +147,6 @@ namespace Vodovoz.Dialogs.Cash
 			ybtnApprove.Clicked += (sender, args) => ViewModel.ApproveCommand.Execute();
 			ybtnCancel.Clicked += (sender, args) => ViewModel.CancelCommand.Execute();
 			//Передать на выдачу
-			
 			ybtnConveyForResults.Clicked += (sender, args) => ViewModel.ConveyForResultsCommand.Execute();
 			//Отправить на пересогласование
 			ybtnReturnForRenegotiation.Clicked += (sender, args) => ViewModel.ReturnToRenegotiationCommand.Execute();
@@ -249,7 +247,6 @@ namespace Vodovoz.Dialogs.Cash
 				.AddColumn("Выдано")
 					.HeaderAlignment(0.5f)
 					.AddToggleRenderer(n => n.Expense != null).Editing(false)
-					// .XAlign(0.5f)
 					
 				.Finish();
 			
