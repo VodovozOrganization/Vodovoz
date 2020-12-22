@@ -1,6 +1,4 @@
-﻿using System;
-using FluentNHibernate.Data;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Views.GtkUI;
@@ -71,7 +69,6 @@ namespace Vodovoz.Filters.GtkViews
 			//Для Роли Согласователя по-умолчанию Создана Подана,
 			//для Роли Финансиста - Согласована,
 			//для Кассира - Передана на Выдачу,
-			//для остальных - все кроме Закрыта и Отменена
 			
 			//Иные роли - только видят только свои заявки, поэтому нужно скрытиь фильтр по авторам
 			if (userRole == UserRole.Coordinator){
@@ -81,7 +78,6 @@ namespace Vodovoz.Filters.GtkViews
 			} else if (userRole == UserRole.Cashier){
 				yenumcomboStatus.SelectedItem = CashRequest.States.GivenForTake;
 			} else if (userRole == UserRole.Other){
-				// yenumcomboStatus.ItemsEnum = typeof(CashRequest.StatesForOthersFilter); //cannot be converted to type
 				AuthorEntityviewmodelentry.Visible = false;
 				label3.Visible = false;
 			}

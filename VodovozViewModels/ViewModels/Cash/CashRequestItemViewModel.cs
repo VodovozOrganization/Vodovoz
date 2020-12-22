@@ -22,12 +22,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         ) 
             : base(uowBuilder, unitOfWorkFactory, commonServices) 
         {
-            //У новых нужен родитель
-            // if (uowBuilder.IsNewEntity)
-            //     this.Entity.CashRequest = cashRequest ?? throw new ArgumentNullException(nameof(cashRequest));
-            
             this.UserRole = userRole;
-            
         }
         
         //Создана - только для невыданных сумм - Заявитель, Согласователь
@@ -47,15 +42,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand SaveCommand => saveCommand ?? (saveCommand = new DelegateCommand(
             () => {
                 SaveAndClose();
-                // if (Validate())
-                // {
-                //     // Entity.CashRequest.AddItem(Entity);
-                //     // UoW.Save(Entity);
-                //     
-                //     Save();
-                //     Close(false, CloseSource.Save);
-                //     
-                // }
 
             }, () => true
         ));
