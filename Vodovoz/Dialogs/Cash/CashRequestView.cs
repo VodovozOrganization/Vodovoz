@@ -142,7 +142,6 @@ namespace Vodovoz.Dialogs.Cash
 			{
 				ViewModel.AcceptCommand.Execute();
 				ybtnAccept.Visible = false;
-				ybtnCancel.Visible = true;
 			};
 			ybtnApprove.Clicked += (sender, args) => ViewModel.ApproveCommand.Execute();
 			ybtnCancel.Clicked += (sender, args) => ViewModel.CancelCommand.Execute();
