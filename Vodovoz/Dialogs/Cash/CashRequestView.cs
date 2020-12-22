@@ -46,7 +46,11 @@ namespace Vodovoz.Dialogs.Cash
 					})
 			);
 			AuthorEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, x => x.Author, w => w.Subject).InitializeFromSource();
-			ViewModel.Entity.Author = currentEmployee;
+
+			if (ViewModel.IsNewEntity)
+			{
+				ViewModel.Entity.Author = currentEmployee;
+			}
 			AuthorEntityviewmodelentry.Sensitive = false;
 			
 			//Подразделение
@@ -152,10 +156,12 @@ namespace Vodovoz.Dialogs.Cash
 			
 			ybtnGiveSumm.Clicked += (sender, args) => ViewModel.GiveSumCommand.Execute();
 			ybtnGiveSumm.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
+			ybtnGiveSumm.Sensitive = false;
 			
 			ybtnAddSumm.Clicked += (sender, args) => ViewModel.AddSumCommand.Execute();
 			ybtnEditSum.Clicked += (sender, args) => ViewModel.EditSumCommand.Execute();
 			ybtnDeleteSumm.Clicked += (sender, args) => ViewModel.DeleteSumCommand.Execute();
+			ybtnEditSum.Binding.AddBinding(ViewModel, vm => vm.CanEditSumSensitive, w => w.Sensitive).InitializeFromSource();
 			
 			//Visible
 			ybtnAccept.Binding.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Visible).InitializeFromSource();
@@ -164,8 +170,8 @@ namespace Vodovoz.Dialogs.Cash
 			ybtnConveyForResults.Binding.AddBinding(ViewModel, vm => vm.CanConveyForResults, w => w.Visible).InitializeFromSource();
 			ybtnReturnForRenegotiation.Binding.AddBinding(ViewModel, vm => vm.CanReturnToRenegotiation, w => w.Visible).InitializeFromSource();
 			ybtnDeleteSumm.Binding.AddBinding(ViewModel, vm => vm.CanDeleteSum, w => w.Visible).InitializeFromSource();
-
-			buttonSave.Clicked += AfterSave;
+			ybtnEditSum.Visible = false;
+			buttonSave.Clicked += (sender, args) => ViewModel.AfterSaveCommand.Execute();
 			buttonCancel.Clicked += (s, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
 			
 			#endregion
@@ -194,6 +200,13 @@ namespace Vodovoz.Dialogs.Cash
 			
 			yentryCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 			labelCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
+
+			if (ViewModel.UserRole == UserRole.RequestCreator)
+			{
+				hseparator1.Visible = false;
+				hseparator2.Visible = false;
+				hseparator3.Visible = false;
+			}
 			
 			#endregion Visibility
 
@@ -215,13 +228,13 @@ namespace Vodovoz.Dialogs.Cash
 			ylabelStatus.Text = ViewModel.Entity.State.GetEnumTitle();
 		}
 
-		private void AfterSave(object sender, EventArgs e)
-		{
-			ViewModel.SaveAndClose();
-
-			if (ViewModel.AfterSave(out var messageText))
-				MessageDialogHelper.RunInfoDialog($"Cозданы следующие авансы:\n" + messageText);
-		}
+		// private void AfterSave(object sender, EventArgs e)
+		// {
+		// 	ViewModel.SaveAndClose();
+		//
+		// 	if (ViewModel.AfterSave(out var messageText))
+		// 		MessageDialogHelper.RunInfoDialog($"Cозданы следующие авансы:\n" + messageText);
+		// }
 
 
 		private void ConfigureTreeView()
@@ -268,13 +281,12 @@ namespace Vodovoz.Dialogs.Cash
 		private void OnyTreeViewSumsSelectionChanged(object sender, EventArgs e)
 		{
 			bool isSensetive = ytreeviewSums.Selection.CountSelectedRows() > 0;
-
-			if (isSensetive)
-			{
+			if (isSensetive){
 				ViewModel.SelectedItem = ytreeviewSums.GetSelectedObject<CashRequestSumItem>();
-
 				ybtnDeleteSumm.Sensitive = isSensetive;
 				ybtnGiveSumm.Sensitive = ViewModel.SelectedItem != null && ViewModel.SelectedItem.Expense == null;
+				//Редактировать можно только невыданные
+				ybtnEditSum.Visible = ViewModel.SelectedItem != null && ViewModel.SelectedItem.Expense == null;
 			}
 			
 		}

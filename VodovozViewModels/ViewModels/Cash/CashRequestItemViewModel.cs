@@ -6,6 +6,8 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
@@ -18,11 +20,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            UserRole userRole
+            UserRole userRole,
+            Employee currentEmployee
         ) 
             : base(uowBuilder, unitOfWorkFactory, commonServices) 
         {
             this.UserRole = userRole;
+            Entity.AccountableEmployee = currentEmployee;
         }
         
         //Создана - только для невыданных сумм - Заявитель, Согласователь

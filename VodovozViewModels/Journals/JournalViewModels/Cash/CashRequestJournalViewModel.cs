@@ -3,24 +3,18 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Deletion;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.DataLoader;
 using QS.Project.Services;
 using QS.Project.Services.Interactive;
 using QS.Services;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Cash.Requests;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
@@ -66,7 +60,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 typeof(Subdivision),
                 typeof(Employee)
             );
-       
         }
 
         protected override Func<IUnitOfWork, IQueryOver<CashRequest>> ItemsSourceQueryFunction => (uow) =>
@@ -84,8 +77,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 .Left.JoinAlias(() => cashRequestSumItemAlias.AccountableEmployee, () => accountableEmployeeAlias);
             
             if(FilterViewModel != null) {
-                // Период, подотчетное лицо, Статус, Автор
-              
                 if(FilterViewModel.StartDate.HasValue)
                     result.Where(() => cashRequestAlias.Date >= FilterViewModel.StartDate.Value);
                 if(FilterViewModel.EndDate.HasValue)
@@ -110,8 +101,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 var currentEmployeeId = employeeRepository.GetEmployeesForUser(uow, userId).First().Id;
                 result.Where(() => cashRequestAlias.Author.Id == currentEmployeeId);
             }
-            
-            
+
             var authorProjection = Projections.SqlFunction(
                 new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?1, ?2, ?3)"),
                 NHibernateUtil.String,
@@ -141,28 +131,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 () => cashRequestAlias.Basis
             ));
             
-            
             result.SelectList(list => list
                     .SelectGroup(c => c.Id)
                     .Select(c => c.Id).WithAlias(() => resultAlias.Id)
                     .Select(c => c.Date).WithAlias(() => resultAlias.Date)
                     .Select(c => c.State).WithAlias(() => resultAlias.State)
                     .Select(c => c.DocumentType).WithAlias(() => resultAlias.DocumentType) 
-                    // .Select(c => c.Sums.First().AccountableEmployee).WithAlias(() => resultAlias.AccountablePerson) 
                     .Select(authorProjection).WithAlias(() => resultAlias.Author)
                     .SelectSubQuery(cashReuestSumSubquery).WithAlias(() => resultAlias.Sum)
                     .Select(c => c.Basis).WithAlias(() => resultAlias.Basis)
                 ).TransformUsing(Transformers.AliasToBean<CashRequestJournalNode>())
                 .OrderBy(x => x.Date);
-            
-          
             return result;
-           
         };
 
         protected override void CreateNodeActions()
         {
-            // base.CreateNodeActions();
             NodeActionsList.Clear();
             CreateDefaultSelectAction();
             CreateDefaultAddActions();

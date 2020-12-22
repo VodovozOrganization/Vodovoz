@@ -65,7 +65,6 @@ namespace Vodovoz.Filters.GtkViews
 				w => w.SelectedItem);
 
 			UserRole? userRole = ViewModel.GetUserRole();
-			userRole = UserRole.Other;
 			//Для Роли Согласователя по-умолчанию Создана Подана,
 			//для Роли Финансиста - Согласована,
 			//для Кассира - Передана на Выдачу,

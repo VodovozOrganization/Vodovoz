@@ -131,6 +131,10 @@
     <EmbeddedResource Include="toolbars\cash.xml">
       <LogicalName>cash.xml</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="toolbars\general.xml">
+      <LogicalName>general.xml</LogicalName>
+    </EmbeddedResource>
+    
     <EmbeddedResource Include="toolbars\accounting.xml">
       <LogicalName>accounting.xml</LogicalName>
     </EmbeddedResource>
