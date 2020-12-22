@@ -7,7 +7,6 @@ using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Widgets;
 using QSProjectsLib;

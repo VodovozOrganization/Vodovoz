@@ -164,6 +164,8 @@ using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.Views.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Payments;
+using Vodovoz.Views.Payments;
 
 namespace Vodovoz
 {
@@ -245,6 +247,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FinancialDistrictsSetViewModel, FinancialDistrictsSetView>()
 				.RegisterWidgetForTabViewModel<MovementWagonViewModel, MovementWagonView>()
 				.RegisterWidgetForTabViewModel<UserViewModel, UserView>()
+				.RegisterWidgetForTabViewModel<ImportRegisterOfPaymentsFromYookassaViewModel, ImportRegisterOfPaymentsFromYookassaView>()
 				;
 
 			//Регистрация виджетов
