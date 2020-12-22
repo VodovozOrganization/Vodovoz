@@ -27,14 +27,25 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         
         //Создана - только для невыданных сумм - Заявитель, Согласователь
         //Согласована - Согласователь
-        public bool CanEditOnlyinStateNRC_OrRoleCoordinator => (
-            Entity.CashRequest.State == CashRequest.States.New &&
-            Entity.Expense == null &&
-            (UserRole == UserRole.RequestCreator
-             || UserRole == UserRole.Coordinator)
-            ||
-            (Entity.CashRequest.State == CashRequest.States.Agreed &&
-             UserRole == UserRole.Coordinator));
+        public bool CanEditOnlyinStateNRC_OrRoleCoordinator
+        {
+            get
+            {
+                //В новой редактирование всегда разрешено
+                if (Entity.CashRequest == null){
+                    return true;
+                } else {
+                    return (
+                        Entity.CashRequest.State == CashRequest.States.New &&
+                        Entity.Expense == null &&
+                        (UserRole == UserRole.RequestCreator
+                         || UserRole == UserRole.Coordinator)
+                        ||
+                        (Entity.CashRequest.State == CashRequest.States.Agreed &&
+                         UserRole == UserRole.Coordinator));
+                }
+            }
+        }
 
         #region Commands
 
