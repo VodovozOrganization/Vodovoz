@@ -28,9 +28,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace
                     new JournalSelectedNodesNodesEventArgs(e.SelectedObjects.OfType<JournalNodeBase>().ToArray())
                 );
             };
-		}
+        }
 
-		private Type objectType;
+        private Type objectType;
 
         public Type ObjectType
         {
@@ -70,9 +70,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace
         };
 
         public event EventHandler ListUpdated;
-		public event EventHandler<JournalSelectedNodesNodesEventArgs> OnEntitySelectedResult;
+        public event EventHandler<JournalSelectedNodesNodesEventArgs> OnEntitySelectedResult;
 
-		public void SearchValues(params string[] values)
+        public void SearchValues(params string[] values)
         {
             Search.SearchValues = values;
         }
