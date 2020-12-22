@@ -1531,6 +1531,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CashRequestJournalFilterView.cs" />
     <Compile Include="Dialogs\Cash\CashRequestItemView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashRequestItemView.cs" />
+    <Compile Include="JournalFilters\Cash\CashTransferDocumentsFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.Cash.CashTransferDocumentsFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
