@@ -68,18 +68,17 @@ namespace Vodovoz.Dialogs.Cash
 			
 			
 			#region Visibility
-			// TODO gavr сенсативити чето неправильная, или правильная а у тя не та роль при проверке
-			// yspinsum.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
-			// label1.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
-			//
-			// ydateDate.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
-			// label3.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
-			//
-			// AccountableEntityviewmodelentry3.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
-			// label7.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
-			//
-			// yentryComment.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
-			// label8.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
+			yspinsum.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
+			label1.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
+			
+			ydateDate.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
+			label3.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
+			
+			AccountableEntityviewmodelentry3.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
+			label7.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
+			
+			yentryComment.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
+			label8.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
 
 			#endregion
 		}

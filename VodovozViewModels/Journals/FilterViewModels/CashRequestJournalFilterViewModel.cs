@@ -3,8 +3,6 @@ using QS.Project.Filter;
 using QS.Project.Services;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels
@@ -29,7 +27,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
             set => UpdateFilterField(ref startDate, value);
         }
 
-        private DateTime? endDate; //= DateTime.Now;
+        private DateTime? endDate; 
         public virtual DateTime? EndDate {
             get => endDate;
             set => UpdateFilterField(ref endDate, value);
@@ -52,7 +50,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
             } else if (CashRequestViewModel.checkRole("role_сashier", userId)) {
                 return UserRole.Cashier;
             } else {
-                //Тут неважно что вернется роль создатель, тк кк нет условий на скрытие фильтров для создателя заявки
                 return UserRole.Other;
             }
         }
