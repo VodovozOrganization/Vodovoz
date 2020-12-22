@@ -189,12 +189,7 @@ namespace Vodovoz.Dialogs
 			logger.Info(NumberToTextRus.FormatCase(changedEntities.Count, "Загружено изменение {0}{1} объекта.", "Загружено изменение {0}{1} объектов.", "Загружено изменение {0}{1} объектов.", takenAll ? "" : "+"));
 		}
 
-		protected void OnComboUsersChanged(object sender, EventArgs e)
-		{
-			UpdateJournal();
-		}
-
-		private void OnObjectChangedByUser(object sender, EventArgs e)
+        private void OnObjectChangedByUser(object sender, EventArgs e)
 		{
 			historyTracePropertyJournalViewModel.ObjectType = entryObject3.Subject is HistoryTraceObjectNode node ? node.ObjectType : null;
 			UpdateJournal();
@@ -206,11 +201,6 @@ namespace Vodovoz.Dialogs
 		}
 
 		protected void OnSelectperiodDatesChanged(object sender, EventArgs e)
-		{
-			UpdateJournal();
-		}
-
-		protected void OnComboPropertyItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			UpdateJournal();
 		}
