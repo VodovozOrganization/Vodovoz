@@ -46,14 +46,12 @@ namespace Vodovoz.Dialogs.Cash
 			var filter = new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default };
 
 			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () => {
-					return new SubdivisionsJournalViewModel(
-						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices,
-						employeeSelectorFactory
-					);
-				})
+				new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () => new SubdivisionsJournalViewModel(
+					filter,
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices,
+					employeeSelectorFactory
+				))
 			);
 			SubdivisionEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.Subject).InitializeFromSource();
 			#endregion

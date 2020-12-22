@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1329,11 +1329,13 @@
     <Compile Include="Dialogs\Employees\DriverWorkScheduleNode.cs" />
     <Compile Include="ErrorHandlers.cs" />
     <Compile Include="ViewModels\TransferDocumentsFromBankParser.cs" />
+    <Compile Include="Views\PaymentLoaderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.PaymentLoaderView.cs" />
     <Compile Include="ViewModels\PaymentLoaderViewModel.cs" />
     <Compile Include="ViewModels\AutoPaymentMatching.cs" />
     <Compile Include="JournalViewModels\PaymentsJournalViewModel.cs" />
     <Compile Include="JournalNodes\PaymentJournalNode.cs" />
+    <Compile Include="Views\ManualPaymentMatchingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ManualPaymentMatchingView.cs" />
     <Compile Include="ViewModels\ManualPaymentMatchingViewModel.cs" />
     <Compile Include="Filters\ViewModels\PaymentsJournalFilterViewModel.cs" />
@@ -1523,8 +1525,12 @@
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.UserJournalFilterView.cs" />
     <Compile Include="Views\UserView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.UserView.cs" />
-    <Compile Include="Views\Payments\ManualPaymentMatchingView.cs" />
-    <Compile Include="Views\Payments\PaymentLoaderView.cs" />
+    <Compile Include="Dialogs\Cash\CashRequestView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashRequestView.cs" />
+    <Compile Include="Filters\GtkViews\CashRequestJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CashRequestJournalFilterView.cs" />
+    <Compile Include="Dialogs\Cash\CashRequestItemView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashRequestItemView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -57,6 +57,8 @@
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />
     <Compile Include="Controllers\RouteListClosingDocumentsController.cs" />
     <Compile Include="Controllers\IRouteListClosingDocumentsController.cs" />
+    <Compile Include="Domain\Cash\CashRequest.cs" />
+    <Compile Include="Domain\Cash\CashRequestSumItem.cs" />
     <Compile Include="Domain\Cash\AdvanceCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\ExpenseCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\FuelCashOrganisationDistributor.cs" />
@@ -111,11 +113,15 @@
     <Compile Include="EntityRepositories\Documents\SelfDeliveryCashDistributionDocumentRepository.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
+    <Compile Include="EntityRepositories\Cash\Requests\CashRequestRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\Requests\ICashRequestRepository.cs" />
     <Compile Include="EntityRepositories\Counterparty\CounterpartyContractRepository.cs" />
     <Compile Include="EntityRepositories\Counterparty\ICounterpartyContractRepository.cs" />
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Orders\ExtendedReceiptForOrderNode.cs" />
+    <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
+    <Compile Include="HibernateMapping\Cash\CashRequestMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentMap.cs" />
