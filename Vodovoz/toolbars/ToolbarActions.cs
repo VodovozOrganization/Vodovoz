@@ -67,6 +67,7 @@ using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Interfaces;
 using Action = Gtk.Action;
 using Vodovoz.Old1612ExportTo1c;
+using Vodovoz.JournalFilters.Cash;
 
 public partial class MainWindow : Window
 {
@@ -634,7 +635,8 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			RepresentationJournalDialog.GenerateHashName<CashTransferDocumentVM>(),
 			() => {
-				var vm = new CashTransferDocumentVM(UnitOfWorkFactory.GetDefaultFactory);
+				var vm = new CashTransferDocumentVM(UnitOfWorkFactory.GetDefaultFactory,
+                    new CashTransferDocumentsFilter());
 				return new MultipleEntityJournal("Журнал перемещения д/с", vm, vm);
 			}
 		);
