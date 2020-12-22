@@ -1,9 +1,14 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.EntityRepositories.Cash
 {
@@ -44,6 +49,40 @@ namespace Vodovoz.EntityRepositories.Cash
 				.Select (Projections.Sum<Income> (o => o.Money)).SingleOrDefault<decimal> ();
 
 			return income - expense;
+		}
+		
+		public decimal CurrentCashForOrganization (IUnitOfWork uow, Organization organization)
+		{
+			decimal expense = uow.Session.QueryOver<Expense>()
+				.Where(x => x.Organisation == organization)
+				.Select (Projections.Sum<Expense> (o => o.Money)).SingleOrDefault<decimal> ();
+
+			decimal income = uow.Session.QueryOver<Income>()
+				.Where(x => x.Organisation == organization)
+				.Select (Projections.Sum<Income> (o => o.Money)).SingleOrDefault<decimal> ();
+
+			return income - expense;
+		}
+
+		public IList<OperationNode> GetCashBalanceForOrganizations(IUnitOfWork uow)
+		{
+			Organization organizationAlias = null;
+			OrganisationCashMovementOperation operationAlias = null;
+			OperationNode resultAlias = null;
+
+			var query = uow.Session.QueryOver(() => organizationAlias)
+				.JoinEntityAlias(() => operationAlias, 
+					() => organizationAlias.Id == operationAlias.Organisation.Id,
+					JoinType.LeftOuterJoin
+				)
+				.SelectList(list => list
+					.SelectGroup(() => organizationAlias.Id)
+					.Select(Projections.Sum(() => operationAlias.Amount)).WithAlias(() => resultAlias.Balance)
+					.Select(() => organizationAlias.Name).WithAlias(() => resultAlias.Name))
+				.TransformUsing(Transformers.AliasToBean<OperationNode>())
+				.List<OperationNode>();
+
+			return query;
 		}
 
 		public decimal CurrentCashForSubdivision(IUnitOfWork uow, Subdivision subdivision)
@@ -105,6 +144,13 @@ namespace Vodovoz.EntityRepositories.Cash
 				.Select(Projections.Sum<CashTransferOperation>(o => o.TransferedSum))
 				.SingleOrDefault<decimal>();
 		}
+		
+		public class OperationNode
+		{
+			public decimal Balance { get; set; }
+			public string Name { get; set; }
+		}
+		
 	}
 }
 

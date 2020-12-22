@@ -708,6 +708,44 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
+			
+			//CashRequestJournalViewModel
+			TreeViewColumnsConfigFactory.Register<CashRequestJournalViewModel>(
+				() => FluentColumnsConfig<CashRequestJournalNode>.Create()
+					.AddColumn("№")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+						.XAlign(0.5f)
+					.AddColumn("Дата создания")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Date.ToShortDateString())
+						.XAlign(0.5f)
+					.AddColumn("Тип документа")
+						.HeaderAlignment(0.5f)
+						.AddEnumRenderer(n => n.DocumentType)
+						.XAlign(0.5f)
+					.AddColumn("Статус")
+						.HeaderAlignment(0.5f)
+						.AddEnumRenderer(n => n.State)
+						.XAlign(0.5f)
+					.AddColumn("Автор")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n =>  n.Author )
+						.XAlign(0.5f)
+					.AddColumn("Сумма")
+						.HeaderAlignment(0.5f)
+						.AddNumericRenderer(n => n.Sum)
+						.XAlign(0.5f)
+					.AddColumn("Основание")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Basis)
+						.XAlign(0.5f)
+
+					.AddColumn("")
+					// .RowCells()
+					// .AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+					.Finish()
+			);
 
 			//LateArrivalReasonsJournalViewModel
 			TreeViewColumnsConfigFactory.Register<LateArrivalReasonsJournalViewModel>(

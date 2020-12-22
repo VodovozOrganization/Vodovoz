@@ -425,6 +425,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action MangoAction;
 
+	private global::Gtk.Action ActionCashRequest;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -1103,6 +1105,9 @@ public partial class MainWindow
 		this.MangoAction = new global::Gtk.Action("MangoAction", global::Mono.Unix.Catalog.GetString("Mango"), null, "phone-disable");
 		this.MangoAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Mango");
 		w1.Add(this.MangoAction, null);
+		this.ActionCashRequest = new global::Gtk.Action("ActionCashRequest", global::Mono.Unix.Catalog.GetString("Заявка на выдачу ДС"), null, null);
+		this.ActionCashRequest.ShortLabel = global::Mono.Unix.Catalog.GetString("Заявка на выдачу ДС");
+		w1.Add(this.ActionCashRequest, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -1552,6 +1557,7 @@ public partial class MainWindow
 		this.ActionCashBook.Activated += new global::System.EventHandler(this.OnCashBoolReportActivated);
 		this.Action68.Activated += new global::System.EventHandler(this.OnActionNetworkDelayReportActivated);
 		this.ActionProducedProductionReport.Activated += new global::System.EventHandler(this.OnActionProducedProductionReportActivated);
+		this.ActionCashRequest.Activated += new global::System.EventHandler(this.OnActionCashRequestReportActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
