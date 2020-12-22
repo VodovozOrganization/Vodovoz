@@ -51,8 +51,8 @@ namespace Vodovoz.Domain.Cash
                     {
                         var oldSum = addressDistributedSum;
                         var sum = (addressDistributedSum + amount) >= address.TotalCash
-                            ? address.TotalCash
-                            : addressDistributedSum + amount;
+                            ? address.TotalCash - addressDistributedSum
+                            : amount;
 
                         var newOperation = CreateOrganisationCashMovementOperation(uow, address);
                         newOperation.Amount = sum;
