@@ -178,8 +178,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                                                 Entity.State == CashRequest.States.PartiallyClosed ||
                                                 Entity.State == CashRequest.States.Canceled;
         public bool CanCancel=> Entity.State == CashRequest.States.Submited || 
-                                ((Entity.State == CashRequest.States.Agreed ||
-                                  Entity.State == CashRequest.States.GivenForTake) && UserRole == UserRole.Coordinator);
+                                ((Entity.State == CashRequest.States.GivenForTake) && UserRole == UserRole.Coordinator);
 
         #endregion Permissions
         
