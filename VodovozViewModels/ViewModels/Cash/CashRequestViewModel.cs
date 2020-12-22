@@ -62,8 +62,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 TabName = $"{Entity.Title}";
 
             int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
+            var isAdmin = ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+            IsAdminPanelVisible = isAdmin;
+            
             UserRole = getUserRole(userId);
-            UserRole = UserRole.RequestCreator;
+            
             IsNewEntity = uowBuilder.IsNewEntity;
         }
 
@@ -151,6 +154,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         #region Properties
 
         public bool IsNewEntity { get; private set; }
+        public bool IsAdminPanelVisible { get; set; }
+
         public CashRequestSumItem SelectedItem { get; set; }
         
         #region Editability
@@ -166,7 +171,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanEditSumVisible => UserRole == UserRole.RequestCreator || UserRole == UserRole.Coordinator;
         //редактировать можно только не выданные
         public bool CanEditSumSensitive => SelectedItem != null && SelectedItem.Expense == null;
-
 
 
         #endregion Editability

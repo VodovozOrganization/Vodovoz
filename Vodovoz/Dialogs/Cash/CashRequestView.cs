@@ -92,18 +92,31 @@ namespace Vodovoz.Dialogs.Cash
 			
 			ExpenseCategoryEntityviewmodelentry.CanEditReference = true;
 			
+			#endregion EntityViewModelEntry
+
+			#region Combo
+			
 			//Организация
 			speccomboOrganization.SetRenderTextFunc<Organization>(s => s.Name);
 			var orgList = ViewModel.UoW.Session.QueryOver<Organization>().List();
 			speccomboOrganization.ItemsList = orgList;
 			speccomboOrganization.Binding.AddBinding(
-				ViewModel.Entity, 
-				x => x.Organization, 
-				x => x.SelectedItem)
+					ViewModel.Entity, 
+					x => x.Organization, 
+					x => x.SelectedItem)
 				.InitializeFromSource();
 			speccomboOrganization.SelectedItem = orgList.First();
 			
-			#endregion EntityViewModelEntry
+			//Смена ролей для админов   
+			comboIfAdminRoleChooser.ItemsEnum = typeof(UserRole);
+			comboIfAdminRoleChooser.Binding.AddBinding(
+				ViewModel,
+				e => e.UserRole,
+				w => w.SelectedItem);
+			comboIfAdminRoleChooser.Visible = ViewModel.IsAdminPanelVisible;
+			comboIfAdminRoleChooser.Visible = false;
+
+			#endregion
 
 			#region TextEntry
 
@@ -114,7 +127,7 @@ namespace Vodovoz.Dialogs.Cash
 					e => e.Explanation, 
 					(widget) => widget.Text)
 				.InitializeFromSource();
-			
+
 			//Основание
 			yentryGround.Binding
 				.AddBinding(
@@ -224,18 +237,10 @@ namespace Vodovoz.Dialogs.Cash
 
 			ylabelBalansOrganizations.Text = ViewModel.LoadOrganizationsSums();
 
+			// ylabelRole.Binding.AddBinding(ViewModel, vm => vm.UserRole.GetEnumTitle(), w => w.Text);
 			ylabelRole.Text = ViewModel.UserRole.GetEnumTitle();
 			ylabelStatus.Text = ViewModel.Entity.State.GetEnumTitle();
 		}
-
-		// private void AfterSave(object sender, EventArgs e)
-		// {
-		// 	ViewModel.SaveAndClose();
-		//
-		// 	if (ViewModel.AfterSave(out var messageText))
-		// 		MessageDialogHelper.RunInfoDialog($"Cозданы следующие авансы:\n" + messageText);
-		// }
-
 
 		private void ConfigureTreeView()
 		{
