@@ -273,7 +273,12 @@ public partial class MainWindow : Gtk.Window
 		SwitchToUI("Vodovoz.toolbars.CRM.xml");
 	}
 
-	protected void OnActionOrganizationsActivated(object sender, EventArgs e)
+    protected void OnActionGeneralActivated(object sender, EventArgs e)
+    {
+        SwitchToUI("Vodovoz.toolbars.general.xml");
+    }
+
+    protected void OnActionOrganizationsActivated(object sender, EventArgs e)
 	{
 		OrmReference refWin = new OrmReference(typeof(Organization));
 		tdiMain.AddTab(refWin);
@@ -354,13 +359,13 @@ public partial class MainWindow : Gtk.Window
 	{
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
-		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-				.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
+        IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
+                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
 				nomenclatureRepository, UserSingletonRepository.GetInstance());
 
 		tdiMain.OpenTab(
@@ -1720,4 +1725,6 @@ public partial class MainWindow : Gtk.Window
 			)
 		);
 	}
+
+   
 }

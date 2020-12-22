@@ -371,7 +371,6 @@ namespace Vodovoz.Dialogs.Cash
 			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table1[this.hseparator2]));
 			w27.TopAttach = ((uint)(13));
 			w27.BottomAttach = ((uint)(14));
-			w27.LeftAttach = ((uint)(1));
 			w27.RightAttach = ((uint)(2));
 			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -382,7 +381,6 @@ namespace Vodovoz.Dialogs.Cash
 			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table1[this.hseparator3]));
 			w28.TopAttach = ((uint)(16));
 			w28.BottomAttach = ((uint)(17));
-			w28.LeftAttach = ((uint)(1));
 			w28.RightAttach = ((uint)(2));
 			w28.XOptions = ((global::Gtk.AttachOptions)(4));
 			w28.YOptions = ((global::Gtk.AttachOptions)(4));

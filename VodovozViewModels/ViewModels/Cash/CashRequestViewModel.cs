@@ -63,6 +63,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
             int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
             UserRole = getUserRole(userId);
+            UserRole = UserRole.RequestCreator;
+            IsNewEntity = uowBuilder.IsNewEntity;
         }
 
         #region Commands
@@ -75,7 +77,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     EntityUoWBuilder.ForCreateInChildUoW(UoW),
                     unitOfWorkFactory,
                     CommonServices,
-                    UserRole
+                    UserRole,
+                    CurrentEmployee
                 );
                 
                 TabParent.AddSlaveTab(
@@ -102,7 +105,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     EntityUoWBuilder.ForOpenInChildUoW(SelectedItem.Id, UoW),
                     unitOfWorkFactory,
                     CommonServices,
-                    UserRole
+                    UserRole,
+                    CurrentEmployee
                 );
                 
                 TabParent.AddSlaveTab(
@@ -118,6 +122,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 {	
                     Entity.ObservableSums.Remove(SelectedItem);
                 }
+            }, () => true
+        ));
+        
+        private DelegateCommand afterSaveCommand;
+        public DelegateCommand AfterSaveCommand => afterSaveCommand ?? (afterSaveCommand = new DelegateCommand(
+            () => {
+                SaveAndClose();
+
+                if (AfterSave(out var messageText))
+                    CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"Cозданы следующие авансы:\n{messageText}" );
             }, () => true
         ));
             
@@ -136,6 +150,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
         #region Properties
 
+        public bool IsNewEntity { get; private set; }
         public CashRequestSumItem SelectedItem { get; set; }
         
         #region Editability
@@ -147,6 +162,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                                                               Entity.State == CashRequest.States.Agreed ||
                                                               Entity.State == CashRequest.States.GivenForTake) &&
                                                              UserRole == UserRole.Financier;
+
+        public bool CanEditSumVisible => UserRole == UserRole.RequestCreator || UserRole == UserRole.Coordinator;
+        //редактировать можно только не выданные
+        public bool CanEditSumSensitive => SelectedItem != null && SelectedItem.Expense == null;
+
 
 
         #endregion Editability
@@ -179,6 +199,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                                                 Entity.State == CashRequest.States.Canceled;
         public bool CanCancel=> Entity.State == CashRequest.States.Submited || 
                                 ((Entity.State == CashRequest.States.GivenForTake) && UserRole == UserRole.Coordinator);
+        
+        
 
         #endregion Permissions
         
