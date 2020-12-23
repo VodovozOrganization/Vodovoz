@@ -65,8 +65,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             var isAdmin = ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
             IsAdminPanelVisible = isAdmin;
             
-            // UserRole = getUserRole(userId);
-            UserRole = UserRole.Coordinator;
+            UserRole = getUserRole(userId);
+            // UserRole = UserRole.Coordinator;
             IsNewEntity = uowBuilder.IsNewEntity;
         }
 
