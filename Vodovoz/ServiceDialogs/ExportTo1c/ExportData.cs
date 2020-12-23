@@ -351,7 +351,7 @@ namespace Vodovoz.ExportTo1c
 				exportRetailDocument.Tables.Add(exportGoodsTable);
 			}
 
-			bool isTerminalPaid = (order.PaymentType == PaymentType.ByCard);
+			bool isTerminalPaid = (order.PaymentType == PaymentType.ByCard || order.PaymentType == PaymentType.Terminal);
 			
 			foreach (var orderItem in order.OrderItems)
 			{
@@ -367,6 +367,7 @@ namespace Vodovoz.ExportTo1c
 								orderItem.ActualSum
 							)
 						);//оплаты безналом
+						exportRetailDocument.Tables[1].Records.Add(recordPayment);
 					}
 			}
 			
