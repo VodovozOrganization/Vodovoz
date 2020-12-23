@@ -140,7 +140,6 @@ namespace Vodovoz
 				ytextviewRouteListInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				carloaddocumentview1.Sensitive = false;
 
-
 				buttonSave.Sensitive = false;
 			} else {
 				Entity.CanEdit = true;

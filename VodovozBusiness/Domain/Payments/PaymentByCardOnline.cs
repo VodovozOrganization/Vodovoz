@@ -1,29 +1,39 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Payments
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "платежи",
-		Nominative = "платёж",
-		Prepositional = "платеже",
-		PrepositionalPlural = "платежах"
+		NominativePlural = "платежи по карте",
+		Nominative = "платёж по карте",
+		Prepositional = "платеже по карте",
+		PrepositionalPlural = "платежах по карте"
 	)]
-	public class PaymentFromTinkoff : BusinessObjectBase<PaymentFromTinkoff>, IDomainObject
+	public class PaymentByCardOnline : BusinessObjectBase<PaymentByCardOnline>, IDomainObject
 	{
 		#region конструкторы
 
-		public PaymentFromTinkoff() { }
+		public PaymentByCardOnline() { }
 
-		public PaymentFromTinkoff(string[] data) => CreateInstance(data);
+		public PaymentByCardOnline(string[] data, bool fromTinkoff)
+		{
+			if (fromTinkoff) {
+				CreateInstanceFromTinkoff(data);
+			}
+			else {
+				CreateInstanceFromYookassa(data);
+			}
+		} 
 
 		/// <summary>
 		/// Создать объект из массива строк
 		/// </summary>
 		/// <param name="data">Поля объекта</param>
-		void CreateInstance(string[] data)
+		void CreateInstanceFromTinkoff(string[] data)
 		{
 			//Для разбора дат и сумм.
 			var culture = CultureInfo.CreateSpecificCulture("ru-RU");
@@ -56,10 +66,32 @@ namespace Vodovoz.Domain.Payments
 
 			Phone = data[7];
 		}
+		
+		void CreateInstanceFromYookassa(string[] data)
+		{
+			var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+			culture.NumberFormat.NumberDecimalSeparator = ".";
+			
+			if(!decimal.TryParse(data[1].Trim(), NumberStyles.AllowDecimalPoint, culture.NumberFormat, out paymentRUR))
+				paymentRUR = 0m;
+			
+			DateAndTime = ParseDate(data[4].Trim());
+
+			if(!int.TryParse(GetNumberFromDescription(data[6]), out paymentNr))
+				paymentNr = 0;
+
+			PaymentStatus = PaymentStatus.CONFIRMED;
+
+			Email = GetEmailFromDescription(data[6]);
+		}
 
 		private DateTime ParseDate(string dateStr)
 		{
 			if(DateTime.TryParseExact(dateStr, "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.None, out DateTime result)) {
+				return result;
+			}
+			
+			if(DateTime.TryParseExact(dateStr, "dd.MM.yyyy HH:mm:ss", null, DateTimeStyles.None, out result)) {
 				return result;
 			}
 
@@ -140,6 +172,41 @@ namespace Vodovoz.Domain.Payments
 		public virtual bool Selectable { get; set; }
 		public virtual bool IsDuplicate { get; set; }
 		public virtual string Color { get; set; }
+		
+		private string GetNumberFromDescription(string description)
+		{
+			string pattern = @"(\s|№)([0-9]{1,})";
+
+			var matches = Regex.Matches(description, pattern);
+			string[] str = new string[matches.Count];
+
+			for(int i = 0; i < matches.Count; i++) {
+				str[i] = matches[i].Groups[2].Value;
+			}
+			
+			return str.FirstOrDefault();
+		}
+
+		private string GetEmailFromDescription(string description)
+		{
+			string pattern = @"[a-zA-Z]+[\.a-zA-Z0-9_-]*[a-zA-Z0-9]+@[a-zA-Z]+\.[a-zA-Z]+";
+
+			var matches = Regex.Matches(description, pattern);
+
+			if (matches.Count > 0)
+			{
+				string[] str = new string[matches.Count];
+
+				for (int i = 0; i < matches.Count; i++)
+				{
+					str[i] = matches[i].Value;
+				}
+
+				return str.FirstOrDefault();
+			}
+
+			return string.Empty;
+		}
 	}
 
 	/// <summary>

@@ -138,7 +138,15 @@ namespace VodovozMangoService.HostedServices
 			var from = info.LastEvent.from;
 			Caller caller;
 			if (String.IsNullOrEmpty(from.extension))
-				caller = GetExternalCaller(from.number);
+			{
+				if(!String.IsNullOrEmpty(from.number))
+					caller = GetExternalCaller(from.number);
+				else
+				{
+					caller = new Caller();
+					logger.Error($"Не можем определить кто на линии from.extension и from.number пустые. Событие: {info.LastEvent}");
+				}
+			}
 			else
 				caller = GetInternalCaller(from.extension);
 
@@ -174,7 +182,15 @@ namespace VodovozMangoService.HostedServices
 			var to = info.LastEvent.to;
 			Caller caller;
 			if (String.IsNullOrEmpty(to.extension))
-				caller = GetExternalCaller(to.number);
+			{
+				if(!String.IsNullOrEmpty(to.number))
+					caller = GetExternalCaller(to.number);
+				else
+				{
+					caller = new Caller();
+					logger.Error($"Не можем определить кто кому звоним to.extension и to.number пустые. Событие: {info.LastEvent}");
+				}
+			}
 			else
 				caller = GetInternalCaller(to.extension);
 
@@ -199,14 +215,25 @@ namespace VodovozMangoService.HostedServices
 				if (info.OnHoldCall.LastEvent.from.extension == transferInitiator)
 				{
 					if (String.IsNullOrEmpty(info.OnHoldCall.LastEvent.to.extension))
-						message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.to.number);
+					{
+						if(!String.IsNullOrWhiteSpace(info.OnHoldCall.LastEvent.to.number))
+							message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.to.number);
+						else
+							logger.Error($"Не можем определить кто на удержании to.extension и to.number пустые. Событие: {info.OnHoldCall.LastEvent}");
+					}
 					else
 						message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.to.extension);
 				}
 				else
 				{
 					if (String.IsNullOrEmpty(info.OnHoldCall.LastEvent.from.extension))
-						message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.from.number);
+					{
+						if(!String.IsNullOrWhiteSpace(info.OnHoldCall.LastEvent.from.number))
+							message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.from.number);
+						else
+							logger.Error(
+								$"Не можем определить кто на удержании from.extension и from.number пустые. Событие: {info.OnHoldCall.LastEvent}");
+					}
 					else
 						message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.from.extension);	
 				}

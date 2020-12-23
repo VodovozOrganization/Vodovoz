@@ -43,7 +43,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				Contract.DocumentTemplate.DocParser.SetDocObject(Contract);
 		}
 
-		public virtual IDocTemplate GetTemplate() => Contract.DocumentTemplate;
+		public virtual IDocTemplate GetTemplate() => Contract?.DocumentTemplate;
 
 		public override PrinterType PrintType => PrinterType.ODT;
 

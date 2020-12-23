@@ -1022,6 +1022,13 @@ namespace Vodovoz
 			
 			DeleteConfig.AddHibernateDeleteInfo<OrganisationCashMovementOperation>();
 
+			DeleteConfig.AddHibernateDeleteInfo<CashRequest>()
+				.AddDeleteDependence<CashRequestSumItem>(x => x.CashRequest);
+			
+			DeleteConfig.AddHibernateDeleteInfo<CashRequestSumItem>()
+				.AddDeleteCascadeDependence(x => x.Expense);
+
+			
 			#endregion
 
 			#region Топливо
@@ -1111,7 +1118,7 @@ namespace Vodovoz
 
 			#endregion
 
-			DeleteConfig.AddHibernateDeleteInfo<PaymentFromTinkoff>();
+			DeleteConfig.AddHibernateDeleteInfo<PaymentByCardOnline>();
 			DeleteConfig.AddHibernateDeleteInfo<OrderIdProviderForMobileApp>();
 
 			#region Журнал изменений

@@ -8,9 +8,9 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Table table1;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryreferenceClient;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryDeliveryPoint;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferenceDeliveryPoint;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryreferenceClient;
 
 		private global::Gtk.HBox hboxBottleDebtCount;
 
@@ -80,24 +80,25 @@ namespace Vodovoz.Filters.GtkViews
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferenceClient = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryreferenceClient.Events = ((global::Gdk.EventMask)(256));
-			this.entryreferenceClient.Name = "entryreferenceClient";
-			this.entryreferenceClient.CanEditReference = false;
-			this.table1.Add(this.entryreferenceClient);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entryreferenceClient]));
+			this.entityVMEntryDeliveryPoint = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityVMEntryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
+			this.entityVMEntryDeliveryPoint.Name = "entityVMEntryDeliveryPoint";
+			this.entityVMEntryDeliveryPoint.CanEditReference = false;
+			this.table1.Add(this.entityVMEntryDeliveryPoint);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryDeliveryPoint]));
+			w1.TopAttach = ((uint)(1));
+			w1.BottomAttach = ((uint)(2));
 			w1.LeftAttach = ((uint)(1));
 			w1.RightAttach = ((uint)(2));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferenceDeliveryPoint = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.entryreferenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
-			this.entryreferenceDeliveryPoint.Name = "entryreferenceDeliveryPoint";
-			this.table1.Add(this.entryreferenceDeliveryPoint);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entryreferenceDeliveryPoint]));
-			w2.TopAttach = ((uint)(1));
-			w2.BottomAttach = ((uint)(2));
+			this.entryreferenceClient = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryreferenceClient.Events = ((global::Gdk.EventMask)(256));
+			this.entryreferenceClient.Name = "entryreferenceClient";
+			this.entryreferenceClient.CanEditReference = false;
+			this.table1.Add(this.entryreferenceClient);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entryreferenceClient]));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));

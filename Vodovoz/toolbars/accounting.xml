@@ -8,7 +8,8 @@
         <toolitem name='ActionExportTo1c' action='ActionExportTo1c'/>
         <toolitem name='ActionOldExportTo1c' action='ActionOldExportTo1c'/>
         <toolitem name='ActionExportCounterpartiesTo1c' action='ActionExportCounterpartiesTo1c'/>
-        <toolitem name='ActionImportFromTinkoff' action='ActionImportFromTinkoff'/>
+        <toolitem name='ActionImportPaymentsByCard' action='ActionImportPaymentsByCard'/>
 		<toolitem name='ActionFinancialDistrictsSetsJournal' action='ActionFinancialDistrictsSetsJournal'/>
+        <toolitem name='ActionCashRequest' action='ActionCashRequest'/>
 	</toolbar>
 </ui>

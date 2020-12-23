@@ -1562,7 +1562,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void UpdateDeliveryDocuments(IUnitOfWork uow)
 		{
-			var controller = new DeliveryDocumentController(new BaseParametersProvider(), EmployeeSingletonRepository.GetInstance());
+			var controller = new RouteListClosingDocumentsController(new BaseParametersProvider(), EmployeeSingletonRepository.GetInstance(), new RouteListRepository());
 			controller.UpdateDocuments(this, uow);
 		}
 

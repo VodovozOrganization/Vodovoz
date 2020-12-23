@@ -1186,7 +1186,7 @@ FROM
     (
         SELECT
             i.order_id AS id,
-            ROUND(SUM(price * count - discount_money), 2) AS total
+            ROUND(SUM(price * IFNULL(actual_count, count) - discount_money), 2) AS total
         FROM
             order_items i
         GROUP BY

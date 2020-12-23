@@ -18,14 +18,15 @@ using Vodovoz.Representations;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalNodes;
-using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using WrapMode = Pango.WrapMode;
+using Vodovoz.Journals;
+using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
-	public static class JournalsColumnsConfigs
+    public static class JournalsColumnsConfigs
 	{
 		static Gdk.Color colorBlack = new Gdk.Color(0, 0, 0);
 		static Gdk.Color colorRed = new Gdk.Color(0xfe, 0x5c, 0x5c);
@@ -482,6 +483,13 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
+			TreeViewColumnsConfigFactory.Register<MovementWagonJournalViewModel>(
+				() => FluentColumnsConfig<MovementWagonJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(x => x.Name)
+					.Finish()
+			);
+
 			//PhoneTypeJournalViewModel
 			TreeViewColumnsConfigFactory.Register<PhoneTypeJournalViewModel>(
 				() => FluentColumnsConfig<PhoneTypeJournalNode>.Create()
@@ -700,6 +708,44 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
+			
+			//CashRequestJournalViewModel
+			TreeViewColumnsConfigFactory.Register<CashRequestJournalViewModel>(
+				() => FluentColumnsConfig<CashRequestJournalNode>.Create()
+					.AddColumn("№")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+						.XAlign(0.5f)
+					.AddColumn("Дата создания")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Date.ToShortDateString())
+						.XAlign(0.5f)
+					.AddColumn("Тип документа")
+						.HeaderAlignment(0.5f)
+						.AddEnumRenderer(n => n.DocumentType)
+						.XAlign(0.5f)
+					.AddColumn("Статус")
+						.HeaderAlignment(0.5f)
+						.AddEnumRenderer(n => n.State)
+						.XAlign(0.5f)
+					.AddColumn("Автор")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n =>  n.Author )
+						.XAlign(0.5f)
+					.AddColumn("Сумма")
+						.HeaderAlignment(0.5f)
+						.AddNumericRenderer(n => n.Sum)
+						.XAlign(0.5f)
+					.AddColumn("Основание")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Basis)
+						.XAlign(0.5f)
+
+					.AddColumn("")
+					// .RowCells()
+					// .AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+					.Finish()
+			);
 
 			//LateArrivalReasonsJournalViewModel
 			TreeViewColumnsConfigFactory.Register<LateArrivalReasonsJournalViewModel>(
@@ -769,6 +815,45 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => 
 							c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? colorDarkGrey : colorBlack)
+					.Finish()
+			);
+
+
+			//UserJournalViewModel
+			TreeViewColumnsConfigFactory.Register<UserJournalViewModel>(
+				() => FluentColumnsConfig<UserJournalNode>.Create()
+					.AddColumn("Код")
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Имя")
+						.AddTextRenderer(node => node.Name)
+					.AddColumn("Логин")
+						.AddTextRenderer(node => node.Login)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) =>
+							c.ForegroundGdk = n.Deactivated ? colorDarkGrey : colorBlack)
+					.Finish()
+			);
+
+			//HistoryTraceObjectJournalViewModel
+			TreeViewColumnsConfigFactory.Register<HistoryTraceObjectJournalViewModel>(
+				() => FluentColumnsConfig<HistoryTraceObjectNode>.Create()
+					.AddColumn("Имя")
+						.AddTextRenderer(node => node.DisplayName)
+					.AddColumn("Тип")
+						.AddTextRenderer(node => node.ObjectType.ToString())
+					.AddColumn("")
+					.Finish()
+			);
+
+			//HistoryTracePropertyJournalViewModel
+			TreeViewColumnsConfigFactory.Register<HistoryTracePropertyJournalViewModel>(
+				() => FluentColumnsConfig<HistoryTracePropertyNode>.Create()
+					.AddColumn("Имя")
+						.AddTextRenderer(node => node.PropertyName)
+					.AddColumn("Тип")
+						.AddTextRenderer(node => node.PropertyPath)
+					.AddColumn("")
 					.Finish()
 			);
 		}

@@ -2,9 +2,7 @@
 using Vodovoz.ViewModels;
 using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
-using QS.DomainModel.UoW;
 using Vodovoz.Domain.Payments;
-using System.Linq;
 using QSProjectsLib;
 
 namespace Vodovoz.Views

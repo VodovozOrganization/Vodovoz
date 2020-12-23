@@ -8,7 +8,7 @@ namespace Vodovoz.ServiceDialogs
 	public class PaymentsFromTinkoffParser
 	{
 		public string DocumentPath { get; private set; }
-		public List<PaymentFromTinkoff> PaymentsFromTinkoff { get; set; }
+		public List<PaymentByCardOnline> PaymentsFromTinkoff { get; set; }
 
 		public PaymentsFromTinkoffParser(string documentPath)
 		{
@@ -20,12 +20,8 @@ namespace Vodovoz.ServiceDialogs
 			PaymentsFromTinkoff = File.ReadAllLines(DocumentPath)
 			                          .Skip(1)
 			                          .Select(x => x.Split(';'))
-			                          .Select(
-				                          x => new PaymentFromTinkoff(
-					                          x.Select(y => y.Trim('"'))
-					                          .ToArray()
-					                         )
-				                         )
+			                          .Select(x => new PaymentByCardOnline(
+					                          x.Select(y => y.Trim('"')).ToArray(), true))
 			                          .ToList();
 		}
 	}

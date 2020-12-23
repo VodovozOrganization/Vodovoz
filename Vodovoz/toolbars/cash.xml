@@ -7,6 +7,6 @@
         <toolitem name='ActionRouteListClosingTable' action='ActionRouteListClosingTable'/>
         <toolitem name='ActionSelfdeliveryOrders' action='ActionSelfdeliveryOrders'/>
         <toolitem name='ActionCashTransferDocuments' action='ActionCashTransferDocuments'/>
-		<toolitem name='ActionFuelTransferDocuments' action='ActionFuelTransferDocuments'/>
+        <toolitem name='ActionFuelTransferDocuments' action='ActionFuelTransferDocuments'/>
 	</toolbar>
 </ui>
