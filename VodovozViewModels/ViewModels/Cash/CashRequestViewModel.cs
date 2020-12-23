@@ -5,6 +5,7 @@ using System.Text;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using Gamma.Utilities;
 using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Project.Services.Interactive;
@@ -32,6 +33,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         private readonly IUnitOfWorkFactory unitOfWorkFactory;
         private readonly ConsoleInteractiveService consoleInteractiveService;
         public HashSet<CashRequestSumItem> SumsGiven = new HashSet<CashRequestSumItem>();
+
+
+        public string StateName => Entity.State.GetEnumTitle();
         
         public CashRequestViewModel(
             IEntityUoWBuilder uowBuilder,
@@ -66,8 +70,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IsAdminPanelVisible = isAdmin;
             
             UserRole = getUserRole(userId);
-            // UserRole = UserRole.Coordinator;
             IsNewEntity = uowBuilder.IsNewEntity;
+            ConfigureEntityChangingRelations();
+        }
+
+        protected void ConfigureEntityChangingRelations()
+        {
+            SetPropertyChangeRelation(e => e.State,
+                () => StateName
+            );
         }
 
         #region Commands
@@ -188,11 +199,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanAddItems => CanEdit;
         public bool CanDeleteItems => CanEdit && SelectedItem != null;
         
-        public bool CanGiveSum => UserRole == UserRole.Cashier && Entity.State == CashRequest.States.GivenForTake;
+        public bool CanGiveSum => UserRole == UserRole.Cashier && (Entity.State == CashRequest.States.GivenForTake || Entity.State == CashRequest.States.PartiallyClosed);
         public bool CanDeleteSum => uowBuilder.IsNewEntity;
         //Подтвердить
         public bool CanAccept =>
-            (Entity.State == CashRequest.States.New || Entity.State == CashRequest.States.OnClarification) && UserRole == UserRole.RequestCreator;
+            (Entity.State == CashRequest.States.New || Entity.State == CashRequest.States.OnClarification);
 
         //Согласовать
         public bool CanApprove => Entity.State == CashRequest.States.Submited && UserRole == UserRole.Coordinator;
@@ -201,7 +212,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                                                 Entity.State == CashRequest.States.GivenForTake ||
                                                 Entity.State == CashRequest.States.PartiallyClosed ||
                                                 Entity.State == CashRequest.States.Canceled;
-        public bool CanCancel=> Entity.State == CashRequest.States.Submited || 
+        public bool CanCancel=> Entity.State == CashRequest.States.Submited || Entity.State == CashRequest.States.OnClarification ||
                                 ((Entity.State == CashRequest.States.GivenForTake) && UserRole == UserRole.Coordinator);
         
         

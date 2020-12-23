@@ -213,7 +213,7 @@ namespace Vodovoz.Dialogs.Cash
 			yentryCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 			labelCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 
-			if (ViewModel.UserRole == UserRole.RequestCreator)
+			if (ViewModel.Entity.State == CashRequest.States.New)
 			{
 				hseparator1.Visible = false;
 				hseparator2.Visible = false;
@@ -236,9 +236,12 @@ namespace Vodovoz.Dialogs.Cash
 
 			ylabelBalansOrganizations.Text = ViewModel.LoadOrganizationsSums();
 
-			// ylabelRole.Binding.AddBinding(ViewModel, vm => vm.UserRole.GetEnumTitle(), w => w.Text);
-			ylabelRole.Text = ViewModel.UserRole.GetEnumTitle();
+			ylabelRole.Binding.AddFuncBinding(ViewModel, vm => vm.UserRole.GetEnumTitle(), w => w.Text).InitializeFromSource();
+			ylabelStatus.Binding.AddBinding(ViewModel, vm => vm.StateName, w => w.Text).InitializeFromSource();
+
+			// ylabelRole.Text = ViewModel.UserRole.GetEnumTitle();
 			ylabelStatus.Text = ViewModel.Entity.State.GetEnumTitle();
+			
 		}
 
 		private void ConfigureTreeView()

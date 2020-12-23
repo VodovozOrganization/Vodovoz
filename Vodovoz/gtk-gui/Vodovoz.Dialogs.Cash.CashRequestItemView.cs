@@ -167,7 +167,7 @@ namespace Vodovoz.Dialogs.Cash
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yspinsum = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.yspinsum = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 100D);
 			this.yspinsum.CanFocus = true;
 			this.yspinsum.Name = "yspinsum";
 			this.yspinsum.Adjustment.PageIncrement = 10D;
