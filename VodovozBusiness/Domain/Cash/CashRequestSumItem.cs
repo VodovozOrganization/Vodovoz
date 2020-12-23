@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -60,7 +61,9 @@ namespace Vodovoz.Domain.Cash
             IUnitOfWork unitOfWork,
             Employee casher,
             Subdivision subdivision,
-            ExpenseCategory expenseCategory)
+            ExpenseCategory expenseCategory,
+            string basis,
+            Organization organization)
         {
             Expense newExpense =
             new Expense{
@@ -70,7 +73,8 @@ namespace Vodovoz.Domain.Cash
                 TypeOperation = ExpenseType.Advance,
                 ExpenseCategory = expenseCategory,
                 Money = Sum,
-                Description = Comment ?? "",
+                Description = basis ?? "",
+                Organisation = organization,
                 RelatedToSubdivision = subdivision
             };
             this.Expense = newExpense;
