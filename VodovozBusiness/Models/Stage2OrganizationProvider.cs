@@ -15,17 +15,14 @@ namespace Vodovoz.Models
     {
         private readonly IOrganizationParametersProvider organizationParametersProvider;
         private readonly IOrderPrametersProvider orderPrametersProvider;
-        private readonly IFinancialDistrictProvider financialDistrictProvider;
 
         public Stage2OrganizationProvider(
             IOrganizationParametersProvider organizationParametersProvider,
-            IOrderPrametersProvider orderPrametersProvider,
-            IFinancialDistrictProvider financialDistrictProvider
+            IOrderPrametersProvider orderPrametersProvider
             )
         {
             this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
             this.orderPrametersProvider = orderPrametersProvider ?? throw new ArgumentNullException(nameof(orderPrametersProvider));
-            this.financialDistrictProvider = financialDistrictProvider ?? throw new ArgumentNullException(nameof(financialDistrictProvider));
         }
         
         public Organization GetOrganization(IUnitOfWork uow, Order order)
@@ -96,9 +93,6 @@ namespace Vodovoz.Models
                     organizationId = organizationParametersProvider.VodovozOrganizationId;
                     break;
                 case PaymentType.cash:
-                    var organization = GetOrganizationByFinancialDistrict(uow, order);
-                    organizationId = organization.Id;
-                    break;
                 case PaymentType.Terminal:
                     organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
                     break;
@@ -119,24 +113,6 @@ namespace Vodovoz.Models
             }
 
             return uow.GetById<Organization>(organizationId);
-        }
-
-        private Organization GetOrganizationByFinancialDistrict(IUnitOfWork uow, Order order)
-        {
-            Organization organization = null;
-            if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
-                var district = financialDistrictProvider.GetFinancialDistrictOrNull(uow, order.DeliveryPoint.Latitude.Value,
-                    order.DeliveryPoint.Longitude.Value);
-                if(district != null) {
-                    organization = district.Organization;
-                }
-            }
-
-            if(organization == null) {
-                organization = uow.GetById<Organization>(organizationParametersProvider.VodovozNorthOrganizationId);
-            }
-
-            return organization;
         }
         
         public Organization GetOrganizationForOrderWithoutShipment(IUnitOfWork uow, OrderWithoutShipmentForAdvancePayment order)

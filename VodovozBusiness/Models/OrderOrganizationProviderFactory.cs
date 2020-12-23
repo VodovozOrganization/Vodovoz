@@ -8,8 +8,7 @@ namespace Vodovoz.Models
         {
             var organizationParametersProvider = new OrganizationParametersProvider(ParametersProvider.Instance); 
             var orderParametersProvider = new OrderPrametersProvider(ParametersProvider.Instance);
-            var financialDistrictProvider = new FinancialDistrictProvider(); 
-            return new Stage2OrganizationProvider(organizationParametersProvider, orderParametersProvider, financialDistrictProvider);
+            return new Stage2OrganizationProvider(organizationParametersProvider, orderParametersProvider);
         }
     }
 }
