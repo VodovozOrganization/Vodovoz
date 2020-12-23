@@ -27,7 +27,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public Employee CurrentEmployee { get; }
         public ExpenseCategoryAutoCompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
         public UserRole UserRole { get; set; }
-
+        public static UserRole savedUserRole { get; set; }
+        
         private readonly IEntityUoWBuilder uowBuilder;
         private readonly CashRepository cashRepository;
         private readonly IUnitOfWorkFactory unitOfWorkFactory;
@@ -36,7 +37,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 
         public string StateName => Entity.State.GetEnumTitle();
-        
+        public string UserRoleName => UserRole.GetEnumTitle();
+        private static bool dialogLoadedOnce = false;
         public CashRequestViewModel(
             IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
@@ -68,10 +70,23 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
             var isAdmin = ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
             IsAdminPanelVisible = isAdmin;
-            
-            UserRole = getUserRole(userId);
+
+            var currentRole = getUserRole(userId);
+            if (!dialogLoadedOnce)
+            {
+                UserRole = currentRole;
+                
+                dialogLoadedOnce = true;
+
+            }
+            else
+            {
+                UserRole = savedUserRole;
+            }
             IsNewEntity = uowBuilder.IsNewEntity;
             ConfigureEntityChangingRelations();
+
+
         }
 
         protected void ConfigureEntityChangingRelations()
@@ -257,7 +272,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 UoW, 
                 CurrentEmployee,
                 Entity.Subdivision,
-                Entity.ExpenseCategory
+                Entity.ExpenseCategory,
+                Entity.Basis,
+                Entity.Organization
             );
             if (SelectedItem != null)
                 SumsGiven.Add(SelectedItem);
@@ -285,7 +302,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 {
                     builder.Append(sum.AccountableEmployee.Name + "\t" + sum.Sum + "\n");
                 }
-
                 messageText = builder.ToString();
                 return true;
             } else {
@@ -348,8 +364,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         ));
         
         #endregion
-        
 
+
+        public void RememberRole(Object role)
+        {
+            savedUserRole = (UserRole)role;
+        }
     }
     public enum UserRole
     {
