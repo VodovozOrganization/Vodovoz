@@ -214,13 +214,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
         private UserRole getUserRole(int userId)
         {
+            
             if (checkRole("role_financier_cash_request", userId)){
                 return UserRole.Financier;
             } else if (checkRole("role_coordinator_cash_request", userId)){
                 return UserRole.Coordinator;
             } else if (checkRole("role_сashier", userId)) {
                 return UserRole.Cashier;
-            } else if (Entity.Author.Id == userId) {
+            } else if (Entity.Author.Id == CurrentEmployee.Id) {
                 return UserRole.RequestCreator;
             }
             else throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
