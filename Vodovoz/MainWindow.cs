@@ -275,7 +275,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionGeneralActivated(object sender, EventArgs e)
     {
-        SwitchToUI("Vodovoz.toolbars.general.xml");
+        SwitchToUI("general.xml");
     }
 
     protected void OnActionOrganizationsActivated(object sender, EventArgs e)

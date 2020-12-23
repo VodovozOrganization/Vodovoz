@@ -212,8 +212,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                                                 Entity.State == CashRequest.States.GivenForTake ||
                                                 Entity.State == CashRequest.States.PartiallyClosed ||
                                                 Entity.State == CashRequest.States.Canceled;
-        public bool CanCancel=> Entity.State == CashRequest.States.Submited || Entity.State == CashRequest.States.OnClarification ||
-                                ((Entity.State == CashRequest.States.GivenForTake) && UserRole == UserRole.Coordinator);
+
+        public bool CanCancel => Entity.State == CashRequest.States.Submited ||
+                                 Entity.State == CashRequest.States.OnClarification ||
+                                 Entity.State == CashRequest.States.New ||
+                                 ((Entity.State == CashRequest.States.GivenForTake) &&
+                                  UserRole == UserRole.Coordinator);
         
         
 
