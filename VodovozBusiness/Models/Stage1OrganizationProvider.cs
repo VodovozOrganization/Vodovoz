@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -31,16 +32,16 @@ namespace Vodovoz.Models
             }
             
             if (order.SelfDelivery) {
-                return GetOrganizationForSelfDelivery(uow, order.PaymentType);
+                return GetOrganizationForSelfDelivery(uow, order);
             }
             
             return GetOrganizationForOtherOptions(uow, order);
         }
 
-        private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, PaymentType paymentType)
+        private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, Order order)
         {
             int organizationId = 0;
-            switch(paymentType) {
+            switch(order.PaymentType) {
                 case PaymentType.barter:
                 case PaymentType.cashless:
                 case PaymentType.ContractDoc:
@@ -48,14 +49,22 @@ namespace Vodovoz.Models
                     break;
                 case PaymentType.cash:
                 case PaymentType.Terminal:
-                case PaymentType.ByCard:
                     organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
                     break;
                 case PaymentType.BeveragesWorld:
                     organizationId = organizationParametersProvider.BeveragesWorldOrganizationId;
                     break;
+                case PaymentType.ByCard:
+                    var idsForSosnovcev = new int[] {orderPrametersProvider.PaymentByCardFromMobileAppId, orderPrametersProvider.PaymentByCardFromSiteId};
+                    if(order.PaymentByCardFrom != null && idsForSosnovcev.Contains(order.PaymentByCardFrom.Id)) {
+                        organizationId = organizationParametersProvider.SosnovcevOrganizationId;
+                    }
+                    else {
+                        organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
+                    }
+                    break;
                 default:
-                    throw new NotSupportedException($"Невозможно подобрать организацию, так как тип оплаты {paymentType} не поддерживается.");
+                    throw new NotSupportedException($"Невозможно подобрать организацию, так как тип оплаты {order.PaymentType} не поддерживается.");
             }
 
             return uow.GetById<Organization>(organizationId);
@@ -103,6 +112,24 @@ namespace Vodovoz.Models
             }
 
             return uow.GetById<Organization>(organizationId);
+        }
+        
+        public Organization GetOrganizationForOrderWithoutShipment(IUnitOfWork uow, OrderWithoutShipmentForAdvancePayment order)
+        {
+            if (uow == null) throw new ArgumentNullException(nameof(uow));
+            if (order == null) throw new ArgumentNullException(nameof(order));
+
+            int organizationId = organizationParametersProvider.VodovozOrganizationId;
+            if(IsOnlineStoreOrderWithoutShipment(order)) {
+                organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
+            }
+            
+            return uow.GetById<Organization>(organizationId);
+        }
+        
+        private bool IsOnlineStoreOrderWithoutShipment(OrderWithoutShipmentForAdvancePayment order)
+        {
+            return order.OrderWithoutDeliveryForAdvancePaymentItems.Any(x => x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != orderPrametersProvider.OldInternalOnlineStoreId);
         }
         
         public int GetMainOrganization()

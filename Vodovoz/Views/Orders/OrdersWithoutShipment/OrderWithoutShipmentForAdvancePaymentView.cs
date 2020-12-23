@@ -83,7 +83,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("В т.ч. НДС")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS))
+					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS ?? 0))
 				.AddColumn("Сумма")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))

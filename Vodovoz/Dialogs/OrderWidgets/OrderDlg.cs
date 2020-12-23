@@ -681,7 +681,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("В т.ч. НДС")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS))
+					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS ?? 0))
 					.AddSetter((c, n) => c.Visible = Entity.PaymentType == PaymentType.cashless)
 				.AddColumn("Сумма")
 					.HeaderAlignment(0.5f)

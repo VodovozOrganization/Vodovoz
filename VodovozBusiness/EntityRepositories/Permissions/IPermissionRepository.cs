@@ -3,8 +3,10 @@ using System.Linq;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Services;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Permissions
@@ -23,7 +25,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 
 		IList<EntitySubdivisionForUserPermission> GetAllSubdivisionForUserEntityPermissions(IUnitOfWork uow, int userId);
 
-		bool HasAccessToClosingRoutelist(ISubdivisionService subdivisionService, IEmployeeRepository employeeRepository);
+		bool HasAccessToClosingRoutelist(IUnitOfWork uow, ISubdivisionRepository subdivisionRepository , IEmployeeRepository employeeRepository, IUserService userService);
 
 		HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, Domain.Employees.User user, string permission);
 

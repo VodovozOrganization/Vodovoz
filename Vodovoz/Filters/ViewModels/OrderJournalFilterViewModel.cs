@@ -19,7 +19,6 @@ namespace Vodovoz.Filters.ViewModels
 			DaysToForward = CurrentUserSettings.Settings.JournalDaysToFwd;
 			Organisations = UoW.GetAll<Organization>();
 			PaymentsFrom = UoW.GetAll<PaymentFrom>();
-			OrganisationsVisibility = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_organisation_for_salary");
 		}
 
 		public int DaysToBack { get; }
@@ -58,8 +57,6 @@ namespace Vodovoz.Filters.ViewModels
 			}
 		}
 		public bool CanChangeOrganisation { get; private set; } = true;
-		
-		public bool OrganisationsVisibility { get; }
 		
 		private PaymentFrom paymentByCardFrom;
 		public virtual PaymentFrom PaymentByCardFrom {

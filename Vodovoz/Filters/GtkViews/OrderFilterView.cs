@@ -55,7 +55,6 @@ namespace Vodovoz.Filters.GtkViews
 
 			speciallistCmbOrganisations.ItemsList = ViewModel.Organisations;
 			speciallistCmbOrganisations.Binding.AddBinding(ViewModel, vm => vm.Organisation, w => w.SelectedItem).InitializeFromSource();
-			speciallistCmbOrganisations.Visible = ylblOrganisation.Visible = ViewModel.OrganisationsVisibility;
 			speciallistCmbPaymentsFrom.ItemsList = ViewModel.PaymentsFrom;
 			speciallistCmbPaymentsFrom.Binding.AddBinding(ViewModel, vm => vm.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 			speciallistCmbPaymentsFrom.Binding.AddBinding(ViewModel, vm => vm.PaymentsFromVisibility, w => w.Visible).InitializeFromSource();

@@ -20,7 +20,7 @@
     DATE_FORMAT(bwsfd.create_date,'%d.%m.%y') AS bill_date,
     bwsfd.debt_name as debt_name,
     bwsfd.debt_sum as debt_sum,
-    bwsfd.include_nds as include_nds,
+    IFNULL(bwsfd.include_nds, 0) as include_nds,
     count(DISTINCT bwsfd.id) as count,
     count(DISTINCT bwsfd.id) * debt_sum as total,
     counterparty.full_name AS client_name,

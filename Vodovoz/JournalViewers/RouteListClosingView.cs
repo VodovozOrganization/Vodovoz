@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Linq;
 using Gtk;
 using QS.DomainModel.UoW;
-using QS.Project.Repositories;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repositories.Permissions;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
 using Vodovoz.Tools.CallTasks;
@@ -11,6 +10,8 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -70,7 +71,8 @@ namespace Vodovoz
 				case RouteListStatus.MileageCheck:
 				case RouteListStatus.OnClosing:
 				case RouteListStatus.Closed:
-					if(PermissionRepository.HasAccessToClosingRoutelist()) {
+					if(new PermissionRepository().HasAccessToClosingRoutelist(UoW, new SubdivisionRepository(), EmployeeSingletonRepository.GetInstance(), ServicesConfig.UserService))
+					{
 						TabParent.OpenTab(RouteListClosingDlg.GenerateHashName(node.Id), () => new RouteListClosingDlg(node.Id));
 					} else {
 						MessageDialogHelper.RunWarningDialog("Доступ запрещен");

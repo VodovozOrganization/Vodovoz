@@ -49,7 +49,7 @@ namespace VodovozSalesReceiptsService
 
             foreach(var groupedNode in groupedNodes) {
                 runningTasks.Add(Task.Run(() => {
-                    SendAllDocumentsForCashMachine(groupedNode.machine, groupedNode.receiptNodes, cts.Token);
+                    SendAllDocumentsForCashMachine(groupedNode.machine, groupedNode.receiptNodes.ToList(), cts.Token);
                 }, cts.Token));
             }
 
@@ -63,7 +63,7 @@ namespace VodovozSalesReceiptsService
             }
         }
 
-        private void SendAllDocumentsForCashMachine(CashBox cashBox, IEnumerable<PreparedReceiptNode> receiptNodes, CancellationToken token)
+        private void SendAllDocumentsForCashMachine(CashBox cashBox, IList<PreparedReceiptNode> receiptNodes, CancellationToken token)
         {
             logger.Info($"Отправка чеков для фискального регистратора №{cashBox.Id}");
             
@@ -71,14 +71,15 @@ namespace VodovozSalesReceiptsService
                 if(!ConnectToCashBox(httpClient, cashBox)) {
                     return;
                 }
-                
+
+                int i = 1;
                 foreach(var receiptNode in receiptNodes) {
                     if(token.IsCancellationRequested) {
                         return;
                     }
 
                     var orderId = receiptNode.CashReceipt.Order.Id;
-                    logger.Info($"Отправка документа №{orderId} на сервер фискализации...");
+                    logger.Info($"Отправка документа №{orderId} на сервер фискализации №{cashBox.Id} ({i++}/{receiptNodes.Count})...");
                     
                     receiptNode.SendResultCode = SendDocument(httpClient, receiptNode.SalesDocumentDTO, orderId);
                 }
@@ -158,8 +159,16 @@ namespace VodovozSalesReceiptsService
                     logger.Info($"Чек для заказа №{orderId} отправлен. HTTP Code: {(int)response.StatusCode} {response.StatusCode}");
                 }
                 else {
-                    logger.Warn($"Не удалось отправить чек для заказа №{orderId}. HTTP Code: {(int)response.StatusCode} {response.StatusCode}." +
-                        $" Запрашиваю актуальный статус...");
+                    SendDocumentResultDTO sendDocumentResult = new SendDocumentResultDTO();
+                    try {
+                        sendDocumentResult = response.Content.ReadAsAsync<SendDocumentResultDTO>().Result;
+                    }
+                    catch(Exception e) {
+                        logger.Error(e, "Ошибка при чтении результата отправки");
+                    }
+                    
+                    logger.Warn($"Не удалось отправить чек для заказа №{orderId}. HTTP Code: {(int)response.StatusCode} {response.StatusCode}. " +
+                        $"Message: {sendDocumentResult.Message ?? "Ошибка чтения"}. Запрашиваю актуальный статус...");
                     try {
                         var statusResponse = httpClient.GetAsync(String.Format(documentStatusAddress, doc.Id)).Result;
 
