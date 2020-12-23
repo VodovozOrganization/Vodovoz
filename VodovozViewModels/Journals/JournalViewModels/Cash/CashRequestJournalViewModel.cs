@@ -86,7 +86,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 if (FilterViewModel.AccountableEmployee != null)
                     result.Where(() => accountableEmployeeAlias.Id == FilterViewModel.AccountableEmployee.Id);
                 if (FilterViewModel.State != null)
-                    result.Where(() => cashRequestAlias.State == FilterViewModel.State);
+                {
+                    if (FilterViewModel.State != CashRequest.States.All)
+                        result.Where(() => cashRequestAlias.State == FilterViewModel.State);
+                }
             }
 
             //Если чел не финансист/согласователь/кассир то показываем ему только его заявки
