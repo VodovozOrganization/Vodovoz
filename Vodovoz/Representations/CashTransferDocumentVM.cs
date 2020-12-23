@@ -258,6 +258,7 @@ namespace Vodovoz.Representations
 
 		public override Type EntityType { get; set; }
 
+		[UseForSearch]
 		public override int DocumentId { get; set; }
 
 		[UseForSearch]
