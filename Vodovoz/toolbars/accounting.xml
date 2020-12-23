@@ -10,5 +10,6 @@
         <toolitem name='ActionExportCounterpartiesTo1c' action='ActionExportCounterpartiesTo1c'/>
         <toolitem name='ActionImportFromTinkoff' action='ActionImportFromTinkoff'/>
 		<toolitem name='ActionFinancialDistrictsSetsJournal' action='ActionFinancialDistrictsSetsJournal'/>
+        <toolitem name='ActionCashRequest' action='ActionCashRequest'/>
 	</toolbar>
 </ui>

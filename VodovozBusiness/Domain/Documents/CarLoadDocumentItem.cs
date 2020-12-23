@@ -70,6 +70,15 @@ namespace Vodovoz.Domain.Documents
 			set => SetField (ref amount, value, () => Amount);
 		}
 
+		decimal? expireDatePercent;
+		[Display(Name = "Процент срока годности")]
+		public virtual decimal? ExpireDatePercent {
+			get => expireDatePercent; 
+			set {
+				SetField(ref expireDatePercent, value, () => ExpireDatePercent);
+			} 
+		}
+
 		#endregion
 
 		#region Не сохраняемые
@@ -110,11 +119,11 @@ namespace Vodovoz.Domain.Documents
 				WarehouseMovementOperation.Nomenclature.Unit?.MakeAmountShortStr(WarehouseMovementOperation.Amount) ?? WarehouseMovementOperation.Amount.ToString(),
 				document.Title);
 
-		#endregion
+        #endregion
 
-		#region Функции
+        #region Функции
 
-		public virtual void CreateWarehouseMovementOperation(Warehouse warehouse, DateTime time)
+        public virtual void CreateWarehouseMovementOperation(Warehouse warehouse, DateTime time)
 		{
 			WarehouseMovementOperation = new WarehouseMovementOperation {
 				WriteoffWarehouse = warehouse,

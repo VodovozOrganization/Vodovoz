@@ -4,9 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate;
 using QS.DomainModel.Entity;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -44,50 +42,6 @@ namespace Vodovoz.Domain.Documents
         //FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
         public virtual GenericObservableList<DeliveryDocumentItem> ObservableItems => 
             observableItems ?? (observableItems = new GenericObservableList<DeliveryDocumentItem>(Items));
-
-        #endregion
-
-        #region Публичные функции
-
-        public virtual void UpdateItems(RouteListItem address, Nomenclature standartReturnNomenclature)
-        {
-            ObservableItems.Clear();
-            
-            foreach (var orderItem in address.Order.OrderItems) {
-                var newDeliveryDocumentItem = new DeliveryDocumentItem {
-                    Document = this,
-                    Amount = orderItem.ActualCount.HasValue ? (decimal)orderItem.ActualCount : 0,
-                    Nomenclature = orderItem.Nomenclature,
-                    Direction = DeliveryDirection.ToClient
-                };
-                newDeliveryDocumentItem.CreateOrUpdateOperations();
-                ObservableItems.Add(newDeliveryDocumentItem);
-            }
-            
-            foreach (var orderEquipment in address.Order.OrderEquipments) {
-                var newDeliveryDocumentItem = new DeliveryDocumentItem {
-                    Document = this,
-                    Amount = orderEquipment.ActualCount.HasValue ? (decimal)orderEquipment.ActualCount : 0,
-                    Nomenclature = orderEquipment.Nomenclature,
-                    Direction = orderEquipment.Direction == Direction.Deliver 
-                        ? DeliveryDirection.ToClient 
-                        : DeliveryDirection.FromClient
-                };
-                newDeliveryDocumentItem.CreateOrUpdateOperations();
-                ObservableItems.Add(newDeliveryDocumentItem);
-            }
-
-            if(address.BottlesReturned != 0) {
-                var newDeliveryDocumentItem = new DeliveryDocumentItem {
-                    Document = this,
-                    Amount = address.BottlesReturned,
-                    Nomenclature = standartReturnNomenclature,
-                    Direction = DeliveryDirection.FromClient
-                };
-                newDeliveryDocumentItem.CreateOrUpdateOperations();
-                ObservableItems.Add(newDeliveryDocumentItem);
-            }
-        }
 
         #endregion
 

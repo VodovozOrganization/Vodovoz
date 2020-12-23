@@ -37,6 +37,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.CargoReceiver).Column("special_cargo_receiver");
 			Map(x => x.SpecialCustomer).Column("special_customer");
 			Map(x => x.SpecialContractNumber).Column("special_contract_number");
+			Map(x => x.SpecialExpireDatePercent).Column("special_expire_date_percent");
+			Map(x => x.SpecialExpireDatePercentCheck).Column("special_expire_date_percent_check");
 			Map(x => x.PayerSpecialKPP).Column("payer_special_kpp");
 			Map(x => x.GovContract).Column("special_gov_contract");
 			Map(x => x.SpecialDeliveryAddress).Column("special_delivery_address");

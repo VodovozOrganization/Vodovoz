@@ -81,7 +81,7 @@ namespace Vodovoz.ViewModels.Warehouses
         
         private void ReloadAllowedWarehousesFrom()
         {
-            var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(WarehousePermissions.MovementEdit);
+            var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(isNew? WarehousePermissions.IncomingInvoiceCreate: WarehousePermissions.IncomingInvoiceEdit);
             allowedWarehousesFrom = UoW.Session.QueryOver<Warehouse>()
                 .Where(x => !x.IsArchive)
                 .WhereRestrictionOn(x => x.Id).IsIn(allowedWarehouses.Select(x => x.Id).ToArray())
@@ -117,7 +117,9 @@ namespace Vodovoz.ViewModels.Warehouses
         
         
         #region Properties
-        
+
+        public bool isNew => Entity.Id == 0;
+
         private readonly bool canEditRectroactively;
         public bool CanEdit => 
             (UoW.IsNew && PermissionResult.CanCreate) 

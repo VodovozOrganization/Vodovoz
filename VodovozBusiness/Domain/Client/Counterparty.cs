@@ -449,6 +449,24 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref useSpecialDocFields, value, () => UseSpecialDocFields);
 		}
 
+		#region Особое требование срок годности
+
+		bool specialExpireDatePercentCheck;
+		public virtual bool SpecialExpireDatePercentCheck
+		{
+			get => specialExpireDatePercentCheck;
+			set => SetField(ref specialExpireDatePercentCheck, value, () => SpecialExpireDatePercentCheck);
+		}
+
+		decimal specialExpireDatePercent;
+		public virtual decimal SpecialExpireDatePercent {
+			get => specialExpireDatePercent;
+			set => SetField(ref specialExpireDatePercent, value, () => SpecialExpireDatePercent); 
+		}
+
+		#endregion Особое требование срок годности
+
+
 		string contractNumber;
 		[Display(Name = "Особый номер договора")]
 		public virtual string SpecialContractNumber {
@@ -661,11 +679,11 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		#endregion
+        #endregion
 
-		#region CloseDelivery
+        #region CloseDelivery
 
-		public virtual void AddCloseDeliveryComment(string comment, IUnitOfWork UoW)
+        public virtual void AddCloseDeliveryComment(string comment, IUnitOfWork UoW)
 		{
 			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			CloseDeliveryComment = employee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + comment;

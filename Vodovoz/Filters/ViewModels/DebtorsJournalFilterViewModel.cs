@@ -3,16 +3,12 @@ using QS.Project.Filter;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using QS.RepresentationModel.GtkUI;
-using QS.Services;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.ViewModel;
 using Vodovoz.FilterViewModels.Goods;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.JournalSelector;
@@ -21,7 +17,7 @@ using Vodovoz.Parameters;
 
 namespace Vodovoz.Filters.ViewModels
 {
-	public class DebtorsJournalFilterViewModel : FilterViewModelBase<DebtorsJournalFilterViewModel>, IJournalFilter
+	public class DebtorsJournalFilterViewModel : FilterViewModelBase<DebtorsJournalFilterViewModel>
 	{
 		public DebtorsJournalFilterViewModel()
 		{
@@ -121,12 +117,21 @@ namespace Vodovoz.Filters.ViewModels
 			get => discountReason;
 			set => SetField(ref discountReason, value, () => DiscountReason);
 		}
+		
+		public DeliveryPointJournalFilterViewModel DeliveryPointJournalFilterViewModel { get; set; } 
+			= new DeliveryPointJournalFilterViewModel();
 
-		private IRepresentationModel deliveryPointVM;
-		public virtual IRepresentationModel DeliveryPointVM {
+		private IEntityAutocompleteSelectorFactory deliveryPointVM;
+		public virtual IEntityAutocompleteSelectorFactory DeliveryPointVM {
 			get {
 				if(deliveryPointVM == null) {
-					deliveryPointVM = new DeliveryPointsVM(new DeliveryPointFilter(UoW));
+					deliveryPointVM =
+						new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
+							() => new DeliveryPointJournalViewModel(DeliveryPointJournalFilterViewModel,
+							UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
+							{
+								SelectionMode = JournalSelectionMode.Single
+							});
 				}
 				return deliveryPointVM;
 			}

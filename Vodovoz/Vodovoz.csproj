@@ -131,6 +131,10 @@
     <EmbeddedResource Include="toolbars\cash.xml">
       <LogicalName>cash.xml</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="toolbars\general.xml">
+      <LogicalName>general.xml</LogicalName>
+    </EmbeddedResource>
+    
     <EmbeddedResource Include="toolbars\accounting.xml">
       <LogicalName>accounting.xml</LogicalName>
     </EmbeddedResource>
@@ -1513,6 +1517,26 @@
     <Compile Include="SidePanel\InfoViews\FixedPricesPanelView.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1cDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.Old1612ExportTo1c.Old1612ExportTo1cDialog.cs" />
+    <Compile Include="Views\Store\MovementWagonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Store.MovementWagonView.cs" />
+    <Compile Include="JournalViewers\MovementWagonJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.MovementWagonJournalFilterView.cs" />
+    <Compile Include="JournalViewers\NodeViewModelEntry.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.NodeViewModelEntry.cs" />
+    <Compile Include="Dialogs\HistoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.HistoryView.cs" />
+    <Compile Include="JournalViewers\UserJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.UserJournalFilterView.cs" />
+    <Compile Include="Views\UserView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.UserView.cs" />
+    <Compile Include="Dialogs\Cash\CashRequestView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashRequestView.cs" />
+    <Compile Include="Filters\GtkViews\CashRequestJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CashRequestJournalFilterView.cs" />
+    <Compile Include="Dialogs\Cash\CashRequestItemView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashRequestItemView.cs" />
+    <Compile Include="JournalFilters\Cash\CashTransferDocumentsFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.Cash.CashTransferDocumentsFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

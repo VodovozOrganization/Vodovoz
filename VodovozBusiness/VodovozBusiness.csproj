@@ -55,8 +55,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />
-    <Compile Include="Controllers\DeliveryDocumentController.cs" />
-    <Compile Include="Controllers\IDeliveryDocumentController.cs" />
+    <Compile Include="Controllers\RouteListClosingDocumentsController.cs" />
+    <Compile Include="Controllers\IRouteListClosingDocumentsController.cs" />
+    <Compile Include="Domain\Cash\CashRequest.cs" />
+    <Compile Include="Domain\Cash\CashRequestSumItem.cs" />
     <Compile Include="Domain\Cash\AdvanceCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\ExpenseCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\FuelCashOrganisationDistributor.cs" />
@@ -70,6 +72,8 @@
     <Compile Include="Domain\Documents\CashOrganisationDistributionDocument.cs" />
     <Compile Include="Domain\Documents\DeliveryDocument.cs" />
     <Compile Include="Domain\Documents\DeliveryDocumentItem.cs" />
+    <Compile Include="Domain\Documents\DriverDiscrepancyDocument.cs" />
+    <Compile Include="Domain\Documents\DriverDiscrepancyDocumentItem.cs" />
     <Compile Include="Domain\Documents\DriverNomenclatureTransferItem.cs" />
     <Compile Include="Domain\Documents\ExpenseCashDistributionDocument.cs" />
     <Compile Include="Domain\Documents\FuelExpenseCashDistributionDocument.cs" />
@@ -108,14 +112,20 @@
     <Compile Include="EntityRepositories\Documents\SelfDeliveryCashDistributionDocumentRepository.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
+    <Compile Include="EntityRepositories\Cash\Requests\CashRequestRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\Requests\ICashRequestRepository.cs" />
     <Compile Include="EntityRepositories\Counterparty\CounterpartyContractRepository.cs" />
     <Compile Include="EntityRepositories\Counterparty\ICounterpartyContractRepository.cs" />
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Orders\ExtendedReceiptForOrderNode.cs" />
+    <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
+    <Compile Include="HibernateMapping\Cash\CashRequestMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DriverDiscrepancyDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DriverDiscrepancyDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverNomenclatureTransferItemMap.cs" />
@@ -141,10 +151,13 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
+    <Compile Include="Models\FinancialDistrictProvider.cs" />
+    <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
     <Compile Include="Models\Stage1OrganizationProvider.cs" />
+    <Compile Include="Models\Stage2OrganizationProvider.cs" />
     <Compile Include="NhibernateExtensions\CustomProjections.cs" />
     <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
@@ -852,6 +865,12 @@
     <Compile Include="Domain\Client\AdditionalAgreement.cs" />
     <Compile Include="Models\IFixedPricesModel.cs" />
     <Compile Include="Models\CounterpartyFixedPricesModel.cs" />
+    <Compile Include="Journal\INodeAutocompleteSelector.cs" />
+    <Compile Include="Journal\INodeSelector.cs" />
+    <Compile Include="Journal\JournalSelectedNodesNodesEventArgs.cs" />
+    <Compile Include="Journal\INodeSelectorFactory.cs" />
+    <Compile Include="Journal\INodeAutocompleteSelectorFactory.cs" />
+    <Compile Include="Journal\NodeAutocompleteSelectorFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -937,6 +956,7 @@
     <Folder Include="HibernateMapping\BusinessTasks\" />
     <Folder Include="Domain\Orders\OrdersWithoutShipment\" />
     <Folder Include="Models\" />
+    <Folder Include="Journal\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">

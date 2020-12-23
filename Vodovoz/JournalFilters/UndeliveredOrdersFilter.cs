@@ -1,10 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Widgets;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using QS.Project.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -12,12 +12,14 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.JournalFilters
 {
 	[OrmDefaultIsFiltered(true)]
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UndeliveredOrdersFilter : RepresentationFilterBase<UndeliveredOrdersFilter>
+	public partial class UndeliveredOrdersFilter : RepresentationFilterBase<UndeliveredOrdersFilter>, ISingleUoWDialog
 	{
 		protected override void ConfigureWithUow()
 		{
@@ -38,7 +40,8 @@ namespace Vodovoz.JournalFilters
 			refDriver.RepresentationModel = new EmployeesVM(driversFilter);
 
 			refClient.RepresentationModel = new CounterpartyVM(new CounterpartyFilter(UoW));
-			refDeliveryPoint.RepresentationModel = new DeliveryPointsVM(new DeliveryPointFilter(UoW));
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<DeliveryPoint, DeliveryPointJournalViewModel, DeliveryPointJournalFilterViewModel>(ServicesConfig.CommonServices));
 
 			var authorsFilter = new EmployeeFilterViewModel();
 			authorsFilter.SetAndRefilterAtOnce(
@@ -103,10 +106,10 @@ namespace Vodovoz.JournalFilters
 		}
 
 		public DeliveryPoint RestrictAddress {
-			get => refDeliveryPoint.Subject as DeliveryPoint;
+			get => entityVMEntryDeliveryPoint.Subject as DeliveryPoint;
 			set {
-				refDeliveryPoint.Subject = value;
-				refDeliveryPoint.Sensitive = false;
+				entityVMEntryDeliveryPoint.Subject = value;
+				entityVMEntryDeliveryPoint.Sensitive = false;
 			}
 		}
 
@@ -215,11 +218,6 @@ namespace Vodovoz.JournalFilters
 			OnRefiltered();
 		}
 
-		protected void OnRefDeliveryPointChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
 		protected void OnRefOldOrderAuthorChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
@@ -281,6 +279,11 @@ namespace Vodovoz.JournalFilters
 		}
 
 		protected void OnYSpecCMBinProcessAtItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnEntityVMEntryDeliveryPointChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
 		}
