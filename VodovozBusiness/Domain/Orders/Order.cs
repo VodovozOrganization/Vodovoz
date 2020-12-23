@@ -158,6 +158,8 @@ namespace Vodovoz.Domain.Orders
 
 					if(Id == 0)
 						AddCertificates = DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null;
+
+					UpdateContract();
 				}
 			}
 		}
