@@ -65,8 +65,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             var isAdmin = ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
             IsAdminPanelVisible = isAdmin;
             
-            UserRole = getUserRole(userId);
-            
+            // UserRole = getUserRole(userId);
+            UserRole = UserRole.Coordinator;
             IsNewEntity = uowBuilder.IsNewEntity;
         }
 
@@ -178,8 +178,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         #region Visibility
 
         public bool VisibleOnlyForFinancer => UserRole == UserRole.Financier;
-        public bool VisibleOnlyForStatusUpperThanCreated => Entity.State != CashRequest.States.New &&
-                                                            Entity.State != CashRequest.States.Submited;
+        public bool VisibleOnlyForStatusUpperThanCreated => Entity.State != CashRequest.States.New;
 
         #endregion Visibility
         
@@ -192,7 +191,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanGiveSum => UserRole == UserRole.Cashier && Entity.State == CashRequest.States.GivenForTake;
         public bool CanDeleteSum => uowBuilder.IsNewEntity;
         //Подтвердить
-        public bool CanAccept => Entity.State == CashRequest.States.New && UserRole == UserRole.RequestCreator;
+        public bool CanAccept =>
+            (Entity.State == CashRequest.States.New || Entity.State == CashRequest.States.OnClarification) && UserRole == UserRole.RequestCreator;
 
         //Согласовать
         public bool CanApprove => Entity.State == CashRequest.States.Submited && UserRole == UserRole.Coordinator;
@@ -221,10 +221,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 return UserRole.Coordinator;
             } else if (checkRole("role_сashier", userId)) {
                 return UserRole.Cashier;
-            } else if (Entity.Author.Id == CurrentEmployee.Id) {
-                return UserRole.RequestCreator;
+            } else {
+                if (Entity.Author == null){
+                    return UserRole.RequestCreator;
+                } else if (Entity.Author.Id == CurrentEmployee.Id){
+                    return UserRole.RequestCreator;
+                } else 
+                    throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
             }
-            else throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
             
         }
 
