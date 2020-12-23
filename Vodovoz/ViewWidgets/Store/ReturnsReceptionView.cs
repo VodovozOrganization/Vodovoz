@@ -175,12 +175,32 @@ namespace Vodovoz
 					.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 					.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => orderEquipmentAlias.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
+					.Where(Restrictions.Or(
+							Restrictions.In(
+								Projections.Property(() => orderAlias.OrderStatus), 
+								new[] { OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered, OrderStatus.Canceled }),
+							Restrictions.NotEqProperty(Projections.Property(() => orderEquipmentAlias.ActualCount), Projections.Property(() => orderEquipmentAlias.Count) )
+						)
+					)
 					.Where(() => nomenclatureAlias.Category != NomenclatureCategory.deposit)
 					.SelectList(list => list
 						.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-						.Select(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.ExpectedAmount)
+						.Select(Projections.Conditional(
+									Restrictions.NotEqProperty(
+										Projections.Property(() => orderEquipmentAlias.ActualCount), 
+										Projections.Property(() => orderEquipmentAlias.Count)),
+									Projections.SqlFunction(
+										new SQLFunctionTemplate(NHibernateUtil.Int32,
+											"?1 - ?2"),
+											NHibernateUtil.Int32,
+											Projections.Property(() => orderEquipmentAlias.Count),
+											Projections.Property(() => orderEquipmentAlias.ActualCount)
+									),
+									Projections.Property(() => orderEquipmentAlias.Count)
+							)
+						).WithAlias(() => resultAlias.ExpectedAmount)
 					)
 					.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
 					.List<ReceptionItemNode>();
