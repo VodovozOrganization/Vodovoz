@@ -213,7 +213,7 @@ namespace Vodovoz.Dialogs.Cash
 			yentryCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 			labelCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 
-			if (ViewModel.UserRole == UserRole.RequestCreator)
+			if (ViewModel.Entity.State == CashRequest.States.New)
 			{
 				hseparator1.Visible = false;
 				hseparator2.Visible = false;

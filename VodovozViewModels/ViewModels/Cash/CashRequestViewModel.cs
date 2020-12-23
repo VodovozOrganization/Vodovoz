@@ -203,7 +203,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanDeleteSum => uowBuilder.IsNewEntity;
         //Подтвердить
         public bool CanAccept =>
-            (Entity.State == CashRequest.States.New || Entity.State == CashRequest.States.OnClarification) && UserRole == UserRole.RequestCreator;
+            (Entity.State == CashRequest.States.New || Entity.State == CashRequest.States.OnClarification);
 
         //Согласовать
         public bool CanApprove => Entity.State == CashRequest.States.Submited && UserRole == UserRole.Coordinator;
