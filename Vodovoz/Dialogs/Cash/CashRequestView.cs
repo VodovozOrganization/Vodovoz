@@ -36,33 +36,36 @@ namespace Vodovoz.Dialogs.Cash
 				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
 					() =>
 					{
-						var employeeFilter = new EmployeeFilterViewModel{
+						var employeeFilter = new EmployeeFilterViewModel
+						{
 							Status = EmployeeStatus.IsWorking,
 						};
 						return new EmployeesJournalViewModel(
 							employeeFilter,
-							UnitOfWorkFactory.GetDefaultFactory, 
+							UnitOfWorkFactory.GetDefaultFactory,
 							ServicesConfig.CommonServices);
 					})
 			);
-			AuthorEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, x => x.Author, w => w.Subject).InitializeFromSource();
+			AuthorEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, x => x.Author, w => w.Subject)
+				.InitializeFromSource();
 
 			if (ViewModel.IsNewEntity)
 			{
 				ViewModel.Entity.Author = currentEmployee;
 			}
+
 			AuthorEntityviewmodelentry.Sensitive = false;
-			
+
 			//Подразделение
 			var employeeSelectorFactory =
 				new DefaultEntityAutocompleteSelectorFactory
 					<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
 
-			var filter = new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default };
-			
+			var filter = new SubdivisionFilterViewModel() {SubdivisionType = SubdivisionType.Default};
+
 			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
-					typeof(Subdivision), 
+					typeof(Subdivision),
 					() => new SubdivisionsJournalViewModel(
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
@@ -73,48 +76,50 @@ namespace Vodovoz.Dialogs.Cash
 			);
 			SubdivisionEntityviewmodelentry.Binding
 				.AddBinding(
-					ViewModel.Entity, 
-					s => s.Subdivision, 
+					ViewModel.Entity,
+					s => s.Subdivision,
 					w => w.Subject)
 				.InitializeFromSource();
 			SubdivisionEntityviewmodelentry.Sensitive = false;
 			ViewModel.Entity.Subdivision = currentEmployee.Subdivision;
-			
+
 			//Причина расхода
 			ExpenseCategoryEntityviewmodelentry
 				.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseCategoryAutocompleteSelectorFactory);
-			
+
 			ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(
-				ViewModel.Entity, 
-				s => s.ExpenseCategory, 
-				w => w.Subject)
+					ViewModel.Entity,
+					s => s.ExpenseCategory,
+					w => w.Subject)
 				.InitializeFromSource();
-			
+
 			ExpenseCategoryEntityviewmodelentry.CanEditReference = true;
-			
+
 			#endregion EntityViewModelEntry
 
 			#region Combo
-			
+
 			//Организация
 			speccomboOrganization.SetRenderTextFunc<Organization>(s => s.Name);
 			var orgList = ViewModel.UoW.Session.QueryOver<Organization>().List();
 			speccomboOrganization.ItemsList = orgList;
 			speccomboOrganization.Binding.AddBinding(
-					ViewModel.Entity, 
-					x => x.Organization, 
+					ViewModel.Entity,
+					x => x.Organization,
 					x => x.SelectedItem)
 				.InitializeFromSource();
 			speccomboOrganization.SelectedItem = orgList.First();
-			
+
 			//Смена ролей для админов   
 			comboIfAdminRoleChooser.ItemsEnum = typeof(UserRole);
 			comboIfAdminRoleChooser.Binding.AddBinding(
 				ViewModel,
 				e => e.UserRole,
-				w => w.SelectedItem);
+				w => w.SelectedItem).InitializeFromSource();
 			comboIfAdminRoleChooser.Visible = ViewModel.IsAdminPanelVisible;
-			comboIfAdminRoleChooser.Visible = false;
+			ybtnAdminRoleRemember.Visible = ViewModel.IsAdminPanelVisible;
+			ybtnAdminRoleRemember.Clicked += (sender, args) => { ViewModel.RememberRole(comboIfAdminRoleChooser.SelectedItem); };
+				// comboIfAdminRoleChooser.Visible = false;
 
 			#endregion
 

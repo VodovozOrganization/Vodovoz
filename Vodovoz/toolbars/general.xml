@@ -1,5 +1,5 @@
 ﻿<ui>
     <toolbar name='toolbarSub'>
-        <toolitem name='ActionCashRequest' action='ActionCashRequest'/>
+        <toolitem name='ActionCashRequestJournal' action='ActionCashRequestJournal'/>
     </toolbar>
 </ui>
