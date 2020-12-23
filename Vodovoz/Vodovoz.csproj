@@ -1525,8 +1525,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.UserView.cs" />
     <Compile Include="Views\Payments\ManualPaymentMatchingView.cs" />
     <Compile Include="Views\Payments\PaymentLoaderView.cs" />
-    <Compile Include="Views\Payments\ImportRegisterOfPaymentsFromYookassaView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Payments.ImportRegisterOfPaymentsFromYookassaView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -8,7 +9,7 @@ namespace Vodovoz.Domain.Payments
     public class PaymentsFromYookassaParser
     {
         public string DocPath { get; private set; }
-        public List<PaymentFromYookassa> PaymentsFromYookassa { get; set; }
+        public List<PaymentFromTinkoff> PaymentsFromYookassa { get; set; } = new List<PaymentFromTinkoff>();
 
         public PaymentsFromYookassaParser(string documentPath)
         {
@@ -17,36 +18,24 @@ namespace Vodovoz.Domain.Payments
 
         public void Parse()
         {
-	        int i;
 	        string line;
 	        
-            using(var reader = new StreamReader(DocPath, Encoding.GetEncoding(1251))) 
-			{
-				int count = 1;
-
-				if(reader.ReadLine() != "1CClientBankExchange")
-					return;
-				
-				while((line = reader.ReadLine()) != null) 
+	        var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+	        culture.NumberFormat.NumberDecimalSeparator = ".";
+	        
+            using(var reader = new StreamReader(DocPath, Encoding.GetEncoding(1251)))
+            {
+	            while((line = reader.ReadLine()) != null)
 				{
-					//Читаем документы
-					/*while(!line.StartsWith(tags[3]))
+					if(line == string.Empty) continue;
+					
+					var data = line.Split(new [] {';'}, StringSplitOptions.RemoveEmptyEntries);
+					
+					if (Guid.TryParse(data[0], out Guid result))
 					{
-						if(line.StartsWith(tags[2])) 
-							TransferDocuments.Add(doc);
-						
-						if(line.StartsWith(tags[1])) 
-							doc = new TransferDocument();
-
-						if(!string.IsNullOrWhiteSpace(line))
-						{
-							var data = line.Split(new char[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
-
-							if(data.Length == 2)
-								FillData(doc, data, culture);
-						}
-						line = reader.ReadLine();
-					}*/
+						var payment = new PaymentFromTinkoff(data);
+						PaymentsFromYookassa.Add(payment);
+					}
 				}
 			}
         }

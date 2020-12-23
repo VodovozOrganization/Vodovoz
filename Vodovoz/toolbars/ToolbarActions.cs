@@ -67,7 +67,6 @@ using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Interfaces;
 using Action = Gtk.Action;
 using Vodovoz.Old1612ExportTo1c;
-using Vodovoz.ViewModels.ViewModels.Payments;
 
 public partial class MainWindow : Window
 {
@@ -113,7 +112,6 @@ public partial class MainWindow : Window
 	Action ActionExportImportNomenclatureCatalog;
 	Action ActionTransferBankDocs;
 	Action ActionPaymentFromBank;
-	Action ActionImportFromYookassa;
 	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
@@ -189,7 +187,6 @@ public partial class MainWindow : Window
 		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
-		ActionImportFromYookassa = new Action("ActionImportFromYookassa", "Загрузка платежей из Юкасса", null, "table");
 
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
@@ -257,7 +254,6 @@ public partial class MainWindow : Window
 		w1.Add(ActionReportDebtorsBottles, null);
 		w1.Add(ActionTransferBankDocs, null);
 		w1.Add(ActionPaymentFromBank, null);
-		w1.Add(ActionImportFromYookassa, null);
 		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionAccountingTable, null);
 		w1.Add(ActionAccountFlow, null);
@@ -328,7 +324,6 @@ public partial class MainWindow : Window
 		ActionOldExportTo1c.Activated += ActionOldExportTo1c_Activated;
 		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
 		ActionImportFromTinkoff.Activated += ActionImportFromTinkoff_Activated;
-		ActionImportFromYookassa.Activated += ActionImportFromYookassaOnActivated;
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
@@ -341,16 +336,6 @@ public partial class MainWindow : Window
 		ActionExportImportNomenclatureCatalog.Activated += ActionExportImportNomenclatureCatalog_Activated;
 
 		#endregion
-	}
-
-	private void ActionImportFromYookassaOnActivated(object sender, EventArgs e)
-	{
-		var viewMoodel = new ImportRegisterOfPaymentsFromYookassaViewModel(
-			ServicesConfig.InteractiveService,
-			NavigationManager
-		);
-		
-		tdiMain.AddTab(viewMoodel);
 	}
 
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e) {
