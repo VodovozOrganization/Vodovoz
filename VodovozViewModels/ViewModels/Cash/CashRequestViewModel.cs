@@ -72,21 +72,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IsAdminPanelVisible = isAdmin;
 
             var currentRole = getUserRole(userId);
-            if (!dialogLoadedOnce)
-            {
+            if (!dialogLoadedOnce) {
                 UserRole = currentRole;
-                
                 dialogLoadedOnce = true;
-
-            }
-            else
-            {
+            } else {
                 UserRole = savedUserRole;
             }
             IsNewEntity = uowBuilder.IsNewEntity;
             ConfigureEntityChangingRelations();
-
-
         }
 
         protected void ConfigureEntityChangingRelations()
