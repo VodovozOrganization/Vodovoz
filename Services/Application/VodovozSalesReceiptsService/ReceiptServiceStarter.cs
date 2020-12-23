@@ -33,7 +33,6 @@ namespace VodovozSalesReceiptsService
 
 			var fiscalizationWorker = new FiscalizationWorker(
 				OrderSingletonRepository.GetInstance(),
-				new BaseParametersProvider(),
 				new SalesReceiptSender(baseAddress)
 			);
 			fiscalizationWorker.Start();

@@ -1,8 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using NHibernate;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.Models;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -26,24 +30,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => nomenclature;
 			set {
 				if(SetField(ref nomenclature, value)) {
-					if(Id == 0)//ставку устанавливаем только для новых строк заказа
-						switch(value.VAT) {
-							case VAT.No:
-								ValueAddedTax = 0m;
-								break;
-							case VAT.Vat10:
-								ValueAddedTax = 0.10m;
-								break;
-							case VAT.Vat18:
-								ValueAddedTax = 0.18m;
-								break;
-							case VAT.Vat20:
-								ValueAddedTax = 0.20m;
-								break;
-							default:
-								ValueAddedTax = 0m;
-								break;
-						}
+					CalculateVATType();
 				}
 			}
 		}
@@ -68,7 +55,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 				if(SetField(ref price, value)) {
 					RecalculateDiscount();
-					RecalculateNDS();
+					RecalculateVAT();
 				}
 			}
 		}
@@ -81,14 +68,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				if(SetField(ref count, value)) {
 					OrderWithoutDeliveryForAdvancePayment?.RecalculateItemsPrice();
 					RecalculateDiscount();
-					RecalculateNDS();
+					RecalculateVAT();
 				}
 			}
 		}
 
-		decimal includeNDS;
+		decimal? includeNDS;
 		[Display(Name = "Включая НДС")]
-		public virtual decimal IncludeNDS {
+		public virtual decimal? IncludeNDS {
 			get => includeNDS;
 			set => SetField(ref includeNDS, value);
 		}
@@ -99,7 +86,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => isDiscountInMoney;
 			set {
 				if(SetField(ref isDiscountInMoney, value))
-					RecalculateNDS();
+					RecalculateVAT();
 			}
 		}
 
@@ -112,7 +99,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 					DiscountReason = null;
 				}
 				if(SetField(ref discount, value)) {
-					RecalculateNDS();
+					RecalculateVAT();
 				}
 			}
 		}
@@ -129,12 +116,11 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual decimal DiscountMoney {
 			get => discountMoney;
 			set {
-				//value = value > Price * CurrentCount ? Price * CurrentCount : value;
 				if(value != discountMoney && value == 0) {
 					DiscountReason = null;
 				}
 				if(SetField(ref discountMoney, value))
-					RecalculateNDS();
+					RecalculateVAT();
 			}
 		}
 
@@ -261,10 +247,77 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			return 0m;
 		}
 
-		void RecalculateNDS()
+		public virtual void CalculateVATType()
 		{
-			if(ValueAddedTax.HasValue)
+			if(!NHibernateUtil.IsInitialized(Nomenclature)) {
+				NHibernateUtil.Initialize(Nomenclature);
+			}
+			VAT vat = CanUseVAT() ? Nomenclature.VAT : VAT.No;
+			
+			switch(vat) {
+				case VAT.No:
+					ValueAddedTax = 0m;
+					break;
+				case VAT.Vat10:
+					ValueAddedTax = 0.10m;
+					break;
+				case VAT.Vat18:
+					ValueAddedTax = 0.18m;
+					break;
+				case VAT.Vat20:
+					ValueAddedTax = 0.20m;
+					break;
+				default:
+					ValueAddedTax = 0m;
+					break;
+			}
+		}
+		
+		private void RecalculateVAT()
+		{
+			if(!CanUseVAT()) {
+				IncludeNDS = null;
+				return;
+			}
+			
+			if(CanUseVAT() && IncludeNDS.HasValue) {
+				return;
+			}
+			
+			if(CanUseVAT() && ValueAddedTax.HasValue) {
 				IncludeNDS = Math.Round(Sum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
+			}
+		}
+
+		private bool CanUseVAT()
+		{
+			bool canUseVAT = true;
+			var organization = GetOrganization();
+			if(organization != null) {
+				canUseVAT = !organization.WithoutVAT;
+			}
+
+			return canUseVAT;
+		}
+		
+		private OrderOrganizationProviderFactory orderOrganizationProviderFactory;
+		private IOrganizationProvider orderOrganizationProvider;
+		
+		private Organization GetOrganization()
+		{
+			if(!NHibernateUtil.IsInitialized(OrderWithoutDeliveryForAdvancePayment)) {
+				NHibernateUtil.Initialize(OrderWithoutDeliveryForAdvancePayment);
+			}
+			
+			if(orderOrganizationProviderFactory == null) {
+				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+			}
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				return orderOrganizationProvider.GetOrganizationForOrderWithoutShipment(uow,
+					OrderWithoutDeliveryForAdvancePayment);
+			}
 		}
 
 		public OrderWithoutShipmentForAdvancePaymentItem() { }

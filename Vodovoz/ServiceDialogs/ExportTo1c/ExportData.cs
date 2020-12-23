@@ -90,9 +90,8 @@ namespace Vodovoz.ExportTo1c
 		public void AddOrder(Order order)
 		{
 			OrdersTotalSum += order.TotalSum;
-			if (order.PaymentType == PaymentType.ByCard || order.PaymentType == PaymentType.cash || order.PaymentType == PaymentType.Terminal)
-			{
-				var exportSalesDocument = CreateRetailDocument(order);
+			if(order.PaymentType == PaymentType.ByCard || order.PaymentType == PaymentType.cash || order.PaymentType == PaymentType.Terminal) {
+				CreateRetailDocument(order);
 			}
 			else
 			{
@@ -287,17 +286,25 @@ namespace Vodovoz.ExportTo1c
 			return exportSaleDocument;
 		}
 
-		public RetailDocumentNode CreateRetailDocument(Order order)
+		public void CreateRetailDocument(Order order)
 		{
-			var exportRetailDocument = new RetailDocumentNode {};
-			if (!RetailDocumentsList.TryGetValue(order.DeliveryDate.Value.Date, out exportRetailDocument))
-			{
-				exportRetailDocument.Id = ++objectCounter;
+			if(!order.DeliveryDate.HasValue) {
+				throw new ArgumentNullException(nameof(order.DeliveryDate));
+			}
+			
+			if (!RetailDocumentsList.TryGetValue(order.DeliveryDate.Value.Date, out RetailDocumentNode exportRetailDocument)) {
+				exportRetailDocument = new RetailDocumentNode { Id = ++objectCounter };
 
-				exportRetailDocument.Reference = new ReferenceNode(exportRetailDocument.Id,
-					new PropertyNode("Номер", Common1cTypes.String,
-						ExportMode == Export1cMode.IPForTinkoff ? order.OnlineOrder.Value : order.Id),
-					new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.Date.ToString("s"))
+				exportRetailDocument.Reference = new ReferenceNode(
+					exportRetailDocument.Id,
+					new PropertyNode(
+						"Номер",
+						Common1cTypes.String,
+						ExportMode == Export1cMode.IPForTinkoff ? (order.OnlineOrder ?? throw new ArgumentNullException(nameof(order.OnlineOrder), $@"(OrderId: {order.Id})")) : order.Id),
+					new PropertyNode(
+						"Дата", 
+						Common1cTypes.Date,
+						order.DeliveryDate.Value.Date.ToString("s"))
 				);
 
 				var exportGoodsTable = new TableNode
@@ -349,6 +356,7 @@ namespace Vodovoz.ExportTo1c
 				);
 
 				exportRetailDocument.Tables.Add(exportGoodsTable);
+				exportRetailDocument.Tables.Add(exportTerminalTable);
 			}
 
 			bool isTerminalPaid = (order.PaymentType == PaymentType.ByCard);
@@ -369,8 +377,10 @@ namespace Vodovoz.ExportTo1c
 						);//оплаты безналом
 					}
 			}
-			
-			return exportRetailDocument;
+
+			if(!RetailDocumentsList.ContainsKey(order.DeliveryDate.Value.Date)) {
+				RetailDocumentsList.Add(order.DeliveryDate.Value.Date, exportRetailDocument);
+			}
 		}
 
 		public TableRecordNode CreateRecord(OrderItem orderItem)
@@ -435,7 +445,7 @@ namespace Vodovoz.ExportTo1c
 					new PropertyNode(
 						"СуммаНДС",
 						Common1cTypes.Numeric,
-						orderItem.IncludeNDS //FIXME Нужно будет сделать что бы всегда соответствало количетству.
+						orderItem.IncludeNDS ?? 0 //FIXME Нужно будет сделать что бы всегда соответствало количетству.
 					)
 				);
 			} else {

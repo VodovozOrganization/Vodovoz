@@ -160,7 +160,7 @@ WHERE
     order_items.count AS required_count,
     order_items.actual_count AS actual_count,
     order_items.price AS item_price,
-    order_items.include_nds,
+    IFNULL(order_items.include_nds, 0) as include_nds,
     order_items.discount,
     order_items.discount_money,
     order_items.price * IFNULL(actual_count, count) AS sum,
