@@ -1465,9 +1465,12 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateOrCreateContract(IUnitOfWork uow, ICounterpartyContractRepository counterpartyContractRepository, CounterpartyContractFactory contractFactory)
 		{
-			if(!NHibernate.NHibernateUtil.IsInitialized(Client)
-			|| !NHibernate.NHibernateUtil.IsInitialized(Contract)) {
-				return;
+			if(!NHibernate.NHibernateUtil.IsInitialized(Client)) {
+				NHibernate.NHibernateUtil.Initialize(Client);
+			}
+			
+			if(!NHibernate.NHibernateUtil.IsInitialized(Contract)) {
+				NHibernate.NHibernateUtil.Initialize(Contract);
 			}
 			
 			if(uow == null) throw new ArgumentNullException(nameof(uow));
