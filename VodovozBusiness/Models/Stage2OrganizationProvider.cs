@@ -100,7 +100,7 @@ namespace Vodovoz.Models
                     organizationId = organizationParametersProvider.BeveragesWorldOrganizationId;
                     break;
                 case PaymentType.ByCard:
-                    var idsForSosnovcev = new int[] {orderPrametersProvider.PaymentByCardFromMobileAppId, orderPrametersProvider.PaymentByCardFromSiteId};
+                    var idsForSosnovcev = new int[] {orderPrametersProvider.PaymentByCardFromMobileAppId};
                     if(order.PaymentByCardFrom != null && idsForSosnovcev.Contains(order.PaymentByCardFrom.Id)) {
                         organizationId = organizationParametersProvider.SosnovcevOrganizationId;
                     }
