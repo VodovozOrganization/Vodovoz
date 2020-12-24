@@ -370,7 +370,7 @@ namespace Vodovoz.ExportTo1c
 					{
 						var recordPayment = new TableRecordNode();
 						recordPayment.Properties.Add(
-							new PropertyNode("Сумма",
+							new PropertyNode("СуммаОплаты",
 								Common1cTypes.Numeric,
 								orderItem.ActualSum
 							)
