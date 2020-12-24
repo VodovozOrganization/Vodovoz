@@ -16,9 +16,19 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			ycheckArchived.Binding.AddBinding(ViewModel, e => e.ShowArchive, w => w.Active).InitializeFromSource();
+			ycheckArchived.Binding.AddBinding(
+				ViewModel,
+				e => e.ShowArchive,
+				w => w.Active
+			).InitializeFromSource();
+			
 			yLevelenumcombobox1.ItemsEnum = typeof(LevelsFilter);
-			yLevelenumcombobox1.Binding.AddBinding(ViewModel, e => e.Level, w => w.SelectedItem).InitializeFromSource();
+			
+			yLevelenumcombobox1.Binding.AddBinding(
+				ViewModel, 
+				e => e.Level, 
+				w => w.SelectedItem
+			).InitializeFromSource();
 		}
 	}
 }

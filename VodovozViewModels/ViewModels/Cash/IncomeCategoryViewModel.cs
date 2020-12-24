@@ -15,7 +15,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 {
     public class IncomeCategoryViewModel: EntityTabViewModelBase<IncomeCategory>
     {
-        public IncomeCategoryViewModel(IEntityUoWBuilder uowBuilder,
+        public IncomeCategoryViewModel(
+            IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             IFileChooserProvider fileChooserProvider,
@@ -24,7 +25,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         {
             IncomeCategoryAutocompleteSelectorFactory = 
                 new IncomeCategoryAutoCompleteSelectorFactory(commonServices, journalFilterViewModel, fileChooserProvider);
-
+            
             if(uowBuilder.IsNewEntity)
                 TabName = "Создание новой категории дохода";
             else

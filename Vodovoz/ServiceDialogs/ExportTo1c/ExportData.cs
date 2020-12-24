@@ -90,7 +90,7 @@ namespace Vodovoz.ExportTo1c
 		public void AddOrder(Order order)
 		{
 			OrdersTotalSum += order.TotalSum;
-			if(order.PaymentType == PaymentType.ByCard || order.PaymentType == PaymentType.cash) {
+			if(order.PaymentType == PaymentType.ByCard || order.PaymentType == PaymentType.cash || order.PaymentType == PaymentType.Terminal) {
 				CreateRetailDocument(order);
 			}
 			else
@@ -359,7 +359,7 @@ namespace Vodovoz.ExportTo1c
 				exportRetailDocument.Tables.Add(exportTerminalTable);
 			}
 
-			bool isTerminalPaid = (order.PaymentType == PaymentType.ByCard);
+			bool isTerminalPaid = (order.PaymentType == PaymentType.ByCard || order.PaymentType == PaymentType.Terminal);
 			
 			foreach (var orderItem in order.OrderItems)
 			{
@@ -370,11 +370,12 @@ namespace Vodovoz.ExportTo1c
 					{
 						var recordPayment = new TableRecordNode();
 						recordPayment.Properties.Add(
-							new PropertyNode("Сумма",
+							new PropertyNode("СуммаОплаты",
 								Common1cTypes.Numeric,
 								orderItem.ActualSum
 							)
 						);//оплаты безналом
+						exportRetailDocument.Tables[1].Records.Add(recordPayment);
 					}
 			}
 

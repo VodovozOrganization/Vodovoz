@@ -892,11 +892,13 @@ namespace Vodovoz.Domain.Logistic
 					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed
 					|| Status == RouteListStatus.Delivered) {
 						Status = RouteListStatus.EnRoute;
-						foreach(var item in Addresses) {
-							bool isInvalidStatus = OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
+						if(Status != RouteListStatus.Delivered) {
+							foreach(var item in Addresses) {
+								bool isInvalidStatus = OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
 
-							if(!isInvalidStatus)
-								item.Order.OrderStatus = OrderStatus.OnTheWay;
+								if(!isInvalidStatus)
+									item.Order.OrderStatus = OrderStatus.OnTheWay;
+							}
 						}
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
@@ -1562,7 +1564,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void UpdateDeliveryDocuments(IUnitOfWork uow)
 		{
-			var controller = new DeliveryDocumentController(new BaseParametersProvider(), EmployeeSingletonRepository.GetInstance());
+			var controller = new RouteListClosingDocumentsController(new BaseParametersProvider(), EmployeeSingletonRepository.GetInstance(), new RouteListRepository());
 			controller.UpdateDocuments(this, uow);
 		}
 

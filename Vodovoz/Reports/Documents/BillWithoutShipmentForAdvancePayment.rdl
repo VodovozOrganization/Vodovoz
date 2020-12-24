@@ -133,7 +133,7 @@ WHERE
     measurement_units.digits AS digits,
     bwsfapi.count AS count,
     bwsfapi.price AS item_price,
-    IFNULL(bwsfapi.include_nds, 0),
+    IFNULL(bwsfapi.include_nds, 0) as include_nds,
     bwsfapi.discount,
     bwsfapi.discount_money,
     bwsfapi.price * count AS sum,

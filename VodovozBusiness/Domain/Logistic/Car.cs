@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Logistic
 	[HistoryTrace]
 	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
 	{
-		#region Свойства`
+		#region Свойства
 
 		public virtual int Id { get; set; }
 

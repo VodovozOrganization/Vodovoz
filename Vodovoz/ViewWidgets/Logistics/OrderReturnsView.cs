@@ -34,6 +34,10 @@ using Vodovoz.Tools;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Models;
 using Vodovoz.Repositories.Client;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Filters.ViewModels;
+using QS.Project.Journal;
 
 namespace Vodovoz
 {
@@ -92,7 +96,7 @@ namespace Vodovoz
 		private IOrganizationProvider organizationProvider;
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
-		
+
 		public IUnitOfWork UoW {
 			get => uow;
 			set {
@@ -360,12 +364,15 @@ namespace Vodovoz
 
 		private void ConfigureDeliveryPointRefference(Counterparty client = null)
 		{
-			var deliveryPointFilter = new DeliveryPointFilter(UoW) {
-				Client = client
+			var deliveryPointFilter = new DeliveryPointJournalFilterViewModel {
+				Counterparty = client
 			};
-			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM(deliveryPointFilter);
-			referenceDeliveryPoint.Binding.AddBinding(orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
-			referenceDeliveryPoint.CanEditReference = false;
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
+							() => new DeliveryPointJournalViewModel(deliveryPointFilter,
+							UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+								SelectionMode = JournalSelectionMode.Single
+							}));
+			entityVMEntryDeliveryPoint.Binding.AddBinding(orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 		}
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
@@ -380,7 +387,7 @@ namespace Vodovoz
 			};
 		}
 
-		protected void OnButtonDeliveryCanseledClicked(object sender, EventArgs e)
+		protected void OnButtonDeliveryCanceledClicked(object sender, EventArgs e)
 		{
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
@@ -440,7 +447,7 @@ namespace Vodovoz
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
 		{
 			ConfigureDeliveryPointRefference(orderNode.Client);
-			referenceDeliveryPoint.OpenSelectDialog();
+			entityVMEntryDeliveryPoint.OpenSelectDialog();
 		}
 
 		protected void OnReferenceClientChanged(object sender, EventArgs e)
@@ -459,11 +466,6 @@ namespace Vodovoz
 				else
 					yenumcomboOrderPayment.SelectedItem = previousPaymentType;
 			}
-		}
-
-		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
-		{
-			AcceptOrderChange();
 		}
 
 		protected void OnButtonAddOrderItemClicked(object sender, EventArgs e)
@@ -517,6 +519,11 @@ namespace Vodovoz
 		{
 			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
 			routeListItem.Order.CalculateBottlesStockDiscounts(standartDiscountsService, true);
+		}
+
+		protected void OnEntityVMEntryDeliveryPointChangedByUser(object sender, EventArgs e)
+		{
+			AcceptOrderChange();
 		}
 	}
 

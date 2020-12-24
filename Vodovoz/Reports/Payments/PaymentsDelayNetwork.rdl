@@ -34,7 +34,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>146.2pt</Height>
+    <Height>129.6pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>orders</DataSetName>
@@ -325,7 +325,7 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -420,7 +420,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>={sum_to_receive}</Value>
+                      <Value>={order_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -754,10 +754,10 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>0.8pt</Left>
+        <Left>1.6pt</Left>
         <Top>0.5pt</Top>
       </Table>
-      <Table Name="Table2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Table Name="Table3" >
         <DataSetName>orders</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -769,51 +769,45 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>116.8pt</Width>
+            <Width>255.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>154pt</Width>
+            <Width>1in</Width>
           </TableColumn>
         </TableColumns>
-        <Footer>
+        <Header>
           <TableRows>
             <TableRow>
-              <Height>13.6pt</Height>
+              <Height>12 pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox41">
-                      <Value>Итого по Долгу:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                    <Textbox Name="Textbox33">
+                      <Value>Контрагент</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontWeight>Bold</FontWeight>
-                        <FontSize>14pt</FontSize>
                       </Style>
-                      <CanGrow>false</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox44">
-                      <Value>=Sum({debt})</Value>
-                      <CanGrow>true</CanGrow>
+                    <Textbox Name="Textbox34">
+                      <Value>Сумма долга</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontWeight>Bold</FontWeight>
-                        <FontSize>14pt</FontSize>
-                        <Color>Black</Color>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <FontFamily>Arial</FontFamily>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -821,9 +815,104 @@
               </TableCells>
             </TableRow>
           </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="TableGroupGroup1">
+              <GroupExpressions>
+                <GroupExpression>=Fields!counterparty_name.Value</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <TableRows>
+                <TableRow>
+                  <Height>12 pt</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox37">
+                          <Value>=Fields!counterparty_name.Value</Value>
+                          <CanGrow>true</CanGrow>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox38">
+                          <Value>=Sum(Fields!debt.Value)</Value>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+          </TableGroup>
+        </TableGroups>
+        <Left>430.2pt</Left>
+        <Top>78.5pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <Value>=Sum(Fields!debt.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
         </Footer>
-        <Left>361.1pt</Left>
-        <Top>77.6pt</Top>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -865,46 +954,46 @@
               '.'),
        '') AS author,
     CAST(
-      IF(orders.sum_to_receive &lt;&gt; 0,
-         orders.sum_to_receive,
-         IFNULL(
-          (SELECT
-              SUM(order_items.price * order_items.count - (order_items.price * order_items.count * order_items.discount / 100))
-           FROM
-              order_items
-           WHERE
-              orders.id = order_items.order_id
-           GROUP BY order_items.order_id),
-         0)
-      )
-    AS DECIMAL (12 , 2 )) AS sum_to_receive,
+            IF(orders.sum_to_receive &lt;&gt; 0,
+               orders.sum_to_receive,
+               IFNULL(
+                       (SELECT
+                            SUM(IFNULL(order_items.actual_count, order_items.count) * order_items.price - order_items.discount_money)
+                        FROM
+                            order_items
+                        WHERE
+                                orders.id = order_items.order_id
+                        GROUP BY order_items.order_id),
+                       0)
+                )
+        AS DECIMAL (12 , 2 )) AS order_sum,
     DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY) AS estimated_payment_date,
     TO_DAYS(CURDATE()) - TO_DAYS(DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY)) AS days_overdue,
     CAST(
-      IF(orders.sum_to_receive &lt;&gt; 0,
-        orders.sum_to_receive,
-        IFNULL(
-          (SELECT
-              SUM(order_items.price * order_items.count - (order_items.price * order_items.count * order_items.discount / 100))
-           FROM
-              order_items
-           WHERE
-              orders.id = order_items.order_id
-           GROUP BY order_items.order_id),
-        0)
-      )
-      - IF(orders.order_payment_status = 'PartiallyPaid',
-          (SELECT SUM(cmo.expense)
-           FROM orders o
-           LEFT JOIN payment_items pi
-           ON o.id = pi.order_id
-           LEFT JOIN
-				cashless_movement_operations cmo
-           ON pi.cashless_movement_operation_id = cmo.id
-           WHERE o.id = orders.id
-           GROUP BY o.id),
-        0)
-    AS DECIMAL (12 , 2 )) AS debt,
+                IF(orders.sum_to_receive &lt;&gt; 0,
+                   orders.sum_to_receive,
+                   IFNULL(
+                           (SELECT
+                                SUM(IFNULL(order_items.actual_count, order_items.count) * order_items.price - order_items.discount_money)
+                            FROM
+                                order_items
+                            WHERE
+                                orders.id = order_items.order_id
+                            GROUP BY order_items.order_id),
+                           0)
+                    )
+                - IF(orders.order_payment_status = 'PartiallyPaid',
+                     (SELECT SUM(cmo.expense)
+                      FROM orders o
+                               LEFT JOIN payment_items pi
+                                         ON o.id = pi.order_id
+                               LEFT JOIN
+                           cashless_movement_operations cmo
+                           ON pi.cashless_movement_operation_id = cmo.id
+                      WHERE o.id = orders.id
+                      GROUP BY o.id),
+                     0)
+        AS DECIMAL (12 , 2 )) AS debt,
     orders.op_comment AS OP_manager_comment,
     orders.odz_comment AS ODZ_logist_comment
 FROM
@@ -914,7 +1003,7 @@ FROM
         LEFT JOIN
     employees ON employees.id = orders.author_employee_id
 WHERE
-  DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY) &lt;= DATE(@date)
+        DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY) &lt;= DATE(@date)
   AND orders.order_payment_status IN ('UnPaid', 'PartiallyPaid')
   AND counterparty.is_chain_store = 1
   AND orders.payment_type = 'cashless'
@@ -924,10 +1013,9 @@ WHERE
   AND (@sell_manager_id = -1 OR counterparty.sales_manager_id = @sell_manager_id)
   AND (@order_author_id = -1 OR orders.author_employee_id = @order_author_id)
 GROUP BY orders.id
+HAVING order_sum &gt; 0
 ORDER BY estimated_payment_date
-;
-  
-</CommandText>
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -964,8 +1052,8 @@ ORDER BY estimated_payment_date
           <DataField>author</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="sum_to_receive">
-          <DataField>sum_to_receive</DataField>
+        <Field Name="order_sum">
+          <DataField>order_sum</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="estimated_payment_date">
@@ -1005,7 +1093,7 @@ ORDER BY estimated_payment_date
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <DefaultValue>

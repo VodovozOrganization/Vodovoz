@@ -24,8 +24,6 @@ namespace Vodovoz.Dialogs
 
 		private global::Gamma.Widgets.yEnumComboBox comboboxImpotanceType;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry counterpartyYentryreferencevm;
-
 		private global::QS.Widgets.GtkUI.DatePicker deadlineYdatepicker;
 
 		private global::Gtk.Entry debtByAddressEntry;
@@ -34,9 +32,11 @@ namespace Vodovoz.Dialogs
 
 		private global::Vodovoz.Dialogs.Phones.PhonesView DeliveryPointPhonesView;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry deliveryPointYentryreferencevm;
-
 		private global::QS.Widgets.GtkUI.RepresentationEntry EmployeeyEntryreferencevm;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryCounterparty;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryDeliveryPoint;
 
 		private global::Gtk.Entry entryReserve;
 
@@ -212,18 +212,6 @@ namespace Vodovoz.Dialogs
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.counterpartyYentryreferencevm = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.counterpartyYentryreferencevm.Events = ((global::Gdk.EventMask)(256));
-			this.counterpartyYentryreferencevm.Name = "counterpartyYentryreferencevm";
-			this.table1.Add(this.counterpartyYentryreferencevm);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.counterpartyYentryreferencevm]));
-			w10.TopAttach = ((uint)(1));
-			w10.BottomAttach = ((uint)(2));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.deadlineYdatepicker = new global::QS.Widgets.GtkUI.DatePicker();
 			this.deadlineYdatepicker.Events = ((global::Gdk.EventMask)(256));
 			this.deadlineYdatepicker.Name = "deadlineYdatepicker";
@@ -233,13 +221,13 @@ namespace Vodovoz.Dialogs
 			this.deadlineYdatepicker.IsEditable = true;
 			this.deadlineYdatepicker.AutoSeparation = false;
 			this.table1.Add(this.deadlineYdatepicker);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.deadlineYdatepicker]));
-			w11.TopAttach = ((uint)(8));
-			w11.BottomAttach = ((uint)(9));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.deadlineYdatepicker]));
+			w10.TopAttach = ((uint)(8));
+			w10.BottomAttach = ((uint)(9));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.debtByAddressEntry = new global::Gtk.Entry();
 			this.debtByAddressEntry.CanFocus = true;
@@ -247,13 +235,13 @@ namespace Vodovoz.Dialogs
 			this.debtByAddressEntry.IsEditable = false;
 			this.debtByAddressEntry.InvisibleChar = '•';
 			this.table1.Add(this.debtByAddressEntry);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.debtByAddressEntry]));
-			w12.TopAttach = ((uint)(6));
-			w12.BottomAttach = ((uint)(7));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.debtByAddressEntry]));
+			w11.TopAttach = ((uint)(6));
+			w11.BottomAttach = ((uint)(7));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.debtByClientEntry = new global::Gamma.GtkWidgets.yEntry();
 			this.debtByClientEntry.CanFocus = true;
@@ -261,42 +249,57 @@ namespace Vodovoz.Dialogs
 			this.debtByClientEntry.IsEditable = false;
 			this.debtByClientEntry.InvisibleChar = '•';
 			this.table1.Add(this.debtByClientEntry);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.debtByClientEntry]));
-			w13.TopAttach = ((uint)(5));
-			w13.BottomAttach = ((uint)(6));
-			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.debtByClientEntry]));
+			w12.TopAttach = ((uint)(5));
+			w12.BottomAttach = ((uint)(6));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.DeliveryPointPhonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
 			this.DeliveryPointPhonesView.Events = ((global::Gdk.EventMask)(256));
 			this.DeliveryPointPhonesView.Name = "DeliveryPointPhonesView";
 			this.table1.Add(this.DeliveryPointPhonesView);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.DeliveryPointPhonesView]));
-			w14.TopAttach = ((uint)(4));
-			w14.BottomAttach = ((uint)(5));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(2));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.deliveryPointYentryreferencevm = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.deliveryPointYentryreferencevm.Events = ((global::Gdk.EventMask)(256));
-			this.deliveryPointYentryreferencevm.Name = "deliveryPointYentryreferencevm";
-			this.table1.Add(this.deliveryPointYentryreferencevm);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.deliveryPointYentryreferencevm]));
-			w15.LeftAttach = ((uint)(1));
-			w15.RightAttach = ((uint)(2));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.DeliveryPointPhonesView]));
+			w13.TopAttach = ((uint)(4));
+			w13.BottomAttach = ((uint)(5));
+			w13.LeftAttach = ((uint)(1));
+			w13.RightAttach = ((uint)(2));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.EmployeeyEntryreferencevm = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.EmployeeyEntryreferencevm.Events = ((global::Gdk.EventMask)(256));
 			this.EmployeeyEntryreferencevm.Name = "EmployeeyEntryreferencevm";
 			this.table1.Add(this.EmployeeyEntryreferencevm);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.EmployeeyEntryreferencevm]));
-			w16.TopAttach = ((uint)(9));
-			w16.BottomAttach = ((uint)(10));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.EmployeeyEntryreferencevm]));
+			w14.TopAttach = ((uint)(9));
+			w14.BottomAttach = ((uint)(10));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.entityVMEntryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityVMEntryCounterparty.Events = ((global::Gdk.EventMask)(256));
+			this.entityVMEntryCounterparty.Name = "entityVMEntryCounterparty";
+			this.entityVMEntryCounterparty.CanEditReference = true;
+			this.table1.Add(this.entityVMEntryCounterparty);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryCounterparty]));
+			w15.TopAttach = ((uint)(1));
+			w15.BottomAttach = ((uint)(2));
+			w15.LeftAttach = ((uint)(1));
+			w15.RightAttach = ((uint)(2));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.entityVMEntryDeliveryPoint = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityVMEntryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
+			this.entityVMEntryDeliveryPoint.Name = "entityVMEntryDeliveryPoint";
+			this.entityVMEntryDeliveryPoint.CanEditReference = true;
+			this.table1.Add(this.entityVMEntryDeliveryPoint);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryDeliveryPoint]));
 			w16.LeftAttach = ((uint)(1));
 			w16.RightAttach = ((uint)(2));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -675,10 +678,10 @@ namespace Vodovoz.Dialogs
 			}
 			this.vboxOldComments.Hide();
 			this.Hide();
-			this.deliveryPointYentryreferencevm.ChangedByUser += new global::System.EventHandler(this.OnDeliveryPointYentryreferencevmChangedByUser);
-			this.deliveryPointYentryreferencevm.Changed += new global::System.EventHandler(this.OnDeliveryPointYentryreferencevmChanged);
-			this.counterpartyYentryreferencevm.ChangedByUser += new global::System.EventHandler(this.OnCounterpartyYentryreferencevmChangedByUser);
-			this.counterpartyYentryreferencevm.Changed += new global::System.EventHandler(this.OnCounterpartyYentryreferencevmChanged);
+			this.entityVMEntryDeliveryPoint.Changed += new global::System.EventHandler(this.OnEntityVMEntryDeliveryPointChanged);
+			this.entityVMEntryDeliveryPoint.ChangedByUser += new global::System.EventHandler(this.OnEntityVMEntryDeliveryPointChangedByUser);
+			this.entityVMEntryCounterparty.Changed += new global::System.EventHandler(this.OnEntityVMEntryCounterpartyChanged);
+			this.entityVMEntryCounterparty.ChangedByUser += new global::System.EventHandler(this.OnEntityVMEntryCounterpartyChangedByUser);
 			this.buttonAddComment.Clicked += new global::System.EventHandler(this.OnAddCommentButtonClicked);
 			this.buttonRevertComment.Clicked += new global::System.EventHandler(this.OnCancelLastCommentButtonClicked);
 			this.buttonSplit.Clicked += new global::System.EventHandler(this.OnButtonSplitClicked);

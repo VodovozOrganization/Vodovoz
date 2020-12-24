@@ -16,6 +16,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.Interactive;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi;
 using QS.Tdi.Gtk;
@@ -43,6 +44,9 @@ using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Cash.Requests;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -80,6 +84,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
 using Vodovoz.Parameters;
+using Vodovoz.Journals;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -105,7 +111,7 @@ public partial class MainWindow : Gtk.Window
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
-		ActionCash.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_cash");
+		ActionCash.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 		ActionAccounting.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
@@ -289,7 +295,12 @@ public partial class MainWindow : Gtk.Window
 		SwitchToUI("Vodovoz.toolbars.CRM.xml");
 	}
 
-	protected void OnActionOrganizationsActivated(object sender, EventArgs e)
+    protected void OnActionGeneralActivated(object sender, EventArgs e)
+    {
+        SwitchToUI("general.xml");
+    }
+
+    protected void OnActionOrganizationsActivated(object sender, EventArgs e)
 	{
 		OrmReference refWin = new OrmReference(typeof(Organization));
 		tdiMain.AddTab(refWin);
@@ -370,13 +381,13 @@ public partial class MainWindow : Gtk.Window
 	{
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
-		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-				.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
+        IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
+                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
 				nomenclatureRepository, UserSingletonRepository.GetInstance());
 
 		tdiMain.OpenTab(
@@ -522,9 +533,6 @@ public partial class MainWindow : Gtk.Window
 	{
 		var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
 		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории прихода.csv");
-
-		IEntityAutocompleteSelectorFactory incomeCategorySelectorFactory =
-			new IncomeCategoryAutoCompleteSelectorFactory(ServicesConfig.CommonServices, new IncomeCategoryJournalFilterViewModel(), chooserProvider);
 		
 		tdiMain.AddTab(
 			new IncomeCategoryJournalViewModel(
@@ -538,9 +546,9 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnAction15Activated(object sender, EventArgs e)
 	{
-		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории расхода.csv");
-		
 		var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel();
+		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории расхода.csv");
+
 		tdiMain.AddTab(
 			new ExpenseCategoryJournalViewModel(
 				expenseCategoryFilter,
@@ -673,10 +681,9 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionTransportationWagonActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<MovementWagon>(),
-			() => new OrmReference(typeof(MovementWagon))
-		);
+		var movingWagonFilter = new MovementWagonJournalFilterViewModel();
+		var movingWagonJournal = new MovementWagonJournalViewModel(movingWagonFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(movingWagonJournal);
 	}
 
 	protected void OnActionRegrandingOfGoodsTempalteActivated(object sender, EventArgs e)
@@ -874,24 +881,24 @@ public partial class MainWindow : Gtk.Window
 	{
 		#region DependencyCreation
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-		
+
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
 				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-		
+
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
 				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
 				UserSingletonRepository.GetInstance());
-		
+
 		#endregion
-		
+
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ProducedProductionReport>(),
 			() => new QSReport.ReportViewDlg(new ProducedProductionReport(counterpartySelectorFactory, nomenclatureSelectorFactory, nomenclatureRepository))
 		);
 	}
-	
+
 	protected void OpenRoutesListRegisterReport()
 	{
 		tdiMain.OpenTab(
@@ -1055,7 +1062,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionHistoryLogActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(new QS.HistoryLog.Dialogs.HistoryView());
+		tdiMain.AddTab(new Vodovoz.Dialogs.HistoryView());
 	}
 
 	protected void OnAction45Activated(object sender, EventArgs e)
@@ -1718,4 +1725,28 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
+	protected void OnActionCashRequestReportActivated(object sender, EventArgs e)
+	{
+		var cashRequestFilterViewModel = new CashRequestJournalFilterViewModel();
+		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории расхода.csv");
+
+		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+		ICashRequestRepository cashRequestRepository = new CashRequestRepository();
+		IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
+		CashRepository cashRepository = new CashRepository();
+		ConsoleInteractiveService consoleInteractiveService = new ConsoleInteractiveService();
+		tdiMain.AddTab(
+			new CashRequestJournalViewModel(
+				cashRequestFilterViewModel,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				chooserProvider,
+				employeeRepository,
+				cashRepository,
+				consoleInteractiveService
+			)
+		);
+	}
+
+   
 }

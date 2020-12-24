@@ -12,6 +12,7 @@ namespace Vodovoz.HibernateMapping
             Id(x => x.Id).Column("id").GeneratedBy.Native();
 
             Map(x => x.Amount).Column("amount");
+            Map(x => x.ExpireDatePercent).Column("item_expiration_date_percent");
 
             References(x => x.Nomenclature).Column("nomenclature_id");
             References(x => x.Equipment).Column("equipment_id");

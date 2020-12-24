@@ -19,7 +19,7 @@ namespace Vodovoz.Filters.GtkViews
 		private void Configure()
 		{
 			entryreferenceClient.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyVM);
-			entryreferenceDeliveryPoint.RepresentationModel = ViewModel.DeliveryPointVM;
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryPointVM);
 			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureVM);
 
 			yvalidatedentryDebtTo.ValidationMode = QSWidgetLib.ValidationType.numeric;
@@ -33,7 +33,7 @@ namespace Vodovoz.Filters.GtkViews
 			ycomboboxReason.ItemsList = ViewModel.UoW?.Session.QueryOver<DiscountReason>().List();
 
 			entryreferenceClient.Binding.AddBinding(ViewModel, x => x.Client, x => x.Subject).InitializeFromSource();
-			entryreferenceDeliveryPoint.Binding.AddBinding(ViewModel, x => x.Address, x => x.Subject).InitializeFromSource();
+			entityVMEntryDeliveryPoint.Binding.AddBinding(ViewModel, x => x.Address, x => x.Subject).InitializeFromSource();
 			entityviewmodelentryNomenclature.Binding.AddBinding(ViewModel, x => x.LastOrderNomenclature, x => x.Subject).InitializeFromSource();
 			yvalidatedentryDebtTo.Binding.AddBinding(ViewModel, x => x.DebtBottlesTo, x => x.Text, new IntToStringConverter()).InitializeFromSource();
 			yvalidatedentryDebtFrom.Binding.AddBinding(ViewModel, x => x.DebtBottlesFrom, x => x.Text, new IntToStringConverter()).InitializeFromSource();
@@ -52,8 +52,8 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			if(ViewModel?.Address?.Counterparty?.Id != ViewModel.Client?.Id)
 				ViewModel.Address = null;
-			if(ViewModel.DeliveryPointVM.JournalFilter is DeliveryPointFilter clientFilter)
-				clientFilter.Client = ViewModel.Client;
+			if(ViewModel.DeliveryPointJournalFilterViewModel != null)
+				ViewModel.DeliveryPointJournalFilterViewModel.Counterparty = ViewModel.Client;
 		}
 	}
 }

@@ -20,7 +20,13 @@ using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
-    public class ExpenseCategoryJournalViewModel: FilterableSingleEntityJournalViewModelBase<ExpenseCategory, ExpenseCategoryViewModel, ExpenseCategoryJournalNode, ExpenseCategoryJournalFilterViewModel>
+    public class ExpenseCategoryJournalViewModel: FilterableSingleEntityJournalViewModelBase
+        <
+            ExpenseCategory,
+            ExpenseCategoryViewModel,
+            ExpenseCategoryJournalNode, 
+            ExpenseCategoryJournalFilterViewModel
+        >
     {
         private readonly IUnitOfWorkFactory unitOfWorkFactory;
         private readonly IFileChooserProvider fileChooserProvider;

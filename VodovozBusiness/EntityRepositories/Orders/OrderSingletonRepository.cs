@@ -19,6 +19,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Repositories.Orders;
+using Vodovoz.Services;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -536,12 +537,17 @@ namespace Vodovoz.EntityRepositories.Orders
 					OrderStatus.Canceled
 				};
 		}
-
-
-
-		public IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(IUnitOfWork uow, DateTime? startDate = null)
+		
+		public IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(
+			IUnitOfWork uow,
+			IOrderParametersProvider orderParametersProvider,
+			IOrganizationParametersProvider organizationParametersProvider,
+			DateTime? startDate = null)
 		{
-			#region Aliases Restrictions Projections
+			#region Aliases Restrictions Projections Subqueries
+
+			var paymentByCardFromSiteId = orderParametersProvider.PaymentByCardFromSiteId;
+			var vodovozSouthOrganizationId = organizationParametersProvider.VodovozSouthOrganizationId;
 
 			ReceiptForOrderNode resultAlias = null;
 			ExtendedReceiptForOrderNode extendedReceiptForOrderNodeAlias = null;
@@ -552,6 +558,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			Nomenclature nomenclatureAlias = null;
 			ProductGroup productGroupAlias = null;
 			Counterparty counterpartyAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
+			Organization organizationAlias = null;
 
 			var orderSumProjection = Projections.Sum(
 				Projections.SqlFunction(
@@ -572,11 +580,16 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
 					new[] { PaymentType.ByCard, PaymentType.Terminal }.ToArray()));
 
-			var orderStatusForReceiptsRestriction = Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
+			var orderDeliveredStatuses = Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
 				new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed }.ToArray());
 			
 			var orderPaymentTypesRestriction = Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
 				new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.ToArray());
+
+			var notPaymentByCardAndPaidFromSiteAndSouthOrganizationRestriction = Restrictions.Disjunction()
+				.Add(() => orderAlias.PaymentType != PaymentType.ByCard)
+				.Add(() => orderAlias.PaymentByCardFrom.Id != paymentByCardFromSiteId)
+				.Add(() => organizationAlias.Id != vodovozSouthOrganizationId);
 
 			#endregion
 
@@ -588,8 +601,11 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
+				.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
 				.Where(alwaysSendOrdersRestriction)
-				.And(orderStatusForReceiptsRestriction)
+				.And(notPaymentByCardAndPaidFromSiteAndSouthOrganizationRestriction)
+				.And(orderDeliveredStatuses)
 				.And(positiveOrderSumRestriction)
 				.And(orderPaymentTypesRestriction)
 				.And(Restrictions.Disjunction()
@@ -617,8 +633,11 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
+				.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
 				.Where(Restrictions.Not(alwaysSendOrdersRestriction))
-				.And(orderStatusForReceiptsRestriction)
+				.And(notPaymentByCardAndPaidFromSiteAndSouthOrganizationRestriction)
+				.And(orderDeliveredStatuses)
 				.And(positiveOrderSumRestriction)
 				.And(orderPaymentTypesRestriction);
 
@@ -633,7 +652,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					.Select(() => cashReceiptAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.ReceiptId)
 					.Select(() => cashReceiptAlias.Sent).WithAlias(() => extendedReceiptForOrderNodeAlias.WasSent))
 				.TransformUsing(Transformers.AliasToBean<ExtendedReceiptForOrderNode>())
-				.List<ExtendedReceiptForOrderNode>();
+				.Future<ExtendedReceiptForOrderNode>();
 			
 			var alreadySentOrders = new List<ExtendedReceiptForOrderNode>(notUniqueOrderSumSendOrders.Where(x => x.WasSent.HasValue && x.WasSent.Value));
 			var uniqueOrderSumSendNodes = new List<ExtendedReceiptForOrderNode>();
