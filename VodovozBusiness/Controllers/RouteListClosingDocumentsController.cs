@@ -47,15 +47,15 @@ namespace Vodovoz.Controllers
                 .IsIn(routeList.Addresses.Select(x => x.Id).ToArray())
                 .List();
 
-            var discrepancyDocument = uow.Session.QueryOver<DriverDiscrepancyDocument>().
-                Where(x => x.RouteList.Id == routeList.Id).Take(1).SingleOrDefault();
-
             foreach(var document in documents) {
                 uow.Delete(document);
             }
-            if(discrepancyDocument != null) {
-                uow.Delete(discrepancyDocument);
-            }
+            
+            // var discrepancyDocument = uow.Session.QueryOver<DriverDiscrepancyDocument>().
+            //     Where(x => x.RouteList.Id == routeList.Id).Take(1).SingleOrDefault();
+            // if(discrepancyDocument != null) {
+            //     uow.Delete(discrepancyDocument);
+            // }
         }
 
         private void CreateOrUpdateDocuments(IUnitOfWork uow, RouteList routeList)
@@ -70,7 +70,7 @@ namespace Vodovoz.Controllers
             var employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(uow);
             
             CreateOrUpdateDeliveryDocuments(uow, routeList, employeeForCurrentUser, standartReturnNomenclature, ref deliveryDocuments);
-            CreateOrUpdateDiscrepancyDocument(uow, routeList, employeeForCurrentUser, deliveryDocuments);
+            // CreateOrUpdateDiscrepancyDocument(uow, routeList, employeeForCurrentUser, deliveryDocuments);
         }
 
         private void CreateOrUpdateDeliveryDocuments(IUnitOfWork uow,
