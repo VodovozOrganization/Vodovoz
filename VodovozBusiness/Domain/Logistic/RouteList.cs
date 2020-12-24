@@ -892,11 +892,13 @@ namespace Vodovoz.Domain.Logistic
 					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed
 					|| Status == RouteListStatus.Delivered) {
 						Status = RouteListStatus.EnRoute;
-						foreach(var item in Addresses) {
-							bool isInvalidStatus = OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
+						if(Status != RouteListStatus.Delivered) {
+							foreach(var item in Addresses) {
+								bool isInvalidStatus = OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
 
-							if(!isInvalidStatus)
-								item.Order.OrderStatus = OrderStatus.OnTheWay;
+								if(!isInvalidStatus)
+									item.Order.OrderStatus = OrderStatus.OnTheWay;
+							}
 						}
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
