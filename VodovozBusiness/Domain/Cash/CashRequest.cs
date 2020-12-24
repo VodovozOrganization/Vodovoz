@@ -217,8 +217,6 @@ namespace Vodovoz.Domain.Cash
 
         public enum States
         {
-            [Display(Name = "Все")]
-            All,
             [Display(Name = "Новый")]
             New,
             [Display(Name = "На уточнении")]

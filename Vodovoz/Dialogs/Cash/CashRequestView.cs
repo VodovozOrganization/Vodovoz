@@ -119,7 +119,6 @@ namespace Vodovoz.Dialogs.Cash
 			comboIfAdminRoleChooser.Visible = ViewModel.IsAdminPanelVisible;
 			ybtnAdminRoleRemember.Visible = ViewModel.IsAdminPanelVisible;
 			ybtnAdminRoleRemember.Clicked += (sender, args) => { ViewModel.RememberRole(comboIfAdminRoleChooser.SelectedItem); };
-				// comboIfAdminRoleChooser.Visible = false;
 
 			#endregion
 
