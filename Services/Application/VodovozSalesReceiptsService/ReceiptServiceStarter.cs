@@ -5,6 +5,7 @@ using Nini.Config;
 using NLog;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Parameters;
 
 namespace VodovozSalesReceiptsService
 {
@@ -33,13 +34,20 @@ namespace VodovozSalesReceiptsService
 
 			var fiscalizationWorker = new FiscalizationWorker(
 				OrderSingletonRepository.GetInstance(),
-				new SalesReceiptSender(baseAddress)
+				new SalesReceiptSender(baseAddress),
+				new OrderPrametersProvider(ParametersProvider.Instance),
+				new OrganizationParametersProvider(ParametersProvider.Instance)
 			);
 			fiscalizationWorker.Start();
 			
 			logger.Info("Служба фискализации запущена");
 
-			var salesReceiptsInstanceProvider = new SalesReceiptsInstanceProvider(new BaseParametersProvider(), OrderSingletonRepository.GetInstance());
+			var salesReceiptsInstanceProvider = new SalesReceiptsInstanceProvider(
+				new BaseParametersProvider(),
+				OrderSingletonRepository.GetInstance(),
+				new OrderPrametersProvider(ParametersProvider.Instance),
+				new OrganizationParametersProvider(ParametersProvider.Instance)
+			);
 			WebServiceHost salesReceiptsHost = new SalesReceiptsServiceHost(salesReceiptsInstanceProvider);
 			salesReceiptsHost.AddServiceEndpoint(
 				typeof(ISalesReceiptsService),
