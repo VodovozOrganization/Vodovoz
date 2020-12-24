@@ -9,6 +9,7 @@ using QS.DomainModel.UoW;
 using QS.Utilities;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Services;
 using VodovozSalesReceiptsService.DTO;
 
 namespace VodovozSalesReceiptsService
@@ -20,15 +21,21 @@ namespace VodovozSalesReceiptsService
     {
         public FiscalizationWorker(
             IOrderRepository orderRepository,
-            ISalesReceiptSender salesReceiptSender)
+            ISalesReceiptSender salesReceiptSender,
+            IOrderParametersProvider orderParametersProvider,
+            IOrganizationParametersProvider organizationParametersProvider)
         {
             this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
             this.salesReceiptSender = salesReceiptSender ?? throw new ArgumentNullException(nameof(salesReceiptSender));
+            this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+            this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
         }
 
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly IOrderRepository orderRepository;
         private readonly ISalesReceiptSender salesReceiptSender;
+        private readonly IOrderParametersProvider orderParametersProvider;
+        private readonly IOrganizationParametersProvider organizationParametersProvider;
         private readonly TimeSpan initialDelay = TimeSpan.FromSeconds(5);
         private readonly TimeSpan delay = TimeSpan.FromSeconds(45);
 
@@ -77,7 +84,7 @@ namespace VodovozSalesReceiptsService
                 logger.Info("Подготовка чеков к отправке на сервер фискализации...");
 
                 var receiptForOrderNodes = orderRepository
-                    .GetOrdersForCashReceiptServiceToSend(uow, DateTime.Today.AddDays(-3)).ToList();
+                    .GetOrdersForCashReceiptServiceToSend(uow, orderParametersProvider, organizationParametersProvider, DateTime.Today.AddDays(-3)).ToList();
 
                 var withoutReceipts = receiptForOrderNodes.Where(r => r.ReceiptId == null).ToList();
                 var withNotSentReceipts = receiptForOrderNodes.Where(r => r.ReceiptId.HasValue && r.WasSent != true).ToList();
