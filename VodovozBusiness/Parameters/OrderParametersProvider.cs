@@ -3,11 +3,11 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Parameters
 {
-    public class OrderPrametersProvider : IOrderPrametersProvider
+    public class OrderParametersProvider : IOrderParametersProvider
     {
         private readonly ParametersProvider parametersProvider;
 
-        public OrderPrametersProvider(ParametersProvider parametersProvider)
+        public OrderParametersProvider(ParametersProvider parametersProvider)
         {
             this.parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }

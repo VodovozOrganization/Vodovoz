@@ -1,6 +1,6 @@
 namespace Vodovoz.Services
 {
-    public interface IOrderPrametersProvider
+    public interface IOrderParametersProvider
     {
         int PaymentByCardFromMobileAppId { get; }
         
