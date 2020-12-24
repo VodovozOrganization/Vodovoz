@@ -68,7 +68,7 @@ namespace Vodovoz.Domain.Cash
             Expense newExpense =
             new Expense{
                 Casher = casher,
-                Date = Date,
+                Date = DateTime.Now,
                 Employee = accountableEmployee,
                 TypeOperation = ExpenseType.Advance,
                 ExpenseCategory = expenseCategory,
