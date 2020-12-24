@@ -11,19 +11,19 @@ namespace VodovozSalesReceiptsService
 	{
 		private readonly ISalesReceiptsServiceSettings salesReceiptsServiceSettings;
 		private readonly IOrderRepository orderRepository;
-		private readonly IOrderPrametersProvider orderPrametersProvider;
+		private readonly IOrderParametersProvider orderParametersProvider;
 		private readonly IOrganizationParametersProvider organizationParametersProvider;
 
 		public SalesReceiptsInstanceProvider(
 			ISalesReceiptsServiceSettings salesReceiptsServiceSettings,
 			IOrderRepository orderRepository,
-			IOrderPrametersProvider orderPrametersProvider,
+			IOrderParametersProvider orderParametersProvider,
 			IOrganizationParametersProvider organizationParametersProvider
 			)
 		{
 			this.salesReceiptsServiceSettings = salesReceiptsServiceSettings ?? throw new ArgumentNullException(nameof(salesReceiptsServiceSettings));
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			this.orderPrametersProvider = orderPrametersProvider ?? throw new ArgumentNullException(nameof(orderPrametersProvider));
+			this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
 		}
 
@@ -31,7 +31,7 @@ namespace VodovozSalesReceiptsService
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new SalesReceiptsService(salesReceiptsServiceSettings, orderRepository, orderPrametersProvider, organizationParametersProvider);
+			return new SalesReceiptsService(salesReceiptsServiceSettings, orderRepository, orderParametersProvider, organizationParametersProvider);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

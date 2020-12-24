@@ -35,7 +35,7 @@ namespace VodovozSalesReceiptsService
 			var fiscalizationWorker = new FiscalizationWorker(
 				OrderSingletonRepository.GetInstance(),
 				new SalesReceiptSender(baseAddress),
-				new OrderPrametersProvider(ParametersProvider.Instance),
+				new OrderParametersProvider(ParametersProvider.Instance),
 				new OrganizationParametersProvider(ParametersProvider.Instance)
 			);
 			fiscalizationWorker.Start();
@@ -45,7 +45,7 @@ namespace VodovozSalesReceiptsService
 			var salesReceiptsInstanceProvider = new SalesReceiptsInstanceProvider(
 				new BaseParametersProvider(),
 				OrderSingletonRepository.GetInstance(),
-				new OrderPrametersProvider(ParametersProvider.Instance),
+				new OrderParametersProvider(ParametersProvider.Instance),
 				new OrganizationParametersProvider(ParametersProvider.Instance)
 			);
 			WebServiceHost salesReceiptsHost = new SalesReceiptsServiceHost(salesReceiptsInstanceProvider);
