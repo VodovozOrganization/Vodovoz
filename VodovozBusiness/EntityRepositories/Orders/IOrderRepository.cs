@@ -10,6 +10,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Orders;
+using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Orders
 {
@@ -114,7 +115,11 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <summary>
 		/// Подбирает подходящие заказы, для которых необходимо отправкить чеки контрагентам
 		/// </summary>
-		IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(IUnitOfWork uow, DateTime? dateTime = null);
+		IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(
+			IUnitOfWork uow,
+			IOrderParametersProvider orderParametersProvider,
+			IOrganizationParametersProvider organizationParametersProvider,
+			DateTime? startDate = null);
 
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order);
 

@@ -11,12 +11,21 @@ namespace VodovozSalesReceiptsService
 	{
 		private readonly ISalesReceiptsServiceSettings salesReceiptsServiceSettings;
 		private readonly IOrderRepository orderRepository;
+		private readonly IOrderParametersProvider orderParametersProvider;
+		private readonly IOrganizationParametersProvider organizationParametersProvider;
 		private readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
-		public SalesReceiptsService(ISalesReceiptsServiceSettings salesReceiptsServiceSettings, IOrderRepository orderRepository)
+		public SalesReceiptsService(
+			ISalesReceiptsServiceSettings salesReceiptsServiceSettings,
+			IOrderRepository orderRepository,
+			IOrderParametersProvider orderParametersProvider,
+			IOrganizationParametersProvider organizationParametersProvider
+			)
 		{
 			this.salesReceiptsServiceSettings = salesReceiptsServiceSettings ?? throw new ArgumentNullException(nameof(salesReceiptsServiceSettings));
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
 		}
 
 		public bool ServiceStatus()
@@ -25,7 +34,7 @@ namespace VodovozSalesReceiptsService
 			try {
 				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 					var ordersAndReceiptNodes = orderRepository
-						.GetOrdersForCashReceiptServiceToSend(uow, DateTime.Today.AddDays(-3)).ToList();
+						.GetOrdersForCashReceiptServiceToSend(uow, orderParametersProvider, organizationParametersProvider, DateTime.Today.AddDays(-3)).ToList();
 
 					var receiptsToSend = ordersAndReceiptNodes.Count(r => r.ReceiptId == null || r.WasSent.HasValue && !r.WasSent.Value);
 					logger.Info($"Количество чеков на отправку: {receiptsToSend}");
