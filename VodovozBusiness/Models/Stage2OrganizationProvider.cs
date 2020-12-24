@@ -14,15 +14,15 @@ namespace Vodovoz.Models
     public class Stage2OrganizationProvider : IOrganizationProvider
     {
         private readonly IOrganizationParametersProvider organizationParametersProvider;
-        private readonly IOrderPrametersProvider orderPrametersProvider;
+        private readonly IOrderParametersProvider orderParametersProvider;
 
         public Stage2OrganizationProvider(
             IOrganizationParametersProvider organizationParametersProvider,
-            IOrderPrametersProvider orderPrametersProvider
+            IOrderParametersProvider orderParametersProvider
             )
         {
             this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
-            this.orderPrametersProvider = orderPrametersProvider ?? throw new ArgumentNullException(nameof(orderPrametersProvider));
+            this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
         }
         
         public Organization GetOrganization(IUnitOfWork uow, Order order)
@@ -58,7 +58,7 @@ namespace Vodovoz.Models
                     organizationId = organizationParametersProvider.BeveragesWorldOrganizationId;
                     break;
                 case PaymentType.ByCard:
-                    var idsForSosnovcev = new int[] {orderPrametersProvider.PaymentByCardFromMobileAppId, orderPrametersProvider.PaymentByCardFromSiteId};
+                    var idsForSosnovcev = new int[] {orderParametersProvider.PaymentByCardFromMobileAppId, orderParametersProvider.PaymentByCardFromSiteId};
                     if(order.PaymentByCardFrom != null && idsForSosnovcev.Contains(order.PaymentByCardFrom.Id)) {
                         organizationId = organizationParametersProvider.SosnovcevOrganizationId;
                     }
@@ -75,7 +75,7 @@ namespace Vodovoz.Models
 
         private bool IsOnlineStoreOrder(Order order)
         {
-            return order.OrderItems.Any(x => x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != orderPrametersProvider.OldInternalOnlineStoreId);
+            return order.OrderItems.Any(x => x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != orderParametersProvider.OldInternalOnlineStoreId);
         }
         
         private Organization GetOrganizationForOnlineStore(IUnitOfWork uow)
@@ -100,7 +100,7 @@ namespace Vodovoz.Models
                     organizationId = organizationParametersProvider.BeveragesWorldOrganizationId;
                     break;
                 case PaymentType.ByCard:
-                    var idsForSosnovcev = new int[] {orderPrametersProvider.PaymentByCardFromMobileAppId};
+                    var idsForSosnovcev = new int[] {orderParametersProvider.PaymentByCardFromMobileAppId};
                     if(order.PaymentByCardFrom != null && idsForSosnovcev.Contains(order.PaymentByCardFrom.Id)) {
                         organizationId = organizationParametersProvider.SosnovcevOrganizationId;
                     }
@@ -130,7 +130,7 @@ namespace Vodovoz.Models
         
         private bool IsOnlineStoreOrderWithoutShipment(OrderWithoutShipmentForAdvancePayment order)
         {
-            return order.OrderWithoutDeliveryForAdvancePaymentItems.Any(x => x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != orderPrametersProvider.OldInternalOnlineStoreId);
+            return order.OrderWithoutDeliveryForAdvancePaymentItems.Any(x => x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != orderParametersProvider.OldInternalOnlineStoreId);
         }
         
         public int GetMainOrganization()

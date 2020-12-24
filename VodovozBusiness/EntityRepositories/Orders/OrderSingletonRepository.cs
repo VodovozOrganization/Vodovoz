@@ -540,13 +540,13 @@ namespace Vodovoz.EntityRepositories.Orders
 		
 		public IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(
 			IUnitOfWork uow,
-			IOrderPrametersProvider orderPrametersProvider,
+			IOrderParametersProvider orderParametersProvider,
 			IOrganizationParametersProvider organizationParametersProvider,
 			DateTime? startDate = null)
 		{
 			#region Aliases Restrictions Projections Subqueries
 
-			var paymentByCardFromSiteId = orderPrametersProvider.PaymentByCardFromSiteId;
+			var paymentByCardFromSiteId = orderParametersProvider.PaymentByCardFromSiteId;
 			var vodovozSouthOrganizationId = organizationParametersProvider.VodovozSouthOrganizationId;
 
 			ReceiptForOrderNode resultAlias = null;
