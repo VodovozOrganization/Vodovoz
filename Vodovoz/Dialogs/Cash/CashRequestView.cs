@@ -108,7 +108,10 @@ namespace Vodovoz.Dialogs.Cash
 					x => x.Organization,
 					x => x.SelectedItem)
 				.InitializeFromSource();
-			speccomboOrganization.SelectedItem = orgList.First();
+			
+			if (speccomboOrganization.SelectedItem == null) {
+				speccomboOrganization.SelectedItem = orgList.First();
+			}
 
 			//Смена ролей для админов   
 			comboIfAdminRoleChooser.ItemsEnum = typeof(UserRole);
