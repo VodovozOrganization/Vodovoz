@@ -85,10 +85,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                     result.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
                 if (FilterViewModel.AccountableEmployee != null)
                     result.Where(() => accountableEmployeeAlias.Id == FilterViewModel.AccountableEmployee.Id);
-                if (FilterViewModel.State != null)
+                if (FilterViewModel.State != null )
                 {
-                    if (FilterViewModel.State != CashRequest.States.All)
-                        result.Where(() => cashRequestAlias.State == FilterViewModel.State);
+                    result.Where(() => cashRequestAlias.State == FilterViewModel.State);
                 }
             }
 

@@ -62,7 +62,9 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboStatus.Binding.AddBinding(
 				ViewModel,
 				e => e.State,
-				w => w.SelectedItem);
+				w => w.SelectedItemOrNull);
+			yenumcomboStatus.ShowSpecialStateAll = true;
+			
 
 			UserRole? userRole = ViewModel.GetUserRole();
 			//Для Роли Согласователя по-умолчанию Создана Подана,
