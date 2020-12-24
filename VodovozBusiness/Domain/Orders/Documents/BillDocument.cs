@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using QS.Print;
 using QS.Report;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Parameters;
 
@@ -26,7 +25,8 @@ namespace Vodovoz.Domain.Orders.Documents
 					{ "order_id",  Order.Id },
 					{ "organization_id", new OrganizationParametersProvider(ParametersProvider.Instance).GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
-					{ "special", false }
+					{ "special", false },
+					{ "without_vat", Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT }
 				}
 			};
 		}
