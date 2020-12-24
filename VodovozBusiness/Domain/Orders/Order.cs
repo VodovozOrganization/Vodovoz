@@ -57,6 +57,9 @@ namespace Vodovoz.Domain.Orders
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
 
+		private int vodovozCatalogId;
+		private int paidDeliveryNomenclatureId;
+
 		public virtual IInteractiveQuestion TaskCreationQuestion { get; set; }
 
 		#region Cвойства
@@ -1491,8 +1494,8 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			Contract = counterpartyContract;
-			foreach(var orderItem in OrderItems.ToList()) {
-				orderItem.CalculateVATType();
+			for (int i = 0; i < ObservableOrderItems.Count; i++) {
+				ObservableOrderItems[i].CalculateVATType();
 			}
 			UpdateContractDocument();
 			UpdateDocuments();
@@ -1638,6 +1641,27 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(oi);
 		}
 
+		public virtual void AddVodovozCatalogNomenclature(Nomenclature catalog)
+		{
+			if(vodovozCatalogId == 0) {
+				vodovozCatalogId = catalog.Id;
+			}
+
+			if (ObservableOrderItems.Any(x => x.Nomenclature.Id == vodovozCatalogId)) {
+				return;
+			}
+
+			var oi = new OrderItem
+			{
+				Order = this,
+				Count = 1,
+				Equipment = null,
+				Nomenclature = catalog,
+			};
+			
+			ObservableOrderItems.Add(oi);
+		} 
+
 		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
 		{
 			var fixedPrice = GetFixedPriceOrNull(nomenclature);
@@ -1740,7 +1764,11 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CalculateDeliveryPrice()
 		{
-			int paidDeliveryNomenclatureId = int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"));
+			if (paidDeliveryNomenclatureId == 0) {
+				paidDeliveryNomenclatureId = 
+					int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"));
+			}
+
 			OrderItem deliveryPriceItem = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == paidDeliveryNomenclatureId);
 
 			#region перенести всё это в OrderStateKey
@@ -1801,8 +1829,10 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="UoW">IUnitOfWork</param>
 		public virtual void AddNomenclatureForSaleFromPreviousOrder(OrderItem orderItem, IUnitOfWork UoW)
 		{
-			if(orderItem.Nomenclature.Category != NomenclatureCategory.additional)
+			if(orderItem.Nomenclature.Category != NomenclatureCategory.additional ||
+			   orderItem.Nomenclature.Id == vodovozCatalogId)
 				return;
+			
 			var newItem = new OrderItem {
 				Order = this,
 				Count = orderItem.Count,
@@ -1979,11 +2009,12 @@ namespace Vodovoz.Domain.Orders
 			INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider();
 			var deliveryId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
 
-			foreach (OrderItem orderItem in order.OrderItems) {
-				if (orderItem.Nomenclature.Id == deliveryId)
-                {
+			foreach(OrderItem orderItem in order.OrderItems) {
+
+				if (orderItem.Nomenclature.Id == vodovozCatalogId ||
+				    orderItem.Nomenclature.Id == paidDeliveryNomenclatureId) {
 					continue;
-                }
+				}
 				
 				decimal discMoney;
 				if(orderItem.DiscountMoney == 0) {
@@ -2381,6 +2412,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RemoveItem(OrderItem item)
 		{
+			if(item.Nomenclature.Id == vodovozCatalogId) return;
+			
 			RemoveOrderItem(item);
 			DeleteOrderEquipmentOnOrderItem(item);
 			UpdateDocuments();

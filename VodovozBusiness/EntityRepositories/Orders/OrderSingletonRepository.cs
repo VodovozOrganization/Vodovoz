@@ -804,5 +804,39 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return receipt != null;
 		}
+
+		public bool CanAddVodovozCatalogToOrder(IUnitOfWork uow, int catalogId)
+		{
+			WarehouseMovementOperation operationAddAlias = null;
+			WarehouseMovementOperation operationRemoveAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			
+			var subqueryAdded = uow.Session.QueryOver(() => operationAddAlias)
+				.Where(() => operationAddAlias.Nomenclature.Id == catalogId)
+				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
+				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
+				.SingleOrDefault<decimal>();
+
+			var subqueryRemoved = uow.Session.QueryOver(() => operationRemoveAlias)
+				.Where(() => operationRemoveAlias.Nomenclature.Id == catalogId)
+				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
+				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
+				.SingleOrDefault<decimal>();
+
+			var subqueryReserved = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderItemAlias.Nomenclature.Id == catalogId)
+				.Where(() => nomenclatureAlias.DoNotReserve == false)
+				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
+				             || orderAlias.OrderStatus == OrderStatus.InTravelList
+				             || orderAlias.OrderStatus == OrderStatus.OnLoading)
+				.Select(Projections.Sum(() => orderItemAlias.Count))
+				.SingleOrDefault<decimal>();
+
+			return ((subqueryAdded - subqueryRemoved) - subqueryReserved) > 0;
+		}
 	}
 }

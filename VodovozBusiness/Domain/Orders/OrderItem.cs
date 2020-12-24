@@ -23,6 +23,9 @@ namespace Vodovoz.Domain.Orders
 		private int? paidDeliveryNomenclatureId;
 		private int PaidDeliveryNomenclatureId => paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId = int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))).Value;
 
+		private int? vodovozCatalogId;
+		private int VodovozCatalogId => 
+			vodovozCatalogId ?? (vodovozCatalogId = new NomenclatureParametersProvider().VodovozCatalogId).Value;
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -402,7 +405,8 @@ namespace Vodovoz.Domain.Orders
 					result = false;
 				}
 
-				if(Nomenclature.Id == PaidDeliveryNomenclatureId)
+				if(Nomenclature.Id == PaidDeliveryNomenclatureId ||
+				   Nomenclature.Id == VodovozCatalogId)
 					result = false;
 
 				if(PromoSet != null && !PromoSet.CanEditNomenclatureCount)

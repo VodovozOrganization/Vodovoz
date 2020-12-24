@@ -28,6 +28,8 @@ namespace Vodovoz.Parameters
 
         public string OnlineStoreExportFileUrl => parametersProvider.GetStringValue("online_store_export_file_url");
 
+        public int VodovozCatalogId => parametersProvider.GetIntValue("vodovoz_catalog_id");
+
         #region Получение номенклатур воды
 
 		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow)

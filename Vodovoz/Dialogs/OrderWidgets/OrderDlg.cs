@@ -1,4 +1,4 @@
-﻿using EmailService;
+using EmailService;
 using fyiReporting.RDL;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -101,6 +101,7 @@ namespace Vodovoz
 		private IOrganizationProvider organizationProvider;
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
+		private Nomenclature vodovozCatalog;
 		
 		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
@@ -636,6 +637,19 @@ namespace Vodovoz
 				hboxDocumentType.Remove(torg12OnlyLabel);
 				hboxDocumentType.Add(enumDocumentType);
 			}
+		}
+
+		private void TryAddVodovozCatalog(INomenclatureParametersProvider nomenclatureParametersProvider)
+		{
+			if (vodovozCatalog == null) {
+				vodovozCatalog = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.VodovozCatalogId);
+			}
+			
+			if (!orderRepository.CanAddVodovozCatalogToOrder(UoW, vodovozCatalog.Id)) {
+				return;
+			}
+
+			Entity.AddVodovozCatalogNomenclature(vodovozCatalog);
 		}
 
 		private void OnDeliveryPointChanged(EntityChangeEvent[] changeevents)
@@ -1855,6 +1869,7 @@ namespace Vodovoz
 
 				enumTax.SelectedItem = Entity.Client.TaxType;
 				enumTax.Visible = lblTax.Visible = IsEnumTaxVisible();
+				TryAddVodovozCatalog(new NomenclatureParametersProvider());
 			} else {
 				referenceDeliveryPoint.Sensitive = false;
 			}

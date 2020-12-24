@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Domain.Client;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -20,6 +21,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				Identifier = "Documents.UPD",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },
+					{ "catalog_id", new NomenclatureParametersProvider().VodovozCatalogId},
 					{ "special", false },
 					{ "hide_signature", HideSignature}
 				},
