@@ -1189,6 +1189,9 @@ namespace Vodovoz.Domain.Orders
 			|| ObservableOrderEquipments.Any(orderEquipment =>
 				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderEquipment.Nomenclature.Category) && !orderEquipment.Nomenclature.NoDelivey);
 
+		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.cashless
+			&& (Contract?.Organization?.WithoutVAT ?? false);
+
 		#endregion
 
 		#region Автосоздание договоров, при изменении подтвержденного заказа
@@ -3236,7 +3239,7 @@ namespace Vodovoz.Domain.Orders
 													   .ToArray();
 
 			if(needed.Any(x => !docsOfOrder.Contains(x)))
-				throw new ArgumentException($"В метод можно передавать только типы документов помеченные атрибутом {nameof(DocumentOfOrderAttribute)}", nameof(needed));
+				throw new ArgumentException($@"В метод можно передавать только типы документов помеченные атрибутом {nameof(DocumentOfOrderAttribute)}", nameof(needed));
 
 			var needCreate = needed.ToList();
 			foreach(var doc in OrderDocuments.Where(d => d.Order?.Id == Id && docsOfOrder.Contains(d.Type)).ToList()) {
@@ -3253,6 +3256,15 @@ namespace Vodovoz.Domain.Orders
 				if(ObservableOrderDocuments.Any(x => x.Order?.Id == Id && x.Type == type))
 					continue;
 				ObservableOrderDocuments.Add(CreateDocumentOfOrder(type));
+			}
+			CheckDocumentCount(this);
+		}
+
+		private void CheckDocumentCount(Order order)
+		{
+			var torg12document = order.ObservableOrderDocuments.FirstOrDefault(x => x is Torg12Document && x.Type == OrderDocumentType.Torg12);
+			if(torg12document != null && IsCashlessPaymentTypeAndOrganizationWithoutVAT) {
+				((Torg12Document)torg12document).CopiesToPrint = 2;
 			}
 		}
 
