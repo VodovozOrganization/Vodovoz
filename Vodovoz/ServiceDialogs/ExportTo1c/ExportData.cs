@@ -363,6 +363,8 @@ namespace Vodovoz.ExportTo1c
 			
 			foreach (var orderItem in order.OrderItems)
 			{
+				if(orderItem.ActualSum != 0){
+				
 				var record = CreateRetailRecord(orderItem);
 
 					exportRetailDocument.Tables[0].Records.Add(record); //Товары
@@ -377,6 +379,8 @@ namespace Vodovoz.ExportTo1c
 						);//оплаты безналом
 						exportRetailDocument.Tables[1].Records.Add(recordPayment);
 					}
+					
+				}
 			}
 
 			if(!RetailDocumentsList.ContainsKey(order.DeliveryDate.Value.Date)) {
