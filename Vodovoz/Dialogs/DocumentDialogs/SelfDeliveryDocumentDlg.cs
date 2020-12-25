@@ -7,8 +7,6 @@ using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
-using QS.EntityRepositories;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Services;
 using QSOrmProject;
@@ -19,7 +17,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
@@ -28,7 +25,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -133,6 +129,7 @@ namespace Vodovoz
 			yentryrefOrder.RepresentationModel = new ViewModel.OrdersVM(filter);
 			yentryrefOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			yentryrefOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			yentryrefOrder.ChangedByUser += (sender, e) => { FillTrees(); };
 
 			UpdateOrderInfo();
 			Entity.UpdateStockAmount(UoW);
@@ -143,15 +140,47 @@ namespace Vodovoz
 			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
 			spnTareToReturn.Binding.AddBinding(Entity, e => e.TareToReturn, w => w.ValueAsInt).InitializeFromSource();
 
-			FillTrees();
-
 			IColumnsConfig goodsColumnsConfig = FluentColumnsConfig<GoodsReceptionVMNode>.Create()
 				.AddColumn("Номенклатура").AddTextRenderer(node => node.Name)
 				.AddColumn("Кол-во").AddNumericRenderer(node => node.Amount)
 				.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 100, 0))
 				.Editing(true)
+				.AddColumn("Ожидаемое кол-во").AddNumericRenderer(node => node.ExpectedAmount)
 				.AddColumn("Категория").AddTextRenderer(node => node.Category.GetEnumTitle())
-				.AddColumn("")
+				.AddColumn("Направление").AddTextRenderer(node => node.Direction != null ? node.Direction.GetEnumTitle() : "")
+				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
+				.AddSetter((c, n) => {
+					c.Editable = false;
+					c.Editable = n.Category == NomenclatureCategory.equipment;
+				})
+                .AddColumn("Причина").AddEnumRenderer(
+                    node => node.DirectionReason
+                    ,true
+                ).AddSetter((c, n) =>
+                {
+                    switch (n.DirectionReason)
+                    {
+                        case DirectionReason.Rent:
+                            c.Text = "Закрытие аренды";
+                            break;
+                        case DirectionReason.Repair:
+                            c.Text = "В ремонт";
+                            break;
+                        case DirectionReason.Cleaning:
+                            c.Text = "На санобработку";
+                            break;
+                        case DirectionReason.RepairAndCleaning:
+                            c.Text = "В ремонт и санобработку";
+                            break;
+                        default:
+                            break;
+                    }
+					c.Editable = false;
+					c.Editable = n.Category == NomenclatureCategory.equipment;
+				})
+
+
+                .AddColumn("")
 				.Finish();
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
@@ -172,6 +201,8 @@ namespace Vodovoz
 			} else {
 				Entity.CanEdit = true;
 			}
+
+			FillTrees();
 		}
 
 		void FillTrees()
@@ -194,12 +225,18 @@ namespace Vodovoz
 		{
 			GoodsReceptionList.Clear();
 			foreach(var item in Entity.ReturnedItems) {
-				if(item.Nomenclature.Category != NomenclatureCategory.bottle)
+				if((item.Nomenclature.Category != NomenclatureCategory.bottle) 
+					&& ((item.Nomenclature.Category != NomenclatureCategory.equipment) 
+						|| ( item.Direction == Domain.Orders.Direction.PickUp)))
 					GoodsReceptionList.Add(new GoodsReceptionVMNode {
 						NomenclatureId = item.Nomenclature.Id,
 						Name = item.Nomenclature.Name,
 						Category = item.Nomenclature.Category,
-						Amount = (int)item.Amount
+						Amount = item.Amount,
+						ExpectedAmount = (int)item.Amount,
+						Direction = item.Direction,
+						DirectionReason = item.DirectionReason,
+						OwnType = item.OwnType
 					});
 			}
 		}
@@ -275,6 +312,7 @@ namespace Vodovoz
 			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
 			UpdateAmounts();
 			UpdateWidgets();
+			FillTrees();
 		}
 
 		void UpdateAmounts()
@@ -312,6 +350,12 @@ namespace Vodovoz
 				NomenclatureId = nomenclature.Id,
 				Name = nomenclature.Name
 			};
+
+			if (node.Category == NomenclatureCategory.equipment)
+            {
+				node.Direction = Domain.Orders.Direction.PickUp;
+            }
+
 			if(!GoodsReceptionList.Any(n => n.NomenclatureId == node.NomenclatureId))
 				GoodsReceptionList.Add(node);
 		}
