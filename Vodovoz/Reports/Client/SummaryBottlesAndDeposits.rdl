@@ -1727,7 +1727,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="returned">
-                      <Value>=Fields!returned.Value - Iif( Fields!forfeitCount.IsMissing , 0 , {forfeitCount})</Value>
+                      <Value>=Iif({returned} = null and {forfeitCount} = null, "", {returned} - Iif( Fields!forfeitCount.IsMissing , 0 , {forfeitCount}))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
