@@ -252,6 +252,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			if(!NHibernateUtil.IsInitialized(Nomenclature)) {
 				NHibernateUtil.Initialize(Nomenclature);
 			}
+			if(OrderWithoutDeliveryForAdvancePayment == null) {
+				return;
+			}
+			
+			if(!NHibernateUtil.IsInitialized(OrderWithoutDeliveryForAdvancePayment)) {
+				NHibernateUtil.Initialize(OrderWithoutDeliveryForAdvancePayment);
+			}
+			
 			VAT vat = CanUseVAT() ? Nomenclature.VAT : VAT.No;
 			
 			switch(vat) {
@@ -275,6 +283,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		
 		private void RecalculateVAT()
 		{
+			if(OrderWithoutDeliveryForAdvancePayment == null) {
+				return;
+			}
+
+			if(!NHibernateUtil.IsInitialized(OrderWithoutDeliveryForAdvancePayment)) {
+				NHibernateUtil.Initialize(OrderWithoutDeliveryForAdvancePayment);
+			}
+			
 			if(!CanUseVAT()) {
 				IncludeNDS = null;
 				return;
