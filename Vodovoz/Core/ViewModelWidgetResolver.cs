@@ -47,7 +47,7 @@ namespace Vodovoz.Core
 
 			Type tabType = tab.GetType();
 			if(!viewModelWidgets.ContainsKey(tabType)) {
-				throw new ApplicationException($"Не настроено сопоставление для {tabType.Name}");
+				throw new WidgetResolveException($"Не настроено сопоставление для {tabType.Name}");
 			}
 
 			var widgetCtorInfo = viewModelWidgets[tabType].GetConstructor(new[] { tabType });
@@ -66,7 +66,7 @@ namespace Vodovoz.Core
 			}
 			Type filterType = filter.GetType();
 			if(!viewModelWidgets.ContainsKey(filterType)) {
-				throw new ApplicationException($"Не настроено сопоставление для {filterType.Name}");
+				throw new WidgetResolveException($"Не настроено сопоставление для {filterType.Name}");
 			}
 
 			var widgetCtorInfo = viewModelWidgets[filterType].GetConstructor(new[] { filterType });
@@ -86,7 +86,7 @@ namespace Vodovoz.Core
 
 			Type filterType = filter.GetType();
 			if(!viewModelWidgets.ContainsKey(filterType)) {
-				throw new ApplicationException($"Не настроено сопоставление для {filterType.Name}");
+				throw new WidgetResolveException($"Не настроено сопоставление для {filterType.Name}");
 			}
 
 			var widgetCtorInfo = viewModelWidgets[filterType].GetConstructor(new[] { filterType });
@@ -101,7 +101,7 @@ namespace Vodovoz.Core
 
 			Type footerType = footer.GetType();
 			if(!viewModelWidgets.ContainsKey(footerType)) {
-				throw new ApplicationException($"Не настроено сопоставление для {footerType.Name}");
+				throw new WidgetResolveException($"Не настроено сопоставление для {footerType.Name}");
 			}
 
 			var widgetCtorInfo = viewModelWidgets[footerType].GetConstructor(new[] { footerType });
@@ -116,7 +116,7 @@ namespace Vodovoz.Core
 
 			Type filterType = viewModel.GetType();
 			if(!viewModelWidgets.ContainsKey(filterType)) {
-				throw new ApplicationException($"Не настроено сопоставление для {filterType.Name}");
+				throw new WidgetResolveException($"Не настроено сопоставление для {filterType.Name}");
 			}
 
 			var widgetCtorInfo = viewModelWidgets[filterType].GetConstructor(new[] { filterType });
@@ -134,7 +134,7 @@ namespace Vodovoz.Core
 				throw new InvalidOperationException($"Модель представления {viewModelType.Name} уже зарегистрирована");
 			}
 			viewModelWidgets.Add(viewModelType, widgetType);
-
+			
 			return this;
 		}
 
