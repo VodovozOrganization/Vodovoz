@@ -119,6 +119,7 @@ public partial class MainWindow : Gtk.Window
 			ActionRouteListAddressesTransferring.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 		ActionStock.Sensitive = CurrentPermissions.Warehouse.Allowed().Any();
 
+		bool hasAccessToCRM = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
 		bool hasAccessToSalaries = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
 		bool hasAccessToWagesAndBonuses = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
 		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
@@ -127,6 +128,7 @@ public partial class MainWindow : Gtk.Window
 		ActionWagesOperations.Sensitive = hasAccessToSalaries;
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries;
 		ActionDriversWageBalance.Visible = hasAccessToSalaries;
+		ActionCRM.Sensitive = hasAccessToCRM;
 
 		ActionWage.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
 
