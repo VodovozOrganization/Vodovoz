@@ -28,8 +28,7 @@ namespace Vodovoz.Core
 		{
 			try {
 				return base.Resolve(tab);
-			} catch(Exception ex) {
-				logger.Debug(ex);
+			} catch(WidgetResolveException ex) {
 				try {
 					var baseOnNameResolver = new BasedOnNameTDIResolver(usedAssemblies);
 					return baseOnNameResolver.Resolve(tab);
