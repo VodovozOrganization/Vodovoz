@@ -57,6 +57,11 @@ namespace Vodovoz.Domain.Cash
             set => SetField(ref accountableEmployee, value);
         }
 
+        public virtual void CreateExpenseCashOrganizationDistributionDoc()
+        {
+           
+            
+        }
         public virtual void CreateNewExpense(
             IUnitOfWork unitOfWork,
             Employee casher,
@@ -79,6 +84,10 @@ namespace Vodovoz.Domain.Cash
             };
             this.Expense = newExpense;
             unitOfWork.Save(newExpense);
+            
+            //CreateExpenseCashOrganizationDistributionDoc
+            var distributor = new ExpenseCashOrganisationDistributor();
+            distributor.DistributeCashForExpense(unitOfWork, newExpense, false);
         }
 
         #region Validation
