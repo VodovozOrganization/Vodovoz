@@ -1111,7 +1111,7 @@ namespace Vodovoz
 
 			#endregion
 
-			DeleteConfig.AddHibernateDeleteInfo<PaymentFromTinkoff>();
+			DeleteConfig.AddHibernateDeleteInfo<PaymentByCardOnline>();
 			DeleteConfig.AddHibernateDeleteInfo<OrderIdProviderForMobileApp>();
 
 			#region Журнал изменений

@@ -3,11 +3,11 @@ using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.HibernateMapping.Payments
 {
-	public class PaymentFromTinkoffMap : ClassMap<PaymentFromTinkoff>
+	public class PaymentByCardOnlineMap : ClassMap<PaymentByCardOnline>
 	{
-		public PaymentFromTinkoffMap()
+		public PaymentByCardOnlineMap()
 		{
-			Table("payments_from_tinkoff");
+			Table("payments_by_card_online");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 

@@ -6,19 +6,26 @@ using System.Text;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
-using NHibernate.Util;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Widgets;
 using QSProjectsLib;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Repositories.Payments;
 
 namespace Vodovoz.ServiceDialogs
 {
+	//FIXME Переименовать диалог при переписывании на MVVM.
 	public partial class ImportPaymentsFromTinkoffDlg : TdiTabBase
 	{
-		PaymentsFromTinkoffParser parser;
-		GenericObservableList<PaymentFromTinkoff> paymentsFromTinkoff;
+		PaymentsFromTinkoffParser tinkoffParser;
+		PaymentsFromYookassaParser yookassaParser;
+		private MenuItem readTinkoff;
+		private MenuItem readYookassa;
+        private Widget readFileButton;
+
+        GenericObservableList<PaymentByCardOnline> paymentsByCard;
 		List<string> errorList = new List<string>();
 		Dictionary<int, decimal> otherPaymentsFromDB;
 
@@ -29,7 +36,7 @@ namespace Vodovoz.ServiceDialogs
 		public ImportPaymentsFromTinkoffDlg()
 		{
 			this.Build();
-			TabName = "Загрузка оплат из ЛК Тинькофф";
+			TabName = "Загрузка платежей по карте";
 			ConfigureDlg();
 		}
 
@@ -38,58 +45,140 @@ namespace Vodovoz.ServiceDialogs
 			var csvFilter = new FileFilter();
 			csvFilter.AddPattern("*.csv");
 			csvFilter.Name = "Comma Separated Values File (*.csv)";
+			
+			var txtFilter = new FileFilter();
+			txtFilter.AddPattern("*.txt");
+			txtFilter.Name = "Текстовый файл (*.txt)";
+			
 			var allFilter = new FileFilter();
 			allFilter.AddPattern("*");
 			allFilter.Name = "Все файлы";
+			
 			fChooser.AddFilter(csvFilter);
+			fChooser.AddFilter(txtFilter);
 			fChooser.AddFilter(allFilter);
 
-			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<PaymentFromTinkoff>()
+			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<PaymentByCardOnline>()
 				.AddColumn("Загрузить")
 					.AddToggleRenderer(x => x.Selected).Editing()
 					.AddSetter((c, n) => (c as CellRendererToggle).Activatable = n.Selectable)
 				.AddColumn("Дата и\nвремя")
-					.AddTextRenderer(
-						x => string.Format(
-							"{0}\n{1}",
-							x.DateAndTime.ToString("M"),
-							x.DateAndTime.ToString("t")
-						)
-					)
+					.AddTextRenderer(x => $"{x.DateAndTime:M}\n{x.DateAndTime:t}")
 				.AddColumn("Номер и\nсумма оплаты")
 					.AddTextRenderer(
-						x => string.Format(
-							"{0}\n{1}",
-							x.PaymentNr.ToString(),
-							CurrencyWorks.GetShortCurrencyString(x.PaymentRUR)
-						)
-					)
+						x => $"{x.PaymentNr.ToString()}\n{CurrencyWorks.GetShortCurrencyString(x.PaymentRUR)}"
+				)
 				.AddColumn("Контакты")
-					.AddTextRenderer(
-						x => string.Format(
-							"{0}\n{1}",
-							x.Phone,
-							x.Email
-						)
-					)
+					.AddTextRenderer(x => $"{x.Phone}\n{x.Email}")
 				.AddColumn("Магазин")
 					.AddTextRenderer(x => x.Shop)
 				.AddColumn("Статус оплаты")
 				.AddTextRenderer(x => x.PaymentStatus.GetEnumTitle())
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRenderer>(
-						(c, n) => c.CellBackground = n.Color
-					)
+					.AddSetter<CellRenderer>((c, n) => c.CellBackground = n.Color)
 				.Finish();
+
+			ConfigureButtonReadFile();
 
 			SetControlsAccessibility();
 		}
 
+		private void ConfigureButtonReadFile()
+		{
+			MenuButton menuButton = new MenuButton {Label = "Прочитать данные из файла"};
+			Menu childActionButtons = new Menu();
+			
+			readTinkoff = new MenuItem("Прочитать выгрузку Тинькова");
+			readTinkoff.Activated += (sender, args) => ReadTinkoffPayments();
+			readTinkoff.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
+			
+			readYookassa = new MenuItem("Прочитать выгрузку Юкассы");
+			readYookassa.Activated += (sender, args) => ReadYookassaPayments();
+			readYookassa.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
+
+			childActionButtons.Add(readTinkoff);
+			childActionButtons.Add(readYookassa);
+
+			childActionButtons.ShowAll();
+			menuButton.Menu = childActionButtons;
+			readFileButton = menuButton;
+            readFileButton.ShowAll();
+
+			hboxButtons.Add(readFileButton);
+			Box.BoxChild readFileButtonBox = (Box.BoxChild)hboxButtons[readFileButton];
+			readFileButtonBox.Position = 0;
+			readFileButtonBox.Expand = false;
+			readFileButtonBox.Fill = false;
+		}
+
+		/// <summary>
+		/// Проверка, что в БД уже нет такого платежа
+		/// </summary>
+		/// <returns><c>true</c>, если есть такой номер платёжа в БД,
+		/// <c>false</c> если номер платежа не найден в БД</returns>
+		/// <param name="payment">Платёж</param>
+		bool IsPaymentUploadedAlready(PaymentByCardOnline payment)
+		{
+			if(otherPaymentsFromDB == null || !otherPaymentsFromDB.Any())
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+					otherPaymentsFromDB = PaymentsRepository.GetPaymentsByOneMonth(uow, DateTime.Now);
+				}
+
+			return otherPaymentsFromDB.Any() && otherPaymentsFromDB.ContainsKey(payment.PaymentNr);
+		}
+
+		void SetControlsAccessibility(bool enabled = false)
+		{
+			btnUpload.Sensitive = readFileButton.Sensitive = enabled;
+			chkAll.Sensitive = enabled;
+		}
+
+		void ReadTinkoffPayments()
+		{
+			var fileNameExtension = fChooser.Filename.Split(new[] {'.'}).Last();
+
+			if (fileNameExtension == "txt")
+			{
+				MessageDialogHelper.RunErrorDialog($"Неверное расширение файла! Для выгрузки с Тинькова нужен {fChooser.Filters[0].Name}.");
+				return;
+			}
+			
+			tinkoffParser = new PaymentsFromTinkoffParser(fChooser.Filename);
+			tinkoffParser.Parse();
+			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(tinkoffParser.PaymentsFromTinkoff);
+			ShowParsedPayments();
+		}
+
+		void ReadYookassaPayments()
+		{
+			var fileNameExtension = fChooser.Filename.Split(new[] {'.'}).Last();
+
+			if (fileNameExtension == "csv")
+			{
+				MessageDialogHelper.RunErrorDialog($"Неверное расширение файла! Для выгрузки с Юкассы нужен {fChooser.Filters[1].Name}.");
+				return;
+			}
+
+			yookassaParser = new PaymentsFromYookassaParser(fChooser.Filename);
+			yookassaParser.Parse();
+			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(yookassaParser.PaymentsFromYookassa);
+			ShowParsedPayments();
+		}
+		
+		private void ShowParsedPayments()
+		{
+			InitializeListOfPayments();
+			btnUpload.Sensitive = chkAll.Active = chkAll.Sensitive =
+				treeDocuments.Sensitive = paymentsByCard.Any(p => p.Selectable);
+			UpdateDescription();
+			treeDocuments.ItemsDataSource = paymentsByCard;
+		}
+		
 		void InitializeListOfPayments()
 		{
 			otherPaymentsFromDB?.Clear();
-			foreach(PaymentFromTinkoff payment in paymentsFromTinkoff) {
+			foreach(PaymentByCardOnline payment in paymentsByCard) {
 				if(payment.PaymentStatus != PaymentStatus.CONFIRMED) {
 					payment.Color = colorLightRed;
 					payment.Selected = payment.Selectable = false;
@@ -109,57 +198,23 @@ namespace Vodovoz.ServiceDialogs
 				};
 			}
 		}
-
-		/// <summary>
-		/// Проверка, что в БД уже нет такого платежа
-		/// </summary>
-		/// <returns><c>true</c>, если есть такой номер платёжа в БД,
-		/// <c>false</c> если номер платежа не найден в БД</returns>
-		/// <param name="payment">Платёж</param>
-		bool IsPaymentUploadedAlready(PaymentFromTinkoff payment)
-		{
-			if(otherPaymentsFromDB == null || !otherPaymentsFromDB.Any())
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-					otherPaymentsFromDB = PaymentsRepository.GetAllPaymentsFromTinkoff(uow);
-				}
-
-			return otherPaymentsFromDB.Any() && otherPaymentsFromDB.ContainsKey(payment.PaymentNr);
-		}
-
-		void SetControlsAccessibility(bool enabled = false)
-		{
-			btnUpload.Sensitive = btnReadFile.Sensitive = enabled;
-			chkAll.Sensitive = enabled;
-		}
-
-		protected void OnButtonReadFileClicked(object sender, EventArgs e)
-		{
-			parser = new PaymentsFromTinkoffParser(fChooser.Filename);
-			parser.Parse();
-			paymentsFromTinkoff = new GenericObservableList<PaymentFromTinkoff>(parser.PaymentsFromTinkoff);
-			InitializeListOfPayments();
-			btnUpload.Sensitive = chkAll.Active = chkAll.Sensitive =
-				treeDocuments.Sensitive = paymentsFromTinkoff.Any(p => p.Selectable);
-			UpdateDescription();
-			treeDocuments.ItemsDataSource = paymentsFromTinkoff;
-		}
-
+		
 		void UpdateDescription()
 		{
-			if(paymentsFromTinkoff != null) {
+			if(paymentsByCard != null) {
 				StringBuilder sb = new StringBuilder();
-				if(paymentsFromTinkoff.Any())
+				if(paymentsByCard.Any())
 					sb.Append(
 						string.Format(
 							"Отмечено для загрузки <b>{0}</b> платежей из <b>{1}</b>, ",
-							paymentsFromTinkoff.Count(p => p.Selected),
-							paymentsFromTinkoff.Count()
+							paymentsByCard.Count(p => p.Selected),
+							paymentsByCard.Count()
 						)
 					);
-				if(paymentsFromTinkoff.Any(p => p.IsDuplicate))
-					sb.Append(string.Format("<span background=\"{0}\">     </span> - был загружен ранее, ", colorYellow));
-				if(paymentsFromTinkoff.Any(p => p.PaymentStatus != PaymentStatus.CONFIRMED))
-					sb.Append(string.Format("<span background=\"{0}\">     </span> - статус неприемлем, ", colorLightRed));
+				if(paymentsByCard.Any(p => p.IsDuplicate))
+					sb.Append($"<span background=\"{colorYellow}\">     </span> - был загружен ранее, ");
+				if(paymentsByCard.Any(p => p.PaymentStatus != PaymentStatus.CONFIRMED))
+					sb.Append($"<span background=\"{colorLightRed}\">     </span> - статус неприемлем, ");
 
 				lblDescription.Markup = sb.ToString().Trim(new[] { ' ', ',' });
 			}
@@ -167,7 +222,10 @@ namespace Vodovoz.ServiceDialogs
 
 		protected void OnFilechooserSelectionChanged(object sender, EventArgs e)
 		{
-			btnReadFile.Sensitive = !string.IsNullOrWhiteSpace(fChooser.Filename);
+            readFileButton.Sensitive = !string.IsNullOrWhiteSpace(fChooser.Filename);
+			readTinkoff.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
+			readYookassa.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
+
 			btnUpload.Sensitive = false;
 			UpdateDescription();
 		}
@@ -182,7 +240,7 @@ namespace Vodovoz.ServiceDialogs
 			int cnt = 0;
 			int totalSaved = 0;
 			int totalProcessed = 0;
-			var paymentsToSave = paymentsFromTinkoff.Where(p => p.Selected);
+			var paymentsToSave = paymentsByCard.Where(p => p.Selected);
 			int qtyPaymentsToSave = paymentsToSave.Count();
 
 			IUnitOfWork uow = null;
@@ -223,26 +281,12 @@ namespace Vodovoz.ServiceDialogs
 
 		void AddErrorMessage(string msg)
 		{
-			errorList.Add(
-				string.Format(
-					"{0}: {1}\n",
-					DateTime.Now.ToString("G"),
-					msg
-				)
-			);
+			errorList.Add($"{DateTime.Now:G}: {msg}\n");
 		}
 
 		void UpdateProgress(int saved, int processed, int total, string text)
 		{
-			UpdateProgress(
-				processed * 1d / total,
-				string.Format(
-					"{0} (Сохранено {1} из {2})",
-					text,
-					saved,
-					total
-				)
-			);
+			UpdateProgress(processed * 1d / total, $"{text} (Сохранено {saved} из {total})");
 		}
 
 		void UpdateProgress(double progress, string text)
@@ -250,7 +294,7 @@ namespace Vodovoz.ServiceDialogs
 			if(progress > 1)
 				progress = 1;
 			progressBar.Fraction = progress;
-			progressBar.Text = string.Format("{1}% - {0} ", text, (int)(progress * 100));
+			progressBar.Text = $"{(int) (progress * 100)}% - {text} ";
 			progressBar.Fraction = progress > 1 ? 1d : progress;
 			QSMain.WaitRedraw();
 		}
@@ -258,7 +302,7 @@ namespace Vodovoz.ServiceDialogs
 		protected void OnChkAllToggled(object sender, EventArgs e)
 		{
 			if(chkAll.HasFocus) {
-				foreach(PaymentFromTinkoff item in paymentsFromTinkoff)
+				foreach(PaymentByCardOnline item in paymentsByCard)
 					item.Selected = item.Selectable && chkAll.Active;
 				treeDocuments.YTreeModel.EmitModelChanged();
 				UpdateDescription();
@@ -268,7 +312,7 @@ namespace Vodovoz.ServiceDialogs
 		protected void OnBtnUploadClicked(object sender, EventArgs e)
 		{
 			btnUpload.Sensitive = treeDocuments.Sensitive = chkAll.Sensitive = chkAll.Active = false;
-			Save(paymentsFromTinkoff.Count(p => p.Selected) < 200 ? 1 : 100);
+			Save(paymentsByCard.Count(p => p.Selected) < 200 ? 1 : 100);
 			UpdateDescription();
 
 			if(errorList.Any()) {
@@ -278,8 +322,8 @@ namespace Vodovoz.ServiceDialogs
 				messageDialog.Show();
 				errorList.Clear();
 			}
-			paymentsFromTinkoff.Clear();
-			btnReadFile.Sensitive = true;
+			paymentsByCard.Clear();
+            readFileButton.Sensitive = true;
 		}
 
 		protected void OnBtnCancelClicked(object sender, EventArgs e)

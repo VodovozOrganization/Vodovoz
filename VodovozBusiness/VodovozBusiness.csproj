@@ -520,8 +520,8 @@
     <Compile Include="Domain\Sale\IDeliveryPriceRule.cs" />
     <Compile Include="Domain\Sale\CommonDistrictRuleItem.cs" />
     <Compile Include="Repositories\Sale\DistrictRuleRepository.cs" />
-    <Compile Include="Domain\Payments\PaymentFromTinkoff.cs" />
-    <Compile Include="HibernateMapping\Payments\PaymentFromTinkoffMap.cs" />
+    <Compile Include="Domain\Payments\PaymentByCardOnline.cs" />
+    <Compile Include="HibernateMapping\Payments\PaymentByCardOnlineMap.cs" />
     <Compile Include="Repositories\Payments\PaymentsRepository.cs" />
     <Compile Include="Repositories\HumanResourses\EmployeeRepository.cs" />
     <Compile Include="Repositories\HumanResourses\SubdivisionsRepository.cs" />

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -8,24 +7,20 @@ namespace Vodovoz.Domain.Payments
 {
     public class PaymentsFromYookassaParser
     {
-        public string DocPath { get; private set; }
-        public List<PaymentFromTinkoff> PaymentsFromYookassa { get; set; } = new List<PaymentFromTinkoff>();
+	    private readonly string docPath;
+        public List<PaymentByCardOnline> PaymentsFromYookassa { get; set; } = new List<PaymentByCardOnline>();
 
-        public PaymentsFromYookassaParser(string documentPath)
+        public PaymentsFromYookassaParser(string docPath)
         {
-            DocPath = documentPath;
+            this.docPath = docPath;
         }
 
         public void Parse()
         {
-	        string line;
-	        
-	        var culture = CultureInfo.CreateSpecificCulture("ru-RU");
-	        culture.NumberFormat.NumberDecimalSeparator = ".";
-	        
-            using(var reader = new StreamReader(DocPath, Encoding.GetEncoding(1251)))
-            {
-	            while((line = reader.ReadLine()) != null)
+	        using(var reader = new StreamReader(docPath, Encoding.GetEncoding(1251)))
+	        {
+		        string line;
+		        while((line = reader.ReadLine()) != null)
 				{
 					if(line == string.Empty) continue;
 					
@@ -33,11 +28,11 @@ namespace Vodovoz.Domain.Payments
 					
 					if (Guid.TryParse(data[0], out Guid result))
 					{
-						var payment = new PaymentFromTinkoff(data);
+						var payment = new PaymentByCardOnline(data, false);
 						PaymentsFromYookassa.Add(payment);
 					}
 				}
-			}
+	        }
         }
     }
 }
