@@ -164,12 +164,35 @@ namespace Vodovoz.Domain.Documents
 					);
 				}
 			}
+
+			foreach (var orderReturnedEquipment in Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp))
+			{
+				if(!ReturnedItems.Any(i => i.Nomenclature == orderReturnedEquipment.Nomenclature)){
+					ReturnedItems.Add(
+						new SelfDeliveryDocumentReturned {
+							Document = this,
+							Nomenclature = orderReturnedEquipment.Nomenclature,
+							ActualCount = 0,
+							Amount = GetEquipmentReturnsCountInOrder(orderReturnedEquipment.Nomenclature),
+							Direction = orderReturnedEquipment.Direction,
+							DirectionReason = orderReturnedEquipment.DirectionReason,
+							OwnType = orderReturnedEquipment.OwnType
+						}
+					);
+				}
+			}
 		}
 
 		public virtual decimal GetNomenclaturesCountInOrder(Nomenclature item)
 		{
 			decimal cnt = Order.OrderItems.Where(i => i.Nomenclature == item).Sum(i => i.Count);
 			cnt += Order.OrderEquipments.Where(e => e.Nomenclature == item && e.Direction == Direction.Deliver).Sum(e => e.Count);
+			return cnt;
+		}
+
+		public virtual decimal GetEquipmentReturnsCountInOrder(Nomenclature item)
+		{
+			decimal cnt =  Order.OrderEquipments.Where(e => e.Nomenclature == item && e.Direction == Direction.PickUp).Sum(e => e.Count);
 			return cnt;
 		}
 
@@ -230,6 +253,8 @@ namespace Vodovoz.Domain.Documents
 					}
 				}
 			}
+
+
 		}
 
 		public virtual void UpdateReceptions(IUnitOfWork uow, IList<GoodsReceptionVMNode> goodsReceptions, INomenclatureRepository nomenclatureRepository, IBottlesRepository bottlesRepository)
@@ -273,7 +298,11 @@ namespace Vodovoz.Domain.Documents
 				ReturnedItems.Remove(item);
 			} else if(item != null && returnedNomenclaureQuantity != 0) {
 				item.Amount = returnedNomenclaureQuantity;
-				item.UpdateOperation(Warehouse, Order.Client);
+				if(item.Id == 0) {
+					item.CreateOperation(Warehouse, Order.Client, TimeStamp);
+				} else {
+					item.UpdateOperation(Warehouse, Order.Client);
+				}
 			}
 		}
 
@@ -290,7 +319,11 @@ namespace Vodovoz.Domain.Documents
 	{
 		public int NomenclatureId { get; set; }
 		public string Name { get; set; }
-		public int Amount { get; set; }
+		public decimal Amount { get; set; }
+		public int ExpectedAmount { get; set; }
 		public NomenclatureCategory Category { get; set; }
-	}
+        public Direction? Direction { get; set; }
+        public DirectionReason DirectionReason { get; set; }
+        public OwnTypes OwnType { get; set; }
+    }
 }
