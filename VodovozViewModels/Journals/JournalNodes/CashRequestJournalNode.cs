@@ -14,10 +14,5 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
         public decimal Sum { get; set; }
         public string Basis { get; set; }
         public CashRequest.DocumentTypes DocumentType { get; set; }
-        
-        
-        // public IList<CashRequestSumItem> CashRequestSumItems { get; set; }
-        
-        
     }
 }
