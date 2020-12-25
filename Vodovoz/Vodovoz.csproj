@@ -1333,13 +1333,13 @@
     <Compile Include="Dialogs\Employees\DriverWorkScheduleNode.cs" />
     <Compile Include="ErrorHandlers.cs" />
     <Compile Include="ViewModels\TransferDocumentsFromBankParser.cs" />
-    <Compile Include="Views\PaymentLoaderView.cs" />
+    <Compile Include="Views\Payments\PaymentLoaderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.PaymentLoaderView.cs" />
     <Compile Include="ViewModels\PaymentLoaderViewModel.cs" />
     <Compile Include="ViewModels\AutoPaymentMatching.cs" />
     <Compile Include="JournalViewModels\PaymentsJournalViewModel.cs" />
     <Compile Include="JournalNodes\PaymentJournalNode.cs" />
-    <Compile Include="Views\ManualPaymentMatchingView.cs" />
+    <Compile Include="Views\Payments\ManualPaymentMatchingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ManualPaymentMatchingView.cs" />
     <Compile Include="ViewModels\ManualPaymentMatchingViewModel.cs" />
     <Compile Include="Filters\ViewModels\PaymentsJournalFilterViewModel.cs" />
@@ -1830,6 +1830,7 @@
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Views\Goods\" />
     <Folder Include="ReportsParameters\Production\" />
+    <Folder Include="Views\Payments\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

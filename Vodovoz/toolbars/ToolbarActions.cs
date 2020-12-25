@@ -119,7 +119,7 @@ public partial class MainWindow : Window
 	Action ActionExportTo1c;
 	Action ActionOldExportTo1c;
 	Action ActionExportCounterpartiesTo1c;
-	Action ActionImportFromTinkoff;
+	Action ActionImportPaymentsByCard;
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
 	Action ActionRouteListAddressesTransferring;
@@ -183,7 +183,7 @@ public partial class MainWindow : Window
 		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с 8.3", null, "table");
 		ActionOldExportTo1c = new Action("ActionOldExportTo1c", "Выгрузка в 1с 8.3 (до 16.12.2020)", null, "table");
 		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
-		ActionImportFromTinkoff = new Action("ActionImportFromTinkoff", "Загрузка выписки из ЛК Тинькофф", null, "table");
+		ActionImportPaymentsByCard = new Action("ActionImportPaymentsByCard", "Загрузка выписки оплат по карте", null, "table");
 		ActionAccountingTable = new Action("ActionAccountingTable", "Операции по счету", null, "table");
 		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
@@ -261,7 +261,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionExportTo1c, null);
 		w1.Add(ActionOldExportTo1c, null);
 		w1.Add(ActionExportCounterpartiesTo1c, null);
-		w1.Add(ActionImportFromTinkoff, null);
+		w1.Add(ActionImportPaymentsByCard, null);
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
 		w1.Add(ActionRouteListAddressesTransferring, null);
@@ -324,7 +324,7 @@ public partial class MainWindow : Window
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
 		ActionOldExportTo1c.Activated += ActionOldExportTo1c_Activated;
 		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
-		ActionImportFromTinkoff.Activated += ActionImportFromTinkoff_Activated;
+		ActionImportPaymentsByCard.Activated += ActionImportPaymentsByCardActivated;
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
@@ -749,7 +749,7 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionImportFromTinkoff_Activated(object sender, System.EventArgs e)
+	void ActionImportPaymentsByCardActivated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ImportPaymentsFromTinkoffDlg>(),
