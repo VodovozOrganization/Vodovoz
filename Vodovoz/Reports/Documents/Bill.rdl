@@ -147,7 +147,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -181,7 +181,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -355,7 +355,7 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Images" >
+    <DataSet Name="Images">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>/*
@@ -742,8 +742,8 @@ WHERE stored_resource.id = @id1</CommandText>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -993,7 +993,7 @@ WHERE stored_resource.id = @id1</CommandText>
                         <TextAlign>Center</TextAlign>
                         <FontFamily>Calibri</FontFamily>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >="N" + {digits}</Format>
+                        <Format>="N" + {digits}</Format>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -1146,6 +1146,7 @@ WHERE stored_resource.id = @id1</CommandText>
                         <VerticalAlign>Bottom</VerticalAlign>
                         <Format>N2</Format>
                         <FontFamily>Calibri</FontFamily>
+                        <TextAlign >Right</TextAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -1159,7 +1160,7 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>В том числе НДС:</Value>
+                      <Value>=Iif({?without_vat}, "Без налога (НДС)", "В том числе НДС:")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1173,6 +1174,7 @@ WHERE stored_resource.id = @id1</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
                         <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign >Bottom</VerticalAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -1182,7 +1184,7 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox67">
-                      <Value>=Sum(Iif({count}&gt;0,{include_nds},0), 'Goods')</Value>
+                      <Value>=Iif({?without_vat}, "-", Sum(Iif({count}&gt;0,{include_nds},0), 'Goods'))</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1194,8 +1196,61 @@ WHERE stored_resource.id = @id1</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <FontFamily>Calibri</FontFamily>
+                        <TextAlign >Right</TextAlign>
+                        <VerticalAlign >Bottom</VerticalAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>=Iif({?without_vat}, "Всего к оплате:", "")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign >Bottom</VerticalAlign>
+                      </Style>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>7</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>=Iif({?without_vat}, Format(Sum({total}, 'Goods'), "N2"), "")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Normal</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign >Bottom</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1631,7 +1686,7 @@ Iif(
           <BorderColor />
           <BorderWidth />
           <FontFamily>Calibri</FontFamily>
-          <TextAlign >Center</TextAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
         <Source>Database</Source>
         <Value>=First( {IM1} , "Images" )</Value>
@@ -1639,7 +1694,7 @@ Iif(
         <ZIndex>1</ZIndex>
         <Visibility>
         </Visibility>
-        <MIMEType >image/jpeg</MIMEType>
+        <MIMEType>image/jpeg</MIMEType>
       </Image>
       <Image Name="Image6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>145.82pt</Height>
@@ -1651,7 +1706,7 @@ Iif(
           <BorderColor />
           <BorderWidth />
           <FontFamily>Calibri</FontFamily>
-          <TextAlign >Center</TextAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
         <Source>Database</Source>
         <Value>=First( {IM2} , "Images" )</Value>
@@ -1659,7 +1714,7 @@ Iif(
         <ZIndex>1</ZIndex>
         <Visibility>
         </Visibility>
-        <MIMEType >image/jpeg</MIMEType>
+        <MIMEType>image/jpeg</MIMEType>
       </Image>
     </ReportItems>
   </Body>
@@ -2123,6 +2178,14 @@ Iif(
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="special">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="without_vat">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

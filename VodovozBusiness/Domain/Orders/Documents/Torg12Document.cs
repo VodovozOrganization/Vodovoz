@@ -18,7 +18,8 @@ namespace Vodovoz.Domain.Orders.Documents
 				Title = String.Format("ТОРГ-12 {0} от {1:d}", Order.Id, Order.DeliveryDate),
 				Identifier = "Documents.Torg12",
 				Parameters = new Dictionary<string, object> {
-					{ "order_id", Order.Id.ToString() }
+					{ "order_id", Order.Id.ToString() },
+					{ "without_vat", Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT }
 				}
 			};
 		}
