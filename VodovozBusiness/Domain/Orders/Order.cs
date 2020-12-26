@@ -1285,12 +1285,24 @@ namespace Vodovoz.Domain.Orders
 			if(!ObservableOrderItems.Contains(orderItem)) {
 				return;
 			}
-			ObservableOrderItems.Remove(orderItem);
+
+			if (orderItem.PromoSet != null)
+			{
+				var itemsToRemove = ObservableOrderItems.Where(oi => oi.PromoSet == orderItem.PromoSet).ToList();
+				foreach (var item in itemsToRemove)
+				{
+					ObservableOrderItems.Remove(item);
+				}
+			} else
+            {
+				ObservableOrderItems.Remove(orderItem);
+			}
+
 			UpdateContract();
 		}
 
 		#endregion
-		
+
 		#region Функции
 
 		/// <summary>
