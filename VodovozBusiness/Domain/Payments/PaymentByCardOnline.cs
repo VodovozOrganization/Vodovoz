@@ -175,7 +175,7 @@ namespace Vodovoz.Domain.Payments
 		
 		private string GetNumberFromDescription(string description)
 		{
-			string pattern = @"(\s|№)([0-9]{1,})";
+			string pattern = @"(\s|№|-)([0-9]{1,})";
 
 			var matches = Regex.Matches(description, pattern);
 			string[] str = new string[matches.Count];
@@ -184,7 +184,7 @@ namespace Vodovoz.Domain.Payments
 				str[i] = matches[i].Groups[2].Value;
 			}
 			
-			return str.FirstOrDefault();
+			return str.LastOrDefault();
 		}
 
 		private string GetEmailFromDescription(string description)
