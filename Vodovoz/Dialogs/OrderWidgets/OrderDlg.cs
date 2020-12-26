@@ -427,7 +427,7 @@ namespace Vodovoz
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
 			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			var excludedPaymentFromId = new BaseParametersProvider().GetSmsPaymentByCardFromId;
+			var excludedPaymentFromId = new OrderParametersProvider(ParametersProvider.Instance).PaymentByCardFromSmsId;
 			if (Entity.PaymentByCardFrom?.Id != excludedPaymentFromId)
 				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(x => x.Id != excludedPaymentFromId).List();
 			else

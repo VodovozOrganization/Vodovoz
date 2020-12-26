@@ -26,20 +26,20 @@ namespace SmsPaymentService
         public SmsPaymentService(
             IPaymentController paymentController, 
             IDriverPaymentService androidDriverService, 
-            ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider,
+            IOrderParametersProvider orderParametersProvider,
             SmsPaymentFileCache smsPaymentFileCache
         )
         {
             this.paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
             this.androidDriverService = androidDriverService ?? throw new ArgumentNullException(nameof(androidDriverService));
-            this.smsPaymentServiceParametersProvider = smsPaymentServiceParametersProvider ?? throw new ArgumentNullException(nameof(smsPaymentServiceParametersProvider));
+            this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             this.smsPaymentFileCache = smsPaymentFileCache ?? throw new ArgumentNullException(nameof(smsPaymentFileCache));
         }
         
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IPaymentController paymentController;
 		private readonly IDriverPaymentService androidDriverService;
-        private readonly ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider;
+        private readonly IOrderParametersProvider orderParametersProvider;
         private readonly SmsPaymentFileCache smsPaymentFileCache;
 
         public PaymentResult SendPayment(int orderId, string phoneNumber)
@@ -160,7 +160,7 @@ namespace SmsPaymentService
 
                     switch (status) {
                         case SmsPaymentStatus.Paid:
-                            payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
+                            payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(orderParametersProvider.PaymentByCardFromSmsId));
                             break;
                         case SmsPaymentStatus.Cancelled:
                             payment.SetCancelled();
@@ -234,7 +234,7 @@ namespace SmsPaymentService
                                 payment.SetWaitingForPayment();
                                 break;
                             case SmsPaymentStatus.Paid:
-                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
+                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(orderParametersProvider.PaymentByCardFromSmsId));
                                 break;
                             case SmsPaymentStatus.Cancelled:
                                 payment.SetCancelled();
@@ -352,7 +352,7 @@ namespace SmsPaymentService
                                 payment.SetWaitingForPayment();
                                 break;
                             case SmsPaymentStatus.Paid:
-                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(smsPaymentServiceParametersProvider.GetSmsPaymentByCardFromId));
+                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(orderParametersProvider.PaymentByCardFromSmsId));
                                 break;
                             case SmsPaymentStatus.Cancelled:
                                 payment.SetCancelled();

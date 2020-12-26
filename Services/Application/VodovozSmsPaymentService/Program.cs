@@ -16,6 +16,7 @@ using QSProjectsLib;
 using QSSupportLib;
 using SmsPaymentService;
 using Vodovoz.Core.DataService;
+using Vodovoz.Parameters;
 
 namespace VodovozSmsPaymentService
 {
@@ -111,7 +112,7 @@ namespace VodovozSmsPaymentService
 				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
 					paymentSender, 
 					driverPaymentService,
-					new BaseParametersProvider(),
+					new OrderParametersProvider(ParametersProvider.Instance),
 					smsPaymentFileCache
 				);
 

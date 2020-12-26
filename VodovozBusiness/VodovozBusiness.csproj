@@ -423,7 +423,6 @@
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IOrderParametersProvider.cs" />
     <Compile Include="Services\IOrganizationParametersProvider.cs" />
-    <Compile Include="Services\ISmsPaymentServiceParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Tools\LoggedMySqlClientDriver.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
