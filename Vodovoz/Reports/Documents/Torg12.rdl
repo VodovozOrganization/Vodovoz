@@ -1388,7 +1388,7 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>=Fields!vat.Value * 100 - 100 + "%"</Value>
+                      <Value>=Iif({?without_vat}, "Без НДС", {vat} * 100 - 100 + "%")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1406,7 +1406,7 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox107">
-                      <Value>=Iif({count}&gt;0,{include_nds},0)</Value>
+                      <Value>=Iif({?without_vat}, "", Iif({count}&gt;0,{include_nds},0))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1577,7 +1577,7 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox408">
-                      <Value>=Sum(Iif({count}&gt;0,{include_nds},0))</Value>
+                      <Value>=Iif({?without_vat}, "", Sum(Iif({count}&gt;0,{include_nds},0)))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2651,7 +2651,7 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox194" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>10.00pt</Height>
             <Width>38.52pt</Width>
-            <Value>=Sum({include_nds}, "Goods")</Value>
+            <Value>=Iif({?without_vat}, "", Sum({include_nds}, "Goods"))</Value>
             <ZIndex>1</ZIndex>
             <Left>679.30pt</Left>
             <Top>0.00pt</Top>
@@ -4709,7 +4709,16 @@ Public Function SummaString_Val(ByVal Summa As String) As String
             End If
         End If
     End Function</Code>
-  <ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -4723,14 +4732,12 @@ Public Function SummaString_Val(ByVal Summa As String) As String
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="without_vat">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>
