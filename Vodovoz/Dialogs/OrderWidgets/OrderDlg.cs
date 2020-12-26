@@ -2045,8 +2045,7 @@ namespace Vodovoz
 				UpdateUIState();
 
 				var routeListItem = routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
-				if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {
-					routeListItem.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
+				if(routeListItem != null) {
 					routeListItem.StatusLastUpdate = DateTime.Now;
 					routeListItem.FillCountsOnCanceled();
 					UoW.Save(routeListItem);
