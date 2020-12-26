@@ -102,10 +102,12 @@ namespace Vodovoz
 				UnsubscribeOnStatusesChandged();
 				foreach(var status in RouteListStatuses) {
 					if(value.Contains(status.RouteListStatus)) { status.Selected = true; }
-				}
-				SubscribeOnStatusesChandged();
-			}
-		}
+                    else { status.Selected = false; }
+                }
+                SubscribeOnStatusesChandged();
+                ytreeviewRouteListStatuses.YTreeModel?.EmitModelChanged();
+            }
+        }
 
 		public IEnumerable<AddressTypeNode> AddressTypes { get; } = new[] {
 			new AddressTypeNode(AddressType.Delivery),
@@ -234,10 +236,22 @@ namespace Vodovoz
 		{
 			OnRefiltered();
 		}
-	}
 
-	//значения для списка ТС
-	public enum RLFilterTransport
+        protected void OnButtonStatusAllClicked(object sender, EventArgs e)
+        {
+            SelectedStatuses = Enum.GetValues(typeof(RouteListStatus)).Cast<RouteListStatus>().ToArray();
+            OnRefiltered();
+        }
+
+        protected void OnButtonStatusNoneClicked(object sender, EventArgs e)
+        {
+            SelectedStatuses = new RouteListStatus[] { };
+            OnRefiltered();
+        }
+    }
+
+    //значения для списка ТС
+    public enum RLFilterTransport
 	{
 		[Display(Name = "Наёмники")]
 		Mercenaries,
