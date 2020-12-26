@@ -192,15 +192,10 @@ namespace Vodovoz
 			yspinExpirationDatePercent.Binding.AddBinding(Entity, e => e.SpecialExpireDatePercent, w => w.ValueAsDecimal).InitializeFromSource();
 
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
-			if (Entity.IsChainStore)
-			{
-				DelayDaysForProviderValue.Binding.AddBinding(Entity, e => e.DelayDaysForProviders, w => w.ValueAsInt).InitializeFromSource();
-			}
-			else
-			{
-				DelayDaysForProvider.Visible = false;
-				DelayDaysForProviderValue.Visible = false;
-			}
+
+            DelayDaysForBuyerValue.Binding.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt).InitializeFromSource();
+			lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = false;
+			
 			entryMainCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 			entryMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
 			entryPreviousCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
@@ -275,9 +270,15 @@ namespace Vodovoz
 			yEnumCounterpartyType.ChangedByUser += YEnumCounterpartyType_ChangedByUser;
 			YEnumCounterpartyType_Changed(this, new EventArgs());
 
+			checkIsChainStore.Toggled += CheckIsChainStoreOnToggled;
 			checkIsChainStore.Binding.AddBinding(Entity, e => e.IsChainStore, w => w.Active).InitializeFromSource();
-
-
+			
+			if (Entity.Id != 0 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+				"can_change_delay_days_for_buyers_and_chain_store")) {
+				checkIsChainStore.Sensitive = false;
+				DelayDaysForBuyerValue.Sensitive = false;
+			}
+			
 			//make actions menu
 			var menu = new Gtk.Menu();
 			
@@ -367,6 +368,17 @@ namespace Vodovoz
 			UpdateCargoReceiver();
 
 			#endregion Особая печать
+		}
+
+		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
+		{
+			if (Entity.IsChainStore) {
+				lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = true;
+			}
+			else {
+                lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = false;
+				Entity.DelayDaysForBuyers = 0;
+			}
 		}
 
 		void ButtonLoadFromDP_Clicked(object sender, EventArgs e)

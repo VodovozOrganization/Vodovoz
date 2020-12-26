@@ -232,7 +232,7 @@ namespace Vodovoz.Views.Logistic
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.ylabelName = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelName.Name = "ylabelName";
-			this.ylabelName.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
+			this.ylabelName.LabelProp = global::Mono.Unix.Catalog.GetString("Название версии:");
 			this.hbox4.Add(this.ylabelName);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ylabelName]));
 			w7.Position = 6;
