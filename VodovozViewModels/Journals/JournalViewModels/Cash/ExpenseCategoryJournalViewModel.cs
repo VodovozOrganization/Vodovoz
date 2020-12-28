@@ -56,13 +56,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
             var query = uow.Session.QueryOver<ExpenseCategory>();
 
-            query.Where(
-                (ICriterion) GetSearchCriterion<ExpenseCategory>(
-                    x => x.Id,
-                    x => x.Name
-                )
-            );
-
+           
+            
             ExpenseCategory level1Alias = null;
             ExpenseCategory level2Alias = null;
             ExpenseCategory level3Alias = null;
@@ -70,7 +65,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ExpenseCategory level5Alias = null;
             Subdivision subdivisionAlias = null;
 
-            var result = uow.Session.QueryOver<ExpenseCategory>(() => level1Alias)
+            query = uow.Session.QueryOver<ExpenseCategory>(() => level1Alias)
                 .Left.JoinAlias(() => level1Alias.Parent, () => level2Alias)
                 .Left.JoinAlias(() => level2Alias.Parent, () => level3Alias)
                 .Left.JoinAlias(() => level3Alias.Parent, () => level4Alias)
@@ -79,25 +74,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             
             if (!FilterViewModel.ShowArchive)
             {
-                result.Where(x => !x.IsArchive);
+                query.Where(x => !x.IsArchive);
             }
             switch (FilterViewModel.Level)
             {
                 case LevelsFilter.Level1:
-                    result.Where(Restrictions.IsNull(Projections.Property(() => level2Alias.Id)));
+                    query.Where(Restrictions.IsNull(Projections.Property(() => level2Alias.Id)));
                     break;
                 case LevelsFilter.Level2:
-                    result.Where(Restrictions.IsNull(Projections.Property(() => level3Alias.Id)));
+                    query.Where(Restrictions.IsNull(Projections.Property(() => level3Alias.Id)));
                     break;
                 case LevelsFilter.Level3:
-                    result.Where(Restrictions.IsNull(Projections.Property(() => level4Alias.Id)));
+                    query.Where(Restrictions.IsNull(Projections.Property(() => level4Alias.Id)));
                     break;
                 case LevelsFilter.Level4:
-                    result.Where(Restrictions.IsNull(Projections.Property(() => level5Alias.Id)));
+                    query.Where(Restrictions.IsNull(Projections.Property(() => level5Alias.Id)));
                     break;
             }
-        
-            result.SelectList(list => list
+            query.SelectList(list => list
                 .Select(x => x.Id).WithAlias(() => resultAlias.Id)
                 .Select(() => level1Alias.Name).WithAlias(() => resultAlias.Level5)
                 .Select(() => level2Alias.Name).WithAlias(() => resultAlias.Level4)
@@ -109,7 +103,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ).TransformUsing(Transformers.AliasToBean<ExpenseCategoryJournalNode>())
             .OrderBy(() => level5Alias.Name + level4Alias.Name + level3Alias.Name + level2Alias.Name + level1Alias.Name);
 
-            return result;
+            query.Where(
+                GetSearchCriterion(
+                    () => level5Alias.Name,
+                    () => level4Alias.Name,
+                    () => level3Alias.Name,
+                    () => level2Alias.Name,
+                    () => level1Alias.Name,
+                    () => level5Alias.Id,
+                    () => level4Alias.Id,
+                    () => level3Alias.Id,
+                    () => level2Alias.Id,
+                    () => level1Alias.Id
+                )
+            );
+            
+            return query;
         };
 
         protected override Func<ExpenseCategoryViewModel> CreateDialogFunction => () => new ExpenseCategoryViewModel(

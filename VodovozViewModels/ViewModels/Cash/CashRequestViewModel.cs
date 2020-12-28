@@ -7,18 +7,22 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using Gamma.Utilities;
+using NHibernate.Criterion;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Project.Services.Interactive;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using VodovozInfrastructure.Interfaces;
+using CashRepository = Vodovoz.EntityRepositories.Cash.CashRepository;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -26,7 +30,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
     {
         public Action UpdateNodes;
         public Employee CurrentEmployee { get; }
-        public ExpenseCategoryAutoCompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
+        public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
         public UserRole UserRole { get; set; }
         public static UserRole savedUserRole { get; set; }
         
@@ -45,7 +49,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             IFileChooserProvider fileChooserProvider,
-            CashRequestJournalFilterViewModel journalFilterViewModel,
             IEmployeeRepository employeeRepository,
             CashRepository cashRepository,
             ConsoleInteractiveService consoleInteractiveService
@@ -55,12 +58,45 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             this.cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
             this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
             this.consoleInteractiveService = consoleInteractiveService ?? throw new ArgumentNullException(nameof(consoleInteractiveService));
-            
-            ExpenseCategoryAutocompleteSelectorFactory = new ExpenseCategoryAutoCompleteSelectorFactory(
-                commonServices,
-                new ExpenseCategoryJournalFilterViewModel(), 
-                fileChooserProvider
-            );
+            var filterViewModel = new ExpenseCategoryJournalFilterViewModel {
+                ExcludedIds = CategoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
+                HidenByDefault = true
+            };
+
+            ExpenseCategoryAutocompleteSelectorFactory =
+                new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
+                    () =>
+                    {
+                        var expenseCategoryJournalViewModel =
+                            new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
+                                x => x.Name,
+                                () => new ExpenseCategoryViewModel(
+                                    EntityUoWBuilder.ForCreate(),
+                                    unitOfWorkFactory,
+                                    ServicesConfig.CommonServices,
+                                    fileChooserProvider,
+                                    filterViewModel
+                                ),
+                                node => new ExpenseCategoryViewModel(
+                                    EntityUoWBuilder.ForOpen(node.Id),
+                                    unitOfWorkFactory,
+                                    ServicesConfig.CommonServices,
+                                    fileChooserProvider,
+                                    filterViewModel
+                                ),
+                                unitOfWorkFactory,
+                                ServicesConfig.CommonServices
+                            )
+                            {
+                                SelectionMode = JournalSelectionMode.Single
+                            };
+                        expenseCategoryJournalViewModel.SetFilter(filterViewModel,
+                            filter => Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())));
+
+                        return expenseCategoryJournalViewModel;
+                    });
+                
+                var expenseCategorySelectorFactory = 
             CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
             if(uowBuilder.IsNewEntity)
@@ -152,7 +188,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 SaveAndClose();
 
                 if (AfterSave(out var messageText))
-                    CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"Cозданы следующие авансы:\n{messageText}" );
+                    CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"Cоздан следующие аванс:\n{messageText}" );
             }, () => true
         ));
             
@@ -165,6 +201,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     var sum = Entity.ObservableSums.First(x => x.Expense == null);
                     CreateNewExpenseForItem(sum);
                     Entity.ChangeState(CashRequest.States.Closed);
+                    AfterSaveCommand.Execute();
                 }
             }, () => true
         ));
@@ -253,26 +290,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 } else 
                     throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
             }
-            
         }
 
         public static bool checkRole(string roleName, int userId) => ServicesConfig.CommonServices.PermissionService
             .ValidateUserPresetPermission(roleName, userId);
-
-
-        private void CreateNewExpenseForSelectedItem()
-        {
-            SelectedItem?.CreateNewExpense(
-                UoW, 
-                CurrentEmployee,
-                Entity.Subdivision,
-                Entity.ExpenseCategory,
-                Entity.Basis,
-                Entity.Organization
-            );
-            if (SelectedItem != null)
-                SumsGiven.Add(SelectedItem);
-        }
+        
         
         private void CreateNewExpenseForItem(CashRequestSumItem sumItem)
         {
@@ -284,8 +306,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 Entity.Basis,
                 Entity.Organization
             );
-            if (SelectedItem != null)
-                SumsGiven.Add(SelectedItem);
+            if (sumItem != null)
+                SumsGiven.Add(sumItem);
         }
 
         public string LoadOrganizationsSums()
@@ -324,6 +346,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             () =>
             {
                 Entity.ChangeState(CashRequest.States.Submited);
+                AfterSaveCommand.Execute();
             }, () => true
         ));
         //Согласовать
@@ -332,6 +355,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             () =>
             {
                 Entity.ChangeState(CashRequest.States.Agreed);
+                AfterSaveCommand.Execute();
             }, () => true
         ));
         //Отменить
@@ -352,6 +376,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             () =>
             {
                 Entity.ChangeState(CashRequest.States.GivenForTake);
+                AfterSaveCommand.Execute();
             }, () => true
         ));
         
@@ -367,6 +392,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     );
                 } else {
                     Entity.ChangeState(CashRequest.States.OnClarification);
+                    AfterSaveCommand.Execute();
                 }
             }, () => true
         ));

@@ -205,7 +205,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             unitOfWorkFactory,
             commonServices,
             fileChooserProvider,
-            FilterViewModel,
             employeeRepository,
             cashRepository,
             consoleInteractiveService
@@ -216,7 +215,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 unitOfWorkFactory,
                 commonServices,
                 fileChooserProvider,
-                FilterViewModel,
                 employeeRepository,
                 cashRepository,
                 consoleInteractiveService
