@@ -38,11 +38,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.Label label3;
 
-		private global::Vodovoz.WrapLabel labelDebt;
-
 		private global::Vodovoz.WrapLabel labelName;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelDebtInfo;
 
 		private global::Gtk.Table PhonesTable;
 
@@ -191,7 +187,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			w15.Expand = false;
 			w15.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(3)), false);
+			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(3)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -206,21 +202,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelDebt = new global::Vodovoz.WrapLabel();
-			this.labelDebt.Name = "labelDebt";
-			this.labelDebt.Xalign = 0F;
-			this.labelDebt.Yalign = 0F;
-			this.labelDebt.LabelProp = global::Mono.Unix.Catalog.GetString("wraplabel3");
-			this.labelDebt.Wrap = true;
-			this.labelDebt.Selectable = true;
-			this.table1.Add(this.labelDebt);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.labelDebt]));
-			w17.TopAttach = ((uint)(1));
-			w17.BottomAttach = ((uint)(2));
-			w17.LeftAttach = ((uint)(1));
-			w17.RightAttach = ((uint)(3));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.labelName = new global::Vodovoz.WrapLabel();
 			this.labelName.Name = "labelName";
 			this.labelName.Xalign = 0F;
@@ -229,33 +210,23 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.labelName.Wrap = true;
 			this.labelName.Selectable = true;
 			this.table1.Add(this.labelName);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.labelName]));
-			w18.LeftAttach = ((uint)(1));
-			w18.RightAttach = ((uint)(3));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ylabelDebtInfo = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelDebtInfo.Name = "ylabelDebtInfo";
-			this.ylabelDebtInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Долг(по клиенту):");
-			this.table1.Add(this.ylabelDebtInfo);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelDebtInfo]));
-			w19.TopAttach = ((uint)(1));
-			w19.BottomAttach = ((uint)(2));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.labelName]));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(3));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w20.PackType = ((global::Gtk.PackType)(1));
-			w20.Position = 8;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w18.PackType = ((global::Gtk.PackType)(1));
+			w18.Position = 8;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.PhonesTable = new global::Gtk.Table(((uint)(1)), ((uint)(2)), false);
 			this.PhonesTable.Name = "PhonesTable";
 			this.PhonesTable.RowSpacing = ((uint)(6));
 			this.PhonesTable.ColumnSpacing = ((uint)(6));
 			this.vbox1.Add(this.PhonesTable);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.PhonesTable]));
-			w21.PackType = ((global::Gtk.PackType)(1));
-			w21.Position = 9;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.PhonesTable]));
+			w19.PackType = ((global::Gtk.PackType)(1));
+			w19.Position = 9;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
