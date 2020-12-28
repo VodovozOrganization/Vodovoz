@@ -23,7 +23,6 @@ namespace Vodovoz.Core.DataService
 		IErrorSendParameterProvider,
 		IProfitCategoryProvider,
 		IPotentialFreePromosetsReportDefaultsProvider,
-		ISmsPaymentServiceParametersProvider,
 		IMailjetParametersProvider,
 		IVpbxSettings,
 		ITerminalNomenclatureProvider
@@ -58,7 +57,9 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion
-		
+
+		#region IErrorSendParameterProvider
+
 		public string GetDefaultBaseForErrorSend()
 		{
 			if(!ParametersProvider.Instance.ContainsParameter("base_for_error_send")) {
@@ -75,6 +76,10 @@ namespace Vodovoz.Core.DataService
 			return int.Parse(ParametersProvider.Instance.GetParameterValue("row_count_for_error_log"));
 		}
 
+		#endregion
+
+		#region IStandartDiscountsService
+
 		public int GetDiscountForStockBottle()
 		{
 			if(!ParametersProvider.Instance.ContainsParameter("причина_скидки_для_акции_Бутыль")) {
@@ -82,6 +87,10 @@ namespace Vodovoz.Core.DataService
 			}
 			return int.Parse(ParametersProvider.Instance.GetParameterValue("причина_скидки_для_акции_Бутыль"));
 		}
+
+		#endregion
+
+		#region IPersonProvider
 
 		public int GetDefaultEmployeeForCallTask()
 		{
@@ -99,6 +108,10 @@ namespace Vodovoz.Core.DataService
 			return int.Parse(ParametersProvider.Instance.GetParameterValue("сотрудник_по_умолчанию_для_задач_по_залогам"));
 		}
 
+		#endregion
+
+		#region IImageProvider
+
 		public int GetCrmIndicatorId()
 		{
 			if(!ParametersProvider.Instance.ContainsParameter("crm_importance_indicator_id")) {
@@ -107,12 +120,18 @@ namespace Vodovoz.Core.DataService
 			return int.Parse(ParametersProvider.Instance.GetParameterValue("crm_importance_indicator_id"));
 		}
 
+		#endregion
+
+		#region ICommonParametersProvider
+
 		public bool UseOldAutorouting()
 		{
 			if(!ParametersProvider.Instance.ContainsParameter("use_old_autorouting") || !bool.TryParse(ParametersProvider.Instance.GetParameterValue("use_old_autorouting"), out bool res))
 				return false;
 			return res;
 		}
+
+		#endregion
 
 		#region ISmsNotifierParameters implementation
 
@@ -211,7 +230,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IWageParametersProvider implementation
-
 
 		#region ISmsNotificationServiceSettings implementation
 
@@ -389,23 +407,7 @@ namespace Vodovoz.Core.DataService
 
 		#endregion IDefaultDeliveryDaySchedule
 
-		public int GetSmsPaymentByCardFromId
-		{
-			get
-			{
-				if(!ParametersProvider.Instance.ContainsParameter("sms_payment_by_card_from_id")) {
-					throw new InvalidProgramException("В параметрах базы не заполнено значение места, откуда проведена оплата, равное оплате по Sms (sms_payment_by_card_from_id)");
-				}
-
-				string value = ParametersProvider.Instance.GetParameterValue("sms_payment_by_card_from_id");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение места, откуда проведена оплата, равное оплате по Sms (sms_payment_by_card_from_id)");
-				}
-
-				return result;
-			} 
-		}
+		#region IMailjetParametersProvider
 
 		public string MailjetUserId {
 			get {
@@ -424,7 +426,11 @@ namespace Vodovoz.Core.DataService
 				return ParametersProvider.Instance.GetParameterValue("MailjetSecretKey");
 			}
 		}
-		
+
+		#endregion
+
+		#region ITerminalNomenclatureProvider
+
 		public int GetNomenclatureIdForTerminal
 		{
 			get
@@ -443,6 +449,10 @@ namespace Vodovoz.Core.DataService
 			}
 		}
 
+		#endregion
+
+		#region IVpbxSettings
+
 		public string VpbxApiKey { 
 			get {
 				if(!ParametersProvider.Instance.ContainsParameter("vpbx_api_key")) {
@@ -460,5 +470,7 @@ namespace Vodovoz.Core.DataService
 				return ParametersProvider.Instance.GetParameterValue("vpbx_api_salt");
 			}
 		}
+
+		#endregion
 	}
 }

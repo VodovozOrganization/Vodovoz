@@ -11,19 +11,19 @@ namespace VodovozSmsPaymentService
 	{
 		private readonly IPaymentController paymentController;
 		private readonly IDriverPaymentService driverPaymentService;
-		private readonly ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider;
+		private readonly IOrderParametersProvider orderParametersProvider;
 		private readonly SmsPaymentFileCache smsPaymentFileProdiver;
 
 		public SmsPaymentServiceInstanceProvider(
 			IPaymentController paymentController, 
 			IDriverPaymentService driverPaymentService, 
-			ISmsPaymentServiceParametersProvider smsPaymentServiceParametersProvider,
+			IOrderParametersProvider orderParametersProvider,
 			SmsPaymentFileCache smsPaymentFileProdiver
 		)
 		{
 			this.paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
 			this.driverPaymentService = driverPaymentService ?? throw new ArgumentNullException(nameof(driverPaymentService));
-			this.smsPaymentServiceParametersProvider = smsPaymentServiceParametersProvider ?? throw new ArgumentNullException(nameof(smsPaymentServiceParametersProvider));
+			this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			this.smsPaymentFileProdiver = smsPaymentFileProdiver ?? throw new ArgumentNullException(nameof(smsPaymentFileProdiver));
 
 		}
@@ -32,7 +32,7 @@ namespace VodovozSmsPaymentService
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new SmsPaymentService.SmsPaymentService(paymentController, driverPaymentService, smsPaymentServiceParametersProvider, smsPaymentFileProdiver);
+			return new SmsPaymentService.SmsPaymentService(paymentController, driverPaymentService, orderParametersProvider, smsPaymentFileProdiver);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

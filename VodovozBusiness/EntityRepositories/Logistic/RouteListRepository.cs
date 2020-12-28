@@ -74,14 +74,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			List<GoodsInRouteListResultWithSpecialRequirements> result = new List<GoodsInRouteListResultWithSpecialRequirements>();
 
-			GoodsInRouteListResult terminal = null;
+			GoodsInRouteListResultWithSpecialRequirements terminal = null;
 
 			if (warehouse != null)
 			{
 				var cashSubdivisions = subdivisionRepository.GetCashSubdivisions(uow);
 				if (cashSubdivisions.Contains(warehouse.OwningSubdivision))
 				{
-					terminal = GetTerminalInRL(uow, routeList, warehouse);
+					terminal = GetTerminalInRLWithSpecialRequirements(uow, routeList, warehouse);
 				}
 				else
 				{
@@ -94,18 +94,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 				result.AddRange(GetGoodsInRLWithoutEquipmentsWithSpecialRequirements(uow, routeList).ToList());
 				result.AddRange(GetEquipmentsInRLWithSpecialRequirements(uow, routeList).ToList());
 
-				terminal = GetTerminalInRL(uow, routeList);
+				terminal = GetTerminalInRLWithSpecialRequirements(uow, routeList);
 			}
 
 			if (terminal != null)
 			{
-				var terminalWithExpirationDate = new GoodsInRouteListResultWithSpecialRequirements()
-				{
-					Amount = terminal.Amount,
-					ExpireDatePercent = 0,
-					NomenclatureId = terminal.NomenclatureId
-				};
-				result.Add(terminalWithExpirationDate);
+				result.Add(terminal);
 			}
 
 			return result
@@ -272,7 +266,10 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.SelectList(list => list
 				   .SelectGroup(() => OrderEquipmentNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 							.Select(Projections.Sum(
-					   Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => orderEquipmentAlias.Count)))).WithAlias(() => resultAlias.Amount)
+								Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => orderEquipmentAlias.Count))
+							)).WithAlias(() => resultAlias.Amount)
+							.Select(() => OrderEquipmentNomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
+
 				)
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
 				.List<GoodsInRouteListResultWithSpecialRequirements>();
@@ -334,6 +331,49 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 				if(StockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any()) {
 					return new GoodsInRouteListResult {
+						NomenclatureId = terminalId,
+						Amount = amount
+					};
+				}
+			}
+
+			return null;
+		}
+
+		public GoodsInRouteListResultWithSpecialRequirements GetTerminalInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
+		{
+			CarLoadDocumentItem carLoadDocumentItemAlias = null;
+
+			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+
+			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
+									.JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
+									.Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
+									.And(x => x.RouteList.Id == routeList.Id)
+									.List();
+
+			if (needTerminal || loadedTerminal.Any())
+			{
+				var terminal = uow.GetById<Nomenclature>(terminalId);
+				int amount = 1;
+
+				if (warehouse == null)
+				{
+					return new GoodsInRouteListResultWithSpecialRequirements
+					{
+						NomenclatureName = terminal.Name,
+						NomenclatureId = terminalId,
+						Amount = amount
+					};
+				}
+
+
+				if (StockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any())
+				{
+					return new GoodsInRouteListResultWithSpecialRequirements
+					{
+						NomenclatureName = terminal.Name,
 						NomenclatureId = terminalId,
 						Amount = amount
 					};

@@ -12,9 +12,7 @@ namespace Vodovoz.ServiceDialogs
 
 		private global::Gtk.FileChooserButton fChooser;
 
-		private global::Gtk.HBox hbox2;
-
-		private global::Gtk.Button btnReadFile;
+		private global::Gtk.HBox hboxButtons;
 
 		private global::Gtk.ProgressBar progressBar;
 
@@ -68,34 +66,20 @@ namespace Vodovoz.ServiceDialogs
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox2 = new global::Gtk.HBox();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.btnReadFile = new global::Gtk.Button();
-			this.btnReadFile.CanFocus = true;
-			this.btnReadFile.Name = "btnReadFile";
-			this.btnReadFile.UseUnderline = true;
-			this.btnReadFile.Label = global::Mono.Unix.Catalog.GetString("Прочитать данные из файла");
-			global::Gtk.Image w4 = new global::Gtk.Image();
-			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-justify-fill", global::Gtk.IconSize.Menu);
-			this.btnReadFile.Image = w4;
-			this.hbox2.Add(this.btnReadFile);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.btnReadFile]));
-			w5.Position = 0;
-			w5.Expand = false;
-			// Container child hbox2.Gtk.Box+BoxChild
+			this.hboxButtons = new global::Gtk.HBox();
+			this.hboxButtons.Name = "hboxButtons";
+			this.hboxButtons.Spacing = 6;
+			// Container child hboxButtons.Gtk.Box+BoxChild
 			this.progressBar = new global::Gtk.ProgressBar();
 			this.progressBar.Name = "progressBar";
-			this.hbox2.Add(this.progressBar);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.progressBar]));
-			w6.PackType = ((global::Gtk.PackType)(1));
-			w6.Position = 1;
-			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
+			this.hboxButtons.Add(this.progressBar);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.progressBar]));
+			w4.Position = 1;
+			this.vbox1.Add(this.hboxButtons);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxButtons]));
+			w5.Position = 1;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.chkAll = new global::Gtk.CheckButton();
 			this.chkAll.CanFocus = true;
@@ -104,10 +88,10 @@ namespace Vodovoz.ServiceDialogs
 			this.chkAll.DrawIndicator = true;
 			this.chkAll.UseUnderline = true;
 			this.vbox1.Add(this.chkAll);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.chkAll]));
-			w8.Position = 2;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.chkAll]));
+			w6.Position = 2;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -118,8 +102,8 @@ namespace Vodovoz.ServiceDialogs
 			this.treeDocuments.Name = "treeDocuments";
 			this.GtkScrolledWindow.Add(this.treeDocuments);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w10.Position = 3;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w8.Position = 3;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
@@ -129,44 +113,44 @@ namespace Vodovoz.ServiceDialogs
 			this.lblDescription.Name = "lblDescription";
 			this.lblDescription.UseMarkup = true;
 			this.hbox3.Add(this.lblDescription);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.lblDescription]));
-			w11.Position = 0;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.lblDescription]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.btnCancel = new global::Gtk.Button();
 			this.btnCancel.CanFocus = true;
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.UseUnderline = true;
 			this.btnCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
-			global::Gtk.Image w12 = new global::Gtk.Image();
-			w12.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-close", global::Gtk.IconSize.Menu);
-			this.btnCancel.Image = w12;
+			global::Gtk.Image w10 = new global::Gtk.Image();
+			w10.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-close", global::Gtk.IconSize.Menu);
+			this.btnCancel.Image = w10;
 			this.hbox3.Add(this.btnCancel);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.btnCancel]));
-			w13.PackType = ((global::Gtk.PackType)(1));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.btnCancel]));
+			w11.PackType = ((global::Gtk.PackType)(1));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.btnUpload = new global::Gtk.Button();
 			this.btnUpload.CanFocus = true;
 			this.btnUpload.Name = "btnUpload";
 			this.btnUpload.UseUnderline = true;
 			this.btnUpload.Label = global::Mono.Unix.Catalog.GetString("Загрузить");
-			global::Gtk.Image w14 = new global::Gtk.Image();
-			w14.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-goto-bottom", global::Gtk.IconSize.Menu);
-			this.btnUpload.Image = w14;
+			global::Gtk.Image w12 = new global::Gtk.Image();
+			w12.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-goto-bottom", global::Gtk.IconSize.Menu);
+			this.btnUpload.Image = w12;
 			this.hbox3.Add(this.btnUpload);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.btnUpload]));
-			w15.PackType = ((global::Gtk.PackType)(1));
-			w15.Position = 2;
-			w15.Expand = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.btnUpload]));
+			w13.PackType = ((global::Gtk.PackType)(1));
+			w13.Position = 2;
+			w13.Expand = false;
 			this.vbox1.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
-			w16.Position = 4;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
+			w14.Position = 4;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -174,7 +158,6 @@ namespace Vodovoz.ServiceDialogs
 			}
 			this.Hide();
 			this.fChooser.SelectionChanged += new global::System.EventHandler(this.OnFilechooserSelectionChanged);
-			this.btnReadFile.Clicked += new global::System.EventHandler(this.OnButtonReadFileClicked);
 			this.chkAll.Toggled += new global::System.EventHandler(this.OnChkAllToggled);
 			this.btnUpload.Clicked += new global::System.EventHandler(this.OnBtnUploadClicked);
 			this.btnCancel.Clicked += new global::System.EventHandler(this.OnBtnCancelClicked);

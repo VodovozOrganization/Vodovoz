@@ -544,9 +544,11 @@ namespace Vodovoz.EntityRepositories.Orders
 			IOrganizationParametersProvider organizationParametersProvider,
 			DateTime? startDate = null)
 		{
-			#region Aliases Restrictions Projections Subqueries
+			#region Aliases Restrictions Projections
 
 			var paymentByCardFromSiteId = orderParametersProvider.PaymentByCardFromSiteId;
+			var paymentByCardFromOnlineStoreId = orderParametersProvider.PaymentByCardFromOnlineStoreId;
+			var paymentByCardFromMobileAppId = orderParametersProvider.PaymentByCardFromMobileAppId;
 			var vodovozSouthOrganizationId = organizationParametersProvider.VodovozSouthOrganizationId;
 
 			ReceiptForOrderNode resultAlias = null;
@@ -586,10 +588,11 @@ namespace Vodovoz.EntityRepositories.Orders
 			var orderPaymentTypesRestriction = Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
 				new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.ToArray());
 
-			var notPaymentByCardAndPaidFromSiteAndSouthOrganizationRestriction = Restrictions.Disjunction()
+			var paidByCardRestriction = Restrictions.Disjunction()
 				.Add(() => orderAlias.PaymentType != PaymentType.ByCard)
-				.Add(() => orderAlias.PaymentByCardFrom.Id != paymentByCardFromSiteId)
-				.Add(() => organizationAlias.Id != vodovozSouthOrganizationId);
+				.Add(() => organizationAlias.Id != vodovozSouthOrganizationId)
+				.Add(Restrictions.On(() => orderAlias.PaymentByCardFrom.Id)
+					.Not.IsIn(new[] { paymentByCardFromSiteId, paymentByCardFromMobileAppId, paymentByCardFromOnlineStoreId }));
 
 			#endregion
 
@@ -604,7 +607,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
 				.Where(alwaysSendOrdersRestriction)
-				.And(notPaymentByCardAndPaidFromSiteAndSouthOrganizationRestriction)
+				.And(paidByCardRestriction)
 				.And(orderDeliveredStatuses)
 				.And(positiveOrderSumRestriction)
 				.And(orderPaymentTypesRestriction)
@@ -636,7 +639,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
 				.Where(Restrictions.Not(alwaysSendOrdersRestriction))
-				.And(notPaymentByCardAndPaidFromSiteAndSouthOrganizationRestriction)
+				.And(paidByCardRestriction)
 				.And(orderDeliveredStatuses)
 				.And(positiveOrderSumRestriction)
 				.And(orderPaymentTypesRestriction);

@@ -427,7 +427,7 @@ namespace Vodovoz
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
 			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			var excludedPaymentFromId = new BaseParametersProvider().GetSmsPaymentByCardFromId;
+			var excludedPaymentFromId = new OrderParametersProvider(ParametersProvider.Instance).PaymentByCardFromSmsId;
 			if (Entity.PaymentByCardFrom?.Id != excludedPaymentFromId)
 				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(x => x.Id != excludedPaymentFromId).List();
 			else
@@ -582,8 +582,23 @@ namespace Vodovoz
 				} 
 				else if(args.PropertyName == nameof(Order.Contract)) {
 					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
+					OnContractChanged();
 				} 
 			};
+			OnContractChanged();
+		}
+
+		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");
+		private void OnContractChanged()
+		{
+			if(Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(enumDocumentType)) {
+				hboxDocumentType.Remove(enumDocumentType);
+				hboxDocumentType.Add(torg12OnlyLabel);
+				torg12OnlyLabel.Show();
+			} else if(hboxDocumentType.Children.Contains(torg12OnlyLabel)) {
+				hboxDocumentType.Remove(torg12OnlyLabel);
+				hboxDocumentType.Add(enumDocumentType);
+			}
 		}
 
 		private void OnDeliveryPointChanged(EntityChangeEvent[] changeevents)
@@ -2030,8 +2045,7 @@ namespace Vodovoz
 				UpdateUIState();
 
 				var routeListItem = routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
-				if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {
-					routeListItem.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
+				if(routeListItem != null) {
 					routeListItem.StatusLastUpdate = DateTime.Now;
 					routeListItem.FillCountsOnCanceled();
 					UoW.Save(routeListItem);

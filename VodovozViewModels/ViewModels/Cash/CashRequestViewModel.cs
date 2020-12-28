@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 using QS.Commands;
 using QS.Dialog;
@@ -72,10 +73,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IsAdminPanelVisible = isAdmin;
 
             var currentRole = getUserRole(userId);
-            if (!dialogLoadedOnce) {
-                UserRole = currentRole;
-                dialogLoadedOnce = true;
-            } else {
+            UserRole = currentRole;
+            if (isAdmin) {
                 UserRole = savedUserRole;
             }
             IsNewEntity = uowBuilder.IsNewEntity;
@@ -160,9 +159,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         private DelegateCommand giveSumCommand;
         public DelegateCommand GiveSumCommand => giveSumCommand ?? (giveSumCommand = new DelegateCommand(
             () => {
-                if (SelectedItem.Expense == null) 
+                if (Entity.Sums.Count != 0) 
                 {
-                    CreateNewExpenseForSelectedItem();
+                    //находим первую невыданную сумму и создаем на нее expense
+                    var sum = Entity.ObservableSums.First(x => x.Expense == null);
+                    CreateNewExpenseForItem(sum);
                     Entity.ChangeState(CashRequest.States.Closed);
                 }
             }, () => true
@@ -262,6 +263,20 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         private void CreateNewExpenseForSelectedItem()
         {
             SelectedItem?.CreateNewExpense(
+                UoW, 
+                CurrentEmployee,
+                Entity.Subdivision,
+                Entity.ExpenseCategory,
+                Entity.Basis,
+                Entity.Organization
+            );
+            if (SelectedItem != null)
+                SumsGiven.Add(SelectedItem);
+        }
+        
+        private void CreateNewExpenseForItem(CashRequestSumItem sumItem)
+        {
+            sumItem?.CreateNewExpense(
                 UoW, 
                 CurrentEmployee,
                 Entity.Subdivision,

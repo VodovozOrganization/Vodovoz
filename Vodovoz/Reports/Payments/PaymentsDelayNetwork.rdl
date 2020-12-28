@@ -757,7 +757,7 @@
         <Left>1.6pt</Left>
         <Top>0.5pt</Top>
       </Table>
-      <Table Name="Table3" >
+      <Table Name="Table3">
         <DataSetName>orders</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -967,8 +967,8 @@
                        0)
                 )
         AS DECIMAL (12 , 2 )) AS order_sum,
-    DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY) AS estimated_payment_date,
-    TO_DAYS(CURDATE()) - TO_DAYS(DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY)) AS days_overdue,
+    DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days_for_buyers, 0) DAY) AS estimated_payment_date,
+    TO_DAYS(CURDATE()) - TO_DAYS(DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days_for_buyers, 0) DAY)) AS days_overdue,
     CAST(
                 IF(orders.sum_to_receive &lt;&gt; 0,
                    orders.sum_to_receive,
@@ -978,7 +978,7 @@
                             FROM
                                 order_items
                             WHERE
-                                orders.id = order_items.order_id
+                                    orders.id = order_items.order_id
                             GROUP BY order_items.order_id),
                            0)
                     )
@@ -1003,7 +1003,7 @@ FROM
         LEFT JOIN
     employees ON employees.id = orders.author_employee_id
 WHERE
-        DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days, 0) DAY) &lt;= DATE(@date)
+        DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days_for_buyers, 0) DAY) &lt;= DATE(@date)
   AND orders.order_payment_status IN ('UnPaid', 'PartiallyPaid')
   AND counterparty.is_chain_store = 1
   AND orders.payment_type = 'cashless'
@@ -1014,8 +1014,7 @@ WHERE
   AND (@order_author_id = -1 OR orders.author_employee_id = @order_author_id)
 GROUP BY orders.id
 HAVING order_sum &gt; 0
-ORDER BY estimated_payment_date
-;</CommandText>
+ORDER BY estimated_payment_date;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>

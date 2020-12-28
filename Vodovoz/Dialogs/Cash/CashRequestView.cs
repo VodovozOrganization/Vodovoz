@@ -5,6 +5,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Utilities.Text;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
@@ -162,6 +163,7 @@ namespace Vodovoz.Dialogs.Cash
 			#endregion TextEntry
 
 			#region Buttons
+			
 			ybtnAccept.Clicked += (sender, args) =>
 			{
 				ViewModel.AcceptCommand.Execute();
@@ -175,7 +177,8 @@ namespace Vodovoz.Dialogs.Cash
 			
 			ybtnGiveSumm.Clicked += (sender, args) => ViewModel.GiveSumCommand.Execute();
 			ybtnGiveSumm.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
-			ybtnGiveSumm.Sensitive = false;
+			ybtnGiveSumm.Sensitive = ViewModel.Entity.ObservableSums.Any(x => x.Expense == null);
+
 			
 			ybtnAddSumm.Clicked += (sender, args) => ViewModel.AddSumCommand.Execute();
 			ybtnEditSum.Clicked += (sender, args) => ViewModel.EditSumCommand.Execute();
@@ -193,7 +196,7 @@ namespace Vodovoz.Dialogs.Cash
 			buttonSave.Clicked += (sender, args) => ViewModel.AfterSaveCommand.Execute();
 			buttonCancel.Clicked += (s, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
 			
-			#endregion
+			#endregion Buttons
 
 			#region Editibility
 
@@ -228,12 +231,8 @@ namespace Vodovoz.Dialogs.Cash
 			}
 			
 			#endregion Visibility
-
-			#region TreeView
-
-			ConfigureTreeView();
 			
-			#endregion
+			ConfigureTreeView();
 
 			ycheckHaveReceipt.Binding.AddBinding(
 				ViewModel.Entity, 
@@ -245,8 +244,6 @@ namespace Vodovoz.Dialogs.Cash
 
 			ylabelRole.Binding.AddFuncBinding(ViewModel, vm => vm.UserRole.GetEnumTitle(), w => w.Text).InitializeFromSource();
 			ylabelStatus.Binding.AddBinding(ViewModel, vm => vm.StateName, w => w.Text).InitializeFromSource();
-
-			// ylabelRole.Text = ViewModel.UserRole.GetEnumTitle();
 			ylabelStatus.Text = ViewModel.Entity.State.GetEnumTitle();
 			
 		}
@@ -264,7 +261,8 @@ namespace Vodovoz.Dialogs.Cash
 					.XAlign(0.5f)
 				.AddColumn("Подотчетное лицо")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n.AccountableEmployee.Name)
+					.AddTextRenderer(n => PersonHelper.PersonNameWithInitials(
+						n.AccountableEmployee.LastName, n.AccountableEmployee.Name, n.AccountableEmployee.Patronymic))
 					.XAlign(0.5f)
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
@@ -298,7 +296,6 @@ namespace Vodovoz.Dialogs.Cash
 			if (isSensetive){
 				ViewModel.SelectedItem = ytreeviewSums.GetSelectedObject<CashRequestSumItem>();
 				ybtnDeleteSumm.Sensitive = isSensetive;
-				ybtnGiveSumm.Sensitive = ViewModel.SelectedItem != null && ViewModel.SelectedItem.Expense == null;
 				//Редактировать можно только невыданные
 				ybtnEditSum.Visible = ViewModel.SelectedItem != null && ViewModel.SelectedItem.Expense == null;
 			}

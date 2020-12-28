@@ -876,7 +876,7 @@ namespace Vodovoz
 				fineDlg.Entity.TotalMoney = summ;
 				fineDlg.EntitySaved += FineDlgExist_EntitySaved;
 			} else {
-				fineDlg = new FineDlg(summ, Entity, fineReason, Entity.Date, Entity.Driver);
+				fineDlg = new FineDlg(summ, Entity, fineReason, DateTime.Now, Entity.Driver);
 				fineDlg.Entity.AddNomenclature(nomenclatures);
 				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
 			}

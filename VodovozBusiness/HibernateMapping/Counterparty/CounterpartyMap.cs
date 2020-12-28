@@ -52,6 +52,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.IsChainStore).Column("is_chain_store");
 			Map(x => x.CargoReceiverSource).Column("cargo_receiver_source").CustomType<CargoReceiverTypeStringType>();
 			Map(x => x.DelayDaysForProviders).Column("delay_days");
+			Map(x => x.DelayDaysForBuyers).Column("delay_days_for_buyers");
 			Map(x => x.TaxType).Column("tax_type").CustomType<TaxTypeStringType>();
 			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.AlwaysSendReceitps).Column("always_send_receipts");

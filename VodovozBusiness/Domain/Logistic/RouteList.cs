@@ -891,7 +891,6 @@ namespace Vodovoz.Domain.Logistic
 				case RouteListStatus.EnRoute:
 					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed
 					|| Status == RouteListStatus.Delivered) {
-						Status = RouteListStatus.EnRoute;
 						if(Status != RouteListStatus.Delivered) {
 							foreach(var item in Addresses) {
 								bool isInvalidStatus = OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
@@ -900,6 +899,7 @@ namespace Vodovoz.Domain.Logistic
 									item.Order.OrderStatus = OrderStatus.OnTheWay;
 							}
 						}
+						Status = RouteListStatus.EnRoute;
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
 					}
@@ -1003,22 +1003,22 @@ namespace Vodovoz.Domain.Logistic
 					}
 					break;
 				case RouteListStatus.EnRoute:
-					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed
-					|| Status == RouteListStatus.Delivered) {
-						Status = RouteListStatus.EnRoute;
+					if(Status == RouteListStatus.InLoading 
+					   || Status == RouteListStatus.Confirmed
+					   || Status == RouteListStatus.Delivered) {
 						foreach(var item in Addresses) {
 							bool isInvalidStatus =  OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
 
 							if(!isInvalidStatus)
 								item.Order.OrderStatus = OrderStatus.OnTheWay;
 						}
+						Status = RouteListStatus.EnRoute;
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
 					}
 					break;
 				case RouteListStatus.Delivered:
-					if (Status == RouteListStatus.EnRoute)
-					{
+					if (Status == RouteListStatus.EnRoute) {
 						Status = newStatus;
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
@@ -1028,7 +1028,8 @@ namespace Vodovoz.Domain.Logistic
 					if(
 					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck || Driver.VisitingMaster || !NeedMileageCheckByWage))
 					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck))
-					|| Status == RouteListStatus.MileageCheck || Status == RouteListStatus.Delivered
+					|| Status == RouteListStatus.MileageCheck 
+					|| Status == RouteListStatus.Delivered
 					|| Status == RouteListStatus.Closed) {
 						Status = newStatus;
 						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
@@ -1050,8 +1051,8 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListStatus.Closed:
 					if(Status == RouteListStatus.OnClosing 
-					|| Status == RouteListStatus.MileageCheck
-					|| Status == RouteListStatus.Delivered) {
+					   || Status == RouteListStatus.MileageCheck
+					   || Status == RouteListStatus.Delivered) {
 						Status = newStatus;
 						CloseAddresses();
 					} else {
@@ -1230,20 +1231,18 @@ namespace Vodovoz.Domain.Logistic
 				track.CalculateDistanceToBase();
 				UoW.Save(track);
 			}
+			
 			FirstFillClosing(wageParameterService);
 			UoW.Save(this);
 		}
+		
 		public virtual void CompleteRoute(WageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
-			if(NeedMileageCheck) {
-				ChangeStatus(RouteListStatus.MileageCheck);
-			} else {
-				ChangeStatus(RouteListStatus.OnClosing);
-			}
+			ChangeStatus(RouteListStatus.Delivered);
 
 			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
 			if(track != null) {
@@ -1251,11 +1250,11 @@ namespace Vodovoz.Domain.Logistic
 				track.CalculateDistanceToBase();
 				UoW.Save(track);
 			}
+			
 			FirstFillClosing(wageParameterService);
 			UoW.Save(this);
 		}
-
-
+		
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
 		public virtual void FirstFillClosing(WageParameterService wageParameterService)
 		{

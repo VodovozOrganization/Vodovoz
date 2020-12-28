@@ -52,19 +52,11 @@ namespace Vodovoz.Models
                     break;
                 case PaymentType.cash:
                 case PaymentType.Terminal:
+                case PaymentType.ByCard:
                     organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
                     break;
                 case PaymentType.BeveragesWorld:
                     organizationId = organizationParametersProvider.BeveragesWorldOrganizationId;
-                    break;
-                case PaymentType.ByCard:
-                    var idsForSosnovcev = new int[] {orderParametersProvider.PaymentByCardFromMobileAppId, orderParametersProvider.PaymentByCardFromSiteId};
-                    if(order.PaymentByCardFrom != null && idsForSosnovcev.Contains(order.PaymentByCardFrom.Id)) {
-                        organizationId = organizationParametersProvider.SosnovcevOrganizationId;
-                    }
-                    else {
-                        organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
-                    }
                     break;
                 default:
                     throw new NotSupportedException($"Невозможно подобрать организацию, так как тип оплаты {order.PaymentType} не поддерживается.");
@@ -94,19 +86,11 @@ namespace Vodovoz.Models
                     break;
                 case PaymentType.cash:
                 case PaymentType.Terminal:
+                case PaymentType.ByCard:
                     organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
                     break;
                 case PaymentType.BeveragesWorld:
                     organizationId = organizationParametersProvider.BeveragesWorldOrganizationId;
-                    break;
-                case PaymentType.ByCard:
-                    var idsForSosnovcev = new int[] {orderParametersProvider.PaymentByCardFromMobileAppId};
-                    if(order.PaymentByCardFrom != null && idsForSosnovcev.Contains(order.PaymentByCardFrom.Id)) {
-                        organizationId = organizationParametersProvider.SosnovcevOrganizationId;
-                    }
-                    else {
-                        organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
-                    }
                     break;
                 default:
                     throw new NotSupportedException($"Тип оплаты {order.PaymentType} не поддерживается, невозможно подобрать организацию.");
