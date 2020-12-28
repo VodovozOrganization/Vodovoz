@@ -15,7 +15,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return uow.Session.QueryOver(() => routeListItemAlias)
 					  .Where(rli => rli.Status != RouteListItemStatus.Transfered)
-					  .Where(() => routeListItemAlias.Order == order)
+					  .Where(() => routeListItemAlias.Order.Id == order.Id)
 					  .SingleOrDefault();
 		}
 
