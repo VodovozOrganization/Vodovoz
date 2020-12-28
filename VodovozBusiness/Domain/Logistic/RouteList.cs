@@ -891,7 +891,6 @@ namespace Vodovoz.Domain.Logistic
 				case RouteListStatus.EnRoute:
 					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed
 					|| Status == RouteListStatus.Delivered) {
-						Status = RouteListStatus.EnRoute;
 						if(Status != RouteListStatus.Delivered) {
 							foreach(var item in Addresses) {
 								bool isInvalidStatus = OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
@@ -900,6 +899,7 @@ namespace Vodovoz.Domain.Logistic
 									item.Order.OrderStatus = OrderStatus.OnTheWay;
 							}
 						}
+						Status = RouteListStatus.EnRoute;
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
 					}
