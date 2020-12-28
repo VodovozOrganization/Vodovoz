@@ -50,7 +50,7 @@ namespace Vodovoz
 			}
 
 			//Configure map
-			gmapWidget.MapProvider = GMapProviders.OpenStreetMap;
+			gmapWidget.MapProvider = GMapProviders.YandexMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			//MapWidget.HasFrame = true;
@@ -60,6 +60,7 @@ namespace Vodovoz
 			UpdateCarPosition();
 			timerId = GLib.Timeout.Add(carRefreshInterval, new GLib.TimeoutHandler (UpdateCarPosition));
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
+			yenumcomboMapType.SelectedItem = MapProviders.YandexMap;
 		}
 
 		void GmapWidget_ExposeEvent (object o, Gtk.ExposeEventArgs args)
@@ -189,13 +190,13 @@ namespace Vodovoz
 						iconType = driverRow.IsVodovozAuto ? CarMarkerType.BlackCarVodovoz : CarMarkerType.BlackCar;
 					}
 
-					string text = String.Format("{0}({1})", driverRow.ShortName, driverRow.CarNumber);
+					string text = $"{driverRow.ShortName}({driverRow.CarNumber})";
 					var marker = new CarMarker(new PointLatLng(lastPoint.Latitude, lastPoint.Longitude),
 						iconType);
 					if(lastPoint.Time < DateTime.Now.AddSeconds(-30))
 						text += lastPoint.Time.Date == DateTime.Today
-							? String.Format("\nБыл виден: {0:t} ", lastPoint.Time)
-							: String.Format("\nБыл виден: {0:g} ", lastPoint.Time);
+							? $"\nБыл виден: {lastPoint.Time:t} "
+							: $"\nБыл виден: {lastPoint.Time:g} ";
 					marker.ToolTipText = text;
 					carsOverlay.Markers.Add(marker);
 					carMarkers.Add(lastPoint.DriverId, marker);
@@ -264,10 +265,8 @@ namespace Vodovoz
 							break;
 					}
 					var addressMarker = new GMarkerGoogle(new PointLatLng((double)point.Address.Latitude, (double)point.Address.Longitude),	type);
-					addressMarker.ToolTipText = String.Format("{0}\nВремя доставки: {1}",
-						point.Address.ShortAddress,
-						point.Time?.Name ??"Не назначено"
-					);
+					addressMarker.ToolTipText =
+						$"{point.Address.ShortAddress}\nВремя доставки: {point.Time?.Name ?? "Не назначено"}";
 					tracksOverlay.Markers.Add(addressMarker);
 				}
 			}
@@ -276,8 +275,7 @@ namespace Vodovoz
 
 		private DistanceTextInfo MakeDistanceLayout(GMapRoute route)
 		{
-			var layout = new Pango.Layout(this.PangoContext);
-			layout.Alignment = Pango.Alignment.Right;
+			var layout = new Pango.Layout(this.PangoContext) {Alignment = Pango.Alignment.Right};
 			var colTXT = System.Drawing.ColorTranslator.ToHtml(route.Stroke.Color);
 			layout.SetMarkup(String.Format("<span foreground=\"{1}\"><span font=\"Segoe UI Symbol\">⛽</span> {0:N1} км.</span>", route.Distance, colTXT));
 
