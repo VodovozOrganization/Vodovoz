@@ -734,7 +734,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.XAlign(0.5f)
 					.AddColumn("Сумма")
 						.HeaderAlignment(0.5f)
-						.AddNumericRenderer(n => n.Sum)
+						.AddNumericRenderer(n => CurrencyWorks.GetShortCurrencyString(n.Sum))
 						.XAlign(0.5f)
 					.AddColumn("Основание")
 						.HeaderAlignment(0.5f)

@@ -35,7 +35,7 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel1.Name = "ylabel1";
-			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Архиввный:");
+			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Архивный:");
 			this.hbox1.Add(this.ylabel1);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabel1]));
 			w1.Position = 0;

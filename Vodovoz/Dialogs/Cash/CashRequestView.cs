@@ -5,6 +5,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Utilities;
 using QS.Utilities.Text;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Cash;
@@ -245,7 +246,26 @@ namespace Vodovoz.Dialogs.Cash
 			ylabelRole.Binding.AddFuncBinding(ViewModel, vm => vm.UserRole.GetEnumTitle(), w => w.Text).InitializeFromSource();
 			ylabelStatus.Binding.AddBinding(ViewModel, vm => vm.StateName, w => w.Text).InitializeFromSource();
 			ylabelStatus.Text = ViewModel.Entity.State.GetEnumTitle();
-			
+
+			if (ViewModel.Entity.State == CashRequest.States.Closed)
+			{
+				ytreeviewSums.Sensitive = false;
+				ybtnAddSumm.Sensitive = false;
+				ybtnAccept.Sensitive = false;
+				ybtnApprove.Sensitive = false;
+				ybtnCancel.Sensitive = false;
+				ybtnDeleteSumm.Sensitive = false;
+				ybtnEditSum.Sensitive = false;
+				ybtnGiveSumm.Sensitive = false;
+				ybtnConveyForResults.Sensitive = false;
+				ybtnReturnForRenegotiation.Sensitive = false;
+				speccomboOrganization.Sensitive = false;
+				yentryExplanation.Sensitive = false;
+				yentryGround.Sensitive = false;
+				yentryCancelReason.Sensitive = false;
+				yentryReasonForSendToReapproval.Sensitive = false;
+				
+			}
 		}
 
 		private void ConfigureTreeView()
@@ -253,7 +273,7 @@ namespace Vodovoz.Dialogs.Cash
 			ytreeviewSums.CreateFluentColumnsConfig<CashRequestSumItem>()
 				.AddColumn("Сумма")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(n => n.Sum)
+					.AddNumericRenderer(n => CurrencyWorks.GetShortCurrencyString(n.Sum))
 					.XAlign(0.5f)
 				.AddColumn("Дата")
 					.HeaderAlignment(0.5f)
