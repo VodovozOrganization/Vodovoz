@@ -7,10 +7,16 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.JournalFilters;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate.Criterion;
+using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using VodovozInfrastructure.Interfaces;
 using QS.Project.Services;
+using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz
 {
@@ -32,17 +38,79 @@ namespace Vodovoz
 		private void ConfigureEntityViewModelEntry()
 		{
 			var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
-			var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel();
+			var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel {
+				ExcludedIds = CategoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
+				HidenByDefault = true
+			};
+			
 			var commonServices = ServicesConfig.CommonServices;
-			IFileChooserProvider chooserIncomeProvider = new FileChooser("Категории прихода.csv");
-			IFileChooserProvider chooserExpenseProvider = new FileChooser("Категория Расхода.csv");
-
+			IFileChooserProvider chooserIncomeProvider = new FileChooser("Приход " + DateTime.Now + ".csv");
+			IFileChooserProvider chooserExpenseProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
+			
 			var incomeCategoryAutocompleteSelectorFactory =
-				new IncomeCategoryAutoCompleteSelectorFactory(commonServices, incomeCategoryFilter, chooserIncomeProvider);
+				new SimpleEntitySelectorFactory<IncomeCategory, IncomeCategoryViewModel>(
+					() =>
+					{
+						var incomeCategoryJournalViewModel =
+							new SimpleEntityJournalViewModel<IncomeCategory, IncomeCategoryViewModel>(
+								x => x.Name,
+								() => new IncomeCategoryViewModel(
+									EntityUoWBuilder.ForCreate(),
+									UnitOfWorkFactory.GetDefaultFactory,
+									commonServices,
+									chooserIncomeProvider,
+									incomeCategoryFilter
+								),
+								node => new IncomeCategoryViewModel(
+									EntityUoWBuilder.ForOpen(node.Id),
+									UnitOfWorkFactory.GetDefaultFactory,
+									commonServices,
+									chooserIncomeProvider,
+									incomeCategoryFilter
+								),
+								UnitOfWorkFactory.GetDefaultFactory,
+								commonServices
+							)
+							{
+								SelectionMode = JournalSelectionMode.Single
+							};
+						return incomeCategoryJournalViewModel;
+					});
+			
 
 			var expenseCategoryAutocompleteSelectorFactory =
-				new ExpenseCategoryAutoCompleteSelectorFactory(commonServices, expenseCategoryFilter, chooserExpenseProvider);
+				new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
+					() =>
+					{
+						var expenseCategoryJournalViewModel =
+							new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
+								x => x.Name,
+								() => new ExpenseCategoryViewModel(
+									EntityUoWBuilder.ForCreate(),
+									UnitOfWorkFactory.GetDefaultFactory,
+									ServicesConfig.CommonServices,
+									chooserExpenseProvider,
+									expenseCategoryFilter
+								),
+								node => new ExpenseCategoryViewModel(
+									EntityUoWBuilder.ForOpen(node.Id),
+									UnitOfWorkFactory.GetDefaultFactory,
+									ServicesConfig.CommonServices,
+									chooserExpenseProvider,
+									expenseCategoryFilter
+								),
+								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.CommonServices
+							)
+							{
+								SelectionMode = JournalSelectionMode.Single
+							};
+						expenseCategoryJournalViewModel.SetFilter(expenseCategoryFilter,
+							filter => Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())));
 
+						return expenseCategoryJournalViewModel;
+					});
+			
 			entityVMEntryCashIncomeCategory.SetEntityAutocompleteSelectorFactory(incomeCategoryAutocompleteSelectorFactory);
 			entityVMEntryCashExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategoryAutocompleteSelectorFactory);
 		}

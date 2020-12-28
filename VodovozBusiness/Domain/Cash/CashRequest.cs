@@ -217,7 +217,7 @@ namespace Vodovoz.Domain.Cash
 
         public enum States
         {
-            [Display(Name = "Новый")]
+            [Display(Name = "Новая")]
             New,
             [Display(Name = "На уточнении")]
             OnClarification, // после отправки на пересогласование
