@@ -85,7 +85,12 @@ namespace Vodovoz
 			templatewidget1.CanRevertCommon = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_common_additionalagreement");
 			templatewidget1.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
-		}
+
+            entryNumber.Sensitive = false;
+            dateIssue.Sensitive = false;
+            referenceOrganization.Sensitive = false;
+            ycomboContractType.Sensitive = false;
+        }
 
 		public override bool Save ()
 		{
