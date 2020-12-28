@@ -73,6 +73,7 @@ namespace Vodovoz.Representations
 			FineItem fineItemAlias = null;
 			Employee finedEmployeeAlias = null;
 			Subdivision inProcessAtSubdivisionAlias = null;
+			Subdivision authorSubdivisionAlias = null;
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
 
 			var subqueryDrivers = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
@@ -163,6 +164,7 @@ namespace Vodovoz.Representations
 						   .Left.JoinAlias(u => u.LastEditor, () => editorAlias)
 						   .Left.JoinAlias(u => u.EmployeeRegistrator, () => registratorAlias)
 						   .Left.JoinAlias(u => u.InProcessAtDepartment, () => inProcessAtSubdivisionAlias)
+						   .Left.JoinAlias(u => u.Author.Subdivision, () => authorSubdivisionAlias)
 			               .Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
 						   .Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias);
 
@@ -179,6 +181,9 @@ namespace Vodovoz.Representations
 
 			if(Filter?.RestrictAddress != null)
 				query.Where(() => undeliveredOrderDeliveryPointAlias.Id == Filter.RestrictAddress.Id);
+			
+			if(Filter?.AuthorSubdivision != null)
+				query.Where(() => authorAlias.Subdivision.Id == Filter.AuthorSubdivision.Id);
 
 			if(Filter?.RestrictOldOrderAuthor != null)
 				query.Where(() => oldOrderAuthorAlias.Id == Filter.RestrictOldOrderAuthor.Id);
