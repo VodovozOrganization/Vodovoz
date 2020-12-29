@@ -97,6 +97,8 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		public virtual string Title => String.Format("Авансовый отчет №{0} от {1:d}", Id, Date);
+		
+		public virtual bool NeedValidateOrganisation { get; set; }
 
 		#endregion
 
@@ -155,7 +157,7 @@ namespace Vodovoz.Domain.Cash
 
 		#region IValidatableObject implementation
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (Accountable == null)
 				yield return new ValidationResult ("Подотчетное лицо должно быть указано.",
@@ -177,7 +179,7 @@ namespace Vodovoz.Domain.Cash
 					new[] { this.GetPropertyName(o => o.RelatedToSubdivision) });
 			}
 			
-			if(Id == 0 && Organisation == null) {
+			if(Id == 0 && NeedValidateOrganisation && Organisation == null) {
 				yield return new ValidationResult("Организация должна быть заполнена",
 					new[] { nameof(Organisation) });
 			}
