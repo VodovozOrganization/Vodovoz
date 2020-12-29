@@ -285,6 +285,7 @@ namespace Vodovoz
 		protected void OnYspinMoneyValueChanged(object sender, EventArgs e)
 		{
 			CalculateBalance();
+			ylabel1.Visible = specialListCmbOrganisation.Visible = Entity.NeedValidateOrganisation = ClosingSum != Entity.Money;
 		}
 
 		void FillDebt()
@@ -320,6 +321,8 @@ namespace Vodovoz
 		void I_SelectChanged(object sender, EventArgs e)
 		{
 			ClosingSum = advanceList.Where(a => a.Selected).Sum(a => a.Advance.UnclosedMoney);
+			Entity.Money = ClosingSum;
+			ylabel1.Visible = specialListCmbOrganisation.Visible = Entity.NeedValidateOrganisation = ClosingSum != Entity.Money;
 		}
 
 		protected void OnYentryEmployeeChanged(object sender, EventArgs e)

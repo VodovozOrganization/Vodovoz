@@ -13,6 +13,8 @@ using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.JournalFilters
@@ -60,6 +62,37 @@ namespace Vodovoz.JournalFilters
 				yEnumCMBGuilty.Sensitive = !chkProblematicCases.Active;
 				OnRefiltered();
 			};
+			
+			//Подразделение
+			var employeeSelectorFactory =
+				new DefaultEntityAutocompleteSelectorFactory
+					<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
+
+			var filter = new SubdivisionFilterViewModel() {SubdivisionType = SubdivisionType.Default};
+
+			
+			AuthorSubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
+				new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
+					typeof(Subdivision),
+					() => new SubdivisionsJournalViewModel(
+						filter,
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices,
+						employeeSelectorFactory
+					)
+				)
+			);
+			
+			AuthorSubdivisionEntityviewmodelentry.Changed += AuthorSubdivisionEntityviewmodelentryOnChanged;
+			// AuthorSubdivisionEntityviewmodelentry.Binding
+			// 	.AddBinding(
+			// 		ViewModel.Entity,
+			// 		s => s.Subdivision,
+			// 		w => w.Subject)
+			// 	.InitializeFromSource();
+			// AuthorSubdivisionEntityviewmodelentry.Sensitive = false;
+			// ViewModel.Entity.Subdivision = currentEmployee.Subdivision;
+
 		}
 
 		public void ResetFilter(){
@@ -94,6 +127,14 @@ namespace Vodovoz.JournalFilters
 			set {
 				refDriver.Subject = value;
 				refDriver.Sensitive = false;
+			}
+		}
+		
+		public Subdivision AuthorSubdivision {
+			get => AuthorSubdivisionEntityviewmodelentry.Subject as Subdivision;
+			set {
+				AuthorSubdivisionEntityviewmodelentry.Subject = value;
+				AuthorSubdivisionEntityviewmodelentry.Sensitive = false;
 			}
 		}
 
@@ -284,6 +325,11 @@ namespace Vodovoz.JournalFilters
 		}
 
 		protected void OnEntityVMEntryDeliveryPointChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+		
+		private void AuthorSubdivisionEntityviewmodelentryOnChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
 		}

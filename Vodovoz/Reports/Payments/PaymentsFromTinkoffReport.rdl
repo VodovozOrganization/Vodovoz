@@ -1181,7 +1181,7 @@ FROM
         LEFT JOIN
     employees author ON author.id = o.author_employee_id
         LEFT JOIN
-    payments_from_tinkoff p ON p.number = o.online_order
+    payments_by_card_online p ON p.number = o.online_order
         LEFT JOIN
     (
         SELECT
@@ -1276,17 +1276,17 @@ ORDER BY
       </Fields>
     </DataSet>
     <DataSet Name="PaymentsWithoutOrders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT *
-FROM payments_from_tinkoff
+FROM payments_by_card_online
 WHERE number NOT IN(
-	SELECT online_order
-	FROM orders
-	WHERE online_order IS NOT NULL AND delivery_date &gt;= @date
+    SELECT online_order
+    FROM orders
+    WHERE online_order IS NOT NULL AND delivery_date &gt;= @date
 ) AND date_and_time &gt;= @date
-AND (@shop = 'ALL' OR shop = @shop OR shop IS NULL)
+  AND (@shop = 'ALL' OR shop = @shop OR shop IS NULL)
 ORDER BY date_and_time DESC
 ;</CommandText>
         <QueryParameters>
@@ -1298,7 +1298,7 @@ ORDER BY date_and_time DESC
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>

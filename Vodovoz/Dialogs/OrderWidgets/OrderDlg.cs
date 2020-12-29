@@ -877,8 +877,9 @@ namespace Vodovoz
 			
 			int currentUserId = userRepository.GetCurrentUser(UoW).Id;
 			bool canChangeCommentOdz = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_odz_op_comment", currentUserId);
+			bool canChangeSalesDepartmentComment = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_sales_department_comment", currentUserId);
 			textODZComments.Sensitive = canChangeCommentOdz;
-			textOPComments.Sensitive = canChangeCommentOdz;
+			textOPComments.Sensitive = canChangeSalesDepartmentComment;
 		}
 
 		#endregion
