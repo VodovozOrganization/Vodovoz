@@ -55,30 +55,6 @@ namespace Vodovoz.Domain.Documents
         
         #endregion
 
-        #region Публичные функции
-
-        public virtual void UpdateItems()
-        {
-            ObservableAddressTransferDocumentItems.Clear();
-
-            var transferredAddresses = RouteListFrom.Addresses
-                .Where(x => RouteListTo.Addresses.Contains(x.TransferedTo) && x.Status == RouteListItemStatus.Transfered)
-                .ToList();
-
-            foreach (var address in transferredAddresses) {
-                var newAddressTransferItem = new AddressTransferDocumentItem {
-                    Document = this,
-                    OldAddress = address,
-                    NewAddress = address.TransferedTo,
-                    NeedToReload = address.TransferedTo.NeedToReload
-                };
-                newAddressTransferItem.UpdateItems();
-                AddressTransferDocumentItems.Add(newAddressTransferItem);
-            }
-        }
-
-        #endregion
-
         #region Приватные функии
 
         private void UpdateOperationsTime()

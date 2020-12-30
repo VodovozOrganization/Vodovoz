@@ -54,25 +54,5 @@ namespace Vodovoz.Domain.Documents
             observableDriverNomenclatureTransferDocumentItems 
             ?? (observableDriverNomenclatureTransferDocumentItems = new GenericObservableList<DriverNomenclatureTransferItem>(DriverNomenclatureTransferDocumentItems));
         
-        public virtual void UpdateItems()
-        {
-            ObservableDriverNomenclatureTransferDocumentItems.Clear();
-            
-            if(NeedToReload)
-                return;
-
-            foreach (var orderItem in oldAddress.Order.OrderItems) {
-                var newDriverNomenclatureTransferItem = new DriverNomenclatureTransferItem {
-                    DocumentItem = this,
-                    Amount = orderItem.Count,
-                    Nomenclature = orderItem.Nomenclature,
-                    DriverFrom = OldAddress.RouteList.Driver,
-                    DriverTo = OldAddress.TransferedTo.RouteList.Driver
-                };
-                    
-                newDriverNomenclatureTransferItem.CreateOrUpdateOperations();
-                DriverNomenclatureTransferDocumentItems.Add(newDriverNomenclatureTransferItem);
-            }
-        }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
@@ -15,16 +16,22 @@ namespace Vodovoz.Controllers
 {
     public class RouteListClosingDocumentsController : IRouteListClosingDocumentsController
     {
-        public RouteListClosingDocumentsController(IStandartNomenclatures standartNomenclaturesParameters, IEmployeeRepository employeeRepository, IRouteListRepository routeListRepository)
+        public RouteListClosingDocumentsController(
+            IStandartNomenclatures standartNomenclaturesParameters,
+            IEmployeeRepository employeeRepository,
+            IRouteListRepository routeListRepository,
+            ITerminalNomenclatureProvider terminalNomenclatureProvider)
         {
             this.standartNomenclaturesParameters = standartNomenclaturesParameters ?? throw new ArgumentNullException(nameof(standartNomenclaturesParameters));
             this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
             this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+            this.terminalNomenclatureProvider = terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
         }
 
         private readonly IStandartNomenclatures standartNomenclaturesParameters;
         private readonly IEmployeeRepository employeeRepository;
         private readonly IRouteListRepository routeListRepository;
+        private readonly ITerminalNomenclatureProvider terminalNomenclatureProvider;
 
         public void UpdateDocuments(RouteList routeList, IUnitOfWork uow)
         {
@@ -50,12 +57,11 @@ namespace Vodovoz.Controllers
             foreach(var document in documents) {
                 uow.Delete(document);
             }
-            
-            // var discrepancyDocument = uow.Session.QueryOver<DriverDiscrepancyDocument>().
-            //     Where(x => x.RouteList.Id == routeList.Id).Take(1).SingleOrDefault();
-            // if(discrepancyDocument != null) {
-            //     uow.Delete(discrepancyDocument);
-            // }
+
+            var discrepancyDocument = uow.Session.QueryOver<DriverDiscrepancyDocument>().Where(x => x.RouteList.Id == routeList.Id).Take(1).SingleOrDefault();
+            if(discrepancyDocument != null) {
+                uow.Delete(discrepancyDocument);
+            }
         }
 
         private void CreateOrUpdateDocuments(IUnitOfWork uow, RouteList routeList)
@@ -68,9 +74,9 @@ namespace Vodovoz.Controllers
                 .List();
 
             var employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(uow);
-            
+
             CreateOrUpdateDeliveryDocuments(uow, routeList, employeeForCurrentUser, standartReturnNomenclature, ref deliveryDocuments);
-            // CreateOrUpdateDiscrepancyDocument(uow, routeList, employeeForCurrentUser, deliveryDocuments);
+            CreateOrUpdateDiscrepancyDocument(uow, routeList, employeeForCurrentUser, deliveryDocuments);
         }
 
         private void CreateOrUpdateDeliveryDocuments(IUnitOfWork uow,
@@ -102,10 +108,12 @@ namespace Vodovoz.Controllers
                 }
                 deliveryDocument.ObservableItems.Clear();
 
-                foreach(var orderItem in address.Order.OrderItems) {
+                foreach(var orderItem in address.Order.OrderItems.Where(x => x.ActualCount.HasValue && x.ActualCount != 0)) {
+                    Debug.Assert(orderItem.ActualCount != null, "orderItem.ActualCount != null");
+                    
                     var newDeliveryDocumentItem = new DeliveryDocumentItem {
                         Document = deliveryDocument,
-                        Amount = orderItem.ActualCount ?? 0,
+                        Amount = orderItem.ActualCount.Value,
                         Nomenclature = orderItem.Nomenclature,
                         Direction = DeliveryDirection.ToClient
                     };
@@ -113,10 +121,12 @@ namespace Vodovoz.Controllers
                     deliveryDocument.ObservableItems.Add(newDeliveryDocumentItem);
                 }
 
-                foreach(var orderEquipment in address.Order.OrderEquipments) {
+                foreach(var orderEquipment in address.Order.OrderEquipments.Where(x => x.ActualCount.HasValue && x.ActualCount != 0)) {
+                    Debug.Assert(orderEquipment.ActualCount != null, "orderEquipment.ActualCount != null");
+                    
                     var newDeliveryDocumentItem = new DeliveryDocumentItem {
                         Document = deliveryDocument,
-                        Amount = orderEquipment.ActualCount.HasValue ? (decimal)orderEquipment.ActualCount : 0,
+                        Amount = (decimal)orderEquipment.ActualCount,
                         Nomenclature = orderEquipment.Nomenclature,
                         Direction = orderEquipment.Direction == Direction.Deliver
                             ? DeliveryDirection.ToClient
@@ -141,8 +151,13 @@ namespace Vodovoz.Controllers
             }
         }
 
+        /// <summary>
+        /// Высчитывает все недосданные и пересданные водителем номенклатуры и записывает их в <see cref="DriverDiscrepancyDocument"/>
+        /// </summary>
         private void CreateOrUpdateDiscrepancyDocument(IUnitOfWork uow, RouteList routeList, Employee employeeForCurrentUser, IList<DeliveryDocument> deliveryDocuments)
         {
+            var terminalNomenclatureId = terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+            
             DriverDiscrepancyDocument discrepancyDocument = uow.Session.QueryOver<DriverDiscrepancyDocument>()
                 .Where(x => x.RouteList.Id == routeList.Id).Take(1).SingleOrDefault() ?? new DriverDiscrepancyDocument();
 
@@ -161,26 +176,56 @@ namespace Vodovoz.Controllers
                 uow.Delete(item);
             }
             discrepancyDocument.ObservableItems.Clear();
-
-            var unloadedNomenclatureNodes =
-                routeListRepository.GetReturnsToWarehouse(uow, routeList.Id, Enum.GetValues(typeof(NomenclatureCategory)).Cast<NomenclatureCategory>().ToArray());
             
-            foreach(var unloadedNode in unloadedNomenclatureNodes) {
-                var deliveryDocItems = deliveryDocuments
-                    .SelectMany(x => x.ObservableItems.Where(i => i.Nomenclature.Id == unloadedNode.NomenclatureId)).ToList();
-                var deliveredAmount = deliveryDocItems.Sum(g => g.Amount);
+            var loaded = routeListRepository.AllGoodsLoaded(uow, routeList)
+                .ToDictionary(x => x.NomenclatureId, x => x.Amount);
+            
+            var transferedFromThisRL = routeListRepository.AllGoodsTransferredFrom(uow, routeList)
+                .ToDictionary(x => x.NomenclatureId, x => x.Amount);
+            
+            var transferedToThisRL = routeListRepository.AllGoodsTransferredTo(uow, routeList)
+                .ToDictionary(x => x.NomenclatureId, x => x.Amount);
+            
+            var delivered = routeListRepository.AllGoodsDelivered(deliveryDocuments)
+                .ToDictionary(x => x.NomenclatureId, x => x.Amount);
 
-                if(deliveredAmount != unloadedNode.Amount) {
-                    var newDiscrepanceItem = new DriverDiscrepancyDocumentItem {
-                        Document = discrepancyDocument,
-                        Nomenclature = deliveryDocItems.FirstOrDefault()?.Nomenclature ?? uow.GetById<Nomenclature>(unloadedNode.NomenclatureId),
-                        DiscrepancyReason = deliveredAmount > unloadedNode.Amount ? DiscrepancyReason.UnloadedDeficiently : DiscrepancyReason.UnloadedExcessively,
-                        Amount = Math.Abs(deliveredAmount - unloadedNode.Amount)
-                    };
-                    newDiscrepanceItem.CreateOrUpdateOperations();
-                    discrepancyDocument.ObservableItems.Add(newDiscrepanceItem);
-                }
+            var receivedFromClient = routeListRepository.AllGoodsReceivedFromClient(deliveryDocuments)
+                .ToDictionary(x => x.NomenclatureId, x => x.Amount);
+
+            var unloaded = routeListRepository.GetReturnsToWarehouse(uow, routeList.Id)
+                .ToDictionary(x => x.NomenclatureId, x => x.Amount);
+
+            var nomenclatureIds = 
+                loaded.Keys
+                .Union(transferedFromThisRL.Keys)
+                .Union(transferedToThisRL.Keys)
+                .Union(delivered.Keys)
+                .Union(receivedFromClient.Keys)
+                .Union(unloaded.Keys)
+                .Where(x => x != terminalNomenclatureId);
+            
+            foreach(var nomId in nomenclatureIds) {
+                loaded.TryGetValue(nomId, out decimal loadedAmount);
+                transferedFromThisRL.TryGetValue(nomId, out decimal transferedFromThisRLAmount);
+                transferedToThisRL.TryGetValue(nomId, out decimal transferedToThisAmount);
+                delivered.TryGetValue(nomId, out decimal deliveredAmount);
+                receivedFromClient.TryGetValue(nomId, out decimal receivedFromClientAmount);
+                unloaded.TryGetValue(nomId, out decimal unloadedAmount);
+
+                var discrepancyValue = loadedAmount - transferedFromThisRLAmount + transferedToThisAmount - deliveredAmount + receivedFromClientAmount - unloadedAmount;
+                if(discrepancyValue == 0)
+                    continue;
+                
+                var newDiscrepanceItem = new DriverDiscrepancyDocumentItem {
+                    Document = discrepancyDocument,
+                    Nomenclature = uow.GetById<Nomenclature>(nomId),
+                    DiscrepancyReason = discrepancyValue > 0 ? DiscrepancyReason.UnloadedDeficiently : DiscrepancyReason.UnloadedExcessively,
+                    Amount = Math.Abs(discrepancyValue)
+                };
+                newDiscrepanceItem.CreateOrUpdateOperations();
+                discrepancyDocument.ObservableItems.Add(newDiscrepanceItem);
             }
+            
             if(discrepancyDocument.ObservableItems.Any()) {
                 uow.Save(discrepancyDocument);
             }
