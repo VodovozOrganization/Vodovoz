@@ -1805,7 +1805,6 @@ namespace Vodovoz
 					} else if(Entity.Id == 0 || hideEnums.Contains(Entity.PaymentType)) {
 						enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;
 						OnEnumPaymentTypeChanged(null, e);
-						Entity.ChangeOrderContract(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 					} else {
 						enumPaymentType.SelectedItem = Entity.PaymentType;
 					}
@@ -1873,7 +1872,6 @@ namespace Vodovoz
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
 		{
 			CheckSameOrders();
-			Entity.ChangeOrderContract(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 			
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
@@ -1982,7 +1980,6 @@ namespace Vodovoz
 			if(Entity.DeliveryDate.HasValue) {
 				if(Entity.DeliveryDate.Value.Date != DateTime.Today.Date || MessageDialogHelper.RunWarningDialog("Подтвердите дату доставки", "Доставка сегодня? Вы уверены?", ButtonsType.YesNo)) {
 					CheckSameOrders();
-					Entity.ChangeOrderContract(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 					return;
 				}
 				Entity.DeliveryDate = null;
@@ -2058,7 +2055,6 @@ namespace Vodovoz
 
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
 		{
-			Entity.ChangeOrderContract(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 			if(Entity.PaymentType != PaymentType.ByCard)
 				entOnlineOrder.Text = string.Empty;//костыль, т.к. Entity.OnlineOrder = null не убирает почему-то текст из виджета
 		}
