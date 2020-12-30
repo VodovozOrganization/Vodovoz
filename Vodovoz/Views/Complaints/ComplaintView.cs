@@ -1,4 +1,5 @@
 ﻿using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
@@ -108,6 +109,9 @@ namespace Vodovoz.Views.Complaints
 
 			ytextviewComplaintText.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComplaintText.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+
+			comboType.ItemsEnum = typeof(ComplaintType);
+			comboType.Binding.AddBinding(ViewModel.Entity, vm => vm.ComplaintType, w => w.SelectedItem).InitializeFromSource();
 
 			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
 
