@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate.Exceptions;
 using QS.Dialog;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.HistoryLog.Domain;
@@ -166,21 +169,31 @@ namespace Vodovoz.Dialogs
                 }
             }
 
-            var taked = query.OrderBy(x => x.ChangeTime).Desc
+            try{
+                var taked = query.OrderBy(x => x.ChangeTime).Desc
                              .Skip(takenRows)
                              .Take(pageSize)
                              .List();
 
-            if(takenRows > 0) {
-                changedEntities.AddRange(taked);
-                datatreeChangesets.YTreeModel.EmitModelChanged();
-            } else {
-                changedEntities = taked.ToList();
-                datatreeChangesets.ItemsDataSource = changedEntities;
-            }
+                if(takenRows > 0){
+                    changedEntities.AddRange(taked);
+                    datatreeChangesets.YTreeModel.EmitModelChanged();
+                }else{
+                    changedEntities = taked.ToList();
+                    datatreeChangesets.ItemsDataSource = changedEntities;
+                }
 
-            if(taked.Count < pageSize)
-                takenAll = true;
+                if(taked.Count < pageSize)
+                    takenAll = true;
+
+            } catch (GenericADOException ex) {
+                if (ex?.InnerException?.InnerException?.InnerException?.InnerException?.InnerException is System.Net.Sockets.SocketException exception 
+                    && exception.SocketErrorCode == System.Net.Sockets.SocketError.TimedOut){
+                    MessageDialogHelper.RunWarningDialog("Превышен интервал ожидания ответа от сервера:\n" +
+                        "Попробуйте выбрать меньший интервал времени\n" +
+                        "или уточнить условия поиска");
+                }
+            }
 
             takenRows = changedEntities.Count;
 
