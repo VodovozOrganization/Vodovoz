@@ -4,9 +4,11 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QSOrmProject;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz
 {
@@ -23,10 +25,11 @@ namespace Vodovoz
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInStock))
 				.AddColumn("В маршрутнике").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInRouteList))
 				.AddColumn("В других отгрузках").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountLoaded))
-				.AddColumn("Отгружаемое кол-во").AddNumericRenderer(x => x.Amount).Editing()
+				.AddColumn("Отгружаемое кол-во").AddNumericRenderer(x => x.Amount ).Editing()
+				// .AddColumn("Отгружаемое кол-во").AddNumericRenderer(x => x.Nomenclature.OfficialName != "Терминал для оплаты"? x.Amount : x.Amount >= 1? 1 : 0).Editing()
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
-				.AddSetter((w, x) => w.Foreground = CalculateAmountColor(x))
+				.AddSetter((w, x) => w.Foreground = CalculateAmountAndColor(x))
 				.AddColumn("")
 				.Finish();
 
@@ -81,8 +84,10 @@ namespace Vodovoz
 			UpdateButtonState();
 		}
 
-		string CalculateAmountColor(CarLoadDocumentItem item)
+		string CalculateAmountAndColor(CarLoadDocumentItem item)
 		{
+			if (item.Nomenclature.OfficialName == "Терминал для оплаты" && item.Amount > 1)
+				item.Amount = Decimal.One;
 			if(item.Amount > item.AmountInStock)
 				return "red";
 			if(item.Equipment == null) {
