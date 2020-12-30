@@ -109,7 +109,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IsAdminPanelVisible = isAdmin;
 
             var currentRole = getUserRole(userId);
+            
             UserRole = currentRole;
+            if (!dialogLoadedOnce)
+            {
+                savedUserRole = UserRole;
+                dialogLoadedOnce = true;
+            }
             if (isAdmin) {
                 UserRole = savedUserRole;
             }
@@ -367,6 +373,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,"Причина отмены должна быть заполнена");
                 } else {
                     Entity.ChangeState(CashRequest.States.Canceled);
+                    AfterSaveCommand.Execute();
                 }
             }, () => true
         ));
