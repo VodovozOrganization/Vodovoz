@@ -120,8 +120,9 @@ namespace Vodovoz.Dialogs.Cash
 			comboIfAdminRoleChooser.ItemsEnum = typeof(UserRole);
 			comboIfAdminRoleChooser.Binding.AddBinding(
 				ViewModel,
-				e => e.UserRole,
+				e => CashRequestViewModel.savedUserRole,
 				w => w.SelectedItem).InitializeFromSource();
+			comboIfAdminRoleChooser.SelectedItem = ViewModel.UserRole;
 			comboIfAdminRoleChooser.Visible = ViewModel.IsAdminPanelVisible;
 			ybtnAdminRoleRemember.Visible = ViewModel.IsAdminPanelVisible;
 			ybtnAdminRoleRemember.Clicked += (sender, args) => { ViewModel.RememberRole(comboIfAdminRoleChooser.SelectedItem); };
