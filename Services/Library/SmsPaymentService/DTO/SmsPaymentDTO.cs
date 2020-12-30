@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -52,5 +53,17 @@ namespace SmsPaymentService
         /// Тип клиента
         /// </summary>
         [DataMember] public PersonType RecepientType { get; set; }
+        
+        /// <summary>
+        /// Товары
+        /// </summary>
+        [DataMember] public IList<SmsPaymentItemDTO> Items { get; set; }
+    }
+
+    public class SmsPaymentItemDTO
+    {
+        [DataMember] public string Name { get; set; }
+        [DataMember] public decimal Quantity { get; set; }
+        [DataMember] public decimal Price { get; set; }
     }
 }

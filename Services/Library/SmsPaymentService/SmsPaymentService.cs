@@ -7,15 +7,9 @@ using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -41,6 +35,7 @@ namespace SmsPaymentService
 		private readonly IDriverPaymentService androidDriverService;
         private readonly IOrderParametersProvider orderParametersProvider;
         private readonly SmsPaymentFileCache smsPaymentFileCache;
+        private readonly SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory();
 
         public PaymentResult SendPayment(int orderId, string phoneNumber)
         {
@@ -73,18 +68,32 @@ namespace SmsPaymentService
                         return new PaymentResult($"Заказ с номером {orderId} не существующет в базе");
                     }
                     var newPayment = new SmsPayment {
-                        Amount = order.OrderTotalSum,
+                        Amount = order.TotalSum,
                         Order = order,
                         Recepient = order.Client,
                         CreationDate = DateTime.Now,
                         PhoneNumber = phoneNumber
                     };
+
+                    if(order.OrderDepositItems.Any()) {
+                        logger.Error("Запрос на отправку платежа пришёл с возвратами залогов");
+                        return new PaymentResult("Нельзя отправить платеж на заказ, в котором есть возврат залогов");
+                    }
+                    if(!order.OrderItems.Any()) {
+                        logger.Error("Запрос на отправку платежа пришёл без товаров на продажу");
+                        return new PaymentResult("Нельзя отправить платеж на заказ, в котором нет товаров на продажу");
+                    }
+                    if(newPayment.Amount <= 1) {
+                        logger.Error("Запрос на отправку платежа пришёл с суммой заказа меньше 1 рубля");
+                        return new PaymentResult("Нельзя отправить платеж на заказ, сумма которого меньше 1 рубля");
+                    }
+                    
                     newPayment.SetReadyToSend();
+                    var paymentDto = smsPaymentDTOFactory.CreateSmsPaymentDTO(newPayment, order);
+                    
                     uow.Save(newPayment);
                     uow.Commit();
-                    
-                    var paymentDto = CreateSmsPaymentDTOFromSmsPayment(newPayment);
-                    
+
                     var sendResponse = paymentController.SendPayment(paymentDto);
 
                     if (sendResponse.HttpStatusCode == HttpStatusCode.OK && sendResponse.ExternalId.HasValue) {
@@ -378,20 +387,6 @@ namespace SmsPaymentService
             catch (Exception ex) {
                 logger.Error(ex,"При синхронизации произошла ошибка");
             }
-        }
-
-        private SmsPaymentDTO CreateSmsPaymentDTOFromSmsPayment(SmsPayment smsPayment)
-        {
-            return new SmsPaymentDTO {
-                Recepient = smsPayment.Recepient.Name,
-                RecepientId = smsPayment.Recepient.Id,
-                PhoneNumber = smsPayment.PhoneNumber,
-                PaymentStatus = SmsPaymentStatus.WaitingForPayment,
-                OrderId = smsPayment.Order.Id,
-                PaymentCreationDate = smsPayment.CreationDate,
-                Amount = smsPayment.Amount,
-                RecepientType = smsPayment.Recepient.PersonType
-            };
         }
     }
 }
