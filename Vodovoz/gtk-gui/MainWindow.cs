@@ -431,7 +431,7 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionProposals;
 
-	private global::Gtk.Action ActionAddProposal;
+	private global::Gtk.Action ActionOpenProposalsJournal;
 
 	private global::Gtk.HBox hbox1;
 
@@ -1122,9 +1122,9 @@ public partial class MainWindow
 		this.ActionProposals.HideIfEmpty = false;
 		this.ActionProposals.ShortLabel = global::Mono.Unix.Catalog.GetString("Предложения");
 		w1.Add(this.ActionProposals, null);
-		this.ActionAddProposal = new global::Gtk.Action("ActionAddProposal", global::Mono.Unix.Catalog.GetString("Написать предложение"), null, null);
-		this.ActionAddProposal.ShortLabel = global::Mono.Unix.Catalog.GetString("Написать предложение");
-		w1.Add(this.ActionAddProposal, null);
+		this.ActionOpenProposalsJournal = new global::Gtk.Action("ActionOpenProposalsJournal", global::Mono.Unix.Catalog.GetString("Открыть журнал предложений"), null, null);
+		this.ActionOpenProposalsJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Написать предложение");
+		w1.Add(this.ActionOpenProposalsJournal, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -1300,8 +1300,8 @@ public partial class MainWindow
 				"ups\' action=\'ActionGeographicGroups\'/><menuitem name=\'ActionImages\' action=\'Acti" +
 				"onImages\'/></menu><menu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem name=\'" +
 				"aboutAction\' action=\'aboutAction\'/></menu><menu name=\'ActionProposals\' action=\'A" +
-				"ctionProposals\'><menuitem name=\'ActionAddProposal\' action=\'ActionAddProposal\'/><" +
-				"/menu></menubar></ui>");
+				"ctionProposals\'><menuitem name=\'ActionOpenProposalsJournal\' action=\'ActionOpenPr" +
+				"oposalsJournal\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1578,7 +1578,7 @@ public partial class MainWindow
 		this.ActionProducedProductionReport.Activated += new global::System.EventHandler(this.OnActionProducedProductionReportActivated);
 		this.ActionCashRequestJournal.Activated += new global::System.EventHandler(this.OnActionCashRequestReportActivated);
 		this.ActionCashRequest.Activated += new global::System.EventHandler(this.OnActionGeneralActivated);
-		this.ActionAddProposal.Activated += new global::System.EventHandler(this.OnActionAddProposalActivated);
+		this.ActionOpenProposalsJournal.Activated += new global::System.EventHandler(this.OnActionOpenProposalsJournalActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);

@@ -148,6 +148,7 @@
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
     <Compile Include="HibernateMapping\Organization\CashBoxMap.cs" />
+    <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItemMap.cs" />

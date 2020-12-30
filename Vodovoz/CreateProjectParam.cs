@@ -6,7 +6,6 @@ using Autofac;
 using Gamma.Binding;
 using Gamma.Utilities;
 using NHibernate.AdoNet;
-using NHibernate.Cfg;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Deletion.Views;
@@ -87,8 +86,6 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.ReportsParameters;
-using Vodovoz.Repositories;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Services.Permissions;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
@@ -99,7 +96,6 @@ using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
-using Vodovoz.ViewModels.Mango;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.Organization;
@@ -117,7 +113,6 @@ using Vodovoz.Views.Complaints;
 using Vodovoz.Views.Contacts;
 using Vodovoz.Views.Employees;
 using Vodovoz.Views.Logistic;
-using Vodovoz.Views.Mango;
 using Vodovoz.Views.Orders;
 using Vodovoz.Views.Orders.OrdersWithoutShipment;
 using Vodovoz.Views.Organization;
@@ -128,30 +123,10 @@ using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
-using Vodovoz.Views.Contacts;
-using Vodovoz.ViewModels.Users;
-using Vodovoz.Views.Users;
-using Vodovoz.ViewModels.Permissions;
-using Vodovoz.ViewWidgets.Permissions;
-using Vodovoz.ViewModels.Reports;
-using Vodovoz.ReportsParameters;
-using Vodovoz.Domain.Contacts;
-using Vodovoz.ViewModels.BusinessTasks;
-using Vodovoz.Views.BusinessTasks;
-using Vodovoz.Footers.ViewModels;
-using Vodovoz.Footers.Views;
-using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
-using Vodovoz.Views.Orders.OrdersWithoutShipment;
-using Vodovoz.Dialogs.Email;
-using Vodovoz.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Cash;
-using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
-using Vodovoz.Views.Cash;
 using Vodovoz.Views.Goods;
-using Vodovoz.Views.Orders;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.NhibernateExtensions;
@@ -164,6 +139,10 @@ using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.Views.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
+using Vodovoz.JournalFilters.Proposal;
+using Vodovoz.ViewModels.ViewModels.Proposal;
+using Vodovoz.Views.Proposal;
 
 namespace Vodovoz
 {
@@ -245,6 +224,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FinancialDistrictsSetViewModel, FinancialDistrictsSetView>()
 				.RegisterWidgetForTabViewModel<MovementWagonViewModel, MovementWagonView>()
 				.RegisterWidgetForTabViewModel<UserViewModel, UserView>()
+                .RegisterWidgetForTabViewModel<ApplicationDevelopmentProposalViewModel, ApplicationDevelopmentProposalView>()
 				;
 
 			//Регистрация виджетов
@@ -285,6 +265,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<FixedPricesViewModel, FixedPricesView>()
 				.RegisterWidgetForWidgetViewModel<MovementWagonJournalFilterViewModel, MovementWagonJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<UserJournalFilterViewModel, UserJournalFilterView>()
+                .RegisterWidgetForWidgetViewModel<ApplicationDevelopmentProposalsJournalFilterViewModel, ApplicationDevelopmentProposalsJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

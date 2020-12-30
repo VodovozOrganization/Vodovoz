@@ -8,6 +8,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
+using Vodovoz.Domain.Proposal;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Employees;
@@ -23,6 +24,7 @@ using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using WrapMode = Pango.WrapMode;
 using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -854,6 +856,32 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Тип")
 						.AddTextRenderer(node => node.PropertyPath)
 					.AddColumn("")
+					.Finish()
+			);
+
+			//ApplicationDevelopmentProposalsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ApplicationDevelopmentProposalsJournalViewModel>(
+				() => FluentColumnsConfig<ApplicationDevelopmentProposalsJournalNode>.Create()
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Id.ToString())
+						.XAlign(0.5f)
+					.AddColumn("Дата создания")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.CreationDate.ToString())
+						.XAlign(0.5f)
+					.AddColumn("Тема")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Title)
+						.XAlign(0.5f)
+					.AddColumn("Статус")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Status.GetEnumTitle())
+						.XAlign(0.5f)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => 
+							c.ForegroundGdk = n.Status == ApplicationDevelopmentProposalStatus.Rejected ? colorRed : colorBlack)
 					.Finish()
 			);
 		}

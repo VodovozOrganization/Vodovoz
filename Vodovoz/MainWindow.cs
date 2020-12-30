@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Autofac;
-using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Banks.Domain;
@@ -17,7 +16,6 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Project.Services.Interactive;
-using QS.RepresentationModel.GtkUI;
 using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Tools;
@@ -30,7 +28,6 @@ using Vodovoz.Core;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Contacts;
@@ -54,6 +51,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalSelector;
@@ -79,14 +77,13 @@ using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using Vodovoz.ReportsParameters.Production;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
-using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
 using Vodovoz.Parameters;
 using Vodovoz.Journals;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
-using Vodovoz.ViewModels.Proposal;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1745,14 +1742,18 @@ public partial class MainWindow : Gtk.Window
         );
     }
 
-    protected void OnActionAddProposalActivated(object sender, EventArgs e)
+    protected void OnActionOpenProposalsJournalActivated(object sender, EventArgs e)
     {
+        var filter = new ApplicationDevelopmentProposalsJournalFilterViewModel {HidenByDefault = true};
+        
         tdiMain.AddTab(
-            new ApplicationDevelopmentProposalViewModel(
-                EntityUoWBuilder.ForCreate(),
+            new ApplicationDevelopmentProposalsJournalViewModel(
+                filter,
+                new EmployeeService(),
                 UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices
             )
+            { SelectionMode = JournalSelectionMode.Multiple }
         );
     }
 }

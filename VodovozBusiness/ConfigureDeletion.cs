@@ -25,6 +25,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.Domain.Proposal;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
@@ -1160,6 +1161,12 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<StoredImageResource>();
 			DeleteConfig.AddHibernateDeleteInfo<StoredResource>();
+
+			#endregion
+
+			#region Предложения (ApplicationDevelopmentProposal)
+
+			DeleteConfig.AddHibernateDeleteInfo<ApplicationDevelopmentProposal>();
 
 			#endregion
 
