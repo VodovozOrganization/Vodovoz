@@ -78,7 +78,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на постоплату";
 			
 			EntityUoWBuilder = uowBuilder;
-			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(),UoW);
+			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(), commonServices.InteractiveService, UoW);
 			
 			ObservableNodes = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
 		}
