@@ -20,7 +20,7 @@ using QS.Project.Services;
 using QS.Services;
 using RdlEngine;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using fyiReporting.RdlGtkViewer;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Dialogs.Email
 {
@@ -60,13 +60,13 @@ namespace Vodovoz.Dialogs.Email
 		public DelegateCommand SendEmailCommand { get; private set; }
 
 		public DelegateCommand RefreshEmailListCommand { get; private set; }
-		
-		public SendDocumentByEmailViewModel(IEmailRepository emailRepository, IEmployeeRepository employeeRepository, IUnitOfWork uow = null)
+
+		public SendDocumentByEmailViewModel(IEmailRepository emailRepository, IEmployeeRepository employeeRepository, IInteractiveService interactiveService, IUnitOfWork uow = null)
 		{
 			this.emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			interactiveService = ServicesConfig.InteractiveService;
-			StoredEmails = new GenericObservableList<StoredEmail>();
+            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+            StoredEmails = new GenericObservableList<StoredEmail>();
 			UoW = uow;
 
 			CreateCommands();
@@ -232,8 +232,8 @@ namespace Vodovoz.Dialogs.Email
 				return;
 			}
 
-			if(Document.Type == OrderDocumentType.Bill && Document.Order?.Id == 0) {
-				interactiveService.ShowMessage(ImportanceLevel.Warning,"Для отправки необходимо сохранить заказ."); 
+			if(Document.Type == OrderDocumentType.Bill && (Document.Order?.Id == 0 || Document.Order?.OrderStatus == OrderStatus.NewOrder)) {
+				interactiveService.ShowMessage(ImportanceLevel.Warning,"Для отправки необходимо подтвердить заказ."); 
 				return;
 			}
 

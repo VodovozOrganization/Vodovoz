@@ -212,7 +212,6 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
-			SendDocumentByEmailViewModel = new SendDocumentByEmailViewModel(emailRepository, employeeRepository);
 			Entity.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать заказы, так как некого указывать в качестве автора документа.");
@@ -232,7 +231,6 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
-			SendDocumentByEmailViewModel = new SendDocumentByEmailViewModel(emailRepository, employeeRepository);
 			ConfigureDlg();
 		}
 
@@ -844,6 +842,7 @@ namespace Vodovoz
 		
 		private void ConfigureSendDocumentByEmailWidget()
 		{
+			SendDocumentByEmailViewModel = new SendDocumentByEmailViewModel(emailRepository, employeeRepository, ServicesConfig.InteractiveService);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
 			hbox19.Add(sendEmailView);
 			sendEmailView.Show();
