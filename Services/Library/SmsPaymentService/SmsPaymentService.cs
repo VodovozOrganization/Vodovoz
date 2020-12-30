@@ -74,8 +74,21 @@ namespace SmsPaymentService
                         CreationDate = DateTime.Now,
                         PhoneNumber = phoneNumber
                     };
-                    newPayment.SetReadyToSend();
+
+                    if(order.OrderDepositItems.Any()) {
+                        logger.Error("Запрос на отправку платежа пришёл с возвратами залогов");
+                        return new PaymentResult("Нельзя отправить платеж на заказ, в котором есть возврат залогов");
+                    }
+                    if(!order.OrderItems.Any()) {
+                        logger.Error("Запрос на отправку платежа пришёл без товаров на продажу");
+                        return new PaymentResult("Нельзя отправить платеж на заказ, в котором нет товаров на продажу");
+                    }
+                    if(newPayment.Amount <= 1) {
+                        logger.Error("Запрос на отправку платежа пришёл с суммой заказа меньше 1 рубля");
+                        return new PaymentResult("Нельзя отправить платеж на заказ, сумма которого меньше 1 рубля");
+                    }
                     
+                    newPayment.SetReadyToSend();
                     var paymentDto = smsPaymentDTOFactory.CreateSmsPaymentDTO(newPayment, order);
                     
                     uow.Save(newPayment);
