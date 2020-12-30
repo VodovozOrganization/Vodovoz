@@ -171,12 +171,7 @@ namespace SmsPaymentService
         }
         
     }
-
-    #region JsonDeserialization
-
     
-
-    #endregion
     class SmsPaymentJson
     {
         [JsonProperty("ID")]
