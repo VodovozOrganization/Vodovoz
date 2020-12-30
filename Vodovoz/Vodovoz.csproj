@@ -1538,6 +1538,10 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashRequestItemView.cs" />
     <Compile Include="JournalFilters\Cash\CashTransferDocumentsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.Cash.CashTransferDocumentsFilter.cs" />
+    <Compile Include="Views\Proposal\ApplicationDevelopmentProposalView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Proposal.ApplicationDevelopmentProposalView.cs" />
+    <Compile Include="JournalFilters\Proposal\ApplicationDevelopmentProposalsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.Proposal.ApplicationDevelopmentProposalsJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1832,6 +1836,8 @@
     <Folder Include="Views\Goods\" />
     <Folder Include="ReportsParameters\Production\" />
     <Folder Include="Views\Payments\" />
+    <Folder Include="Views\Proposal\" />
+    <Folder Include="JournalFilters\Proposal\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

@@ -429,6 +429,10 @@ public partial class MainWindow
 
 	private global::Gtk.RadioAction ActionCashRequest;
 
+	private global::Gtk.Action ActionProposals;
+
+	private global::Gtk.Action ActionOpenProposalsJournal;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -715,7 +719,7 @@ public partial class MainWindow
 		this.ActionForwarderWageReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Зарплаты экспедиторов");
 		w1.Add(this.ActionForwarderWageReport, null);
 		this.ActionStaff = new global::Gtk.RadioAction("ActionStaff", global::Mono.Unix.Catalog.GetString("Кадры"), null, "employees", 0);
-		this.ActionStaff.Group = this.ActionCash.Group;
+		this.ActionStaff.Group = this.ActionOrders.Group;
 		this.ActionStaff.ShortLabel = global::Mono.Unix.Catalog.GetString("Кадры");
 		w1.Add(this.ActionStaff, null);
 		this.ActionDriversWageBalance = new global::Gtk.Action("ActionDriversWageBalance", global::Mono.Unix.Catalog.GetString("Баланс водителей"), null, null);
@@ -1114,6 +1118,13 @@ public partial class MainWindow
 		this.ActionCashRequest.Group = this.ActionCash.Group;
 		this.ActionCashRequest.ShortLabel = global::Mono.Unix.Catalog.GetString("Общее");
 		w1.Add(this.ActionCashRequest, null);
+		this.ActionProposals = new global::Gtk.Action("ActionProposals", global::Mono.Unix.Catalog.GetString("Предложения"), null, null);
+		this.ActionProposals.HideIfEmpty = false;
+		this.ActionProposals.ShortLabel = global::Mono.Unix.Catalog.GetString("Предложения");
+		w1.Add(this.ActionProposals, null);
+		this.ActionOpenProposalsJournal = new global::Gtk.Action("ActionOpenProposalsJournal", global::Mono.Unix.Catalog.GetString("Открыть журнал предложений"), null, null);
+		this.ActionOpenProposalsJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Написать предложение");
+		w1.Add(this.ActionOpenProposalsJournal, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -1288,7 +1299,9 @@ public partial class MainWindow
 				"onDocTemplates\' action=\'ActionDocTemplates\'/><menuitem name=\'ActionGeographicGro" +
 				"ups\' action=\'ActionGeographicGroups\'/><menuitem name=\'ActionImages\' action=\'Acti" +
 				"onImages\'/></menu><menu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem name=\'" +
-				"aboutAction\' action=\'aboutAction\'/></menu></menubar></ui>");
+				"aboutAction\' action=\'aboutAction\'/></menu><menu name=\'ActionProposals\' action=\'A" +
+				"ctionProposals\'><menuitem name=\'ActionOpenProposalsJournal\' action=\'ActionOpenPr" +
+				"oposalsJournal\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1386,7 +1399,7 @@ public partial class MainWindow
 			this.Child.ShowAll();
 		}
 		this.DefaultWidth = 1369;
-		this.DefaultHeight = 542;
+		this.DefaultHeight = 546;
 		this.Show();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler(this.OnDeleteEvent);
 		this.dialogAuthenticationAction.Activated += new global::System.EventHandler(this.OnDialogAuthenticationActionActivated);
@@ -1565,6 +1578,7 @@ public partial class MainWindow
 		this.ActionProducedProductionReport.Activated += new global::System.EventHandler(this.OnActionProducedProductionReportActivated);
 		this.ActionCashRequestJournal.Activated += new global::System.EventHandler(this.OnActionCashRequestReportActivated);
 		this.ActionCashRequest.Activated += new global::System.EventHandler(this.OnActionGeneralActivated);
+		this.ActionOpenProposalsJournal.Activated += new global::System.EventHandler(this.OnActionOpenProposalsJournalActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
