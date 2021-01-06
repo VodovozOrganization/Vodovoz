@@ -549,6 +549,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			var paymentByCardFromSiteId = orderParametersProvider.PaymentByCardFromSiteId;
 			var paymentByCardFromOnlineStoreId = orderParametersProvider.PaymentByCardFromOnlineStoreId;
 			var paymentByCardFromMobileAppId = orderParametersProvider.PaymentByCardFromMobileAppId;
+			var paymentByCardFromSmsId = orderParametersProvider.PaymentByCardFromSmsId;
 			var vodovozSouthOrganizationId = organizationParametersProvider.VodovozSouthOrganizationId;
 
 			ReceiptForOrderNode resultAlias = null;
@@ -592,7 +593,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Add(() => orderAlias.PaymentType != PaymentType.ByCard)
 				.Add(() => organizationAlias.Id != vodovozSouthOrganizationId)
 				.Add(Restrictions.On(() => orderAlias.PaymentByCardFrom.Id)
-					.Not.IsIn(new[] { paymentByCardFromSiteId, paymentByCardFromMobileAppId, paymentByCardFromOnlineStoreId }));
+					.Not.IsIn(new[] { paymentByCardFromSiteId, paymentByCardFromMobileAppId, paymentByCardFromOnlineStoreId, paymentByCardFromSmsId }));
 
 			#endregion
 
