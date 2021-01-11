@@ -51,17 +51,28 @@ namespace Vodovoz
 				if(RouteListUoW.Root.Addresses == null)
 					RouteListUoW.Root.Addresses = new List<RouteListItem>();
 				items = RouteListUoW.Root.ObservableAddresses;
-				items.ElementChanged += Items_ElementChanged;
-				items.ListChanged += Items_ListChanged;
-				items.ElementAdded += Items_ElementAdded;
 
-				UpdateColumns();
+                SubscribeOnChanges();
+
+                UpdateColumns();
 
 				ytreeviewItems.ItemsDataSource = items;
 				ytreeviewItems.Reorderable = true;
 				CalculateTotal();
 			}
 		}
+
+        public void SubscribeOnChanges()
+        {
+            RouteListUoW.Root.ObservableAddresses.ElementChanged += Items_ElementChanged;
+            RouteListUoW.Root.ObservableAddresses.ListChanged += Items_ListChanged;
+            RouteListUoW.Root.ObservableAddresses.ElementAdded += Items_ElementAdded;
+
+            items = RouteListUoW.Root.ObservableAddresses;
+            ytreeviewItems.ItemsDataSource = items;
+            ytreeviewItems.Reorderable = true;
+            ytreeviewItems?.YTreeModel?.EmitModelChanged();
+        }
 
 		private bool CanEditRows => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican")
 										&& RouteListUoW.Root.Status != RouteListStatus.Closed
@@ -85,9 +96,9 @@ namespace Vodovoz
 		{
 			UpdateColumns();
 			CalculateTotal();
-		}
+        }
 
-		void Items_ListChanged(object aList)
+        void Items_ListChanged(object aList)
 		{
 			UpdateColumns();
 		}
