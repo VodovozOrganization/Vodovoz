@@ -22,6 +22,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
+using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Domain.Client
 {
@@ -619,7 +620,8 @@ namespace Vodovoz.Domain.Client
 		}
 
 		private bool alwaysSendReceitps;
-		[IgnoreHistoryTrace]
+        [RestrictedHistoryProperty]
+        [IgnoreHistoryTrace]
 		[Display(Name = "Всегда отправлять чеки")]
 		public virtual bool AlwaysSendReceitps {
 			get => alwaysSendReceitps;
