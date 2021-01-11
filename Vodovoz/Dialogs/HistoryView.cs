@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.Exceptions;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.HistoryLog.Domain;
+using QS.Project.DB;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Utilities;
@@ -22,6 +22,7 @@ using Vodovoz.JournalNodes;
 using Vodovoz.Journals;
 using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
+using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Dialogs
 {
@@ -35,6 +36,7 @@ namespace Vodovoz.Dialogs
         private int pageSize = 250;
         private int takenRows = 0;
         private bool takenAll = false;
+        private bool needToHideProperties = true;
         private IDiffFormatter diffFormatter = new PangoDiffFormater();
         private HistoryTracePropertyJournalViewModel historyTracePropertyJournalViewModel;
 
@@ -43,6 +45,8 @@ namespace Vodovoz.Dialogs
         public HistoryView()
         {
             this.Build();
+
+            needToHideProperties = !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_see_history_view_restricted_properties");
 
             historyTracePropertyJournalViewModel = new HistoryTracePropertyJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices.InteractiveService);
 
@@ -106,9 +110,26 @@ namespace Vodovoz.Dialogs
         void OnChangeSetSelectionChanged(object sender, EventArgs e)
         {
             var selected = (ChangedEntity)datatreeChangesets.GetSelectedObject();
-            if(selected != null) {
-                selected.Changes.ToList().ForEach(x => x.DiffFormatter = diffFormatter);
-                datatreeChanges.ItemsDataSource = selected.Changes;
+
+            if (selected != null) {
+                List<FieldChange> changes;
+
+                if (needToHideProperties)
+                {
+                    changes = selected.Changes.Where(x =>
+                    !OrmConfig.NhConfig.ClassMappings
+                        .Where(mc => mc.MappedClass.Name == x.Entity.EntityClassName)
+                        .Select(mc => mc.MappedClass)
+                        .FirstOrDefault().GetProperty(x.Path)
+                        .GetCustomAttributes(false).Contains(new RestrictedHistoryProperty())).ToList();
+                } else
+                {
+                    changes = selected.Changes.ToList();
+                }
+
+                changes.ForEach(x => x.DiffFormatter = diffFormatter);
+
+                datatreeChanges.ItemsDataSource = changes;
             } else
                 datatreeChanges.ItemsDataSource = null;
         }
