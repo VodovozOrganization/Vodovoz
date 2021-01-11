@@ -962,10 +962,6 @@
     <Folder Include="Journal\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
-      <Project>{190cea0d-ea23-4c91-8030-203a5afed7b7}</Project>
-      <Name>GammaBinding</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
       <Project>{f22749b2-e35b-455d-bd8d-081373b16fc7}</Project>
       <Name>QS.BusinessCommon</Name>
