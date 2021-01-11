@@ -81,7 +81,7 @@
           <TableColumn>
             <Width>82.7pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>82.7pt</Width>
           </TableColumn>
         </TableColumns>
@@ -306,7 +306,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
                       <Value>Адрес доставки</Value>
@@ -549,7 +549,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
                       <Value>={delivery_points_compiled_address_short}</Value>
@@ -791,7 +791,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
                       <Value>
@@ -1004,7 +1004,7 @@
     counterparty.name AS counterparty_name,
     counterparty.inn AS INN,
     dp.compiled_address_short AS delivery_points_compiled_address_short,
-       
+
     IF(orders.author_employee_id IS NOT NULL,
        CONCAT(employees.last_name,
               ' ',
@@ -1045,8 +1045,8 @@
                 - IF(orders.order_payment_status = 'PartiallyPaid',
                      (SELECT SUM(cmo.expense)
                       FROM orders o
-                           LEFT JOIN payment_items pi ON o.id = pi.order_id
-                           LEFT JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+                               LEFT JOIN payment_items pi ON o.id = pi.order_id
+                               LEFT JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
                       WHERE o.id = orders.id
                       GROUP BY o.id),
                      0)
@@ -1059,15 +1059,15 @@ FROM
         LEFT JOIN employees ON employees.id = orders.author_employee_id
         LEFT JOIN delivery_points dp on counterparty.id = dp.counterparty_id
 WHERE
-    DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days_for_buyers, 0) DAY) &lt;= DATE('2020-12-29T15:45:59.2839230+03:00')
+        DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days_for_buyers, 0) DAY) &lt;= DATE(@date)
   AND orders.order_payment_status IN ('UnPaid', 'PartiallyPaid')
   AND counterparty.is_chain_store = 1
   AND orders.payment_type = 'cashless'
   AND orders.order_status NOT IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
   AND (orders.order_status &lt;&gt; 'WaitForPayment' OR (orders.pay_after_shipment = 1 AND orders.self_delivery = 1))
-  AND ('-1' = -1 OR counterparty.id = '-1' )
-  AND ('-1' = -1 OR counterparty.sales_manager_id = '-1')
-  AND ('-1' = -1 OR orders.author_employee_id = '-1')
+  AND (@counterparty_id = -1 OR counterparty.id = @counterparty_id )
+  AND (@sell_manager_id = -1 OR counterparty.sales_manager_id = @sell_manager_id)
+  AND (@order_author_id = -1 OR orders.author_employee_id = @order_author_id)
 GROUP BY orders.id
 HAVING order_sum &gt; 0
 ORDER BY estimated_payment_date;</CommandText>
