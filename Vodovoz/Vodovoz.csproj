@@ -50,9 +50,6 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="QS.MachineConfig, Version=1.0.7669.22489, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\QSProjects\QS.MachineConfig\bin\Debug\QS.MachineConfig.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="Mono.Posix" />
     <Reference Include="System.Data" />
@@ -1551,6 +1548,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
       <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
       <Name>QS.DocTemplates</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.MachineConfig\QS.MachineConfig.csproj">
+      <Project>{769710d2-bf98-4120-9e07-67bd740cfa1d}</Project>
+      <Name>QS.MachineConfig</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj">
       <Project>{72968ef4-2127-45c7-9bfe-2470dacddc3e}</Project>
