@@ -50,6 +50,9 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="QS.MachineConfig, Version=1.0.7669.22489, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\QSProjects\QS.MachineConfig\bin\Debug\QS.MachineConfig.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="Mono.Posix" />
     <Reference Include="System.Data" />
@@ -1704,10 +1707,6 @@
     <ProjectReference Include="..\Services\Library\MangoControllerForNet\MangoControllerForNet.csproj">
       <Project>{322CC78B-9068-4E5B-87F1-5FED9B5AB5E0}</Project>
       <Name>MangoControllerForNet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSMachineConfig\QSMachineConfig.csproj">
-      <Project>{769710D2-BF98-4120-9E07-67BD740CFA1D}</Project>
-      <Name>QSMachineConfig</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
