@@ -26,7 +26,6 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
-using QS.Services;
 using QS.Tdi;
 using QS.Validation;
 using QSDocTemplates;
