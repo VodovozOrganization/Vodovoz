@@ -26,7 +26,6 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
-using QS.Services;
 using QS.Tdi;
 using QS.Validation;
 using QSDocTemplates;
@@ -47,7 +46,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.StoredEmails;
@@ -67,7 +65,6 @@ using Vodovoz.JournalFilters;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Models;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
@@ -418,7 +415,7 @@ namespace Vodovoz
 			entryTrifle.ValidationMode = ValidationType.numeric;
 			entryTrifle.Binding.AddBinding(Entity, e => e.Trifle, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			ylabelContract.Binding.AddFuncBinding(Entity, e => e.Contract != null ? e.Contract.Title : string.Empty, w => w.Text).InitializeFromSource();
+			ylabelContract.Binding.AddFuncBinding(Entity, e => e.Contract != null ? e.Contract.Title + " (" + e.Contract.Organization.FullName + ")" : string.Empty, w => w.Text).InitializeFromSource();
 
 			OldFieldsConfigure();
 
