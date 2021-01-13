@@ -312,9 +312,19 @@ namespace Vodovoz.ExportTo1c
 					Name = "Товары",
 				};
 
+					var exportRefundGoodsTable = new TableNode
+				{
+					Name = "Возвраты",
+				};
+
 				var exportTerminalTable = new TableNode
 				{
 					Name = "Оплата",
+				};
+
+				var exportRefundTerminalTable = new TableNode
+				{
+					Name = "ВозвратОплаты",
 				};
 
 				exportRetailDocument.Properties.Add(
@@ -357,6 +367,8 @@ namespace Vodovoz.ExportTo1c
 
 				exportRetailDocument.Tables.Add(exportGoodsTable);
 				exportRetailDocument.Tables.Add(exportTerminalTable);
+				exportRetailDocument.Tables.Add(exportRefundGoodsTable);
+				exportRetailDocument.Tables.Add(exportRefundTerminalTable);
 			}
 
 			bool isTerminalPaid = (order.PaymentType == PaymentType.ByCard || order.PaymentType == PaymentType.Terminal);
@@ -365,9 +377,10 @@ namespace Vodovoz.ExportTo1c
 			{
 				if(orderItem.ActualSum != 0){
 				
-				var record = CreateRetailRecord(orderItem);
+					var record = CreateRetailRecord(orderItem);
 
 					exportRetailDocument.Tables[0].Records.Add(record); //Товары
+					
 					if (isTerminalPaid)
 					{
 						var recordPayment = new TableRecordNode();
@@ -378,6 +391,14 @@ namespace Vodovoz.ExportTo1c
 							)
 						);//оплаты безналом
 						exportRetailDocument.Tables[1].Records.Add(recordPayment);
+					}
+
+					if(orderItem.ActualSum < 0){ //is refund
+
+						exportRetailDocument.Tables[2].Records.Add(record); // refund goods
+						if (isTerminalPaid){
+							exportRetailDocument.Tables[3].Records.Add(recordPayment);		
+						}
 					}
 					
 				}
