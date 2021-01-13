@@ -290,6 +290,13 @@ namespace Vodovoz.Domain.Cash
                     "Необходимо заполнить организацию",
                     new[] { this.GetPropertyName(o => o.Basis)});
             }
+            
+            if (State == States.Agreed && ExpenseCategory == null)
+            {
+                yield return new ValidationResult(
+                    "Необходимо заполнить статью расхода",
+                    new[] { this.GetPropertyName(o => o.Basis)});
+            }
         }
         #endregion IValidatableObject implementation
 
