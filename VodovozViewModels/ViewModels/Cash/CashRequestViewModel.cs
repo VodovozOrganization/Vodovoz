@@ -192,7 +192,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand AfterSaveCommand => afterSaveCommand ?? (afterSaveCommand = new DelegateCommand(
             () => {
                 SaveAndClose();
-
                 if (AfterSave(out var messageText))
                     CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"Cоздан следующие аванс:\n{messageText}" );
             }, () => true
@@ -387,8 +386,17 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand ConveyForResultsCommand => conveyForResultsCommand ?? (conveyForResultsCommand = new DelegateCommand(
             () =>
             {
-                Entity.ChangeState(CashRequest.States.GivenForTake);
-                AfterSaveCommand.Execute();
+                if (Entity.State == CashRequest.States.Agreed && Entity.ExpenseCategory == null)
+                {
+                    CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+                        "Необходимо заполнить статью расхода");
+                }
+                else
+                {
+                    Entity.ChangeState(CashRequest.States.GivenForTake);
+                    AfterSaveCommand.Execute();
+                }
+               
             }, () => true
         ));
         
