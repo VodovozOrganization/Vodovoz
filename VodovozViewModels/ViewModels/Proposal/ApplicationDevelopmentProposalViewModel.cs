@@ -15,7 +15,7 @@ namespace Vodovoz.ViewModels.ViewModels.Proposal
     {
         private readonly IEmployeeService employeeService;
         public bool IsProposalResponseVisible { get; }
-        public bool IsProposalResponseSensitive { get; }
+        public bool UserCanManageProposal { get; }
 
         public ApplicationDevelopmentProposalViewModel(
             IEmployeeService employeeService,
@@ -29,10 +29,10 @@ namespace Vodovoz.ViewModels.ViewModels.Proposal
                 Entity.Author = employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
             }
             
+            var canManageProposal = 
+                commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_app_development_proposal");
             IsProposalResponseVisible = !uowBuilder.IsNewEntity;
-            IsProposalResponseSensitive = 
-                !uowBuilder.IsNewEntity &&
-                commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_app_development_proposal_response");
+            UserCanManageProposal = !uowBuilder.IsNewEntity && canManageProposal;
 
             ConfigureEntityChangingRelations();
         }
@@ -74,7 +74,8 @@ namespace Vodovoz.ViewModels.ViewModels.Proposal
                         Entity.ChangeStatus(oldStatus);
                     }
                 },
-                () => true
+                () => Entity.Status != ApplicationDevelopmentProposalStatus.Rejected &&
+                               Entity.Status != ApplicationDevelopmentProposalStatus.TasksCompleted
             )
         );
         

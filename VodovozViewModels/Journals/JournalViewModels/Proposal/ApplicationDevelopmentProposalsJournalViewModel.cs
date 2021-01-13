@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Proposal
 		    this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 		    this.uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		    canChangeProposalsStatus =
-			    commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_app_development_proposal_response");
+			    commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_app_development_proposal");
 
 		    TabName = "Журнал предложений по разработке приложения ВВ";
 		    
