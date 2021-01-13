@@ -203,6 +203,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             () => {
                 if (Entity.Sums.Count != 0) 
                 {
+                    if (Entity.ExpenseCategory == null)
+                    {
+                        CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"У данной заявки не заполнена статья расхода, её заполняет финансист");
+                        return;
+                    }
                     //находим первую невыданную сумму и создаем на нее expense
                     var sum = Entity.ObservableSums.First(x => x.Expense == null);
                     CreateNewExpenseForItem(sum);
