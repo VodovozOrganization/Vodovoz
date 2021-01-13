@@ -372,14 +372,23 @@ namespace Vodovoz.ExportTo1c
 			}
 
 			bool isTerminalPaid = (order.PaymentType == PaymentType.ByCard || order.PaymentType == PaymentType.Terminal);
+
+			bool isRefund = false;
 			
 			foreach (var orderItem in order.OrderItems)
 			{
+
+				isRefund = (orderItem.ActualSum < 0);
+				
 				if(orderItem.ActualSum != 0){
 				
 					var record = CreateRetailRecord(orderItem);
 
 					exportRetailDocument.Tables[0].Records.Add(record); //Товары
+
+					if(isRefund){
+						exportRetailDocument.Tables[2].Records.Add(record);	
+					}
 					
 					if (isTerminalPaid)
 					{
@@ -391,13 +400,9 @@ namespace Vodovoz.ExportTo1c
 							)
 						);//оплаты безналом
 						exportRetailDocument.Tables[1].Records.Add(recordPayment);
-					}
-
-					if(orderItem.ActualSum < 0){ //is refund
-
-						exportRetailDocument.Tables[2].Records.Add(record); // refund goods
-						if (isTerminalPaid){
-							exportRetailDocument.Tables[3].Records.Add(recordPayment);		
+						
+						if(isRefund){
+							exportRetailDocument.Tables[3].Records.Add(recordPayment);	
 						}
 					}
 					
