@@ -70,7 +70,8 @@ namespace Vodovoz.Domain.Cash
                     }
                     break;
                 case States.Canceled:
-                    if (State == States.Submited)
+                    if (State == States.Submited || 
+                        State == States.New)
                     {
                         State = newState;
                     } else {
