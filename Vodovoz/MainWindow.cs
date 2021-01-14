@@ -1756,4 +1756,12 @@ public partial class MainWindow : Gtk.Window
             { SelectionMode = JournalSelectionMode.Multiple }
         );
     }
+
+    protected void OnAction71Activated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<EShopSalesReport>(),
+            () => new QSReport.ReportViewDlg(new EShopSalesReport())
+        );
+    }
 }
