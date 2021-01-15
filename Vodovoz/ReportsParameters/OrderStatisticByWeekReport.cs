@@ -8,12 +8,19 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderStatisticByWeekReport : Gtk.Bin, IParametersWidget
 	{
-		public OrderStatisticByWeekReport()
+        public OrderStatisticByWeekReport()
 		{
 			this.Build();
 			dateperiodpicker.StartDate = new DateTime(DateTime.Today.Year, 1, 1);
 			dateperiodpicker.EndDate = DateTime.Today;
-		}
+
+            new List<string>() {
+                "План",
+                "Факт"
+            }.ForEach(comboboxReportMode.AppendText);
+
+            comboboxReportMode.Active = 0;
+        }
 
 		#region IParametersWidget implementation
 
@@ -34,10 +41,11 @@ namespace Vodovoz.ReportsParameters
 		{
 			return new ReportInfo {
 				Identifier = "Logistic.OrderStatisticByWeek",
-				Parameters = new Dictionary<string, object>
+                Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDate },
 					{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
+                    { "report_mode", comboboxReportMode.Active },
 				}
 			};
 		}

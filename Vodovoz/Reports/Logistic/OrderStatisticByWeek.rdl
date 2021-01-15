@@ -2607,6 +2607,7 @@ FROM
     WHERE
         (orders.delivery_date BETWEEN @start_date AND @end_date)
         AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')
+        AND (@report_mode = 0 OR orders.order_status NOT IN ('DeliveryCanceled', 'NotDelivered'))
         AND !orders.self_delivery
         AND !orders.is_contract_closer
         AND !orders.service
@@ -2620,6 +2621,9 @@ ORDER BY week_begin</CommandText>
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="report_mode">
+            <Value>=Parameters!report_mode</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2758,6 +2762,14 @@ WHERE
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="report_mode">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
