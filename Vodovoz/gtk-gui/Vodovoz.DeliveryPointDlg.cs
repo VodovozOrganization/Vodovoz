@@ -596,6 +596,7 @@ namespace Vodovoz
 			this.entryCity.Name = "entryCity";
 			this.entryCity.IsEditable = true;
 			this.entryCity.InvisibleChar = '●';
+			this.entryCity.AcceptUnknownCities = true;
 			this.hbox7.Add(this.entryCity);
 			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.entryCity]));
 			w39.Position = 0;
