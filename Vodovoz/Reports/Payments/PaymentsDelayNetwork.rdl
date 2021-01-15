@@ -46,49 +46,49 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>24.8pt</Width>
+            <Width>22.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.7pt</Width>
+            <Width>96.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.2pt</Width>
+            <Width>54.6pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>83.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>33.6pt</Width>
+            <Width>35.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>51.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>79.4pt</Width>
+            <Width>77.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.1pt</Width>
+            <Width>47.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.7pt</Width>
+            <Width>46.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>36.8pt</Width>
+            <Width>42.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.1pt</Width>
+            <Width>72.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>82.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>82.7pt</Width>
+            <Width>82.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>28.7pt</Height>
+              <Height>29.3pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -130,6 +130,24 @@
                   <ReportItems>
                     <Textbox Name="Textbox7">
                       <Value>ИНН</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>Адрес доставки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -306,24 +324,6 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox35">
-                      <Value>Адрес доставки</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -364,6 +364,7 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >2pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -382,6 +383,28 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>={delivery_points_compiled_address_short}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom >3pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -417,6 +440,7 @@
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <Format >dd.MM.yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -468,6 +492,7 @@
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <Format >dd.MM.yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -525,6 +550,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft >2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -544,28 +570,9 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft >2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox36">
-                      <Value>={delivery_points_compiled_address_short}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -626,6 +633,25 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -777,23 +803,6 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox40">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1057,7 +1066,7 @@ FROM
     orders
         LEFT JOIN counterparty ON counterparty.id = orders.client_id
         LEFT JOIN employees ON employees.id = orders.author_employee_id
-        LEFT JOIN delivery_points dp on counterparty.id = dp.counterparty_id
+        LEFT JOIN delivery_points dp on dp.id = orders.delivery_point_id
 WHERE
         DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days_for_buyers, 0) DAY) &lt;= DATE(@date)
   AND orders.order_payment_status IN ('UnPaid', 'PartiallyPaid')
