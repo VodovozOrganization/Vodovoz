@@ -9,6 +9,7 @@ using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.ExportTo1c;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz
@@ -46,6 +47,7 @@ namespace Vodovoz
 
             using(var exportOperation = new ExportOperation(
                 mode,
+                new OrderParametersProvider(ParametersProvider.Instance),
                 dateStart,
                 dateEnd,
                 mode == Export1cMode.BuhgalteriaOOONew ? comboOrganization.SelectedItem as Organization : null))
