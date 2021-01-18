@@ -5,6 +5,7 @@ using System.Xml;
 using Gtk;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Old1612ExportTo1c
@@ -29,6 +30,7 @@ namespace Vodovoz.Old1612ExportTo1c
 
             using(var exportOperation = new ExportOperation(
                 mode,
+                new OrderParametersProvider(ParametersProvider.Instance),
                 dateStart,
                 dateEnd,
                 null))

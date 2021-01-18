@@ -39,11 +39,6 @@ namespace Vodovoz.Repositories.Orders
 			return OrderSingletonRepository.GetInstance().GetCurrentOrders(UoW, counterparty);
 		}
 
-		public static IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork UoW, Export1cMode mode, DateTime startDate, DateTime endDate)
-		{
-			return OrderSingletonRepository.GetInstance().GetOrdersToExport1c8(UoW, mode, startDate, endDate);
-		}
-
 		public static IList<VodovozOrder> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)
 		{
 			return OrderSingletonRepository.GetInstance().GetOrdersBetweenDates(UoW, startDate, endDate);

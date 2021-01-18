@@ -3,23 +3,27 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Repositories.Orders;
+using Vodovoz.Services;
 
 namespace Vodovoz.OldExportTo1c
 {
 	public class ExportOperation : IDisposable
 	{		
 		private readonly IUnitOfWork uow;
+		private readonly IOrderParametersProvider orderParametersProvider;
 		private readonly DateTime start;
 		private readonly DateTime end;
-		private Export1cMode mode;
+		private readonly Export1cMode mode;
 		private IList<Order> orders;
 
-		public int Steps{ get { return orders.Count; } }
+		public int Steps => orders.Count;
 		public ExportData Result{ get; private set;}
 
-		public ExportOperation(Export1cMode mode, DateTime start, DateTime end)
+		public ExportOperation(IOrderParametersProvider orderParametersProvider, Export1cMode mode, DateTime start, DateTime end)
 		{			
+			this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			this.uow = UnitOfWorkFactory.CreateWithoutRoot();
 			this.start = start;
 			this.end = end;
@@ -30,7 +34,7 @@ namespace Vodovoz.OldExportTo1c
 		{				
 			worker.OperationName = "Подготовка данных";
 			worker.ReportProgress(0, "Загрузка заказов");
-			this.orders = OrderRepository.GetOrdersToExport1c8(uow, mode, start, end);
+			this.orders = OrderSingletonRepository.GetInstance().GetOrdersToExport1c8(uow, orderParametersProvider, mode, start, end);
 			worker.OperationName = "Выгрузка реализаций и счетов-фактур";
 			worker.StepsCount = this.orders.Count;
 			Result = new ExportData(uow, mode, start, end);
