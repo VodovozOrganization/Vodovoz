@@ -307,7 +307,7 @@ namespace Vodovoz.Dialogs
 			this.vpaned1 = new global::Gtk.VPaned();
 			this.vpaned1.CanFocus = true;
 			this.vpaned1.Name = "vpaned1";
-			this.vpaned1.Position = 60;
+			this.vpaned1.Position = 200;
 			// Container child vpaned1.Gtk.Paned+PanedChild
 			this.GtkScrolledWindowChangesets = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowChangesets.Name = "GtkScrolledWindowChangesets";
