@@ -425,6 +425,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action MangoAction;
 
+	private global::Gtk.Action ActionWayBillGenerator;
+
 	private global::Gtk.Action ActionCashRequestJournal;
 
 	private global::Gtk.RadioAction ActionCashRequest;
@@ -1113,6 +1115,9 @@ public partial class MainWindow
 		this.MangoAction = new global::Gtk.Action("MangoAction", global::Mono.Unix.Catalog.GetString("Mango"), null, "phone-disable");
 		this.MangoAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Mango");
 		w1.Add(this.MangoAction, null);
+		this.ActionWayBillGenerator = new global::Gtk.Action("ActionWayBillGenerator", global::Mono.Unix.Catalog.GetString("Журнал Путевых листов ФО"), null, null);
+		this.ActionWayBillGenerator.ShortLabel = global::Mono.Unix.Catalog.GetString("Журнал Путевых листов ФО");
+		w1.Add(this.ActionWayBillGenerator, null);
 		this.ActionCashRequestJournal = new global::Gtk.Action("ActionCashRequestJournal", global::Mono.Unix.Catalog.GetString("Заявка на выдачу ДС"), null, "gtk-file");
 		this.ActionCashRequestJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Заявка на выдачу ДС");
 		w1.Add(this.ActionCashRequestJournal, null);
@@ -1582,6 +1587,7 @@ public partial class MainWindow
 		this.ActionCashBook.Activated += new global::System.EventHandler(this.OnCashBoolReportActivated);
 		this.Action68.Activated += new global::System.EventHandler(this.OnActionNetworkDelayReportActivated);
 		this.ActionProducedProductionReport.Activated += new global::System.EventHandler(this.OnActionProducedProductionReportActivated);
+		this.ActionWayBillGenerator.Activated += new global::System.EventHandler(this.OnActionWayBillJournalActivated);
 		this.ActionCashRequestJournal.Activated += new global::System.EventHandler(this.OnActionCashRequestReportActivated);
 		this.ActionCashRequest.Activated += new global::System.EventHandler(this.OnActionGeneralActivated);
 		this.ActionOpenProposalsJournal.Activated += new global::System.EventHandler(this.OnActionOpenProposalsJournalActivated);
