@@ -430,7 +430,7 @@
         <Value>Фильтры: </Value>
         <ZIndex>1</ZIndex>
         <Left>10.4pt</Left>
-        <Top>26.78pt</Top>
+        <Top>27pt</Top>
       </Textbox>
       <Textbox Name="Textbox24" >
         <Height>11.98pt</Height>
@@ -438,15 +438,21 @@
         <Value>= "Сформирован: " + Format({?creation_timestamp}, 'dd.MM.yyyy HH:MM')</Value>
         <ZIndex>1</ZIndex>
         <Left>349.7pt</Left>
-        <Top>27.3pt</Top>
+        <Top>27pt</Top>
+        <Style >
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
       </Textbox>
-      <Textbox Name="Textbox25" >
+      <Textbox Name="Textbox25">
         <Height>12.78pt</Height>
         <Width>182.98pt</Width>
         <Value>= "Интернет магазин: " + First({online_store_name}, 'EShopName')</Value>
         <ZIndex>1</ZIndex>
         <Left>60.5pt</Left>
-        <Top>26.7pt</Top>
+        <Top>27pt</Top>
       </Textbox>
     </ReportItems>
   </Body>
