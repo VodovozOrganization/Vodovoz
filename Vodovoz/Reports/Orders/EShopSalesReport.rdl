@@ -71,7 +71,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox1">
-                      <Value>Номер заказа из битрикса</Value>
+                      <Value>Номер заказа битрикса</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
