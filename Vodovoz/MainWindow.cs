@@ -1764,4 +1764,21 @@ public partial class MainWindow : Gtk.Window
             () => new QSReport.ReportViewDlg(new EShopSalesReport())
         );
     }
+
+    protected void OnActionWayBillJournalActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+		 () =>
+		 {
+			 return new WayBillGeneratorViewModel
+			 (
+				 UnitOfWorkFactory.GetDefaultFactory,
+				 ServicesConfig.CommonServices.InteractiveService,
+				 NavigationManagerProvider.NavigationManager,
+				 new WayBillDocumentRepository(),
+				 new RouteGeometryCalculator(DistanceProvider.Osrm)
+			 );
+		 }
+		);
+	}
 }
