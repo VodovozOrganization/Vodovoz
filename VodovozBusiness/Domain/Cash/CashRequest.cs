@@ -71,7 +71,8 @@ namespace Vodovoz.Domain.Cash
                     break;
                 case States.Canceled:
                     if (State == States.Submited || 
-                        State == States.New)
+                        State == States.New || 
+                        State == States.OnClarification)
                     {
                         State = newState;
                     } else {
