@@ -84,6 +84,9 @@ using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
+using Vodovoz.ViewModels.Accounting;
+using Vodovoz.Tools.Logistic;
+using Vodovoz.Infrastructure;
 
 public partial class MainWindow : Gtk.Window
 {
