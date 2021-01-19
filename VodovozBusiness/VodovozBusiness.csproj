@@ -54,6 +54,9 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
+    <Compile Include="Domain\Documents\WayBillDocument.cs" />
+    <Compile Include="Domain\Documents\WayBillDocumentItem.cs" />
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />
     <Compile Include="Controllers\RouteListClosingDocumentsController.cs" />
     <Compile Include="Controllers\IRouteListClosingDocumentsController.cs" />
@@ -109,6 +112,8 @@
     <Compile Include="Domain\WageCalculation\WageParameterItem.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItemTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
+    <Compile Include="EntityRepositories\Logistic\IWayBillDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\WayBillDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Cash\IRouteListItemCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Cash\RouteListItemCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\ISelfDeliveryCashDistributionDocumentRepository.cs" />
