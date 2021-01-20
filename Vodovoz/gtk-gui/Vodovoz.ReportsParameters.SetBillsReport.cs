@@ -10,6 +10,10 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.DateRangePicker daterangepickerOrderCreation;
 
+		private global::Gamma.GtkWidgets.yLabel ylabel1;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entrySubdivision;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonCreateReport;
 
 		protected virtual void Build()
@@ -43,16 +47,38 @@ namespace Vodovoz.ReportsParameters
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel1.HeightRequest = 30;
+			this.ylabel1.Name = "ylabel1";
+			this.ylabel1.Yalign = 1F;
+			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение автора заказа:");
+			this.vbox2.Add(this.ylabel1);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ylabel1]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.entrySubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entrySubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entrySubdivision.Name = "entrySubdivision";
+			this.entrySubdivision.CanEditReference = false;
+			this.vbox2.Add(this.entrySubdivision);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.entrySubdivision]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.ybuttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCreateReport.CanFocus = true;
 			this.ybuttonCreateReport.Name = "ybuttonCreateReport";
 			this.ybuttonCreateReport.UseUnderline = true;
 			this.ybuttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox2.Add(this.ybuttonCreateReport);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ybuttonCreateReport]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ybuttonCreateReport]));
+			w5.PackType = ((global::Gtk.PackType)(1));
+			w5.Position = 4;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
