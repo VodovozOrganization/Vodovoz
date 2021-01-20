@@ -1585,7 +1585,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<SetBillsReport>(),
-            () => new QSReport.ReportViewDlg(new SetBillsReport())
+            () => new QSReport.ReportViewDlg(new SetBillsReport(UnitOfWorkFactory.GetDefaultFactory))
         );
     }
 
