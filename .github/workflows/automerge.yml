@@ -20,5 +20,7 @@ jobs:
         development_branch: 'develop'
         allow_ff: false
         user_name: 'Automerge'
+        push_token: 'VODOVOZ_TOKEN'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VODOVOZ_TOKEN: ${{ secrets.VODOVOZ_ACTIONS }} 
