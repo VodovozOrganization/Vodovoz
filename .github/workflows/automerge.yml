@@ -1,0 +1,25 @@
+name: automerge
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Merge
+      uses: robotology/gh-action-nightly-merge@v1.3.1
+      with:
+        stable_branch: 'master'
+        development_branch: 'develop'
+        allow_ff: false
+        push_token: 'VODOVOZ_TOKEN'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VODOVOZ_TOKEN: ${{ secrets.VODOVOZ_ACTIONS }} 

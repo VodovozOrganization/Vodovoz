@@ -45,12 +45,21 @@ namespace Vodovoz
             var dateStart = dateperiodpicker1.StartDate;
             var dateEnd = dateperiodpicker1.EndDate;
 
+            int? organizationId = null;
+            if(mode == Export1cMode.BuhgalteriaOOONew) {
+                organizationId = (comboOrganization.SelectedItem as Organization)?.Id;
+            }
+            else if(mode == Export1cMode.BuhgalteriaOOO) {
+                organizationId = new OrganizationParametersProvider(ParametersProvider.Instance).VodovozOrganizationId;
+            }
+
             using(var exportOperation = new ExportOperation(
                 mode,
                 new OrderParametersProvider(ParametersProvider.Instance),
                 dateStart,
                 dateEnd,
-                mode == Export1cMode.BuhgalteriaOOONew ? comboOrganization.SelectedItem as Organization : null))
+                organizationId
+                ))
             {
                 this.exportInProgress = true;
                 UpdateExportSensitivity();
