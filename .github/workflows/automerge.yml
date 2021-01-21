@@ -20,6 +20,8 @@ jobs:
         development_branch: 'develop'
         allow_ff: false
         push_token: 'VODOVOZ_TOKEN'
+		user_name: 'Vodovoz-git'
+		user_email: 'vodovoz.pril@gmail.com'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VODOVOZ_TOKEN: ${{ secrets.VODOVOZ_ACTIONS }} 
