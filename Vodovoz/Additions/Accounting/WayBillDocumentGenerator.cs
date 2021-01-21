@@ -25,6 +25,7 @@ using Vodovoz.Tools.Logistic;
 using VodovozInfrastructure.Utils;
 using VodovozInfrastructure.Utils.NHibernate;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.DocTemplates;
 
 namespace Vodovoz.Additions.Accounting
 {
@@ -123,7 +124,7 @@ namespace Vodovoz.Additions.Accounting
         public void PrintDocuments()
         {
         
-            if (WayBillSelectableDocuments.Count == WayBillSelectableDocuments.Count(x => x is WayBillDocument))
+            if (WayBillSelectableDocuments.Count == WayBillSelectableDocuments.Count(x => x.Document is WayBillDocument))
             {
                 QSMain.WaitRedraw();
 
@@ -131,16 +132,13 @@ namespace Vodovoz.Additions.Accounting
                 {
                     cancelPrinting = true;
                 };
+                
                 PrintSelected();
                 if (!string.IsNullOrEmpty(ODTTemplateNotFoundMessages))
                 {
                 
                 }
             }
-               
-          
-          
-            
         }
       
         #endregion
@@ -287,7 +285,9 @@ namespace Vodovoz.Additions.Accounting
                     
                     wayBillDocument.Organization = orders.First().Contract.Organization;
                     wayBillDocument.PrepareTemplate(uow);
-                    
+
+                    // Update root Object
+                    (wayBillDocument.DocumentTemplate.DocParser as WayBillDocumentParser).RootObject = wayBillDocument;
                     
                     WayBillSelectableDocuments.Add(new SelectablePrintDocument(wayBillDocument));
                 } //foreach employee in cars
