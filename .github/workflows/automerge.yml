@@ -19,7 +19,7 @@ jobs:
         stable_branch: 'master'
         development_branch: 'develop'
         allow_ff: false
-		user_name: 'Vodovoz-git'
+		user_name: 'Automerge'
 		user_email: 'vodovoz.pril@gmail.com'
         push_token: 'VODOVOZ_TOKEN'
       env:
