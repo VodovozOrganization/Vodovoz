@@ -37,7 +37,7 @@ namespace Vodovoz.Old1612ExportTo1c
         {
             worker.OperationName = "Подготовка данных";
             worker.ReportProgress(0, "Загрузка заказов");
-            orders = OrderSingletonRepository.GetInstance().GetOrdersToExport1c8(uow, orderParametersProvider, mode, start, end, organization);
+            orders = OrderSingletonRepository.GetInstance().GetOrdersToExport1c8(uow, orderParametersProvider, mode, start, end, organization?.Id);
             worker.OperationName = "Выгрузка реализаций и счетов-фактур";
             worker.StepsCount = this.orders.Count;
             Result = new ExportData(uow, mode, start, end);
