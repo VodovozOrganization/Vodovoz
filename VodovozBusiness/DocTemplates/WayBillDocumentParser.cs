@@ -74,7 +74,7 @@ namespace Vodovoz.DocTemplates
 
             //AddField(x => x.CarFuelConsumption.ToString(), "Топливо.РасходПоНорме", PatternFieldType.FString);
 
-            //AddField(x => x.FuelConsumed.ToString(), "Топливо.РасходФактический", PatternFieldType.FString);
+            AddField(x => x.FuelConsumed.ToString(), "Топливо.РасходПоФакту", PatternFieldType.FString);
 
             // 2 колонка
 
@@ -93,7 +93,7 @@ namespace Vodovoz.DocTemplates
                 .AddColumn(r => r.DriverLastName ?? "", "Подпись", PatternFieldType.FString);
 
             //AddField(x => 0, "ВсегоВНаряде", PatternFieldType.FString); // Неизвестно откуда брать
-            //AddField(x => 0, "Пройдено", PatternFieldType.FString); // Неизвестно откуда брать
+            AddField(x => x.TotalMileage.ToString(), "Пройдено", PatternFieldType.FString); // Неизвестно откуда брать
 
             // AddField(x => x.ExpirationDate.ToString("dd.MM.yyyy"), "ДатаОкончания", PatternFieldType.FString);
             // AddField(x => !x.TicketDate.HasValue ? "\t" : x.TicketDate.Value.ToString("dd.MM.yyyy"), "ДатаНаряда", PatternFieldType.FString);

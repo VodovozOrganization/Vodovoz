@@ -114,7 +114,7 @@ namespace Vodovoz.Domain.Documents
         string firstAddress;
 
         [Display(Name = "Модель автомобиля")]
-        public virtual string FirstAddress => WayBillDocumentItems.First().AddressTo;
+        public virtual string FirstAddress => WayBillDocumentItems.First().AddressFrom;
         
         DateTime garageLeavingDateTime;
         [Display (Name = "Время выезда из гаража")]
@@ -136,23 +136,21 @@ namespace Vodovoz.Domain.Documents
             set => SetField(ref carFuelType, value);
         }
         
-        double carFuelConsumption;
+        decimal carFuelConsumption;
         [Display(Name = "Расход топлива")]
-        public virtual double CarFuelConsumption {
+        public virtual decimal CarFuelConsumption {
             get { return carFuelConsumption; }
             set { SetField(ref carFuelConsumption, value); }
         }
 
         [Display(Name = "Выдано по заправочному листу")]
-        public double FuelByFuelList { get; set; }
+        public decimal FuelByFuelList { get; set; }
 
         [Display(Name = "Расход по факту")]
-        public double FuelConsumed { get; set; }
+        public decimal FuelConsumed => WayBillDocumentItems.Sum(item => item.Mileage) * CarFuelConsumption;
 
-        
-        //
-        // [Display (Name = "Всего пробега")]
-        // public virtual decimal TotalMileage => WayBillDocumentItems.Sum(x => x.Mileage);
+        [Display (Name = "Всего пробега")]
+        public virtual decimal TotalMileage => WayBillDocumentItems.Sum(x => x.Mileage);
         // [Display (Name = "Всего работал")]
         // public virtual decimal TotalWorkTime => WayBillDocumentItems.Sum(x => 0);
         //

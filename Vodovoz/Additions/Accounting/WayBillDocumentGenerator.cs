@@ -218,8 +218,8 @@ namespace Vodovoz.Additions.Accounting
                         {
                             wayBillDocumentItem.AddressFrom = pair.Key.Subdivision.Name;
                             wayBillDocumentItem.AddressTo = nextOrder.DeliveryPoint.ShortAddress;
-                            // wayBillDocumentItem.Mileage =
-                            //     DistanceCalculator.DistanceFromBaseMeter(pair.Key.Subdivision.GeographicGroup, nextOrder.DeliveryPoint);
+                            wayBillDocumentItem.Mileage =
+                                DistanceCalculator.DistanceFromBaseMeter(pair.Key.Subdivision.GeographicGroup, nextOrder.DeliveryPoint) * 2;
                             wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(pair.Key.Subdivision.GeographicGroup));
                             deliveryPointFrom = nextOrder.DeliveryPoint;
                         }
@@ -229,8 +229,10 @@ namespace Vodovoz.Additions.Accounting
                             Debug.Assert(deliveryPointFrom != null, nameof(deliveryPointFrom) + " != null");
                             wayBillDocumentItem.AddressFrom = deliveryPointFrom.ShortAddress;
                             wayBillDocumentItem.AddressTo = pair.Key.Subdivision.Name;
-                            // wayBillDocumentItem.Mileage = DistanceCalculator.DistanceToBaseMeter(nextOrder.DeliveryPoint,
-                            // pair.Key.Subdivision.GeographicGroup);
+
+                            wayBillDocumentItem.Mileage = DistanceCalculator.DistanceToBaseMeter(nextOrder.DeliveryPoint,
+                                pair.Key.Subdivision.GeographicGroup) * 2;
+
                             if (nextOrder.DeliveryPoint.CoordinatesExist)
                             {
                                 wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(nextOrder.DeliveryPoint));
@@ -247,8 +249,8 @@ namespace Vodovoz.Additions.Accounting
                         {
                             wayBillDocumentItem.AddressFrom = deliveryPointFrom.ShortAddress;
                             wayBillDocumentItem.AddressTo = nextOrder.DeliveryPoint.Address1c;
-                            // wayBillDocumentItem.Mileage = DistanceCalculator.DistanceMeter(deliveryPointFrom,
-                                // nextOrder.DeliveryPoint);
+                            wayBillDocumentItem.Mileage = DistanceCalculator.DistanceMeter(deliveryPointFrom,
+                                nextOrder.DeliveryPoint) * 2;
                             if (nextOrder.DeliveryPoint.CoordinatesExist)
                             {
                                 wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(nextOrder.DeliveryPoint));
@@ -271,18 +273,20 @@ namespace Vodovoz.Additions.Accounting
                     wayBillDocument.DriverFIO = pair.Key.FullName;
                     wayBillDocument.DriverLastName = pair.Key.LastName;
                     wayBillDocument.DriverLicense = pair.Key.DrivingLicense;
+                    
                     wayBillDocument.CarPassportSerialNumber = pair.Value.DocPTSSeries;
                     wayBillDocument.CarPassportNumber = pair.Value.DocPTSNumber;
                     
                     wayBillDocument.GarageLeavingDateTime = startDate.Add(wayBillDocument.WayBillDocumentItems.First().HoursFrom) ;
                     wayBillDocument.GarageReturningDateTime = endDate.Add(wayBillDocument.WayBillDocumentItems.Last().HoursFrom);
                     wayBillDocument.CarFuelType = pair.Value.FuelType;
-                    wayBillDocument.CarFuelConsumption = pair.Value.FuelConsumption;
-                    wayBillDocument.CarFuelConsumption = pair.Value.FuelConsumption;
+                    wayBillDocument.CarFuelConsumption = (decimal)pair.Value.FuelConsumption;
 
                     wayBillDocument.OrganizationName = "vodovoz-spb.ru";
                     wayBillDocument.RecalculatePlanedDistance(DistanceCalculator);
-                    
+
+                    var t = wayBillDocument.FuelConsumed;
+
                     wayBillDocument.Organization = orders.First().Contract.Organization;
                     wayBillDocument.PrepareTemplate(uow);
 
