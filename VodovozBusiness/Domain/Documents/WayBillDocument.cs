@@ -35,7 +35,10 @@ namespace Vodovoz.Domain.Documents
         public virtual int Id { get; set; }
 
         public List<WayBillDocumentItem> WayBillDocumentItems { get; set; } = new List<WayBillDocumentItem>();
-        
+
+        public string OKUD { get; set; }
+        public string OKPO { get; set; }
+
         private decimal? planedDistance;
 
         /// <summary>
@@ -139,6 +142,14 @@ namespace Vodovoz.Domain.Documents
             get { return carFuelConsumption; }
             set { SetField(ref carFuelConsumption, value); }
         }
+
+        [Display(Name = "Выдано по заправочному листу")]
+        public double FuelByFuelList { get; set; }
+
+        [Display(Name = "Расход по факту")]
+        public double FuelConsumed { get; set; }
+
+        
         //
         // [Display (Name = "Всего пробега")]
         // public virtual decimal TotalMileage => WayBillDocumentItems.Sum(x => x.Mileage);
