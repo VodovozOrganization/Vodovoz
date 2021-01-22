@@ -54,6 +54,7 @@
     <Reference Include="System.Management" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DTO\CashBox.cs" />
     <Compile Include="DTO\DocumentStatus.cs" />
     <Compile Include="DTO\FiscalRegistratorStatus.cs" />
     <Compile Include="DTO\PreparedReceiptNode.cs" />

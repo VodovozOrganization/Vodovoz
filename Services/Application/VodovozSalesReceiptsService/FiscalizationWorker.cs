@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using NHibernate;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Utilities;
@@ -23,12 +22,14 @@ namespace VodovozSalesReceiptsService
             IOrderRepository orderRepository,
             ISalesReceiptSender salesReceiptSender,
             IOrderParametersProvider orderParametersProvider,
-            IOrganizationParametersProvider organizationParametersProvider)
+            IOrganizationParametersProvider organizationParametersProvider,
+            IList<CashBox> cashBoxes)
         {
             this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
             this.salesReceiptSender = salesReceiptSender ?? throw new ArgumentNullException(nameof(salesReceiptSender));
             this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+            this.cashBoxes = cashBoxes ?? throw new ArgumentNullException(nameof(cashBoxes));
         }
 
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
@@ -36,6 +37,7 @@ namespace VodovozSalesReceiptsService
         private readonly ISalesReceiptSender salesReceiptSender;
         private readonly IOrderParametersProvider orderParametersProvider;
         private readonly IOrganizationParametersProvider organizationParametersProvider;
+        private readonly IList<CashBox> cashBoxes;
         private readonly TimeSpan initialDelay = TimeSpan.FromSeconds(5);
         private readonly TimeSpan delay = TimeSpan.FromSeconds(45);
 
@@ -116,18 +118,19 @@ namespace VodovozSalesReceiptsService
                 var newReceipt = new CashReceipt { Order = order };
                 var doc = new SalesDocumentDTO(order, order.Contract?.Organization?.Leader?.ShortName);
 
-                if(doc.IsValid && order.Contract?.Organization?.CashBox != null) {
+                CashBox cashBox = null;
+                if(order.Contract?.Organization?.CashBoxId != null) {
+                    cashBox = cashBoxes.FirstOrDefault(x => x.Id == order.Contract.Organization.CashBoxId);
+                }
+
+                if(doc.IsValid && cashBox != null) {
 
                     var newPreparedReceiptNode = new PreparedReceiptNode {
                         CashReceipt = newReceipt,
                         SalesDocumentDTO = doc,
-                        CashBox = order.Contract.Organization.CashBox
+                        CashBox = cashBox
                     };
 
-                    if(!NHibernateUtil.IsInitialized(newPreparedReceiptNode.CashBox)) {
-                        NHibernateUtil.Initialize(newPreparedReceiptNode.CashBox);
-                    }
-                    
                     receiptNodesToSend.Add(newPreparedReceiptNode);
 
                     if(receiptNodesToSend.Count >= maxReceiptsAllowedToSendInOneGo) {
@@ -135,7 +138,7 @@ namespace VodovozSalesReceiptsService
                     }
                 }
                 else {
-                    if(order.Contract?.Organization?.CashBox == null) {
+                    if(cashBox == null) {
                         logger.Warn($"Для заказа №{order.Id} не удалось подобрать кассовый аппарат для отправки. Пропускаю");
                     }
 
@@ -172,18 +175,19 @@ namespace VodovozSalesReceiptsService
                 }
 
                 var doc = new SalesDocumentDTO(receipt.Order, receipt.Order.Contract?.Organization?.Leader?.ShortName);
+                
+                CashBox cashBox = null;
+                if(receipt.Order.Contract?.Organization?.CashBoxId != null) {
+                    cashBox = cashBoxes.FirstOrDefault(x => x.Id == receipt.Order.Contract.Organization.CashBoxId);
+                }
 
-                if(doc.IsValid && receipt.Order.Contract?.Organization?.CashBox != null) {
+                if(doc.IsValid && cashBox != null) {
 
                     var newPreparedReceiptNode = new PreparedReceiptNode {
                         CashReceipt = receipt,
                         SalesDocumentDTO = doc,
-                        CashBox = receipt.Order.Contract.Organization.CashBox
+                        CashBox = cashBox
                     };
-
-                    if(!NHibernateUtil.IsInitialized(newPreparedReceiptNode.CashBox)) {
-                        NHibernateUtil.Initialize(newPreparedReceiptNode.CashBox);
-                    }
 
                     receiptNodesToSend.Add(newPreparedReceiptNode);
 
@@ -192,7 +196,7 @@ namespace VodovozSalesReceiptsService
                     }
                 }
                 else {
-                    if(receipt.Order.Contract?.Organization?.CashBox == null) {
+                    if(cashBox == null) {
                         logger.Warn($"Для заказа №{receipt.Order.Id} не удалось подобрать кассовый аппарат для отправки. Пропускаю");
                     }
 

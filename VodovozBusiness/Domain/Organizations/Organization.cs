@@ -132,11 +132,11 @@ namespace Vodovoz.Domain.Organizations
             set => SetField(ref buhgalter, value);
         }
         
-        private CashBox cashBox;
-        [Display(Name = "Кассовый аппарат")]
-        public virtual CashBox CashBox {
-            get => cashBox;
-            set => SetField(ref cashBox, value);
+        private int? cashBoxId;
+        [Display(Name = "ID Кассового аппарата")]
+        public virtual int? CashBoxId {
+            get => cashBoxId;
+            set => SetField(ref cashBoxId, value);
         }
         
         private bool withoutVAT;

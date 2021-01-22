@@ -1061,19 +1061,10 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType)
-				&& Contract?.Organization != null && Contract.Organization.CashBox == null) {
+				&& Contract?.Organization != null && Contract.Organization.CashBoxId == null) {
 				yield return new ValidationResult(
 					"Ошибка программы. В заказе автоматически подобрана неверная организация или к организации не привязан кассовый аппарат",
 					new[] { nameof(Contract.Organization) });
-			}
-
-			//FIXME Удалить после 16 числа
-			if(DeliveryDate.HasValue && PaymentType == PaymentType.Terminal && DeliveryDate.Value.Date == new DateTime(2020, 12, 16)) {
-				yield return new ValidationResult(
-					"В выбранный день с Терминалами будут производится технические работы, " +
-					"данная форма оплаты недоступна. Выберете либо другую дату доставки, либо другую форму оплаты",
-					new[] { nameof(paymentType) }
-				);
 			}
 		}
 
