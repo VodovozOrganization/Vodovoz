@@ -22,3 +22,4 @@ libGoogle.OrTools.so
   `cd osrm/`
 3. Запускаем сам контейнер
 `sudo docker run -t -i -p 5000:5000 -v $(pwd):/osrm osrm/osrm-backend osrm-routed /osrm/RU-LEN.osrm`
+
