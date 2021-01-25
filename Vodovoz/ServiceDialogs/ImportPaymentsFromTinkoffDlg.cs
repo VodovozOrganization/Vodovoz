@@ -154,9 +154,9 @@ namespace Vodovoz.ServiceDialogs
 		{
 			var fileNameExtension = fChooser.Filename.Split(new[] {'.'}).Last();
 
-			if (fileNameExtension == "csv")
+			if (fileNameExtension != "txt" && fileNameExtension != "csv")
 			{
-				MessageDialogHelper.RunErrorDialog($"Неверное расширение файла! Для выгрузки с Юкассы нужен {fChooser.Filters[1].Name}.");
+				MessageDialogHelper.RunErrorDialog($"Неверное расширение файла! Для выгрузки с Юкассы нужен {fChooser.Filters[1].Name} или {fChooser.Filters[0].Name}.");
 				return;
 			}
 
