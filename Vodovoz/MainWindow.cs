@@ -1769,18 +1769,19 @@ public partial class MainWindow : Gtk.Window
     }
 
     protected void OnActionWayBillJournalActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-		 () =>
-		 {
-			 return new WayBillGeneratorViewModel
-			 (
-				 UnitOfWorkFactory.GetDefaultFactory,
-				 ServicesConfig.CommonServices.InteractiveService,
-				 NavigationManagerProvider.NavigationManager,
-				 new WayBillDocumentRepository(),
-				 new RouteGeometryCalculator(DistanceProvider.Osrm)
-			 );
-		 }
-		);
-	}
+    {
+        tdiMain.OpenTab(
+         () =>
+         {
+             return new WayBillGeneratorViewModel
+             (
+                 UnitOfWorkFactory.GetDefaultFactory,
+                 ServicesConfig.CommonServices.InteractiveService,
+                 NavigationManagerProvider.NavigationManager,
+                 new WayBillDocumentRepository(),
+                 new RouteGeometryCalculator(DistanceProvider.Osrm)
+             );
+         }
+        );
+    }
+}
