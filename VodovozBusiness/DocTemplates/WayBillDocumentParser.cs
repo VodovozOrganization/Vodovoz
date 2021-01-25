@@ -32,15 +32,10 @@ namespace Vodovoz.DocTemplates
 
             AddField(x => x.DriverFIO, "Водитель.ФИО", PatternFieldType.FString);
             AddField(x => x.DriverLicense, "Водитель.Удостоверение", PatternFieldType.FString);
-            //AddField(x => x.D, "Водитель.Класс", PatternFieldType.FString);
+            AddField(x => "B", "Водитель.Класс", PatternFieldType.FString);
 
             AddField(x => x.CarPassportSerialNumber, "Автомобиль.СерияПТС", PatternFieldType.FString);
             AddField(x => x.CarPassportNumber, "Автомобиль.НомерПТС", PatternFieldType.FString);
-
-            // Врезка Коды
-
-            //AddField(x => x.OKUD, "ОКУД.Код", PatternFieldType.FString);
-            //AddField(x => x.OKPO, "ОКПО.Код", PatternFieldType.FString);
 
             // 2 секция 1й колонки 
             // 1.1 колонка
@@ -49,8 +44,8 @@ namespace Vodovoz.DocTemplates
 
             AddField(x => x.FirstAddress, "АдресПервойПодачи", PatternFieldType.FString);
 
-            AddField(x => x.GarageLeavingDateTime.Date.ToString("dd.MM.yyyy"), "Выезд.Дата", PatternFieldType.FString);
-            AddField(x => x.GarageReturningDateTime.Date.ToString("dd.MM.yyyy"), "Возвращение.Дата", PatternFieldType.FString);
+            AddField(x => x.GarageLeavingDateTime.ToString("dd.MM.yyyy HH:mm"), "Выезд.Дата", PatternFieldType.FString);
+            AddField(x => x.GarageReturningDateTime.ToString("dd.MM.yyyy HH:mm"), "Возвращение.Дата", PatternFieldType.FString);
 
             AddField(x => x.DriverLastName, "Водитель.Фамилия", PatternFieldType.FString);
             //AddField(x => x.DriverFIO, "Водитель.ФИО", PatternFieldType.FString); Уже есть выше
@@ -59,8 +54,8 @@ namespace Vodovoz.DocTemplates
 
             //AddField(x => "", "АдресКонтроляТехническогоСостояния", PatternFieldType.FString); // Неизвестно откуда брать
 
-            //AddField(x => "2020.01.01", "ПредрейсовыйКонтроль.Дата", PatternFieldType.FString); // Неизвестно откуда брать
-            //AddField(x => "00:00", "ПредрейсовыйКонтроль.Время", PatternFieldType.FString); // Неизвестно откуда брать
+            AddField(x => x.GarageLeavingDateTime.ToString("dd.MM.yyyy"), "ПредрейсовыйКонтроль.Дата", PatternFieldType.FString);
+            AddField(x => x.GarageLeavingDateTime.AddHours(-1).ToString("HH:mm"), "ПредрейсовыйКонтроль.Время", PatternFieldType.FString);
 
             //AddField(x => x.DriverLastName, "Водитель.Фамилия", PatternFieldType.FString); Уже есть выше
             //AddField(x => x.DriverFIO, "Водитель.ФИО", PatternFieldType.FString); Уже есть выше
@@ -69,12 +64,12 @@ namespace Vodovoz.DocTemplates
 
             AddField(x => x.FuelByFuelList.ToString(), "Топливо.Выдано", PatternFieldType.FString);
 
-            AddField(x => "10", "Топливо.ОстатокПриВыезде", PatternFieldType.FString);
-            AddField(x => "10", "Топливо.ОстатокПриВозвращении", PatternFieldType.FString);
+            AddField(x => 10, "Топливо.ОстатокПриВыезде", PatternFieldType.FString);
+            AddField(x => 10, "Топливо.ОстатокПриВозвращении", PatternFieldType.FString);
 
-            //AddField(x => x.CarFuelConsumption.ToString(), "Топливо.РасходПоНорме", PatternFieldType.FString);
+            AddField(x => x.CarFuelConsumption.ToString(), "Топливо.РасходПоНорме", PatternFieldType.FString);
 
-            AddField(x => x.FuelConsumed.ToString(), "Топливо.РасходПоФакту", PatternFieldType.FString);
+            AddField(x => x.CarFuelConsumption.ToString(), "Топливо.РасходПоФакту", PatternFieldType.FString);
 
             // 2 колонка
 
@@ -92,8 +87,8 @@ namespace Vodovoz.DocTemplates
                 .AddColumn(r => r.Mileage, "Пройдено", PatternFieldType.FString)
                 .AddColumn(r => r.DriverLastName ?? "", "Подпись", PatternFieldType.FString);
 
-            //AddField(x => 0, "ВсегоВНаряде", PatternFieldType.FString); // Неизвестно откуда брать
-            AddField(x => x.TotalMileage.ToString(), "Пройдено", PatternFieldType.FString); // Неизвестно откуда брать
+            AddField(x => 8, "ВсегоВНаряде", PatternFieldType.FString);
+            AddField(x => x.TotalMileage.ToString(), "Пройдено", PatternFieldType.FString);
 
             // AddField(x => x.ExpirationDate.ToString("dd.MM.yyyy"), "ДатаОкончания", PatternFieldType.FString);
             // AddField(x => !x.TicketDate.HasValue ? "\t" : x.TicketDate.Value.ToString("dd.MM.yyyy"), "ДатаНаряда", PatternFieldType.FString);

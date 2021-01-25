@@ -72,48 +72,46 @@ namespace Vodovoz.Domain.Documents
         }
         
         string carRegistrationNumber;
-        [Display (Name = "Модель автомобиля")]
+        [Display (Name = "Регистрационный номер автомобиля")]
         public virtual string CarRegistrationNumber {
             get => carRegistrationNumber;
             set => SetField(ref carRegistrationNumber, value);
         }
         
         string driverFIO;
-        [Display (Name = "Модель автомобиля")]
+        [Display (Name = "ФИО водителя")]
         public virtual string DriverFIO {
             get => driverFIO;
             set => SetField(ref driverFIO, value);
         }
         
         string driverLastName;
-        [Display (Name = "Модель автомобиля")]
+        [Display (Name = "Фамилия водителя")]
         public virtual string DriverLastName {
             get => driverLastName;
             set => SetField(ref driverLastName, value);
         }
         string driverLicense;
-        [Display (Name = "Модель автомобиля")]
+        [Display (Name = "Водительское удостоверение")]
         public virtual string DriverLicense {
             get => driverLicense;
             set => SetField(ref driverLicense, value);
         }
         
         string carPassportSerialNumber;
-        [Display (Name = "Модель автомобиля")]
+        [Display (Name = "ПТС Серии")]
         public virtual string CarPassportSerialNumber {
             get => carPassportSerialNumber;
             set => SetField(ref carPassportSerialNumber, value);
         }
         string carPassportNumber;
-        [Display (Name = "Модель автомобиля")]
+        [Display (Name = "ПТС Номер")]
         public virtual string CarPassportNumber {
             get => carPassportNumber;
             set => SetField(ref carPassportNumber, value);
         }
         
-        string firstAddress;
-
-        [Display(Name = "Модель автомобиля")]
+        [Display(Name = "Адрес первой подачи")]
         public virtual string FirstAddress => WayBillDocumentItems.First().AddressFrom;
         
         DateTime garageLeavingDateTime;
@@ -144,16 +142,11 @@ namespace Vodovoz.Domain.Documents
         }
 
         [Display(Name = "Выдано по заправочному листу")]
-        public decimal FuelByFuelList { get; set; }
-
-        [Display(Name = "Расход по факту")]
-        public decimal FuelConsumed => WayBillDocumentItems.Sum(item => item.Mileage) * CarFuelConsumption;
+        public decimal FuelByFuelList => 150 * CarFuelConsumption;
 
         [Display (Name = "Всего пробега")]
         public virtual decimal TotalMileage => WayBillDocumentItems.Sum(x => x.Mileage);
-        // [Display (Name = "Всего работал")]
-        // public virtual decimal TotalWorkTime => WayBillDocumentItems.Sum(x => 0);
-        //
+
         #endregion
 
 

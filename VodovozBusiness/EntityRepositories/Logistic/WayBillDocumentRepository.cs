@@ -20,7 +20,7 @@ namespace Vodovoz.EntityRepositories.Logistic
                 .JoinEntityAlias(() => routeListItemAlias, () => orderAlias.Id == routeListItemAlias.Order.Id, JoinType.InnerJoin)
                 .JoinEntityAlias(() => routeListAlias, () => routeListItemAlias.RouteList.Id == routeListAlias.Id, JoinType.InnerJoin)
                 .Where(() => routeListAlias.Status == RouteListStatus.Closed)
-                .And(() => routeListAlias.Date > startDate)
+                .And(() => routeListAlias.Date >= startDate)
                 .And(() => routeListAlias.Date <= endDate)
                 .And(() => orderAlias.OrderStatus == OrderStatus.Closed)
                 .And(() => orderAlias.PaymentType == PaymentType.cashless)

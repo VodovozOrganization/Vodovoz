@@ -29,7 +29,7 @@ namespace Vodovoz.Domain.Documents
             get => addressFrom;
             set => SetField (ref addressFrom, value);
         }
-        
+
         string addressTo;
         [Display (Name = "Адрес доставки")]
         public virtual string AddressTo {
@@ -38,33 +38,19 @@ namespace Vodovoz.Domain.Documents
         }
         
         TimeSpan hoursFrom;
-        [Display (Name = "Адрес доставки")]
+        [Display (Name = "Часы отправления из точки")]
         public virtual TimeSpan HoursFrom {
             get => hoursFrom;
             set => SetField (ref hoursFrom, value);
         }
         
-        // TimeSpan minutesFrom;
-        // [Display (Name = "Адрес доставки")]
-        // public virtual TimeSpan MinutesFrom {
-        //     get => minutesFrom;
-        //     set => SetField (ref minutesFrom, value);
-        // }
-        
         TimeSpan hoursTo;
-        [Display (Name = "Адрес доставки")]
+        [Display (Name = "Часы прибытия в точку")]
         public virtual TimeSpan HoursTo {
             get => hoursTo;
             set => SetField (ref hoursTo, value);
         }
-        
-        // TimeSpan minutesTo;
-        // [Display (Name = "Адрес доставки")]
-        // public virtual TimeSpan MinutesTo {
-        //     get => minutesTo;
-        //     set => SetField (ref minutesTo, value);
-        // }
-     
+
         decimal mileage ;
         [Display (Name = "Пробег")]
         public virtual decimal Mileage  {
