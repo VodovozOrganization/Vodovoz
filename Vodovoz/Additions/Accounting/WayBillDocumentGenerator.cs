@@ -3,14 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using FluentNHibernate.Conventions;
 using Gtk;
-using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.SqlCommand;
-using Org.BouncyCastle.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
@@ -18,8 +14,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Tools.Logistic;
 using VodovozInfrastructure.Utils;
@@ -218,6 +212,8 @@ namespace Vodovoz.Additions.Accounting
 
                     string lastAddressTo = ""; // Костыль для подавления ошибки использования переменной без инициализации
 
+                    DeliveryPoint deliveryPointFrom = null;
+
                     orderEnumerator.Reset();
                     DeliveryPoint deliveryPointFrom = null;
 
@@ -292,7 +288,10 @@ namespace Vodovoz.Additions.Accounting
 
                     WayBillSelectableDocuments.Add(new SelectablePrintDocument(wayBillDocument));
 
-                    //currentDayOrders = currentDayOrders.Skip(wayBillDocument.WayBillDocumentItems.Count);
+                    for (var i = 0; i < wayBillDocument.WayBillDocumentItems.Count; i++)
+                    {
+                        currentDayOrders.RemoveAt(0);
+                    }
                 }
             }
         }
