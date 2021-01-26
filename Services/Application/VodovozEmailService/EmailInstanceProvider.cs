@@ -18,7 +18,7 @@ namespace VodovozEmailService
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new BitrixService.EmailService(bitrixServiceSettings);
+			return new EmailService.EmailService(bitrixServiceSettings);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BitrixService;
+using EmailService;
 using fyiReporting.RDL;
 using fyiReporting.RdlGtkViewer;
 using Gamma.GtkWidgets;

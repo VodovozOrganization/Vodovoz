@@ -94,10 +94,10 @@
         <Compile Include="DTO\Mailjet\MailjetEvent.cs" />
         <Compile Include="DTO\Mailjet\MailjetMessage.cs" />
         <Compile Include="DTO\Mailjet\MailjetMessageInfo.cs" />
-        <Compile Include="IBitrixService.cs" />
-        <Compile Include="IBitrixServiceWeb.cs" />
-        <Compile Include="IMailjetEventService.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="ServiceInterfaces\IBitrixService.cs" />
+        <Compile Include="ServiceInterfaces\IBitrixServiceWeb.cs" />
+        <Compile Include="ServiceInterfaces\IMailjetEventService.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />

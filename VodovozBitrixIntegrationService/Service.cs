@@ -4,12 +4,14 @@ using System.ServiceModel.Description;
 using System.Threading;
 using BitrixIntegration;
 using BitrixIntegration.DTO;
+using BitrixIntegration.ServiceInterfaces;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog;
 using QS.Project.DB;
+using QSSupportLib;
 using Vodovoz.Core.DataService;
 
 namespace VodovozBitrixIntegrationService
@@ -95,7 +97,7 @@ namespace VodovozBitrixIntegrationService
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase))
 					});
 
-				// MainSupport.LoadBaseParameters();
+				MainSupport.LoadBaseParameters();
 				QS.HistoryLog.HistoryMain.Enable();
 			}
 			catch (Exception ex)
@@ -145,34 +147,35 @@ namespace VodovozBitrixIntegrationService
 			ServiceHost EmailSendingHost = new BitrixServiceHost(bitrixInstanceProvider);
 			ServiceHost MailjetEventsHost = new BitrixServiceHost(bitrixInstanceProvider);
 
-			ServiceEndpoint webEndPoint = EmailSendingHost.AddServiceEndpoint(
-				typeof(IBitrixServiceWeb),
-				new WebHttpBinding(),
-				String.Format("http://{0}:{1}/EmailServiceWeb", serviceHostName, serviceWebPort)
-			);
-			WebHttpBehavior httpBehavior = new WebHttpBehavior();
-			webEndPoint.Behaviors.Add(httpBehavior);
 
-			EmailSendingHost.AddServiceEndpoint(
-				typeof(IBitrixService),
-				new BasicHttpBinding(),
-				String.Format("http://{0}:{1}/EmailService", serviceHostName, servicePort)
-			);
+			var webContract = typeof(IBitrixServiceWeb);
+			var webBinding = new WebHttpBinding();
+			var webAddress = $"http://{serviceHostName}:{serviceWebPort}/BitrixServiceWeb";
+			var bitrixHost = new BitrixServiceHost(bitrixInstanceProvider);
+			bitrixHost.AddServiceEndpoint(webContract, webBinding, webAddress);
 
-			var mailjetEndPoint = MailjetEventsHost.AddServiceEndpoint(
-				typeof(IMailjetEventService),
-				new WebHttpBinding(),
-				String.Format("http://{0}:{1}/Mailjet", serviceHostName, servicePort)
-			);
-			WebHttpBehavior mailjetHttpBehavior = new WebHttpBehavior();
-			mailjetEndPoint.Behaviors.Add(httpBehavior);
+			var contract = typeof(IBitrixService);
+			var binding = new BasicHttpBinding();
+			var address = $"http://{serviceHostName}:{servicePort}/BitrixService";
+			bitrixHost.AddServiceEndpoint(contract, binding, address);
+			
+			bitrixHost.Open();
+			logger.Log(LogLevel.Info, "Сервис запущен");
+
+			// var mailjetEndPoint = MailjetEventsHost.AddServiceEndpoint(
+			// 	typeof(IMailjetEventService),
+			// 	new WebHttpBinding(),
+			// 	$"http://{serviceHostName}:{servicePort}/Mailjet"
+			// );
+			// WebHttpBehavior mailjetHttpBehavior = new WebHttpBehavior();
+			// mailjetEndPoint.Behaviors.Add(httpBehavior);
 
 #if DEBUG
-			EmailSendingHost.Description.Behaviors.Add(new PreFilter());
-			MailjetEventsHost.Description.Behaviors.Add(new PreFilter());
+			// EmailSendingHost.Description.Behaviors.Add(new PreFilter());
+			// MailjetEventsHost.Description.Behaviors.Add(new PreFilter());
 #endif
-			EmailSendingHost.Open();
-			MailjetEventsHost.Open();
+			// EmailSendingHost.Open();
+			// MailjetEventsHost.Open();
 		}
 		
 		#endregion StartService

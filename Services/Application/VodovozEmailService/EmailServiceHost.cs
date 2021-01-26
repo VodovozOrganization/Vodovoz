@@ -6,7 +6,7 @@ namespace VodovozEmailService
 {
 	public class EmailServiceHost : ServiceHost
 	{
-		public EmailServiceHost(EmailInstanceProvider emailInstanceProvider) : base(typeof(BitrixService.EmailService))
+		public EmailServiceHost(EmailInstanceProvider emailInstanceProvider) : base(typeof(EmailService.EmailService))
 		{
 			Description.Behaviors.Add(new EmailServiceBehavior(emailInstanceProvider));
 		}

@@ -3,7 +3,7 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using BitrixIntegration.DTO;
 
-namespace BitrixIntegration
+namespace BitrixIntegration.ServiceInterfaces
 {
 	[ServiceContract]
 	public interface IBitrixService
@@ -11,6 +11,5 @@ namespace BitrixIntegration
 		[WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest)]
 		[OperationContract]
 		Tuple<bool, string> SendEmail(Email mail);
-		
 	}
 }

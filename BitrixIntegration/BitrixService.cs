@@ -2,6 +2,7 @@
 using System.ServiceModel.Web;
 using BitrixIntegration.DTO;
 using BitrixIntegration.DTO.Mailjet;
+using BitrixIntegration.ServiceInterfaces;
 using Vodovoz.Services;
 
 namespace BitrixIntegration
@@ -28,6 +29,11 @@ namespace BitrixIntegration
 		public Tuple<bool, string> SendEmail(Email mail)
 		{
 			return BitrixManager.AddEmail(mail);
+		}
+
+		public int Add(int a, int b)
+		{
+			return a + b;
 		}
 
 		public bool ServiceStatus()

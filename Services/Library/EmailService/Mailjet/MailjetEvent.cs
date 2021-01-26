@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace BitrixService.Mailjet
+namespace EmailService.Mailjet
 {
 	[DataContract]
 	public class MailjetEvent

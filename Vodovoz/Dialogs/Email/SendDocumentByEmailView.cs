@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using BitrixService;
+using EmailService;
 using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.StoredEmails;

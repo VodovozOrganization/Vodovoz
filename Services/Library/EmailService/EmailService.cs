@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ServiceModel.Web;
-using BitrixService.Mailjet;
+using EmailService.Mailjet;
 using Vodovoz.Services;
 
-namespace BitrixService
+namespace EmailService
 {
 	public class EmailService : IEmailService, IMailjetEventService, IEmailServiceWeb
 	{

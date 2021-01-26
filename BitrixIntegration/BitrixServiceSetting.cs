@@ -1,4 +1,5 @@
 ﻿using System.ServiceModel;
+using BitrixIntegration.ServiceInterfaces;
 
 namespace BitrixIntegration
 {
