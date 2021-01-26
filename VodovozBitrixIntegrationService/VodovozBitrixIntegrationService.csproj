@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{033C8C2F-0EE5-46AD-9DE6-D9387F528DF3}</ProjectGuid>
+        <OutputType>Exe</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>VodovozBitrixIntegrationService</RootNamespace>
+        <AssemblyName>VodovozBitrixIntegrationService</AssemblyName>
+        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f">
+          <HintPath>..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="BouncyCastle.Crypto, Version=1.8.3.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+          <HintPath>..\packages\BouncyCastle.1.8.3.1\lib\BouncyCastle.Crypto.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="FluentNHibernate, Version=3.1.0.0, Culture=neutral, PublicKeyToken=8aa435e3cb308880">
+          <HintPath>..\packages\FluentNHibernate.3.1.0\lib\net461\FluentNHibernate.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="Google.Protobuf, Version=3.6.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604">
+          <HintPath>..\packages\Google.Protobuf.3.6.1\lib\net45\Google.Protobuf.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="Iesi.Collections, Version=4.0.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4">
+          <HintPath>..\packages\Iesi.Collections.4.0.4\lib\net461\Iesi.Collections.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="Microsoft.CSharp" />
+        <Reference Include="Mono.Posix" />
+        <Reference Include="mscorlib" />
+        <Reference Include="MySql.Data, Version=8.0.19.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
+          <HintPath>..\packages\MySql.Data.8.0.19\lib\net48\MySql.Data.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="NetTopologySuite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=f580a05016ebada1">
+          <HintPath>..\packages\NetTopologySuite.2.1.0\lib\netstandard2.0\NetTopologySuite.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="NetTopologySuite.IO.SqlServerBytes, Version=2.0.0.0, Culture=neutral, PublicKeyToken=f580a05016ebada1">
+          <HintPath>..\packages\NetTopologySuite.IO.SqlServerBytes.2.0.0\lib\netstandard2.0\NetTopologySuite.IO.SqlServerBytes.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="NHibernate, Version=5.3.0.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4">
+          <HintPath>..\packages\NHibernate.5.3.5\lib\net461\NHibernate.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="NHibernate.Spatial, Version=6.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\packages\NHibernate.Spatial.6.0.0\lib\netstandard2.0\NHibernate.Spatial.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="NHibernate.Spatial.MsSql, Version=6.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\packages\NHibernate.Spatial.MsSql.6.0.0\lib\netstandard2.0\NHibernate.Spatial.MsSql.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="Nini, Version=1.1.0.0, Culture=neutral, PublicKeyToken=691faec150a7fa7b">
+          <HintPath>..\packages\Trove.Nini.1.1.0.0\lib\net20\Nini.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c">
+          <HintPath>..\packages\NLog.4.7.2\lib\net45\NLog.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="Remotion.Linq, Version=2.2.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b">
+          <HintPath>..\packages\Remotion.Linq.2.2.0\lib\net45\Remotion.Linq.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="Remotion.Linq.EagerFetching, Version=2.2.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b">
+          <HintPath>..\packages\Remotion.Linq.EagerFetching.2.2.0\lib\net45\Remotion.Linq.EagerFetching.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106">
+          <HintPath>..\packages\SSH.NET.2016.1.0\lib\net40\Renci.SshNet.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="System" />
+        <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+          <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="System.ComponentModel" />
+        <Reference Include="System.ComponentModel.DataAnnotations" />
+        <Reference Include="System.Configuration" />
+        <Reference Include="System.Configuration.Install" />
+        <Reference Include="System.Core" />
+        <Reference Include="System.Data" />
+        <Reference Include="System.Data.SqlClient, Version=4.6.1.2, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\packages\System.Data.SqlClient.4.8.2\lib\net461\System.Data.SqlClient.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="System.Drawing" />
+        <Reference Include="System.Drawing.Design" />
+        <Reference Include="System.IO.Compression" />
+        <Reference Include="System.Management" />
+        <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+          <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="System.Numerics" />
+        <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="System.Runtime.Serialization" />
+        <Reference Include="System.ServiceModel" />
+        <Reference Include="System.ServiceModel.Web" />
+        <Reference Include="System.Transactions" />
+        <Reference Include="System.Xml" />
+        <Reference Include="Ubiety.Dns.Core, Version=2.2.1.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
+          <HintPath>..\packages\MySql.Data.8.0.19\lib\net48\Ubiety.Dns.Core.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="EmailInstanceProvider.cs" />
+        <Compile Include="EmailServiceBehavior.cs" />
+        <Compile Include="EmailServiceHost.cs" />
+        <Compile Include="Program.cs" />
+        <Compile Include="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Include="packages.config" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
+        <Project>{301f793c-130b-44eb-a45d-60d5f040b0ad}</Project>
+        <Name>QS.Banks</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
+        <Project>{3d3d6700-c625-46c5-9702-5f010a8dd035}</Project>
+        <Name>QS.HistoryLog</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
+        <Project>{28a78143-42e3-40e7-86f5-dd7e1679be86}</Project>
+        <Name>QS.Project</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
+        <Project>{a6c1914f-7732-49f5-baba-8bbba521faab}</Project>
+        <Name>QSProjectsLib</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\..\QSProjects\QSSupportLib\QSSupportLib.csproj">
+        <Project>{9df71899-3ce4-48f4-b3c3-0b21b15037b1}</Project>
+        <Name>QSSupportLib</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\BitrixIntegration\BitrixIntegration.csproj">
+        <Project>{7f55d466-ce81-4a81-aac1-d7d58544f7af}</Project>
+        <Name>BitrixIntegration</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
+        <Project>{022dd59d-0eee-420f-9750-eb275772f56a}</Project>
+        <Name>VodovozBusiness</Name>
+      </ProjectReference>
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+         Other similar extension points exist, see Microsoft.Common.targets.
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+    -->
+
+</Project>
