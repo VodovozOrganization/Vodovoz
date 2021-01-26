@@ -33,6 +33,8 @@ namespace Vodovoz.Views.Accounting
 			dateRangeFilter.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
 			dateRangeFilter.Binding.AddBinding(ViewModel, vm=> vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
 			
+            //entryMechanic
+
 			yPrintBtn.Clicked += (sender, e) => ViewModel.PrintCommand.Execute();
 			yGenerateBtn.Clicked += (sender, e) => ViewModel.GenerateCommand.Execute();
 			yUnloadBtn.Clicked += (sender, e) => ViewModel.UnloadCommand.Execute();

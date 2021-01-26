@@ -14,6 +14,8 @@ namespace Vodovoz.Views.Accounting
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateRangeFilter;
 
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryMechanic;
+
 		private global::Gamma.GtkWidgets.yButton yGenerateBtn;
 
 		private global::Gamma.GtkWidgets.yButton yPrintBtn;
@@ -62,16 +64,24 @@ namespace Vodovoz.Views.Accounting
 			w2.Position = 1;
 			w2.Expand = false;
 			// Container child hbox10.Gtk.Box+BoxChild
+			this.entryMechanic = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryMechanic.Events = ((global::Gdk.EventMask)(256));
+			this.entryMechanic.Name = "entryMechanic";
+			this.entryMechanic.CanEditReference = false;
+			this.hbox10.Add(this.entryMechanic);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.entryMechanic]));
+			w3.Position = 2;
+			// Container child hbox10.Gtk.Box+BoxChild
 			this.yGenerateBtn = new global::Gamma.GtkWidgets.yButton();
 			this.yGenerateBtn.CanFocus = true;
 			this.yGenerateBtn.Name = "yGenerateBtn";
 			this.yGenerateBtn.UseUnderline = true;
 			this.yGenerateBtn.Label = global::Mono.Unix.Catalog.GetString("Сформировать");
 			this.hbox10.Add(this.yGenerateBtn);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.yGenerateBtn]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.yGenerateBtn]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child hbox10.Gtk.Box+BoxChild
 			this.yPrintBtn = new global::Gamma.GtkWidgets.yButton();
 			this.yPrintBtn.CanFocus = true;
@@ -79,10 +89,10 @@ namespace Vodovoz.Views.Accounting
 			this.yPrintBtn.UseUnderline = true;
 			this.yPrintBtn.Label = global::Mono.Unix.Catalog.GetString("Печать");
 			this.hbox10.Add(this.yPrintBtn);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.yPrintBtn]));
-			w4.Position = 3;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.yPrintBtn]));
+			w5.Position = 4;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child hbox10.Gtk.Box+BoxChild
 			this.yUnloadBtn = new global::Gamma.GtkWidgets.yButton();
 			this.yUnloadBtn.CanFocus = true;
@@ -90,15 +100,16 @@ namespace Vodovoz.Views.Accounting
 			this.yUnloadBtn.UseUnderline = true;
 			this.yUnloadBtn.Label = global::Mono.Unix.Catalog.GetString("Выгрузить");
 			this.hbox10.Add(this.yUnloadBtn);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.yUnloadBtn]));
-			w5.Position = 4;
-			w5.Expand = false;
-			w5.Fill = false;
-			this.vbox3.Add(this.hbox10);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox10]));
-			w6.Position = 0;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.yUnloadBtn]));
+			w6.PackType = ((global::Gtk.PackType)(1));
+			w6.Position = 5;
 			w6.Expand = false;
 			w6.Fill = false;
+			this.vbox3.Add(this.hbox10);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox10]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -109,11 +120,11 @@ namespace Vodovoz.Views.Accounting
 			this.yTreeWayBills.Name = "yTreeWayBills";
 			this.GtkScrolledWindow.Add(this.yTreeWayBills);
 			this.vbox3.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.GtkScrolledWindow]));
-			w8.Position = 1;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.GtkScrolledWindow]));
+			w9.Position = 1;
 			this.vbox2.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vbox3]));
-			w9.Position = 0;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vbox3]));
+			w10.Position = 0;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
