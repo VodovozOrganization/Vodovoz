@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace EmailService
+namespace BitrixIntegration.DTO
 {
 	[DataContract]
 	public class EmailAttachment

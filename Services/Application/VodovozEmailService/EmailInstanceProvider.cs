@@ -7,18 +7,18 @@ namespace VodovozEmailService
 {
 	public class EmailInstanceProvider : IInstanceProvider
 	{
-		private readonly IEmailServiceSettings emailServiceSettings;
+		private readonly IBitrixServiceSettings bitrixServiceSettings;
 
-		public EmailInstanceProvider(IEmailServiceSettings emailServiceSettings)
+		public EmailInstanceProvider(IBitrixServiceSettings bitrixServiceSettings)
 		{
-			this.emailServiceSettings = emailServiceSettings ?? throw new ArgumentNullException(nameof(emailServiceSettings));
+			this.bitrixServiceSettings = bitrixServiceSettings ?? throw new ArgumentNullException(nameof(bitrixServiceSettings));
 		}
 
 		#region IInstanceProvider implementation
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new EmailService.EmailService(emailServiceSettings);
+			return new BitrixService.EmailService(bitrixServiceSettings);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

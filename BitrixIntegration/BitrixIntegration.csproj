@@ -45,6 +45,7 @@
           <Private>True</Private>
         </Reference>
         <Reference Include="Microsoft.CSharp" />
+        <Reference Include="mscorlib" />
         <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
           <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
           <Private>True</Private>
@@ -66,6 +67,11 @@
           <Private>True</Private>
         </Reference>
         <Reference Include="System" />
+        <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+          <HintPath>..\packages\System.ComponentModel.Annotations.5.0.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="System.ComponentModel.DataAnnotations" />
         <Reference Include="System.Configuration" />
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
@@ -78,19 +84,19 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Email.cs" />
-        <Compile Include="EmailAttachment.cs" />
-        <Compile Include="EmailContact.cs" />
-        <Compile Include="EmailManager.cs" />
-        <Compile Include="EmailService.cs" />
-        <Compile Include="EmailServiceSetting.cs" />
-        <Compile Include="IEmailService.cs" />
-        <Compile Include="IEmailServiceWeb.cs" />
+        <Compile Include="DTO\Email.cs" />
+        <Compile Include="DTO\EmailAttachment.cs" />
+        <Compile Include="DTO\EmailContact.cs" />
+        <Compile Include="BitrixManager.cs" />
+        <Compile Include="BitrixService.cs" />
+        <Compile Include="BitrixServiceSetting.cs" />
+        <Compile Include="DTO\Mailjet\MailjetErrorInfo.cs" />
+        <Compile Include="DTO\Mailjet\MailjetEvent.cs" />
+        <Compile Include="DTO\Mailjet\MailjetMessage.cs" />
+        <Compile Include="DTO\Mailjet\MailjetMessageInfo.cs" />
+        <Compile Include="IBitrixService.cs" />
+        <Compile Include="IBitrixServiceWeb.cs" />
         <Compile Include="IMailjetEventService.cs" />
-        <Compile Include="Mailjet\MailjetErrorInfo.cs" />
-        <Compile Include="Mailjet\MailjetEvent.cs" />
-        <Compile Include="Mailjet\MailjetMessage.cs" />
-        <Compile Include="Mailjet\MailjetMessageInfo.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
     <ItemGroup>

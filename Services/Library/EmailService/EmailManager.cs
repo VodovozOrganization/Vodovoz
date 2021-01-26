@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using EmailService.Mailjet;
+using BitrixService.Mailjet;
 using Mailjet.Client;
 using Mailjet.Client.Resources;
 using Newtonsoft.Json.Linq;
@@ -17,7 +17,7 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
 
-namespace EmailService
+namespace BitrixService
 {
 	public static class EmailManager
 	{

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using EmailService;
+using BitrixService;
 using QS.DomainModel.UoW;
 using QS.ViewModels;
 using Vodovoz.Domain.Orders.Documents;
@@ -252,7 +252,7 @@ namespace Vodovoz.Dialogs.Email
 				return;
 			}
 
-			EmailService.Email email = CreateDocumentEmail("", "vodovoz-spb.ru", Document);
+			BitrixService.Email email = CreateDocumentEmail("", "vodovoz-spb.ru", Document);
 			if(email == null) {
 				interactiveService.ShowMessage(ImportanceLevel.Warning,"Для данного типа документа не реализовано формирование письма");
 				return;
@@ -299,12 +299,12 @@ namespace Vodovoz.Dialogs.Email
 			UpdateEmails();
 		}
 
-		private EmailService.Email CreateDocumentEmail(string clientName, string organizationName, IDocument document)
+		private BitrixService.Email CreateDocumentEmail(string clientName, string organizationName, IDocument document)
 		{
 			bool wasHideSignature;
 			ReportInfo ri = null;
 			EmailTemplate template = null;
-			EmailService.Email email = null;
+			BitrixService.Email email = null;
 
 			switch(document.Type) {
 
@@ -316,7 +316,7 @@ namespace Vodovoz.Dialogs.Email
 					billDocument.HideSignature = wasHideSignature;
 
 					template = billDocument.GetEmailTemplate();
-					email = new EmailService.Email();
+					email = new BitrixService.Email();
 					email.Title = string.Format($"{template.Title} {billDocument.Title}");
 					email.Text = template.Text;
 					email.HtmlText = template.TextHtml;
@@ -343,7 +343,7 @@ namespace Vodovoz.Dialogs.Email
 					billWSFDDocument.HideSignature = wasHideSignature;
 
 					template = billWSFDDocument.GetEmailTemplate();
-					email = new EmailService.Email();
+					email = new BitrixService.Email();
 					email.Title = string.Format($"{template.Title} {billWSFDDocument.Title}");
 					email.Text = template.Text;
 					email.HtmlText = template.TextHtml;
@@ -370,7 +370,7 @@ namespace Vodovoz.Dialogs.Email
 					billWSFAPDocument.HideSignature = wasHideSignature;
 
 					template = billWSFAPDocument.GetEmailTemplate();
-					email = new EmailService.Email();
+					email = new BitrixService.Email();
 					email.Title = string.Format($"{template.Title} {billWSFAPDocument.Title}");
 					email.Text = template.Text;
 					email.HtmlText = template.TextHtml;
@@ -397,7 +397,7 @@ namespace Vodovoz.Dialogs.Email
 					billWSFPDocument.HideSignature = wasHideSignature;
 
 					template = billWSFPDocument.GetEmailTemplate();
-					email = new EmailService.Email();
+					email = new BitrixService.Email();
 					email.Title = string.Format($"{template.Title} {billWSFPDocument.Title}");
 					email.Text = template.Text;
 					email.HtmlText = template.TextHtml;

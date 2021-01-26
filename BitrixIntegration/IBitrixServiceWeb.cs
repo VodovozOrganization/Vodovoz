@@ -1,11 +1,10 @@
-﻿using System;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using System.ServiceModel.Web;
 
-namespace EmailService
+namespace BitrixIntegration
 {
 	[ServiceContract]
-	public interface IEmailServiceWeb
+	public interface IBitrixServiceWeb
 	{
 		[OperationContract()]
 		[WebGet(ResponseFormat = WebMessageFormat.Json)]

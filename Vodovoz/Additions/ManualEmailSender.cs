@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using EmailService;
+using BitrixService;
 using fyiReporting.RDL;
 using NHibernate;
 using NHibernate.Criterion;

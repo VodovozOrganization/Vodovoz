@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using Vodovoz.Domain.Orders.Documents;
 
-namespace EmailService
+namespace BitrixService
 {
 	[DataContract]
 	public class Email

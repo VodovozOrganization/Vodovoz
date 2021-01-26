@@ -1,8 +1,8 @@
 ﻿using System.ServiceModel;
 using System.ServiceModel.Web;
-using EmailService.Mailjet;
+using BitrixService.Mailjet;
 
-namespace EmailService
+namespace BitrixService
 {
 	[ServiceContract]
 	public interface IMailjetEventService

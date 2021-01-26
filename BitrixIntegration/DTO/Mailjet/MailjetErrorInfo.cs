@@ -1,7 +1,6 @@
-﻿using System;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
-namespace EmailService.Mailjet
+namespace BitrixIntegration.DTO.Mailjet
 {
 	[DataContract]
 	public class MailjetErrorInfo

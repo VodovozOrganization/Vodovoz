@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace EmailService
+namespace BitrixService
 {
 	[DataContract]
 	public class EmailContact

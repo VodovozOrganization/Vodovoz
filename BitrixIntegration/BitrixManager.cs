@@ -2,7 +2,8 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using EmailService.Mailjet;
+using BitrixIntegration.DTO;
+using BitrixIntegration.DTO.Mailjet;
 using Mailjet.Client;
 using Mailjet.Client.Resources;
 using Newtonsoft.Json.Linq;
@@ -17,9 +18,9 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
 
-namespace EmailService
+namespace BitrixIntegration
 {
-	public static class EmailManager
+	public static class BitrixManager
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		static int MaxSendAttemptsCount = 5;
@@ -34,7 +35,7 @@ namespace EmailService
 		static IEmailRepository emailRepository = new EmailRepository();
 
 
-		static EmailManager()
+		static BitrixManager()
 		{
 			//Установка всем не отправленным письмам из базы статус ошибки отправки в связи с остановкой сервера.
 			Task.Run(() => SetErrorStatusWaitingToSendEmails());

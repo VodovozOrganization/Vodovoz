@@ -1,6 +1,6 @@
 ﻿using System.ServiceModel;
 
-namespace EmailService
+namespace BitrixService
 {
 	public class EmailServiceSetting
 	{

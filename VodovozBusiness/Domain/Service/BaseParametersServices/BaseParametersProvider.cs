@@ -17,7 +17,7 @@ namespace Vodovoz.Core.DataService
 		IDefaultDeliveryDaySchedule,
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
-		IEmailServiceSettings,
+		IBitrixServiceSettings,
 		IContactsParameters,
 		IDriverServiceParametersProvider,
 		IErrorSendParameterProvider,

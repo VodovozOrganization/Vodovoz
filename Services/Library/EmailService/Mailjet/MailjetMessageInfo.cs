@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace EmailService.Mailjet
+namespace BitrixService.Mailjet
 {
 	[DataContract]
 	public class MailjetMessageInfo

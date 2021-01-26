@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EmailService;
+using BitrixService;
 using fyiReporting.RDL;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -2592,7 +2592,7 @@ namespace Vodovoz
 			billDocument.HideSignature = wasHideSignature;
 
 			var billTemplate = billDocument.GetEmailTemplate();
-			EmailService.Email email = new EmailService.Email {
+			BitrixService.Email email = new BitrixService.Email {
 				Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title),
 				Text = billTemplate.Text,
 				HtmlText = billTemplate.TextHtml,

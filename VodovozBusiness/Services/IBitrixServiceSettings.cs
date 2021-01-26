@@ -1,6 +1,6 @@
 ﻿namespace Vodovoz.Services
 {
-	public interface IEmailServiceSettings
+	public interface IBitrixServiceSettings
 	{
 		int MaxEmailsInQueueForWorkingService { get; }
 	}

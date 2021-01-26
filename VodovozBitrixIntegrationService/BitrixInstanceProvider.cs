@@ -2,23 +2,25 @@
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
+using BitrixIntegration;
 using Vodovoz.Services;
-namespace VodovozEmailService
-{
-	public class EmailInstanceProvider : IInstanceProvider
-	{
-		private readonly IEmailServiceSettings emailServiceSettings;
 
-		public EmailInstanceProvider(IEmailServiceSettings emailServiceSettings)
+namespace VodovozBitrixIntegrationService
+{
+	public class BitrixInstanceProvider : IInstanceProvider
+	{
+		private readonly IBitrixServiceSettings bitrixServiceSettings;
+
+		public BitrixInstanceProvider(IBitrixServiceSettings bitrixServiceSettings)
 		{
-			this.emailServiceSettings = emailServiceSettings ?? throw new ArgumentNullException(nameof(emailServiceSettings));
+			this.bitrixServiceSettings = bitrixServiceSettings ?? throw new ArgumentNullException(nameof(bitrixServiceSettings));
 		}
 
 		#region IInstanceProvider implementation
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new EmailService.EmailService(emailServiceSettings);
+			return new BitrixService(bitrixServiceSettings);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

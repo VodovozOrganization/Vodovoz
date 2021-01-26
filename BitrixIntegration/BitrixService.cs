@@ -1,24 +1,25 @@
 ﻿using System;
 using System.ServiceModel.Web;
-using BitrixService.Mailjet;
+using BitrixIntegration.DTO;
+using BitrixIntegration.DTO.Mailjet;
 using Vodovoz.Services;
 
-namespace BitrixService
+namespace BitrixIntegration
 {
-	public class EmailService : IEmailService, IMailjetEventService, IEmailServiceWeb
+	public class BitrixService : IBitrixService, IMailjetEventService, IBitrixServiceWeb
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IBitrixServiceSettings bitrixServiceSettings;
 
-		public EmailService(IBitrixServiceSettings bitrixServiceSettings)
+		public BitrixService(IBitrixServiceSettings bitrixServiceSettings)
 		{
-			EmailManager.Init();
+			BitrixManager.Init();
 			this.bitrixServiceSettings = bitrixServiceSettings ?? throw new ArgumentNullException(nameof(bitrixServiceSettings));
 		}
 
 		public void PostEvent(MailjetEvent content)
 		{
-			EmailManager.AddEvent(content);
+			BitrixManager.AddEvent(content);
 
 			//Необходимо обязательно отправлять в ответ http code 200 - OK
 			WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.OK;
@@ -26,12 +27,12 @@ namespace BitrixService
 
 		public Tuple<bool, string> SendEmail(Email mail)
 		{
-			return EmailManager.AddEmail(mail);
+			return BitrixManager.AddEmail(mail);
 		}
 
 		public bool ServiceStatus()
 		{
-			int emailsInQueue = EmailManager.GetEmailsInQueue();
+			int emailsInQueue = BitrixManager.GetEmailsInQueue();
 			if(emailsInQueue > bitrixServiceSettings.MaxEmailsInQueueForWorkingService) {
 				return false;
 			}

@@ -5,15 +5,15 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 
-namespace VodovozEmailService
+namespace VodovozBitrixIntegrationService
 {
-	public class EmailServiceBehavior : IServiceBehavior
+	public class BitrixServiceBehavior : IServiceBehavior
 	{
-		private readonly EmailInstanceProvider emailInstanceProvider;
+		private readonly BitrixInstanceProvider bitrixInstanceProvider;
 
-		public EmailServiceBehavior(EmailInstanceProvider emailInstanceProvider)
+		public BitrixServiceBehavior(BitrixInstanceProvider bitrixInstanceProvider)
 		{
-			this.emailInstanceProvider = emailInstanceProvider ?? throw new ArgumentNullException(nameof(emailInstanceProvider));
+			this.bitrixInstanceProvider = bitrixInstanceProvider ?? throw new ArgumentNullException(nameof(bitrixInstanceProvider));
 		}
 
 		public void AddBindingParameters(ServiceDescription serviceDescription, ServiceHostBase serviceHostBase, Collection<ServiceEndpoint> endpoints, BindingParameterCollection bindingParameters)
@@ -26,7 +26,7 @@ namespace VodovozEmailService
 				ChannelDispatcher cd = cdb as ChannelDispatcher;
 				if(cd != null) {
 					foreach(EndpointDispatcher ed in cd.Endpoints) {
-						ed.DispatchRuntime.InstanceProvider = emailInstanceProvider;
+						ed.DispatchRuntime.InstanceProvider = bitrixInstanceProvider;
 					}
 				}
 			}

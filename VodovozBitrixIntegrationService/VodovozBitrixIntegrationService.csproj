@@ -60,23 +60,15 @@
           <Private>True</Private>
         </Reference>
         <Reference Include="NetTopologySuite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=f580a05016ebada1">
-          <HintPath>..\packages\NetTopologySuite.2.1.0\lib\netstandard2.0\NetTopologySuite.dll</HintPath>
+          <HintPath>..\packages\NetTopologySuite.2.0.0-pre001\lib\netstandard2.0\NetTopologySuite.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="NetTopologySuite.IO.SqlServerBytes, Version=2.0.0.0, Culture=neutral, PublicKeyToken=f580a05016ebada1">
-          <HintPath>..\packages\NetTopologySuite.IO.SqlServerBytes.2.0.0\lib\netstandard2.0\NetTopologySuite.IO.SqlServerBytes.dll</HintPath>
+          <HintPath>..\packages\NetTopologySuite.IO.SqlServerBytes.2.0.0-pre001\lib\netstandard2.0\NetTopologySuite.IO.SqlServerBytes.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="NHibernate, Version=5.3.0.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4">
-          <HintPath>..\packages\NHibernate.5.3.5\lib\net461\NHibernate.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="NHibernate.Spatial, Version=6.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\NHibernate.Spatial.6.0.0\lib\netstandard2.0\NHibernate.Spatial.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="NHibernate.Spatial.MsSql, Version=6.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\NHibernate.Spatial.MsSql.6.0.0\lib\netstandard2.0\NHibernate.Spatial.MsSql.dll</HintPath>
+          <HintPath>..\packages\NHibernate.5.3.4\lib\net461\NHibernate.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="Nini, Version=1.1.0.0, Culture=neutral, PublicKeyToken=691faec150a7fa7b">
@@ -142,10 +134,12 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="EmailInstanceProvider.cs" />
-        <Compile Include="EmailServiceBehavior.cs" />
-        <Compile Include="EmailServiceHost.cs" />
-        <Compile Include="Program.cs" />
+        <Compile Include="BitrixInstanceProvider.cs" />
+        <Compile Include="BitrixServiceBehavior.cs" />
+        <Compile Include="BitrixServiceHost.cs" />
+        <Compile Include="ConsoleMessageTracer.cs" />
+        <Compile Include="PreFilter.cs" />
+        <Compile Include="Service.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
     <ItemGroup>

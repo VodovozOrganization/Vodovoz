@@ -6,7 +6,7 @@ using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Web;
 using System.Threading;
-using EmailService;
+using BitrixService;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
@@ -81,7 +81,7 @@ namespace VodovozEmailService
 					new System.Reflection.Assembly[] {
 					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
-					System.Reflection.Assembly.GetAssembly (typeof(EmailService.Email)),
+					System.Reflection.Assembly.GetAssembly (typeof(BitrixService.Email)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
 				});

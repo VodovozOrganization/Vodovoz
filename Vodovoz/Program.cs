@@ -5,7 +5,7 @@ using NLog;
 using QSProjectsLib;
 using Vodovoz.Parameters;
 using Vodovoz.Additions;
-using EmailService;
+using BitrixService;
 using QS.Project.Dialogs.GtkUI;
 using QS.Utilities.Text;
 using QSSupportLib;

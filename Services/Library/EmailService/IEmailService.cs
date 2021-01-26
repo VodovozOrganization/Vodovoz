@@ -2,7 +2,7 @@
 using System.ServiceModel;
 using System.ServiceModel.Web;
 
-namespace EmailService
+namespace BitrixService
 {
 	[ServiceContract]
 	public interface IEmailService
