@@ -39,6 +39,20 @@ namespace Vodovoz.Additions.Accounting
         public int Id { get; }
         public event PropertyChangedEventHandler PropertyChanged;
 
+        string mechanicFIO;
+        public string MechanicFIO
+        {
+            get => mechanicFIO;
+            set => SetField(ref mechanicFIO, value);
+        }
+
+        string mechanicLastName;
+        public string MechanicLastName
+        {
+            get => mechanicLastName;
+            set => SetField(ref mechanicLastName, value);
+        }
+
         IUnitOfWork uow;
         RouteList currentRouteList;
 
@@ -117,7 +131,6 @@ namespace Vodovoz.Additions.Accounting
 
         public void PrintDocuments()
         {
-        
             if (WayBillSelectableDocuments.Count == WayBillSelectableDocuments.Count(x => x.Document is WayBillDocument))
             {
                 QSMain.WaitRedraw();
@@ -212,8 +225,6 @@ namespace Vodovoz.Additions.Accounting
 
                     string lastAddressTo = ""; // Костыль для подавления ошибки использования переменной без инициализации
 
-                    DeliveryPoint deliveryPointFrom = null;
-
                     orderEnumerator.Reset();
                     DeliveryPoint deliveryPointFrom = null;
 
@@ -267,6 +278,10 @@ namespace Vodovoz.Additions.Accounting
                     wayBillDocument.CarRegistrationNumber = employeeToCarPair.Value.RegistrationNumber;
                     wayBillDocument.DriverFIO = employeeToCarPair.Key.FullName;
                     wayBillDocument.DriverLastName = employeeToCarPair.Key.LastName;
+
+                    wayBillDocument.MechanicFIO = MechanicFIO;
+                    wayBillDocument.MechanicLastName = MechanicLastName;
+
                     wayBillDocument.DriverLicense = employeeToCarPair.Key.DrivingLicense;
 
                     wayBillDocument.CarPassportSerialNumber = employeeToCarPair.Value.DocPTSSeries;

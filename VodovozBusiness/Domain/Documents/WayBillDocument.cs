@@ -91,6 +91,23 @@ namespace Vodovoz.Domain.Documents
             get => driverLastName;
             set => SetField(ref driverLastName, value);
         }
+
+        string mechanicFIO;
+        [Display(Name = "ФИО механика")]
+        public string MechanicFIO
+        {
+            get => mechanicFIO;
+            set => SetField(ref mechanicFIO, value);
+        }
+
+        string mechanicLastName;
+        [Display(Name = "Фамилия механика")]
+        public string MechanicLastName
+        {
+            get => mechanicLastName;
+            set => SetField(ref mechanicLastName, value);
+        }
+
         string driverLicense;
         [Display (Name = "Водительское удостоверение")]
         public virtual string DriverLicense {
@@ -174,6 +191,7 @@ namespace Vodovoz.Domain.Documents
             get { return organization; }
             set { SetField(ref organization, value, () => Organization); }
         }
+
         public void PrepareTemplate(IUnitOfWork uow)
         {
             if (DocumentTemplate == null)
