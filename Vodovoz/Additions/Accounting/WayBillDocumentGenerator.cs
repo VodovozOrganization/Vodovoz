@@ -189,126 +189,135 @@ namespace Vodovoz.Additions.Accounting
             foreach (var day in startDate.Range(endDate)) {
                 var currentDayOrders = repository.GetOrdersForWayBillDocuments(uow, day, day.AddHours(23).AddMinutes(59).AddSeconds(59));
 
-                var wayBillDocument = new WayBillDocument();
+                foreach (var employeeToCarPair in employeeToCars)
+                {
+                    var routesCount = Math.Min(randomizer.Next(12, 15), currentDayOrders.Count);
+                    GenerateWayBill(currentDayOrders, routesCount, employeeToCarPair.Key, employeeToCarPair.Value );
 
-                var routesCount = randomizer.Next(12, 15);
-                foreach (var employeeToCarPair in employeeToCars) {
-                    if (currentDayOrders.IsEmpty()) {
-                        break;
-                    }
-
-                    var orderEnumerator = currentDayOrders.GetEnumerator();
-
-                    for (var i = 0; orderEnumerator.MoveNext() == true && i < routesCount; i++) { 
-                        var randomTimeInterval = GenerateRandomRouteTime();
-
-                        var wayBillDocumentItem = new WayBillDocumentItem()
-                        {
-                            CounterpartyName = orderEnumerator.Current.Client.Name,
-                            SequenceNumber = i + 1,
-                            DriverLastName = employeeToCarPair.Key.LastName,
-                            HoursFrom = randomTimeInterval[0],
-                            HoursTo = randomTimeInterval[1],
-                            AddressTo = orderEnumerator.Current.DeliveryPoint.ShortAddress
-                        };
-
-                        wayBillDocument.WayBillDocumentItems.Add(wayBillDocumentItem);
-                    }
-
-                    wayBillDocument.WayBillDocumentItems.Sort((x, y) => x.HoursFrom.CompareTo(y.HoursFrom));
-
-                    wayBillDocument.WayBillDocumentItems.First().AddressFrom = employeeToCarPair.Key.Subdivision.Name;
-
-                    wayBillDocument.WayBillDocumentItems.Last().AddressTo = employeeToCarPair.Key.Subdivision.Name;
-
-                    var waybillItemsEnumerator = wayBillDocument.WayBillDocumentItems.GetEnumerator();
-
-                    string lastAddressTo = ""; // Костыль для подавления ошибки использования переменной без инициализации
-
-                    orderEnumerator.Reset();
-                    DeliveryPoint deliveryPointFrom = null;
-
-                    var lastId = wayBillDocument.WayBillDocumentItems.Count - 2;
-                    for (var i = 0; waybillItemsEnumerator.MoveNext() == true && orderEnumerator.MoveNext() == true; i++) {
-                        if (i != 0 && i != routesCount)
-                        {
-                            waybillItemsEnumerator.Current.AddressFrom = lastAddressTo;
-                        }
-                        lastAddressTo = waybillItemsEnumerator.Current.AddressTo;
-
-                        if (i == 0)
-                        {
-                            waybillItemsEnumerator.Current.Mileage =
-                                DistanceCalculator.DistanceFromBaseMeter(employeeToCarPair.Key.Subdivision.GeographicGroup, orderEnumerator.Current.DeliveryPoint) * 2 / 1000;
-
-                            wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(employeeToCarPair.Key.Subdivision.GeographicGroup));
-                            deliveryPointFrom = orderEnumerator.Current.DeliveryPoint;
-                        }
-                        else if (i == lastId)
-                        {
-                            waybillItemsEnumerator.Current.Mileage = DistanceCalculator.DistanceToBaseMeter(orderEnumerator.Current.DeliveryPoint,
-                                employeeToCarPair.Key.Subdivision.GeographicGroup) * 2 / 1000;
-
-                            if (orderEnumerator.Current.DeliveryPoint.CoordinatesExist)
-                            {
-                                wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint));
-                            }
-                            wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(employeeToCarPair.Key.Subdivision.GeographicGroup));
-                        }
-                        else
-                        {
-                            waybillItemsEnumerator.Current.Mileage = DistanceCalculator.DistanceMeter(deliveryPointFrom,
-                                orderEnumerator.Current.DeliveryPoint) * 2 / 1000;
-
-                            if (orderEnumerator.Current.DeliveryPoint.CoordinatesExist)
-                            {
-                                wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint));
-                            }
-                            deliveryPointFrom = orderEnumerator.Current.DeliveryPoint;
-                        }
-                    }
-
-                    if (wayBillDocument.WayBillDocumentItems.IsEmpty())
+                    for (var i = 0; i < routesCount; i++)
                     {
-                        break;
-                    }
-
-                    wayBillDocument.Date = DateTime.Now;
-                    wayBillDocument.CarModel = employeeToCarPair.Value.Model;
-                    wayBillDocument.CarRegistrationNumber = employeeToCarPair.Value.RegistrationNumber;
-                    wayBillDocument.DriverFIO = employeeToCarPair.Key.FullName;
-                    wayBillDocument.DriverLastName = employeeToCarPair.Key.LastName;
-
-                    wayBillDocument.MechanicFIO = MechanicFIO;
-                    wayBillDocument.MechanicLastName = MechanicLastName;
-
-                    wayBillDocument.DriverLicense = employeeToCarPair.Key.DrivingLicense;
-
-                    wayBillDocument.CarPassportSerialNumber = employeeToCarPair.Value.DocPTSSeries;
-                    wayBillDocument.CarPassportNumber = employeeToCarPair.Value.DocPTSNumber;
-
-                    wayBillDocument.GarageLeavingDateTime = startDate.Add(wayBillDocument.WayBillDocumentItems.First().HoursFrom);
-                    wayBillDocument.GarageReturningDateTime = endDate.Add(wayBillDocument.WayBillDocumentItems.Last().HoursTo);
-                    wayBillDocument.CarFuelType = employeeToCarPair.Value.FuelType;
-                    wayBillDocument.CarFuelConsumption = (decimal)employeeToCarPair.Value.FuelConsumption;
-
-                    wayBillDocument.OrganizationName = "vodovoz-spb.ru";
-                    wayBillDocument.RecalculatePlanedDistance(DistanceCalculator);
-
-                    wayBillDocument.Organization = orders.First().Contract.Organization;
-                    wayBillDocument.PrepareTemplate(uow);
-
-                    // Update root Object
-                    (wayBillDocument.DocumentTemplate.DocParser as WayBillDocumentParser).RootObject = wayBillDocument;
-
-                    WayBillSelectableDocuments.Add(new SelectablePrintDocument(wayBillDocument));
-
-                    for (var i = 0; i < wayBillDocument.WayBillDocumentItems.Count; i++)
-                    {
-                        currentDayOrders.RemoveAt(0);
+                        orders.RemoveAt(0);
                     }
                 }
             }
+        }
+
+        private void GenerateWayBill(IList<Order> orders, int waypointsCount, Employee employee, Car car)
+        {
+            var wayBillDocument = new WayBillDocument();
+
+            if (orders.IsEmpty())
+            {
+                return;
+            }
+
+            var orderEnumerator = orders.GetEnumerator();
+
+            for (var i = 0; orderEnumerator.MoveNext() == true && i < waypointsCount; i++)
+            {
+                var randomTimeInterval = GenerateRandomRouteTime();
+
+                var wayBillDocumentItem = new WayBillDocumentItem()
+                {
+                    CounterpartyName = orderEnumerator.Current.Client.Name,
+                    DriverLastName = employee.LastName,
+                    HoursFrom = randomTimeInterval[0],
+                    HoursTo = randomTimeInterval[1],
+                    AddressTo = orderEnumerator.Current.DeliveryPoint.ShortAddress
+                };
+
+                wayBillDocument.WayBillDocumentItems.Add(wayBillDocumentItem);
+            }
+
+            wayBillDocument.WayBillDocumentItems.Sort((x, y) => x.HoursFrom.CompareTo(y.HoursFrom));
+
+            wayBillDocument.WayBillDocumentItems.First().AddressFrom = employee.Subdivision.Name;
+
+            wayBillDocument.WayBillDocumentItems.Last().AddressTo = employee.Subdivision.Name;
+
+            var waybillItemsEnumerator = wayBillDocument.WayBillDocumentItems.GetEnumerator();
+
+            string lastAddressTo = ""; // Костыль для подавления ошибки использования переменной без инициализации
+
+            orderEnumerator.Reset();
+            DeliveryPoint deliveryPointFrom = null;
+
+            var lastId = wayBillDocument.WayBillDocumentItems.Count - 2;
+            for (var i = 0; waybillItemsEnumerator.MoveNext() == true && orderEnumerator.MoveNext() == true; i++)
+            {
+                if (i != 0 && i != waypointsCount)
+                {
+                    waybillItemsEnumerator.Current.AddressFrom = lastAddressTo;
+                }
+                lastAddressTo = waybillItemsEnumerator.Current.AddressTo;
+                waybillItemsEnumerator.Current.SequenceNumber = i + 1;
+
+                if (i == 0)
+                {
+                    waybillItemsEnumerator.Current.Mileage =
+                        DistanceCalculator.DistanceFromBaseMeter(employee.Subdivision.GeographicGroup, orderEnumerator.Current.DeliveryPoint) * 2 / 1000;
+
+                    wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(employee.Subdivision.GeographicGroup));
+                    deliveryPointFrom = orderEnumerator.Current.DeliveryPoint;
+                }
+                else if (i == lastId)
+                {
+                    waybillItemsEnumerator.Current.Mileage = DistanceCalculator.DistanceToBaseMeter(orderEnumerator.Current.DeliveryPoint,
+                        employee.Subdivision.GeographicGroup) * 2 / 1000;
+
+                    if (orderEnumerator.Current.DeliveryPoint.CoordinatesExist)
+                    {
+                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint));
+                    }
+                    wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(employee.Subdivision.GeographicGroup));
+                }
+                else
+                {
+                    waybillItemsEnumerator.Current.Mileage = DistanceCalculator.DistanceMeter(deliveryPointFrom,
+                        orderEnumerator.Current.DeliveryPoint) * 2 / 1000;
+
+                    if (orderEnumerator.Current.DeliveryPoint.CoordinatesExist)
+                    {
+                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint));
+                    }
+                    deliveryPointFrom = orderEnumerator.Current.DeliveryPoint;
+                }
+            }
+
+            if (wayBillDocument.WayBillDocumentItems.IsEmpty())
+            {
+                return;
+            }
+
+            wayBillDocument.Date = DateTime.Now;
+            wayBillDocument.CarModel = car.Model;
+            wayBillDocument.CarRegistrationNumber = car.RegistrationNumber;
+            wayBillDocument.DriverFIO = employee.FullName;
+            wayBillDocument.DriverLastName = employee.LastName;
+
+            wayBillDocument.MechanicFIO = MechanicFIO;
+            wayBillDocument.MechanicLastName = MechanicLastName;
+
+            wayBillDocument.DriverLicense = employee.DrivingLicense;
+
+            wayBillDocument.CarPassportSerialNumber = car.DocPTSSeries;
+            wayBillDocument.CarPassportNumber = car.DocPTSNumber;
+
+            wayBillDocument.GarageLeavingDateTime = startDate.Add(wayBillDocument.WayBillDocumentItems.First().HoursFrom);
+            wayBillDocument.GarageReturningDateTime = endDate.Add(wayBillDocument.WayBillDocumentItems.Last().HoursTo);
+            wayBillDocument.CarFuelType = car.FuelType;
+            wayBillDocument.CarFuelConsumption = (decimal)car.FuelConsumption;
+
+            wayBillDocument.OrganizationName = "vodovoz-spb.ru";
+            wayBillDocument.RecalculatePlanedDistance(DistanceCalculator);
+
+            wayBillDocument.Organization = orders.First().Contract.Organization;
+            wayBillDocument.PrepareTemplate(uow);
+
+            // Update root Object
+            (wayBillDocument.DocumentTemplate.DocParser as WayBillDocumentParser).RootObject = wayBillDocument;
+
+            WayBillSelectableDocuments.Add(new SelectablePrintDocument(wayBillDocument));
         }
 
         #region FillFromToBaseBasedParameters
