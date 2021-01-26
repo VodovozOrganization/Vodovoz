@@ -166,8 +166,6 @@ namespace Vodovoz.Domain.Documents
 
         #endregion
 
-
-
         #region Printing
 
         public PrinterType PrintType => PrinterType.ODT;

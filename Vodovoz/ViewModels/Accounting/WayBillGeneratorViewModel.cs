@@ -5,6 +5,7 @@ using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Additions.Accounting;
+using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Tools.Logistic;
 
@@ -32,6 +33,16 @@ namespace Vodovoz.ViewModels.Accounting
 			TabName = "Путевые листы для ФО";
 			CreateCommands();
 		}
+
+        private Employee mechanic;
+        public Employee Mechanic {
+            get => mechanic;
+            set {
+                Entity.MechanicFIO = value.FullName;
+                Entity.MechanicLastName = value.LastName;
+                mechanic = value;
+            }
+        }
 
 		#region Properties
 		public DateTime StartDate {
