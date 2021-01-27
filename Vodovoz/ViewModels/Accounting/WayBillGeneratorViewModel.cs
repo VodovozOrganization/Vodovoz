@@ -1,5 +1,5 @@
 using System;
-using Gtk;
+using System.IO;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -78,13 +78,11 @@ namespace Vodovoz.ViewModels.Accounting
         {
             UnloadCommand = new DelegateCommand(
                 () => {
-                    //var fileChooser = new Gtk.FileChooserDialog("Выберите папку для сохранения выгрузки",
-                       
-                    //                                           Gtk.FileChooserAction.SelectFolder,
-                    //   "Отмена", ResponseType.Cancel,
-                    //   "Выбрать", ResponseType.Accept
-                    //   );
-                    Entity.ExportDocuments("");
+                    var fileChooser = new FileChooser("");
+                    var path = fileChooser.GetExportFolderPath();
+                    if (Directory.Exists(path)) {
+                        Entity.ExportODTDocuments(path);
+                    }
                 },
                 () => true
             );

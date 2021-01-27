@@ -338,6 +338,7 @@ namespace Vodovoz.Additions.Accounting
 
         public void ExportODTDocuments(string path)
         {
+
             List<IPrintableDocument> odtToPrinter = new List<IPrintableDocument>();
             foreach (var document in WayBillSelectableDocuments.Where(x => x.Selected).Select(x => x.Document))
             {
@@ -358,8 +359,9 @@ namespace Vodovoz.Additions.Accounting
                             {
                                 filePath = fileWorker.PrepareToExportODT(template, FileEditMode.Document);
                             }
+                            var targetPath = path + "\\" + template.Name + " " + step + ".odt";
 
-                            File.Copy(filePath, path + template.Name + " " + step + ".odt", true);
+                            File.Copy(filePath, targetPath, true);
 
                             step++;
                         }
