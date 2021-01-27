@@ -1,0 +1,939 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
+  <Width>267mm</Width>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
+  <PageHeader>
+    <Height>.5in</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>171.9pt</Height>
+    <Columns >1</Columns>
+    <ReportItems >
+      <Textbox Name="TextboxTitle">
+        <Height>17.25pt</Height>
+        <Width>759.34pt</Width>
+        <Value>Отчет по изменениям заказа при доставке</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>2.60pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="TextboxTitle2">
+        <Height>17.25pt</Height>
+        <Width>759.34pt</Width>
+        <Value>='с ' + {?date_from} + ' по ' + Today()</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>20.80pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="TextboxReportDate">
+        <Height>18.04pt</Height>
+        <Width>274.40pt</Width>
+        <Value>='Сформировано ' + Today()</Value>
+        <ZIndex>1</ZIndex>
+        <Left>530.9pt</Left>
+        <Top>40.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="TextboxFilterTitle">
+        <Height>15.04pt</Height>
+        <Width>298.90pt</Width>
+        <Value>Фильтры:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>13.6pt</Left>
+        <Top>40.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox2">
+        <Height>15.04pt</Height>
+        <Width>409.15pt</Width>
+        <Value>='Организация: ' + First({full_name}, 'Organization') </Value>
+        <ZIndex>1</ZIndex>
+        <Left>13.6pt</Left>
+        <Top>57.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox3">
+        <Height>15.04pt</Height>
+        <Width>409.15pt</Width>
+        <Value>='Типы изменений: ' + {?change_types_rus}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>13.6pt</Left>
+        <Top>72.8pt</Top>
+        <CanGrow>true</CanGrow>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Table Name="TableData">
+        <DataSetName>Data</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>24.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>108.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>81.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>48.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>43.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>47.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>54.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>51.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>52.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>105.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>93.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>64.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>28.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>№
+п/п</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Организация</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Комментарий 
+вод. телефона</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Дата
+оплаты</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Заказ</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Сумма
+заказа</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>Дата
+доставки</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>Время
+доставки</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Время
+изменения</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>Операция</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>Старое
+значение</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>Новое
+значение</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Автор</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>=RowNumber()</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>=Fields!organization_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>=Fields!comment_manager.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>=Fields!paid_date.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>=Fields!order_id.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>=Fields!summary.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>=Fields!delivery_date.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>=Fields!time_delivered.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>=Fields!change_time.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>=Fields!operation.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>=Fields!old_value.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>=Fields!new_value.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>=Fields!author.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>96.8pt</Top>
+      </Table>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + '/' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle  />
+          <BorderColor  />
+          <BorderWidth  />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataSets >
+    <DataSet Name="Data">
+      <Query>
+        <DataSourceName>DS</DataSourceName>
+        <CommandText>SELECT
+	o2.full_name as organization_name,
+	source.comment_manager,
+	sp.paid_date,
+	source.order_id,
+	(
+		SELECT
+			SUM(IFNULL(oi2.actual_count, oi2.count) * oi2.price - oi2.discount_money) as summary
+		FROM order_items oi2 
+		WHERE oi2.order_id = source.order_id
+	) as summary,
+	source.delivery_date,
+	source.time_delivered,
+	source.change_time,
+	CASE source.operation
+	    WHEN 'Create' THEN 'Добавление'
+	    WHEN 'Change' THEN 'Изменение'
+	    WHEN 'Delete' THEN 'Удаление'
+	    ELSE NULL
+	END as operation,
+	IF(source.operation = 'Delete', n2.official_name, source.old_value) as old_value,
+	IF(source.operation = 'Create', n2.official_name, source.new_value) as new_value,
+	IF(hc2.user_login = 'vodovoz_service', 'Служба', GET_PERSON_NAME_WITH_INITIALS(e2.last_name, e2.name, e2.patronymic)) as author
+FROM
+	(SELECT
+		o.id as order_id,
+		cc.organization_id,
+		o.comment_manager,
+		o.delivery_date,
+		o.time_delivered,
+		hce.changeset_id,
+		hce.entity_class,
+		hce.entity_id,
+		hce.datetime as change_time,
+		hce.operation,
+		shipped.`datetime` as shipped_date,
+		hc.`type`,
+		'Форма оплаты' as field_name,
+		hc.old_value,
+		hc.new_value
+	FROM 
+		history_changed_entities hce	
+		INNER JOIN orders o ON o.id = hce.entity_id
+			AND hce.entity_class = 'Order'
+			AND hce.`datetime` &gt;= @date_from
+			AND hce.operation = 'Change'		
+			AND o.delivery_date &gt;= @date_from 
+			AND o.payment_type IN ('cash', 'ByCard', 'Terminal')
+		INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id 
+			AND cc.organization_id = @organization_id	
+		INNER JOIN (
+			SELECT
+				o_inner.id as order_id,
+				hce_inner.`datetime`,
+				hc_inner.field_name,
+				hc_inner.old_value,
+				hc_inner.new_value
+			FROM history_changed_entities hce_inner
+				INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
+					AND hce_inner.entity_class = 'Order'
+					AND hce_inner.`datetime` &gt;= @date_from
+					AND hce_inner.operation = 'Change'		
+					AND o_inner.delivery_date &gt;= @date_from 
+					AND o_inner.payment_type IN ('cash', 'ByCard', 'Terminal')	
+				INNER JOIN counterparty_contract cc_inner ON cc_inner.id = o_inner.counterparty_contract_id 
+					AND cc_inner.organization_id = @organization_id
+				INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id		
+					AND hc_inner.`type` = 'Changed' 
+					AND hc_inner.field_name = 'OrderStatus'
+					AND hc_inner.new_value = 'Shipped'	
+			GROUP BY hce_inner.entity_id
+		) shipped ON shipped.order_id = o.id
+		LEFT JOIN history_changes hc ON hc.chaged_entity_id = hce.id
+	WHERE 
+		hce.`datetime` &gt; DATE_ADD(shipped.`datetime`, INTERVAL 3 SECOND)
+		AND hc.`type` = 'Changed'
+		AND hc.field_name = 'PaymentType'
+		AND 'PaymentType' in @change_types
+	UNION ALL
+	SELECT
+		o.id as order_id,
+		cc.organization_id,
+		o.comment_manager,
+		o.delivery_date,
+		o.time_delivered,
+		hce.changeset_id,
+		hce.entity_class,
+		hce.entity_id,
+		hce.datetime as change_time,
+		hce.operation,
+		shipped.`datetime` as shipped_date,
+		hc.`type`,
+		IF(hce.operation IN ('Create', 'Delete'), 
+			NULL,
+			CASE hc.field_name
+			    WHEN 'ActualCount' THEN 'Факт. кол-во'
+			    WHEN 'Price' THEN 'Цена'
+			    ELSE hc.field_name
+			END
+		) as field_name,
+		IF(hce.operation IN ('Create', 'Delete'),
+			NULL,
+			CASE hc.old_value
+			    WHEN 'cash' THEN 'Наличная'
+			    WHEN 'cashless' THEN 'Безналичная'
+			    WHEN 'barter' THEN 'Бартер'
+			    WHEN 'ByCard' THEN 'По карте'
+			    WHEN 'ContractDoc' THEN 'Контракт. док.'
+			    WHEN 'BeveragesWorld' THEN 'Мир напитков'
+			    WHEN 'Terminal' THEN 'Терминал'
+			    ELSE hc.old_value
+			END 
+		) as old_value,
+		IF(hce.operation IN ('Create', 'Delete'),
+			NULL,
+			CASE hc.new_value
+			    WHEN 'cash' THEN 'Наличная'
+			    WHEN 'cashless' THEN 'Безналичная'
+			    WHEN 'barter' THEN 'Бартер'
+			    WHEN 'ByCard' THEN 'По карте'
+			    WHEN 'ContractDoc' THEN 'Контракт. док.'
+			    WHEN 'BeveragesWorld' THEN 'Мир напитков'
+			    WHEN 'Terminal' THEN 'Терминал'
+			    ELSE hc.new_value
+			END
+		) as new_value		
+	FROM
+		history_changed_entities hce	
+		INNER JOIN order_items oi ON oi.id = hce.entity_id
+			AND hce.entity_class = 'OrderItem'
+			AND hce.`datetime` &gt;= @date_from
+			AND hce.operation IN ('Create','Change','Delete')		
+		INNER JOIN orders o ON o.id = oi.order_id
+			AND o.delivery_date &gt;= @date_from 
+			AND o.payment_type IN ('cash', 'ByCard', 'Terminal') 
+		INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id 
+			AND cc.organization_id = @organization_id	
+		INNER JOIN (
+			SELECT
+				o_inner.id as order_id,
+				hce_inner.`datetime`,
+				hc_inner.field_name,
+				hc_inner.old_value,
+				hc_inner.new_value
+			FROM history_changed_entities hce_inner
+				INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
+					AND hce_inner.entity_class = 'Order'
+					AND hce_inner.`datetime` &gt;= @date_from
+					AND hce_inner.operation = 'Change'		
+					AND o_inner.delivery_date &gt;= @date_from 
+					AND o_inner.payment_type IN ('cash', 'ByCard', 'Terminal')	
+				INNER JOIN counterparty_contract cc_inner ON cc_inner.id = o_inner.counterparty_contract_id 
+					AND cc_inner.organization_id = @organization_id
+				INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id		
+					AND hc_inner.`type` = 'Changed' 
+					AND hc_inner.field_name = 'OrderStatus'
+					AND hc_inner.new_value = 'Shipped'	
+			GROUP BY hce_inner.entity_id
+		) shipped ON shipped.order_id = o.id
+		LEFT JOIN history_changes hc ON hc.chaged_entity_id = hce.id
+	WHERE
+		hce.`datetime` &gt; DATE_ADD(shipped.`datetime`, INTERVAL 3 SECOND)
+		AND ( 
+			(hc.`type` = 'Changed' AND hc.field_name IN ('Price', 'ActualCount') AND 'Price' IN @change_types AND 'ActualCount' IN @change_types)
+			OR 
+			(hce.operation IN ('Create','Delete') AND hc.field_name = 'Price' AND 'OrderItemsCount' IN @change_types)
+		)
+	) as source
+	LEFT JOIN sms_payment sp ON sp.order_id = source.order_id AND sp.payment_status = 'Paid'
+	LEFT JOIN organizations o2 ON o2.id = source.organization_id
+	LEFT JOIN history_changeset hc2 ON hc2.id = source.changeset_id
+	LEFT JOIN employees e2 ON e2.user_id = hc2.user_id
+	LEFT JOIN order_items oi3 ON oi3.id = source.entity_id AND source.entity_class = 'OrderItem'
+	LEFT JOIN nomenclature n2 ON n2.id = oi3.nomenclature_id
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="date_from">
+            <Value>={?date_from}</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>={?organization_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="change_types">
+            <Value>={?change_types}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="organization_name">
+          <DataField>organization_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment_manager">
+          <DataField>comment_manager</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="paid_date">
+          <DataField>paid_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="summary">
+          <DataField>summary</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="time_delivered">
+          <DataField>time_delivered</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="change_time">
+          <DataField>change_time</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="operation">
+          <DataField>operation</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="old_value">
+          <DataField>old_value</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="new_value">
+          <DataField>new_value</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="author">
+          <DataField>author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Organization">
+      <Query>
+        <DataSourceName>DS</DataSourceName>
+        <CommandText>SELECT full_name FROM organizations o WHERE id = @organization_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="organization_id">
+            <Value>={?organization_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="full_name">
+          <DataField>full_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <DataElementName >Report</DataElementName>
+  <DataElementStyle >AttributeNormal</DataElementStyle>
+  <DataSources >
+    <DataSource Name="DS">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString />
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
+    <ReportParameter Name="date_from">
+      <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="organization_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="change_types">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="change_types_rus">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

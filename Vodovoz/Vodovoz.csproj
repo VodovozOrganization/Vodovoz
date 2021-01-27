@@ -22,7 +22,8 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
-    <Commandlineparameters></Commandlineparameters>
+    <Commandlineparameters>
+    </Commandlineparameters>
     <RunWithWarnings>true</RunWithWarnings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
@@ -134,7 +135,6 @@
     <EmbeddedResource Include="toolbars\general.xml">
       <LogicalName>general.xml</LogicalName>
     </EmbeddedResource>
-    
     <EmbeddedResource Include="toolbars\accounting.xml">
       <LogicalName>accounting.xml</LogicalName>
     </EmbeddedResource>
@@ -1942,6 +1942,9 @@
     </None>
     <None Include="Reports\Cash\CashFlowDetailIncomeReturn.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\OrderChangesReport.rdl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Production\ProducedProduction.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
