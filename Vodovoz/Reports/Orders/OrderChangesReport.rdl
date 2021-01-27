@@ -17,9 +17,9 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>171.9pt</Height>
-    <Columns >1</Columns>
-    <ReportItems >
+    <Height>173.4pt</Height>
+    <Columns>1</Columns>
+    <ReportItems>
       <Textbox Name="TextboxTitle">
         <Height>17.25pt</Height>
         <Width>759.34pt</Width>
@@ -429,6 +429,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -443,6 +444,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -457,6 +459,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -471,6 +474,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
+                        <Format >dd.MM.yyyy HH:mm</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -485,6 +490,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -499,6 +505,10 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <Format >0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -513,6 +523,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
+                        <Format >dd.MM.yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -527,6 +539,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
+                        <Format >HH:mm</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -541,6 +555,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
+                        <Format >dd.MM.yyyy HH:mm</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -555,6 +571,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -569,6 +586,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -583,6 +601,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -597,6 +616,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -622,18 +642,18 @@
         <Style>
           <FontSize>10pt</FontSize>
           <FontWeight>Normal</FontWeight>
-          <BorderStyle  />
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <DataSets >
+  <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS</DataSourceName>
         <CommandText>SELECT
 	o2.full_name as organization_name,
@@ -673,8 +693,32 @@ FROM
 		shipped.`datetime` as shipped_date,
 		hc.`type`,
 		'Форма оплаты' as field_name,
-		hc.old_value,
-		hc.new_value
+		IF(hce.operation IN ('Create', 'Delete'),
+			NULL,
+			CASE hc.old_value
+			    WHEN 'cash' THEN 'Наличная'
+			    WHEN 'cashless' THEN 'Безналичная'
+			    WHEN 'barter' THEN 'Бартер'
+			    WHEN 'ByCard' THEN 'По карте'
+			    WHEN 'ContractDoc' THEN 'Контракт. док.'
+			    WHEN 'BeveragesWorld' THEN 'Мир напитков'
+			    WHEN 'Terminal' THEN 'Терминал'
+			    ELSE hc.old_value
+			END 
+		) as old_value,
+		IF(hce.operation IN ('Create', 'Delete'),
+			NULL,
+			CASE hc.new_value
+			    WHEN 'cash' THEN 'Наличная'
+			    WHEN 'cashless' THEN 'Безналичная'
+			    WHEN 'barter' THEN 'Бартер'
+			    WHEN 'ByCard' THEN 'По карте'
+			    WHEN 'ContractDoc' THEN 'Контракт. док.'
+			    WHEN 'BeveragesWorld' THEN 'Мир напитков'
+			    WHEN 'Terminal' THEN 'Терминал'
+			    ELSE hc.new_value
+			END
+		) as new_value
 	FROM 
 		history_changed_entities hce	
 		INNER JOIN orders o ON o.id = hce.entity_id
@@ -712,7 +756,7 @@ FROM
 		hce.`datetime` &gt; DATE_ADD(shipped.`datetime`, INTERVAL 3 SECOND)
 		AND hc.`type` = 'Changed'
 		AND hc.field_name = 'PaymentType'
-		AND FIND_IN_SET('PaymentType', @change_types) > 0
+		AND FIND_IN_SET('PaymentType', @change_types) &gt; 0
 	UNION ALL
 	SELECT
 		o.id as order_id,
@@ -798,9 +842,9 @@ FROM
 	WHERE
 		hce.`datetime` &gt; DATE_ADD(shipped.`datetime`, INTERVAL 3 SECOND)
 		AND ( 
-			(hc.`type` = 'Changed' AND hc.field_name IN ('Price', 'ActualCount') AND FIND_IN_SET('Price', @change_types) > 0 AND FIND_IN_SET('ActualCount', @change_types) > 0)
+			(hc.`type` = 'Changed' AND hc.field_name IN ('Price', 'ActualCount') AND FIND_IN_SET('Price', @change_types) &gt; 0 AND FIND_IN_SET('ActualCount', @change_types) &gt; 0)
 			OR 
-			(hce.operation IN ('Create','Delete') AND hc.field_name = 'Price' AND FIND_IN_SET('OrderItemsCount', @change_types) > 0)
+			(hce.operation IN ('Create','Delete') AND hc.field_name = 'Price' AND FIND_IN_SET('OrderItemsCount', @change_types) &gt; 0)
 		)
 	) as source
 	LEFT JOIN sms_payment sp ON sp.order_id = source.order_id AND sp.payment_status = 'Paid'
@@ -822,7 +866,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="organization_name">
           <DataField>organization_name</DataField>
           <TypeName>System.String</TypeName>
@@ -891,9 +935,9 @@ FROM
       </Fields>
     </DataSet>
   </DataSets>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
-  <DataSources >
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
     <DataSource Name="DS">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
@@ -902,7 +946,7 @@ FROM
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="date_from">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
