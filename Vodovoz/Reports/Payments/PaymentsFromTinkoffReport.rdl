@@ -19,7 +19,7 @@
       <Textbox Name="Textbox2">
         <Height>19.57pt</Height>
         <Width>814.05pt</Width>
-        <Value>='Отчет по оплатам Online c '+Format(CDATE({?date}), "dd.MM.yyyy")</Value>
+        <Value>='Отчет по оплатам Online c '+Format(CDATE({?startDate}), "dd.MM.yyyy") + ' по ' + Format(CDATE({?endDate}), "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.8pt</Left>
         <Top>0.6pt</Top>
@@ -44,7 +44,7 @@
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Orders</DataSetName>
-        <NoRows>='Ни оплат ни заказов с ' + Format(CDATE({?date}), "dd.MM.yyyy") + ' не было!'</NoRows>
+        <NoRows>='Ни оплат ни заказов с ' + Format(CDATE({?startDate}), "dd.MM.yyyy") + ' по ' + Format(CDATE({?endDate}), "dd.MM.yyyy") + ' не было!'</NoRows>
         <Style>
           <BorderStyle>
             <Default>None</Default>
@@ -1094,7 +1094,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     o.delivery_date AS order_date,
@@ -1168,7 +1168,7 @@
             ELSE 99
             END
         ) AS underpayment_number,
-    o.delivery_date &gt; CURDATE() AS is_future_order,
+    o.delivery_date &gt; @endDate AS is_future_order,
     IF(p.shop IS NULL, o.online_order, CONCAT(p.number, '\n', p.shop)) AS number_and_shop
     #для отладки на тестовых БД. Для того, чтоб увидеть заказы на будущие даты
     #o.delivery_date &gt; '2018-10-03' AS is_future_order
@@ -1194,21 +1194,25 @@ FROM
     ) o_sum ON o_sum.id = o.id
 WHERE
         payment_type = 'ByCard' AND	online_order IS NOT NULL
-  AND o.delivery_date &gt;= @date
+  AND o.delivery_date &gt;= @startDate
+  AND o.delivery_date &lt;= @endDate
   AND (@shop = 'ALL' OR p.shop = @shop OR p.shop IS NULL)
 ORDER BY
     /*underpayment ASC, */order_satus_numbered DESC
 ;</CommandText>
         <QueryParameters>
-          <QueryParameter Name="date">
-            <Value>=Parameters!date</Value>
+          <QueryParameter Name="startDate">
+            <Value>=Parameters!startDate</Value>
           </QueryParameter>
           <QueryParameter Name="shop">
             <Value>=Parameters!shop</Value>
           </QueryParameter>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!endDate</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1276,7 +1280,7 @@ ORDER BY
       </Fields>
     </DataSet>
     <DataSet Name="PaymentsWithoutOrders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT *
@@ -1284,21 +1288,25 @@ FROM payments_by_card_online
 WHERE number NOT IN(
     SELECT online_order
     FROM orders
-    WHERE online_order IS NOT NULL AND delivery_date &gt;= @date
-) AND date_and_time &gt;= @date
+    WHERE online_order IS NOT NULL AND delivery_date &gt;= @startDate
+) AND date_and_time &gt;= @startDate
+  AND date_and_time &lt;= @endDate
   AND (@shop = 'ALL' OR shop = @shop OR shop IS NULL)
 ORDER BY date_and_time DESC
 ;</CommandText>
         <QueryParameters>
-          <QueryParameter Name="date">
-            <Value>=Parameters!date</Value>
+          <QueryParameter Name="startDate">
+            <Value>=Parameters!startDate</Value>
           </QueryParameter>
           <QueryParameter Name="shop">
             <Value>=Parameters!shop</Value>
           </QueryParameter>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!endDate</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1345,8 +1353,8 @@ ORDER BY date_and_time DESC
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
-    <ReportParameter Name="date">
+  <ReportParameters >
+    <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
@@ -1359,12 +1367,20 @@ ORDER BY date_and_time DESC
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="shop">
+    <ReportParameter Name="endDate">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="shop">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
