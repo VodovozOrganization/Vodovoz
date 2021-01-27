@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -18,7 +19,8 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		private bool sent;
-		[Display(Name = "Чек отправлен?")]
+        [RestrictedHistoryProperty]
+        [Display(Name = "Чек отправлен?")]
 		public virtual bool Sent{
 			get => sent;
 			set => SetField(ref sent, value);

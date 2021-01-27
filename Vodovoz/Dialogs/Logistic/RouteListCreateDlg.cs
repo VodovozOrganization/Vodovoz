@@ -402,7 +402,9 @@ namespace Vodovoz
 					}
 					Save();
 					UpdateButtonStatus();
-					return;
+                    createroutelistitemsview1.SubscribeOnChanges();
+
+                    return;
 				}
 				if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
 					if(new RouteListRepository().GetCarLoadDocuments(UoW, Entity.Id).Any()) {

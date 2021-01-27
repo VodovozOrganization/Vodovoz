@@ -46,12 +46,19 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.Amount, false)
 					.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 100, 0))
 					.AddSetter((cell, node) => cell.Editable = node.EquipmentId == 0)
+					.AddSetter((cell, node) => CalculateAmount(node))
 				.AddColumn("Ожидаемое кол-во")
 					.AddNumericRenderer(node => node.ExpectedAmount, false)
 				.AddColumn("")
 				.Finish();
 
 			ytreeReturns.ItemsDataSource = ReceptionReturnsList;
+		}
+
+		private void CalculateAmount(ReceptionItemNode node)
+		{
+			if (node.Name == "Терминал для оплаты" && node.Amount > node.ExpectedAmount) 
+				node.Amount = node.ExpectedAmount;
 		}
 
 		private IUnitOfWork uow;
@@ -157,6 +164,7 @@ namespace Vodovoz
 					.SelectList(list => list
 						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 						.Select(Projections.SqlFunction(
 							new SQLFunctionTemplate(NHibernateUtil.Int32,

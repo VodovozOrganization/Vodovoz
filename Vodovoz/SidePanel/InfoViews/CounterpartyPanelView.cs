@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -7,14 +6,12 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Tdi;
-using QS.Tdi.Gtk;
 using QS.Utilities;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.ViewModelBased;
 using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -57,22 +54,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			buttonSaveComment.Sensitive = true;
 			labelName.Text = Counterparty.FullName;
 			textviewComment.Buffer.Text = Counterparty.Comment;
-
-			var debt = MoneyRepository.GetCounterpartyDebt(InfoProvider.UoW, Counterparty);
-			string labelDebtFormat 		 = "<span {0}>{1}</span>";
-			string backgroundDebtColor 	 = "";
-			if (debt > 0)
-			{
-				backgroundDebtColor 	 = "background=\"red\"";
-				ylabelDebtInfo.LabelProp = "Долг:";
-			}
-			if (debt < 0)
-			{
-				backgroundDebtColor 	 = "background=\"lightgreen\"";
-				ylabelDebtInfo.LabelProp = "Баланс:";
-				debt 	= -debt;
-			}
-			labelDebt.Markup = string.Format(labelDebtFormat, backgroundDebtColor, CurrencyWorks.GetShortCurrencyString(debt));
 
 			var latestOrder = OrderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, Counterparty);
 			if (latestOrder != null)

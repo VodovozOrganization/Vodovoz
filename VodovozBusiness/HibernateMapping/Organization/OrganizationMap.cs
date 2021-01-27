@@ -21,10 +21,10 @@ namespace Vodovoz.HibernateMapping
             Map(x => x.Address).Column("address");
             Map(x => x.JurAddress).Column("jur_address");
             Map(x => x.WithoutVAT).Column("without_vat").ReadOnly();
+            Map(x => x.CashBoxId).Column("cash_box_id");
 
             References(x => x.Leader).Column("leader_id");
             References(x => x.Buhgalter).Column("buhgalter_id");
-            References(x => x.CashBox).Column("cash_box_id");
 
             HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("org_id");
             HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("org_id");
