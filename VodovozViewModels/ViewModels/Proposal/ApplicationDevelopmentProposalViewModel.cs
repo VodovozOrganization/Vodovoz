@@ -1,6 +1,8 @@
 using System;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -16,6 +18,42 @@ namespace Vodovoz.ViewModels.ViewModels.Proposal
         private readonly IEmployeeService employeeService;
         public bool IsProposalResponseVisible { get; }
         public bool UserCanManageProposal { get; }
+        public bool EditBtnPressed { get; set; }
+        public bool ProposalResponseSensetive => EditBtnPressed && UserCanManageProposal;
+
+        public ApplicationDevelopmentProposalStatus NextState
+        {
+            get
+            {
+                switch (Entity.Status)
+                {
+                    case ApplicationDevelopmentProposalStatus.Sent:
+                        return ApplicationDevelopmentProposalStatus.Processing;
+                    case ApplicationDevelopmentProposalStatus.Processing:
+                        return ApplicationDevelopmentProposalStatus.CreatingTasks;
+                    case ApplicationDevelopmentProposalStatus.CreatingTasks:
+                        return ApplicationDevelopmentProposalStatus.TasksExecution;
+                    case ApplicationDevelopmentProposalStatus.TasksExecution:
+                        return ApplicationDevelopmentProposalStatus.TasksCompleted;
+                }
+                return ApplicationDevelopmentProposalStatus.New;
+            }
+        }
+
+        public string NextStateName
+        {
+            get
+            {
+                if (Entity.Status != ApplicationDevelopmentProposalStatus.Rejected && Entity.Status != ApplicationDevelopmentProposalStatus.TasksCompleted)
+                {
+                    return "Перевести в статус: " + NextState.GetEnumTitle();
+                }
+                else
+                {
+                    return "Перевести в следующий статус";
+                }
+            }
+        }
 
         public ApplicationDevelopmentProposalViewModel(
             IEmployeeService employeeService,
@@ -56,6 +94,7 @@ namespace Vodovoz.ViewModels.ViewModels.Proposal
         public DelegateCommand EditCommand => editCommand ?? (editCommand = new DelegateCommand(
                 () =>
                 {
+                    EditBtnPressed = true;
                     Entity.ChangeStatus(ApplicationDevelopmentProposalStatus.New);
                 },
                 () => Entity.Status == ApplicationDevelopmentProposalStatus.Sent ||
