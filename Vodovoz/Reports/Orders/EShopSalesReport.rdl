@@ -424,7 +424,7 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox22" >
+      <Textbox Name="Textbox22">
         <Height>12.72pt</Height>
         <Width>48.93pt</Width>
         <Value>Фильтры: </Value>
@@ -432,14 +432,14 @@
         <Left>10.4pt</Left>
         <Top>27pt</Top>
       </Textbox>
-      <Textbox Name="Textbox24" >
+      <Textbox Name="Textbox24">
         <Height>11.98pt</Height>
         <Width>203.99pt</Width>
         <Value>= "Сформирован: " + Format({?creation_timestamp}, 'dd.MM.yyyy HH:MM')</Value>
         <ZIndex>1</ZIndex>
         <Left>349.7pt</Left>
         <Top>27pt</Top>
-        <Style >
+        <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
@@ -460,7 +460,7 @@
     <Height>25.8pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
-    <ReportItems >
+    <ReportItems>
       <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Top>6.50pt</Top>
         <Left>343.50pt</Left>
@@ -470,7 +470,7 @@
         <Style>
           <FontSize>10pt</FontSize>
           <FontWeight>Normal</FontWeight>
-          <TextAlign >Right</TextAlign>
+          <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
@@ -518,7 +518,7 @@ FROM order_items oi
 LEFT JOIN orders o ON o.id = oi.order_id
 LEFT JOIN nomenclature n ON n.id = oi.nomenclature_id
 LEFT JOIN order_items d ON oi.order_id = d.order_id
-INNER JOIN nomenclature dn ON d.nomenclature_id = dn.id AND dn.id = (SELECT CAST(bp.str_value AS UNSIGNED INTEGER) FROM base_parameters bp WHERE bp.name = 'paid_delivery_nomenclature_id')
+LEFT JOIN nomenclature dn ON d.nomenclature_id = dn.id AND dn.id = (SELECT CAST(bp.str_value AS UNSIGNED INTEGER) FROM base_parameters bp WHERE bp.name = 'paid_delivery_nomenclature_id')
 WHERE o.id IS NOT NULL
   AND o.e_shop_order IS NOT NULL
   AND o.delivery_date &gt;= @start_date
@@ -580,7 +580,7 @@ WHERE o.id IS NOT NULL
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="EShopName" >
+    <DataSet Name="EShopName">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT IF(@e_shop_id = -1, "Все", os.name) AS online_store_name
@@ -600,7 +600,7 @@ WHERE (@e_shop_id = -1 OR id = @e_shop_id)</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
