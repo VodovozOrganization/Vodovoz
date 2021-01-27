@@ -22,7 +22,7 @@
     <ReportItems>
       <Textbox Name="TextboxTitle">
         <Height>17.25pt</Height>
-        <Width>759.34pt</Width>
+        <Width>816.34pt</Width>
         <Value>Отчет по изменениям заказа при доставке</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
@@ -38,8 +38,8 @@
       </Textbox>
       <Textbox Name="TextboxTitle2">
         <Height>17.25pt</Height>
-        <Width>759.34pt</Width>
-        <Value>='с ' + {?date_from} + ' по ' + Today()</Value>
+        <Width>816.34pt</Width>
+        <Value>='с ' + Format(Convert.ToDateTime({?date_from}), "yyyy-MM-dd") + ' по ' + Format(Convert.ToDateTime(Today()), "yyyy-MM-dd")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>20.80pt</Top>
@@ -55,7 +55,7 @@
       <Textbox Name="TextboxReportDate">
         <Height>18.04pt</Height>
         <Width>274.40pt</Width>
-        <Value>='Сформировано ' + Today()</Value>
+        <Value>='Сформировано ' + Format(Convert.ToDateTime(First({cur_time}, 'Date')), "yyyy-MM-dd HH:mm:ss")</Value>
         <ZIndex>1</ZIndex>
         <Left>530.9pt</Left>
         <Top>40.9pt</Top>
@@ -111,7 +111,7 @@
       </Textbox>
       <Table Name="TableData">
         <DataSetName>Data</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет данных</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -416,7 +416,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>13.5pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -430,6 +430,8 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <TextAlign >Center</TextAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -445,6 +447,8 @@
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
                         <TextAlign >Center</TextAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -460,6 +464,8 @@
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
                         <TextAlign >Center</TextAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -476,6 +482,8 @@
                         <FontSize>8pt</FontSize>
                         <TextAlign >Center</TextAlign>
                         <Format >dd.MM.yyyy HH:mm</Format>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -491,6 +499,8 @@
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
                         <TextAlign >Center</TextAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -509,6 +519,8 @@
                         <BorderColor  />
                         <BorderWidth  />
                         <Format >0.00</Format>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -525,6 +537,8 @@
                         <FontSize>8pt</FontSize>
                         <TextAlign >Center</TextAlign>
                         <Format >dd.MM.yyyy</Format>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -541,6 +555,8 @@
                         <FontSize>8pt</FontSize>
                         <TextAlign >Center</TextAlign>
                         <Format >HH:mm</Format>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -557,6 +573,8 @@
                         <FontSize>8pt</FontSize>
                         <TextAlign >Center</TextAlign>
                         <Format >dd.MM.yyyy HH:mm</Format>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -572,6 +590,8 @@
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
                         <TextAlign >Center</TextAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -587,6 +607,8 @@
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
                         <TextAlign >Center</TextAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -602,6 +624,8 @@
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
                         <TextAlign >Center</TextAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -617,6 +641,8 @@
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
                         <TextAlign >Center</TextAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -655,6 +681,7 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS</DataSourceName>
+        <Timeout>300</Timeout>
         <CommandText>SELECT
 	o2.full_name as organization_name,
 	source.comment_manager,
@@ -931,6 +958,18 @@ FROM
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Date" >
+      <Query>
+        <DataSourceName>DS</DataSourceName>
+        <CommandText>SELECT CURRENT_TIMESTAMP() as cur_time</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="cur_time">
+          <DataField>cur_time</DataField>
+          <TypeName>System.DateTime</TypeName>
         </Field>
       </Fields>
     </DataSet>
