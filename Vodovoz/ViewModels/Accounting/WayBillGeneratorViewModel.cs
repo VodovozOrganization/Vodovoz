@@ -1,4 +1,5 @@
 using System;
+using Gtk;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -13,26 +14,26 @@ namespace Vodovoz.ViewModels.Accounting
 {
     public class WayBillGeneratorViewModel: DialogTabViewModelBase
     {
-		public readonly WayBillDocumentGenerator Entity;
+        public readonly WayBillDocumentGenerator Entity;
 
-		public WayBillGeneratorViewModel(
-			IUnitOfWorkFactory unitOfWorkFactory,
-			IInteractiveService interactiveService, 
-			INavigationManager navigation,
-			IWayBillDocumentRepository wayBillDocumentRepository,
-			RouteGeometryCalculator calculator)
-			: base(unitOfWorkFactory, interactiveService, navigation)
-		{
-			if (wayBillDocumentRepository == null)
-				throw new ArgumentNullException(nameof(wayBillDocumentRepository));
-			
-			if (calculator == null)
-				throw new ArgumentNullException(nameof(calculator));
+        public WayBillGeneratorViewModel(
+            IUnitOfWorkFactory unitOfWorkFactory,
+            IInteractiveService interactiveService, 
+            INavigationManager navigation,
+            IWayBillDocumentRepository wayBillDocumentRepository,
+            RouteGeometryCalculator calculator)
+            : base(unitOfWorkFactory, interactiveService, navigation)
+        {
+            if (wayBillDocumentRepository == null)
+                throw new ArgumentNullException(nameof(wayBillDocumentRepository));
+            
+            if (calculator == null)
+                throw new ArgumentNullException(nameof(calculator));
 
-			this.Entity = new WayBillDocumentGenerator(UnitOfWorkFactory.CreateWithoutRoot(), wayBillDocumentRepository, calculator);
-			TabName = "Путевые листы для ФО";
-			CreateCommands();
-		}
+            this.Entity = new WayBillDocumentGenerator(UnitOfWorkFactory.CreateWithoutRoot(), wayBillDocumentRepository, calculator);
+            TabName = "Путевые листы для ФО";
+            CreateCommands();
+        }
 
         private Employee mechanic;
         public Employee Mechanic {
@@ -44,53 +45,61 @@ namespace Vodovoz.ViewModels.Accounting
             }
         }
 
-		#region Properties
-		public DateTime StartDate {
-			get => Entity.StartDate;
-			set => Entity.StartDate = value;
-		}
+        #region Properties
+        public DateTime StartDate {
+            get => Entity.StartDate;
+            set => Entity.StartDate = value;
+        }
 
-		public DateTime EndDate {
-			get => Entity.EndDate;
-			set => Entity.EndDate = value;
-		}
-		#endregion
+        public DateTime EndDate {
+            get => Entity.EndDate;
+            set => Entity.EndDate = value;
+        }
+        #endregion
 
 
-		#region Commands
+        #region Commands
 
-		void CreateCommands()
-		{
-			CreateGenerateCommand();
-			CreateUnloadCommand();
-			CreatePrintCommand();
-		}
+        void CreateCommands()
+        {
+            CreateGenerateCommand();
+            CreateUnloadCommand();
+            CreatePrintCommand();
+        }
 
-		private void CreateGenerateCommand()
-		{	
-			GenerateCommand = new DelegateCommand(
-				Entity.GenerateDocuments,
-				() => true
-			);
-		}
-		private void CreateUnloadCommand()
-		{
-			UnloadCommand = new DelegateCommand(
-				() => throw new NotImplementedException(nameof(UnloadCommand)),
-				() => true
-			);
-		}
-		private void CreatePrintCommand()
-		{
-			PrintCommand = new DelegateCommand(
-				Entity.PrintDocuments,
-				() => true
-			);
-		}
+        private void CreateGenerateCommand()
+        {	
+            GenerateCommand = new DelegateCommand(
+                Entity.GenerateDocuments,
+                () => true
+            );
+        }
+        private void CreateUnloadCommand()
+        {
+            UnloadCommand = new DelegateCommand(
+                () => {
+                    //var fileChooser = new Gtk.FileChooserDialog("Выберите папку для сохранения выгрузки",
+                       
+                    //                                           Gtk.FileChooserAction.SelectFolder,
+                    //   "Отмена", ResponseType.Cancel,
+                    //   "Выбрать", ResponseType.Accept
+                    //   );
+                    Entity.ExportDocuments("");
+                },
+                () => true
+            );
+        }
+        private void CreatePrintCommand()
+        {
+            PrintCommand = new DelegateCommand(
+                Entity.PrintDocuments,
+                () => true
+            );
+        }
 
-		public DelegateCommand GenerateCommand { get; private set; }
-		public DelegateCommand UnloadCommand { get; private set; }
-		public DelegateCommand PrintCommand { get; private set; }
-		#endregion
+        public DelegateCommand GenerateCommand { get; private set; }
+        public DelegateCommand UnloadCommand { get; private set; }
+        public DelegateCommand PrintCommand { get; private set; }
+        #endregion
     }
 }
