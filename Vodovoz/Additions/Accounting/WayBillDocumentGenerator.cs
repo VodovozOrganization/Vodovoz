@@ -20,6 +20,10 @@ using VodovozInfrastructure.Utils;
 using VodovozInfrastructure.Utils.NHibernate;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.DocTemplates;
+using QS.Print;
+using QSDocTemplates;
+using QS.DocTemplates;
+using System.IO;
 
 namespace Vodovoz.Additions.Accounting
 {
@@ -97,7 +101,6 @@ namespace Vodovoz.Additions.Accounting
         }
         #endregion
 
-
         #region Printing
 
         public static PrintSettings PrinterSettings { get; set; }
@@ -145,9 +148,10 @@ namespace Vodovoz.Additions.Accounting
                 }
             }
         }
-      
+
         #endregion
 
+        #region Generation
         public void GenerateDocuments()
         {
             WayBillSelectableDocuments.Clear();
@@ -327,6 +331,48 @@ namespace Vodovoz.Additions.Accounting
 
             return new WayBillDocumentItem();
         }
-        
+
+        #endregion
+
+        #region Export
+
+        public void ExportODTDocuments(string path)
+        {
+            List<IPrintableDocument> odtToPrinter = new List<IPrintableDocument>();
+            foreach (var document in WayBillSelectableDocuments.Where(x => x.Selected).Select(x => x.Document))
+            {
+                odtToPrinter.Add(document);
+            }
+
+            var result = LongOperationDlg.StartOperation(
+                delegate (IWorker worker) {
+                    using (FileWorker fileWorker = new FileWorker())
+                    {
+                        int step = 0;
+                        foreach (IPrintableOdtDocument document in odtToPrinter)
+                        {
+                            worker.ReportProgress(step, document.Name);
+                            var filePath = "";
+                            var template = document.GetTemplate();
+                            if (template != null)
+                            {
+                                filePath = fileWorker.PrepareToExportODT(template, FileEditMode.Document);
+                            }
+
+                            File.Copy(filePath, path + template.Name + " " + step + ".odt", true);
+
+                            step++;
+                        }
+                    }
+                },
+                "Выгрузка файлов...",
+                odtToPrinter.Count()
+            );
+            if (result == LongOperationResult.Canceled)
+                return;
+        }
+
+        #endregion
+
     }
 }
