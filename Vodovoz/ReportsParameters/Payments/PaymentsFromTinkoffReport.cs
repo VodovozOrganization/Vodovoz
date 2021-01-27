@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
@@ -11,7 +10,6 @@ namespace Vodovoz.ReportsParameters.Payments
 {
 	public partial class PaymentsFromTinkoffReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		DateTime? startDate;
 		public PaymentsFromTinkoffReport()
 		{
 			this.Build();
@@ -21,20 +19,21 @@ namespace Vodovoz.ReportsParameters.Payments
 
 		void ConfigureDlg()
 		{
-			startDate = pkrStartDate.Date = DateTime.Today.AddDays(-1);
-			rbtnYesterday.Active = true;
+            dateperiodpicker.StartDate = DateTime.Today.AddDays(-1);
+            dateperiodpicker.EndDate = DateTime.Today;
+            rbtnYesterday.Active = true;
 			SetControlsAccessibility();
 			rbtnLast3Days.Clicked += OnRbtnLast3DaysToggled;
 			rbtnYesterday.Clicked += OnRbtnYesterdayToggled;
 			rbtnCustomPeriod.Clicked += OnCustomPeriodChanged;
-			pkrStartDate.DateChangedByUser += OnCustomPeriodChanged;
+            dateperiodpicker.PeriodChangedByUser += OnCustomPeriodChanged;
 			ySCmbShop.SetRenderTextFunc<string>(o => string.IsNullOrWhiteSpace(o) ? "{ нет названия }" : o);
 			ySCmbShop.ItemsList = PaymentsRepository.GetAllShopsFromTinkoff(UoW);
 		}
 
 		void SetControlsAccessibility()
 		{
-			pkrStartDate.IsEditable = pkrStartDate.Sensitive = rbtnCustomPeriod.Active;
+            dateperiodpicker.Sensitive = rbtnCustomPeriod.Active;
 		}
 
 		#region IParametersWidget implementation
@@ -60,8 +59,9 @@ namespace Vodovoz.ReportsParameters.Payments
 			var rInfo = new ReportInfo {
 				Identifier = "Payments.PaymentsFromTinkoffReport",
 				Parameters = new Dictionary<string, object> {
-					{ "date", startDate },
-					{ "shop", ySCmbShop.SelectedItem ?? "ALL" }
+					{ "startDate", dateperiodpicker.StartDate },
+                    { "endDate", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
+                    { "shop", ySCmbShop.SelectedItem ?? "ALL" }
 				}
 			};
 			return rInfo;
@@ -69,22 +69,27 @@ namespace Vodovoz.ReportsParameters.Payments
 
 		protected void OnRbtnLast3DaysToggled(object sender, EventArgs e)
 		{
-			if(rbtnLast3Days.Active)
-				startDate = DateTime.Today.AddDays(-3);
-			SetControlsAccessibility();
+            if (rbtnLast3Days.Active)
+            {
+                dateperiodpicker.StartDate = DateTime.Today.AddDays(-3);
+                dateperiodpicker.EndDate = DateTime.Today;
+            }
+
+            SetControlsAccessibility();
 		}
 
 		protected void OnRbtnYesterdayToggled(object sender, EventArgs e)
 		{
 			if(rbtnYesterday.Active)
-				startDate = DateTime.Today.AddDays(-1);
-			SetControlsAccessibility();
+            {
+                dateperiodpicker.StartDate = DateTime.Today.AddDays(-1);
+                dateperiodpicker.EndDate = DateTime.Today;
+            }
+            SetControlsAccessibility();
 		}
 
 		protected void OnCustomPeriodChanged(object sender, EventArgs e)
 		{
-			if(rbtnCustomPeriod.Active)
-				startDate = pkrStartDate.DateOrNull;
 			SetControlsAccessibility();
 		}
 	}
