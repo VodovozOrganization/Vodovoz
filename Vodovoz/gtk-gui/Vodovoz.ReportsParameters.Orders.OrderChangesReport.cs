@@ -20,7 +20,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
 		private global::Gamma.GtkWidgets.yLabel ylabelOrganization;
 
-		private global::Gamma.Widgets.yEntryReference yentryreferenceOrganization;
+		private global::Gamma.Widgets.ySpecComboBox comboOrganization;
 
 		private global::Gtk.HBox hboxChangeType;
 
@@ -108,12 +108,17 @@ namespace Vodovoz.ReportsParameters.Orders
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hboxOrganization.Gtk.Box+BoxChild
-			this.yentryreferenceOrganization = new global::Gamma.Widgets.yEntryReference();
-			this.yentryreferenceOrganization.Events = ((global::Gdk.EventMask)(256));
-			this.yentryreferenceOrganization.Name = "yentryreferenceOrganization";
-			this.hboxOrganization.Add(this.yentryreferenceOrganization);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxOrganization[this.yentryreferenceOrganization]));
+			this.comboOrganization = new global::Gamma.Widgets.ySpecComboBox();
+			this.comboOrganization.Name = "comboOrganization";
+			this.comboOrganization.AddIfNotExist = false;
+			this.comboOrganization.DefaultFirst = false;
+			this.comboOrganization.ShowSpecialStateAll = false;
+			this.comboOrganization.ShowSpecialStateNot = false;
+			this.hboxOrganization.Add(this.comboOrganization);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxOrganization[this.comboOrganization]));
 			w7.Position = 1;
+			w7.Expand = false;
+			w7.Fill = false;
 			this.vboxReport.Add(this.hboxOrganization);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxReport[this.hboxOrganization]));
 			w8.Position = 2;

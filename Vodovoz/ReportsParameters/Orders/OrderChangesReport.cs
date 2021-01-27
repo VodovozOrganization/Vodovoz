@@ -6,11 +6,13 @@ using Vodovoz.Domain.Organizations;
 using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
 using System.Linq;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
     [System.ComponentModel.ToolboxItem(true)]
-    public partial class OrderChangesReport : Gtk.Bin, IParametersWidget
+    public partial class OrderChangesReport : SingleUoWWidgetBase, IParametersWidget
     {
         private List<SelectedChangeTypeNode> changeTypes = new List<SelectedChangeTypeNode>();
 
@@ -22,11 +24,13 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private void Configure()
         {
+            UoW = UnitOfWorkFactory.CreateWithoutRoot();
             buttonCreateReport.Clicked += OnButtonCreateReportClicked;
             ydatepickerDateFrom.Date = DateTime.Now.AddDays(-7);
             ydatepickerDateFrom.DateChanged += OnDateChanged;
-            yentryreferenceOrganization.SubjectType = typeof(Organization);
-            yentryreferenceOrganization.Changed += (sender, e) => UpdateSensitivity();
+            comboOrganization.ItemsList = UoW.GetAll<Organization>();
+            comboOrganization.SetRenderTextFunc<Organization>(x => x.FullName);
+            comboOrganization.Changed += (sender, e) => UpdateSensitivity();
             ytreeviewChangeTypes.ColumnsConfig = FluentColumnsConfig<SelectedChangeTypeNode>.Create()
                 .AddColumn("✓").AddToggleRenderer(x => x.Selected)
                 .AddColumn("Тип").AddTextRenderer(x => x.Title)
@@ -60,7 +64,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private ReportInfo GetReportInfo()
         {
-            var ordganizationId = ((Organization)yentryreferenceOrganization.Subject).Id;
+            var ordganizationId = ((Organization)comboOrganization.SelectedItem).Id;
             var selectedChangeTypes = string.Join(",", changeTypes.Where(x => x.Selected).Select(x => x.Value));
             var selectedChangeTypesTitles = string.Join(", ", changeTypes.Where(x => x.Selected).Select(x => x.Title)); 
 
@@ -82,7 +86,7 @@ namespace Vodovoz.ReportsParameters.Orders
         {
             if (ydatepickerDateFrom.DateOrNull == null
                 || (ydatepickerDateFrom.DateOrNull != null && ydatepickerDateFrom.Date >= DateTime.Now)
-                || yentryreferenceOrganization.Subject == null
+                || comboOrganization.SelectedItem == null
                 || !changeTypes.Any(x => x.Selected)
                 ) {
                 return;
@@ -95,7 +99,7 @@ namespace Vodovoz.ReportsParameters.Orders
         private void UpdateSensitivity()
         {
             bool hasValidDate = ydatepickerDateFrom.DateOrNull != null && ydatepickerDateFrom.Date < DateTime.Now;
-            bool hasOrganization = yentryreferenceOrganization.Subject != null;
+            bool hasOrganization = comboOrganization.SelectedItem != null;
             bool hasChangeTypes = changeTypes.Any(x => x.Selected);
             buttonCreateReport.Sensitive = hasValidDate && hasOrganization && hasChangeTypes;
         }
