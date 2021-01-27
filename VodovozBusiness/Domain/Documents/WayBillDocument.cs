@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using NHibernate;
 using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -171,7 +172,7 @@ namespace Vodovoz.Domain.Documents
         public PrinterType PrintType => PrinterType.ODT;
         public DocumentOrientation Orientation { get; }
         public int CopiesToPrint { get; set; }
-        public string Name { get; }
+        public string Name => "Путевой лист";
 
         
         DocTemplate wayBillTemplate;
@@ -194,10 +195,20 @@ namespace Vodovoz.Domain.Documents
         {
             if (DocumentTemplate == null)
             {
-                var newTemplate = Repository.Client.DocTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.WayBill, Organization);
+                var tempTemplate = Repository.Client.DocTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.WayBill, Organization);
+
+                var newTemplate = new DocTemplate() // Клонирование шаблона, необходимо, если будете печатать несколько одинаковых ODT
+                {
+                    Id = tempTemplate.Id,
+                    Name = tempTemplate.Name,
+                    Organization = tempTemplate.Organization,
+                    ContractType = tempTemplate.ContractType,
+                    TempalteFile = tempTemplate.TempalteFile,
+                    TemplateType = tempTemplate.TemplateType
+                };
+                
                 DocumentTemplate = newTemplate;
             }
-
         }
 
         #endregion
