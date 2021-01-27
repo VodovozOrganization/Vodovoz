@@ -103,11 +103,9 @@ namespace VodovozBitrixIntegrationService
 			catch (Exception ex)
 			{
 				logger.Fatal(ex, "Ошибка в настройке подключения к БД.");
-				return;
 			}
 		}
-
-
+		
 		#endregion
 
 		#region StartService
@@ -142,17 +140,19 @@ namespace VodovozBitrixIntegrationService
 		
 		static void StartService()
 		{
-			BitrixInstanceProvider bitrixInstanceProvider = new BitrixInstanceProvider(new BaseParametersProvider());
+			var bitrixInstanceProvider = new BitrixInstanceProvider(new BaseParametersProvider());
 
-			ServiceHost EmailSendingHost = new BitrixServiceHost(bitrixInstanceProvider);
-			ServiceHost MailjetEventsHost = new BitrixServiceHost(bitrixInstanceProvider);
-
+			// ServiceHost EmailSendingHost = new BitrixServiceHost(bitrixInstanceProvider);
+			// ServiceHost MailjetEventsHost = new BitrixServiceHost(bitrixInstanceProvider);
+			
+			var bitrixHost = new BitrixServiceHost(bitrixInstanceProvider);
 
 			var webContract = typeof(IBitrixServiceWeb);
 			var webBinding = new WebHttpBinding();
 			var webAddress = $"http://{serviceHostName}:{serviceWebPort}/BitrixServiceWeb";
-			var bitrixHost = new BitrixServiceHost(bitrixInstanceProvider);
-			bitrixHost.AddServiceEndpoint(webContract, webBinding, webAddress);
+			var webEndPoint = bitrixHost.AddServiceEndpoint(webContract, webBinding, webAddress);
+			WebHttpBehavior httpBehavior = new WebHttpBehavior();
+			webEndPoint.Behaviors.Add(httpBehavior);
 
 			var contract = typeof(IBitrixService);
 			var binding = new BasicHttpBinding();

@@ -3,14 +3,14 @@ using System.ServiceModel.Web;
 
 namespace BitrixIntegration.ServiceInterfaces
 {
-	[ServiceContract]
+	[ServiceContract (Name = "Bitrix", Namespace="urn:bitrixintegration:serviceinterfaces")]
 	public interface IBitrixServiceWeb
 	{
-		[OperationContract]
 		[WebGet(ResponseFormat = WebMessageFormat.Json)]
+		[OperationContract]
 		bool ServiceStatus();
 		
-		[WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+		[WebGet(ResponseFormat = WebMessageFormat.Json)]
 		[OperationContract]
 		int Add(int a, int b);
 	}

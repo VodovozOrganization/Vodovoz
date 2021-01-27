@@ -5,7 +5,7 @@ using BitrixIntegration.DTO;
 
 namespace BitrixIntegration.ServiceInterfaces
 {
-	[ServiceContract]
+	[ServiceContract(Name = "Bitrix", Namespace="urn:bitrixintegration:serviceinterfaces")]
 	public interface IBitrixService
 	{
 		[WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest)]
