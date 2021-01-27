@@ -712,7 +712,7 @@ FROM
 		hce.`datetime` &gt; DATE_ADD(shipped.`datetime`, INTERVAL 3 SECOND)
 		AND hc.`type` = 'Changed'
 		AND hc.field_name = 'PaymentType'
-		AND 'PaymentType' in @change_types
+		AND FIND_IN_SET('PaymentType', @change_types) > 0
 	UNION ALL
 	SELECT
 		o.id as order_id,
@@ -798,9 +798,9 @@ FROM
 	WHERE
 		hce.`datetime` &gt; DATE_ADD(shipped.`datetime`, INTERVAL 3 SECOND)
 		AND ( 
-			(hc.`type` = 'Changed' AND hc.field_name IN ('Price', 'ActualCount') AND 'Price' IN @change_types AND 'ActualCount' IN @change_types)
+			(hc.`type` = 'Changed' AND hc.field_name IN ('Price', 'ActualCount') AND FIND_IN_SET('Price', @change_types) > 0 AND FIND_IN_SET('ActualCount', @change_types) > 0)
 			OR 
-			(hce.operation IN ('Create','Delete') AND hc.field_name = 'Price' AND 'OrderItemsCount' IN @change_types)
+			(hce.operation IN ('Create','Delete') AND hc.field_name = 'Price' AND FIND_IN_SET('OrderItemsCount', @change_types) > 0)
 		)
 	) as source
 	LEFT JOIN sms_payment sp ON sp.order_id = source.order_id AND sp.payment_status = 'Paid'
@@ -812,7 +812,7 @@ FROM
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date_from">
-            <Value>={?date_from}</Value>
+            <Value>=Format(Convert.ToDateTime({?date_from}), "yyyy-MM-dd")</Value>
           </QueryParameter>
           <QueryParameter Name="organization_id">
             <Value>={?organization_id}</Value>
@@ -923,7 +923,7 @@ FROM
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
-      <MultiValue>true</MultiValue>
+      <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
     </ReportParameter>

@@ -61,7 +61,7 @@ namespace Vodovoz.ReportsParameters.Orders
         private ReportInfo GetReportInfo()
         {
             var ordganizationId = ((Organization)yentryreferenceOrganization.Subject).Id;
-            var selectedChangeTypes = changeTypes.Where(x => x.Selected).Select(x => x.Value).ToArray();
+            var selectedChangeTypes = string.Join(",", changeTypes.Where(x => x.Selected).Select(x => x.Value));
             var selectedChangeTypesTitles = string.Join(", ", changeTypes.Where(x => x.Selected).Select(x => x.Title)); 
 
             return new ReportInfo
