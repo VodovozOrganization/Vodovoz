@@ -20,10 +20,14 @@ namespace Vodovoz.Views.Proposal
             ybtnSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
             ybtnSend.Clicked += (sender, args) => ViewModel.SendCommand.Execute();
             ybtnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-            ybtnEdit.Clicked += (sender, args) => ViewModel.EditCommand.Execute();
+            ybtnEdit.Clicked += (sender, args) => { 
+                ytextviewProposalResponse.Sensitive = true; // Binding проверяется только при первом заходе на форму
+                ViewModel.EditCommand.Execute();
+            };
             ybtnRejectProposal.Clicked += (sender, args) => ViewModel.RejectCommand.Execute();
             ybtnToTheNextStatus.Clicked += (sender, args) => ViewModel.ChangeStatusCommand.Execute();
-            
+            ybtnToTheNextStatus.Binding.AddBinding(ViewModel, vm => vm.NextStateName, w => w.Label).InitializeFromSource();
+
             ybtnSend.Binding.AddBinding(ViewModel, vm => vm.IsViewElementSensitive, w => w.Sensitive).InitializeFromSource();
             ybtnEdit.Binding.AddBinding(ViewModel, vm => vm.IsEditBtnSensitive, w => w.Sensitive).InitializeFromSource();
             ybtnRejectProposal.Binding.AddBinding(ViewModel, vm => vm.IsBtnRejectSensitive, w => w.Sensitive).InitializeFromSource();
@@ -39,7 +43,7 @@ namespace Vodovoz.Views.Proposal
             ytextviewDescription.Binding.AddBinding(ViewModel.Entity, e => e.Description, w => w.Buffer.Text).InitializeFromSource();
             ytextviewDescription.Binding.AddBinding(ViewModel, vm => vm.IsViewElementSensitive, w => w.Sensitive).InitializeFromSource();
             ytextviewProposalResponse.Binding.AddBinding(ViewModel.Entity, e => e.ProposalResponse, w => w.Buffer.Text).InitializeFromSource();
-            ytextviewProposalResponse.Binding.AddBinding(ViewModel, vm => vm.UserCanManageProposal, w => w.Sensitive).InitializeFromSource();
+            ytextviewProposalResponse.Binding.AddBinding(ViewModel, vm => vm.ProposalResponseSensetive, w => w.Sensitive).InitializeFromSource();
 
             GtkScrolledWindowProposalResponse.Visible = ViewModel.IsProposalResponseVisible;
 
