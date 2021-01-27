@@ -67,9 +67,7 @@ namespace Vodovoz.Additions.Accounting
         public GenericObservableList<SelectablePrintDocument> WayBillSelectableDocuments { get; set; } =
             new GenericObservableList<SelectablePrintDocument>();
         
-        // public GenericObservableList<WayBillDocument> wayBillDocuments = new GenericObservableList<WayBillDocument>();
-        
-//09:00 - 18:00, 11:00 - 21:00, 14:00 - 23:00)
+        //09:00 - 18:00, 11:00 - 21:00, 14:00 - 23:00)
         private TimeSpan[,] timeSpans = {
             {
                 TimeSpan.FromHours(9),
@@ -150,8 +148,6 @@ namespace Vodovoz.Additions.Accounting
       
         #endregion
 
-        #region Generating
-
         public void GenerateDocuments()
         {
             WayBillSelectableDocuments.Clear();
@@ -177,14 +173,7 @@ namespace Vodovoz.Additions.Accounting
             foreach (var employeer in manOfficialWithCarEmployeers)
                 employeeToCars[employeer] = carsStack.Pop();
             
-            // Распределяем заказы
-            
-            // Собираем заказы
-            var orders = repository.GetOrdersForWayBillDocuments(uow, startDate, endDate);
-
-            Stack<Domain.Orders.Order> ordersStack = new Stack<Domain.Orders.Order>(orders); //??
-
-            var randomizer = new Random(); // Вынести в функцию
+            var randomizer = new Random();
 
             foreach (var day in startDate.Range(endDate)) {
                 var currentDayOrders = repository.GetOrdersForWayBillDocuments(uow, day, day.AddHours(23).AddMinutes(59).AddSeconds(59));
@@ -192,11 +181,11 @@ namespace Vodovoz.Additions.Accounting
                 foreach (var employeeToCarPair in employeeToCars)
                 {
                     var routesCount = Math.Min(randomizer.Next(12, 15), currentDayOrders.Count);
-                    GenerateWayBill(currentDayOrders, routesCount, employeeToCarPair.Key, employeeToCarPair.Value );
+                    GenerateWayBill(currentDayOrders.Take(routesCount).ToList(), routesCount, employeeToCarPair.Key, employeeToCarPair.Value );
 
                     for (var i = 0; i < routesCount; i++)
                     {
-                        orders.RemoveAt(0);
+                        currentDayOrders.RemoveAt(0);
                     }
                 }
             }
@@ -320,44 +309,6 @@ namespace Vodovoz.Additions.Accounting
             WayBillSelectableDocuments.Add(new SelectablePrintDocument(wayBillDocument));
         }
 
-        #region FillFromToBaseBasedParameters
-        //
-        // void FillTimeOfWayBillDocumentItemFromBase(
-        //     ref WayBillDocumentItem wayBillDocumentItem,
-        //     Subdivision subdivision,
-        //     DeliveryPoint point )
-        // {
-        //     var timeFromBaseSec = DistanceCalculator.TimeFromBase(subdivision.GeographicGroup, point);
-        //     TimeSpan timeFromBase = TimeSpan.FromSeconds(timeFromBaseSec);
-        //     wayBillDocumentItem.HoursFrom = timeFromBase.Hours;
-        //     wayBillDocumentItem.MinutesFrom = timeFromBase.Minutes;
-        // }
-        //
-        // void FillTimeOfWayBillDocumentItemToBase(
-        //     ref WayBillDocumentItem wayBillDocumentItem,
-        //     DeliveryPoint point,
-        //     Subdivision subdivision
-        // )
-        // {
-        //     var timeFromBaseSec = DistanceCalculator.TimeToBase(point, subdivision.GeographicGroup);
-        //     TimeSpan timeFromBase = TimeSpan.FromSeconds(timeFromBaseSec);
-        //     wayBillDocumentItem.HoursFrom = timeFromBase.Hours;
-        //     wayBillDocumentItem.MinutesFrom = timeFromBase.Minutes;
-        // }
-        //
-        // void FillTimeOfWayBillDocumentItemFromAdress(
-        //     ref WayBillDocumentItem wayBillDocumentItem,
-        //     DeliveryPoint fromPoint,
-        //     DeliveryPoint toPoint)
-        // {
-        //     var timeFromBaseSec = DistanceCalculator.TimeSec(fromPoint, toPoint);
-        //     TimeSpan timeFromBase = TimeSpan.FromSeconds(timeFromBaseSec);
-        //     wayBillDocumentItem.HoursFrom = timeFromBase.Hours;
-        //     wayBillDocumentItem.MinutesFrom = timeFromBase.Minutes;
-        // }
-
-        #endregion
-
         TimeSpan[] GenerateRandomRouteTime()
         {
             var rnd = new Random();
@@ -376,8 +327,6 @@ namespace Vodovoz.Additions.Accounting
 
             return new WayBillDocumentItem();
         }
-
-        #endregion
         
     }
 }
