@@ -185,8 +185,8 @@ namespace Vodovoz.Additions.Accounting
                 foreach (var employeeToCarPair in employeeToCars)
                 {
                     var routesCount = Math.Min(randomizer.Next(12, 15), currentDayOrders.Count);
-                    GenerateWayBill(currentDayOrders.Take(routesCount).ToList(), routesCount, employeeToCarPair.Key, employeeToCarPair.Value );
-
+                    var randomTimeInterval = GenerateRandomRouteTime();
+                    GenerateWayBill(currentDayOrders.Take(routesCount).ToList(), routesCount, randomTimeInterval, employeeToCarPair.Key, employeeToCarPair.Value );
                     for (var i = 0; i < routesCount; i++)
                     {
                         currentDayOrders.RemoveAt(0);
@@ -195,7 +195,7 @@ namespace Vodovoz.Additions.Accounting
             }
         }
 
-        private void GenerateWayBill(IList<Order> orders, int waypointsCount, Employee employee, Car car)
+        private void GenerateWayBill(IList<Order> orders, int waypointsCount, TimeSpan[] timeInterval, Employee employee, Car car)
         {
             var wayBillDocument = new WayBillDocument();
 
@@ -208,21 +208,19 @@ namespace Vodovoz.Additions.Accounting
 
             for (var i = 0; orderEnumerator.MoveNext() == true && i < waypointsCount; i++)
             {
-                var randomTimeInterval = GenerateRandomRouteTime();
-
                 var wayBillDocumentItem = new WayBillDocumentItem()
                 {
                     CounterpartyName = orderEnumerator.Current.Client.Name,
                     DriverLastName = employee.LastName,
-                    HoursFrom = randomTimeInterval[0],
-                    HoursTo = randomTimeInterval[1],
+                    HoursFrom = timeInterval[0],
+                    HoursTo = timeInterval[1],
                     AddressTo = orderEnumerator.Current.DeliveryPoint.ShortAddress
                 };
 
                 wayBillDocument.WayBillDocumentItems.Add(wayBillDocumentItem);
             }
 
-            wayBillDocument.WayBillDocumentItems.Sort((x, y) => x.HoursFrom.CompareTo(y.HoursFrom));
+            //wayBillDocument.WayBillDocumentItems.Sort((x, y) => x.HoursFrom.CompareTo(y.HoursFrom));
 
             wayBillDocument.WayBillDocumentItems.First().AddressFrom = employee.Subdivision.Name;
 
