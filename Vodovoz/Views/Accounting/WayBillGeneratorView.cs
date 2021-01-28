@@ -30,18 +30,7 @@ namespace Vodovoz.Views.Accounting
             dateRangeFilter.Binding.AddBinding(ViewModel, vm=> vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
 
             entryMechanic.SetEntityAutocompleteSelectorFactory(
-                new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-                    () =>
-                    {
-                        var employeeFilter = new EmployeeFilterViewModel
-                        {
-                            Status = EmployeeStatus.IsWorking,
-                        };
-                        return new EmployeesJournalViewModel(
-                            employeeFilter,
-                            UnitOfWorkFactory.GetDefaultFactory,
-                            ServicesConfig.CommonServices);
-                    })
+                ViewModel.EntityAutocompleteSelectorFactory
             );
 
             entryMechanic.Binding.AddBinding(ViewModel, vm => vm.Mechanic, w => w.Subject);

@@ -3,11 +3,13 @@ using System.IO;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Additions.Accounting;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.ViewModels.Accounting
@@ -15,15 +17,20 @@ namespace Vodovoz.ViewModels.Accounting
     public class WayBillGeneratorViewModel: DialogTabViewModelBase
     {
         public readonly WayBillDocumentGenerator Entity;
+        private readonly EntityAutocompleteSelectorFactory<EmployeesJournalViewModel> entityAutocompleteSelectorFactory;
 
         public WayBillGeneratorViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
             IInteractiveService interactiveService, 
             INavigationManager navigation,
             IWayBillDocumentRepository wayBillDocumentRepository,
-            RouteGeometryCalculator calculator)
+            RouteGeometryCalculator calculator,
+            EntityAutocompleteSelectorFactory<EmployeesJournalViewModel> entityAutocompleteSelectorFactory
+            )
             : base(unitOfWorkFactory, interactiveService, navigation)
         {
+            this.entityAutocompleteSelectorFactory = entityAutocompleteSelectorFactory ?? throw new ArgumentNullException(nameof(entityAutocompleteSelectorFactory));
+
             if (wayBillDocumentRepository == null)
                 throw new ArgumentNullException(nameof(wayBillDocumentRepository));
             
@@ -35,6 +42,8 @@ namespace Vodovoz.ViewModels.Accounting
             CreateCommands();
         }
 
+        #region Properties
+
         private Employee mechanic;
         public Employee Mechanic {
             get => mechanic;
@@ -44,8 +53,7 @@ namespace Vodovoz.ViewModels.Accounting
                 mechanic = value;
             }
         }
-
-        #region Properties
+        
         public DateTime StartDate {
             get => Entity.StartDate;
             set => Entity.StartDate = value;
@@ -55,6 +63,9 @@ namespace Vodovoz.ViewModels.Accounting
             get => Entity.EndDate;
             set => Entity.EndDate = value;
         }
+
+        public EntityAutocompleteSelectorFactory<EmployeesJournalViewModel> EntityAutocompleteSelectorFactory => entityAutocompleteSelectorFactory;
+
         #endregion
 
 
