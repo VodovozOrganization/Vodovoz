@@ -135,10 +135,12 @@ namespace Vodovoz
 			ConfigureSubdivision();
 			OnRussianCitizenToggled(null, EventArgs.Empty);
 			dataentryDrivingNumber.MaxLength = 20;
-			dataentryDrivingNumber.Binding.AddBinding(Entity, e => e.DrivingNumber, w => w.Text).InitializeFromSource();
+			dataentryDrivingNumber.Binding.AddBinding(Entity, e => e.DrivingLicense, w => w.Text).InitializeFromSource();
 			UoWGeneric.Root.PropertyChanged += OnPropertyChanged;
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
+			GenderComboBox.ItemsEnum = typeof(Gender);
+			GenderComboBox.Binding.AddBinding(Entity, e => e.Gender, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			subdivisionService = SubdivisionParametersProvider.Instance;
 
