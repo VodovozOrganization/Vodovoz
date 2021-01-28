@@ -55,8 +55,6 @@ namespace Vodovoz.DocTemplates
 
             // 1.2 колонка
 
-            //AddField(x => "", "АдресКонтроляТехническогоСостояния", PatternFieldType.FString); // Неизвестно откуда брать
-
             AddField(x => x.GarageLeavingDateTime.ToString("dd.MM.yyyy"), "ПредрейсовыйКонтроль.Дата", PatternFieldType.FString);
             AddField(x => x.GarageLeavingDateTime.AddHours(-1).ToString("HH:mm"), "ПредрейсовыйКонтроль.Время", PatternFieldType.FString);
 
@@ -95,37 +93,6 @@ namespace Vodovoz.DocTemplates
 
             AddField(x => 8, "ВсегоВНаряде", PatternFieldType.FString);
             AddField(x => x.TotalMileage.ToString(), "Пройдено", PatternFieldType.FString);
-
-            // AddField(x => x.ExpirationDate.ToString("dd.MM.yyyy"), "ДатаОкончания", PatternFieldType.FString);
-            // AddField(x => !x.TicketDate.HasValue ? "\t" : x.TicketDate.Value.ToString("dd.MM.yyyy"), "ДатаНаряда", PatternFieldType.FString);
-            // AddField(x => x.TicketNumber ?? "\t", "НомерНаряда", PatternFieldType.FString);
-            //
-            // AddField(x => x.Organization.Name, PatternFieldType.FString);
-            // AddField(x => x.Organization.FullName, PatternFieldType.FString);
-            // AddField(x => x.Organization.Address, PatternFieldType.FString);
-            // AddField(x => x.Organization.JurAddress, PatternFieldType.FString);
-            // AddField(x => x.Organization.INN, PatternFieldType.FString);
-            // AddField(x => x.Organization.KPP, PatternFieldType.FString);
-            // AddField(x => x.Organization.OKPO, PatternFieldType.FString);
-            // AddField(x => x.Organization.OKVED, PatternFieldType.FString);
-            // AddField(x => x.Organization.OGRN, PatternFieldType.FString);
-            // AddField(x => x.Organization.DefaultAccount.Number, PatternFieldType.FString);
-            // AddField(x => x.Organization.DefaultAccount.InBank.Bik, PatternFieldType.FString);
-            // AddField(x => x.Organization.DefaultAccount.InBank.Name, PatternFieldType.FString);
-            // AddField(x => x.Organization.DefaultAccount.BankCorAccount.CorAccountNumber, PatternFieldType.FString);
-            // AddField(x => x.Organization.Leader.FullName, PatternFieldType.FString);
-            // AddField(x => x.Organization.Leader.ShortName, PatternFieldType.FString);
-            // AddField(x => x.Organization.Buhgalter.FullName, PatternFieldType.FString);
-            // AddField(x => x.Organization.Buhgalter.ShortName, PatternFieldType.FString);
-            //
-            // AddField(x => x.Supplier.Name, PatternFieldType.FString);
-            // AddField(x => x.Employee.FullName, PatternFieldType.FString);
-            // AddField(x => x.Employee.ShortName, PatternFieldType.FString);
-            // AddField(x => x.EmployeeDocument.PassportSeria, PatternFieldType.FString);
-            // AddField(x => x.EmployeeDocument.PassportNumber, PatternFieldType.FString);
-            // AddField(x => x.EmployeeDocument.PassportIssuedOrg, PatternFieldType.FString);
-            // AddField(x => x.EmployeeDocument.PassportIssuedDate.HasValue ? x.EmployeeDocument.PassportIssuedDate.Value.ToString("dd.MM.yyyy") : "", "Водитель.ДатаВыдачиПаспорта", PatternFieldType.FString);
-            // AddField(x => x.Employee.AddressRegistration, PatternFieldType.FString);
 
             SortFields();
         }
