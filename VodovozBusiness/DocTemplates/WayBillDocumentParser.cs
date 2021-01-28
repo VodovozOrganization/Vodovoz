@@ -40,29 +40,19 @@ namespace Vodovoz.DocTemplates
             // 2 секция 1й колонки 
             // 1.1 колонка
 
-            //AddField(x => x.Organization.Name, "Организация.Название", PatternFieldType.FString); Уже есть выше
-
             AddField(x => x.FirstAddress, "АдресПервойПодачи", PatternFieldType.FString);
 
             AddField(x => x.GarageLeavingDateTime.ToString("dd.MM.yyyy HH:mm"), "Выезд.Дата", PatternFieldType.FString);
             AddField(x => x.GarageReturningDateTime.ToString("dd.MM.yyyy HH:mm"), "Возвращение.Дата", PatternFieldType.FString);
 
-            AddField(x => x.MechanicLastName, "Механик.Фамилия", PatternFieldType.FString); //Уже есть выше
-            AddField(x => x.MechanicFIO, "Механик.ФИО", PatternFieldType.FString); //Уже есть выше
-
+            AddField(x => x.MechanicLastName, "Механик.Фамилия", PatternFieldType.FString);
+            AddField(x => x.MechanicFIO, "Механик.ФИО", PatternFieldType.FString);
             AddField(x => x.DriverLastName, "Водитель.Фамилия", PatternFieldType.FString);
-            //AddField(x => x.DriverFIO, "Водитель.ФИО", PatternFieldType.FString); Уже есть выше
 
             // 1.2 колонка
 
             AddField(x => x.GarageLeavingDateTime.ToString("dd.MM.yyyy"), "ПредрейсовыйКонтроль.Дата", PatternFieldType.FString);
             AddField(x => x.GarageLeavingDateTime.AddHours(-1).ToString("HH:mm"), "ПредрейсовыйКонтроль.Время", PatternFieldType.FString);
-
-            //AddField(x => x.MechanicLastName, "Механик.Фамилия", PatternFieldType.FString); Уже есть выше
-            //AddField(x => x.MechanicFIO, "Механик.ФИО", PatternFieldType.FString); Уже есть выше
-
-            //AddField(x => x.DriverLastName, "Водитель.Фамилия", PatternFieldType.FString); Уже есть выше
-            //AddField(x => x.DriverFIO, "Водитель.ФИО", PatternFieldType.FString); Уже есть выше
 
             AddField(x => x.CarFuelType.Name, "Топливо.Марка", PatternFieldType.FString);
 
