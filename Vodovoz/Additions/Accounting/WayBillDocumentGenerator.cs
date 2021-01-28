@@ -24,6 +24,7 @@ using QS.Print;
 using QSDocTemplates;
 using QS.DocTemplates;
 using System.IO;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.Additions.Accounting
 {
@@ -71,7 +72,6 @@ namespace Vodovoz.Additions.Accounting
         public GenericObservableList<SelectablePrintDocument> WayBillSelectableDocuments { get; set; } =
             new GenericObservableList<SelectablePrintDocument>();
         
-        //09:00 - 18:00, 11:00 - 21:00, 14:00 - 23:00)
         private TimeSpan[,] timeSpans = {
             {
                 TimeSpan.FromHours(9),
@@ -144,7 +144,7 @@ namespace Vodovoz.Additions.Accounting
                 PrintSelected();
                 if (!string.IsNullOrEmpty(ODTTemplateNotFoundMessages))
                 {
-                
+                    MessageDialogHelper.RunWarningDialog(ODTTemplateNotFoundMessages);
                 }
             }
         }
@@ -172,10 +172,13 @@ namespace Vodovoz.Additions.Accounting
             Stack<Car> carsStack = new Stack<Car>(cars);
             
             if (cars.Count < manOfficialWithCarEmployeers.Count)
-                return;// TODO gavr тут нужно выводить сообщение или типа того
+            {
+                MessageDialogHelper.RunWarningDialog("Количество водителей больше количества автомобилей");
+                return;
+            }
             
-            foreach (var employeer in manOfficialWithCarEmployeers)
-                employeeToCars[employeer] = carsStack.Pop();
+            foreach (var employee in manOfficialWithCarEmployeers)
+                employeeToCars[employee] = carsStack.Pop();
             
             var randomizer = new Random();
 
@@ -187,10 +190,8 @@ namespace Vodovoz.Additions.Accounting
                     var routesCount = Math.Min(randomizer.Next(12, 15), currentDayOrders.Count);
                     var randomTimeInterval = GenerateRandomRouteTime();
                     GenerateWayBill(currentDayOrders.Take(routesCount).ToList(), routesCount, randomTimeInterval, employeeToCarPair.Key, employeeToCarPair.Value );
-                    for (var i = 0; i < routesCount; i++)
-                    {
-                        currentDayOrders.RemoveAt(0);
-                    }
+                    
+                    currentDayOrders = currentDayOrders.Skip(routesCount).ToList();
                 }
             }
         }
@@ -220,15 +221,13 @@ namespace Vodovoz.Additions.Accounting
                 wayBillDocument.WayBillDocumentItems.Add(wayBillDocumentItem);
             }
 
-            //wayBillDocument.WayBillDocumentItems.Sort((x, y) => x.HoursFrom.CompareTo(y.HoursFrom));
-
             wayBillDocument.WayBillDocumentItems.First().AddressFrom = employee.Subdivision.Name;
 
             wayBillDocument.WayBillDocumentItems.Last().AddressTo = employee.Subdivision.Name;
 
             var waybillItemsEnumerator = wayBillDocument.WayBillDocumentItems.GetEnumerator();
 
-            string lastAddressTo = ""; // Костыль для подавления ошибки использования переменной без инициализации
+            string lastAddressTo = "";
 
             orderEnumerator.Reset();
             DeliveryPoint deliveryPointFrom = null;
@@ -305,7 +304,6 @@ namespace Vodovoz.Additions.Accounting
             wayBillDocument.Organization = orders.First().Contract.Organization;
             wayBillDocument.PrepareTemplate(uow);
 
-            // Update root Object
             (wayBillDocument.DocumentTemplate.DocParser as WayBillDocumentParser).RootObject = wayBillDocument;
 
             WayBillSelectableDocuments.Add(new SelectablePrintDocument(wayBillDocument));
@@ -316,18 +314,6 @@ namespace Vodovoz.Additions.Accounting
             var rnd = new Random();
             var rndInt = rnd.Next(0, 2);
             return new[] { timeSpans[rndInt, 0], timeSpans[rndInt, 1] };
-        }
-        
-        WayBillDocumentItem FillWayBillDocumentFromOrder(Order order)
-        {
-            var wayBillDocumentItem = new WayBillDocumentItem();
-            wayBillDocumentItem.CounterpartyName = order.Client.Name;
-            wayBillDocumentItem.DriverLastName = order.Client.Name;
-            wayBillDocumentItem.CounterpartyName = order.Client.Name;
-            wayBillDocumentItem.CounterpartyName = order.Client.Name;
-            
-
-            return new WayBillDocumentItem();
         }
 
         #endregion
@@ -373,6 +359,5 @@ namespace Vodovoz.Additions.Accounting
         }
 
         #endregion
-
     }
 }
