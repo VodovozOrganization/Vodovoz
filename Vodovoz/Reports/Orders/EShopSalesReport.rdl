@@ -524,7 +524,8 @@ WHERE o.id IS NOT NULL
   AND o.delivery_date &gt;= @start_date
   AND o.delivery_date &lt;= @end_date
   AND n.online_store_external_id IS NOT NULL
-  AND (@e_shop_id = -1 OR n.online_store_id = @e_shop_id)</CommandText>
+  AND (@e_shop_id = -1 OR n.online_store_id = @e_shop_id)
+GROUP BY oi.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
