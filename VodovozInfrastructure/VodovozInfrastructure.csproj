@@ -43,5 +43,9 @@
   <ItemGroup>
     <Folder Include="Utils\" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentNHibernate" Version="3.0.1" />
+    <PackageReference Include="NHibernate" Version="5.3.4" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
