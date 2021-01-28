@@ -272,8 +272,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanCancel => Entity.State == CashRequest.States.Submited ||
                                  Entity.State == CashRequest.States.OnClarification ||
                                  Entity.State == CashRequest.States.New ||
-                                 ((Entity.State == CashRequest.States.GivenForTake) &&
-                                  UserRole == UserRole.Coordinator);
+                                 (Entity.State == CashRequest.States.Agreed && UserRole == UserRole.Coordinator) ||
+                                 (Entity.State == CashRequest.States.GivenForTake && UserRole == UserRole.Coordinator);
         
         
 

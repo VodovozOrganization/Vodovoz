@@ -1747,8 +1747,8 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionOpenProposalsJournalActivated(object sender, EventArgs e)
     {
-        var filter = new ApplicationDevelopmentProposalsJournalFilterViewModel {HidenByDefault = true};
-        
+        var filter = new ApplicationDevelopmentProposalsJournalFilterViewModel { HidenByDefault = true };
+
         tdiMain.AddTab(
             new ApplicationDevelopmentProposalsJournalViewModel(
                 filter,
@@ -1782,6 +1782,14 @@ public partial class MainWindow : Gtk.Window
                  new RouteGeometryCalculator(DistanceProvider.Osrm)
              );
          }
+        );
+    }
+
+    protected void OnActionOrderChangesReportActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
+            () => new QSReport.ReportViewDlg(new OrderChangesReport())
         );
     }
 }
