@@ -23,8 +23,8 @@ namespace Vodovoz.Views.Accounting
 
         private void Configure()
         {
-            ViewModel.StartDate = DateTime.Today;
-            ViewModel.EndDate = DateTime.Today.AddDays(-1);
+            ViewModel.StartDate = DateTime.Today.AddDays(-1);
+            ViewModel.EndDate = DateTime.Today;
 
             dateRangeFilter.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
             dateRangeFilter.Binding.AddBinding(ViewModel, vm=> vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
