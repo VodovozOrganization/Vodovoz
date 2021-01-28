@@ -1770,7 +1770,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionWayBillJournalActivated(object sender, EventArgs e)
     {
-        var employeesAutocompleteSeceltionFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+        var employeesAutocompleteSelectionFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
             () =>
             {
                 var employeeFilter = new EmployeeFilterViewModel
@@ -1784,18 +1784,18 @@ public partial class MainWindow : Gtk.Window
             });
 
         tdiMain.OpenTab(
-                () =>
-                {
-                    return new WayBillGeneratorViewModel
-                    (
-                        UnitOfWorkFactory.GetDefaultFactory,
-                        ServicesConfig.CommonServices.InteractiveService,
-                        NavigationManagerProvider.NavigationManager,
-                        new WayBillDocumentRepository(),
-                        new RouteGeometryCalculator(DistanceProvider.Osrm),
-                        employeesAutocompleteSeceltionFactory
-                    );
-                }
+            () =>
+            {
+                return new WayBillGeneratorViewModel
+                (
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices.InteractiveService,
+                    NavigationManagerProvider.NavigationManager,
+                    new WayBillDocumentRepository(),
+                    new RouteGeometryCalculator(DistanceProvider.Osrm),
+                    employeesAutocompleteSelectionFactory
+                );
+            }
         );
     }
 
