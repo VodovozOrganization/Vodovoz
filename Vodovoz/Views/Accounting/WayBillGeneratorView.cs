@@ -6,9 +6,6 @@ using QS.Project.Services;
 using QS.Views.GtkUI;
 using QSReport;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Accounting;
 namespace Vodovoz.Views.Accounting
 {
