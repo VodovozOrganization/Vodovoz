@@ -42,7 +42,6 @@ namespace Vodovoz.Additions.Accounting
         }
 
         public int Id { get; }
-        public event PropertyChangedEventHandler PropertyChanged;
 
         string mechanicFIO;
         public string MechanicFIO
@@ -344,6 +343,12 @@ namespace Vodovoz.Additions.Accounting
                                 filePath = fileWorker.PrepareToExportODT(template, FileEditMode.Document);
                             }
                             var targetPath = path + "\\" + template.Name + " " + step + ".odt";
+
+                            if (File.Exists(targetPath))
+                            {
+                                File.SetAttributes(targetPath, FileAttributes.Normal);
+                                File.Delete(targetPath);
+                            }
 
                             File.Copy(filePath, targetPath, true);
 
