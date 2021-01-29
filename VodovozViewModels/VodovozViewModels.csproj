@@ -121,6 +121,7 @@
     <Compile Include="Journals\FilterViewModels\Logistic\RouteListJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Proposal\ApplicationDevelopmentProposalsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\MovementWagonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\CashRequestJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DistrictsSetJournalNode.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Journals\JournalNodes\IncomeCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\MovementWagonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RouteListJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\RouteListStatusNode.cs" />
     <Compile Include="Journals\JournalSelectors\ExpanceCategoryAutoCompleteSelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />

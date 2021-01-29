@@ -1414,7 +1414,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetView.cs" />
     <Compile Include="Views\Logistic\AcceptBeforeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AcceptBeforeView.cs" />
-    <Compile Include="ViewModels\Logistic\AddressType.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
     <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebtView.cs" />
     <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentView.cs" />
@@ -1511,7 +1510,6 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.IncomeCategoryJournalFilterView.cs" />
     <Compile Include="Views\Accounting\WayBillGeneratorView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Accounting.WayBillGeneratorView.cs" />
-    <Compile Include="ViewModels\Logistic\RouteListStatusNode.cs" />
     <Compile Include="Views\FinancialDistrictsSetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.FinancialDistrictsSetView.cs" />
     <Compile Include="Filters\GtkViews\FinancialDistrictsSetsJournalFilterView.cs" />
