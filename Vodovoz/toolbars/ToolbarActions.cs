@@ -68,6 +68,8 @@ using VodovozInfrastructure.Interfaces;
 using Action = Gtk.Action;
 using Vodovoz.Old1612ExportTo1c;
 using Vodovoz.JournalFilters.Cash;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 public partial class MainWindow : Window
 {
@@ -780,11 +782,21 @@ public partial class MainWindow : Window
 
 	void ActionRouteListClosingTable_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RouteListClosingView>(),
-			() => new RouteListClosingView()
-		);
-	}
+        //tdiMain.OpenTab(
+        //	TdiTabBase.GenerateHashName<RouteListClosingView>(),
+        //	() => new RouteListClosingView()
+        //);
+
+        var routeListFilter = new RouteListJournalFilterViewModel();
+
+        tdiMain.AddTab(
+            new RouteListJournalViewModel(
+                routeListFilter,
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices
+            )
+        );
+    }
 
 	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)
 	{
