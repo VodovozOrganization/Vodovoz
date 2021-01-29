@@ -1550,6 +1550,10 @@
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.Proposal.ApplicationDevelopmentProposalsJournalFilterView.cs" />
     <Compile Include="ReportsParameters\Orders\EShopSalesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
+    <Compile Include="JournalViewers\RouteListView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListView.cs" />
+    <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
