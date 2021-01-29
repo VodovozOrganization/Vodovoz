@@ -21,12 +21,13 @@ namespace Vodovoz.JournalViewers
                 .AddColumn("Статус").AddTextRenderer(x => x.Title)
                 .AddColumn("").AddToggleRenderer(x => x.Selected)
                 .Finish();
+            ytreeviewRouteListStatuses.ItemsDataSource = ViewModel.StatusNodes;
 
             ytreeviewAddressTypes.ColumnsConfig = FluentColumnsConfig<AddressTypeNode>.Create()
                 .AddColumn("").AddToggleRenderer(x => x.Selected)
                 .AddColumn("Тип адреса").AddTextRenderer(x => x.Title)
                 .Finish();
-            ytreeviewRouteListStatuses.ItemsDataSource = ViewModel.StatusNodes;
+            ytreeviewAddressTypes.ItemsDataSource = ViewModel.AddressTypeNodes;
 
             yentryreferenceShift.SubjectType = typeof(DeliveryShift);
             yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport);
