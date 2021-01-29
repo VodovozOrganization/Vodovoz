@@ -1,10 +1,12 @@
 ﻿using QS.Project.Filter;
+using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
@@ -18,29 +20,29 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
                 statusNodes.Add(new RouteListStatusNode(status));
             }
 
-            //var currentUserSettings = UserSingletonRepository.GetInstance().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
-            //foreach (var addressTypeNode in AddressTypes)
-            //{
-            //    switch (addressTypeNode.AddressType)
-            //    {
-            //        case AddressType.Delivery:
-            //            addressTypeNode.Selected = currentUserSettings.LogisticDeliveryOrders;
-            //            break;
-            //        case AddressType.Service:
-            //            addressTypeNode.Selected = currentUserSettings.LogisticServiceOrders;
-            //            break;
-            //        case AddressType.ChainStore:
-            //            addressTypeNode.Selected = currentUserSettings.LogisticChainStoreOrders;
-            //            break;
-            //    }
-            //}
-
             foreach (var addressType in Enum.GetValues(typeof(AddressType)).Cast<AddressType>())
             {
                 addressTypeNodes.Add(new AddressTypeNode(addressType));
             }
 
             GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List<GeographicGroup>().ToList();
+
+            var currentUserSettings = UserSingletonRepository.GetInstance().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
+            foreach (var addressTypeNode in AddressTypeNodes)
+            {
+                switch (addressTypeNode.AddressType)
+                {
+                    case AddressType.Delivery:
+                        addressTypeNode.Selected = currentUserSettings.LogisticDeliveryOrders;
+                        break;
+                    case AddressType.Service:
+                        addressTypeNode.Selected = currentUserSettings.LogisticServiceOrders;
+                        break;
+                    case AddressType.ChainStore:
+                        addressTypeNode.Selected = currentUserSettings.LogisticChainStoreOrders;
+                        break;
+                }
+            }
         }
 
         private DeliveryShift deliveryShift;

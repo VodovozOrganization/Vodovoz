@@ -33,5 +33,7 @@ namespace Vodovoz.JournalViewers
             yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport);
             ySpecCmbGeographicGroup.ItemsList = ViewModel.GeographicGroups;
         }
+
+
     }
 }
