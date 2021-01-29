@@ -1,5 +1,6 @@
 ﻿using QS.Project.Filter;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
@@ -12,20 +13,34 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
     {
         public RouteListJournalFilterViewModel()
         {
-
-        }
-        
-        private RouteListStatus[] restrictedByStatuses;
-        /// <summary>
-        /// Статусы в фильтре ограниченны указанными в поле, если есть хоть 1
-        /// </summary>
-        public RouteListStatus[] RestrictedByStatuses
-        {
-            get { return restrictedByStatuses; }
-            set
+            foreach(var status in Enum.GetValues(typeof(RouteListStatus)).Cast<RouteListStatus>())
             {
-                UpdateFilterField(ref restrictedByStatuses, value);
+                statusNodes.Add(new RouteListStatusNode(status));
             }
+
+            //var currentUserSettings = UserSingletonRepository.GetInstance().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
+            //foreach (var addressTypeNode in AddressTypes)
+            //{
+            //    switch (addressTypeNode.AddressType)
+            //    {
+            //        case AddressType.Delivery:
+            //            addressTypeNode.Selected = currentUserSettings.LogisticDeliveryOrders;
+            //            break;
+            //        case AddressType.Service:
+            //            addressTypeNode.Selected = currentUserSettings.LogisticServiceOrders;
+            //            break;
+            //        case AddressType.ChainStore:
+            //            addressTypeNode.Selected = currentUserSettings.LogisticChainStoreOrders;
+            //            break;
+            //    }
+            //}
+
+            foreach (var addressType in Enum.GetValues(typeof(AddressType)).Cast<AddressType>())
+            {
+                addressTypeNodes.Add(new AddressTypeNode(addressType));
+            }
+
+            GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List<GeographicGroup>().ToList();
         }
 
         private DeliveryShift deliveryShift;
@@ -67,6 +82,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
             }
         }
 
+        private List<GeographicGroup> geographicGroups;
+        /// <summary>
+        /// Части города для отображения в фильтре
+        /// </summary>
+        public List<GeographicGroup> GeographicGroups { get => geographicGroups; set => geographicGroups = value; }
+
+
         private GeographicGroup geographicGroup;
         /// <summary>
         /// Часть города
@@ -80,43 +102,101 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
             }
         }
 
-        RouteListStatus[] displayableStatuses = Enum.GetValues(typeof(RouteListStatus)).Cast<RouteListStatus>().ToArray();
+        #region RouteListStatus
         /// <summary>
         /// Отображаемые в фильтре статусы
         /// </summary>
         public RouteListStatus[] DisplayableStatuses
         {
-            get { return displayableStatuses; }
+            get { return StatusNodes.Select(rn => rn.RouteListStatus).ToArray(); }
             set
             {
-                UpdateFilterField(ref displayableStatuses, value);
+                foreach(var status in value)
+                {
+                    if (!statusNodes.Any(sn => sn.RouteListStatus == status))
+                    {
+                        statusNodes.Add(new RouteListStatusNode(status));
+                    }
+                }
+
+                statusNodes.RemoveAll(rn => !value.Contains(rn.RouteListStatus));
+
+                OnPropertyChanged(() => DisplayableStatuses);
+                OnPropertyChanged(() => StatusNodes);
             }
         }
 
-        RouteListStatus[] statuses;
         /// <summary>
-        /// Статусы для фильтрации
+        /// Статусы в фильтре предустановлены и не могут изменяться, если в поле есть хотя бы 1 статус
         /// </summary>
-        public RouteListStatus[] Statuses
+        public RouteListStatus[] RestrictedByStatuses
         {
-            get { return statuses; }
+            get
+            {
+                if (CanSelectStatuses)
+                {
+                    return new RouteListStatus[] { };
+                } else
+                {
+                    return SelectedStatuses;
+                }
+            }
             set
             {
-                UpdateFilterField(ref statuses, value);
+                if (value.Any())
+                {
+                    DisplayableStatuses = value;
+                    SelectedStatuses = value;
+                    CanSelectStatuses = false;
+                } else
+                {
+                    CanSelectStatuses = true;
+                }
             }
         }
-        
-        private AddressType[] addressTypes;
+
+        /// <summary>
+        /// Статусы в фильтре предустановлены и не могут изменяться, если в поле есть хотя бы 1 статус
+        /// </summary>
+        public RouteListStatus[] SelectedStatuses
+        {
+            get
+            {
+                return StatusNodes.Where(rn => rn.Selected)
+                    .Select(rn => rn.RouteListStatus).ToArray();
+            }
+            set
+            {
+                foreach (var status in statusNodes.Where(rn => value.Contains(rn.RouteListStatus)))
+                {
+                    status.Selected = true;
+                }
+
+                OnPropertyChanged(() => StatusNodes);
+            }
+        }
+
+        List<RouteListStatusNode> statusNodes = new List<RouteListStatusNode>();
+        /// <summary>
+        /// Строки статусов таблице с чекбоксами
+        /// </summary>
+        public List<RouteListStatusNode> StatusNodes {
+            get { return statusNodes; } 
+            private set
+            {
+                UpdateFilterField(ref statusNodes, value);
+            }
+        }
+        #endregion
+
+        private List<AddressTypeNode> addressTypeNodes = new List<AddressTypeNode>();
         /// <summary>
         /// Типы выездов
         /// </summary>
-        public AddressType[] AddressTypes
+        public List<AddressTypeNode> AddressTypeNodes 
         {
-            get { return addressTypes; }
-            set
-            {
-                UpdateFilterField(ref addressTypes, value);
-            }
+            get => addressTypeNodes; 
+            set => addressTypeNodes = value; 
         }
 
         private RLFilterTransport? transportType;
@@ -132,11 +212,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
             }
         }
 
-        public bool WithDeliveryAddresses => AddressTypes.Contains(AddressType.Delivery);
+        public bool WithDeliveryAddresses => AddressTypeNodes.Any(an => an.AddressType == AddressType.Delivery && an.Selected);
 
-        public bool WithServiceAddresses => AddressTypes.Contains(AddressType.Service);
+        public bool WithServiceAddresses => AddressTypeNodes.Any(an => an.AddressType == AddressType.Service && an.Selected);
 
-        public bool WithChainStoreAddresses => AddressTypes.Contains(AddressType.ChainStore);
+        public bool WithChainStoreAddresses => AddressTypeNodes.Any(an => an.AddressType == AddressType.ChainStore && an.Selected);
+
+        public bool CanSelectStatuses { get; private set; }
 
         /// <summary>
         /// Типы транспорта для доставки
