@@ -1,15 +1,19 @@
 ﻿using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Logistic;
+using static Vodovoz.ViewModels.Journals.FilterViewModels.Logistic.RouteListJournalFilterViewModel;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -29,8 +33,91 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
             Car carAlias = null;
             Employee driverAlias = null;
             Subdivision subdivisionAlias = null;
+            GeographicGroup geographicalGroupAlias = null;
 
             var query = uow.Session.QueryOver<RouteList>(() => routeListAlias);
+
+            var filterViewModel = Filter as RouteListJournalFilterViewModel;
+
+            if (filterViewModel.SelectedStatuses != null)
+            {
+                query.WhereRestrictionOn(o => o.Status).IsIn(filterViewModel.SelectedStatuses);
+            }
+
+            if (filterViewModel.DeliveryShift != null)
+            {
+                query.Where(o => o.Shift == filterViewModel.DeliveryShift);
+            }
+
+            if (filterViewModel.StartDate != null)
+            {
+                query.Where(o => o.Date >= filterViewModel.StartDate);
+            }
+
+            if (filterViewModel.EndDate != null)
+            {
+                query.Where(o => o.Date <= filterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+            }
+
+            if (filterViewModel.GeographicGroup != null)
+            {
+                query.Left.JoinAlias(o => o.GeographicGroups, () => geographicalGroupAlias)
+                     .Where(() => geographicalGroupAlias.Id == filterViewModel.GeographicGroup.Id);
+            }
+
+            #region RouteListAddressTypeFilter
+
+            if (filterViewModel.WithDeliveryAddresses && filterViewModel.WithChainStoreAddresses && !filterViewModel.WithServiceAddresses)
+            {
+                query.Where(() => !driverAlias.VisitingMaster);
+            }
+            else if (filterViewModel.WithDeliveryAddresses && !filterViewModel.WithChainStoreAddresses && filterViewModel.WithServiceAddresses)
+            {
+                query.Where(() => !driverAlias.IsChainStoreDriver);
+            }
+            else if (filterViewModel.WithDeliveryAddresses && !filterViewModel.WithChainStoreAddresses && !filterViewModel.WithServiceAddresses)
+            {
+                query.Where(() => !driverAlias.VisitingMaster);
+                query.Where(() => !driverAlias.IsChainStoreDriver);
+            }
+            else if (!filterViewModel.WithDeliveryAddresses && filterViewModel.WithChainStoreAddresses && filterViewModel.WithServiceAddresses)
+            {
+                query.Where(Restrictions.Or(
+                    Restrictions.Where(() => driverAlias.VisitingMaster),
+                    Restrictions.Where(() => driverAlias.IsChainStoreDriver)
+                ));
+            }
+            else if (!filterViewModel.WithDeliveryAddresses && filterViewModel.WithChainStoreAddresses && !filterViewModel.WithServiceAddresses)
+            {
+                query.Where(() => driverAlias.IsChainStoreDriver);
+            }
+            else if (!filterViewModel.WithDeliveryAddresses && !filterViewModel.WithChainStoreAddresses && filterViewModel.WithServiceAddresses)
+            {
+                query.Where(() => driverAlias.VisitingMaster);
+            }
+            else if (!filterViewModel.WithDeliveryAddresses && !filterViewModel.WithChainStoreAddresses && !filterViewModel.WithServiceAddresses)
+            {
+                query.Where(() => !driverAlias.IsChainStoreDriver && !driverAlias.VisitingMaster);
+            }
+
+            #endregion
+
+            switch (filterViewModel.TransportType)
+            {
+                case RLFilterTransport.Mercenaries:
+                    query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar && !carAlias.IsRaskat); break;
+                case RLFilterTransport.Raskat:
+                    query.Where(() => carAlias.IsRaskat); break;
+                case RLFilterTransport.Largus:
+                    query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyLargus); break;
+                case RLFilterTransport.GAZelle:
+                    query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyGAZelle); break;
+                case RLFilterTransport.Waggon:
+                    query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyTruck); break;
+                case RLFilterTransport.Others:
+                    query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar); break;
+                default: break;
+            }
 
             query.Where(GetSearchCriterion(
                 () => routeListAlias.Id,

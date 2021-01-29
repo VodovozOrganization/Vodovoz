@@ -2,6 +2,7 @@
 using QS.Project.Services;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
@@ -15,10 +16,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
     {
         public RouteListJournalFilterViewModel()
         {
-            foreach(var status in Enum.GetValues(typeof(RouteListStatus)).Cast<RouteListStatus>())
-            {
-                statusNodes.Add(new RouteListStatusNode(status));
-            }
+            statusNodes.AddRange(Enum.GetValues(typeof(RouteListStatus)).Cast<RouteListStatus>().Select(x => new RouteListStatusNode(x)));
 
             foreach (var addressType in Enum.GetValues(typeof(AddressType)).Cast<AddressType>())
             {
@@ -123,8 +121,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 
                 statusNodes.RemoveAll(rn => !value.Contains(rn.RouteListStatus));
 
-                OnPropertyChanged(() => DisplayableStatuses);
-                OnPropertyChanged(() => StatusNodes);
+                //OnPropertyChanged(() => DisplayableStatuses);
+                //OnPropertyChanged(() => StatusNodes);
+                FirePropertyChanged();
             }
         }
 
@@ -173,8 +172,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
                 {
                     status.Selected = true;
                 }
-
-                OnPropertyChanged(() => StatusNodes);
+                FirePropertyChanged();
             }
         }
 
@@ -186,7 +184,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
             get { return statusNodes; } 
             private set
             {
+                UnsubscribeOnCheckChanged();
                 UpdateFilterField(ref statusNodes, value);
+                SubscribeOnCheckChanged();
             }
         }
         #endregion
@@ -220,7 +220,46 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 
         public bool WithChainStoreAddresses => AddressTypeNodes.Any(an => an.AddressType == AddressType.ChainStore && an.Selected);
 
-        public bool CanSelectStatuses { get; private set; }
+        public bool CanSelectStatuses { get; private set; } = true;
+
+        public void SelectAllRouteListStatuses()
+        {
+            statusNodes.ForEach(x => x.Selected = true);
+            Update();
+        }
+
+        public void DeselectAllRouteListStatuses()
+        {
+            statusNodes.ForEach(x => x.Selected = false);
+            Update();
+        }
+
+        private void SubscribeOnCheckChanged()
+        {
+            foreach(var statusNode in StatusNodes)
+            {
+                statusNode.PropertyChanged += OnStatusCheckChanged;
+            }
+        }
+
+        private void UnsubscribeOnCheckChanged()
+        {
+            foreach (var statusNode in StatusNodes)
+            {
+                statusNode.PropertyChanged -= OnStatusCheckChanged;
+            }
+        }
+
+        private void OnStatusCheckChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Update();
+        }
+
+        public new void Dispose()
+        {
+            UnsubscribeOnCheckChanged();
+            base.Dispose();
+        }
 
         /// <summary>
         /// Типы транспорта для доставки
