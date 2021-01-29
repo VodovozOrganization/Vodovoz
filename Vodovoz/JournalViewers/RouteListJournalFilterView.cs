@@ -1,4 +1,5 @@
-﻿using Gamma.ColumnConfig;
+﻿using System.ComponentModel;
+using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -36,6 +37,33 @@ namespace Vodovoz.JournalViewers
             ySpecCmbGeographicGroup.ItemsList = ViewModel.GeographicGroups;
         }
 
+        protected void OnButtonStatusAllActivated(object sender, System.EventArgs e)
+        {
+        }
 
+        protected void OnButtonStatusNoneActivated(object sender, System.EventArgs e)
+        {
+        }
+
+        protected void OnYSpecCmbGeographicGroupItemSelected(object sender, System.EventArgs e)
+        {
+        }
+
+        protected void OnDateperiodOrdersPeriodChangedByUser(object sender, System.EventArgs e)
+        {
+        }
+
+        protected void OnYEnumCmbTransportChangedByUser(object sender, System.EventArgs e)
+        {
+        }
+
+        protected void OnYentryreferenceShiftChangedByUser(object sender, System.EventArgs e)
+        {
+        }
+
+        private void OnStatusCheckChanged(object sender, PropertyChangedEventArgs e)
+        {
+
+        }
     }
 }

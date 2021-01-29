@@ -203,6 +203,12 @@ namespace Vodovoz.JournalViewers
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.ySpecCmbGeographicGroup.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYSpecCmbGeographicGroupItemSelected);
+			this.yEnumCmbTransport.ChangedByUser += new global::System.EventHandler(this.OnYEnumCmbTransportChangedByUser);
+			this.yentryreferenceShift.ChangedByUser += new global::System.EventHandler(this.OnYentryreferenceShiftChangedByUser);
+			this.dateperiodOrders.PeriodChangedByUser += new global::System.EventHandler(this.OnDateperiodOrdersPeriodChangedByUser);
+			this.buttonStatusNone.Activated += new global::System.EventHandler(this.OnButtonStatusNoneActivated);
+			this.buttonStatusAll.Activated += new global::System.EventHandler(this.OnButtonStatusAllActivated);
 		}
 	}
 }
