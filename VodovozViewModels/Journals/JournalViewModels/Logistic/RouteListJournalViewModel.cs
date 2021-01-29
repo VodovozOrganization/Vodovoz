@@ -5,7 +5,9 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Logistic;
@@ -24,19 +26,42 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
         {
             RouteListJournalNode routeListJournalNodeAlias = null;
             RouteList routeListAlias = null;
+            DeliveryShift shiftAlias = null;
+            Car carAlias = null;
+            Employee driverAlias = null;
+            Subdivision subdivisionAlias = null;
 
             var query = uow.Session.QueryOver<RouteList>(() => routeListAlias);
 
             query.Where(GetSearchCriterion(
                 () => routeListAlias.Id,
-                () => routeListAlias.Title
+                () => routeListAlias.Driver,
+                () => routeListAlias.Car.Model,
+                () => routeListAlias.Car.RegistrationNumber
             ));
 
-            var result = query.SelectList(list => list
-                .Select(u => u.Id).WithAlias(() => routeListJournalNodeAlias.Id)
-                //.Select(u => u.).WithAlias(() => routeListJournalNodeAlias.)
-                //.Select(u => u.Login).WithAlias(() => routeListJournalNodeAlias.Login)
-                .Select(u => u.Title).WithAlias(() => routeListJournalNodeAlias.Title))
+            query.Left.JoinAlias(o => o.Driver, () => driverAlias);
+
+            var result = query
+                .Left.JoinAlias(o => o.Shift, () => shiftAlias)
+                .Left.JoinAlias(o => o.Car, () => carAlias)
+                .Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
+                .SelectList(list => list
+                   .SelectGroup(() => routeListAlias.Id).WithAlias(() => routeListJournalNodeAlias.Id)
+                   .Select(() => routeListAlias.Date).WithAlias(() => routeListJournalNodeAlias.Date)
+                   .Select(() => routeListAlias.Status).WithAlias(() => routeListJournalNodeAlias.StatusEnum)
+                   .Select(() => shiftAlias.Name).WithAlias(() => routeListJournalNodeAlias.ShiftName)
+                   .Select(() => carAlias.Model).WithAlias(() => routeListJournalNodeAlias.CarModel)
+                   .Select(() => carAlias.RegistrationNumber).WithAlias(() => routeListJournalNodeAlias.CarNumber)
+                   .Select(() => driverAlias.LastName).WithAlias(() => routeListJournalNodeAlias.DriverSurname)
+                   .Select(() => driverAlias.Name).WithAlias(() => routeListJournalNodeAlias.DriverName)
+                   .Select(() => driverAlias.Patronymic).WithAlias(() => routeListJournalNodeAlias.DriverPatronymic)
+                   .Select(() => routeListAlias.LogisticiansComment).WithAlias(() => routeListJournalNodeAlias.LogisticiansComment)
+                   .Select(() => routeListAlias.ClosingComment).WithAlias(() => routeListJournalNodeAlias.ClosinComments)
+                   .Select(() => subdivisionAlias.Name).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)
+                   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => routeListJournalNodeAlias.NotFullyLoaded)
+                   .Select(() => carAlias.TypeOfUse).WithAlias(() => routeListJournalNodeAlias.CarTypeOfUse)
+                ).OrderBy(rl => rl.Date).Desc
                 .TransformUsing(Transformers.AliasToBean<RouteListJournalNode>());
 
             return result;
