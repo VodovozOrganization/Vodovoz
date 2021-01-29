@@ -23,6 +23,8 @@ namespace Vodovoz.JournalViewers
                 .Finish();
             ytreeviewRouteListStatuses.ItemsDataSource = ViewModel.StatusNodes;
 
+            ytreeviewRouteListStatuses.Binding.AddBinding(ViewModel, vm => vm.CanSelectStatuses, w => w.Sensitive);
+
             ytreeviewAddressTypes.ColumnsConfig = FluentColumnsConfig<AddressTypeNode>.Create()
                 .AddColumn("").AddToggleRenderer(x => x.Selected)
                 .AddColumn("Тип адреса").AddTextRenderer(x => x.Title)
