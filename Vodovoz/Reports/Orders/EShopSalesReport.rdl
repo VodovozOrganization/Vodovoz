@@ -494,11 +494,11 @@
     n.online_store_external_id AS online_store_external_id,
     o.delivery_date AS delivery_date,
     n.official_name AS nomenclature_name,
-    oi.price AS nomenclature_price,
+    IF(oi.price IS NULL, 0, oi.price) AS nomenclature_price,
     oi.count AS amount,
-    (d.price - d.discount_money) AS delivery_price,
+    IF(d.price IS NULL, 0, (d.price - d.discount_money)) AS delivery_price,
     oi.discount_money AS discount,
-    (oi.price - oi.discount_money) * oi.count AS total_sum,
+    (IF(oi.price IS NULL, 0, oi.price)) * COALESCE(oi.actual_count, oi.count, 0) - oi.discount_money AS total_sum,
     CASE
         WHEN o.order_status = 'NewOrder' THEN 'Новый'
         WHEN o.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
@@ -517,8 +517,7 @@
 FROM order_items oi 
 LEFT JOIN orders o ON o.id = oi.order_id
 LEFT JOIN nomenclature n ON n.id = oi.nomenclature_id
-LEFT JOIN order_items d ON oi.order_id = d.order_id
-LEFT JOIN nomenclature dn ON d.nomenclature_id = dn.id AND dn.id = (SELECT CAST(bp.str_value AS UNSIGNED INTEGER) FROM base_parameters bp WHERE bp.name = 'paid_delivery_nomenclature_id')
+LEFT JOIN order_items d ON oi.order_id = d.order_id AND d.nomenclature_id = (SELECT CAST(bp.str_value AS UNSIGNED INTEGER) FROM base_parameters bp WHERE bp.name = 'paid_delivery_nomenclature_id')
 WHERE o.id IS NOT NULL
   AND o.e_shop_order IS NOT NULL
   AND o.delivery_date &gt;= @start_date
