@@ -40,16 +40,21 @@ namespace Vodovoz.JournalViewers
 
             ySpecCmbGeographicGroup.ItemsList = ViewModel.GeographicGroups;
             ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
+
+            //buttonStatusAll.Clicked += (s, a) => { ViewModel.SelectAllRouteListStatuses(); };
+            //buttonStatusNone.Clicked += (s, a) => { ViewModel.DeselectAllRouteListStatuses(); };
         }
 
         protected void OnButtonStatusAllActivated(object sender, System.EventArgs e)
         {
             ViewModel.SelectAllRouteListStatuses();
+            ytreeviewRouteListStatuses.YTreeModel.EmitModelChanged();
         }
 
         protected void OnButtonStatusNoneActivated(object sender, System.EventArgs e)
         {
             ViewModel.DeselectAllRouteListStatuses();
+            ytreeviewRouteListStatuses.YTreeModel.EmitModelChanged();
         }
 
         protected void OnYSpecCmbGeographicGroupItemSelected(object sender, System.EventArgs e)

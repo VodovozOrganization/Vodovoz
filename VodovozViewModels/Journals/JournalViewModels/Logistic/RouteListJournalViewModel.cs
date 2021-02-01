@@ -6,7 +6,6 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
-using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;

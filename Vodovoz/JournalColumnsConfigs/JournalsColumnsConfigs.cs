@@ -913,6 +913,34 @@ namespace Vodovoz.JournalColumnsConfigs
                         .AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
                     .Finish()
             );
+
+            //RouteListWorkingJournalViewModel
+            TreeViewColumnsConfigFactory.Register<RouteListWorkingJournalViewModel>(
+                () => FluentColumnsConfig<RouteListJournalNode>.Create()
+                    .AddColumn("Номер")
+                        .AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Дата")
+                        .AddTextRenderer(node => node.Date.ToString("d"))
+                    .AddColumn("Смена")
+                        .AddTextRenderer(node => node.ShiftName)
+                    .AddColumn("Статус")
+                        .AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
+                    .AddColumn("Водитель и машина")
+                        .AddTextRenderer(node => node.DriverAndCar)
+                    .AddColumn("Сдается в кассу")
+                        .AddTextRenderer(node => node.ClosingSubdivision)
+                    .AddColumn("Комментарий ЛО")
+                        .AddTextRenderer(node => node.LogisticiansComment)
+                        .WrapWidth(300)
+                        .WrapMode(Pango.WrapMode.WordChar)
+                    .AddColumn("Комментарий по закрытию")
+                        .AddTextRenderer(node => node.ClosinComments)
+                        .WrapWidth(300)
+                        .WrapMode(Pango.WrapMode.WordChar)
+                    .RowCells()
+                        .AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
+                    .Finish()
+            );
         }
 	}
 }

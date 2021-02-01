@@ -41,6 +41,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
                         break;
                 }
             }
+
+            SubscribeOnCheckChanged();
         }
 
         private DeliveryShift deliveryShift;
@@ -121,8 +123,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 
                 statusNodes.RemoveAll(rn => !value.Contains(rn.RouteListStatus));
 
-                //OnPropertyChanged(() => DisplayableStatuses);
-                //OnPropertyChanged(() => StatusNodes);
                 FirePropertyChanged();
             }
         }

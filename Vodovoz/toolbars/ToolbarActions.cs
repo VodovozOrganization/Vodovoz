@@ -790,7 +790,7 @@ public partial class MainWindow : Window
         var routeListFilter = new RouteListJournalFilterViewModel();
 
         tdiMain.AddTab(
-            new RouteListJournalViewModel(
+            new RouteListWorkingJournalViewModel(
                 routeListFilter,
                 UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices
