@@ -291,8 +291,30 @@ namespace Vodovoz.Domain.Cash
             {
                 yield return new ValidationResult(
                     "Необходимо заполнить организацию",
+                    new[] { this.GetPropertyName(o => o.Organization)});
+            }
+
+            if (!string.IsNullOrEmpty(Basis) && Basis.Length > 200)
+            {
+                yield return new ValidationResult(
+                    "Длинна основания не должна превышать 200 символов",
                     new[] { this.GetPropertyName(o => o.Basis)});
             }
+            
+            if (!string.IsNullOrEmpty(CancelReason) && CancelReason.Length > 200)
+            {
+                yield return new ValidationResult(
+                    "Длинна причины отмены не должна превышать 200 символов",
+                    new[] { this.GetPropertyName(o => o.CancelReason)});
+            }
+            
+            if (!string.IsNullOrEmpty(Explanation) && Explanation.Length > 200)
+            {
+                yield return new ValidationResult(
+                    "Длинна пояснения не должна превышать 200 символов",
+                    new[] { this.GetPropertyName(o => o.Explanation)});
+            }
+            
         }
         #endregion IValidatableObject implementation
 
