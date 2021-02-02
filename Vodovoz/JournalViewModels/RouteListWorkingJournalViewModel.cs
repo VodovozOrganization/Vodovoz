@@ -54,6 +54,8 @@ namespace Vodovoz.JournalViewModels
             this.callTaskRepository = callTaskRepository;
             this.baseParametersProvider = baseParametersProvider;
             this.subdivisionRepository = subdivisionRepository;
+
+            InitPopupActions();
         }
 
         protected override Func<IUnitOfWork, IQueryOver<RouteList>> ItemsSourceQueryFunction => (uow) =>
@@ -225,6 +227,7 @@ namespace Vodovoz.JournalViewModels
             switch (node.StatusEnum)
             {
                 case RouteListStatus.New:
+                case RouteListStatus.Confirmed:
                     return new RouteListCreateDlg(node.Id);
                 case RouteListStatus.InLoading:
                     if (routeListRepository.IsTerminalRequired(UoW, node.Id))
@@ -247,10 +250,8 @@ namespace Vodovoz.JournalViewModels
             }
         };
 
-        protected override void CreatePopupActions()
+        protected void InitPopupActions()
         {
-            base.CreatePopupActions();
-
             var callTaskWorker = new CallTaskWorker(
                     CallTaskSingletonFactory.GetInstance(),
                     callTaskRepository,
@@ -373,6 +374,7 @@ namespace Vodovoz.JournalViewModels
         protected override void CreateNodeActions()
         {
             NodeActionsList.Clear();
+            CreateDefaultEditAction();
         }
     }
 }

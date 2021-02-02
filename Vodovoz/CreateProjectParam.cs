@@ -226,7 +226,6 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<MovementWagonViewModel, MovementWagonView>()
 				.RegisterWidgetForTabViewModel<UserViewModel, UserView>()
                 .RegisterWidgetForTabViewModel<ApplicationDevelopmentProposalViewModel, ApplicationDevelopmentProposalView>()
-                .RegisterWidgetForTabViewModel<RouteListViewModel, RouteListView>()
                 ;
 
             //Регистрация виджетов
