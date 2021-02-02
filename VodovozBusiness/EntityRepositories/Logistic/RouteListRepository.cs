@@ -340,6 +340,11 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return null;
 		}
 
+        public bool IsTerminalRequired(IUnitOfWork uow, RouteList routeList)
+        {
+            throw new NotImplementedException();
+        }
+
 		public GoodsInRouteListResultWithSpecialRequirements GetTerminalInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
 		{
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
@@ -382,6 +387,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return null;
 		}
+
+
 
 		public IList<GoodsInRouteListResult> AllGoodsLoaded(IUnitOfWork uow, RouteList routeList, CarLoadDocument excludeDoc = null)
 		{
