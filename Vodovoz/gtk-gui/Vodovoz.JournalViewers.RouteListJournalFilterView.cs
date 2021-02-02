@@ -207,8 +207,8 @@ namespace Vodovoz.JournalViewers
 			this.yEnumCmbTransport.ChangedByUser += new global::System.EventHandler(this.OnYEnumCmbTransportChangedByUser);
 			this.yentryreferenceShift.ChangedByUser += new global::System.EventHandler(this.OnYentryreferenceShiftChangedByUser);
 			this.dateperiodOrders.PeriodChangedByUser += new global::System.EventHandler(this.OnDateperiodOrdersPeriodChangedByUser);
-			this.buttonStatusNone.Activated += new global::System.EventHandler(this.OnButtonStatusNoneActivated);
-			this.buttonStatusAll.Activated += new global::System.EventHandler(this.OnButtonStatusAllActivated);
+			this.buttonStatusNone.Clicked += new global::System.EventHandler(this.OnButtonStatusNoneActivated);
+			this.buttonStatusAll.Clicked += new global::System.EventHandler(this.OnButtonStatusAllActivated);
 		}
 	}
 }
