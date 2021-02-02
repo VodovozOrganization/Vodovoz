@@ -297,21 +297,21 @@ namespace Vodovoz.Domain.Cash
             if (!string.IsNullOrEmpty(Basis) && Basis.Length > 200)
             {
                 yield return new ValidationResult(
-                    "Длинна основания не должна превышать 200 символов",
+                    "Длина основания не должна превышать 200 символов",
                     new[] { this.GetPropertyName(o => o.Basis)});
             }
             
             if (!string.IsNullOrEmpty(CancelReason) && CancelReason.Length > 200)
             {
                 yield return new ValidationResult(
-                    "Длинна причины отмены не должна превышать 200 символов",
+                    "Длина причины отмены не должна превышать 200 символов",
                     new[] { this.GetPropertyName(o => o.CancelReason)});
             }
             
             if (!string.IsNullOrEmpty(Explanation) && Explanation.Length > 200)
             {
                 yield return new ValidationResult(
-                    "Длинна пояснения не должна превышать 200 символов",
+                    "Длина пояснения не должна превышать 200 символов",
                     new[] { this.GetPropertyName(o => o.Explanation)});
             }
             
