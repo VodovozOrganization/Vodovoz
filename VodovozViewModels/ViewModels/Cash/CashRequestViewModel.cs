@@ -191,6 +191,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         private DelegateCommand afterSaveCommand;
         public DelegateCommand AfterSaveCommand => afterSaveCommand ?? (afterSaveCommand = new DelegateCommand(
             () => {
+                if (Entity.ExpenseCategory == null && UserRole == UserRole.Cashier)
+                {
+                    CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Необходимо заполнить статью расхода");
+                    return;
+                }
                 SaveAndClose();
                 if (AfterSave(out var messageText))
                     CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"Cоздан следующие аванс:\n{messageText}" );
@@ -204,7 +209,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 {
                     if (Entity.ExpenseCategory == null)
                     {
-                        CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"У данной заявки не заполнена статья расхода, её заполняет финансист");
+                        CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"У данной заявки не заполнена статья расхода");
                         return;
                     }
                     //находим первую невыданную сумму и создаем на нее expense
@@ -234,6 +239,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                                                               Entity.State == CashRequest.States.Agreed ||
                                                               Entity.State == CashRequest.States.GivenForTake) &&
                                                              UserRole == UserRole.Financier;
+
+        public bool ExpenseCategorySensitive => (Entity.State == CashRequest.States.New 
+                                             || Entity.State == CashRequest.States.Agreed 
+                                             || Entity.State == CashRequest.States.GivenForTake) 
+                                             && (UserRole == UserRole.Financier || UserRole == UserRole.Cashier);
 
         public bool CanEditSumVisible => UserRole == UserRole.RequestCreator || UserRole == UserRole.Coordinator;
         //редактировать можно только не выданные
