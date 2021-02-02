@@ -294,24 +294,24 @@ namespace Vodovoz.Domain.Cash
                     new[] { this.GetPropertyName(o => o.Organization)});
             }
 
-            if (!string.IsNullOrEmpty(Basis) && Basis.Length > 200)
+            if (!string.IsNullOrEmpty(Basis) && Basis.Length > 1000)
             {
                 yield return new ValidationResult(
-                    "Длина основания не должна превышать 200 символов",
+                    "Длина основания не должна превышать 1000 символов",
                     new[] { this.GetPropertyName(o => o.Basis)});
             }
             
-            if (!string.IsNullOrEmpty(CancelReason) && CancelReason.Length > 200)
+            if (!string.IsNullOrEmpty(CancelReason) && CancelReason.Length > 1000)
             {
                 yield return new ValidationResult(
-                    "Длина причины отмены не должна превышать 200 символов",
+                    "Длина причины отмены не должна превышать 1000 символов",
                     new[] { this.GetPropertyName(o => o.CancelReason)});
             }
             
-            if (!string.IsNullOrEmpty(Explanation) && Explanation.Length > 200)
+            if (!string.IsNullOrEmpty(Explanation) && Explanation.Length > 1000)
             {
                 yield return new ValidationResult(
-                    "Длина пояснения не должна превышать 200 символов",
+                    "Длина пояснения не должна превышать 1000 символов",
                     new[] { this.GetPropertyName(o => o.Explanation)});
             }
             
