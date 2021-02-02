@@ -84,6 +84,11 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="CreateOrder\CounterpartyFactory.cs" />
+        <Compile Include="CreateOrder\DeliveryPointFactory.cs" />
+        <Compile Include="CreateOrder\Matcher.cs" />
+        <Compile Include="CreateOrder\OrderFactory.cs" />
+        <Compile Include="CreateOrder\OrderItemFactory.cs" />
         <Compile Include="DTO\Email.cs" />
         <Compile Include="DTO\EmailAttachment.cs" />
         <Compile Include="DTO\EmailContact.cs" />
@@ -115,9 +120,17 @@
         <Project>{d30a23bf-c5dc-4a1b-95fc-9c2038d46e8e}</Project>
         <Name>QS.Report</Name>
       </ProjectReference>
+      <ProjectReference Include="..\BitrixApi\BitrixApi.csproj">
+        <Project>{33ef9172-64c7-4032-a119-d23ee9aafd34}</Project>
+        <Name>BitrixApi</Name>
+      </ProjectReference>
       <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
         <Project>{022dd59d-0eee-420f-9750-eb275772f56a}</Project>
         <Name>VodovozBusiness</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
+        <Project>{dd740ae7-7854-40c6-b9f6-2f70a5e1caac}</Project>
+        <Name>VodovozInfrastructure</Name>
       </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

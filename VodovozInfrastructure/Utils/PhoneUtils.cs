@@ -17,11 +17,12 @@ namespace VodovozInfrastructure.Utils
 		}
 	
 		/// <summary>
-		/// Возвращает обработанную строку и true если номер нужно поискать и до и после обработки.
+		/// Возвращает только цифры номера без +7/8/()/- и true если номер нужно поискать и до и после обработки
+		/// на случай если это домаший.
 		/// </summary>
 		/// <returns>Возвращает только цифры номера без +7/8/()/- .</returns>
 		/// <param name="number">Номер телефона.</param>
-		/// <param name="needSearchBoth">Если <c>true</c> нужно поискать и до и после обработки.</param>
+		/// <param name="needSearchBoth">Если <c>true</c> нужно поискать и до и после обработки тк кк возможно это домашний.</param>
 		public static string NumberTrim(string number, out bool needSearchBoth)
 		{
 			var temp = RemoveNonDigit(number);

@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Net;
+using System.ServiceModel;
+using System.ServiceModel.Web;
 using System.Threading;
 using System.Threading.Tasks;
-using BitrixIntegration.DTO;
+using BitrixApi.DTO;
+using BitrixApi.REST;
 using BitrixIntegration.DTO.Mailjet;
 using Mailjet.Client;
 using Mailjet.Client.Resources;
@@ -17,6 +21,7 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
+using Email = BitrixIntegration.DTO.Email;
 
 namespace BitrixIntegration
 {
@@ -30,9 +35,14 @@ namespace BitrixIntegration
 		static CancellationTokenSource cancellationToken = new CancellationTokenSource();
 		static BlockingCollection<Email> emailsQueue = new BlockingCollection<Email>();
 		static BlockingCollection<MailjetEvent> unsavedEventsQueue = new BlockingCollection<MailjetEvent>();
-		static bool IsInitialized => !(string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(userSecretKey));
+		static bool IsInitialized => !(string.IsNullOrWhiteSpace(token));
 		static int workerTasksCreatedCounter = 0;
 		static IEmailRepository emailRepository = new EmailRepository();
+		
+		static string token = null;
+		static BlockingCollection<Deal> dealsQueue = new BlockingCollection<Deal>();
+		// static BlockingCollection<MailjetEvent> unsavedEventsQueue = new BlockingCollection<MailjetEvent>();
+		
 
 
 		static BitrixManager()
@@ -67,14 +77,15 @@ namespace BitrixIntegration
 			if(IsInitialized) {
 				return;
 			}
-
-			IMailjetParametersProvider parametersProvider = new BaseParametersProvider();
-
-			try {
-				SetLoginSetting(parametersProvider.MailjetUserId, parametersProvider.MailjetSecretKey);
-			} catch(Exception ex) {
-				logger.Error(ex);
-			}
+			
+			logger.Error("Токен не установлен");
+			// IBitrixServiceSettings parametersProvider = new BaseParametersProvider();
+			//
+			// try {
+			// 	SetToken(parametersProvider.BitrixSecretToken);
+			// } catch(Exception ex) {
+			// 	logger.Error(ex);
+			// }
 		}
 
 		public static int GetEmailsInQueue()
@@ -87,6 +98,14 @@ namespace BitrixIntegration
 			Task.Run(() => {
 				Thread.CurrentThread.Name = "AddEventWork";
 				ProcessEvent(mailjetEvent);
+			});
+		}
+		
+		public static void AddEvent(BitrixApi.DTO.Deal dealRequest)
+		{
+			Task.Run(() => {
+				Thread.CurrentThread.Name = "AddEventWork";
+				ProcessDealEvent(dealRequest); //TODO gavr ексепшоны бутут возникать здесь, тк кк ProcessDealEvent async void
 			});
 		}
 
@@ -276,6 +295,54 @@ namespace BitrixIntegration
 			}
 		}
 
+
+		static async void ProcessDealEvent()
+		{
+			// var restApi = BitrixRestApiFabric.CreateBitrixRestApi(token);
+			// var deal = await restApi.GetDealAsync(138788);
+			while (true){
+				Deal deal = null;
+				deal = dealsQueue.TakeQueue();
+				logger.Debug($"{0} Отправка письма из очереди", GetThreadInfo());
+
+				
+			}
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[BIS]Обработка события DealRequest")) {
+				// Если у нас есть заказ отправляем 200
+				var matchedOrder = Matcher.MatchOrderByBitrixId(uow, deal);
+				if (matchedOrder != null){
+					//TODO gavr а это точно отправка 200 по WCFфовски?
+					WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.OK;
+					
+				}
+				else{
+					// Сопоставляем контрагента
+					var restApi = BitrixRestApiFabric.CreateBitrixRestApi(token);
+					var contact = await restApi.GetContact(deal.ContancId);
+					Matcher.MatchContact(uow, contact);
+					// не сошелся, создаем контрагента
+					// CreateCounterpartyFromContact(contact)
+
+					//Сопоставляем Точку доставки
+					// var deliveryPoint = await restApi.GetDeliveryPoint(???);
+					// Matcher.MatchContact(uow, contact);
+					// не сошелся, создаем Точку доставки
+					// CreateDeliveryPointFrom???(???)
+
+					//Сопоставляем Товары
+					// var OrderItems = await restApi.GetContact(deal.ContancId);
+					// Matcher.MatchContact(uow, contact);
+					// не сошелись группы, создаем группы, создаем товары
+					// CreateOrderGroupFrom???(???)
+					// не сошелись товары, создаем товары
+					// CreateOrderItemsFrom???(???)
+
+
+					//Создаем заказ
+				}
+			}
+		}
+		
 		static void ProcessEvent(MailjetEvent mailjetEvent)
 		{
 			if(mailjetEvent.AttemptCount > 0) {
@@ -440,13 +507,13 @@ namespace BitrixIntegration
 			userSecretKey = null;
 		}
 
-		private static void SetLoginSetting(string id, string key)
+		public static void SetToken(string _token)
 		{
 			if(IsInitialized) {
 				return;
 			}
-			userId = id;
-			userSecretKey = key;
+			
+			token = _token;
 		}
 
 		#endregion

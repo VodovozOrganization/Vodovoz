@@ -149,6 +149,14 @@ namespace Vodovoz.Domain.Client
 			get => maxCredit;
 			set => SetField(ref maxCredit, value, () => MaxCredit);
 		}
+		
+		int? bitrixId;
+
+		[Display(Name = "Id контрагента в битриксе")]
+		public virtual int? BitrixId {
+			get => bitrixId;
+			set => SetField(ref bitrixId, value);
+		}
 
 		string name;
 

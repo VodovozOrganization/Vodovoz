@@ -198,14 +198,11 @@ namespace Vodovoz.TempAdapters
 						else {
 							disjunctionCriterion.Add(likeRestriction);
 						}
-
 					}
 				}
 				conjunctionCriterion.Add(disjunctionCriterion);
 			}
-
 			return conjunctionCriterion;
 		}
-
 	}
 }

@@ -83,6 +83,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.PaymentByCardFrom)		.Column("payment_from_id");
 			References(x => x.ReturnTareReason).Column("return_tare_reason_id");
 			References(x => x.ReturnTareReasonCategory).Column("return_tare_reason_category_id");
+			References(x => x.BitrixId)					.Column("bitrix_id");
 
 			HasMany(x => x.OrderDocuments)		.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("attached_to_order_id");
 			HasMany (x => x.OrderDepositItems)	.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");

@@ -399,7 +399,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					  .Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
 					  .List().FirstOrDefault();
 		}
-
+		
 		public bool IsBottleStockExists(IUnitOfWork uow, Counterparty counterparty)
 		{
 			var stockBottleOrder = uow.Session.QueryOver<VodovozOrder>()
@@ -782,5 +782,22 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return receipt != null;
 		}
+
+		public VodovozOrder GetOrderByBitrixId(IUnitOfWork uow, int bitrixId)
+		{
+			//TODO gavr комменты убрать
+			
+			// var notSupportedStatuses = new OrderStatus[] {
+			// 	OrderStatus.NewOrder,
+			// 	OrderStatus.Canceled,
+			// 	OrderStatus.NotDelivered
+			// };
+
+			return uow.Session.QueryOver<VodovozOrder>()
+				// .WhereRestrictionOn(x => x.OrderStatus).Not.IsIn(notSupportedStatuses)
+				.Where(x => x.BitrixId == bitrixId)
+				.SingleOrDefault();
+		}
+		
 	}
 }

@@ -56,6 +56,7 @@ namespace VodovozEmailService
 				mysqlUser = mysqlConfig.GetString("mysql_user");
 				mysqlPassword = mysqlConfig.GetString("mysql_password");
 				mysqlDatabase = mysqlConfig.GetString("mysql_database");
+				
 			}
 			catch(Exception ex) {
 				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");

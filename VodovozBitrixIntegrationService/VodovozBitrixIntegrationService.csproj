@@ -166,6 +166,10 @@
         <Project>{9df71899-3ce4-48f4-b3c3-0b21b15037b1}</Project>
         <Name>QSSupportLib</Name>
       </ProjectReference>
+      <ProjectReference Include="..\BitrixApi\BitrixApi.csproj">
+        <Project>{33ef9172-64c7-4032-a119-d23ee9aafd34}</Project>
+        <Name>BitrixApi</Name>
+      </ProjectReference>
       <ProjectReference Include="..\BitrixIntegration\BitrixIntegration.csproj">
         <Project>{7f55d466-ce81-4a81-aac1-d7d58544f7af}</Project>
         <Name>BitrixIntegration</Name>

@@ -4,11 +4,13 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using VodovozInfrastructure.Utils;
 
 namespace Vodovoz.Repositories
 {
@@ -116,6 +118,60 @@ namespace Vodovoz.Repositories
 						   .List<CounterpartyTo1CNode>();
 			return query.Where(x => !String.IsNullOrEmpty(x.EMails) || !String.IsNullOrEmpty(x.Phones)).ToList();
 		}
+		
+		
+		/// <summary>
+		/// Возвращает пары телефон-клиент по телефону на случай если есть клиенты с одинаковыми 
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="phoneDigitNumber">Номер телефона в формате 9999999999 (10 цифр)</param>
+		/// <returns>пары телефон-клиент по телефону на сулчай если есть одинаковые</returns>
+		public static IDictionary<Counterparty,Phone> GetCounterpartesByPhone(IUnitOfWork uow, string phoneDigitNumber)
+		{
+			
+			Phone phoneAlias = null;
+			var countepartyWithPhone = uow.Session.QueryOver<Counterparty>()
+				.JoinAlias(co => co.Phones, () => phoneAlias)
+				.Where(() => phoneAlias.DigitsNumber == phoneDigitNumber)
+				.List();
+
+			var map = new Dictionary<Counterparty,Phone>();
+			foreach (var counterparty in countepartyWithPhone){
+				foreach (var phone in counterparty.Phones){
+					map.Add(counterparty,phone);
+				}
+			}
+
+			return map;
+		}
+		
+		/// <summary>
+		/// Возвращает пары фамилия-клиент по телефону на случай если есть клиенты с одинаковыми фамилиями
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="fullName"></param>
+		/// <returns></returns>
+		public static IDictionary<Counterparty,string> GetCounterpartesBySecondName(IUnitOfWork uow, string secondName)
+		{
+			// var secondName = NamesUtils.GetSecondNameFromFullName(fullName);
+			
+			var countepartyWithSecondNames = uow.Session.QueryOver<Counterparty>()
+				.Where(x => x.FullName.Like(secondName))
+				.List();	
+
+			var map = new Dictionary<Counterparty,string>();
+			foreach (var counterparty in countepartyWithSecondNames){
+				map.Add(counterparty,secondName);
+			}
+
+			return map;
+		}
+		
+		public static Counterparty GetCounterpartyByBitrixId(IUnitOfWork uow, int bitrixId) => 
+			uow.Session.QueryOver<Counterparty>()
+			.Where(x => x.BitrixId == bitrixId)
+			.SingleOrDefault();
+
 	}
 
 	public class CounterpartyTo1CNode

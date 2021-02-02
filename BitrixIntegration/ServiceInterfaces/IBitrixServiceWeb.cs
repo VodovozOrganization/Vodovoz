@@ -1,5 +1,6 @@
 ﻿using System.ServiceModel;
 using System.ServiceModel.Web;
+using System.Threading.Tasks;
 
 namespace BitrixIntegration.ServiceInterfaces
 {
@@ -13,5 +14,21 @@ namespace BitrixIntegration.ServiceInterfaces
 		[WebGet(ResponseFormat = WebMessageFormat.Json)]
 		[OperationContract]
 		int Add(int a, int b);
+		
+		[OperationContract]
+		[WebInvoke(Method = "POST",
+			BodyStyle = WebMessageBodyStyle.Wrapped,
+			ResponseFormat = WebMessageFormat.Json,
+			RequestFormat = WebMessageFormat.Json)]
+		void OnCrmDealUpdate(BitrixApi.DTO.DataContractJsonSerializer.DealRequest dealRequest); 
+		
+		Task TestWithoutWebHook(string token); // TODO gavr убраьт она нужна только для того чтобы потестить без хука
+
+		[OperationContract]
+		[WebInvoke(Method = "POST",
+			BodyStyle = WebMessageBodyStyle.Wrapped,
+			ResponseFormat = WebMessageFormat.Json,
+			RequestFormat = WebMessageFormat.Json)]
+		void PostEvent(BitrixApi.DTO.DealRequest content);
 	}
 }

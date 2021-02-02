@@ -2,6 +2,8 @@
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Threading;
+using System.Threading.Tasks;
+using BitrixApi.REST;
 using BitrixIntegration;
 using BitrixIntegration.DTO;
 using BitrixIntegration.ServiceInterfaces;
@@ -33,25 +35,23 @@ namespace VodovozBitrixIntegrationService
 		private static string mysqlUser;
 		private static string mysqlPassword;
 		private static string mysqlDatabase;
+		
+		//Bitrix
+		private static string token;
+		
 
 		public static void Main(string[] args)
 		{
 			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
 			AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 			logger.Info("Чтение конфигурационного файла...");
-			ReadConfig();
-			logger.Info("Настройка подключения к БД...");
-			ConfigureDBConnection();
-			RunServiceLoop();
-		}
+			// ReadConfig();
 
-		#region Configure
+			#region ReadConfig
 
-		static void ReadConfig()
-		{
 			try {
 				IniConfigSource confFile = new IniConfigSource(configFile);
-				confFile.Reload();
+				// confFile.Reload();
 				IConfig serviceConfig = confFile.Configs["Service"];
 				serviceHostName = serviceConfig.GetString("service_host_name");
 				servicePort = serviceConfig.GetString("service_port");
@@ -63,6 +63,46 @@ namespace VodovozBitrixIntegrationService
 				mysqlUser = mysqlConfig.GetString("mysql_user");
 				mysqlPassword = mysqlConfig.GetString("mysql_password");
 				mysqlDatabase = mysqlConfig.GetString("mysql_database");
+				
+				IConfig bitrixConfig = confFile.Configs["Bitrix"];
+				token = bitrixConfig.GetString("api_key");
+			
+				
+			}
+			catch(Exception ex) {
+				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
+				return;
+			}
+
+			#endregion ReadCOnfig
+			logger.Info("Настройка подключения к БД...");
+			ConfigureDBConnection();
+			RunServiceLoop();
+		}
+
+		#region Configure
+
+		static void ReadConfig()
+		{
+			try {
+				IniConfigSource confFile = new IniConfigSource(configFile);
+				// confFile.Reload();
+				IConfig serviceConfig = confFile.Configs["Service"];
+				serviceHostName = serviceConfig.GetString("service_host_name");
+				servicePort = serviceConfig.GetString("service_port");
+				serviceWebPort = serviceConfig.GetString("service_web_port");
+
+				IConfig mysqlConfig = confFile.Configs["Mysql"];
+				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
+				mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
+				mysqlUser = mysqlConfig.GetString("mysql_user");
+				mysqlPassword = mysqlConfig.GetString("mysql_password");
+				mysqlDatabase = mysqlConfig.GetString("mysql_database");
+				
+				IConfig bitrixConfig = confFile.Configs["Bitrix"];
+				token = bitrixConfig.GetString("api_key");
+			
+				
 			}
 			catch(Exception ex) {
 				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
@@ -138,13 +178,10 @@ namespace VodovozBitrixIntegrationService
 			}
 		}
 		
-		static void StartService()
+		static async void StartService()
 		{
 			var bitrixInstanceProvider = new BitrixInstanceProvider(new BaseParametersProvider());
 
-			// ServiceHost EmailSendingHost = new BitrixServiceHost(bitrixInstanceProvider);
-			// ServiceHost MailjetEventsHost = new BitrixServiceHost(bitrixInstanceProvider);
-			
 			var bitrixHost = new BitrixServiceHost(bitrixInstanceProvider);
 
 			var webContract = typeof(IBitrixServiceWeb);
@@ -157,18 +194,24 @@ namespace VodovozBitrixIntegrationService
 			var contract = typeof(IBitrixService);
 			var binding = new BasicHttpBinding();
 			var address = $"http://{serviceHostName}:{servicePort}/BitrixService";
+
+
+			var a = bitrixInstanceProvider.GetInstance(null) as BitrixService;
+			BitrixManager.SetToken(token);
+
+			var bitrixApi = BitrixApi.REST.BitrixRestApiFabric.CreateBitrixRestApi(token);
+ 			var dealRequest = await bitrixApi.GetDealAsync(138788);
+
+            BitrixManager.AddEvent(dealRequest);
+            
+			Console.ReadLine();
+			
 			bitrixHost.AddServiceEndpoint(contract, binding, address);
 			
 			bitrixHost.Open();
 			logger.Log(LogLevel.Info, "Сервис запущен");
 
-			// var mailjetEndPoint = MailjetEventsHost.AddServiceEndpoint(
-			// 	typeof(IMailjetEventService),
-			// 	new WebHttpBinding(),
-			// 	$"http://{serviceHostName}:{servicePort}/Mailjet"
-			// );
-			// WebHttpBehavior mailjetHttpBehavior = new WebHttpBehavior();
-			// mailjetEndPoint.Behaviors.Add(httpBehavior);
+		
 
 #if DEBUG
 			// EmailSendingHost.Description.Behaviors.Add(new PreFilter());

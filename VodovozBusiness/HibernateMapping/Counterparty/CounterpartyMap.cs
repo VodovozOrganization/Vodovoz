@@ -56,6 +56,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.TaxType).Column("tax_type").CustomType<TaxTypeStringType>();
 			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.AlwaysSendReceitps).Column("always_send_receipts");
+			Map(x => x.BitrixId).Column("bitrix_id");
+			
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
 			References(x => x.Accountant).Column("accountant_id");
