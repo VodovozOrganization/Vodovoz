@@ -276,43 +276,43 @@ namespace Vodovoz.Domain.Cash
                 {
                     yield return new ValidationResult(
                         string.Format($"У суммы {cashRequestSumItem.Sum} должно быть заполнено подотчетное лицо"),
-                        new[] { this.GetPropertyName(o => o.Sums)});
+                        new[] { nameof(Sums)});
                 }
             }
             
-            if (string.IsNullOrEmpty(Basis))
+            if (string.IsNullOrWhiteSpace(Basis))
             {
                 yield return new ValidationResult(
                     "Необходимо заполнить основание",
-                    new[] { this.GetPropertyName(o => o.Basis)});
+                    new[] { nameof(Basis)});
             }
             
             if (State == States.Agreed && Organization == null)
             {
                 yield return new ValidationResult(
                     "Необходимо заполнить организацию",
-                    new[] { this.GetPropertyName(o => o.Organization)});
+                    new[] { nameof(Organization)});
             }
 
-            if (!string.IsNullOrEmpty(Basis) && Basis.Length > 1000)
+            if (!string.IsNullOrWhiteSpace(Basis) && Basis.Length > 1000)
             {
                 yield return new ValidationResult(
                     "Длина основания не должна превышать 1000 символов",
-                    new[] { this.GetPropertyName(o => o.Basis)});
+                    new[] { nameof(Basis)});
             }
             
-            if (!string.IsNullOrEmpty(CancelReason) && CancelReason.Length > 1000)
+            if (!string.IsNullOrWhiteSpace(CancelReason) && CancelReason.Length > 1000)
             {
                 yield return new ValidationResult(
                     "Длина причины отмены не должна превышать 1000 символов",
-                    new[] { this.GetPropertyName(o => o.CancelReason)});
+                    new[] { nameof(CancelReason)});
             }
             
-            if (!string.IsNullOrEmpty(Explanation) && Explanation.Length > 1000)
+            if (!string.IsNullOrWhiteSpace(Explanation) && Explanation.Length > 1000)
             {
                 yield return new ValidationResult(
                     "Длина пояснения не должна превышать 1000 символов",
-                    new[] { this.GetPropertyName(o => o.Explanation)});
+                    new[] { nameof(Explanation)});
             }
             
         }
