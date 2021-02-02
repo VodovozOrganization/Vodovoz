@@ -177,7 +177,6 @@
     <Compile Include="ViewModels\Logistic\DistrictsSetActivationViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
-    <Compile Include="ViewModels\Logistic\RouteListViewModel.cs" />
     <Compile Include="ViewModels\Organization\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
