@@ -385,6 +385,7 @@
     <EmbeddedResource Include="icons\buttons\user22.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
     <Compile Include="Additions\IAuthorizationService.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
@@ -482,6 +483,7 @@
     <Compile Include="gtk-gui\Vodovoz.EquipmentGenerator.cs" />
     <Compile Include="Representations\ContractsVM.cs" />
     <Compile Include="Representations\ProxiesVM.cs" />
+    <Compile Include="ViewModels\Accounting\WayBillGeneratorViewModel.cs" />
     <Compile Include="ViewModels\Cash\PaymentByCardViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonCategoryViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
@@ -1507,6 +1509,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ExpenseCategoryJournalFilterView.cs" />
     <Compile Include="Filters\GtkViews\IncomeCategoryJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.IncomeCategoryJournalFilterView.cs" />
+    <Compile Include="Views\Accounting\WayBillGeneratorView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Accounting.WayBillGeneratorView.cs" />
     <Compile Include="ViewModels\Logistic\RouteListStatusNode.cs" />
     <Compile Include="Views\FinancialDistrictsSetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.FinancialDistrictsSetView.cs" />
@@ -1839,6 +1843,7 @@
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Views\Goods\" />
     <Folder Include="ReportsParameters\Production\" />
+    <Folder Include="Views\Accounting\" />
     <Folder Include="Views\Payments\" />
     <Folder Include="Views\Proposal\" />
     <Folder Include="JournalFilters\Proposal\" />

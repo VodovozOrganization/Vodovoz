@@ -84,6 +84,9 @@ using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
+using Vodovoz.ViewModels.Accounting;
+using Vodovoz.Tools.Logistic;
+using Vodovoz.Infrastructure;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1762,6 +1765,37 @@ public partial class MainWindow : Gtk.Window
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<EShopSalesReport>(),
             () => new QSReport.ReportViewDlg(new EShopSalesReport())
+        );
+    }
+
+    protected void OnActionWayBillJournalActivated(object sender, EventArgs e)
+    {
+        var employeesAutocompleteSelectionFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+            () =>
+            {
+                var employeeFilter = new EmployeeFilterViewModel
+                {
+                    Status = EmployeeStatus.IsWorking,
+                };
+                return new EmployeesJournalViewModel(
+                    employeeFilter,
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices);
+            });
+
+        tdiMain.OpenTab(
+            () =>
+            {
+                return new WayBillGeneratorViewModel
+                (
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices.InteractiveService,
+                    NavigationManagerProvider.NavigationManager,
+                    new WayBillDocumentRepository(),
+                    new RouteGeometryCalculator(DistanceProvider.Osrm),
+                    employeesAutocompleteSelectionFactory
+                );
+            }
         );
     }
 

@@ -405,7 +405,10 @@ namespace Vodovoz.Representations
 			.AddColumn("№").HeaderAlignment(0.5f)
 				.AddTextRenderer(node => node.StrId)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
-			.AddColumn("Статус").HeaderAlignment(0.5f)
+            .AddColumn("Идентификатор").HeaderAlignment(0.5f)
+                .AddTextRenderer(node => node.Id != 0 ? node.Id.ToString() : "")
+                .AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
+            .AddColumn("Статус").HeaderAlignment(0.5f)
 				.AddTextRenderer(node => node.Status, useMarkup: true)
 				.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
@@ -644,10 +647,11 @@ namespace Vodovoz.Representations
 
 	public class UndeliveredOrdersVMNode
 	{
-		public int Id { get; set; }
+        [UseForSearch]
+        public int Id { get; set; }
 		public int NumberInList { get; set; }
 		public bool IsComment { get; set; }
-		public virtual string StrId { get => NumberInList.ToString(); set {; } }
+        public virtual string StrId { get => NumberInList.ToString(); set {; } }
 		public UndeliveryStatus StatusEnum { get; set; }
 		[UseForSearch]
 		[SearchHighlight]

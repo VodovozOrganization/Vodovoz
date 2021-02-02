@@ -719,7 +719,7 @@ namespace Vodovoz.Domain.Logistic
 										 .ToList();
 
 			foreach(var orderItem in orderClosingItems) {
-				var address = Addresses.SingleOrDefault(x => x.Order.Id == orderItem.Order.Id);
+				var address = Addresses.SingleOrDefault(x => x.Order.Id == orderItem.Order.Id && x.TransferedTo == null);
 				var discrepancy = new Discrepancy();
 				
 				if (address?.TransferedTo != null && address.TransferedTo.NeedToReload) {

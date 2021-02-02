@@ -17,7 +17,7 @@ namespace Vodovoz.HibernateMapping.Employees
 			Map(x => x.Name)				.Column("name");
 			Map(x => x.LastName)			.Column("last_name");
 			Map(x => x.Patronymic)			.Column("patronymic");
-			Map(x => x.DrivingNumber)		.Column("driving_number");
+			Map(x => x.DrivingLicense)		.Column("driving_number");
 			Map(x => x.Photo)				.Column("photo").CustomSqlType("BinaryBlob").LazyLoad();
 			Map(x => x.AddressRegistration)	.Column("address_registration");
 			Map(x => x.BirthdayDate)		.Column("birthday_date");
@@ -56,6 +56,7 @@ namespace Vodovoz.HibernateMapping.Employees
 				Map(x => x.IsChainStoreDriver)		 .Column("is_chain_store_driver");
 				Map(x => x.IsDriverForOneDay)		 .Column("is_driver_for_one_day");
 				Map(x => x.DriverOf)				 .Column("driver_of").CustomType<CarTypeOfUseStringType>();
+				Map(x => x.Gender)				     .Column("gender").CustomType<GenderStringType>();
 				Map(x => x.Registration)			 .Column("registration_type").CustomType<RegistrationTypeStringType>();
 				Map(x => x.MinRouteAddresses)		 .Column("min_route_addresses");
 				Map(x => x.MaxRouteAddresses)		 .Column("max_route_addresses");
