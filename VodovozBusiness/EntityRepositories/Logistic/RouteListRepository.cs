@@ -351,6 +351,7 @@ namespace Vodovoz.EntityRepositories.Logistic
             var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
                                     .JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
                                     .Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
+                                    .And(() => carLoadDocumentItemAlias.Amount > 0)
                                     .And(x => x.RouteList.Id == routeList.Id)
                                     .List();
 

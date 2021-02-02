@@ -65,7 +65,7 @@ namespace Vodovoz.JournalViewers
 
         protected void OnYEnumCmbTransportChangedByUser(object sender, System.EventArgs e)
         {
-            ViewModel.TransportType = (RouteListJournalFilterViewModel.RLFilterTransport?)(yEnumCmbTransport.SelectedItemOrNull as RLFilterTransport?);
+            ViewModel.TransportType = yEnumCmbTransport.SelectedItemOrNull as RLFilterTransport?;
             ViewModel.Update();
         }
 
@@ -73,7 +73,5 @@ namespace Vodovoz.JournalViewers
         {
             ViewModel.Update();
         }
-
-        
     }
 }
