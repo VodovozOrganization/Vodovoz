@@ -782,18 +782,14 @@ public partial class MainWindow : Window
 
 	void ActionRouteListClosingTable_Activated(object sender, System.EventArgs e)
 	{
-        //tdiMain.OpenTab(
-        //	TdiTabBase.GenerateHashName<RouteListClosingView>(),
-        //	() => new RouteListClosingView()
-        //);
-
         var routeListFilter = new RouteListJournalFilterViewModel();
 
         tdiMain.AddTab(
             new RouteListWorkingJournalViewModel(
                 routeListFilter,
                 UnitOfWorkFactory.GetDefaultFactory,
-                ServicesConfig.CommonServices
+                ServicesConfig.CommonServices,
+                new RouteListRepository()
             )
         );
     }

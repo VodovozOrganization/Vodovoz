@@ -21,11 +21,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
             foreach (var addressType in Enum.GetValues(typeof(AddressType)).Cast<AddressType>())
             {
                 addressTypeNodes.Add(new AddressTypeNode(addressType));
+                addressTypeNodes.Last().PropertyChanged += OnStatusCheckChanged;
             }
 
             GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List<GeographicGroup>().ToList();
 
             var currentUserSettings = UserSingletonRepository.GetInstance().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
+
             foreach (var addressTypeNode in AddressTypeNodes)
             {
                 switch (addressTypeNode.AddressType)
@@ -222,12 +224,18 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 
         public bool CanSelectStatuses { get; private set; } = true;
 
+        /// <summary>
+        /// Установка всех статусов МЛ в фильтре отмеченными
+        /// </summary>
         public void SelectAllRouteListStatuses()
         {
             statusNodes.ForEach(x => x.Selected = true);
             Update();
         }
 
+        /// <summary>
+        /// Установка всех статусов МЛ в фильтре не отмеченными
+        /// </summary>
         public void DeselectAllRouteListStatuses()
         {
             statusNodes.ForEach(x => x.Selected = false);
@@ -258,6 +266,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
         public new void Dispose()
         {
             UnsubscribeOnCheckChanged();
+            addressTypeNodes.ForEach(x => x.PropertyChanged -= OnStatusCheckChanged);
             base.Dispose();
         }
 

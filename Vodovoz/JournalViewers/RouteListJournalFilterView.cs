@@ -77,5 +77,7 @@ namespace Vodovoz.JournalViewers
         {
             ViewModel.Update();
         }
+
+        
     }
 }

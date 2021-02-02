@@ -33,6 +33,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 		RouteList GetRouteListByOrder(IUnitOfWork uow, Domain.Orders.Order order);
 		bool RouteListWasChanged(RouteList routeList);
         IList<GoodsInRouteListResultWithSpecialRequirements> GetGoodsAndEquipsInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList, ISubdivisionRepository subdivisionRepository = null, Warehouse warehouse = null);
-        bool IsTerminalRequired(IUnitOfWork uow, RouteList routeList);
+        /// <summary>
+        /// Проверяет необходимость погрузки терминала в МЛ
+        /// </summary>
+        /// <param name="uow">Unit Of Work</param>
+        /// <param name="routeListId">Идентификатор МЛ</param>
+        /// <returns></returns>
+        bool IsTerminalRequired(IUnitOfWork uow, int routeListId);
     }
 }

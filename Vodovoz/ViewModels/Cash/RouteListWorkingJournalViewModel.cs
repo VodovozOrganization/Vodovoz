@@ -18,6 +18,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
@@ -34,10 +35,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         public RouteListWorkingJournalViewModel(
             RouteListJournalFilterViewModel filterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory, 
-            ICommonServices commonServices) :
+            ICommonServices commonServices,
+            IRouteListRepository routeListRepository) :
             base(filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал Маршрутных листов";
+            this.routeListRepository = routeListRepository;
         }
 
         protected override Func<IUnitOfWork, IQueryOver<RouteList>> ItemsSourceQueryFunction => (uow) =>
@@ -112,7 +115,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             }
             else if (!filterViewModel.WithDeliveryAddresses && !filterViewModel.WithChainStoreAddresses && !filterViewModel.WithServiceAddresses)
             {
-                query.Where(() => !driverAlias.IsChainStoreDriver && !driverAlias.VisitingMaster);
+                query.Where(() => routeListAlias.Id == null);
             }
 
             #endregion
@@ -202,6 +205,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         {
             RouteListStatus.Closed
         };
+        private readonly IRouteListRepository routeListRepository;
 
         #endregion
 
@@ -212,9 +216,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 case RouteListStatus.New:
                     return new RouteListCreateDlg(node.Id);
                 case RouteListStatus.InLoading:
-                    if (/*if needed terminal*/false)
+                    if (routeListRepository.IsTerminalRequired(UoW, node.Id))
                     {
-                        return new RouteListCreateDlg(node.Id); // TODO: Исправить создание диалога и условие  Новый документ погрузки
+                        return new CarLoadDocumentDlg(node.Id, null);
                     }
                     else
                     {
@@ -350,5 +354,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ));
         }
 
+
+        protected override void CreateNodeActions()
+        {
+            NodeActionsList.Clear();
+        }
     }
 }

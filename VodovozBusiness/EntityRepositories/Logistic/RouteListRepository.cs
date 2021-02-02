@@ -340,9 +340,21 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return null;
 		}
 
-        public bool IsTerminalRequired(IUnitOfWork uow, RouteList routeList)
+        public bool IsTerminalRequired(IUnitOfWork uow, int routeListId)
         {
-            throw new NotImplementedException();
+            CarLoadDocumentItem carLoadDocumentItemAlias = null;
+
+            var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+            var routeList = uow.Query<RouteList>().Where(x => x.Id == routeListId).SingleOrDefault();
+            var anyAddressesRequireTermanal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+
+            var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
+                                    .JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
+                                    .Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
+                                    .And(x => x.RouteList.Id == routeList.Id)
+                                    .List();
+
+            return anyAddressesRequireTermanal && !loadedTerminal.Any();
         }
 
 		public GoodsInRouteListResultWithSpecialRequirements GetTerminalInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
