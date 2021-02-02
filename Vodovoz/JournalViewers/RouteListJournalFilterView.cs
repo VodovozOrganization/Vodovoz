@@ -36,13 +36,9 @@ namespace Vodovoz.JournalViewers
             yentryreferenceShift.Binding.AddBinding(ViewModel, vm => vm.DeliveryShift, w => w.Subject).InitializeFromSource();
 
             yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport);
-            //yEnumCmbTransport.Binding.AddBinding(ViewModel, vm => vm.TransportType, w => w.SelectedItemOrNull).InitializeFromSource();
 
             ySpecCmbGeographicGroup.ItemsList = ViewModel.GeographicGroups;
             ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
-
-            //buttonStatusAll.Clicked += (s, a) => { ViewModel.SelectAllRouteListStatuses(); };
-            //buttonStatusNone.Clicked += (s, a) => { ViewModel.DeselectAllRouteListStatuses(); };
         }
 
         protected void OnButtonStatusAllActivated(object sender, System.EventArgs e)

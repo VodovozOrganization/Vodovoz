@@ -5,9 +5,7 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
-using QS.Project.Services;
 using QS.Services;
-using QS.Tdi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,15 +30,29 @@ namespace Vodovoz.JournalViewModels
 {
     public class RouteListWorkingJournalViewModel : FilterableSingleEntityJournalViewModelBase<RouteList, TdiTabBase, RouteListJournalNode, RouteListJournalFilterViewModel>
     {
+        private readonly IRouteListRepository routeListRepository;
+        private readonly FuelRepository fuelRepository;
+        private readonly CallTaskRepository callTaskRepository;
+        private readonly BaseParametersProvider baseParametersProvider;
+        private readonly SubdivisionRepository subdivisionRepository;
+
         public RouteListWorkingJournalViewModel(
             RouteListJournalFilterViewModel filterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IRouteListRepository routeListRepository) :
+            IRouteListRepository routeListRepository,
+            FuelRepository fuelRepository,
+            CallTaskRepository callTaskRepository,
+            BaseParametersProvider baseParametersProvider,
+            SubdivisionRepository subdivisionRepository) :
             base(filterViewModel, unitOfWorkFactory, commonServices)
         {
-            TabName = "Журнал Маршрутных листов";
+            TabName = "Работа кассы с МЛ";
             this.routeListRepository = routeListRepository;
+            this.fuelRepository = fuelRepository;
+            this.callTaskRepository = callTaskRepository;
+            this.baseParametersProvider = baseParametersProvider;
+            this.subdivisionRepository = subdivisionRepository;
         }
 
         protected override Func<IUnitOfWork, IQueryOver<RouteList>> ItemsSourceQueryFunction => (uow) =>
@@ -53,74 +65,76 @@ namespace Vodovoz.JournalViewModels
             Subdivision subdivisionAlias = null;
             GeographicGroup geographicalGroupAlias = null;
 
-            var query = uow.Session.QueryOver(() => routeListAlias);
+            var query = uow.Session.QueryOver(() => routeListAlias)
+                .Left.JoinAlias(o => o.Shift, () => shiftAlias)
+                .Left.JoinAlias(o => o.Car, () => carAlias)
+                .Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
+                .Left.JoinAlias(o => o.Driver, () => driverAlias);
 
-            var filterViewModel = Filter as RouteListJournalFilterViewModel;
-
-            if (filterViewModel.SelectedStatuses != null)
+            if (FilterViewModel.SelectedStatuses != null)
             {
-                query.WhereRestrictionOn(o => o.Status).IsIn(filterViewModel.SelectedStatuses);
+                query.WhereRestrictionOn(o => o.Status).IsIn(FilterViewModel.SelectedStatuses);
             }
 
-            if (filterViewModel.DeliveryShift != null)
+            if (FilterViewModel.DeliveryShift != null)
             {
-                query.Where(o => o.Shift == filterViewModel.DeliveryShift);
+                query.Where(o => o.Shift == FilterViewModel.DeliveryShift);
             }
 
-            if (filterViewModel.StartDate != null)
+            if (FilterViewModel.StartDate != null)
             {
-                query.Where(o => o.Date >= filterViewModel.StartDate);
+                query.Where(o => o.Date >= FilterViewModel.StartDate);
             }
 
-            if (filterViewModel.EndDate != null)
+            if (FilterViewModel.EndDate != null)
             {
-                query.Where(o => o.Date <= filterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+                query.Where(o => o.Date <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
             }
 
-            if (filterViewModel.GeographicGroup != null)
+            if (FilterViewModel.GeographicGroup != null)
             {
                 query.Left.JoinAlias(o => o.GeographicGroups, () => geographicalGroupAlias)
-                     .Where(() => geographicalGroupAlias.Id == filterViewModel.GeographicGroup.Id);
+                     .Where(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
             }
 
             #region RouteListAddressTypeFilter
 
-            if (filterViewModel.WithDeliveryAddresses && filterViewModel.WithChainStoreAddresses && !filterViewModel.WithServiceAddresses)
+            if (FilterViewModel.WithDeliveryAddresses && FilterViewModel.WithChainStoreAddresses && !FilterViewModel.WithServiceAddresses)
             {
                 query.Where(() => !driverAlias.VisitingMaster);
             }
-            else if (filterViewModel.WithDeliveryAddresses && !filterViewModel.WithChainStoreAddresses && filterViewModel.WithServiceAddresses)
+            else if (FilterViewModel.WithDeliveryAddresses && !FilterViewModel.WithChainStoreAddresses && FilterViewModel.WithServiceAddresses)
             {
                 query.Where(() => !driverAlias.IsChainStoreDriver);
             }
-            else if (filterViewModel.WithDeliveryAddresses && !filterViewModel.WithChainStoreAddresses && !filterViewModel.WithServiceAddresses)
+            else if (FilterViewModel.WithDeliveryAddresses && !FilterViewModel.WithChainStoreAddresses && !FilterViewModel.WithServiceAddresses)
             {
                 query.Where(() => !driverAlias.VisitingMaster);
                 query.Where(() => !driverAlias.IsChainStoreDriver);
             }
-            else if (!filterViewModel.WithDeliveryAddresses && filterViewModel.WithChainStoreAddresses && filterViewModel.WithServiceAddresses)
+            else if (!FilterViewModel.WithDeliveryAddresses && FilterViewModel.WithChainStoreAddresses && FilterViewModel.WithServiceAddresses)
             {
                 query.Where(Restrictions.Or(
                     Restrictions.Where(() => driverAlias.VisitingMaster),
                     Restrictions.Where(() => driverAlias.IsChainStoreDriver)
                 ));
             }
-            else if (!filterViewModel.WithDeliveryAddresses && filterViewModel.WithChainStoreAddresses && !filterViewModel.WithServiceAddresses)
+            else if (!FilterViewModel.WithDeliveryAddresses && FilterViewModel.WithChainStoreAddresses && !FilterViewModel.WithServiceAddresses)
             {
                 query.Where(() => driverAlias.IsChainStoreDriver);
             }
-            else if (!filterViewModel.WithDeliveryAddresses && !filterViewModel.WithChainStoreAddresses && filterViewModel.WithServiceAddresses)
+            else if (!FilterViewModel.WithDeliveryAddresses && !FilterViewModel.WithChainStoreAddresses && FilterViewModel.WithServiceAddresses)
             {
                 query.Where(() => driverAlias.VisitingMaster);
             }
-            else if (!filterViewModel.WithDeliveryAddresses && !filterViewModel.WithChainStoreAddresses && !filterViewModel.WithServiceAddresses)
+            else if (!FilterViewModel.WithDeliveryAddresses && !FilterViewModel.WithChainStoreAddresses && !FilterViewModel.WithServiceAddresses)
             {
                 query.Where(() => routeListAlias.Id == null);
             }
 
             #endregion
 
-            switch (filterViewModel.TransportType)
+            switch (FilterViewModel.TransportType)
             {
                 case (RouteListJournalFilterViewModel.RLFilterTransport?)RLFilterTransport.Mercenaries:
                     query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar && !carAlias.IsRaskat); break;
@@ -144,12 +158,7 @@ namespace Vodovoz.JournalViewModels
                 () => routeListAlias.Car.RegistrationNumber
             ));
 
-            query.Left.JoinAlias(o => o.Driver, () => driverAlias);
-
-            var result = query
-                .Left.JoinAlias(o => o.Shift, () => shiftAlias)
-                .Left.JoinAlias(o => o.Car, () => carAlias)
-                .Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
+            var result = query                
                 .SelectList(list => list
                    .SelectGroup(() => routeListAlias.Id).WithAlias(() => routeListJournalNodeAlias.Id)
                    .Select(() => routeListAlias.Date).WithAlias(() => routeListJournalNodeAlias.Date)
@@ -171,27 +180,27 @@ namespace Vodovoz.JournalViewModels
             return result;
         };
 
-        protected override Func<TdiTabBase> CreateDialogFunction => () => throw new NotImplementedException();
+        protected override Func<TdiTabBase> CreateDialogFunction => () => throw new NotSupportedException();
 
         #region restrictions
 
-        private List<RouteListStatus> ClosingDlgStatuses = new List<RouteListStatus> {
+        private List<RouteListStatus> closingDlgStatuses = new List<RouteListStatus> {
             RouteListStatus.Delivered,
             RouteListStatus.OnClosing,
             RouteListStatus.MileageCheck,
         };
 
-        private List<RouteListStatus> CreateCarLoadDocument = new List<RouteListStatus> {
+        private List<RouteListStatus> createCarLoadDocument = new List<RouteListStatus> {
             RouteListStatus.InLoading
         };
 
-        private List<RouteListStatus> CreateCarUnloadDocument = new List<RouteListStatus> {
+        private List<RouteListStatus> createCarUnloadDocument = new List<RouteListStatus> {
             RouteListStatus.Delivered,
             RouteListStatus.OnClosing,
             RouteListStatus.MileageCheck,
         };
 
-        private List<RouteListStatus> FuelIssuingStatuses = new List<RouteListStatus> {
+        private List<RouteListStatus> fuelIssuingStatuses = new List<RouteListStatus> {
             RouteListStatus.New,
             RouteListStatus.Confirmed,
             RouteListStatus.InLoading,
@@ -201,11 +210,10 @@ namespace Vodovoz.JournalViewModels
             RouteListStatus.MileageCheck
         };
 
-        private List<RouteListStatus> CanReturnToOnClosing = new List<RouteListStatus>
+        private List<RouteListStatus> canReturnToOnClosing = new List<RouteListStatus>
         {
             RouteListStatus.Closed
         };
-        private readonly IRouteListRepository routeListRepository;
 
         #endregion
 
@@ -232,7 +240,7 @@ namespace Vodovoz.JournalViewModels
                 case RouteListStatus.Closed:
                     return new RouteListClosingDlg(node.Id);
                 default:
-                    throw new Exception("Неизвестный статус МЛ");
+                    throw new InvalidOperationException("Неизвестный статус МЛ");
             }
         };
 
@@ -242,23 +250,23 @@ namespace Vodovoz.JournalViewModels
 
             var callTaskWorker = new CallTaskWorker(
                     CallTaskSingletonFactory.GetInstance(),
-                    new CallTaskRepository(),
+                    callTaskRepository,
                     OrderSingletonRepository.GetInstance(),
                     EmployeeSingletonRepository.GetInstance(),
-                    new BaseParametersProvider(),
-                    ServicesConfig.CommonServices.UserService,
+                    baseParametersProvider,
+                    commonServices.UserService,
                     SingletonErrorReporter.Instance);
 
             PopupActionsList.Add(new JournalAction(
                 "Закрытие МЛ",
-                (selectedItems) => selectedItems.Any(x => ClosingDlgStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
-                (selectedItems) => selectedItems.Any(x => ClosingDlgStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
+                (selectedItems) => selectedItems.Any(x => closingDlgStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
+                (selectedItems) => selectedItems.Any(x => closingDlgStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
                 (selectedItems) =>
                 {
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
-                    if (selectedNode != null && ClosingDlgStatuses.Contains(selectedNode.StatusEnum))
+                    if (selectedNode != null && closingDlgStatuses.Contains(selectedNode.StatusEnum))
                     {
-                        MainClass.MainWin.TdiMain.OpenTab(
+                        TabParent.OpenTab(
                             DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
                             () => new RouteListClosingDlg(selectedNode.Id)
                         );
@@ -268,8 +276,8 @@ namespace Vodovoz.JournalViewModels
 
             PopupActionsList.Add(new JournalAction(
                 "Создание талона погрузки",
-                (selectedItems) => selectedItems.Any(x => CreateCarLoadDocument.Contains((x as RouteListJournalNode).StatusEnum)),
-                (selectedItems) => selectedItems.Any(x => CreateCarLoadDocument.Contains((x as RouteListJournalNode).StatusEnum)),
+                (selectedItems) => selectedItems.Any(x => createCarLoadDocument.Contains((x as RouteListJournalNode).StatusEnum)),
+                (selectedItems) => selectedItems.Any(x => createCarLoadDocument.Contains((x as RouteListJournalNode).StatusEnum)),
                 (selectedItems) =>
                 {
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
@@ -283,8 +291,8 @@ namespace Vodovoz.JournalViewModels
 
             PopupActionsList.Add(new JournalAction(
                 "Создание талона разгрузки",
-                (selectedItems) => selectedItems.Any(x => CreateCarUnloadDocument.Contains((x as RouteListJournalNode).StatusEnum)),
-                (selectedItems) => selectedItems.Any(x => CreateCarUnloadDocument.Contains((x as RouteListJournalNode).StatusEnum)),
+                (selectedItems) => selectedItems.Any(x => createCarUnloadDocument.Contains((x as RouteListJournalNode).StatusEnum)),
+                (selectedItems) => selectedItems.Any(x => createCarUnloadDocument.Contains((x as RouteListJournalNode).StatusEnum)),
                 (selectedItems) =>
                 {
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
@@ -298,22 +306,22 @@ namespace Vodovoz.JournalViewModels
 
             PopupActionsList.Add(new JournalAction(
                 "Выдать топливо",
-                (selectedItems) => selectedItems.Any(x => FuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
-                (selectedItems) => selectedItems.Any(x => FuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
+                (selectedItems) => selectedItems.Any(x => fuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
+                (selectedItems) => selectedItems.Any(x => fuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
                 (selectedItems) =>
                 {
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
                     if (selectedNode != null)
                     {
                         var RouteList = UoW.GetById<RouteList>(selectedNode.Id);
-                        MainClass.MainWin.TdiMain.OpenTab(
+                        TabParent.OpenTab(
                             DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
                             () => new FuelDocumentViewModel(
                                 RouteList,
-                                ServicesConfig.CommonServices,
-                                new SubdivisionRepository(),
+                                commonServices,
+                                subdivisionRepository,
                                 EmployeeSingletonRepository.GetInstance(),
-                                new FuelRepository(),
+                                fuelRepository,
                                 NavigationManagerProvider.NavigationManager
                             )
                         );
@@ -323,8 +331,8 @@ namespace Vodovoz.JournalViewModels
 
             PopupActionsList.Add(new JournalAction(
                 "Вернуть в статус Сдается",
-                (selectedItems) => selectedItems.Any(x => CanReturnToOnClosing.Contains((x as RouteListJournalNode).StatusEnum)),
-                (selectedItems) => selectedItems.Any(x => CanReturnToOnClosing.Contains((x as RouteListJournalNode).StatusEnum)),
+                (selectedItems) => selectedItems.Any(x => canReturnToOnClosing.Contains((x as RouteListJournalNode).StatusEnum)),
+                (selectedItems) => selectedItems.Any(x => canReturnToOnClosing.Contains((x as RouteListJournalNode).StatusEnum)),
                 (selectedItems) =>
                 {
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
@@ -337,9 +345,9 @@ namespace Vodovoz.JournalViewModels
                                 .Where(x => x.Id == selectedNode.Id)
                                 .List().FirstOrDefault();
 
-                            if (CanReturnToOnClosing.Contains(routeList.Status))
+                            if (canReturnToOnClosing.Contains(routeList.Status))
                             {
-                                if (TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
+                                if (TabParent.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
                                 {
                                     MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
                                     isSlaveTabActive = true;

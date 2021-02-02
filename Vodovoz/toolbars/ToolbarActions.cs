@@ -163,7 +163,7 @@ public partial class MainWindow : Window
 		ActionAtWorks = new Action("ActionAtWorks", "На работе", null, "table");
 		ActionRouteListsAtDay = new Action("ActionRouteListsAtDay", "Формирование МЛ", null, null);
 		ActionRouteListsPrint = new Action("ActionRouteListsPrint", "Печать МЛ", null, "print");
-		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Работа с маршрутными листами", null, "table");
+		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Работа кассы с МЛ", null, "table");
 		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин", null, "table");
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
@@ -788,7 +788,11 @@ public partial class MainWindow : Window
                 routeListFilter,
                 UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices,
-                new RouteListRepository()
+                new RouteListRepository(),
+                new FuelRepository(),
+                new CallTaskRepository(),
+                new BaseParametersProvider(),
+                new SubdivisionRepository()
             )
         );
     }
