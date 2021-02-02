@@ -142,7 +142,6 @@
     <Compile Include="Journals\JournalViewModels\FinancialDistrictsSetsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Logistic\RouteListJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\MovementWagonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Proposal\ApplicationDevelopmentProposalsJournalViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
