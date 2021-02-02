@@ -269,24 +269,24 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
             addressTypeNodes.ForEach(x => x.PropertyChanged -= OnStatusCheckChanged);
             base.Dispose();
         }
+    }
 
-        /// <summary>
-        /// Типы транспорта для доставки
-        /// </summary>
-        public enum RLFilterTransport
-        {
-            [Display(Name = "Наёмники")]
-            Mercenaries,
-            [Display(Name = "Раскат")]
-            Raskat,
-            [Display(Name = "Ларгус")]
-            Largus,
-            [Display(Name = "ГАЗель")]
-            GAZelle,
-            [Display(Name = "Фура")]
-            Waggon,
-            [Display(Name = "Прочее")]
-            Others
-        }
+    /// <summary>
+    /// Типы транспорта для доставки
+    /// </summary>
+    public enum RLFilterTransport
+    {
+        [Display(Name = "Наёмники")]
+        Mercenaries,
+        [Display(Name = "Раскат")]
+        Raskat,
+        [Display(Name = "Ларгус")]
+        Largus,
+        [Display(Name = "ГАЗель")]
+        GAZelle,
+        [Display(Name = "Фура")]
+        Waggon,
+        [Display(Name = "Прочее")]
+        Others
     }
 }
