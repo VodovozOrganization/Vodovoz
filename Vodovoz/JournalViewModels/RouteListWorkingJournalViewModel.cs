@@ -28,13 +28,13 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 
-namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
+namespace Vodovoz.JournalViewModels
 {
     public class RouteListWorkingJournalViewModel : FilterableSingleEntityJournalViewModelBase<RouteList, TdiTabBase, RouteListJournalNode, RouteListJournalFilterViewModel>
     {
         public RouteListWorkingJournalViewModel(
             RouteListJournalFilterViewModel filterViewModel,
-            IUnitOfWorkFactory unitOfWorkFactory, 
+            IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             IRouteListRepository routeListRepository) :
             base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -53,7 +53,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             Subdivision subdivisionAlias = null;
             GeographicGroup geographicalGroupAlias = null;
 
-            var query = uow.Session.QueryOver<RouteList>(() => routeListAlias);
+            var query = uow.Session.QueryOver(() => routeListAlias);
 
             var filterViewModel = Filter as RouteListJournalFilterViewModel;
 
@@ -270,7 +270,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 "Создание талона погрузки",
                 (selectedItems) => selectedItems.Any(x => CreateCarLoadDocument.Contains((x as RouteListJournalNode).StatusEnum)),
                 (selectedItems) => selectedItems.Any(x => CreateCarLoadDocument.Contains((x as RouteListJournalNode).StatusEnum)),
-                (selectedItems) => {
+                (selectedItems) =>
+                {
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
                     if (selectedNode != null)
                     {
@@ -284,7 +285,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 "Создание талона разгрузки",
                 (selectedItems) => selectedItems.Any(x => CreateCarUnloadDocument.Contains((x as RouteListJournalNode).StatusEnum)),
                 (selectedItems) => selectedItems.Any(x => CreateCarUnloadDocument.Contains((x as RouteListJournalNode).StatusEnum)),
-                (selectedItems) => {
+                (selectedItems) =>
+                {
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
                     if (selectedNode != null)
                     {
@@ -298,7 +300,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 "Выдать топливо",
                 (selectedItems) => selectedItems.Any(x => FuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
                 (selectedItems) => selectedItems.Any(x => FuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
-                (selectedItems) => {
+                (selectedItems) =>
+                {
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
                     if (selectedNode != null)
                     {
@@ -322,7 +325,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 "Вернуть в статус Сдается",
                 (selectedItems) => selectedItems.Any(x => CanReturnToOnClosing.Contains((x as RouteListJournalNode).StatusEnum)),
                 (selectedItems) => selectedItems.Any(x => CanReturnToOnClosing.Contains((x as RouteListJournalNode).StatusEnum)),
-                (selectedItems) => {
+                (selectedItems) =>
+                {
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
                     bool isSlaveTabActive = false;
                     if (selectedNode != null)
