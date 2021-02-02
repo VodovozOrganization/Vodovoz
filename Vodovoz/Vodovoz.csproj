@@ -592,8 +592,6 @@
     <Compile Include="Representations\RouteListsVM.cs" />
     <Compile Include="JournalFilters\RouteListsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListsFilter.cs" />
-    <Compile Include="JournalViewers\RouteListClosingView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListClosingView.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderReturnsView.cs" />
     <Compile Include="Commons\OrderPopupMenu.cs" />

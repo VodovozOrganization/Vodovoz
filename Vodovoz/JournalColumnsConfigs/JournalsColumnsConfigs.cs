@@ -25,7 +25,6 @@ using WrapMode = Pango.WrapMode;
 using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -885,34 +884,6 @@ namespace Vodovoz.JournalColumnsConfigs
 							c.ForegroundGdk = n.Status == ApplicationDevelopmentProposalStatus.Rejected ? colorRed : colorBlack)
 					.Finish()
 			);
-
-            //RouteListJournalViewModel
-            TreeViewColumnsConfigFactory.Register<RouteListJournalViewModel>(
-                () => FluentColumnsConfig<RouteListJournalNode>.Create()
-                    .AddColumn("Номер")
-                        .AddTextRenderer(node => node.Id.ToString())
-                    .AddColumn("Дата")
-                        .AddTextRenderer(node => node.Date.ToString("d"))
-                    .AddColumn("Смена")
-                        .AddTextRenderer(node => node.ShiftName)
-                    .AddColumn("Статус")
-                        .AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
-                    .AddColumn("Водитель и машина")
-                        .AddTextRenderer(node => node.DriverAndCar)
-                    .AddColumn("Сдается в кассу")
-                        .AddTextRenderer(node => node.ClosingSubdivision)
-                    .AddColumn("Комментарий ЛО")
-                        .AddTextRenderer(node => node.LogisticiansComment)
-                        .WrapWidth(300)
-                        .WrapMode(Pango.WrapMode.WordChar)
-                    .AddColumn("Комментарий по закрытию")
-                        .AddTextRenderer(node => node.ClosinComments)
-                        .WrapWidth(300)
-                        .WrapMode(Pango.WrapMode.WordChar)
-                    .RowCells()
-                        .AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
-                    .Finish()
-            );
 
             //RouteListWorkingJournalViewModel
             TreeViewColumnsConfigFactory.Register<RouteListWorkingJournalViewModel>(
