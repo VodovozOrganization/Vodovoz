@@ -31,7 +31,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public Action UpdateNodes;
         public Employee CurrentEmployee { get; }
         public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
-        public UserRole UserRole { get; set; }
         public static UserRole savedUserRole { get; set; }
         
         private readonly IEntityUoWBuilder uowBuilder;
@@ -125,9 +124,18 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
         protected void ConfigureEntityChangingRelations()
         {
-            SetPropertyChangeRelation(e => e.State,
-                () => StateName
-            );
+            SetPropertyChangeRelation(e => e.State, () => StateName);
+            SetPropertyChangeRelation(e => e.State, () => CanEditOnlyCoordinator);
+            SetPropertyChangeRelation(e => e.State, () => CanEditOnlyinStateNAGandRoldFinancier);
+            SetPropertyChangeRelation(e => e.State, () => ExpenseCategorySensitive);
+            SetPropertyChangeRelation(e => e.State, () => CanEditSumSensitive);
+            SetPropertyChangeRelation(e => e.State, () => VisibleOnlyForStatusUpperThanCreated);
+            SetPropertyChangeRelation(e => e.State, () => CanGiveSum);
+            SetPropertyChangeRelation(e => e.State, () => CanAccept);
+            SetPropertyChangeRelation(e => e.State, () => CanApprove);
+            SetPropertyChangeRelation(e => e.State, () => CanConveyForResults);
+            SetPropertyChangeRelation(e => e.State, () => CanReturnToRenegotiation);
+            SetPropertyChangeRelation(e => e.State, () => CanCancel);
         }
 
         #region Commands
@@ -220,10 +228,31 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 }
             }, () => true
         ));
-        
+
         #endregion Commands
 
         #region Properties
+
+        private UserRole userRole;
+        public UserRole UserRole
+        {
+            get { 
+                return userRole; 
+            }
+            set {
+                SetField(ref userRole, value, () => UserRole);
+                OnPropertyChanged(() => CanEditOnlyCoordinator);
+                OnPropertyChanged(() => CanEditOnlyinStateNAGandRoldFinancier);
+                OnPropertyChanged(() => ExpenseCategorySensitive);
+                OnPropertyChanged(() => CanEditSumVisible);
+                OnPropertyChanged(() => VisibleOnlyForFinancer);
+                OnPropertyChanged(() => CanGiveSum);
+                OnPropertyChanged(() => CanApprove);
+                OnPropertyChanged(() => CanConveyForResults);
+                OnPropertyChanged(() => CanCancel);
+            }
+        }
+
 
         public bool IsNewEntity { get; private set; }
         public bool IsAdminPanelVisible { get; set; }
