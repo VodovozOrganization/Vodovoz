@@ -184,7 +184,7 @@ LEFT JOIN measurement_units mu ON mu.id = n.unit_id
 LEFT JOIN route_list_addresses rla ON rla.route_list_id = scld.route_list_id 
 LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
 LEFT JOIN orders ON rla.order_id = orders.id 
-LEFT JOIN order_equipment oe ON oe.order_id = orders.id
+LEFT JOIN order_equipment oe ON oe.order_id = orders.id AND oe.nomenclature_id = scldi.nomenclature_id
 WHERE
 	scld.id = @id
 	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle', 'CashEquipment')
