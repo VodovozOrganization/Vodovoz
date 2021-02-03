@@ -22,8 +22,6 @@ namespace BitrixIntegration.ServiceInterfaces
 			RequestFormat = WebMessageFormat.Json)]
 		void OnCrmDealUpdate(BitrixApi.DTO.DataContractJsonSerializer.DealRequest dealRequest); 
 		
-		Task TestWithoutWebHook(string token); // TODO gavr убраьт она нужна только для того чтобы потестить без хука
-
 		[OperationContract]
 		[WebInvoke(Method = "POST",
 			BodyStyle = WebMessageBodyStyle.Wrapped,

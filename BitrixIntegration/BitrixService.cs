@@ -37,9 +37,10 @@ namespace BitrixIntegration
 			// WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.OK;
 		}
 
-		public Tuple<bool, string> SendEmail(Email mail)
+		//Вызов функции из ДВ
+		public Tuple<bool, string> SendNewStatus(OrderStatus status, Order order)
 		{
-			return BitrixManager.AddEmail(mail);
+			return BitrixManager.sendOrderStatusToBitrix(status, order);
 		}
 
 		public int Add(int a, int b)
@@ -54,96 +55,7 @@ namespace BitrixIntegration
 			if (WebOperationContext.Current != null)
 				WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.OK;
 		}
-
-		public async Task TestWithoutWebHook(string token)
-		{
-			/*
-		 * 1. Сопоставление контрагента (по новому полю) BitrixId 
-			1. Если не получилось сопоставить по BitrixId, то делаем запрос всех данных контрагента в битрикс
-			2. По телефону из пришедших данных битрикса делаем сопоставление
-			  2.1 Приводим его к формату 9999999999
-			  2.2 Ищем телефон в нашей базе по полю digit_number
-			  2.3 Выбираем контрагента (если это физик то ищем его у нас по телефону + фамилии(только фамилии чтобы исключить дубли в тех случаях когда допущены ошибки в имени    или отчестве) иначе если это юрик то по телефону + целиком строка названия компании ) и заполняем у него BitrixId (чтобы в следующий раз он нашелся без сопоставления)
-			3. Если не нашли то создаем нового контрагента (тоже с  BitrixId)
-		 */
-			var uowFactory = new DefaultUnitOfWorkFactory(new DefaultSessionProvider());
-			var uow = uowFactory.CreateWithoutRoot();
-
-			// using (uow){
-				var restApi = BitrixRestApiFabric.CreateBitrixRestApi(token);
-				var deal = await restApi.GetDealAsync(138788);
-
-				// Если у нас есть заказ отправляем 200
-				var matchedOrder = Matcher.MatchOrderByBitrixId(uow, deal);
-				if (matchedOrder != null) {
-					//TODO gavr а это точно отправка 200 по WCFфовски?
-					WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.OK;
-					return;
-				}
-				else{
-					// Сопоставляем контрагента
-					var contact = await restApi.GetContact(deal.ContancId);
-					Matcher.MatchContact(uow, contact);
-					// не сошелся, создаем контрагента
-					// CreateCounterpartyFromContact(contact)
-				
-					//Сопоставляем Точку доставки
-					// var deliveryPoint = await restApi.GetDeliveryPoint(???);
-					// Matcher.MatchContact(uow, contact);
-					// не сошелся, создаем Точку доставки
-					// CreateDeliveryPointFrom???(???)
-				
-					//Сопоставляем Товары
-					// var OrderItems = await restApi.GetContact(deal.ContancId);
-					// Matcher.MatchContact(uow, contact);
-					// не сошелись группы, создаем группы, создаем товары
-					// CreateOrderGroupFrom???(???)
-					// не сошелись товары, создаем товары
-					// CreateOrderItemsFrom???(???)
-				
-					
-					//Создаем заказ
-				}
-			// }
-			
-			// if (matchedOrder == null)
-			// {
-			// 	
-			// 	//Пытаемся сопоставить
-			// 	if ("Получилось сопоставить с одним из существующих")
-			// 	{
-			// 		// Добавляем ему этот bitrixId
-			// 	}
-			// 	else
-			// 	{
-			// 		bool deliveryPointFound = false;
-			// 		bool orderFound = false;
-			// 		
-			//
-			// 		#region Сопоставление заказа
-			//
-			// 		//Сопоставить по bitrixId не получилос, но может быть он у нас есть но не сопоставлен
-			// 		//Делая запрос всех необходимых данных этого заказа
-			// 		//Достаем из них телефон и приводим к формату 9999999999
-			// 		//Ищем телефон в нашей базе по полю digit_number
-			//
-			// 		#endregion Сопоставление заказа
-			//
-			// 		#region Сопоставление точки доставки
-			//
-			//
-			//
-			// 		#endregion Сопоставление точки доставки
-			//
-			// 	}
-			// }
-			// else
-			// {
-			// 	//У нас уже есть такой заказ и делать ничего не надо
-			// 	//Возвращаем 200
-			// }
-		}
-
+		
 		public void OnCrmDealUpdate(DealRequest dealRequest)
 		{
 			/*
@@ -207,11 +119,12 @@ namespace BitrixIntegration
 
 		public bool ServiceStatus()
 		{
-			int emailsInQueue = BitrixManager.GetEmailsInQueue();
-			if(emailsInQueue > bitrixServiceSettings.MaxEmailsInQueueForWorkingService) {
+			int bitrixInQueue = BitrixManager.CountOrderNewStatusesInQueue();
+			if(bitrixInQueue > bitrixServiceSettings.MaxStatusesInQueueForWorkingService) {
 				return false;
 			}
 			return true;
 		}
+
 	}
 }

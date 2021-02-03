@@ -86,9 +86,9 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isFirstOrder, value, () => IsFirstOrder);
 		}
 		
-		int? bitrixId;
+		uint? bitrixId;
 		[Display(Name = "Id заказа в битриксе")]
-		public virtual int? BitrixId {
+		public virtual uint? BitrixId {
 			get => bitrixId;
 			set => SetField(ref bitrixId, value);
 		}

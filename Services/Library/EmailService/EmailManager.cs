@@ -76,10 +76,7 @@ namespace EmailService
 			}
 		}
 
-		public static int GetEmailsInQueue()
-		{
-			return emailsQueue.Count;
-		}
+		public static int CountEmailsInQueue() => emailsQueue.Count;
 
 		public static void AddEvent(MailjetEvent mailjetEvent)
 		{
@@ -89,6 +86,7 @@ namespace EmailService
 			});
 		}
 
+		// Хелпер добавления email в очередь
 		public static Tuple<bool, string> AddEmail(Email email)
 		{
 			Thread.CurrentThread.Name = "AddNewEmail";
@@ -122,6 +120,8 @@ namespace EmailService
 			}
 		}
 
+		// Добавляем email в очередь на обработку предварительно сохраняя в базу
+		// Затем они обрабатываются в ProcessEmailMailjet
 		static void AddEmailToSend(Email email)
 		{
 			if(!emailRepository.CanSendByTimeout(email.Recipient.EmailAddress, email.Order, email.OrderDocumentType)) {
@@ -175,6 +175,7 @@ namespace EmailService
 			}
 		}
 
+		//Отправка письма с обработкой ответа
 		static async Task ProcessEmailMailjet()
 		{
 			Thread.CurrentThread.Name = "EmailSendWorker";
@@ -275,6 +276,7 @@ namespace EmailService
 			}
 		}
 
+		//Вебхук куда поступают письма на обработку
 		static void ProcessEvent(MailjetEvent mailjetEvent)
 		{
 			if(mailjetEvent.AttemptCount > 0) {

@@ -126,45 +126,29 @@ namespace Vodovoz.Repositories
 		/// <param name="uow"></param>
 		/// <param name="phoneDigitNumber">Номер телефона в формате 9999999999 (10 цифр)</param>
 		/// <returns>пары телефон-клиент по телефону на сулчай если есть одинаковые</returns>
-		public static IDictionary<Counterparty,Phone> GetCounterpartesByPhone(IUnitOfWork uow, string phoneDigitNumber)
+		public static IList<Counterparty> GetCounterpartesByPhone(IUnitOfWork uow, string phoneDigitNumber)
 		{
 			
 			Phone phoneAlias = null;
-			var countepartyWithPhone = uow.Session.QueryOver<Counterparty>()
+			return uow.Session.QueryOver<Counterparty>()
 				.JoinAlias(co => co.Phones, () => phoneAlias)
 				.Where(() => phoneAlias.DigitsNumber == phoneDigitNumber)
 				.List();
-
-			var map = new Dictionary<Counterparty,Phone>();
-			foreach (var counterparty in countepartyWithPhone){
-				foreach (var phone in counterparty.Phones){
-					map.Add(counterparty,phone);
-				}
-			}
-
-			return map;
 		}
 		
 		/// <summary>
-		/// Возвращает пары фамилия-клиент по телефону на случай если есть клиенты с одинаковыми фамилиями
+		/// Возвращает список контрагентов содержащих соответсвующую строку в поле fullName например фамилию имя или отчество
 		/// </summary>
 		/// <param name="uow"></param>
-		/// <param name="fullName"></param>
+		/// <param name="partOfName">Часть ФИО</param>
 		/// <returns></returns>
-		public static IDictionary<Counterparty,string> GetCounterpartesBySecondName(IUnitOfWork uow, string secondName)
-		{
-			// var secondName = NamesUtils.GetSecondNameFromFullName(fullName);
-			
-			var countepartyWithSecondNames = uow.Session.QueryOver<Counterparty>()
-				.Where(x => x.FullName.Like(secondName))
-				.List();	
-
-			var map = new Dictionary<Counterparty,string>();
-			foreach (var counterparty in countepartyWithSecondNames){
-				map.Add(counterparty,secondName);
-			}
-
-			return map;
+		public static IList<Counterparty> GetCounterpartesByPartOfName(IUnitOfWork uow, string partOfName)
+		{ 
+			if (partOfName == null) throw new ArgumentNullException();
+			return uow.Session.QueryOver<Counterparty>()
+				// .Where(x => x.FullName.Like(partOfName))
+				.Where(Restrictions.On<Counterparty>(c => c.FullName).IsLike(partOfName))
+				.List();
 		}
 		
 		public static Counterparty GetCounterpartyByBitrixId(IUnitOfWork uow, int bitrixId) => 

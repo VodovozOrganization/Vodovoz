@@ -23,7 +23,7 @@ namespace VodovozEmailService
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		private static readonly string configFile = "/etc/vodovoz-email-service.conf";
+		private static readonly string configFile = "/home/gavr/vodovoz-email-service.conf";
 
 		//Service
 		private static string serviceHostName;

@@ -8,12 +8,12 @@ namespace EmailService
 	public class EmailService : IEmailService, IMailjetEventService, IEmailServiceWeb
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IBitrixServiceSettings bitrixServiceSettings;
+		private readonly IEmailServiceSettings emailServiceSettings;
 
-		public EmailService(IBitrixServiceSettings bitrixServiceSettings)
+		public EmailService(IEmailServiceSettings emailServiceSettings)
 		{
 			EmailManager.Init();
-			this.bitrixServiceSettings = bitrixServiceSettings ?? throw new ArgumentNullException(nameof(bitrixServiceSettings));
+			this.emailServiceSettings = emailServiceSettings ?? throw new ArgumentNullException(nameof(emailServiceSettings));
 		}
 
 		public void PostEvent(MailjetEvent content)
@@ -31,8 +31,8 @@ namespace EmailService
 
 		public bool ServiceStatus()
 		{
-			int emailsInQueue = EmailManager.GetEmailsInQueue();
-			if(emailsInQueue > bitrixServiceSettings.MaxEmailsInQueueForWorkingService) {
+			int emailsInQueue = EmailManager.CountEmailsInQueue();
+			if(emailsInQueue > emailServiceSettings.MaxEmailsInQueueForWorkingService) {
 				return false;
 			}
 			return true;

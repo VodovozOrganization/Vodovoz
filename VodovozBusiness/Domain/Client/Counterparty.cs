@@ -816,6 +816,11 @@ namespace Vodovoz.Domain.Client
 			JurAddress = string.Empty;
 			PhoneFrom1c = string.Empty;
 		}
+		
+		public override int GetHashCode()
+		{
+			return Id.GetHashCode();
+		}
 
 		#region IValidatableObject implementation
 

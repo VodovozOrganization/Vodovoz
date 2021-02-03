@@ -13,12 +13,19 @@ using Contact = BitrixApi.DTO.Contact;
 
 namespace BitrixIntegration {
     public class Matcher {
-        public static Order MatchOrderByBitrixId(IUnitOfWork uow, Deal deal) =>
-            OrderSingletonRepository.GetInstance().GetOrderByBitrixId(uow, deal.ID);
+        public static Order MatchOrderByBitrixId(/*IUnitOfWork uow,*/ Deal deal)
+        {
+            using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+            {
+
+                return OrderSingletonRepository.GetInstance().GetOrderByBitrixId(uow, deal.ID);
+            }
+
+        }
             
         
 
-        //TODO gavr как то обрабатывать ситуацию с 
+        //TODO gavr как то обрабатывать ситуацию с компанией/чатсным лицом
         public static bool MatchContact(IUnitOfWork uow, Contact contact)
         {
             throw new NotImplementedException();
@@ -36,16 +43,29 @@ namespace BitrixIntegration {
         /// <param name="phone"></param>
         /// <param name="contact"></param>
         /// <param name="counterparty"></param>
+        /// <exception cref="NullReferenceException">This exception is thrown if the archive already exists</exception>
         /// <returns></returns>
-        public static bool MatchCounterpartyByPhoneAndSecondName(IUnitOfWork uow, Phone phone, Contact contact, out Counterparty counterparty) {
+        public static bool MatchCounterpartyByPhoneAndSecondName(/*IUnitOfWork uow,*/ Contact contact, out Counterparty counterparty)
+        {
+
+            var uow = UnitOfWorkFactory.CreateWithoutRoot();
             //Формат записанный в Value +7 (981) 944-86-31
-            var a = phone.VALUE;
-            PhoneUtils.NumberTrim(phone.VALUE, out var _);
-            var counterpartiesByPhone = CounterpartyRepository.GetCounterpartesByPhone(uow, phone.VALUE);
-            var counterpartiesByName = CounterpartyRepository.GetCounterpartesBySecondName(uow, contact.SECOND_NAME);
+            var phone = contact.PHONE.First().VALUE;
+            var digitsNum = PhoneUtils.NumberTrim(phone, out var _);
+
+            digitsNum = "9215667037";
+            var counterpartiesByPhone = CounterpartyRepository.GetCounterpartesByPhone(uow, digitsNum);
+            IList<Counterparty> counterpartiesByName = null;
+            
+            counterpartiesByName = CounterpartyRepository.GetCounterpartesByPartOfName(
+                uow,
+                contact.SECOND_NAME?? contact.LAST_NAME ?? contact.NAME ?? 
+                    throw new NullReferenceException("Контакт не содержит имени, фамилии и отчества, необходимых для сопоставления")
+            );
+            
             var b = new HashSet<Counterparty>();
-            b.UnionWith(counterpartiesByPhone.Keys);
-            b.UnionWith(counterpartiesByName.Keys);
+            b.UnionWith(counterpartiesByPhone);
+            b.UnionWith(counterpartiesByName);
             if (b.Count == 1){
                 counterparty = b.First();
                 return true;

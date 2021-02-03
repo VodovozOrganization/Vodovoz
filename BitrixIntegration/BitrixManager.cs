@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Net;
-using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,14 +13,10 @@ using Mailjet.Client.Resources;
 using Newtonsoft.Json.Linq;
 using NLog;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Services;
 using Email = BitrixIntegration.DTO.Email;
 
 namespace BitrixIntegration
@@ -30,40 +26,39 @@ namespace BitrixIntegration
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		static int MaxSendAttemptsCount = 5;
 		static int MaxEventSaveAttemptsCount = 5;
-		static string userId = null;
-		static string userSecretKey = null;
+		
+		static string token = null;
 		static CancellationTokenSource cancellationToken = new CancellationTokenSource();
-		static BlockingCollection<Email> emailsQueue = new BlockingCollection<Email>();
-		static BlockingCollection<MailjetEvent> unsavedEventsQueue = new BlockingCollection<MailjetEvent>();
+		//Очередь на обработку сделок
+		//TODO gavr переделать на коллекцию объектов содержащих статус и заказ и менять статусы у данных заказов в битрикс
+		static BlockingCollection<Deal> dealsQueue = new BlockingCollection<Deal>(); 
+		//Очередь необработанных
+		static BlockingCollection<DealRequest> unsavedEventsQueue = new BlockingCollection<DealRequest>();
 		static bool IsInitialized => !(string.IsNullOrWhiteSpace(token));
 		static int workerTasksCreatedCounter = 0;
 		static IEmailRepository emailRepository = new EmailRepository();
-		
-		static string token = null;
-		static BlockingCollection<Deal> dealsQueue = new BlockingCollection<Deal>();
-		// static BlockingCollection<MailjetEvent> unsavedEventsQueue = new BlockingCollection<MailjetEvent>();
-		
 
 
 		static BitrixManager()
 		{
 			//Установка всем не отправленным письмам из базы статус ошибки отправки в связи с остановкой сервера.
-			Task.Run(() => SetErrorStatusWaitingToSendEmails());
+			// Task.Run(() => SetErrorStatusWaitingToSendEmails());
 
-			//Запуск воркеров по отправке писем
-			StartNewWorker();
-			StartNewWorker();
-			StartNewWorker();
-
+			//Запуск воркеров по обработке заказов
+			// StartNewWorker();
+			// StartNewWorker();
+			// StartNewWorker();
+			
 			//Запуск воркера по пересохранению ошибочных событий
-			Task.Run(() => ResaveEventWork());
+			// Task.Run(() => ResaveEventWork());
 		}
 
 		private static void StartNewWorker()
 		{
 			workerTasksCreatedCounter++;
 			logger.Info("Запуск новой задачи по отправке писем");
-			Task workerTask = Task.Factory.StartNew(() => ProcessEmailMailjet(), cancellationToken.Token);
+			Task workerTask = Task.Factory.StartNew(() => ProcessDealCycle(), cancellationToken.Token);
+			// Перезапуск тасков на случай если вылетели из while true
 			workerTask.ContinueWith((task) => StartNewWorker());
 		}
 
@@ -77,44 +72,35 @@ namespace BitrixIntegration
 			if(IsInitialized) {
 				return;
 			}
-			
-			logger.Error("Токен не установлен");
-			// IBitrixServiceSettings parametersProvider = new BaseParametersProvider();
-			//
+			logger.Error("Token не выставлен");
+			// IMailjetParametersProvider parametersProvider = new BaseParametersProvider();
+
 			// try {
-			// 	SetToken(parametersProvider.BitrixSecretToken);
+			// 	SetLoginSetting(parametersProvider.MailjetUserId, parametersProvider.MailjetSecretKey);
 			// } catch(Exception ex) {
 			// 	logger.Error(ex);
 			// }
 		}
 
-		public static int GetEmailsInQueue()
+		public static int CountOrderNewStatusesInQueue()
 		{
-			return emailsQueue.Count;
+			return dealsQueue.Count;
 		}
 
-		public static void AddEvent(MailjetEvent mailjetEvent)
+		public static void AddEvent(Deal deal)
 		{
 			Task.Run(() => {
 				Thread.CurrentThread.Name = "AddEventWork";
-				ProcessEvent(mailjetEvent);
-			});
-		}
-		
-		public static void AddEvent(BitrixApi.DTO.Deal dealRequest)
-		{
-			Task.Run(() => {
-				Thread.CurrentThread.Name = "AddEventWork";
-				ProcessDealEvent(dealRequest); //TODO gavr ексепшоны бутут возникать здесь, тк кк ProcessDealEvent async void
+				ProcessEvent(deal);
 			});
 		}
 
-		public static Tuple<bool, string> AddEmail(Email email)
+		public static Tuple<bool, string> sendOrderStatusToBitrix(OrderStatus status, Order order)
 		{
 			Thread.CurrentThread.Name = "AddNewEmail";
-			logger.Debug("Thread {0} Id {1}: Получено новое письмо на отправку", Thread.CurrentThread.Name, Thread.CurrentThread.ManagedThreadId);
+			logger.Debug("Thread {0} Id {1}: Получен новый статус для обновления в битриксе", Thread.CurrentThread.Name, Thread.CurrentThread.ManagedThreadId);
 			try {
-				AddEmailToSend(email);
+				SendNewOrderStatus(status, order);
 			}
 			catch(Exception ex) {
 				return new Tuple<bool, string>(false, ex.Message);
@@ -123,7 +109,9 @@ namespace BitrixIntegration
 		}
 
 
-		/// <summary>
+		#region Ненужное вроде как
+
+		/// <summary> 
 		/// Устанавливает статус ошибки отправки, для всех писем в ожидании отправки.
 		/// </summary>
 		static void SetErrorStatusWaitingToSendEmails()
@@ -131,8 +119,8 @@ namespace BitrixIntegration
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Установка статуса ошибки всем ожидающим")) {
 				logger.Debug("Загрузка из базы почты ожидающей отправки");
 				var waitingEmails = uow.Session.QueryOver<StoredEmail>()
-									   .Where(x => x.State == StoredEmailStates.WaitingToSend)
-									   .List<StoredEmail>();
+					.Where(x => x.State == StoredEmailStates.WaitingToSend)
+					.List<StoredEmail>();
 				foreach(var email in waitingEmails) {
 					email.State = StoredEmailStates.SendingError;
 					email.AddDescription("Отправка прервана остановкой сервера.");
@@ -142,174 +130,126 @@ namespace BitrixIntegration
 			}
 		}
 
-		static void AddEmailToSend(Email email)
-		{
-			if(!emailRepository.CanSendByTimeout(email.Recipient.EmailAddress, email.Order, email.OrderDocumentType)) {
-				logger.Error("{0} Попытка отправить почту до истечения минимального времени до повторной отправки", GetThreadInfo());
-				throw new Exception("Отправка на один и тот же адрес возможна раз в 10 минут");
-			}
+		#endregion Ненужное вроде как
 
-			logger.Debug("{0} Запись в базу информации о письме", GetThreadInfo());
-			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<StoredEmail>($"[ES]Добавление письма на отправку")) {
-				//Заполнение нового письма данными
-				switch (email.OrderDocumentType)
-				{
-					case OrderDocumentType.Bill:
-						uow.Root.Order = uow.GetById<Order>(email.Order);
-						break;
-					case OrderDocumentType.BillWSForDebt:
-						uow.Root.OrderWithoutShipmentForDebt = uow.GetById<OrderWithoutShipmentForDebt>(email.Order);
-						break;
-					case OrderDocumentType.BillWSForAdvancePayment:
-						uow.Root.OrderWithoutShipmentForAdvancePayment = uow.GetById<OrderWithoutShipmentForAdvancePayment>(email.Order);
-						break;
-					case OrderDocumentType.BillWSForPayment:
-						uow.Root.OrderWithoutShipmentForPayment = uow.GetById<OrderWithoutShipmentForPayment>(email.Order);
-						break;
-				}
-				
-				uow.Root.DocumentType = email.OrderDocumentType;
-				uow.Root.SendDate = DateTime.Now;
-				uow.Root.StateChangeDate = DateTime.Now;
-				uow.Root.HtmlText = email.HtmlText;
-				uow.Root.Text = email.Text;
-				uow.Root.Title = email.Title;
-				uow.Root.State = StoredEmailStates.WaitingToSend;
-				uow.Root.SenderName = email.Sender.Title;
-				uow.Root.SenderAddress = email.Sender.EmailAddress;
-				uow.Root.RecipientName = email.Recipient.Title;
-				uow.Root.RecipientAddress = email.Recipient.EmailAddress;
-				uow.Root.ManualSending = email.ManualSending;
-				uow.Root.Author = email.AuthorId != 0 ? uow.GetById<Employee>(email.AuthorId) : null;
-				try {
-					uow.Save();
-				}
-				catch(Exception ex) {
-					logger.Debug(string.Format("{1} Ошибка при сохранении. Ошибка: {0}", ex.Message, GetThreadInfo()));
-					throw ex;
-				}
-				email.StoredEmailId = uow.Root.Id;
-				emailsQueue.Add(email);
-				logger.Debug("{0} Письмо добавлено в очередь на отправку. Писем в очереди: {1}", GetThreadInfo(), emailsQueue.Count);
-				logger.Debug("{0} Закончил работу.", GetThreadInfo());
-			}
+		//Добавление новых сделок в очередь на обработку
+		static void AddEmailToSend(Deal deal)
+		{
+			//TODO gavr может делать тут пред обработку, например проверить есть ли у нас такой заказ
+			
+			
+			dealsQueue.Add(deal);
+			
+			logger.Debug("{0} Сделка добавлена в очередь на обработку. Сделок в очереди: {1}", GetThreadInfo(), dealsQueue.Count);
+			logger.Debug("{0} Закончил работу.", GetThreadInfo());
 		}
 
-		static async Task ProcessEmailMailjet()
+
+		static void SendNewOrderStatus(OrderStatus newStatus, Order forOrder)
+		{
+			//TODO gavr отправка статус в битрикс должна быть в репозитории здесь
+			
+			throw new NotImplementedException();
+			// if(!emailRepository.CanSendByTimeout(email.Recipient.EmailAddress, email.Order, email.OrderDocumentType)) {
+			// 	logger.Error("{0} Попытка отправить статус до истечения минимального времени до повторной отправки", GetThreadInfo());
+			// 	throw new Exception("Отправка на один и тот же адрес возможна раз в 10 минут");
+			// }
+			//
+			// logger.Debug("{0} Запись в базу информации о письме", GetThreadInfo());
+			// using(var uow = UnitOfWorkFactory.CreateWithNewRoot<StoredEmail>($"[ES]Добавление письма на отправку")) {
+			// 	//Заполнение нового письма данными
+			// 	switch (email.OrderDocumentType)
+			// 	{
+			// 		case OrderDocumentType.Bill:
+			// 			uow.Root.Order = uow.GetById<Order>(email.Order);
+			// 			break;
+			// 		case OrderDocumentType.BillWSForDebt:
+			// 			uow.Root.OrderWithoutShipmentForDebt = uow.GetById<OrderWithoutShipmentForDebt>(email.Order);
+			// 			break;
+			// 		case OrderDocumentType.BillWSForAdvancePayment:
+			// 			uow.Root.OrderWithoutShipmentForAdvancePayment = uow.GetById<OrderWithoutShipmentForAdvancePayment>(email.Order);
+			// 			break;
+			// 		case OrderDocumentType.BillWSForPayment:
+			// 			uow.Root.OrderWithoutShipmentForPayment = uow.GetById<OrderWithoutShipmentForPayment>(email.Order);
+			// 			break;
+			// 	}
+			// 	
+			// 	uow.Root.DocumentType = email.OrderDocumentType;
+			// 	uow.Root.SendDate = DateTime.Now;
+			// 	uow.Root.StateChangeDate = DateTime.Now;
+			// 	uow.Root.HtmlText = email.HtmlText;
+			// 	uow.Root.Text = email.Text;
+			// 	uow.Root.Title = email.Title;
+			// 	uow.Root.State = StoredEmailStates.WaitingToSend;
+			// 	uow.Root.SenderName = email.Sender.Title;
+			// 	uow.Root.SenderAddress = email.Sender.EmailAddress;
+			// 	uow.Root.RecipientName = email.Recipient.Title;
+			// 	uow.Root.RecipientAddress = email.Recipient.EmailAddress;
+			// 	uow.Root.ManualSending = email.ManualSending;
+			// 	uow.Root.Author = email.AuthorId != 0 ? uow.GetById<Employee>(email.AuthorId) : null;
+			// 	try {
+			// 		uow.Save();
+			// 	}
+			// 	catch(Exception ex) {
+			// 		logger.Debug(string.Format("{1} Ошибка при сохранении. Ошибка: {0}", ex.Message, GetThreadInfo()));
+			// 		throw ex;
+			// 	}
+			// 	email.StoredEmailId = uow.Root.Id;
+			// 	dealsQueue.Add(email);
+			// 	logger.Debug("{0} Письмо добавлено в очередь на отправку. Писем в очереди: {1}", GetThreadInfo(), dealsQueue.Count);
+			// 	logger.Debug("{0} Закончил работу.", GetThreadInfo());
+			// }
+		}
+
+		//основной бесконечный цикл по обработке поступивших штук
+		// скорее всего лучше переделать под цикл посылки изменившихся статусов заказов
+		static async Task ProcessDealCycle()
 		{
 			Thread.CurrentThread.Name = "EmailSendWorker";
 			while(true) {
-				Email email = null;
+				Deal deal = null;
 
-				email = emailsQueue.Take();
-				logger.Debug("{0} Отправка письма из очереди", GetThreadInfo());
+				deal = dealsQueue.Take();
+				logger.Debug("{0} Обработка сделки из очереди из очереди", GetThreadInfo());
 
 				Thread.Sleep(1000);
 
-				if(email == null) {
+				if(deal == null) {
 					continue;
 				}
 
-				if(email.StoredEmailId == 0) {
-					logger.Debug("{0} Письмо не было сохранено перед добавлением в очередь. Добавлено повторно в очередь", GetThreadInfo());
-					AddEmailToSend(email);
-					continue;
+				//TODO стоит ли сохранять сделки в базу перед обработкой? наверное нет
+				// if(deal.StoredEmailId == 0) {
+				// 	logger.Debug("{0} Письмо не было сохранено перед добавлением в очередь. Добавлено повторно в очередь", GetThreadInfo());
+				// 	SendNewOrderStatus(deal);
+				// 	continue;
+				// }
+				
+				try {
+					// обработка запроса
 				}
-
-				using(var uow = UnitOfWorkFactory.CreateForRoot<StoredEmail>(email.StoredEmailId, $"[ES]Задача отправки через Mailjet")) {
-					MailjetClient client = new MailjetClient(userId, userSecretKey) {
-						// Version = ApiV
-					};
-					try {
-						//формируем письмо в формате mailjet для отправки
-						var request = CreateMailjetRequest(email);
-						MailjetResponse response = null;
-						try {
-							logger.Debug("{0} Отправка запроса на сервер Mailjet", GetThreadInfo());
-							response = await client.PostAsync(request);
-						}
-						catch(Exception ex) {
-							logger.Error("{1} Не удалось отправить письмо: \n{0}", ex, GetThreadInfo());
-							SaveErrorInfo(uow, ex.ToString());
-							continue;
-						}
-
-						MailjetMessage[] messages = response.GetData().ToObject<MailjetMessage[]>();
-
-						logger.Debug("{1} Получен ответ: Code {0}", response.StatusCode, GetThreadInfo());
-						
-						if(response.IsSuccessStatusCode) {
-							uow.Root.State = StoredEmailStates.SendingComplete;
-							foreach(var message in messages) {
-								if(message.CustomID == uow.Root.Id.ToString()) {
-									foreach(var messageTo in message.To) {
-										if(messageTo.Email == email.Recipient.EmailAddress) {
-											uow.Root.ExternalId = messageTo.MessageID.ToString();
-										}
-									}
-								}
-							}
-							uow.Save();
-							logger.Debug(response.GetData());
-						} else {
-							switch(response.StatusCode) {
-
-							//Unauthorized
-							//Incorrect Api Key / API Secret Key or API key may be expired.
-							case 401:
-								Init();
-								if(email.SendAttemptsCount >= MaxSendAttemptsCount) {
-									SaveErrorInfo(uow, GetErrors(messages));
-								} else {
-									emailsQueue.Add(email);
-								}
-								break;
-
-							//Too Many Requests
-							//Reach the maximum number of calls allowed per minute.
-							case 429:
-								if(email.SendAttemptsCount >= MaxSendAttemptsCount) {
-									SaveErrorInfo(uow, GetErrors(messages));
-								} else {
-									emailsQueue.Add(email);
-								}
-								break;
-
-							//Internal Server Error
-							case 500:
-								SaveErrorInfo(uow, string.Format("Внутренняя ошибка сервера Mailjet: {0}", GetErrors(messages)));
-								break;
-							default:
-								SaveErrorInfo(uow, GetErrors(messages));
-								break;
-							}
-
-							logger.Debug(response.GetData());
-							logger.Debug("{1} ErrorMessage: {0}\n", response.GetErrorMessage(), GetThreadInfo());
-						}
-					}
-					catch(Exception ex) {
-						logger.Error(ex, "При обработке ответа на отправку письма возникла ошибка.\n");
-					}
+				catch(Exception ex) {
+					logger.Error(ex, "При обработке ответа на отправку письма возникла ошибка.\n");
 				}
+				
 			}
 		}
 
-
-		static async void ProcessDealEvent()
+		static async void ProcessEvent(Deal deal)
 		{
-			// var restApi = BitrixRestApiFabric.CreateBitrixRestApi(token);
-			// var deal = await restApi.GetDealAsync(138788);
-			while (true){
-				Deal deal = null;
-				deal = dealsQueue.TakeQueue();
-				logger.Debug($"{0} Отправка письма из очереди", GetThreadInfo());
+			//TODO gavr подумать оно надо такое?
+			// if(mailjetEvent.AttemptCount > 0) {
+			// 	logger.Debug("{1} Повторная обработка события с сервера Mailjet. Попытка {2}/{3} \n{0}", mailjetEvent, GetThreadInfo(), mailjetEvent.AttemptCount, MaxSendAttemptsCount);
+			// } else {
+			// 	logger.Debug("{1} Обработка события с сервера Mailjet \n{0}", mailjetEvent, GetThreadInfo());
+			// }
 
-				
-			}
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[BIS]Обработка события DealRequest")) {
+			
+			//Запись информации о письме в базу
+			// using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[BIS]Обработка события DealRequest")) 
+			// {
 				// Если у нас есть заказ отправляем 200
-				var matchedOrder = Matcher.MatchOrderByBitrixId(uow, deal);
+				var matchedOrder = Matcher.MatchOrderByBitrixId(/*uow,*/ deal);
 				if (matchedOrder != null){
 					//TODO gavr а это точно отправка 200 по WCFфовски?
 					WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.OK;
@@ -319,7 +259,9 @@ namespace BitrixIntegration
 					// Сопоставляем контрагента
 					var restApi = BitrixRestApiFabric.CreateBitrixRestApi(token);
 					var contact = await restApi.GetContact(deal.ContancId);
-					Matcher.MatchContact(uow, contact);
+					Counterparty counterparty = null;
+					var result = Matcher.MatchCounterpartyByPhoneAndSecondName(/*uow,*/ contact, out counterparty);
+					Console.Out.WriteLine(result);
 					// не сошелся, создаем контрагента
 					// CreateCounterpartyFromContact(contact)
 
@@ -340,75 +282,12 @@ namespace BitrixIntegration
 
 					//Создаем заказ
 				}
-			}
+			// }
 		}
+
 		
-		static void ProcessEvent(MailjetEvent mailjetEvent)
-		{
-			if(mailjetEvent.AttemptCount > 0) {
-				logger.Debug("{1} Повторная обработка события с сервера Mailjet. Попытка {2}/{3} \n{0}", mailjetEvent, GetThreadInfo(), mailjetEvent.AttemptCount, MaxSendAttemptsCount);
-			} else {
-				logger.Debug("{1} Обработка события с сервера Mailjet \n{0}", mailjetEvent, GetThreadInfo());
-			}
 
-			//Запись информации о письме в базу
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Обработка события Mailjet")) {
-				var emailAction = emailRepository.GetStoredEmailByMessageId(uow, mailjetEvent.MessageID.ToString());
-				if(emailAction == null) {
-					int mailId;
-					if(int.TryParse(mailjetEvent.CustomID, out mailId)) {
-						emailAction = uow.GetById<StoredEmail>(mailId);
-					}
-				}
-				if(emailAction != null) {
-					var eventDate = UnixTimeStampToDateTime(mailjetEvent.Time);
-					if(eventDate > emailAction.StateChangeDate) {
-						emailAction.StateChangeDate = eventDate;
-						switch(mailjetEvent.Event) {
-						case "sent":
-							emailAction.State = StoredEmailStates.Delivered;
-							break;
-						case "open":
-							emailAction.State = StoredEmailStates.Opened;
-							break;
-						case "spam":
-							emailAction.State = StoredEmailStates.MarkedAsSpam;
-							break;
-						case "bounce":
-						case "blocked":
-							emailAction.State = StoredEmailStates.Undelivered;
-							emailAction.AddDescription(mailjetEvent.GetErrorInfo());
-							break;
-						}
-						try {
-							uow.Save(emailAction);
-							uow.Commit();
-						}
-						catch(Exception ex) {
-							mailjetEvent.AttemptCount++;
-							if(mailjetEvent.AttemptCount <= MaxEventSaveAttemptsCount) {
-								unsavedEventsQueue.Add(mailjetEvent);
-							}
-							logger.Error("{1} Произошла ошибка при сохранении: {0}", ex.Message, GetThreadInfo());
-						}
-					}
-				} else {
-					logger.Error("{0} Событие проигнорировано. Не найдено письмо в БД связанное с событием с сервера Mailjet.", GetThreadInfo());
-				}
-			}
-		}
-
-		static void ResaveEventWork()
-		{
-			Thread.CurrentThread.Name = "ResaveEventWorkStarter";
-			while(true) {
-				MailjetEvent unsavedEvent = unsavedEventsQueue.Take();
-				logger.Debug("{1} Взято не сохраненное событие из очереди для попытки пересохранения. Оставшееся кол-во событий в очереди: {0}", unsavedEventsQueue.Count, GetThreadInfo());
-				Task.Run(() => TryResaveEvent(unsavedEvent));
-			}
-		}
-
-		static void TryResaveEvent(MailjetEvent unsavedEvent)
+		static void TryResaveEvent(Deal unsavedEvent)
 		{
 			Thread.CurrentThread.Name = "ResaveEventWork";
 			//Попытка пересохранения каждые 20 сек.
@@ -493,29 +372,25 @@ namespace BitrixIntegration
 
 			return request;
 		}
-
-		private static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
-		{
-			DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-			dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
-			return dtDateTime;
-		}
-
-		private static void ClearLoginSetting()
-		{
-			userId = null;
-			userSecretKey = null;
-		}
+		#region На выброс
+		// private static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+		// {
+		// 	DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+		// 	dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+		// 	return dtDateTime;
+		// }
+		#endregion На выброс
+	
 
 		public static void SetToken(string _token)
 		{
 			if(IsInitialized) {
 				return;
 			}
-			
 			token = _token;
 		}
 
 		#endregion
 	}
 }
+

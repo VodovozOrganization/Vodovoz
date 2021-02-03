@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Threading;
@@ -13,8 +14,12 @@ using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog;
 using QS.Project.DB;
+using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 
 namespace VodovozBitrixIntegrationService
 {
@@ -22,7 +27,7 @@ namespace VodovozBitrixIntegrationService
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		private static readonly string configFile = "/home/gavr/vodovoz-bitrix-integration-service.conf"; //TODO gavr 
+		private static readonly string configFile = "/home/gavr/vodovoz-bitrix-integration-service.conf"; //TODO gavr  вернуть на место
 
 		//Service
 		private static string serviceHostName;
@@ -51,7 +56,7 @@ namespace VodovozBitrixIntegrationService
 
 			try {
 				IniConfigSource confFile = new IniConfigSource(configFile);
-				// confFile.Reload();
+				confFile.Reload();
 				IConfig serviceConfig = confFile.Configs["Service"];
 				serviceHostName = serviceConfig.GetString("service_host_name");
 				servicePort = serviceConfig.GetString("service_port");
@@ -77,16 +82,18 @@ namespace VodovozBitrixIntegrationService
 			#endregion ReadCOnfig
 			logger.Info("Настройка подключения к БД...");
 			ConfigureDBConnection();
+			
 			RunServiceLoop();
 		}
 
 		#region Configure
 
+		//TODO gavr в отдельной функции не работает изза бага в Nini
 		static void ReadConfig()
 		{
 			try {
 				IniConfigSource confFile = new IniConfigSource(configFile);
-				// confFile.Reload();
+				confFile.Reload();
 				IConfig serviceConfig = confFile.Configs["Service"];
 				serviceHostName = serviceConfig.GetString("service_host_name");
 				servicePort = serviceConfig.GetString("service_port");
@@ -124,15 +131,21 @@ namespace VodovozBitrixIntegrationService
 					SslMode = MySqlSslMode.None
 				};
 				
+				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
 				var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-					.ConnectionString(conStrBuilder.GetConnectionString(true));
+					.ConnectionString(conStrBuilder.GetConnectionString(true)); //TODO gavr диалекта .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>() нет, остальные не подходят
 
-				OrmConfig.ConfigureOrm(dbConfig,
+				OrmConfig.ConfigureOrm(
+					dbConfig,
 					new[]
 					{
 						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
-						System.Reflection.Assembly.GetAssembly(typeof(Email)),
+						// System.Reflection.Assembly.GetAssembly(typeof(Order)),
+						// System.Reflection.Assembly.GetAssembly(typeof(Counterparty)),
+						// System.Reflection.Assembly.GetAssembly(typeof(DeliveryPoint)),
+						// System.Reflection.Assembly.GetAssembly(typeof(OrderItem)),
+						// System.Reflection.Assembly.GetAssembly(typeof(Nomenclature)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase))
 					});
@@ -188,6 +201,7 @@ namespace VodovozBitrixIntegrationService
 			var webBinding = new WebHttpBinding();
 			var webAddress = $"http://{serviceHostName}:{serviceWebPort}/BitrixServiceWeb";
 			var webEndPoint = bitrixHost.AddServiceEndpoint(webContract, webBinding, webAddress);
+			
 			WebHttpBehavior httpBehavior = new WebHttpBehavior();
 			webEndPoint.Behaviors.Add(httpBehavior);
 
@@ -196,13 +210,25 @@ namespace VodovozBitrixIntegrationService
 			var address = $"http://{serviceHostName}:{servicePort}/BitrixService";
 
 
-			var a = bitrixInstanceProvider.GetInstance(null) as BitrixService;
 			BitrixManager.SetToken(token);
+//ТЕСТ текущих функций
 
+			//Order by bitrix id
 			var bitrixApi = BitrixApi.REST.BitrixRestApiFabric.CreateBitrixRestApi(token);
- 			var dealRequest = await bitrixApi.GetDealAsync(138788);
+			
+ 			// var deal = await bitrixApi.GetDealAsync(138788);
+            // var ordr = BitrixIntegration.Matcher.MatchOrderByBitrixId(deal);
+            // BitrixManager.AddEvent(deal);
+            
+            //Counterparty by phone + secondName
+            var contact = await bitrixApi.GetContact(49988);
+            Counterparty counterparty = null;
+            Matcher.MatchCounterpartyByPhoneAndSecondName(contact, out counterparty);
+            
+            
+//
 
-            BitrixManager.AddEvent(dealRequest);
+            
             
 			Console.ReadLine();
 			
