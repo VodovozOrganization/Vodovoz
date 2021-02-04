@@ -425,7 +425,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand ConveyForResultsCommand => conveyForResultsCommand ?? (conveyForResultsCommand = new DelegateCommand(
             () =>
             {
-                if (Entity.State == CashRequest.States.Agreed && Entity.ExpenseCategory == null)
+                if (Entity.State == CashRequest.States.Agreed && Entity.ExpenseCategory == null && UserRole == UserRole.Cashier)
                 {
                     CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
                         "Необходимо заполнить статью расхода");
