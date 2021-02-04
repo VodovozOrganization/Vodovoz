@@ -45,7 +45,7 @@ namespace Vodovoz.JournalViewModels
             CallTaskRepository callTaskRepository,
             BaseParametersProvider baseParametersProvider,
             SubdivisionRepository subdivisionRepository) :
-            base(filterViewModel, unitOfWorkFactory, commonServices)
+            base(filterViewModel, unitOfWorkFactory, commonServices, true)
         {
             TabName = "Работа кассы с МЛ";
 
