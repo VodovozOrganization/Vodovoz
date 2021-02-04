@@ -581,6 +581,10 @@ namespace Vodovoz
 				} 
 			};
 			OnContractChanged();
+			
+			if(Entity != null && Entity.Id != 0) {
+				Entity.CheckDocumentExportPermissions();
+			}
 		}
 
 		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");

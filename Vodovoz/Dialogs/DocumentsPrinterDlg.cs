@@ -92,9 +92,9 @@ namespace Vodovoz.Dialogs
 				var reportInfo = rdldoc.GetReportInfo();
 
 				if(reportInfo.Source != null)
-					reportviewer.LoadReport(reportInfo.Source, reportInfo.GetParametersString(), reportInfo.ConnectionString, true);
+					reportviewer.LoadReport(reportInfo.Source, reportInfo.GetParametersString(), reportInfo.ConnectionString, true, reportInfo.RestrictedOutputPresentationTypes);
 				else
-					reportviewer.LoadReport(reportInfo.GetReportUri(), reportInfo.GetParametersString(), reportInfo.ConnectionString, true);
+					reportviewer.LoadReport(reportInfo.GetReportUri(), reportInfo.GetParametersString(), reportInfo.ConnectionString, true, reportInfo.RestrictedOutputPresentationTypes);
 			}
 		}
 

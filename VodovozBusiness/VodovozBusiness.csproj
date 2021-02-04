@@ -520,7 +520,7 @@
     <Compile Include="HibernateMapping\Employees\PersonnelMap.cs" />
     <Compile Include="Domain\Employees\IEmployee.cs" />
     <Compile Include="Domain\Orders\Documents\SpecialBill.cs" />
-    <Compile Include="Domain\Orders\Documents\SpecialUPD.cs" />
+    <Compile Include="Domain\Orders\Documents\SpecialUPDDocument.cs" />
     <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
     <Compile Include="Attributes\OnlineStoreGuidAttribute.cs" />
     <Compile Include="ConfigureDeletion.cs" />
@@ -965,6 +965,10 @@
     <Folder Include="Journal\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
+      <Project>{c97e91f4-b310-44e2-9b6c-96775395722d}</Project>
+      <Name>RdlEngine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
       <Project>{f22749b2-e35b-455d-bd8d-081373b16fc7}</Project>
       <Name>QS.BusinessCommon</Name>
