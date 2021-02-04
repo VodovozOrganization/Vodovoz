@@ -21,7 +21,8 @@ namespace Vodovoz.Domain.Orders.Documents
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },
 					{ "special", true }
-				}
+				},
+				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
 			};
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }

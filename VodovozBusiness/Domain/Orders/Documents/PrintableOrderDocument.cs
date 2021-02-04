@@ -1,6 +1,7 @@
 using System;
 using QS.Print;
 using System.Linq;
+using fyiReporting.RDL;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents
@@ -8,7 +9,9 @@ namespace Vodovoz.Domain.Orders.Documents
     public abstract class PrintableOrderDocument : OrderDocument, IPrintableDocument
     {
         public virtual PrinterType PrintType => PrinterType.None;
-
+        
+        public virtual OutputPresentationType[] RestrictedOutputPresentationTypes { get; set; }
+        
         public virtual DocumentOrientation Orientation => DocumentOrientation.Portrait;
         
         int copiesToPrint = -1;
