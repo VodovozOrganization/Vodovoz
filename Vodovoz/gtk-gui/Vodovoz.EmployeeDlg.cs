@@ -661,7 +661,7 @@ namespace Vodovoz
 			this.dataentryInnerPhone.CanFocus = true;
 			this.dataentryInnerPhone.Name = "dataentryInnerPhone";
 			this.dataentryInnerPhone.IsEditable = true;
-			this.dataentryInnerPhone.MaxLength = 3;
+			this.dataentryInnerPhone.MaxLength = 5;
 			this.dataentryInnerPhone.InvisibleChar = '●';
 			this.hbox17.Add(this.dataentryInnerPhone);
 			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.dataentryInnerPhone]));
