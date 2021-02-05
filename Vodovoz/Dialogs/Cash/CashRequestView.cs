@@ -222,7 +222,7 @@ namespace Vodovoz.Dialogs.Cash
 			speccomboOrganization.Visible = ViewModel.VisibleOnlyForFinancer;
 			labelcomboOrganization.Visible = ViewModel.VisibleOnlyForFinancer;
 			
-			ExpenseCategoryEntityviewmodelentry.Visible = ViewModel.VisibleOnlyForFinancer;
+			ExpenseCategoryEntityviewmodelentry.Visible = (ViewModel.UserRole == UserRole.Cashier || ViewModel.UserRole == UserRole.Financier);
 			labelCategoryEntityviewmodelentry.Visible = ViewModel.VisibleOnlyForFinancer;
 			
 			yentryReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
