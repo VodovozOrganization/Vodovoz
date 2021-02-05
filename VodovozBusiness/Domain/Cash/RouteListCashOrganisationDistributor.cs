@@ -35,13 +35,13 @@ namespace Vodovoz.Domain.Cash
             var cashAddresses = routeList.Addresses.Where(x => x.TotalCash > 0);
 
             if (routeList.Total >
-                routeListItemCashDistributionDocumentRepository.GetDistributedAmountOnRouteList(uow, routeList))
+                routeListItemCashDistributionDocumentRepository.GetDistributedAmountOnRouteList(uow, routeList.Id))
             {
                 foreach (var address in cashAddresses)
                 {
                     var addressDistributedSum =
                         routeListItemCashDistributionDocumentRepository.GetDistributedAmountOnRouteListItem(uow,
-                            address);
+                            address.Id);
 
                     if (addressDistributedSum == address.TotalCash) {
                         continue;
@@ -85,11 +85,45 @@ namespace Vodovoz.Domain.Cash
                 Amount = amount
             };
 
-            var address = routeList.Addresses.First();
+            var address = routeList.Addresses.First(x => x.TotalCash > 0);
             var document = CreateRouteListItemCashDistributionDocument(operation, address, income);
             
             Save(uow, operation, document);
         }
+
+        public void UpdateIncomeCash(IUnitOfWork uow, RouteList routeList, Income income, decimal amount)
+        {
+            var distributedIncomeAmount = routeListItemCashDistributionDocumentRepository
+                .GetDistributedIncomeAmount(uow, income.Id);
+            
+            if (distributedIncomeAmount > amount)
+            {
+                var docs =
+                    routeListItemCashDistributionDocumentRepository.GetRouteListItemCashDistributionDocuments(uow, income.Id);
+
+                foreach (var doc in docs)
+                {
+                    DeleteOperation(uow, doc);
+                    DeleteDocument(uow, doc);
+                    uow.Commit();
+                }
+                
+                DistributeIncomeCash(uow, routeList, income, amount);
+            }
+
+            if (distributedIncomeAmount < amount)
+            {
+                DistributeIncomeCash(uow, routeList, income, amount - distributedIncomeAmount);
+            }
+        }
+
+        private void DeleteOperation(IUnitOfWork uow, RouteListItemCashDistributionDocument doc)
+        {
+            uow.Delete(doc.OrganisationCashMovementOperation);
+            doc.OrganisationCashMovementOperation = null;
+        }
+        
+        private void DeleteDocument(IUnitOfWork uow, RouteListItemCashDistributionDocument doc) => uow.Delete(doc);
 
         public void DistributeExpenseCash(IUnitOfWork uow, RouteList routeList, Expense expense, decimal amount)
         {
@@ -97,13 +131,13 @@ namespace Vodovoz.Domain.Cash
             
             var cashAddresses = routeList.Addresses.Where(x => x.TotalCash > 0);
 
-            if (routeList.Total <= routeListItemCashDistributionDocumentRepository.GetDistributedAmountOnRouteList(uow, routeList))
+            if (routeList.Total <= routeListItemCashDistributionDocumentRepository.GetDistributedAmountOnRouteList(uow, routeList.Id))
             {
                 foreach (var address in cashAddresses)
                 {
                     var addressDistributedSum =
                         routeListItemCashDistributionDocumentRepository.GetDistributedAmountOnRouteListItem(uow,
-                            address);
+                            address.Id);
                     
                     var sum = (addressDistributedSum - amount) >= 0
                         ? -amount
@@ -136,7 +170,7 @@ namespace Vodovoz.Domain.Cash
                 Amount = -amount
             };
 
-            var address = routeList.Addresses.First();
+            var address = routeList.Addresses.First(x => x.TotalCash > 0);
             var document = CreateRouteListItemCashDistributionDocument(operation, address, expense);
             
             Save(uow, operation, document);
