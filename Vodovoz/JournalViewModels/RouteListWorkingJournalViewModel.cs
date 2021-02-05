@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
@@ -287,8 +288,7 @@ namespace Vodovoz.JournalViewModels
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
                     if (selectedNode != null)
                     {
-                        var dlg = new CarLoadDocumentDlg(selectedNode.Id, null);
-                        TabParent.AddTab(dlg, this);
+                        TabParent.OpenTab(() => new CarLoadDocumentDlg(selectedNode.Id, null));
                     }
                 }
             ));
@@ -302,8 +302,7 @@ namespace Vodovoz.JournalViewModels
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
                     if (selectedNode != null)
                     {
-                        var dlg = new CarUnloadDocumentDlg(selectedNode.Id, null);
-                        TabParent.AddTab(dlg, this);
+                        TabParent.OpenTab(() => new CarUnloadDocumentDlg(selectedNode.Id, null));
                     }
                 }
             ));
