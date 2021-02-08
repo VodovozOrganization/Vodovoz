@@ -27,6 +27,12 @@ namespace BitrixApi.DTO.DataContractJsonSerializer
         [DataMember(Name="CURRENCY_ID")] public string CURRENCY_ID { get; set; }
         [DataMember(Name="VAT_INCLUDED")] public string VAT_INCLUDED { get; set; } //TODO gavr в bool
         [DataMember(Name="MEASURE")] public int MEASURE { get; set; } //TODO gavr узнать че ето у товара, может быть в битриксе есть таблица соответствий мер типа грам это id 9
-        [DataMember(Name="PROPERTY_126")] public string? PROPERTY_126 { get; set; }
+        [DataMember(Name="PROPERTY_174")] public ProductCategory CategoryObj { get; set; }
+    }
+    
+    [DataContract]
+    public class ProductCategory {
+        [DataMember(Name="valueId")] public string valueId { get; set; }
+        [DataMember(Name="value")] public string Category { get; set; }
     }
 }

@@ -43,6 +43,14 @@ namespace Vodovoz.Domain.Client
 			get => minutesToUnload;
 			set => SetField(ref minutesToUnload, value, () => MinutesToUnload);
 		}
+		
+		uint? bitrixId;
+
+		[Display(Name = "Id в Bitrix")]
+		public virtual uint? BitrixId {
+			get => bitrixId;
+			set => SetField(ref bitrixId, value);
+		}
 
 		string letter;
 

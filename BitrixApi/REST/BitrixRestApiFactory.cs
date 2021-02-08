@@ -1,6 +1,6 @@
 namespace BitrixApi.REST
 {
-    public class BitrixRestApiFabric
+    public static class BitrixRestApiFactory
     {
         public static IBitrixRestApi CreateBitrixRestApi(string token)
         {

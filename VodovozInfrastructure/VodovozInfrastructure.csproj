@@ -39,7 +39,7 @@
     <Compile Include="Utils\GeneralUtils.cs" />
     <Compile Include="Utils\NHibernate\SqlHelper.cs" />
     <Compile Include="Utils\NamesUtils.cs" />
-    <Compile Include="Utils\PhoneUtils.cs" />
+    <Compile Include="Utils\NumbersUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />

@@ -13,9 +13,9 @@ namespace BitrixApi.DTO
 
     public class Company
     {
-        [JsonProperty("ID")] public int Id { get; set; }
+        [JsonProperty("ID")] public uint Id { get; set; }
         [JsonProperty("COMPANY_TYPE")] public string? COMPANY_TYPE { get; set; }
-        [JsonProperty("TITLE")] public string? TITLE { get; set; }
+        [JsonProperty("TITLE")] public string? Title { get; set; }
         [JsonProperty("LEAD_ID")] public string? LEAD_ID { get; set; }
         [JsonProperty("HAS_PHONE")] public string? HAS_PHONE { get; set; }
         [JsonProperty("HAS_EMAIL")] public string? HAS_EMAIL { get; set; }

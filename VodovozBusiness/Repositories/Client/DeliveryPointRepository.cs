@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
@@ -11,10 +12,11 @@ namespace Vodovoz.Repository.Client
 {
 	public static class DeliveryPointRepository
 	{
-		public static QueryOver<DeliveryPoint> DeliveryPointsForCounterpartyQuery(Counterparty counterparty)
+		public static IList<DeliveryPoint> DeliveryPointsForCounterpartyQuery(IUnitOfWork uow, Counterparty counterparty)
 		{
-			return QueryOver.Of<DeliveryPoint>()
-				.Where(dp => dp.Counterparty.Id == counterparty.Id);
+			return uow.Session.QueryOver<DeliveryPoint>()
+				.Where(dp => dp.Counterparty.Id == counterparty.Id)
+				.List();
 		}
 
 		/// <summary>
@@ -83,6 +85,21 @@ namespace Vodovoz.Repository.Client
 
 			return list.Count > 0 ? list.Average(x => (decimal) x[1]) : 0;
 		}
+
+		public static IList<DeliveryPoint> GetDeliveryPointForCounterpartyByCoordinates(IUnitOfWork uow, decimal latitude, decimal longitude, int counterpartyId)
+		{
+			return uow.Session.QueryOver<DeliveryPoint>()
+				.Where(x => x.Latitude == latitude)
+				.Where(x => x.Longitude == longitude)
+				.Where(x => x.Counterparty.Id == counterpartyId)
+				.List();
+		}
+
+		public static DeliveryPoint GetDeliveryPointByBitrixId(IUnitOfWork uow, uint bitrixId)
+		=> uow.Session.QueryOver<DeliveryPoint>()
+			.Where(x => x.BitrixId == bitrixId)
+			.SingleOrDefault();
+		
 	}
 }
 

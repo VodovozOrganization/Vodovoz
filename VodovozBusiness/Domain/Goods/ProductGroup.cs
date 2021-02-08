@@ -112,6 +112,13 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref characteristics, value);
 		}
 
+		private uint? bitrixId;
+		[Display(Name = "Id в битриксе")]
+		public virtual uint? BitrixId {
+			get => bitrixId;
+			set => SetField(ref bitrixId, value);
+		}
+
 		#endregion
 
 		#region Функции

@@ -150,10 +150,10 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref maxCredit, value, () => MaxCredit);
 		}
 		
-		int? bitrixId;
+		uint? bitrixId;
 
 		[Display(Name = "Id контрагента в битриксе")]
-		public virtual int? BitrixId {
+		public virtual uint? BitrixId {
 			get => bitrixId;
 			set => SetField(ref bitrixId, value);
 		}
@@ -452,7 +452,7 @@ namespace Vodovoz.Domain.Client
 		#region ОсобаяПечать
 		bool useSpecialDocFields;
 
-		[Display(Name = "Особая печать документов ")]
+		[Display(Name = "Особая печать документов")]
 		public virtual bool UseSpecialDocFields {
 			get => useSpecialDocFields;
 			set => SetField(ref useSpecialDocFields, value, () => UseSpecialDocFields);

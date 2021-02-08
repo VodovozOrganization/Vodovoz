@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BitrixApi.DTO;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -228,6 +230,31 @@ namespace Vodovoz.EntityRepositories.Goods
 						 .GroupBy(x => (int)x[1])
 						 .ToDictionary(g => g.Key, g => g.Select(x => (int)x[0]).ToArray());
 		}
+		
+		public static Nomenclature GetNommenclatureByBitrixId(IUnitOfWork uow, uint bitrixId) =>
+			uow.Session.QueryOver<Nomenclature>()
+				.Where(x => x.BitrixId == bitrixId)
+				.SingleOrDefault();
+
+		public static Nomenclature GetNomenclatureFromBitrixProduct(IUnitOfWork uow, Product product)
+		{
+			return uow.Session.QueryOver<Nomenclature>()
+				.Where(x => x.Name == product.NAME)
+				.SingleOrDefault();
+		}
+		
+		public static ProductGroup GetProductGroupByBitrixId(IUnitOfWork uow, uint bitrixId) =>
+			uow.Session.QueryOver<ProductGroup>()
+				.Where(x => x.BitrixId == bitrixId)
+				.SingleOrDefault();
+		
+		public static ProductGroup GetProductGroupFromBitrixProductGroup(IUnitOfWork uow, string productGroup)
+		{
+			return uow.Session.QueryOver<ProductGroup>()
+				.Where(x => x.Name == productGroup)
+				.SingleOrDefault();
+		}
+		
 
 		#region Получение номенклатур воды
 

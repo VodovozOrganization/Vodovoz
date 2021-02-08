@@ -15,7 +15,7 @@ namespace BitrixApi.DTO.DataContractJsonSerializer
     public class Contact
     {
 
-        [DataMember(Name="ID")] public int Id { get; set; }
+        [DataMember(Name="ID")] public uint Id { get; set; }
         [DataMember(Name="COMMENTS")] public string COMMENTS { get; set; }
         [DataMember(Name="NAME")] public string NAME { get; set; }
         [DataMember(Name="SECOND_NAME")] public string SECOND_NAME { get; set; }

@@ -15,7 +15,7 @@ namespace BitrixApi.DTO.DataContractJsonSerializer
     public class Deal
     {
         
-        [DataMember(Name="ID")]  public int ID { get; set; }
+        [DataMember(Name="ID")]  public uint Id { get; set; }
         [DataMember(Name="TITLE")]  public string Title { get; set; }
         [DataMember(Name="TYPE_ID")] public string TipeId { get; set; }
         [DataMember(Name="STAGE_ID")] public string StageId { get; set; }
@@ -37,6 +37,7 @@ namespace BitrixApi.DTO.DataContractJsonSerializer
         [DataMember(Name="OPENED")]  public string Opened { get; set; }
         [DataMember(Name="CLOSED")]  public string Closed { get; set; }
         [DataMember(Name="UF_CRM_1603522128")]  public string Status { get; set; }
+        //2 значения разделены запятой, пример: 59.852624,30.226881
         [DataMember(Name="UF_CRM_1611649517604")]  public string Coordinates { get; set; }
         [DataMember(Name="UF_CRM_5DA85CF9E13B9")]  public string DeliveryAddressWithoutHouse { get; set; }
         [DataMember(Name="UF_CRM_5DA85CFA4B2FD")]  public string RoomNumber { get; set; }

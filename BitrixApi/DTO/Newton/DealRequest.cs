@@ -12,7 +12,7 @@ namespace BitrixApi.DTO
     public class Deal
     {
         
-        [JsonProperty("ID")]  public int ID { get; set; }
+        [JsonProperty("ID")]  public uint Id { get; set; }
         [JsonProperty("TITLE")]  public string Title { get; set; }
         [JsonProperty("TYPE_ID")] public string TipeId { get; set; }
         [JsonProperty("STAGE_ID")] public string StageId { get; set; }
@@ -21,7 +21,7 @@ namespace BitrixApi.DTO
         [JsonProperty("IS_MANUAL_OPPORTUNITY")]  public string IsManualOpportunity { get; set; }
         [JsonProperty("TAX_VALUE")]  public decimal TaxValue { get; set; }
         [JsonProperty("LEAD_ID")] public string LeadId { get; set; }
-        [JsonProperty("COMPANY_ID")] public uint CompanyId { get; set; }
+        [JsonProperty("COMPANY_ID")] public uint? CompanyId { get; set; }
         [JsonProperty("CONTACT_ID")] public uint ContancId { get; set; }
         [JsonProperty("QUOTE_ID")]  public string QuioteId { get; set; }
         [JsonProperty("BEGINDATE")]  public DateTime BegunDate { get; set; }
@@ -37,7 +37,9 @@ namespace BitrixApi.DTO
         [JsonProperty("UF_CRM_1603522128")]  public string Status { get; set; }
         [JsonProperty("UF_CRM_1611649517604")]  public string Coordinates { get; set; }
         [JsonProperty("UF_CRM_5DA85CF9E13B9")]  public string DeliveryAddressWithoutHouse { get; set; }
+        //Пример значения: "143"
         [JsonProperty("UF_CRM_5DA85CFA4B2FD")]  public string RoomNumber { get; set; }
+        //Пример значения: "д 104"
         [JsonProperty("UF_CRM_5DADB4A25AFE5")]  public string HouseAndBuilding { get; set; }
         [JsonProperty("UF_CRM_1593010244990")]  public string PaymentStatus { get; set; }
     }

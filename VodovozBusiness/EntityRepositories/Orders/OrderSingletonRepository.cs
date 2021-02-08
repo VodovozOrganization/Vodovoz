@@ -783,18 +783,9 @@ namespace Vodovoz.EntityRepositories.Orders
 			return receipt != null;
 		}
 
-		public VodovozOrder GetOrderByBitrixId(IUnitOfWork uow, int bitrixId)
+		public VodovozOrder GetOrderByBitrixId(IUnitOfWork uow, uint bitrixId)
 		{
-			//TODO gavr комменты убрать
-			
-			// var notSupportedStatuses = new OrderStatus[] {
-			// 	OrderStatus.NewOrder,
-			// 	OrderStatus.Canceled,
-			// 	OrderStatus.NotDelivered
-			// };
-
 			return uow.Session.QueryOver<VodovozOrder>()
-				// .WhereRestrictionOn(x => x.OrderStatus).Not.IsIn(notSupportedStatuses)
 				.Where(x => x.BitrixId == bitrixId)
 				.SingleOrDefault();
 		}

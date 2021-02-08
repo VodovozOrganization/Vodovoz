@@ -84,6 +84,7 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="CreateOrder\CoR.cs" />
         <Compile Include="CreateOrder\CounterpartyFactory.cs" />
         <Compile Include="CreateOrder\DeliveryPointFactory.cs" />
         <Compile Include="CreateOrder\Matcher.cs" />

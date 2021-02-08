@@ -25,6 +25,9 @@ namespace BitrixApi.REST
         
         //crm.product.get
         public Task<Product> GetProduct(uint id);
+        
+        //crm.deal.productrows.get
+        public Task<IList<ProductFromDeal>> GetProductsForDeal(uint dealId);
 
 
         #region CustomFields

@@ -247,42 +247,9 @@ namespace BitrixIntegration
 			
 			//Запись информации о письме в базу
 			// using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[BIS]Обработка события DealRequest")) 
-			// {
+			
 				// Если у нас есть заказ отправляем 200
-				var matchedOrder = Matcher.MatchOrderByBitrixId(/*uow,*/ deal);
-				if (matchedOrder != null){
-					//TODO gavr а это точно отправка 200 по WCFфовски?
-					WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.OK;
-					
-				}
-				else{
-					// Сопоставляем контрагента
-					var restApi = BitrixRestApiFabric.CreateBitrixRestApi(token);
-					var contact = await restApi.GetContact(deal.ContancId);
-					Counterparty counterparty = null;
-					var result = Matcher.MatchCounterpartyByPhoneAndSecondName(/*uow,*/ contact, out counterparty);
-					Console.Out.WriteLine(result);
-					// не сошелся, создаем контрагента
-					// CreateCounterpartyFromContact(contact)
-
-					//Сопоставляем Точку доставки
-					// var deliveryPoint = await restApi.GetDeliveryPoint(???);
-					// Matcher.MatchContact(uow, contact);
-					// не сошелся, создаем Точку доставки
-					// CreateDeliveryPointFrom???(???)
-
-					//Сопоставляем Товары
-					// var OrderItems = await restApi.GetContact(deal.ContancId);
-					// Matcher.MatchContact(uow, contact);
-					// не сошелись группы, создаем группы, создаем товары
-					// CreateOrderGroupFrom???(???)
-					// не сошелись товары, создаем товары
-					// CreateOrderItemsFrom???(???)
-
-
-					//Создаем заказ
-				}
-			// }
+				throw new NotImplementedException();
 		}
 
 		

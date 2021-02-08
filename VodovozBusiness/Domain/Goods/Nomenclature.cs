@@ -600,6 +600,14 @@ namespace Vodovoz.Domain.Goods
 			get => amountInAPackage;
 			set => SetField(ref amountInAPackage, value);
 		}
+		
+		private uint? bitrixId;
+
+		[Display(Name = "Id в битриксе")]
+		public virtual uint? BitrixId {
+			get => bitrixId;
+			set => SetField(ref bitrixId, value);
+		}
 
 		#endregion
 

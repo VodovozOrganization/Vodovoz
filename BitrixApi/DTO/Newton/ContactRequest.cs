@@ -12,7 +12,7 @@ namespace BitrixApi.DTO
     public class Contact
     {
 
-        [JsonProperty("ID")] public int Id { get; set; }
+        [JsonProperty("ID")] public uint Id { get; set; }
         [JsonProperty("COMMENTS")] public string? COMMENTS { get; set; }
         [JsonProperty("NAME")] public string? NAME { get; set; }
         [JsonProperty("SECOND_NAME")] public string? SECOND_NAME { get; set; }

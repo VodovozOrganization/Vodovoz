@@ -1,8 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace VodovozInfrastructure.Utils
 {
+	public class NumbersUtils {
+		public static IEnumerable<int> GetNumbersFromString(string str) => 
+			Regex.Matches(str, @"\d+").OfType<Match>().Select(m => int.Parse(m.Value));
+	}
 	public class PhoneUtils
 	{
 	

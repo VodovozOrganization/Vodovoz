@@ -16,7 +16,7 @@ namespace BitrixApi.DTO.DataContractJsonSerializer
     [DataContract]
     public class Company
     {
-        [DataMember(Name="ID")] public int Id { get; set; }
+        [DataMember(Name="ID")] public uint Id { get; set; }
         [DataMember(Name="COMPANY_TYPE")] public string? COMPANY_TYPE { get; set; }
         [DataMember(Name="TITLE")] public string? TITLE { get; set; }
         [DataMember(Name="LEAD_ID")] public string? LEAD_ID { get; set; }

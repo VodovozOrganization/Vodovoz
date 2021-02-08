@@ -14,6 +14,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Name).Column ("name");
 			Map (x => x.Digits).Column ("digits");
 			Map (x => x.OKEI).Column ("okei");
+			Map (x => x.BitrixName).Column ("bitrix_name");
 		}
 	}
 }

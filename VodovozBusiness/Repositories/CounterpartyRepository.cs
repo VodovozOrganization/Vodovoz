@@ -120,38 +120,28 @@ namespace Vodovoz.Repositories
 		}
 		
 		
-		/// <summary>
-		/// Возвращает пары телефон-клиент по телефону на случай если есть клиенты с одинаковыми 
-		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="phoneDigitNumber">Номер телефона в формате 9999999999 (10 цифр)</param>
-		/// <returns>пары телефон-клиент по телефону на сулчай если есть одинаковые</returns>
-		public static IList<Counterparty> GetCounterpartesByPhone(IUnitOfWork uow, string phoneDigitNumber)
-		{
-			
-			Phone phoneAlias = null;
-			return uow.Session.QueryOver<Counterparty>()
-				.JoinAlias(co => co.Phones, () => phoneAlias)
-				.Where(() => phoneAlias.DigitsNumber == phoneDigitNumber)
-				.List();
-		}
 		
 		/// <summary>
 		/// Возвращает список контрагентов содержащих соответсвующую строку в поле fullName например фамилию имя или отчество
 		/// </summary>
 		/// <param name="uow"></param>
 		/// <param name="partOfName">Часть ФИО</param>
+		/// <param name="phoneDigitNumber">Номер телефона в формате 9999999999 (10 цифр)</param>
+		/// <exception cref="ArgumentNullException">This exception is thrown if the partOfName == null</exception>
 		/// <returns></returns>
-		public static IList<Counterparty> GetCounterpartesByPartOfName(IUnitOfWork uow, string partOfName)
+		public static IList<Counterparty> GetCounterpartesByPartOfName(IUnitOfWork uow, string partOfName, string phoneDigitNumber)
 		{ 
 			if (partOfName == null) throw new ArgumentNullException();
+			
+			Phone phoneAlias = null;
 			return uow.Session.QueryOver<Counterparty>()
-				// .Where(x => x.FullName.Like(partOfName))
-				.Where(Restrictions.On<Counterparty>(c => c.FullName).IsLike(partOfName))
+				.JoinAlias(co => co.Phones, () => phoneAlias)
+				.Where(Restrictions.On<Counterparty>(c => c.FullName).IsLike("%" + partOfName + "%"))
+				.Where(() => phoneAlias.DigitsNumber == phoneDigitNumber)
 				.List();
 		}
 		
-		public static Counterparty GetCounterpartyByBitrixId(IUnitOfWork uow, int bitrixId) => 
+		public static Counterparty GetCounterpartyByBitrixId(IUnitOfWork uow, uint bitrixId) => 
 			uow.Session.QueryOver<Counterparty>()
 			.Where(x => x.BitrixId == bitrixId)
 			.SingleOrDefault();
