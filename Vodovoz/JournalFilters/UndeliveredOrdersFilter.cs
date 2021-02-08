@@ -84,15 +84,6 @@ namespace Vodovoz.JournalFilters
 			);
 			
 			AuthorSubdivisionEntityviewmodelentry.Changed += AuthorSubdivisionEntityviewmodelentryOnChanged;
-			// AuthorSubdivisionEntityviewmodelentry.Binding
-			// 	.AddBinding(
-			// 		ViewModel.Entity,
-			// 		s => s.Subdivision,
-			// 		w => w.Subject)
-			// 	.InitializeFromSource();
-			// AuthorSubdivisionEntityviewmodelentry.Sensitive = false;
-			// ViewModel.Entity.Subdivision = currentEmployee.Subdivision;
-
 		}
 
 		public void ResetFilter(){

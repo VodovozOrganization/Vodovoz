@@ -109,7 +109,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IsAdminPanelVisible = isAdmin;
 
             var currentRole = getUserRole(userId);
+            
             UserRole = currentRole;
+            if (!dialogLoadedOnce)
+            {
+                savedUserRole = UserRole;
+                dialogLoadedOnce = true;
+            }
             if (isAdmin) {
                 UserRole = savedUserRole;
             }
@@ -186,7 +192,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand AfterSaveCommand => afterSaveCommand ?? (afterSaveCommand = new DelegateCommand(
             () => {
                 SaveAndClose();
-
                 if (AfterSave(out var messageText))
                     CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"Cоздан следующие аванс:\n{messageText}" );
             }, () => true
@@ -197,6 +202,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             () => {
                 if (Entity.Sums.Count != 0) 
                 {
+                    if (Entity.ExpenseCategory == null)
+                    {
+                        CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"У данной заявки не заполнена статья расхода, её заполняет финансист");
+                        return;
+                    }
                     //находим первую невыданную сумму и создаем на нее expense
                     var sum = Entity.ObservableSums.First(x => x.Expense == null);
                     CreateNewExpenseForItem(sum);
@@ -262,8 +272,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanCancel => Entity.State == CashRequest.States.Submited ||
                                  Entity.State == CashRequest.States.OnClarification ||
                                  Entity.State == CashRequest.States.New ||
-                                 ((Entity.State == CashRequest.States.GivenForTake) &&
-                                  UserRole == UserRole.Coordinator);
+                                 (Entity.State == CashRequest.States.Agreed && UserRole == UserRole.Coordinator) ||
+                                 (Entity.State == CashRequest.States.GivenForTake && UserRole == UserRole.Coordinator);
         
         
 
@@ -367,6 +377,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,"Причина отмены должна быть заполнена");
                 } else {
                     Entity.ChangeState(CashRequest.States.Canceled);
+                    AfterSaveCommand.Execute();
                 }
             }, () => true
         ));
@@ -375,8 +386,17 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand ConveyForResultsCommand => conveyForResultsCommand ?? (conveyForResultsCommand = new DelegateCommand(
             () =>
             {
-                Entity.ChangeState(CashRequest.States.GivenForTake);
-                AfterSaveCommand.Execute();
+                if (Entity.State == CashRequest.States.Agreed && Entity.ExpenseCategory == null)
+                {
+                    CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+                        "Необходимо заполнить статью расхода");
+                }
+                else
+                {
+                    Entity.ChangeState(CashRequest.States.GivenForTake);
+                    AfterSaveCommand.Execute();
+                }
+               
             }, () => true
         ));
         

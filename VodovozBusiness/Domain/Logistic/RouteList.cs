@@ -719,7 +719,7 @@ namespace Vodovoz.Domain.Logistic
 										 .ToList();
 
 			foreach(var orderItem in orderClosingItems) {
-				var address = Addresses.SingleOrDefault(x => x.Order.Id == orderItem.Order.Id);
+				var address = Addresses.SingleOrDefault(x => x.Order.Id == orderItem.Order.Id && x.TransferedTo == null);
 				var discrepancy = new Discrepancy();
 				
 				if (address?.TransferedTo != null && address.TransferedTo.NeedToReload) {
@@ -1563,7 +1563,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void UpdateDeliveryDocuments(IUnitOfWork uow)
 		{
-			var controller = new RouteListClosingDocumentsController(new BaseParametersProvider(), EmployeeSingletonRepository.GetInstance(), new RouteListRepository());
+			var parametersProvider = new BaseParametersProvider();
+			var controller = new RouteListClosingDocumentsController(parametersProvider, EmployeeSingletonRepository.GetInstance(), new RouteListRepository(), parametersProvider);
 			controller.UpdateDocuments(this, uow);
 		}
 

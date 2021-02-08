@@ -12,7 +12,7 @@ namespace VodovozSalesReceiptsService
 	class Service
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		private const string configFile = "/etc/vodovoz-sales-receipts-service.conf";
+		private const string configFile = "/etc/vodovoz-sales-receipts-service.xml";
 
 		//Mysql
 		private static string mysqlServerHostName;
@@ -28,12 +28,19 @@ namespace VodovozSalesReceiptsService
 			logger.Info("Чтение конфигурационного файла...");
 			IConfig serviceConfig;
 			IConfig kassaConfig;
+			IConfig[] cashboxesConfig;
 			
 			try {
-				IniConfigSource confFile = new IniConfigSource(configFile);
+				XmlConfigSource confFile = new XmlConfigSource(configFile);
 				confFile.Reload();
 				serviceConfig = confFile.Configs["Service"];
 				kassaConfig = confFile.Configs["ModulKassa"];
+				
+				cashboxesConfig = new[] {
+					confFile.Configs["RetailPointSosnovcev"],
+					confFile.Configs["RetailPointVodovozSouth"],
+					confFile.Configs["RetailPointVodovozNorth"]
+				};
 
 				IConfig mysqlConfig = confFile.Configs["Mysql"];
 				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
@@ -80,7 +87,7 @@ namespace VodovozSalesReceiptsService
 			}
 
 			try {
-				ReceiptServiceStarter.StartService(serviceConfig, kassaConfig);
+				ReceiptServiceStarter.StartService(serviceConfig, kassaConfig, cashboxesConfig);
 				
 				if(Environment.OSVersion.Platform == PlatformID.Unix) {
 					UnixSignal[] signals = {

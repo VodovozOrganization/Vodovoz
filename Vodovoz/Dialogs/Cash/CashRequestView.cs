@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gamma.Utilities;
+using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
@@ -119,8 +120,9 @@ namespace Vodovoz.Dialogs.Cash
 			comboIfAdminRoleChooser.ItemsEnum = typeof(UserRole);
 			comboIfAdminRoleChooser.Binding.AddBinding(
 				ViewModel,
-				e => e.UserRole,
+				e => CashRequestViewModel.savedUserRole,
 				w => w.SelectedItem).InitializeFromSource();
+			comboIfAdminRoleChooser.SelectedItem = ViewModel.UserRole;
 			comboIfAdminRoleChooser.Visible = ViewModel.IsAdminPanelVisible;
 			ybtnAdminRoleRemember.Visible = ViewModel.IsAdminPanelVisible;
 			ybtnAdminRoleRemember.Clicked += (sender, args) => { ViewModel.RememberRole(comboIfAdminRoleChooser.SelectedItem); };
@@ -142,24 +144,29 @@ namespace Vodovoz.Dialogs.Cash
 				.AddBinding(
 					ViewModel.Entity,
 					e => e.Basis, 
-					(widget) => widget.Text)
+					(widget) => widget.Buffer.Text)
 				.InitializeFromSource();
+			yentryGround.WrapMode = WrapMode.Word;
 			
 			//Причина отмены
 			yentryCancelReason.Binding
 				.AddBinding(
 					ViewModel.Entity, 
 					e => e.CancelReason, 
-					(widget) => widget.Text)
+					(widget) => widget.Buffer.Text)
 				.InitializeFromSource();
+			yentryCancelReason.WrapMode = WrapMode.Word;
+
 			
 			//Причина отправки на пересогласование
 			yentryReasonForSendToReapproval.Binding
 				.AddBinding(
 					ViewModel.Entity, 
 					e => e.ReasonForSendToReappropriate, 
-					(widget) => widget.Text)
+					(widget) => widget.Buffer.Text)
 				.InitializeFromSource();
+			yentryReasonForSendToReapproval.WrapMode = WrapMode.Word;
+
 
 			#endregion TextEntry
 
@@ -243,8 +250,16 @@ namespace Vodovoz.Dialogs.Cash
 
 			ylabelBalansOrganizations.Text = ViewModel.LoadOrganizationsSums();
 
-			ylabelRole.Binding.AddFuncBinding(ViewModel, vm => vm.UserRole.GetEnumTitle(), w => w.Text).InitializeFromSource();
-			ylabelStatus.Binding.AddBinding(ViewModel, vm => vm.StateName, w => w.Text).InitializeFromSource();
+			ylabelRole.Binding.AddFuncBinding(
+				ViewModel,
+				vm => vm.UserRole.GetEnumTitle(), 
+				w => w.Text
+			).InitializeFromSource();
+			ylabelStatus.Binding.AddBinding(
+				ViewModel,
+				vm => vm.StateName,
+				w => w.Text
+			).InitializeFromSource();
 			ylabelStatus.Text = ViewModel.Entity.State.GetEnumTitle();
 
 			if (ViewModel.Entity.State == CashRequest.States.Closed)

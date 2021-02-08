@@ -94,9 +94,10 @@
     <Compile Include="Domain\Orders\Documents\PrintableOrderDocument.cs" />
     <Compile Include="Domain\Orders\ReturnTareReason.cs" />
     <Compile Include="Domain\Orders\ReturnTareReasonCategory.cs" />
-    <Compile Include="Domain\Organizations\CashBox.cs" />
     <Compile Include="Domain\Organizations\Organization.cs" />
     <Compile Include="Domain\Payments\PaymentsFromYookassaParser.cs" />
+    <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
+    <Compile Include="Domain\Proposal\ApplicationDevelopmentProposalStatus.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
@@ -145,7 +146,7 @@
     <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
-    <Compile Include="HibernateMapping\Organization\CashBoxMap.cs" />
+    <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItemMap.cs" />
@@ -514,7 +515,7 @@
     <Compile Include="HibernateMapping\Employees\PersonnelMap.cs" />
     <Compile Include="Domain\Employees\IEmployee.cs" />
     <Compile Include="Domain\Orders\Documents\SpecialBill.cs" />
-    <Compile Include="Domain\Orders\Documents\SpecialUPD.cs" />
+    <Compile Include="Domain\Orders\Documents\SpecialUPDDocument.cs" />
     <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
     <Compile Include="Attributes\OnlineStoreGuidAttribute.cs" />
     <Compile Include="ConfigureDeletion.cs" />
@@ -959,9 +960,9 @@
     <Folder Include="Journal\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
-      <Project>{190cea0d-ea23-4c91-8030-203a5afed7b7}</Project>
-      <Name>GammaBinding</Name>
+    <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
+      <Project>{c97e91f4-b310-44e2-9b6c-96775395722d}</Project>
+      <Name>RdlEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
       <Project>{f22749b2-e35b-455d-bd8d-081373b16fc7}</Project>
@@ -1010,6 +1011,10 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
       <Name>QS.Banks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
+      <Project>{dd740ae7-7854-40c6-b9f6-2f70a5e1caac}</Project>
+      <Name>VodovozInfrastructure</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

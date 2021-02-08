@@ -62,7 +62,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organization
 				Projections.Property(() => chiefAlias.Patronymic)
 			);
 
-			query.Where(GetSearchCriterion(() => subdivisionAlias));
+			query.Where(GetSearchCriterion(() => subdivisionAlias.Name));
 
 			return query
 				.Left.JoinAlias(o => o.Chief, () => chiefAlias)

@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Repositories.Orders;
+using Vodovoz.Services;
 
 namespace Vodovoz.ExportTo1c
 {
@@ -16,26 +15,28 @@ namespace Vodovoz.ExportTo1c
         private readonly DateTime start;
         private readonly DateTime end;
         private readonly Export1cMode mode;
-        private readonly Organization organization;
+        private readonly IOrderParametersProvider orderParametersProvider;
+        private readonly int? organizationId;
         private IList<Order> orders;
 
         public int Steps => orders.Count;
         public ExportData Result { get; private set; }
 
-        public ExportOperation(Export1cMode mode, DateTime start, DateTime end, Organization organization = null)
+        public ExportOperation(Export1cMode mode, IOrderParametersProvider orderParametersProvider, DateTime start, DateTime end, int? organizationId = null)
         {
+            this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             uow = UnitOfWorkFactory.CreateWithoutRoot();
             this.start = start;
             this.end = end;
             this.mode = mode;
-            this.organization = organization;
+            this.organizationId = organizationId;
         }
 
         public void Run(IWorker worker)
         {
             worker.OperationName = "Подготовка данных";
             worker.ReportProgress(0, "Загрузка заказов");
-            orders = OrderSingletonRepository.GetInstance().GetOrdersToExport1c8(uow, mode, start, end, organization);
+            orders = OrderSingletonRepository.GetInstance().GetOrdersToExport1c8(uow, orderParametersProvider, mode, start, end, organizationId);
             worker.OperationName = "Выгрузка реализаций и счетов-фактур";
             worker.StepsCount = this.orders.Count;
             Result = new ExportData(uow, mode, start, end);

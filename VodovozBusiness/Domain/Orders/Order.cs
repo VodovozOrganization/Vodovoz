@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate.Exceptions;
 using QS.Dialog;
@@ -135,13 +136,16 @@ namespace Vodovoz.Domain.Orders
 					InteractiveService.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
 					return;
 				}
-
+				var oldClient = client;
 				if(SetField(ref client, value, () => Client)) {
 					if(Client == null || (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id))) {
 						//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
 						logger.Warn("Очищаем точку доставки, при установке клиента. Возможно это не нужно.");
 						DeliveryPoint = null;
 					}
+                    if(oldClient != null) {
+						UpdateContract();
+                    }
 				}
 			}
 		}
@@ -1058,19 +1062,10 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType)
-				&& Contract?.Organization != null && Contract.Organization.CashBox == null) {
+				&& Contract?.Organization != null && Contract.Organization.CashBoxId == null) {
 				yield return new ValidationResult(
 					"Ошибка программы. В заказе автоматически подобрана неверная организация или к организации не привязан кассовый аппарат",
 					new[] { nameof(Contract.Organization) });
-			}
-
-			//FIXME Удалить после 16 числа
-			if(DeliveryDate.HasValue && PaymentType == PaymentType.Terminal && DeliveryDate.Value.Date == new DateTime(2020, 12, 16)) {
-				yield return new ValidationResult(
-					"В выбранный день с Терминалами будут производится технические работы, " +
-					"данная форма оплаты недоступна. Выберете либо другую дату доставки, либо другую форму оплаты",
-					new[] { nameof(paymentType) }
-				);
 			}
 		}
 
@@ -1392,73 +1387,6 @@ namespace Vodovoz.Domain.Orders
 			);
 		}
 
-		public virtual void ChangeOrderContract(
-			IUnitOfWork uow, 
-			ICounterpartyContractRepository counterpartyContractRepository, 
-			IOrganizationProvider organizationProvider,
-			CounterpartyContractFactory counterpartyContractFactory)
-		{
-			if(counterpartyContractRepository == null)
-				throw new ArgumentNullException(nameof(counterpartyContractRepository));
-			if(organizationProvider == null) 
-				throw new ArgumentNullException(nameof(organizationProvider));
-			if(counterpartyContractFactory == null)
-				throw new ArgumentNullException(nameof(counterpartyContractFactory));
-
-			if(Client == null || (DeliveryPoint == null && !SelfDelivery) || DeliveryDate == null) {
-				return;
-			}
-			var oldContract = Contract;
-
-			//Нахождение подходящего существующего договора
-			var actualContract = counterpartyContractRepository.GetCounterpartyContract(uow, this);
-
-			//Нахождение договора созданного в текущем заказе, 
-			//который можно изменить под необходимые параметры
-			var contractInOrder = OrderDocuments.OfType<OrderContract>()
-												.Where(x => x.Order.Id == Id)
-												.Select(x => x.Contract)
-												.FirstOrDefault();
-
-			//Поиск других заказов, в которых мог использоваться этот договор
-			IList<Order> ordersByContract = null;
-			bool otherOrdersForContractExist = true;
-			if(contractInOrder != null) {
-				ordersByContract = UoW.Session.QueryOver<Order>()
-									  .Where(o => o.Contract.Id == contractInOrder.Id)
-									  .List();
-				otherOrdersForContractExist = ordersByContract.Any(o => o.Id != Id);
-
-				Contract = contractInOrder;
-			}
-
-			//Изменение существующего договора под необходимые параметры
-			//если он не был использован в других заказах
-			if(
-				actualContract == null
-				&& !otherOrdersForContractExist
-				&& OrderDocuments.OfType<OrderContract>().Any(
-					x => x.Order.Id == Id
-					&& x.Contract?.Id == Contract?.Id
-				)
-			) {
-				Contract.ContractType = counterpartyContractRepository.GetContractTypeForPaymentType(Client.PersonType, PaymentType);
-				Contract.Organization = organizationProvider.GetOrganization(uow, this);
-				return;
-			}
-
-			if(actualContract == null) {
-				actualContract = counterpartyContractFactory.CreateContract(uow, this, DeliveryDate);
-				Contract = actualContract;
-			}
-
-			if(actualContract != oldContract) {
-				Contract = actualContract;
-			}
-
-			UpdateDocuments();
-		}
-
 		public virtual bool HasWater()
 		{
 			var categories = Nomenclature.GetCategoriesRequirementForWaterAgreement();
@@ -1502,7 +1430,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			Contract = counterpartyContract;
-			foreach(var orderItem in OrderItems) {
+			foreach(var orderItem in OrderItems.ToList()) {
 				orderItem.CalculateVATType();
 			}
 			UpdateContractDocument();
@@ -1719,7 +1647,6 @@ namespace Vodovoz.Domain.Orders
 				DeliveryPoint = Client.DeliveryPoints.FirstOrDefault();
 
 			PaymentType = Client.PaymentMethod;
-			ChangeOrderContract(uow, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 		}
 
 		public virtual void SetProxyForOrder()
@@ -3243,6 +3170,19 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual void CheckDocumentExportPermissions()
+		{
+			var updDoc = OrderDocuments.OfType<UPDDocument>().FirstOrDefault();
+			if(updDoc != null && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
+				updDoc.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+			}
+			
+			var specialUpdDoc = OrderDocuments.OfType<SpecialUPDDocument>().FirstOrDefault();
+			if(specialUpdDoc != null && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
+				specialUpdDoc.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+			}
+		}
+
 		private void CheckAndCreateDocuments(params OrderDocumentType[] needed)
 		{
 			var docsOfOrder = typeof(OrderDocumentType).GetFields()
@@ -3291,10 +3231,18 @@ namespace Vodovoz.Domain.Orders
 					newDoc = new SpecialBillDocument();
 					break;
 				case OrderDocumentType.UPD:
-					newDoc = new UPDDocument();
+					var updDocument = new UPDDocument();
+					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
+						updDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+					}
+					newDoc = updDocument;
 					break;
 				case OrderDocumentType.SpecialUPD:
-					newDoc = new SpecialUPDDocument();
+					var specialUpdDocument = new SpecialUPDDocument();
+					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
+						specialUpdDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+					}
+					newDoc = specialUpdDocument;
 					break;
 				case OrderDocumentType.Invoice:
 					newDoc = new InvoiceDocument();

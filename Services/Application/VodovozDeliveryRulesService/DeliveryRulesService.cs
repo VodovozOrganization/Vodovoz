@@ -140,7 +140,8 @@ namespace VodovozDeliveryRulesService
 		public bool ServiceStatus()
 		{
 			var response = GetDeliveryInfo(59.886134m, 30.394007m);
-			if(response.StatusEnum == DeliveryRulesResponseStatus.Error)
+			var response2 = GetRulesByDistrict(59.886134m, 30.394007m);
+			if(response.StatusEnum == DeliveryRulesResponseStatus.Error || response2.StatusEnum == DeliveryRulesResponseStatus.Error)
 				return false;
 			return true;
 		}

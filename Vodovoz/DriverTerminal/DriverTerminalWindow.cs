@@ -52,9 +52,9 @@ namespace Vodovoz.DriverTerminal
 			}
 
 			if(document.Source != null)
-				reportViewer.LoadReport(document.Source, document.GetParametersString(), document.ConnectionString, true);
+				reportViewer.LoadReport(document.Source, document.GetParametersString(), document.ConnectionString, true, document.RestrictedOutputPresentationTypes);
 			else
-				reportViewer.LoadReport(document.GetReportUri(), document.GetParametersString(), document.ConnectionString, true);
+				reportViewer.LoadReport(document.GetReportUri(), document.GetParametersString(), document.ConnectionString, true, document.RestrictedOutputPresentationTypes);
 		}
 
 		private int GetRouteListNumber()

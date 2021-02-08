@@ -35,7 +35,8 @@ namespace Vodovoz
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
-		
+		private readonly bool canEditDate = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
+
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
@@ -166,7 +167,8 @@ namespace Vodovoz
 			yentryClient.ItemsQuery = Repositories.CounterpartyRepository.ActiveClientsQuery ();
 			yentryClient.Binding.AddBinding (Entity, s => s.Customer, w => w.Subject).InitializeFromSource ();
 
-			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
+			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
+			ydateDocument.Sensitive = canEditDate;
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<ExpenseCategory>(
 				s => 

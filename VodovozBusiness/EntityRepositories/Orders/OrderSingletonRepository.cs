@@ -105,7 +105,13 @@ namespace Vodovoz.EntityRepositories.Orders
 				.List();
 		}
 
-		public IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork uow, Export1cMode mode, DateTime startDate, DateTime endDate, Organization organization = null)
+		public IList<VodovozOrder> GetOrdersToExport1c8(
+			IUnitOfWork uow,
+			IOrderParametersProvider orderParametersProvider, 
+			Export1cMode mode,
+			DateTime startDate,
+			DateTime endDate,
+			int? organizationId = null)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
@@ -133,11 +139,11 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
 				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate);
 
-			if(organization != null) {
+			if(organizationId.HasValue) {
 				CounterpartyContract counterpartyContractAlias = null;
 
 				query.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
-					.Where(() => counterpartyContractAlias.Organization.Id == organization.Id);
+					.Where(() => counterpartyContractAlias.Organization.Id == organizationId);
 			}
 
 			switch(mode) {
@@ -147,14 +153,20 @@ namespace Vodovoz.EntityRepositories.Orders
 					break;
 				case Export1cMode.BuhgalteriaOOONew:
 					CashReceipt cashReceiptAlias = null;
-					
+
 					query.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
 						.Where(Restrictions.Disjunction()
 							.Add(() => orderAlias.PaymentType == PaymentType.cashless)
 							.Add(Restrictions.Conjunction()
-								.Add(Restrictions.IsNotNull(Projections.Property(() => cashReceiptAlias.Id)))
-								.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
-								new[] { PaymentType.cash, PaymentType.ByCard, PaymentType.Terminal }))
+								.Add(Restrictions.On(() => orderAlias.PaymentType)
+									.IsIn(new[] { PaymentType.Terminal, PaymentType.cash }))
+								.Add(Restrictions.IsNotNull(Projections.Property(() => cashReceiptAlias.Id))))
+							.Add(Restrictions.Conjunction()
+								.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
+								.Add(Restrictions.Disjunction()
+									.Add(Restrictions.On(() => orderAlias.PaymentByCardFrom.Id)
+										.IsIn(orderParametersProvider.PaymentsByCardFromNotToSendSalesReceipts))
+									.Add(Restrictions.IsNotNull(Projections.Property(() => cashReceiptAlias.Id))))
 							)
 						);
 					break;
@@ -546,9 +558,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			#region Aliases Restrictions Projections
 
-			var paymentByCardFromSiteId = orderParametersProvider.PaymentByCardFromSiteId;
-			var paymentByCardFromOnlineStoreId = orderParametersProvider.PaymentByCardFromOnlineStoreId;
-			var paymentByCardFromMobileAppId = orderParametersProvider.PaymentByCardFromMobileAppId;
+			var paymentByCardFromNotToSendSalesReceipts = orderParametersProvider.PaymentsByCardFromNotToSendSalesReceipts;
 			var vodovozSouthOrganizationId = organizationParametersProvider.VodovozSouthOrganizationId;
 
 			ReceiptForOrderNode resultAlias = null;
@@ -592,7 +602,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Add(() => orderAlias.PaymentType != PaymentType.ByCard)
 				.Add(() => organizationAlias.Id != vodovozSouthOrganizationId)
 				.Add(Restrictions.On(() => orderAlias.PaymentByCardFrom.Id)
-					.Not.IsIn(new[] { paymentByCardFromSiteId, paymentByCardFromMobileAppId, paymentByCardFromOnlineStoreId }));
+					.Not.IsIn(paymentByCardFromNotToSendSalesReceipts));
 
 			#endregion
 

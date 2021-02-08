@@ -93,8 +93,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Domain.Orders.Order> GetOrdersByCode1c(IUnitOfWork uow, string[] codes1c);
 
 		QueryOver<Domain.Orders.Order> GetOrdersForRLEditingQuery(DateTime date, bool showShipped);
-
-		IList<Domain.Orders.Order> GetOrdersToExport1c8(IUnitOfWork uow, Export1cMode mode, DateTime startDate, DateTime endDate, Organization organization = null);
+		
+		IList<Domain.Orders.Order> GetOrdersToExport1c8(IUnitOfWork uow, IOrderParametersProvider orderParametersProvider, Export1cMode mode, DateTime startDate, DateTime endDate, int? organizationId = null);
 
 		QueryOver<Domain.Orders.Order> GetSelfDeliveryOrdersForPaymentQuery();
 

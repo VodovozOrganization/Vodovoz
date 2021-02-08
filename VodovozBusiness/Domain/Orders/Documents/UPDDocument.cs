@@ -22,7 +22,8 @@ namespace Vodovoz.Domain.Orders.Documents
 					{ "order_id", Order.Id },
 					{ "special", false },
 					{ "hide_signature", HideSignature}
-				}
+				},
+				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
 			};
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }

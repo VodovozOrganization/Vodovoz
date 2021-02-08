@@ -38,7 +38,8 @@ namespace Vodovoz
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
-		
+		private readonly bool canEditDate = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
+
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
@@ -141,6 +142,7 @@ namespace Vodovoz
 			yentryEmployee.ChangedByUser += (sender, e) => UpdateEmployeeBalaceInfo();
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
+			ydateDocument.Sensitive = canEditDate;
 
 			IFileChooserProvider fileChooserProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
 			var filterViewModel = new ExpenseCategoryJournalFilterViewModel {

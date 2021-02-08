@@ -184,7 +184,7 @@ LEFT JOIN measurement_units mu ON mu.id = n.unit_id
 LEFT JOIN route_list_addresses rla ON rla.route_list_id = scld.route_list_id 
 LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
 LEFT JOIN orders ON rla.order_id = orders.id 
-LEFT JOIN order_equipment oe ON oe.order_id = orders.id
+LEFT JOIN order_equipment oe ON oe.order_id = orders.id AND oe.nomenclature_id = scldi.nomenclature_id
 WHERE
 	scld.id = @id
 	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle', 'CashEquipment')
@@ -221,15 +221,16 @@ GROUP BY n.id</CommandText>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT o2.e_shop_order FROM store_car_load_documents scld 
 INNER JOIN store_car_load_document_items scldi ON scldi.car_load_document_id = scld.id 
-INNER JOIN nomenclature n ON	scldi.nomenclature_id = n.id
+INNER JOIN nomenclature n ON scldi.nomenclature_id = n.id
 INNER JOIN nomenclature_groups ng ON ng.id = n.group_id
 INNER JOIN route_list_addresses rla ON rla.route_list_id = scld.route_list_id 
 INNER JOIN orders o2 ON o2.id = rla.order_id 
+INNER JOIN order_items oi ON o2.id = oi.order_id AND oi.nomenclature_id = scldi.nomenclature_id
 WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
   AND IF(n.group_id IS NOT NULL, ng.is_online_store, FALSE)
   AND scld.id = @id
   AND o2.e_shop_order IS NOT NULL
-GROUP BY o2.id;</CommandText>
+GROUP BY o2.e_shop_order;</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
             <Value>={?id}</Value>

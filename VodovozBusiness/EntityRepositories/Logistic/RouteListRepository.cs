@@ -383,36 +383,124 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return null;
 		}
 
-		public IList<GoodsLoadedListResult> AllGoodsLoaded(IUnitOfWork UoW, RouteList routeList, CarLoadDocument excludeDoc = null)
+		public IList<GoodsInRouteListResult> AllGoodsLoaded(IUnitOfWork uow, RouteList routeList, CarLoadDocument excludeDoc = null)
 		{
 			CarLoadDocument docAlias = null;
 			CarLoadDocumentItem docItemsAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			GoodsLoadedListResult inCarLoads = null;
+			GoodsInRouteListResult inCarLoads = null;
 
-			var loadedQuery = UoW.Session.QueryOver<CarLoadDocument>(() => docAlias)
+			var loadedQuery = uow.Session.QueryOver<CarLoadDocument>(() => docAlias)
 				.Where(d => d.RouteList.Id == routeList.Id);
+			
 			if(excludeDoc != null)
 				loadedQuery.Where(d => d.Id != excludeDoc.Id);
 
 			var loadedlist = loadedQuery
 				.JoinAlias(d => d.Items, () => docItemsAlias)
-				.JoinAlias(() => docItemsAlias.Nomenclature, () => nomenclatureAlias)
 				.SelectList(list => list
 				   .SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inCarLoads.NomenclatureId)
-				   .Select(() => nomenclatureAlias.Category).WithAlias(() => inCarLoads.NomenclatureCategory)
 				   .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
-				).TransformUsing(Transformers.AliasToBean<GoodsLoadedListResult>())
-				.List<GoodsLoadedListResult>();
+				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
+				.List<GoodsInRouteListResult>();
 			return loadedlist;
 		}
-
-		public List<ReturnsNode> GetReturnsToWarehouse(IUnitOfWork uow, int routeListId, NomenclatureCategory[] categories, int[] excludeNomenclatureIds = null)
+		
+		public IEnumerable<GoodsInRouteListResult> AllGoodsDelivered(IUnitOfWork uow, RouteList routeList)
 		{
-			List<ReturnsNode> result = new List<ReturnsNode>();
+			if(routeList == null) throw new ArgumentNullException(nameof(routeList));
+			
+			IList<GoodsInRouteListResult> result = new List<GoodsInRouteListResult>();
+			if(!routeList.Addresses.Any()) {
+				return result;
+			}
+			
+			DeliveryDocument docAlias = null;
+			DeliveryDocumentItem docItemsAlias = null;
+			GoodsInRouteListResult resultNodeAlias = null;
+			
+			result = uow.Session.QueryOver<DeliveryDocument>(() => docAlias)
+				.Inner.JoinAlias(d => d.Items, () => docItemsAlias)
+				.WhereRestrictionOn(d => d.RouteListItem.Id).IsIn(routeList.Addresses.Select(x => x.Id).ToArray())
+				.And(() => docItemsAlias.Direction == DeliveryDirection.ToClient)
+				.SelectList(list => list
+					.SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => resultNodeAlias.NomenclatureId)
+					.SelectSum(() => docItemsAlias.Amount).WithAlias(() => resultNodeAlias.Amount)
+				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
+				.List<GoodsInRouteListResult>();
+			
+			return result;
+		}
+
+		public IEnumerable<GoodsInRouteListResult> AllGoodsDelivered(IEnumerable<DeliveryDocument> deliveryDocuments)
+		{
+			return deliveryDocuments.SelectMany(d => d.Items.Where(x => x.Direction == DeliveryDirection.ToClient))
+				.GroupBy(i => i.Nomenclature.Id,
+					(nomenclatureId, items) =>
+						new GoodsInRouteListResult {
+							NomenclatureId = nomenclatureId,
+							Amount = items.Sum(x => x.Amount)
+						});
+		}
+		
+		public IEnumerable<GoodsInRouteListResult> AllGoodsReceivedFromClient(IEnumerable<DeliveryDocument> deliveryDocuments)
+		{
+			return deliveryDocuments.SelectMany(d => d.Items.Where(x => x.Direction == DeliveryDirection.FromClient))
+				.GroupBy(i => i.Nomenclature.Id,
+					(nomenclatureId, items) =>
+						new GoodsInRouteListResult {
+							NomenclatureId = nomenclatureId,
+							Amount = items.Sum(x => x.Amount)
+						});
+		}
+
+		public IEnumerable<GoodsInRouteListResult> AllGoodsTransferredFrom(IUnitOfWork uow, RouteList routeList)
+		{
+			if(routeList == null) throw new ArgumentNullException(nameof(routeList));
+
+			AddressTransferDocument transferDocAlias = null;
+			AddressTransferDocumentItem transferDocItemAlias = null;
+			DriverNomenclatureTransferItem driverTransferDocItemAlias = null;
+			GoodsInRouteListResult resultNodeAlias = null;
+			
+			var result = uow.Session.QueryOver<AddressTransferDocument>(() => transferDocAlias)
+				.Inner.JoinAlias(() => transferDocAlias.AddressTransferDocumentItems, () => transferDocItemAlias)
+				.Inner.JoinAlias(() => transferDocItemAlias.DriverNomenclatureTransferDocumentItems, () => driverTransferDocItemAlias)
+				.Where(() => transferDocAlias.RouteListFrom.Id == routeList.Id)
+				.SelectList(list => list
+					.SelectGroup(() => driverTransferDocItemAlias.Nomenclature.Id).WithAlias(() => resultNodeAlias.NomenclatureId)
+					.SelectSum(() => driverTransferDocItemAlias.Amount).WithAlias(() => resultNodeAlias.Amount)
+				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
+				.List<GoodsInRouteListResult>();
+			
+			return result;
+		}
+
+		public IEnumerable<GoodsInRouteListResult> AllGoodsTransferredTo(IUnitOfWork uow, RouteList routeList)
+		{
+			if(routeList == null) throw new ArgumentNullException(nameof(routeList));
+
+			AddressTransferDocument transferDocAlias = null;
+			AddressTransferDocumentItem transferDocItemAlias = null;
+			DriverNomenclatureTransferItem driverTransferDocItemAlias = null;
+			GoodsInRouteListResult resultNodeAlias = null;
+			
+			var result = uow.Session.QueryOver<AddressTransferDocument>(() => transferDocAlias)
+				.Inner.JoinAlias(() => transferDocAlias.AddressTransferDocumentItems, () => transferDocItemAlias)
+				.Inner.JoinAlias(() => transferDocItemAlias.DriverNomenclatureTransferDocumentItems, () => driverTransferDocItemAlias)
+				.Where(() => transferDocAlias.RouteListTo.Id == routeList.Id)
+				.SelectList(list => list
+					.SelectGroup(() => driverTransferDocItemAlias.Nomenclature.Id).WithAlias(() => resultNodeAlias.NomenclatureId)
+					.SelectSum(() => driverTransferDocItemAlias.Amount).WithAlias(() => resultNodeAlias.Amount)
+				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
+				.List<GoodsInRouteListResult>();
+			
+			return result;
+		}
+
+		public List<ReturnsNode> GetReturnsToWarehouse(IUnitOfWork uow, int routeListId, NomenclatureCategory[] categories = null, int[] excludeNomenclatureIds = null)
+		{
 			Nomenclature nomenclatureAlias = null;
 			ReturnsNode resultAlias = null;
-			Equipment equipmentAlias = null;
 			CarUnloadDocumentItem carUnloadItemsAlias = null;
 			WarehouseMovementOperation movementOperationAlias = null;
 
@@ -421,49 +509,27 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(() => carUnloadItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
 				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
 				.JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => !nomenclatureAlias.IsSerial)
-				.Where(() => nomenclatureAlias.Category.IsIn(categories));
-			if(excludeNomenclatureIds != null)
-				returnableQuery.Where(() => !nomenclatureAlias.Id.IsIn(excludeNomenclatureIds));
+				.Where(() => !nomenclatureAlias.IsSerial);
 
-			var returnableItems =
-				returnableQuery.SelectList(list => list
+			if(categories != null) {
+				returnableQuery.Where(() => nomenclatureAlias.Category.IsIn(categories));
+			}
+
+			if(excludeNomenclatureIds != null) {
+				returnableQuery.Where(() => !nomenclatureAlias.Id.IsIn(excludeNomenclatureIds));
+			}
+
+			var result = returnableQuery.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => false).WithAlias(() => resultAlias.Trackable)
 					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
-								  )
+					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount))
 				.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
 				.List<ReturnsNode>();
-
-			var returnableQueryEquipment = uow.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
-				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
-				.JoinAlias(() => carUnloadItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
-				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
-				.JoinAlias(() => movementOperationAlias.Equipment, () => equipmentAlias)
-				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Category.IsIn(categories));
-			if(excludeNomenclatureIds != null)
-				returnableQueryEquipment.Where(() => !nomenclatureAlias.Id.IsIn(excludeNomenclatureIds));
-
-			var returnableEquipment =
-				returnableQueryEquipment.SelectList(list => list
-					.Select(() => equipmentAlias.Id).WithAlias(() => resultAlias.Id)
-					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(() => nomenclatureAlias.IsSerial).WithAlias(() => resultAlias.Trackable)
-					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
-					.Select(() => nomenclatureAlias.Type).WithAlias(() => resultAlias.EquipmentType)
-									  )
-				.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
-				.List<ReturnsNode>();
-
-			result.AddRange(returnableItems);
-			result.AddRange(returnableEquipment);
+			
 			DomainHelper.FillPropertyByEntity<ReturnsNode, Nomenclature>(uow, result, x => x.NomenclatureId, (node, nom) => node.Nomenclature = nom);
-			return result;
+			return result.ToList();
 		}
 
 		/// <summary>
@@ -632,13 +698,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public int NomenclatureId { get; set; }
 		public string NomenclatureName { get; set; }
 		public decimal? ExpireDatePercent { get; set; } = null;
-		public decimal Amount { get; set; }
-	}
-
-	public class GoodsLoadedListResult
-	{
-		public int NomenclatureId { get; set; }
-		public NomenclatureCategory NomenclatureCategory { get; set; }
 		public decimal Amount { get; set; }
 	}
 
