@@ -2,21 +2,21 @@
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Threading;
+using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
-using Nini.Config;
 using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
 using QSSupportLib;
-using SmsBlissSendService;
+using SmsRuSendService;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.SmsNotifications;
 
 namespace VodovozSmsInformerService
 {
-	class Service
+    class Service
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -33,36 +33,50 @@ namespace VodovozSmsInformerService
 		private static string mysqlPassword;
 		private static string mysqlDatabase;
 
-		//SmsService
-		private static string smsServiceLogin;
-		private static string smsServicePassword;
-
 		static NewClientSmsInformer newClientInformer;
 
 		public static void Main(string[] args)
 		{
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;;
-			AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;;
+			AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
+
+			SmsRuConfiguration smsRuConfig;
 
 			try {
-				IniConfigSource confFile = new IniConfigSource(configFile);
-				confFile.Reload();
+				var builder = new ConfigurationBuilder()
+					.AddIniFile(configFile, optional: false);
 
-				IConfig serviceConfig = confFile.Configs["Service"];
-				serviceHostName = serviceConfig.GetString("service_host_name");
-				servicePort = serviceConfig.GetString("service_port");
+				var configuration = builder.Build();
 
-				IConfig mysqlConfig = confFile.Configs["Mysql"];
-				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
-				mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
-				mysqlUser = mysqlConfig.GetString("mysql_user");
-				mysqlPassword = mysqlConfig.GetString("mysql_password");
-				mysqlDatabase = mysqlConfig.GetString("mysql_database");
+				var serviceSection = configuration.GetSection("Service");
+				serviceHostName = serviceSection["service_host_name"];
+				servicePort = serviceSection["service_port"];
 
-				IConfig smsConfig = confFile.Configs["SmsService"];
-				smsServiceLogin = smsConfig.GetString("sms_service_login");
-				smsServicePassword = smsConfig.GetString("sms_service_password");
+				var mysqlSection = configuration.GetSection("Mysql");
+				mysqlServerHostName = mysqlSection["mysql_server_host_name"];
+				mysqlServerPort = mysqlSection["mysql_server_port"];
+				mysqlUser = mysqlSection["mysql_user"];
+				mysqlPassword = mysqlSection["mysql_password"];
+				mysqlDatabase = mysqlSection["mysql_database"];
 
+				var smsRuSection = configuration.GetSection("SmsRu");
+
+				smsRuConfig = 
+					new SmsRuConfiguration(
+						smsRuSection["login"],
+						smsRuSection["password"],
+						smsRuSection["appId"],
+						smsRuSection["partnerId"],
+						smsRuSection["email"],
+						smsRuSection["smsNumberFrom"],
+						smsRuSection["smtpLogin"],
+						smsRuSection["smtpPassword"],
+						smsRuSection["smtpServer"],
+						int.Parse(smsRuSection["smtpPort"]),
+						bool.Parse(smsRuSection["smtpUseSSL"]),
+						bool.Parse(smsRuSection["translit"]),
+						bool.Parse(smsRuSection["test"])
+					);
 			}
 			catch(Exception ex) {
 				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
@@ -72,7 +86,7 @@ namespace VodovozSmsInformerService
 			try {
 				var conStrBuilder = new MySqlConnectionStringBuilder();
 				conStrBuilder.Server = mysqlServerHostName;
-				conStrBuilder.Port = UInt32.Parse(mysqlServerPort);
+				conStrBuilder.Port = uint.Parse(mysqlServerPort);
 				conStrBuilder.Database = mysqlDatabase;
 				conStrBuilder.UserID = mysqlUser;
 				conStrBuilder.Password = mysqlPassword;
@@ -96,7 +110,8 @@ namespace VodovozSmsInformerService
 
 				ISmsNotificationRepository smsNotificationRepository = new SmsNotificationRepository();
 
-				SmsBlissSendController smsSender = new SmsBlissSendController(smsServiceLogin, smsServicePassword, SmsSendInterface.BalanceType.CurrencyBalance);
+				SmsRuSendController smsSender = new SmsRuSendController(smsRuConfig);
+
 				newClientInformer = new NewClientSmsInformer(smsSender, smsNotificationRepository);
 				newClientInformer.Start();
 
