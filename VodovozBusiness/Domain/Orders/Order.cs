@@ -1068,7 +1068,7 @@ namespace Vodovoz.Domain.Orders
 					new[] { nameof(Contract.Organization) });
 			}
 
-			if (OrderItems.Any(oi => !string.IsNullOrEmpty(oi.Nomenclature.OnlineStoreExternalId))
+			if (OrderItems.Any(oi => !string.IsNullOrWhiteSpace(oi.Nomenclature.OnlineStoreExternalId))
 				&& EShopOrder == null)
 			{
 				yield return new ValidationResult(
