@@ -288,9 +288,18 @@ namespace Vodovoz
         {
 			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
 			if (row == null)
+            {
 				return;
+			}
 
-			var nomenclature = UoW.Session.Get<Nomenclature>(e.SelectedNodes.FirstOrDefault().Id);
+			var id = e.SelectedNodes.FirstOrDefault()?.Id;
+
+			if (id == null)
+            {
+				return;
+            }
+
+			var nomenclature = UoW.Session.Get<Nomenclature>(id);
 			row.NomenclatureNew = nomenclature;
 		}
 
