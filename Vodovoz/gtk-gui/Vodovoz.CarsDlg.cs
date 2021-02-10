@@ -910,7 +910,7 @@ namespace Vodovoz
 			this.label15 = new global::Gtk.Label();
 			this.label15.Name = "label15";
 			this.label15.Xalign = 1F;
-			this.label15.LabelProp = global::Mono.Unix.Catalog.GetString("Свидетельство о \nрегистрации ТС:");
+			this.label15.LabelProp = global::Mono.Unix.Catalog.GetString("Паспорт ТС:");
 			this.label15.Justify = ((global::Gtk.Justification)(1));
 			this.tableCarData.Add(this.label15);
 			global::Gtk.Table.TableChild w66 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.label15]));
