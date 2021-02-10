@@ -752,8 +752,7 @@ FROM
 			INNER JOIN orders o ON o.id = hce.entity_id
 				AND hce.entity_class = 'Order'
 				AND hce.`datetime` &gt;= @date_from
-				AND hce.operation = 'Change'		
-				AND o.delivery_date &gt;= @date_from
+				AND hce.operation = 'Change'
 			INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id 
 				AND cc.organization_id = @organization_id
 			INNER JOIN history_changes hc_pay_type ON hc_pay_type.chaged_entity_id = hce.id
@@ -775,8 +774,7 @@ FROM
 					INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
 						AND hce_inner.entity_class = 'Order'
 						AND hce_inner.`datetime` &gt;= @date_from
-						AND hce_inner.operation = 'Change'		
-						AND o_inner.delivery_date &gt;= @date_from
+						AND hce_inner.operation = 'Change'
 					INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id		
 						AND hc_inner.`type` = 'Changed' 
 						AND hc_inner.field_name = 'OrderStatus'
@@ -844,7 +842,6 @@ FROM
 				AND hce.`datetime` &gt;= @date_from
 				AND hce.operation IN ('Create','Change','Delete')		
 			INNER JOIN orders o ON o.id = oi.order_id
-				AND o.delivery_date &gt;= @date_from
 			INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id 
 				AND cc.organization_id = @organization_id
 			INNER JOIN (
@@ -858,8 +855,7 @@ FROM
 					INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
 						AND hce_inner.entity_class = 'Order'
 						AND hce_inner.`datetime` &gt;= @date_from
-						AND hce_inner.operation = 'Change'		
-						AND o_inner.delivery_date &gt;= @date_from
+						AND hce_inner.operation = 'Change'
 					INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id		
 						AND hc_inner.`type` = 'Changed' 
 						AND hc_inner.field_name = 'OrderStatus'
@@ -877,8 +873,7 @@ FROM
 					INNER JOIN orders o_pay_type ON o_pay_type.id = hce_pay_type.entity_id
 						AND hce_pay_type.entity_class = 'Order'
 						AND hce_pay_type.`datetime` &gt;= @date_from
-						AND hce_pay_type.operation = 'Change'		
-						AND o_pay_type.delivery_date &gt;= @date_from
+						AND hce_pay_type.operation = 'Change'
 					INNER JOIN history_changes hc_pay_type ON hc_pay_type.chaged_entity_id = hce_pay_type.id
 						AND hc_pay_type.`type` = 'Changed'
 						AND hc_pay_type.field_name = 'PaymentType'
