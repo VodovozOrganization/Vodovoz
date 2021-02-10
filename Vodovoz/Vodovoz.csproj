@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -22,7 +22,8 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
-    <Commandlineparameters></Commandlineparameters>
+    <Commandlineparameters>
+    </Commandlineparameters>
     <RunWithWarnings>true</RunWithWarnings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
@@ -134,7 +135,6 @@
     <EmbeddedResource Include="toolbars\general.xml">
       <LogicalName>general.xml</LogicalName>
     </EmbeddedResource>
-    
     <EmbeddedResource Include="toolbars\accounting.xml">
       <LogicalName>accounting.xml</LogicalName>
     </EmbeddedResource>
@@ -385,6 +385,7 @@
     <EmbeddedResource Include="icons\buttons\user22.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
     <Compile Include="Additions\IAuthorizationService.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
@@ -393,6 +394,7 @@
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.OrderChangesReport.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
     <Compile Include="JournalNodes\WaterJournalNode.cs" />
     <Compile Include="JournalViewModels\OrderForRouteListJournalViewModel.cs" />
@@ -430,6 +432,7 @@
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
     <Compile Include="ReportsParameters\CashBookReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CashBookReport.cs" />
+    <Compile Include="ReportsParameters\Orders\OrderChangesReport.cs" />
     <Compile Include="Representations\ProductGroupVM.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Catalogs\AccountCatalog.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Catalogs\BankCatalog.cs" />
@@ -480,7 +483,9 @@
     <Compile Include="gtk-gui\Vodovoz.EquipmentGenerator.cs" />
     <Compile Include="Representations\ContractsVM.cs" />
     <Compile Include="Representations\ProxiesVM.cs" />
+    <Compile Include="ViewModels\Accounting\WayBillGeneratorViewModel.cs" />
     <Compile Include="ViewModels\Cash\PaymentByCardViewModel.cs" />
+    <Compile Include="JournalViewModels\RouteListWorkingJournalViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonCategoryViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
     <Compile Include="ViewWidgets\DeliveryPointView.cs" />
@@ -587,8 +592,6 @@
     <Compile Include="Representations\RouteListsVM.cs" />
     <Compile Include="JournalFilters\RouteListsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListsFilter.cs" />
-    <Compile Include="JournalViewers\RouteListClosingView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListClosingView.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderReturnsView.cs" />
     <Compile Include="Commons\OrderPopupMenu.cs" />
@@ -1410,7 +1413,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetView.cs" />
     <Compile Include="Views\Logistic\AcceptBeforeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AcceptBeforeView.cs" />
-    <Compile Include="ViewModels\Logistic\AddressType.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
     <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebtView.cs" />
     <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentView.cs" />
@@ -1505,7 +1507,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ExpenseCategoryJournalFilterView.cs" />
     <Compile Include="Filters\GtkViews\IncomeCategoryJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.IncomeCategoryJournalFilterView.cs" />
-    <Compile Include="ViewModels\Logistic\RouteListStatusNode.cs" />
+    <Compile Include="Views\Accounting\WayBillGeneratorView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Accounting.WayBillGeneratorView.cs" />
     <Compile Include="Views\FinancialDistrictsSetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.FinancialDistrictsSetView.cs" />
     <Compile Include="Filters\GtkViews\FinancialDistrictsSetsJournalFilterView.cs" />
@@ -1544,6 +1547,8 @@
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.Proposal.ApplicationDevelopmentProposalsJournalFilterView.cs" />
     <Compile Include="ReportsParameters\Orders\EShopSalesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
+    <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1837,6 +1842,7 @@
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Views\Goods\" />
     <Folder Include="ReportsParameters\Production\" />
+    <Folder Include="Views\Accounting\" />
     <Folder Include="Views\Payments\" />
     <Folder Include="Views\Proposal\" />
     <Folder Include="JournalFilters\Proposal\" />
@@ -1940,6 +1946,9 @@
     </None>
     <None Include="Reports\Cash\CashFlowDetailIncomeReturn.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\OrderChangesReport.rdl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Production\ProducedProduction.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -2301,7 +2310,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\TransportInvoice.rdl">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\Torg2.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

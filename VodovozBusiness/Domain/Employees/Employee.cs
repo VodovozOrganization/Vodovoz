@@ -191,6 +191,13 @@ namespace Vodovoz.Domain.Employees
 			get { return driverOf; }
 			set { SetField(ref driverOf, value, () => DriverOf); }
 		}
+		
+		private Gender? gender;
+		[Display(Name = "Пол сотрудника")]
+		public virtual Gender? Gender {
+			get { return gender; }
+			set { SetField(ref gender, value); }
+		}
 
 		private float driverSpeed = 1;
 
@@ -323,7 +330,7 @@ namespace Vodovoz.Domain.Employees
 			Name = String.Empty;
 			LastName = String.Empty;
 			Patronymic = String.Empty;
-			DrivingNumber = String.Empty;
+			DrivingLicense = String.Empty;
 			Category = EmployeeCategory.office;
 			AddressRegistration = String.Empty;
 			AddressCurrent = String.Empty;
@@ -646,6 +653,14 @@ namespace Vodovoz.Domain.Employees
 		OnMaternityLeave,
 		[Display(Name = "Уволен")]
 		IsFired
+	}
+	
+	public enum Gender
+	{
+		[Display(Name = "М")]
+		male,
+		[Display(Name = "Ж")]
+		female
 	}
 
 	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType
