@@ -67,10 +67,6 @@
       <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
       <Name>InstantSmsService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Library\SmsBlissSendService\SmsBlissSendService.csproj">
-      <Project>{6A2E255D-4702-4955-9C8C-80AD435EF217}</Project>
-      <Name>SmsBlissSendService</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Library\SmsSendInterface\SmsSendInterface.csproj">
       <Project>{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85}</Project>
       <Name>SmsSendInterface</Name>

@@ -4,8 +4,8 @@ using SmsSendInterface;
 using Vodovoz.Services;
 using Vodovoz.Domain.Sms;
 using System.Linq;
-using SmsBlissSendService;
 using NLog;
+using SmsRuSendService;
 
 namespace VodovozSmsInformerService
 {
