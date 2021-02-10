@@ -47,7 +47,7 @@ namespace Vodovoz.JournalViewModels
             CallTaskRepository callTaskRepository,
             BaseParametersProvider baseParametersProvider,
             SubdivisionRepository subdivisionRepository) :
-            base(filterViewModel, unitOfWorkFactory, commonServices, true)
+            base(filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Работа кассы с МЛ";
 
@@ -56,6 +56,8 @@ namespace Vodovoz.JournalViewModels
             this.callTaskRepository = callTaskRepository;
             this.baseParametersProvider = baseParametersProvider;
             this.subdivisionRepository = subdivisionRepository;
+
+            UseSlider = false;
 
             NotifyConfiguration.Enable();
             NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(OnRouteListChanged);
