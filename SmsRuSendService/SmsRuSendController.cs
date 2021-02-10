@@ -3,6 +3,8 @@ using SmsRu.Enumerations;
 using SmsSendInterface;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
+using NLog;
 
 namespace SmsRuSendService
 {
@@ -10,6 +12,7 @@ namespace SmsRuSendService
     {
         private readonly SmsRuProvider smsRuProvider;
         private readonly ISmsRuConfiguration configuration;
+        private readonly static Logger logger = LogManager.GetCurrentClassLogger();
 
         public SmsRuSendController(ISmsRuConfiguration configuration)
         {
@@ -37,42 +40,59 @@ namespace SmsRuSendService
 
         public ISmsSendResult SendSms(ISmsMessage message)
         {
-            try
+
+            var response = smsRuProvider.Send(configuration.SmsNumberFrom, message.MobilePhoneNumber, message.MessageText, message.ScheduleTime);
+
+            if (!string.IsNullOrEmpty(response))
             {
-                var response = smsRuProvider.Send(configuration.SmsNumberFrom, message.MobilePhoneNumber, message.MessageText, message.ScheduleTime);
+                var lines = response.Split('\n');
 
-                if (!string.IsNullOrEmpty(response))
-                {
-                    var lines = response.Split('\n');
+                var enumStatus = Enum.Parse(typeof(ResponseOnSendRequest), lines[0]);
 
-                    var enumStatus = Enum.Parse(typeof(ResponseOnSendRequest), lines[0]);
-                    switch (enumStatus)
-                    {
-                        case ResponseOnSendRequest.MessageAccepted:
-                            return new SmsSendResult(SmsSentStatus.Accepted);
-                        case ResponseOnSendRequest.BadRecipient:
-                        case ResponseOnSendRequest.BlacklistedRecepient:
-                        case ResponseOnSendRequest.CantSendToThisNumber:
-                        case ResponseOnSendRequest.DayMessageLimitToNumber:
-                            return new SmsSendResult(SmsSentStatus.InvalidMobilePhone);
-                        case ResponseOnSendRequest.MessageTextNotSpecified:
-                            return new SmsSendResult(SmsSentStatus.TextIsEmpty);
-                        case ResponseOnSendRequest.BadSender:
-                            return new SmsSendResult(SmsSentStatus.SenderAddressInvalid);
-                        case ResponseOnSendRequest.OutOfMoney:
-                            return new SmsSendResult(SmsSentStatus.NotEnoughBalance);
-                        default:
-                            return new SmsSendResult(SmsSentStatus.UnknownError);
-                    }
-                }
-                else
+                SmsSendResult smsSendResponse;
+
+                switch (enumStatus)
                 {
-                    throw new Exception("Не получен ответ от сервера");
+                    case ResponseOnSendRequest.MessageAccepted:
+                        smsSendResponse = new SmsSendResult(SmsSentStatus.Accepted);
+
+                        var balanceLine = lines.FirstOrDefault(x => x.StartsWith("balance="));
+
+                        if (balanceLine != null && decimal.TryParse(balanceLine.Substring("balance=".Length), out decimal newBalance))
+                        {
+                            OnBalanceChange?.Invoke(this, new SmsBalanceEventArgs(BalanceType.CurrencyBalance, newBalance));
+                        }
+                        else
+                        {
+                            logger.Warn("Не удалось получить баланс в ответном сообщении");
+                        }
+
+                        break;
+                    case ResponseOnSendRequest.BadRecipient:
+                    case ResponseOnSendRequest.BlacklistedRecepient:
+                    case ResponseOnSendRequest.CantSendToThisNumber:
+                    case ResponseOnSendRequest.DayMessageLimitToNumber:
+                        smsSendResponse = new SmsSendResult(SmsSentStatus.InvalidMobilePhone);
+                        break;
+                    case ResponseOnSendRequest.MessageTextNotSpecified:
+                        smsSendResponse = new SmsSendResult(SmsSentStatus.TextIsEmpty);
+                        break;
+                    case ResponseOnSendRequest.BadSender:
+                        smsSendResponse = new SmsSendResult(SmsSentStatus.SenderAddressInvalid);
+                        break;
+                    case ResponseOnSendRequest.OutOfMoney:
+                        smsSendResponse = new SmsSendResult(SmsSentStatus.NotEnoughBalance);
+                        break;
+                    default:
+                        smsSendResponse = new SmsSendResult(SmsSentStatus.UnknownError);
+                        break;
                 }
+
+                return smsSendResponse;
             }
-            catch (Exception ex)
+            else
             {
-                throw ex;
+                throw new Exception("Не получен ответ от сервера");
             }
         }
 
