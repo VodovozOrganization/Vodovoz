@@ -96,14 +96,14 @@ namespace Vodovoz.Domain.Logistic
 		}
 		
 		string docPTSSeries;
-		[Display(Name = "Серия свидетельства о регистрации ТС")]
+		[Display(Name = "Серия паспорта ТС")]
 		public virtual string DocPTSSeries {
 			get { return docPTSSeries; }
 			set { SetField(ref docPTSSeries, value); }
 		}
 
 		string docPTSNumber;
-		[Display(Name = "Номер свидетельства о регистрации ТС")]
+		[Display(Name = "Номер паспорта ТС")]
 		public virtual string DocPTSNumber {
 			get { return docPTSNumber; }
 			set { SetField(ref docPTSNumber, value); }
