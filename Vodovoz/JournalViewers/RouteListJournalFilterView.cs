@@ -32,6 +32,9 @@ namespace Vodovoz.JournalViewers
                 .Finish();
             ytreeviewAddressTypes.ItemsDataSource = ViewModel.AddressTypeNodes;
 
+            dateperiodOrders.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
+            dateperiodOrders.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
+
             yentryreferenceShift.SubjectType = typeof(DeliveryShift);
             yentryreferenceShift.Binding.AddBinding(ViewModel, vm => vm.DeliveryShift, w => w.Subject).InitializeFromSource();
 
