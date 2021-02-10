@@ -2,7 +2,6 @@
 using System.Linq;
 using Gamma.Utilities;
 using Gtk;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -209,7 +208,7 @@ namespace Vodovoz.Dialogs.Cash
 			#region Editibility
 
 			yentryCancelReason.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyCoordinator, w => w.Sensitive).InitializeFromSource();
-			ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNAGandRoldFinancier, w => w.Sensitive).InitializeFromSource();
+			ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategorySensitive, w => w.Sensitive).InitializeFromSource();
 			speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNAGandRoldFinancier, w => w.Sensitive).InitializeFromSource();
 
 			#endregion Editibility
@@ -221,11 +220,11 @@ namespace Vodovoz.Dialogs.Cash
 			
 			speccomboOrganization.Visible = ViewModel.VisibleOnlyForFinancer;
 			labelcomboOrganization.Visible = ViewModel.VisibleOnlyForFinancer;
-			
-			ExpenseCategoryEntityviewmodelentry.Visible = ViewModel.VisibleOnlyForFinancer;
-			labelCategoryEntityviewmodelentry.Visible = ViewModel.VisibleOnlyForFinancer;
-			
-			yentryReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
+
+            labelCategoryEntityviewmodelentry.Visible =
+                ExpenseCategoryEntityviewmodelentry.Visible = (ViewModel.UserRole == UserRole.Cashier || ViewModel.UserRole == UserRole.Financier);
+
+            yentryReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 			labelReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 			
 			yentryCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;

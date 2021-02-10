@@ -32,6 +32,7 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using QS.Project.Domain;
 using QS.DomainModel.NotifyChange;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 namespace Vodovoz.ViewModel
 {

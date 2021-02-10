@@ -311,6 +311,9 @@ namespace Vodovoz
 					case CashOrganisationDistributionDocType.IncomeCashDistributionDoc:
 						incomeCashOrganisationDistributor.UpdateRecords(UoW, (IncomeCashDistributionDocument)document, Entity, editor);
 						break;
+					case CashOrganisationDistributionDocType.RouteListItemCashDistributionDoc:
+						routeListCashOrganisationDistributor.UpdateIncomeCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
+						break;
 				}
 			}
 		}

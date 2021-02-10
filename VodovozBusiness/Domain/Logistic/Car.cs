@@ -46,7 +46,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		string manufactureYear;
-
 		[Display(Name = "Год выпуска")]
 		[StringLength(4, MinimumLength = 4, ErrorMessage = "Год выпуска должен содержать 4 знака")]
 		public virtual string ManufactureYear {
@@ -55,7 +54,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		string motorNumber;
-
 		[Display(Name = "Номер двигателя")]
 		public virtual string MotorNumber {
 			get { return motorNumber; }
@@ -63,7 +61,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		string chassisNumber;
-
 		[Display(Name = "Номер шасси")]
 		public virtual string ChassisNumber {
 			get { return chassisNumber; }
@@ -71,7 +68,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		string carcase;
-
 		[Display(Name = "Кузов")]
 		public virtual string Carcase {
 			get { return carcase; }
@@ -79,7 +75,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		string color;
-
 		[Display(Name = "Цвет")]
 		public virtual string Color {
 			get { return color; }
@@ -87,7 +82,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		string docSeries;
-
 		[Display(Name = "Серия свидетельства о регистрации ТС")]
 		public virtual string DocSeries {
 			get { return docSeries; }
@@ -95,15 +89,28 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		string docNumber;
-
 		[Display(Name = "Номер свидетельства о регистрации ТС")]
 		public virtual string DocNumber {
 			get { return docNumber; }
 			set { SetField(ref docNumber, value, () => DocNumber); }
 		}
+		
+		string docPTSSeries;
+		[Display(Name = "Серия свидетельства о регистрации ТС")]
+		public virtual string DocPTSSeries {
+			get { return docPTSSeries; }
+			set { SetField(ref docPTSSeries, value); }
+		}
+
+		string docPTSNumber;
+		[Display(Name = "Номер свидетельства о регистрации ТС")]
+		public virtual string DocPTSNumber {
+			get { return docPTSNumber; }
+			set { SetField(ref docPTSNumber, value); }
+		}
+		
 
 		string docIssuedOrg;
-
 		[Display(Name = "Кем выдано свидетельство о регистрации ТС")]
 		public virtual string DocIssuedOrg {
 			get { return docIssuedOrg; }
@@ -227,7 +234,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref fuelCardNumber, value, () => FuelCardNumber);
 		}
 
-
 		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
 		[Display(Name = "Группа района")]
 		public virtual IList<GeographicGroup> GeographicGroups {
@@ -315,6 +321,11 @@ namespace Vodovoz.Domain.Logistic
 	public class CarTypeOfUseStringType : NHibernate.Type.EnumStringType
 	{
 		public CarTypeOfUseStringType() : base(typeof(CarTypeOfUse)) { }
+	}
+	
+	public class GenderStringType : NHibernate.Type.EnumStringType
+	{
+		public GenderStringType() : base(typeof(Gender)) { }
 	}
 }
 

@@ -68,6 +68,7 @@ using VodovozInfrastructure.Interfaces;
 using Action = Gtk.Action;
 using Vodovoz.Old1612ExportTo1c;
 using Vodovoz.JournalFilters.Cash;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 public partial class MainWindow : Window
 {
@@ -162,7 +163,7 @@ public partial class MainWindow : Window
 		ActionAtWorks = new Action("ActionAtWorks", "На работе", null, "table");
 		ActionRouteListsAtDay = new Action("ActionRouteListsAtDay", "Формирование МЛ", null, null);
 		ActionRouteListsPrint = new Action("ActionRouteListsPrint", "Печать МЛ", null, "print");
-		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов", null, "table");
+		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Работа кассы с МЛ", null, "table");
 		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин", null, "table");
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
@@ -780,11 +781,23 @@ public partial class MainWindow : Window
 
 	void ActionRouteListClosingTable_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RouteListClosingView>(),
-			() => new RouteListClosingView()
-		);
-	}
+        tdiMain.OpenTab(
+            () => {
+                var routeListFilter = new RouteListJournalFilterViewModel();
+
+                return new RouteListWorkingJournalViewModel(
+                     routeListFilter,
+                     UnitOfWorkFactory.GetDefaultFactory,
+                     ServicesConfig.CommonServices,
+                     new RouteListRepository(),
+                     new FuelRepository(),
+                     new CallTaskRepository(),
+                     new BaseParametersProvider(),
+                     new SubdivisionRepository()
+                     );
+            }
+        );
+    }
 
 	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)
 	{

@@ -240,6 +240,8 @@
                         </BorderStyle>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -454,6 +456,101 @@
         <Left>60.5pt</Left>
         <Top>27pt</Top>
       </Textbox>
+      <Table Name="Table2" >
+        <DataSetName>Data</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>34.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>63.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>40.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>55.3pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>Итого</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>=Sum(Iif(Fields!eshop_order_row_number = 1, Fields!delivery_price.Value, 0))</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>=Sum(Fields!discount.Value)</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>=Sum(Fields!total_sum.Value)</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+        <Left>319.4pt</Left>
+        <Top>155.5pt</Top>
+      </Table>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -494,11 +591,12 @@
     n.online_store_external_id AS online_store_external_id,
     o.delivery_date AS delivery_date,
     n.official_name AS nomenclature_name,
-    oi.price AS nomenclature_price,
+    IF(oi.price IS NULL, 0, oi.price) AS nomenclature_price,
     oi.count AS amount,
-    (d.price - d.discount_money) AS delivery_price,
+    IF(d.price IS NULL, 0, (d.price - d.discount_money)) AS delivery_price,
+    ROW_NUMBER() OVER(PARTITION BY o.e_shop_order) AS eshop_order_row_number,
     oi.discount_money AS discount,
-    (oi.price - oi.discount_money) * oi.count AS total_sum,
+    (IF(oi.price IS NULL, 0, oi.price)) * COALESCE(oi.actual_count, oi.count, 0) - oi.discount_money AS total_sum,
     CASE
         WHEN o.order_status = 'NewOrder' THEN 'Новый'
         WHEN o.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
@@ -517,8 +615,7 @@
 FROM order_items oi 
 LEFT JOIN orders o ON o.id = oi.order_id
 LEFT JOIN nomenclature n ON n.id = oi.nomenclature_id
-LEFT JOIN order_items d ON oi.order_id = d.order_id
-LEFT JOIN nomenclature dn ON d.nomenclature_id = dn.id AND dn.id = (SELECT CAST(bp.str_value AS UNSIGNED INTEGER) FROM base_parameters bp WHERE bp.name = 'paid_delivery_nomenclature_id')
+LEFT JOIN order_items d ON oi.order_id = d.order_id AND d.nomenclature_id = (SELECT CAST(bp.str_value AS UNSIGNED INTEGER) FROM base_parameters bp WHERE bp.name = 'paid_delivery_nomenclature_id')
 WHERE o.id IS NOT NULL
   AND o.e_shop_order IS NOT NULL
   AND o.delivery_date &gt;= @start_date
@@ -578,6 +675,10 @@ GROUP BY oi.id</CommandText>
         <Field Name="order_status">
           <DataField>order_status</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="eshop_order_row_number">
+          <DataField>eshop_order_row_number</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
