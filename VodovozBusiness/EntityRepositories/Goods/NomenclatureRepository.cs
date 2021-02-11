@@ -236,10 +236,10 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Where(x => x.BitrixId == bitrixId)
 				.SingleOrDefault();
 
-		public static Nomenclature GetNomenclatureFromBitrixProduct(IUnitOfWork uow, Product product)
+		public static Nomenclature GetNomenclatureByName(IUnitOfWork uow, string productName)
 		{
 			return uow.Session.QueryOver<Nomenclature>()
-				.Where(x => x.Name == product.NAME)
+				.Where(x => x.Name == productName)
 				.SingleOrDefault();
 		}
 		

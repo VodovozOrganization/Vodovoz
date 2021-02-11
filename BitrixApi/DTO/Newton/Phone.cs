@@ -6,7 +6,7 @@ namespace BitrixApi.DTO
     {
         [JsonProperty("ID")] public int Id { get; set; }
         [JsonProperty("VALUE_TYPE")] public string VALUE_TYPE { get; set; }
-        [JsonProperty("VALUE")] public string VALUE { get; set; }
+        [JsonProperty("VALUE")] public string Value { get; set; }
         [JsonProperty("TYPE_ID")] public string TYPE_ID { get; set; }
     }
 }

@@ -84,12 +84,14 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="CreateOrder\BitrixNomenclatureFactory.cs" />
         <Compile Include="CreateOrder\CoR.cs" />
         <Compile Include="CreateOrder\CounterpartyFactory.cs" />
         <Compile Include="CreateOrder\DeliveryPointFactory.cs" />
         <Compile Include="CreateOrder\Matcher.cs" />
         <Compile Include="CreateOrder\OrderFactory.cs" />
         <Compile Include="CreateOrder\OrderItemFactory.cs" />
+        <Compile Include="CreateOrder\ProductImporter.cs" />
         <Compile Include="DTO\Email.cs" />
         <Compile Include="DTO\EmailAttachment.cs" />
         <Compile Include="DTO\EmailContact.cs" />
@@ -112,6 +114,14 @@
       <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
         <Project>{301f793c-130b-44eb-a45d-60d5f040b0ad}</Project>
         <Name>QS.Banks</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
+        <Project>{f22749b2-e35b-455d-bd8d-081373b16fc7}</Project>
+        <Name>QS.BusinessCommon</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj">
+        <Project>{72968ef4-2127-45c7-9bfe-2470dacddc3e}</Project>
+        <Name>QS.Osm</Name>
       </ProjectReference>
       <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
         <Project>{28a78143-42e3-40e7-86f5-dd7e1679be86}</Project>

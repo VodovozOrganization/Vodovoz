@@ -95,10 +95,10 @@ namespace Vodovoz.Repository.Client
 				.List();
 		}
 
-		public static DeliveryPoint GetDeliveryPointByBitrixId(IUnitOfWork uow, uint bitrixId)
-		=> uow.Session.QueryOver<DeliveryPoint>()
-			.Where(x => x.BitrixId == bitrixId)
-			.SingleOrDefault();
+		// public static DeliveryPoint GetDeliveryPointByBitrixId(IUnitOfWork uow, uint bitrixId)
+		// => uow.Session.QueryOver<DeliveryPoint>()
+		// 	.Where(x => x.BitrixId == bitrixId)
+		// 	.SingleOrDefault();
 		
 	}
 }

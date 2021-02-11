@@ -52,6 +52,24 @@ namespace BitrixApi.DTO.DataContractJsonSerializer
         [DataMember(Name="BANKING_DETAILS")] public string? BANKING_DETAILS { get; set; } // Банковские реквизиты
         [DataMember(Name="ADDRESS_LEGAL")] public string? ADDRESS_LEGAL { get; set; }
         
+        [DataMember(Name="UF_CRM_5DB83D2D840E6")] public string? PaymentType { get; set; }
+        [DataMember(Name="UF_CRM_5DB83D2D9FE1F")] public string? AddressWithoutHouse { get; set; }
+        //550 - Жилой дом, 558 - Прочее, 562 Торговый центр, 556 Общежитие, 548 Детский лагерь, 552 Мероприятие, 554 Морское судно 546 База отдыха, 560 Строительный объект, 
+        [DataMember(Name="UF_CRM_5DB83D2DB1327")] public string? ObjectType { get; set; }
+        //564 - Парадная, 566 Торговый комплекс, 568 Торговый центр, 570 - Бизнес центр, 572 - Школа, 574 - Общежитие
+        [DataMember(Name="UF_CRM_5DB83D2DD7C22")] public string? ObjectSubType { get; set; }
+        //Параюдная / Название БЦ
+        [DataMember(Name="UF_CRM_5DB83D2DED598")] public string? Entrance { get; set; }
+        //Тип помещения
+        //576 - Квартира, 578 Офис, 580 Склад, 582 Помещение, 584 Комната, 586 Секция
+        [DataMember(Name="UF_CRM_5DB83D2E05E81")] public string? RoomType { get; set; }
+        //Номер помещения
+        [DataMember(Name="UF_CRM_5DB83D2E19DEF")] public string? RoomNumber { get; set; }
+
+        
+        
+
+        
         [DataMember(Name="PHONE")] public IList<Phone> PHONE { get; set; }
     }
     

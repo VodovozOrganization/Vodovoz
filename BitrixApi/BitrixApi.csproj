@@ -10,4 +10,15 @@
       <PackageReference Include="NLog" Version="4.7.7" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="VodovozBusiness, Version=1.0.7704.998, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\Services\Application\VodovozEmailService\bin\Debug\VodovozBusiness.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj" />
+      <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj" />
+    </ItemGroup>
+
 </Project>

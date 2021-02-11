@@ -69,7 +69,7 @@ namespace Vodovoz.Domain.Contacts
 		#endregion
 
 		/// <summary>
-		/// Обязательно вызвать <see cref="Init(IContactsParameters)"/> после вызова конструктора
+		/// Обязательно вызвать <see cref="Init(IContactsParameters)"/> после вызова конструктора, до выставления полей
 		/// </summary>
 		public Phone()
 		{

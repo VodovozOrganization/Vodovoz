@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using BitrixApi.DTO;
 using QS.DomainModel.UoW;
+using QS.Osm.DTO;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -18,11 +19,12 @@ using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepo
 namespace BitrixIntegration {
     public class Matcher {
         
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         #region ByBitrixId
-        public static bool MatchOrderByBitrixId(/*IUnitOfWork uow,*/ Deal deal, out Order outOrder)
+        public bool MatchOrderByBitrixId(IUnitOfWork uow, Deal deal, out Order outOrder)
         {
-            using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-            {
+            // using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+            // {
                 Order order = null;
                 order = OrderSingletonRepository.GetInstance().GetOrderByBitrixId(uow, deal.Id);
                 
@@ -34,62 +36,55 @@ namespace BitrixIntegration {
                     outOrder = order;
                     return true;
                 }
-            }
+            // }
         }
         
-        public static bool MatchCounterpartyByBitrixId(/*IUnitOfWork uow,*/ uint bitrixId, out Counterparty outCounterparty)
+        public bool MatchCounterpartyByBitrixId(IUnitOfWork uow, uint bitrixId, out Counterparty outCounterparty)
         {
-            using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-            {
-                Counterparty counterparty = null;
-                counterparty = CounterpartyRepository.GetCounterpartyByBitrixId(uow, bitrixId);
-                
-                if (counterparty == null){
-                    outCounterparty = null;
-                    return false;
-                }
-                else{
-                    outCounterparty = counterparty;
-                    return true;
-                }
+            
+            Counterparty counterparty = null;
+            counterparty = CounterpartyRepository.GetCounterpartyByBitrixId(uow, bitrixId);
+            
+            if (counterparty == null){
+                outCounterparty = null;
+                return false;
             }
+            else{
+                outCounterparty = counterparty;
+                return true;
+            }
+            
         }
         
-        public static bool MatchNomenclatureByBitrixId(/*IUnitOfWork uow,*/ uint productId, out Nomenclature outNomenclature)
+        public bool MatchNomenclatureByBitrixId(IUnitOfWork uow, uint productId, out Nomenclature outNomenclature)
         {
-            using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-            {
-                Nomenclature nomenclature = null;
-                
-                nomenclature = NomenclatureRepository.GetNommenclatureByBitrixId(uow, productId);
-                
-                if (nomenclature == null){
-                    outNomenclature = null;
-                    return false;
-                }
-                else{
-                    outNomenclature = nomenclature;
-                    return true;
-                }
+            Nomenclature nomenclature = null;
+            nomenclature = NomenclatureRepository.GetNommenclatureByBitrixId(uow, productId);
+            
+            if (nomenclature == null){
+                outNomenclature = null;
+                return false;
+            }
+            else{
+                outNomenclature = nomenclature;
+                return true;
             }
         }
 
         #endregion ByBitrixId
             
         
-        public static bool MatchCompanyPhoneAndName(Company company, out Counterparty outCounterparty)
+        public bool MatchCompanyPhoneAndName(IUnitOfWork uow, Company company, out Counterparty outCounterparty)
         {
-            var uow = UnitOfWorkFactory.CreateWithoutRoot();
             //Формат записанный в Value +7 (981) 944-86-31
-            var phone = company.PHONE.First().VALUE;
+            var phone = company.PHONE.First().Value;
             var digitsNum = PhoneUtils.NumberTrim(phone, out var _);
 
             IList<Counterparty> counterparties = null;
             
             counterparties = CounterpartyRepository.GetCounterpartesByPartOfName(
                 uow,
-                company.Title ?? 
-                throw new NullReferenceException("Контакт не содержит имени, фамилии и отчества, необходимых для сопоставления"),
+                company.Title,
                 digitsNum
             );
             
@@ -106,15 +101,11 @@ namespace BitrixIntegration {
         /// <summary>
         /// Находит контрагента по номеру и ФИО контакта
         /// </summary>
-        /// <param name="uow"></param>
-        /// <param name="contact"></param>
-        /// <param name="outCounterparty"></param>
         /// <exception cref="NullReferenceException">Контакт не содержит имени, фамилии и отчества, необходимых для сопоставления</exception>
-        public static bool MatchCounterpartyByPhoneAndSecondName(/*IUnitOfWork uow,*/ Contact contact, out Counterparty outCounterparty)
+        public bool MatchCounterpartyByPhoneAndSecondName(IUnitOfWork uow, Contact contact, out Counterparty outCounterparty)
         {
-            var uow = UnitOfWorkFactory.CreateWithoutRoot();
             //Формат записанный в Value +7 (981) 944-86-31
-            var phone = contact.PHONE.First().VALUE;
+            var phone = contact.Phones.First().Value;
             var digitsNum = PhoneUtils.NumberTrim(phone, out var _);
 
             // digitsNum = "9215667037";
@@ -126,7 +117,7 @@ namespace BitrixIntegration {
             
             counterparties = CounterpartyRepository.GetCounterpartesByPartOfName(
                 uow,
-                contact.SECOND_NAME?? contact.LAST_NAME ?? contact.NAME ?? 
+                contact.SecondName?? contact.LastName ?? contact.Name ?? 
                     throw new NullReferenceException("Контакт не содержит имени, фамилии и отчества, необходимых для сопоставления"),
                 digitsNum
             );
@@ -145,18 +136,16 @@ namespace BitrixIntegration {
         /// Находит точку доставки по номеру и ФИО 
         /// </summary>
         /// <exception cref="NullReferenceException">deal = null</exception>
-        public static bool MatchDeliveryPoint(Deal deal, Counterparty counterparty, out DeliveryPoint outDeliveryPoint)
+        public bool MatchDeliveryPoint(IUnitOfWork uow, Deal deal, Counterparty counterparty, out DeliveryPoint outDeliveryPoint)
         {
             if (deal == null) throw new ArgumentNullException(nameof(deal));
             
             if (!deal.Coordinates.Contains(',')){
-                // logger("Ошибка в формате координат");
+                logger.Error($"Ошибка в формате координат {deal.Coordinates}, ожидалось разделение запятой");
                 outDeliveryPoint = null;
                 return false;
             }
-            
-            //TODO сначала проверить по битрикс Id
-            
+
             //parsing coordinates from deal
             var splitted = deal.Coordinates.Split(',');
             var latitudeString = splitted[0].Trim();
@@ -165,7 +154,6 @@ namespace BitrixIntegration {
             if (decimal.TryParse(longitudeString,NumberStyles.Any, CultureInfo.InvariantCulture, out var longitude) &&
                 decimal.TryParse(latitudeString, NumberStyles.Any, CultureInfo.InvariantCulture, out var latitude)){
                 
-                var uow = UnitOfWorkFactory.CreateWithoutRoot();
                 IList<DeliveryPoint> deliveryPoints = DeliveryPointRepository.GetDeliveryPointForCounterpartyByCoordinates(uow, latitude, longitude, counterparty.Id);
             
                 if (deliveryPoints.Count == 1){
@@ -205,18 +193,18 @@ namespace BitrixIntegration {
                     foreach (var dp in deliveryPointsForCounterparty){
                         var numsFromHouse = NumbersUtils.GetNumbersFromString(deal.HouseAndBuilding);
                         var numsFromRoom = (NumbersUtils.GetNumbersFromString(deal.RoomNumber));
-                        var flag1 = false;
-                        var flag2 = false;
+                        var hasBuilding = false;
+                        var hasRoom = false;
                         
                         foreach (var i in numsFromHouse)
                             if (dp.Building.Contains(i.ToString())) 
-                                flag1 = true;
+                                hasBuilding = true;
                         
                         foreach (var i in numsFromRoom)
                             if (dp.Room.Contains(i.ToString())) 
-                                flag2 = true;
+                                hasRoom = true;
                         
-                        if (flag1 && flag2){ 
+                        if (hasBuilding && hasRoom){ 
                             outDeliveryPoint = dp; 
                             return true;
                         };
@@ -230,27 +218,53 @@ namespace BitrixIntegration {
             }
         }
 
-        public static bool MatchNomenclature(Product product, out Nomenclature outNomenclature)
+        public bool MatchNomenclatureByName(IUnitOfWork uow, string productName, out Nomenclature outNomenclature)
         {
-            var uow = UnitOfWorkFactory.CreateWithoutRoot();
-            
             //Сопоставление номенклатуры
-            Nomenclature nomenclature = Vodovoz.EntityRepositories.Goods.NomenclatureRepository.GetNomenclatureFromBitrixProduct(uow, product);
+            Nomenclature nomenclature = NomenclatureRepository.GetNomenclatureByName(uow, productName);
             if (nomenclature != null){
+                logger.Info($"Номенклатура {nomenclature.ShortName} найдена по bitrix id {nomenclature.BitrixId}");
+                outNomenclature = nomenclature;
                 
+                //
                 //Сравнение информации о номенклатуре и обновление если она отличается
                 //Проверять по id интернет магазинов, есть справочник интернет магазинов, если указана любая кроме первой значит они пришли извне
-                if (nomenclature.NomenclaturePrice.First(x => x.MinCount == 1).Price != product.PRICE){
+                // if (nomenclature.NomenclaturePrice.First(x => x.MinCount == 1).Price != product.Price){
                     //Обновить цену
-                    
-                }
+                // }
+                //
                 
-                outNomenclature = nomenclature;
                 return true;
             }
-
+            
             outNomenclature = null;
             return false;
+        }
+
+        /// <summary>
+        /// Парсит координаты из строки вида 59.830861,30.386583
+        /// </summary>
+        /// <exception cref="ArgumentException">Координаты разделены не запятой</exception>
+        public static bool TryParseCoordinates(string coordinates, out decimal latitude, out decimal longitude)
+        {
+            if (!coordinates.Contains(",")){
+                throw new ArgumentException($"Координаты: {coordinates} переданы в неверном формате, разделитель должен быть запятой");
+            }
+            var splitted = coordinates.Split(',');
+            var latitudeString = splitted[0].Trim();
+            var longitudeString = splitted[1].Trim();
+
+            if (decimal.TryParse(longitudeString, NumberStyles.Any, CultureInfo.InvariantCulture, out var _longitude) &&
+                decimal.TryParse(latitudeString, NumberStyles.Any, CultureInfo.InvariantCulture, out var _latitude)){
+                latitude = _latitude;
+                longitude = _longitude;
+                return true;
+            }
+            else{
+                latitude = 0;
+                longitude = 0;
+                return false;
+            }
         }
         
         
@@ -258,32 +272,28 @@ namespace BitrixIntegration {
         //должна будет создаваться категория в группе 502, с каким нибудь системным названием типа "Без названия".
         //Позже служба актуализирует информацию по ней
         
-        // public static bool MatchNomenclatureGroup(Product product, out ProductGroup outProductGroup)
-        // {
-        //     var uow = UnitOfWorkFactory.CreateWithoutRoot();
-        //
-        //     var allProductGroups = product.CategoryObj.Category.Split('/');
-        //     
-        //     foreach (var productGroupName in allProductGroups){
-        //         var group = Vodovoz.EntityRepositories.Goods.NomenclatureRepository.GetProductGroupFromBitrixProductGroup(uow, productGroupName);
-        //         if (group != null){
-        //             
-        //         }
-        //     }
-        //     
-        //     //Сопоставление номенклатуры
-        //     Nomenclature nomenclature = Vodovoz.EntityRepositories.Goods.NomenclatureRepository.GetProductGroupFromBitrixProductGroup(uow, product);
-        //     if (nomenclature != null){
-        //         
-        //         //Сравнение информации о номенклатуре и обновление если она отличается
-        //         
-        //         
-        //         outProductGroup = nomenclature;
-        //         return true;
-        //     }
-        //
-        //     outProductGroup = null;
-        //     return false;
-        // }
+        public bool MatchNomenclatureGroup(IUnitOfWork uow, Product product, out ProductGroup outProductGroup)
+        {
+            var allProductGroups = product.CategoryObj.Category.Split('/');
+            
+            //Сопоставление с каждой?
+            // foreach (var productGroupName in allProductGroups){
+            //     var group = Vodovoz.EntityRepositories.Goods.NomenclatureRepository.GetProductGroupFromBitrixProductGroup(uow, productGroupName);
+            //     if (group != null){
+            //         
+            //     }
+            // }
+            
+            //Сопоставление номенклатуры
+            ProductGroup productGroup = NomenclatureRepository.GetProductGroupFromBitrixProductGroup(uow, product.Name);
+            if (productGroup != null){
+                //Сравнение информации о номенклатуре и обновление если она отличается
+                outProductGroup = productGroup;
+                return true;
+            }
+        
+            outProductGroup = null;
+            return false;
+        }
     }
 }

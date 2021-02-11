@@ -638,6 +638,7 @@ namespace Vodovoz
 			} while (documents.IterNext (ref iter));
 		}
 
+		[Obsolete("Используйте метод из VodovozInfrastructure.Utils")]
 		protected string TryGetOrganizationType (string name)
 		{
 			foreach (var pair in InformationHandbook.OrganizationTypes) {

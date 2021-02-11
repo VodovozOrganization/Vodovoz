@@ -163,7 +163,7 @@ namespace Vodovoz.Repositories.Orders
 			return OrderSingletonRepository.GetInstance().GetValidStatusesToUseActionBottle();
 		}
 		
-		public static VodovozOrder GetOrderByBitrixId(IUnitOfWork uow, int bitrixId)
+		public static VodovozOrder GetOrderByBitrixId(IUnitOfWork uow, uint bitrixId)
 		{
 			return OrderSingletonRepository.GetInstance().GetOrderByBitrixId(uow, bitrixId);
 		}

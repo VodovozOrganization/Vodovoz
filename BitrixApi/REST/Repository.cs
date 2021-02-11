@@ -69,7 +69,7 @@ namespace BitrixApi.REST
         public async Task<IList<ProductFromDeal>> GetProductsForDeal(uint dealId)
         {
             AddJsonHeader();
-            string requestUri = $"{baseURL}/rest/2364/{token}/crm.product.get.json?id={dealId}";
+            string requestUri = $"{baseURL}/rest/2364/{token}/crm.deal.productrows.get.json?id={dealId}";
             var msg = client.GetStringAsync(requestUri);
             var request = JsonConvert.DeserializeObject<ProductFromDealRequest>(await msg);
             return request.Result; 
