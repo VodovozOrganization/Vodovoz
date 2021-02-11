@@ -2,7 +2,6 @@
 using System.Linq;
 using Gamma.Utilities;
 using Gtk;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -221,10 +220,10 @@ namespace Vodovoz.Dialogs.Cash
 			
 			speccomboOrganization.Visible = ViewModel.VisibleOnlyForFinancer;
 			labelcomboOrganization.Visible = ViewModel.VisibleOnlyForFinancer;
-			
-			ExpenseCategoryEntityviewmodelentry.Visible = ViewModel.VisibleOnlyForFinancer;
-			labelCategoryEntityviewmodelentry.Visible = ViewModel.VisibleOnlyForFinancer;
-			
+
+            labelCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible);
+            ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible);
+
 			yentryReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 			labelReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 			

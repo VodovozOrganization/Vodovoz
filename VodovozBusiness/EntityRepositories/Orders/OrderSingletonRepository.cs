@@ -593,7 +593,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					new[] { PaymentType.ByCard, PaymentType.Terminal }.ToArray()));
 
 			var orderDeliveredStatuses = Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
-				new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed }.ToArray());
+				new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock }.ToArray());
 			
 			var orderPaymentTypesRestriction = Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
 				new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.ToArray());
@@ -654,8 +654,9 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(positiveOrderSumRestriction)
 				.And(orderPaymentTypesRestriction);
 
-			if(startDate.HasValue)
+			if(startDate.HasValue) {
 				uniqueOrderSumSendOrdersQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
+			}
 
 			var notUniqueOrderSumSendOrders = uniqueOrderSumSendOrdersQuery
 				.SelectList(list => list

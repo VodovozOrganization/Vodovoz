@@ -1,8 +1,10 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
@@ -55,7 +57,17 @@ namespace Vodovoz.JournalViewModels
             this.baseParametersProvider = baseParametersProvider;
             this.subdivisionRepository = subdivisionRepository;
 
+            UseSlider = false;
+
+            NotifyConfiguration.Enable();
+            NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(OnRouteListChanged);
+
             InitPopupActions();
+        }
+
+        private void OnRouteListChanged(EntityChangeEvent[] changeEvents)
+        {
+            Refresh();
         }
 
         protected override Func<IUnitOfWork, IQueryOver<RouteList>> ItemsSourceQueryFunction => (uow) =>
@@ -154,11 +166,20 @@ namespace Vodovoz.JournalViewModels
                 default: break;
             }
 
+            var driverProjection = Projections.SqlFunction(
+                new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?1, ?2, ?3)"),
+                NHibernateUtil.String,
+                Projections.Property(() => driverAlias.LastName),
+                Projections.Property(() => driverAlias.Name),
+                Projections.Property(() => driverAlias.Patronymic)
+            );
+
             query.Where(GetSearchCriterion(
                 () => routeListAlias.Id,
                 () => driverAlias.Name,
                 () => driverAlias.LastName,
                 () => driverAlias.Patronymic,
+                () => driverProjection,
                 () => carAlias.Model,
                 () => carAlias.RegistrationNumber
             ));
@@ -287,8 +308,7 @@ namespace Vodovoz.JournalViewModels
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
                     if (selectedNode != null)
                     {
-                        var dlg = new CarLoadDocumentDlg(selectedNode.Id, null);
-                        TabParent.AddTab(dlg, this);
+                        TabParent.OpenTab(() => new CarLoadDocumentDlg(selectedNode.Id, null));
                     }
                 }
             ));
@@ -302,8 +322,7 @@ namespace Vodovoz.JournalViewModels
                     var selectedNode = selectedItems.FirstOrDefault() as RouteListJournalNode;
                     if (selectedNode != null)
                     {
-                        var dlg = new CarUnloadDocumentDlg(selectedNode.Id, null);
-                        TabParent.AddTab(dlg, this);
+                        TabParent.OpenTab(() => new CarUnloadDocumentDlg(selectedNode.Id, null));
                     }
                 }
             ));
@@ -364,7 +383,6 @@ namespace Vodovoz.JournalViewModels
                             }
                             uowLocal.Commit();
                         }
-                        Refresh();
                     }
                 }
             ));

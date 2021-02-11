@@ -285,9 +285,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
         public bool VisibleOnlyForFinancer => UserRole == UserRole.Financier;
         public bool VisibleOnlyForStatusUpperThanCreated => Entity.State != CashRequest.States.New;
+        public bool ExpenseCategoryVisibility => UserRole == UserRole.Cashier || UserRole == UserRole.Financier;
 
         #endregion Visibility
-        
+
         #region Permissions
 
         public bool CanEdit => PermissionResult.CanUpdate;
@@ -425,7 +426,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand ConveyForResultsCommand => conveyForResultsCommand ?? (conveyForResultsCommand = new DelegateCommand(
             () =>
             {
-                if (Entity.State == CashRequest.States.Agreed && Entity.ExpenseCategory == null)
+                if (Entity.State == CashRequest.States.Agreed && Entity.ExpenseCategory == null && UserRole == UserRole.Cashier)
                 {
                     CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
                         "Необходимо заполнить статью расхода");

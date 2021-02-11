@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate.Exceptions;
 using QS.Dialog;
@@ -1072,6 +1073,15 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult(
 					"Ошибка программы. В заказе автоматически подобрана неверная организация или к организации не привязан кассовый аппарат",
 					new[] { nameof(Contract.Organization) });
+			}
+
+			if (OrderItems.Any(oi => !string.IsNullOrWhiteSpace(oi.Nomenclature.OnlineStoreExternalId))
+				&& EShopOrder == null)
+			{
+				yield return new ValidationResult(
+					"В заказе есть товары ИМ, но не указан номер заказа ИМ",
+					new[] { this.GetPropertyName(o => o.EShopOrder) }
+				);
 			}
 		}
 
@@ -3176,6 +3186,19 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual void CheckDocumentExportPermissions()
+		{
+			var updDoc = OrderDocuments.OfType<UPDDocument>().FirstOrDefault();
+			if(updDoc != null && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
+				updDoc.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+			}
+			
+			var specialUpdDoc = OrderDocuments.OfType<SpecialUPDDocument>().FirstOrDefault();
+			if(specialUpdDoc != null && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
+				specialUpdDoc.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+			}
+		}
+
 		private void CheckAndCreateDocuments(params OrderDocumentType[] needed)
 		{
 			var docsOfOrder = typeof(OrderDocumentType).GetFields()
@@ -3224,10 +3247,18 @@ namespace Vodovoz.Domain.Orders
 					newDoc = new SpecialBillDocument();
 					break;
 				case OrderDocumentType.UPD:
-					newDoc = new UPDDocument();
+					var updDocument = new UPDDocument();
+					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
+						updDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+					}
+					newDoc = updDocument;
 					break;
 				case OrderDocumentType.SpecialUPD:
-					newDoc = new SpecialUPDDocument();
+					var specialUpdDocument = new SpecialUPDDocument();
+					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
+						specialUpdDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+					}
+					newDoc = specialUpdDocument;
 					break;
 				case OrderDocumentType.Invoice:
 					newDoc = new InvoiceDocument();

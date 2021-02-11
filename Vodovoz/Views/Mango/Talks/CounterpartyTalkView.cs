@@ -50,20 +50,31 @@ namespace Vodovoz.Views.Mango.Talks
 		{
 			if(falseSwitching)
 				return;
+			
 			Notebook place = (Notebook)sender;
-			Console.WriteLine($"Текущая страница: {args.PageNum} , {place.GetTabLabelText(place.CurrentPageWidget)}");
-			if(args.PageNum == place.NPages - 1 && place.GetTabLabelText(place.CurrentPageWidget) == "Существующий контрагент") {
-				ViewModel.ExistingClientCommand();
-				place.Page = Convert.ToInt32(lastPage);
-			}
-			else if(args.PageNum == place.NPages - 2 && place.GetTabLabelText(place.CurrentPageWidget) == "+ Новый контргагент") {
-				ViewModel.NewClientCommand();
-				place.Page = Convert.ToInt32(lastPage);
 
-			} else {
-				Counterparty counterparty = (place.CurrentPageWidget as CounterpartyOrderView).ViewModel.Client;
-				ViewModel.UpadateCurrentCounterparty(counterparty);
-				lastPage = args.PageNum;
+			if (place != null && args != null)
+			{
+				Console.WriteLine(
+					$"Текущая страница: {args.PageNum} , {place.GetTabLabelText(place.CurrentPageWidget)}");
+				if (args.PageNum == place.NPages - 1 &&
+				    place.GetTabLabelText(place.CurrentPageWidget) == "Существующий контрагент")
+				{
+					ViewModel.ExistingClientCommand();
+					place.Page = Convert.ToInt32(lastPage);
+				}
+				else if (args.PageNum == place.NPages - 2 &&
+				         place.GetTabLabelText(place.CurrentPageWidget) == "+ Новый контрагент")
+				{
+					ViewModel.NewClientCommand();
+					place.Page = Convert.ToInt32(lastPage);
+				}
+				else
+				{
+					Counterparty counterparty = (place.CurrentPageWidget as CounterpartyOrderView).ViewModel.Client;
+					ViewModel.UpadateCurrentCounterparty(counterparty);
+					lastPage = args.PageNum;
+				}
 			}
 		}
 
