@@ -46,6 +46,7 @@ namespace VodovozBitrixIntegrationService
 		
 		//Bitrix
 		private static string token;
+		
 
 		public static void Main(string[] args)
 		{
@@ -189,6 +190,7 @@ namespace VodovozBitrixIntegrationService
 		
 		static async void StartService()
 		{
+			
 			var bitrixInstanceProvider = new BitrixInstanceProvider(new BaseParametersProvider());
 
 			var bitrixHost = new BitrixServiceHost(bitrixInstanceProvider);
@@ -210,10 +212,10 @@ namespace VodovozBitrixIntegrationService
 //ТЕСТ текущих функций
 
 			// BitrixManager.AddEvent(deal);
-			var uow = UnitOfWorkFactory.CreateWithoutRoot();
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot()){
 				var cor = new CoR(token, BitrixRestApiFactory.CreateBitrixRestApi(token), uow, new Matcher());
-				await cor.Process(138768);//138768 //150772
-			
+				await cor.Process(138768); //138768 //150772
+			}
 			// await tests();
 			Console.ReadLine();
 			
