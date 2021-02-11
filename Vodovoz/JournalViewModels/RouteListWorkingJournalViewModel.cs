@@ -1,5 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -11,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
@@ -166,11 +166,20 @@ namespace Vodovoz.JournalViewModels
                 default: break;
             }
 
+            var driverProjection = Projections.SqlFunction(
+                new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?1, ?2, ?3)"),
+                NHibernateUtil.String,
+                Projections.Property(() => driverAlias.LastName),
+                Projections.Property(() => driverAlias.Name),
+                Projections.Property(() => driverAlias.Patronymic)
+            );
+
             query.Where(GetSearchCriterion(
                 () => routeListAlias.Id,
                 () => driverAlias.Name,
                 () => driverAlias.LastName,
                 () => driverAlias.Patronymic,
+                () => driverProjection,
                 () => carAlias.Model,
                 () => carAlias.RegistrationNumber
             ));
