@@ -288,7 +288,7 @@ namespace Vodovoz.Domain.Payments
 				Organization = this.Organization,
 				Counterparty = this.Counterparty,
 				CounterpartyName = this.counterpartyName,
-				Status = PaymentState.completed
+				Status = PaymentState.undistributed
 			};
 		}
 
