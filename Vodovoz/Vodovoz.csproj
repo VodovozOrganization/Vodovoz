@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -383,6 +383,9 @@
     <EmbeddedResource Include="icons\phone\make-call-32.png" />
     <EmbeddedResource Include="icons\phone\make-call-16.png" />
     <EmbeddedResource Include="icons\buttons\user22.png" />
+    <EmbeddedResource Include="toolbars\retail.xml">
+      <LogicalName>retail.xml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />

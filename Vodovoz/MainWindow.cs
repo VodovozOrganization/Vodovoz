@@ -1834,4 +1834,30 @@ public partial class MainWindow : Gtk.Window
             () => new QSReport.ReportViewDlg(new OrderChangesReport())
         );
     }
+
+    protected void OnActionRetailActivated(object sender, EventArgs e)
+    {
+        if (ActionRetail.Active)
+            SwitchToUI("retail.xml");
+    }
+
+    protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
+    {
+        MessageDialogHelper.RunInfoDialog("Журнал рекламаций");
+    }
+
+    protected void OnActionRetailUndeliveredOrdersJournalActivated(object sender, EventArgs e)
+    {
+        MessageDialogHelper.RunInfoDialog("Журнал недовозов");
+    }
+
+    protected void OnActionRetailCounterpartyJournalActivated(object sender, EventArgs e)
+    {
+        MessageDialogHelper.RunInfoDialog("Журнал контрагентов");
+    }
+
+    protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
+    {
+        MessageDialogHelper.RunInfoDialog("Журнал заказов");
+    }
 }

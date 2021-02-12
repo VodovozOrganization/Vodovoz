@@ -439,6 +439,10 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionOrderChangesReport;
 
+	private global::Gtk.RadioAction ActionRetail;
+
+	private global::Gtk.Action ActionRetailOrdersTable;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -1140,6 +1144,13 @@ public partial class MainWindow
 		this.ActionOrderChangesReport = new global::Gtk.Action("ActionOrderChangesReport", global::Mono.Unix.Catalog.GetString("Отчет по изменениям заказа при доставке"), null, null);
 		this.ActionOrderChangesReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по изменениям заказа при доставке");
 		w1.Add(this.ActionOrderChangesReport, null);
+		this.ActionRetail = new global::Gtk.RadioAction("ActionRetail", global::Mono.Unix.Catalog.GetString("Розница"), null, null, 0);
+		this.ActionRetail.Group = this.ActionStaff.Group;
+		this.ActionRetail.ShortLabel = global::Mono.Unix.Catalog.GetString("Розница");
+		w1.Add(this.ActionRetail, null);
+		this.ActionRetailOrdersTable = new global::Gtk.Action("ActionRetailOrdersTable", global::Mono.Unix.Catalog.GetString("Журнал заказов"), null, null);
+		this.ActionRetailOrdersTable.ShortLabel = global::Mono.Unix.Catalog.GetString("Журнал заказов");
+		w1.Add(this.ActionRetailOrdersTable, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -1331,7 +1342,7 @@ public partial class MainWindow
 		this.hbox2.Name = "hbox2";
 		this.hbox2.Spacing = 6;
 		// Container child hbox2.Gtk.Box+BoxChild
-		this.UIManager.AddUiFromString(@"<ui><toolbar name='toolbarMain'><toolitem name='ActionOrders' action='ActionOrders'/><toolitem name='ActionServices' action='ActionServices'/><toolitem name='ActionLogistics' action='ActionLogistics'/><toolitem name='ActionStock' action='ActionStock'/><toolitem name='ActionCash' action='ActionCash'/><toolitem name='ActionAccounting' action='ActionAccounting'/><toolitem name='ActionReports' action='ActionReports'/><toolitem name='ActionArchive' action='ActionArchive'/><toolitem name='ActionStaff' action='ActionStaff'/><toolitem name='ActionCRM' action='ActionCRM'/><toolitem name='ActionSuppliers' action='ActionSuppliers'/><toolitem name='ActionCashRequest' action='ActionCashRequest'/></toolbar></ui>");
+		this.UIManager.AddUiFromString(@"<ui><toolbar name='toolbarMain'><toolitem name='ActionOrders' action='ActionOrders'/><toolitem name='ActionServices' action='ActionServices'/><toolitem name='ActionLogistics' action='ActionLogistics'/><toolitem name='ActionStock' action='ActionStock'/><toolitem name='ActionCash' action='ActionCash'/><toolitem name='ActionAccounting' action='ActionAccounting'/><toolitem name='ActionReports' action='ActionReports'/><toolitem name='ActionArchive' action='ActionArchive'/><toolitem name='ActionStaff' action='ActionStaff'/><toolitem name='ActionCRM' action='ActionCRM'/><toolitem name='ActionSuppliers' action='ActionSuppliers'/><toolitem name='ActionCashRequest' action='ActionCashRequest'/><toolitem name='ActionRetail' action='ActionRetail'/></toolbar></ui>");
 		this.toolbarMain = ((global::Gtk.Toolbar)(this.UIManager.GetWidget("/toolbarMain")));
 		this.toolbarMain.Name = "toolbarMain";
 		this.toolbarMain.ShowArrow = false;
@@ -1599,6 +1610,7 @@ public partial class MainWindow
 		this.ActionOpenProposalsJournal.Activated += new global::System.EventHandler(this.OnActionOpenProposalsJournalActivated);
 		this.Action71.Activated += new global::System.EventHandler(this.OnAction71Activated);
 		this.ActionOrderChangesReport.Activated += new global::System.EventHandler(this.OnActionOrderChangesReportActivated);
+		this.ActionRetail.Activated += new global::System.EventHandler(this.OnActionRetailActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
