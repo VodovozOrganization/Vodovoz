@@ -2118,9 +2118,6 @@ GROUP BY name</CommandText>
             </TableRow>
             <TableRow>
               <Height>12 pt</Height>
-              <Visibility>
-                <Hidden>=Iif(Fields!bottles_return.Value = Nothing, true, false)</Hidden>
-              </Visibility>
               <TableCells>
                 <TableCell>
                   <ReportItems>
