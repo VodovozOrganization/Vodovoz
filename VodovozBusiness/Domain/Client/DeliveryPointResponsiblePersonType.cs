@@ -32,7 +32,7 @@ namespace Vodovoz.Domain.Client
 
         #endregion
 
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             throw new NotImplementedException();
         }
