@@ -57,6 +57,9 @@ namespace Vodovoz.Additions
             #endregion
         }
 
+        public ResultMessage ResetPasswordToGenerated(Employee employee, int passwordLength) 
+	        => ResetPassword(employee, passwordGenerator.GeneratePassword(passwordLength));
+
         private string CreatePhoneAndLogin(Employee employee)
         {
             string stringPhoneNumber = employee.GetPhoneForSmsNotification();
