@@ -18,6 +18,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj" />
+      <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj" />
     </ItemGroup>
 

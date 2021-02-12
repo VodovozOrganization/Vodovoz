@@ -1018,10 +1018,6 @@
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
       <Name>QS.Banks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BitrixApi\BitrixApi.csproj">
-      <Project>{33ef9172-64c7-4032-a119-d23ee9aafd34}</Project>
-      <Name>BitrixApi</Name>
-    </ProjectReference>
     <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{dd740ae7-7854-40c6-b9f6-2f70a5e1caac}</Project>
       <Name>VodovozInfrastructure</Name>

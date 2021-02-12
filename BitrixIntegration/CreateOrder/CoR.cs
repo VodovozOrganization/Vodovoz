@@ -93,48 +93,51 @@ namespace BitrixIntegration {
 
         private Order ProcessOrder(Deal deal, DeliveryPoint deliveryPointForOrder, Counterparty counterpartyForNewOrder, IList<Nomenclature> nomenclaturesForNewOrder)
         {
-	        // var newOrder = new Order()
-	        // {
-		       //  BitrixId = deal.Id,
-		       //  PaymentType = deal.GetPaymentMethod(),
-		       //  CreateDate = deal.CreateDate,
-		       //  DeliveryDate = deal.DeliveryDate, 
-		       //  Client = counterpartyForNewOrder,
-		       //  DeliveryPoint = deliveryPointForOrder,
-		       //  OrderStatus = OrderStatus.Accepted
-	        // };
-	        //
-	        // foreach (var nomenclature in nomenclaturesForNewOrder){
-		       //  newOrder.AddAnyGoodsNomenclatureForSale(nomenclature);
-	        // }
-	        //
-	        // return newOrder;
-
-
-	        using (var uowForNewOrder = UnitOfWorkFactory.CreateWithNewRoot<Order>()){
+	        var newOrder = new Order()
+	        {
+		        UoW = uow,
+		        BitrixId = deal.Id,
+		        PaymentType = deal.GetPaymentMethod(),
+		        CreateDate = deal.CreateDate,
+		        DeliveryDate = deal.DeliveryDate, 
+		        Client = counterpartyForNewOrder,
+		        DeliveryPoint = deliveryPointForOrder,
+		        OrderStatus = OrderStatus.Accepted
+		        // Onli
+	        };
 	        
-		         uowForNewOrder.Root.BitrixId = deal.Id;
-		         uowForNewOrder.Root.PaymentType = deal.GetPaymentMethod();
-		         uowForNewOrder.Root.CreateDate = deal.CreateDate;
-		         uowForNewOrder.Root.DeliveryDate = deal.DeliveryDate;
-		        
-		         uowForNewOrder.Root.Client = counterpartyForNewOrder;
-		         uowForNewOrder.Root.DeliveryPoint = deliveryPointForOrder;
-		         uowForNewOrder.Root.OrderStatus = OrderStatus.Accepted; //TODO gavr уточнить
-		         //Добавить OrderItems
-		         foreach (var nomenclature in nomenclaturesForNewOrder){
-					uowForNewOrder.Root.AddAnyGoodsNomenclatureForSale(nomenclature);
-		         }
-		         
-		         if (needCreateCounterParty)
-			         uowForNewOrder.Root.SetFirstOrder(); //TODO gavr уточнить
-		        
-		         // uow.Save<Order>(newOrder);
-		         uowForNewOrder.Save();
-		         // uowForNewOrder.Commit(); //TODO gavr возможно сделать uowForNewCounterparty чайлдом глобального uow, если при коммите глобального коммитятся все его дети
-		        
-		         return uowForNewOrder.Root;
+	        foreach (var nomenclature in nomenclaturesForNewOrder){
+		        newOrder.AddAnyGoodsNomenclatureForSale(nomenclature);
 	        }
+	        
+	        
+	        return newOrder;
+
+	    //
+	    //     using (var uowForNewOrder = UnitOfWorkFactory.CreateWithNewRoot<Order>()){
+	    //     
+		   //       uowForNewOrder.Root.BitrixId = deal.Id;
+		   //       uowForNewOrder.Root.PaymentType = deal.GetPaymentMethod();
+		   //       uowForNewOrder.Root.CreateDate = deal.CreateDate;
+		   //       uowForNewOrder.Root.DeliveryDate = deal.DeliveryDate;
+		   //      
+		   //       uowForNewOrder.Root.Client = counterpartyForNewOrder;
+		   //       uowForNewOrder.Root.DeliveryPoint = deliveryPointForOrder;
+		   //       uowForNewOrder.Root.OrderStatus = OrderStatus.Accepted; //TODO gavr уточнить
+		   //       //Добавить OrderItems
+		   //       foreach (var nomenclature in nomenclaturesForNewOrder){
+					// uowForNewOrder.Root.AddAnyGoodsNomenclatureForSale(nomenclature);
+		   //       }
+		   //       
+		   //       if (needCreateCounterParty)
+			  //        uowForNewOrder.Root.SetFirstOrder(); //TODO gavr уточнить
+		   //      
+		   //       // uow.Save<Order>(newOrder);
+		   //       uowForNewOrder.Save();
+		   //       // uowForNewOrder.Commit(); //TODO gavr возможно сделать uowForNewCounterparty чайлдом глобального uow, если при коммите глобального коммитятся все его дети
+		   //      
+		   //       return uowForNewOrder.Root;
+	    //     }
 
 	        // return newOrder;
         }

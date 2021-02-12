@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BitrixApi.DTO;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Parameters;
 using Vodovoz.Services;

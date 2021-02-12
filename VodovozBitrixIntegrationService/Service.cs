@@ -212,10 +212,10 @@ namespace VodovozBitrixIntegrationService
 //ТЕСТ текущих функций
 
 			// BitrixManager.AddEvent(deal);
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot()){
+			var uow = UnitOfWorkFactory.CreateWithoutRoot();
 				var cor = new CoR(token, BitrixRestApiFactory.CreateBitrixRestApi(token), uow, new Matcher());
 				await cor.Process(138768); //138768 //150772
-			}
+			
 			// await tests();
 			Console.ReadLine();
 			
