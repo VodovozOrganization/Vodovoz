@@ -278,21 +278,21 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref isActive, value, () => IsActive);
 		}
 
-		private IList<Contact> contacts = new List<Contact>();
+		private IList<DeliveryPointResponsiblePerson> responsiblePersons = new List<DeliveryPointResponsiblePerson>();
 
 		[Display(Name = "Ответственные лица")]
-		public virtual IList<Contact> Contacts {
-			get => contacts;
-			set => SetField(ref contacts, value, () => Contacts);
+		public virtual IList<DeliveryPointResponsiblePerson> ResponsiblePersons {
+			get => responsiblePersons;
+			set => SetField(ref responsiblePersons, value, () => ResponsiblePersons);
 		}
 
-		GenericObservableList<Contact> observableContacts;
+		GenericObservableList<DeliveryPointResponsiblePerson> observableResponsiblePersons;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Contact> ObservableContacts {
+		public virtual GenericObservableList<DeliveryPointResponsiblePerson> ObservableResponsiblePersons {
 			get {
-				if(observableContacts == null)
-					observableContacts = new GenericObservableList<Contact>(Contacts);
-				return observableContacts;
+				if(observableResponsiblePersons == null)
+                    observableResponsiblePersons = new GenericObservableList<DeliveryPointResponsiblePerson>(ResponsiblePersons);
+				return observableResponsiblePersons;
 			}
 		}
 
@@ -598,13 +598,6 @@ namespace Vodovoz.Domain.Client
 			Building = string.Empty;
 			Room = string.Empty;
 			Comment = string.Empty;
-		}
-
-		public virtual void AddContact(Contact contact)
-		{
-			if(Contacts.Any(x => x.Id == contact.Id))
-				return;
-			ObservableContacts.Add(contact);
 		}
 
 		/// <summary>

@@ -101,15 +101,6 @@ namespace Vodovoz
 			entryStreet.StreetsDataLoader = new StreetsDataLoader(OsmWorker.GetOsmService());
 			entryBuilding.HousesDataLoader = new HousesDataLoader(OsmWorker.GetOsmService());
 
-			buttonDeleteResponsiblePerson.Sensitive = false;
-			ytreeviewResponsiblePersons.ColumnsConfig = FluentColumnsConfig<Contact>.Create()
-				.AddColumn("Ответственные лица").AddTextRenderer(x => x.FullName)
-				.AddColumn("Телефоны").AddTextRenderer(x => String.Join("\n", x.Phones))
-				.Finish();
-			ytreeviewResponsiblePersons.Selection.Mode = Gtk.SelectionMode.Multiple;
-			ytreeviewResponsiblePersons.ItemsDataSource = Entity.ObservableContacts;
-			ytreeviewResponsiblePersons.Selection.Changed += YtreeviewResponsiblePersons_Selection_Changed;
-
 			phonesview1.ViewModel = new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance);
 			phonesview1.ViewModel.PhonesList = Entity.ObservablePhones;
 
@@ -251,11 +242,6 @@ namespace Vodovoz
 			rightsidepanel1.PanelHided += Rightsidepanel1_PanelHided;
 			Entity.PropertyChanged += Entity_PropertyChanged;
 			UpdateAddressOnMap();
-		}
-
-		void YtreeviewResponsiblePersons_Selection_Changed(object sender, EventArgs e)
-		{
-			buttonDeleteResponsiblePerson.Sensitive = ytreeviewResponsiblePersons.GetSelectedObjects().Length > 0;
 		}
 
 		void MapWidget_MotionNotifyEvent(object o, Gtk.MotionNotifyEventArgs args)
@@ -465,12 +451,6 @@ namespace Vodovoz
 				notebook1.CurrentPage = 1;
 		}
 
-		protected void OnRadioContactsToggled(object sender, EventArgs e)
-		{
-			if(radioContacts.Active)
-				notebook1.CurrentPage = 2;
-		}
-
 		private void OnRadioFixedPricesToggled(object sender, EventArgs e)
 		{
 			if (radioFixedPrices.Active)
@@ -480,32 +460,6 @@ namespace Vodovoz
 		public void OpenFixedPrices()
 		{
 			notebook1.CurrentPage = 3;
-		}
-
-		protected void OnButtonAddResponsiblePersonClicked(object sender, EventArgs e)
-		{
-			var dlg = new PermissionControlledRepresentationJournal(new ContactsVM(UoW, Entity.Counterparty)) {
-				Mode = JournalSelectMode.Multiple
-			};
-			dlg.ObjectSelected += Dlg_ObjectSelected;
-			TabParent.AddSlaveTab(this, dlg);
-		}
-
-		void Dlg_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
-		{
-			var selectedIds = e.GetSelectedIds();
-			if(!selectedIds.Any()) {
-				return;
-			}
-			var contacts = UoW.GetById<Contact>(selectedIds).ToList();
-			contacts.ForEach(Entity.AddContact);
-		}
-
-		protected void OnButtonDeleteResponsiblePersonClicked(object sender, EventArgs e)
-		{
-			var selected = ytreeviewResponsiblePersons.GetSelectedObjects<Contact>();
-			foreach(var toDelete in selected)
-				Entity.ObservableContacts.Remove(toDelete);
 		}
 
 		protected void OnButtonInsertFromBufferClicked(object sender, EventArgs e)

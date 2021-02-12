@@ -879,6 +879,10 @@
     <Compile Include="Journal\INodeSelectorFactory.cs" />
     <Compile Include="Journal\INodeAutocompleteSelectorFactory.cs" />
     <Compile Include="Journal\NodeAutocompleteSelectorFactory.cs" />
+    <Compile Include="Domain\Client\DeliveryPointResponsiblePerson.cs" />
+    <Compile Include="Domain\Client\DeliveryPointResponsiblePersonType.cs" />
+    <Compile Include="HibernateMapping\Counterparty\DeliveryPointResponsiblePersonTypeMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\DeliveryPointResponsiblePersonMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
