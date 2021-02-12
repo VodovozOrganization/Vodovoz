@@ -711,32 +711,39 @@ namespace Vodovoz.Domain.Logistic
 		{
 			List<Discrepancy> result = new List<Discrepancy>();
 
-			//ТОВАРЫ
-			var orderClosingItems = Addresses.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
-										 .SelectMany(item => item.Order.OrderItems)
-										 .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-										 .Where(item => item.Nomenclature.Category != NomenclatureCategory.bottle)
-										 .ToList();
+			#region Товары
 
-			foreach(var orderItem in orderClosingItems) {
-				var address = Addresses.SingleOrDefault(x => x.Order.Id == orderItem.Order.Id && x.TransferedTo == null);
-				var discrepancy = new Discrepancy();
-				
-				if (address?.TransferedTo != null && address.TransferedTo.NeedToReload) {
-					discrepancy.ClientRejected = orderItem.Count;
+			foreach(var address in Addresses) {
+				foreach(var orderItem in address.Order.OrderItems) {
+					if(!Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category)
+						|| orderItem.Nomenclature.Category == NomenclatureCategory.bottle) 
+					{
+						continue;
+					}
+					Discrepancy discrepancy = null;
+					
+					if(address.TransferedTo == null) {
+						discrepancy = new Discrepancy {
+							ClientRejected = orderItem.ReturnedCount, 
+							Nomenclature = orderItem.Nomenclature, 
+							Name = orderItem.Nomenclature.Name
+						};
+					} else if(address.TransferedTo.NeedToReload) {
+						discrepancy = new Discrepancy {
+							ClientRejected = orderItem.Count, 
+							Nomenclature = orderItem.Nomenclature, 
+							Name = orderItem.Nomenclature.Name
+						};
+					}
+					if(discrepancy != null && discrepancy.ClientRejected != 0) {
+						AddDiscrepancy(result, discrepancy);
+					}
 				}
-				else {
-					discrepancy.ClientRejected = orderItem.ReturnedCount;
-				}
-
-				discrepancy.Nomenclature = orderItem.Nomenclature;
-				discrepancy.Name = orderItem.Nomenclature.Name;
-				
-				AddDiscrepancy(result, discrepancy);
 			}
-			
-			//Терминал для оплаты
 
+			#endregion
+
+			//Терминал для оплаты
 			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
 			var loadDocs = new RouteListRepository().GetCarLoadDocuments(UoW, Id);
 			var isTerminalLoaded =
