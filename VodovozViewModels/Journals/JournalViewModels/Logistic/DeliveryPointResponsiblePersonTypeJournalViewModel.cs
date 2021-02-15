@@ -6,7 +6,6 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using Vodovoz.Domain.Client;
-using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -38,7 +37,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
             var result = query.SelectList(list => list
                 .Select(u => u.Id).WithAlias(() => deliveryPointResponsiblePersonTypeJournalNodeAlias.Id)
-                .Select(u => u.Title).WithAlias(() => deliveryPointResponsiblePersonTypeJournalNodeAlias.Title))
+                .Select(u => u.Title).WithAlias(() => deliveryPointResponsiblePersonTypeJournalNodeAlias.Name))
                 .TransformUsing(Transformers.AliasToBean<DeliveryPointResponsiblePersonTypeJournalNode>());
 
             return result;

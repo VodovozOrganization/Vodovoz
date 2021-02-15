@@ -1,5 +1,4 @@
-﻿using System;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 
 namespace Vodovoz.HibernateMapping.Counterparty
 {
@@ -7,7 +6,7 @@ namespace Vodovoz.HibernateMapping.Counterparty
     {
         public DeliveryPointResponsiblePersonTypeMap()
         {
-            Table("delivery_points_responsible_persons_types");
+            Table("delivery_points_responsible_person_types");
 
             Id(x => x.Id).Column("id").GeneratedBy.Native();
             Map(x => x.Title).Column("title");
