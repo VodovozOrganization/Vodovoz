@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -116,6 +116,8 @@
     <Compile Include="Journals\FilterViewModels\ExpenseCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\FinancialDistrictsSetsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\IncomeCategoryJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DeliveryPointResponsiblePersonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictsSetJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\RouteListJournalFilterViewModel.cs" />
@@ -128,6 +130,8 @@
     <Compile Include="Journals\JournalNodes\ExpenseCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\FinancialDistrictsSetsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\IncomeCategoryJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonTypeJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\MovementWagonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RouteListJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RouteListStatusNode.cs" />
@@ -140,6 +144,8 @@
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\FinancialDistrictsSetsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\MovementWagonJournalViewModel.cs" />
@@ -174,6 +180,8 @@
     <Compile Include="Infrastructure\InfoProviders\PanelViewType.cs" />
     <Compile Include="ViewModels\Goods\FixedPriceItemViewModel.cs" />
     <Compile Include="ViewModels\Logistic\AcceptBeforeViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DeliveryPointResponsiblePersonTypeViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DeliveryPointResponsiblePersonViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictsSetActivationViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
