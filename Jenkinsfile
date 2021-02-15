@@ -1,4 +1,4 @@
-node {
+node('Vodovoz') {
 	def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
 
 	stage('Gtk.DataBindings') {		

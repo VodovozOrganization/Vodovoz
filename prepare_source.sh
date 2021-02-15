@@ -3,6 +3,7 @@ echo "Что делаем?"
 echo "1) git pull"
 echo "2) nuget restore"
 echo "3) cleanup packages directories"
+echo "4) build Vodovoz.sln (for Linux)"
 echo "Можно вызывать вместе, например git+nuget=12"
 read case;
 
@@ -28,6 +29,9 @@ cd ../Vodovoz
 nuget restore Vodovoz.sln;
 nuget restore ../QSProjects/QSProjectsLib.sln;
 nuget restore ../My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln
+;;&
+    *4*)
+msbuild /p:Configuration=Debug /p:Platform=x86 Vodovoz.sln
 ;;&
 esac
 
