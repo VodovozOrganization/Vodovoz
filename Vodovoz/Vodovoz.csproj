@@ -1552,6 +1552,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
     <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
+    <Compile Include="Views\Logistic\DeliveryPointResponsiblePersonsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryPointResponsiblePersonsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
