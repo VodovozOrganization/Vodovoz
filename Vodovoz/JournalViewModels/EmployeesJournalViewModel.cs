@@ -5,6 +5,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -14,7 +15,6 @@ using QS.Project.Repositories;
 using QS.Project.Services.GtkUI;
 using QS.Services;
 using Vodovoz.Additions;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
@@ -116,8 +116,7 @@ namespace Vodovoz.JournalViewModels
 
 		private void ResetPasswordForEmployee(Employee employee)
 		{
-			var passGenerator = new PasswordGenerator();
-			var result = authorizationService.ResetPassword(employee, passGenerator.GeneratePassword(5));
+			var result = authorizationService.ResetPasswordToGenerated(employee, 5);
 			if (result.MessageStatus == SmsMessageStatus.Ok)
 			{
 				MessageDialogHelper.RunInfoDialog("Sms с паролем отправлена успешно");
@@ -132,7 +131,7 @@ namespace Vodovoz.JournalViewModels
 			
 			var resetPassAction = new JournalAction(
 				"Сбросить пароль",
-				x => true,
+				x => x.FirstOrDefault() != null,
 				x => true, 
 				selectedItems =>
 			{
@@ -141,7 +140,27 @@ namespace Vodovoz.JournalViewModels
 				if (selectedNode != null)
 				{
 					var employee = UoW.GetById<Employee>(selectedNode.Id);
-					ResetPasswordForEmployee(employee);
+
+					if (employee.User == null)
+					{
+						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+							"К сотруднику не привязан пользователь!");
+						
+						return;
+					}
+					
+					if (string.IsNullOrEmpty(employee.User.Login))
+					{
+						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+							"У пользователя не заполнен логин!");
+						
+						return;
+					}
+
+					if (commonServices.InteractiveService.Question("Вы уверены?"))
+					{
+						ResetPasswordForEmployee(employee);
+					}
 				}
 			});
 			
