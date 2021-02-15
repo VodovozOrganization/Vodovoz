@@ -510,6 +510,10 @@ namespace Vodovoz
 
 			return false;
 		}
-	}
+
+        protected void OnButtonApplyLimitsToAllDeliveryPointsOfCounterpartyClicked(object sender, EventArgs e)
+        {
+        }
+    }
 }
 
