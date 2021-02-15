@@ -116,8 +116,7 @@ namespace Vodovoz.JournalViewModels
 
 		private void ResetPasswordForEmployee(Employee employee)
 		{
-			var passGenerator = new PasswordGenerator();
-			var result = authorizationService.ResetPassword(employee, passGenerator.GeneratePassword(5));
+			var result = authorizationService.ResetPasswordToGenerated(employee, 5);
 			if (result.MessageStatus == SmsMessageStatus.Ok)
 			{
 				MessageDialogHelper.RunInfoDialog("Sms с паролем отправлена успешно");
