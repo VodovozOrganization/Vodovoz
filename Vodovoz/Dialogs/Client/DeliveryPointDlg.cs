@@ -242,6 +242,12 @@ namespace Vodovoz
 			rightsidepanel1.PanelHided += Rightsidepanel1_PanelHided;
 			Entity.PropertyChanged += Entity_PropertyChanged;
 			UpdateAddressOnMap();
+
+			ySpinLimitMin.ValueAsInt = int.MinValue;
+			ySpinLimitMax.ValueAsInt = int.MaxValue;
+
+			ySpinLimitMin.Binding.AddBinding(Entity, e => e.MinimalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
+			ySpinLimitMax.Binding.AddBinding(Entity, e => e.MaximalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
 		}
 
 		void MapWidget_MotionNotifyEvent(object o, Gtk.MotionNotifyEventArgs args)
