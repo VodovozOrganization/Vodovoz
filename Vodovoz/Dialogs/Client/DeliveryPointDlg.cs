@@ -36,6 +36,7 @@ using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Models;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.TempAdapters;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -248,6 +249,11 @@ namespace Vodovoz
 
 			ySpinLimitMin.Binding.AddBinding(Entity, e => e.MinimalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
 			ySpinLimitMax.Binding.AddBinding(Entity, e => e.MaximalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
+
+			//deliverypointresponsiblepersonsview1.UoW = UoW;
+			if (Entity.ResponsiblePersons == null)
+				Entity.ResponsiblePersons = new List<DeliveryPointResponsiblePerson>();
+			deliverypointresponsiblepersonsview1.ResponsiblePersons = Entity.ResponsiblePersons;
 		}
 
 		void MapWidget_MotionNotifyEvent(object o, Gtk.MotionNotifyEventArgs args)

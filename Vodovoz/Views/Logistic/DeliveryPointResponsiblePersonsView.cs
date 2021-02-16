@@ -22,26 +22,39 @@ namespace Vodovoz.Views.Logistic
         private IList<DeliveryPointResponsiblePersonType> responsiblePersonTypes;
         private IUnitOfWork uow;
 
-        public GenericObservableList<DeliveryPointResponsiblePerson> ResponsiblePersons
+        private IList<DeliveryPointResponsiblePerson> responsiblePersons;
+
+        public IList<DeliveryPointResponsiblePerson> ResponsiblePersons
+        {
+            get => responsiblePersons;
+            set {
+                if (responsiblePersons == value)
+                    return;
+                responsiblePersons = value;
+                ResponsiblePersonsList = responsiblePersons != null ? new GenericObservableList<DeliveryPointResponsiblePerson>(responsiblePersons) : null;
+            }
+        }
+
+        public GenericObservableList<DeliveryPointResponsiblePerson> ResponsiblePersonsList
         {
             get => responsiblePersonsList;
             set
             {
-                if (ResponsiblePersons != null)
-                    ResponsiblePersons.Clear();
+                if (ResponsiblePersonsList != null)
+                    ResponsiblePersonsList.Clear();
 
                 responsiblePersonsList = value;
 
                 buttonAdd.Sensitive = responsiblePersonsList != null;
                 if (value != null) {
-                    ResponsiblePersons.ElementAdded += OnResponsiblePersonsElementAdded;
-                    ResponsiblePersons.ElementRemoved += OnResponsiblePersonsElementRemoved;
+                    ResponsiblePersonsList.ElementAdded += OnResponsiblePersonsElementAdded;
+                    ResponsiblePersonsList.ElementRemoved += OnResponsiblePersonsElementRemoved;
 
-                    if (ResponsiblePersons.Count == 0) {
-                        ResponsiblePersons.Add(new DeliveryPointResponsiblePerson());
+                    if (ResponsiblePersonsList.Count == 0) {
+                        ResponsiblePersonsList.Add(new DeliveryPointResponsiblePerson());
                     }
                     else {
-                        foreach (DeliveryPointResponsiblePerson responsiblePerson in ResponsiblePersons) {
+                        foreach (DeliveryPointResponsiblePerson responsiblePerson in ResponsiblePersonsList) {
                             AddResponsiblePersonRow(responsiblePerson);
                         }
                     }
@@ -52,7 +65,7 @@ namespace Vodovoz.Views.Logistic
 
         private void SetEditable()
         {
-            throw new NotImplementedException();
+            // Not Implemented Yet
         }
 
         /// <summary>
@@ -151,18 +164,21 @@ namespace Vodovoz.Views.Logistic
         {
             foreach (int i in aIdx)
             {
-                AddResponsiblePersonRow(ResponsiblePersons[i]);
+                AddResponsiblePersonRow(ResponsiblePersonsList[i]);
             }
         }
 
         public DeliveryPointResponsiblePersonsView()
         {
             this.Build();
+
+            buttonAdd.Clicked += OnButtonAddClicked;
         }
 
         protected void OnButtonAddClicked(object sender, EventArgs e)
         {
-
+            var empty = new DeliveryPointResponsiblePerson();
+            ResponsiblePersonsList.Add(empty);
         }
     }
 }
