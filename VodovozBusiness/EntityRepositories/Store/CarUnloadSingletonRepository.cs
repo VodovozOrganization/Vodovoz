@@ -63,20 +63,21 @@ namespace Vodovoz.Repository.Store
 				return true;
 		}
 
-		public bool HasTerminalUnloaded(IUnitOfWork uow, int routelistId, int terminalId)
-        {
+		public decimal UnloadedTerminalAmount(IUnitOfWork uow, int routelistId, int terminalId)
+		{
 			CarUnloadDocument docAlias = null;
 			CarUnloadDocumentItem docItemsAlias = null;
-			EmployeeNomenclatureMovementOperation employeeNomenclatureMovementOperationAlias = null;
+			WarehouseMovementOperation warehouseMovementOperationAlias = null;
 
 			var query = uow.Session.QueryOver(() => docAlias)
-							.JoinAlias(d => d.Items, () => docItemsAlias)
-							.JoinAlias(() => docItemsAlias.EmployeeNomenclatureMovementOperation, () => employeeNomenclatureMovementOperationAlias)
-							.Where(() => docAlias.RouteList.Id == routelistId)
-							.And(() => employeeNomenclatureMovementOperationAlias.Nomenclature.Id == terminalId)
-							.List();
+				.JoinAlias(d => d.Items, () => docItemsAlias)
+				.JoinAlias(() => docItemsAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias)
+				.Where(() => docAlias.RouteList.Id == routelistId)
+				.And(() => warehouseMovementOperationAlias.Nomenclature.Id == terminalId)
+				.Select(Projections.Sum(() => warehouseMovementOperationAlias.Amount))
+				.SingleOrDefault<decimal>();
 
-			return query.Any();
+			return query;
 		}
 	}
 }
