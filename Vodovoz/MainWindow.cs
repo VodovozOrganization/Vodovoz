@@ -179,6 +179,30 @@ public partial class MainWindow : Gtk.Window
         MangoManager.Connect();
 
         BanksUpdater.CheckBanksUpdate(false);
+
+        // Блокировка отчетов для торговых представителей
+
+        bool userIsSalesRepresentative = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
+            && !QSMain.User.Admin;
+
+        // Основные разделы отчетов
+
+        ActionReportOrders.Visible =
+            ActionReportsStock.Visible =
+            ActionOSKOKKReports.Visible =
+            ActionLogistic.Visible =
+            ActionReportEmployees.Visible =
+            ActionReportsDrivers.Visible =
+            ActionReportService.Visible =
+            ActionBookkeepping.Visible =
+            Action61.Visible = // Касса
+            Action70.Visible = !userIsSalesRepresentative; // Производство
+
+        // Отчеты в Продажи
+
+        ActionOrderCreationDateReport.Visible = 
+            ActionPlanImplementationReport.Visible =
+            ActionSetBillsReport.Visible = !userIsSalesRepresentative;
     }
 
     public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
