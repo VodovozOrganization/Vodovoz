@@ -4,10 +4,10 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sms;
 using System.Collections.Generic;
 using System.Linq;
-using SmsBlissSendService;
 using System.Timers;
 using NLog;
 using Vodovoz.EntityRepositories.SmsNotifications;
+using SmsRuSendService;
 
 namespace VodovozSmsInformerService
 {
