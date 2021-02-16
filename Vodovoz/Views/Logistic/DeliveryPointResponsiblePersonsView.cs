@@ -97,7 +97,7 @@ namespace Vodovoz.Views.Logistic
                 AttachOptions.Fill | AttachOptions.Expand,
                 (AttachOptions)0, (uint)0, (uint)0);
 
-            Label textPhoneLabel = new Label("Телефон:");
+            Label textPhoneLabel = new Label("Телефон: +7 ");
             datatableResponsiblePersons.Attach(
                 textPhoneLabel,
                 (uint)2, (uint)3, rowsCount, rowsCount + 1,
@@ -129,7 +129,8 @@ namespace Vodovoz.Views.Logistic
             datatableResponsiblePersons.Attach(
                 employeeEntry,
                 (uint)5, (uint)6, rowsCount, rowsCount + 1,
-                AttachOptions.Fill, (AttachOptions)0, (uint)0, (uint)0);
+                AttachOptions.Expand | AttachOptions.Fill,
+                (AttachOptions)0, (uint)0, (uint)0);
 
             Button deleteButton = new Button();
             Image image = new Image();
