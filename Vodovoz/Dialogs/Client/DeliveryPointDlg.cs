@@ -250,7 +250,7 @@ namespace Vodovoz
 			ySpinLimitMin.Binding.AddBinding(Entity, e => e.MinimalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
 			ySpinLimitMax.Binding.AddBinding(Entity, e => e.MaximalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
 
-			//deliverypointresponsiblepersonsview1.UoW = UoW;
+			deliverypointresponsiblepersonsview1.UoW = UoW;
 			if (Entity.ResponsiblePersons == null)
 				Entity.ResponsiblePersons = new List<DeliveryPointResponsiblePerson>();
 			deliverypointresponsiblepersonsview1.ResponsiblePersons = Entity.ResponsiblePersons;

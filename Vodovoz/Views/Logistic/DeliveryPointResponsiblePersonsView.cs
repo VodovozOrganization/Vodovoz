@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Gamma.Widgets;
 using Gtk;
+using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -18,9 +19,21 @@ namespace Vodovoz.Views.Logistic
     [System.ComponentModel.ToolboxItem(true)]
     public partial class DeliveryPointResponsiblePersonsView : Gtk.Bin
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         private GenericObservableList<DeliveryPointResponsiblePerson> responsiblePersonsList;
         private IList<DeliveryPointResponsiblePersonType> responsiblePersonTypes;
         private IUnitOfWork uow;
+
+        public IUnitOfWork UoW {
+            get => uow;
+            set
+            {
+                uow = value;
+                responsiblePersonTypes = uow.Session.QueryOver<DeliveryPointResponsiblePersonType>().List();
+            }
+        }
+
 
         private IList<DeliveryPointResponsiblePerson> responsiblePersons;
 
@@ -141,19 +154,74 @@ namespace Vodovoz.Views.Logistic
 
         private void OnButtonDeleteClicked(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            Table.TableChild delButtonInfo = ((Table.TableChild)(this.datatableResponsiblePersons[(Widget)sender]));
+            Widget foundWidget = null;
+            foreach (Widget wid in datatableResponsiblePersons.AllChildren)
+            {
+                if (wid is yValidatedEntry && delButtonInfo.TopAttach == (datatableResponsiblePersons[wid] as Table.TableChild).TopAttach)
+                {
+                    foundWidget = wid;
+                    break;
+                }
+            }
+            if (foundWidget == null)
+            {
+                logger.Warn("Не найден виджет ассоциированный с удаленным телефоном.");
+                return;
+            }
+
+            ResponsiblePersonsList.Remove((DeliveryPointResponsiblePerson)(foundWidget as yValidatedEntry).Tag);
+        }
+
+        protected void MoveRowUp(uint Row)
+        {
+            foreach (Widget w in datatableResponsiblePersons.Children)
+                if (((Table.TableChild)(this.datatableResponsiblePersons[w])).TopAttach == Row)
+                {
+                    uint Left = ((Table.TableChild)(this.datatableResponsiblePersons[w])).LeftAttach;
+                    uint Right = ((Table.TableChild)(this.datatableResponsiblePersons[w])).RightAttach;
+                    datatableResponsiblePersons.Remove(w);
+                    if (w.GetType() == typeof(yListComboBox))
+                        datatableResponsiblePersons.Attach(w, Left, Right, Row - 1, Row, AttachOptions.Fill | AttachOptions.Expand, (AttachOptions)0, (uint)0, (uint)0);
+                    else
+                        datatableResponsiblePersons.Attach(w, Left, Right, Row - 1, Row, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
+                }
         }
 
         private void OnResponsiblePersonsElementRemoved(object aList, int[] aIdx, object aObject)
         {
             Widget foundWidget = null;
 
-            throw new NotImplementedException();
-
             foreach (Widget widget in datatableResponsiblePersons.AllChildren) {
-                
+                if (widget is yValidatedEntry && (widget as yValidatedEntry).Tag == aObject)
+                {
+                    foundWidget = widget;
+                    break;
+                }
             }
+            if (foundWidget == null)
+            {
+                logger.Warn("Не найден виджет ассоциированный с удаленным ответственным лицом.");
+                return;
+            }
+
+            Table.TableChild child = ((Table.TableChild)(this.datatableResponsiblePersons[foundWidget]));
+            RemoveRow(child.TopAttach);
         }
+
+        private void RemoveRow(uint Row)
+        {
+            foreach (Widget w in datatableResponsiblePersons.Children)
+                if (((Table.TableChild)(this.datatableResponsiblePersons[w])).TopAttach == Row)
+                {
+                    datatableResponsiblePersons.Remove(w);
+                    w.Destroy();
+                }
+            for (uint i = Row + 1; i < datatableResponsiblePersons.NRows; i++)
+                MoveRowUp(i);
+            datatableResponsiblePersons.NRows = --Row;
+        }
+
 
         private void OnResponsiblePersonsElementAdded(object aList, int[] aIdx)
         {
