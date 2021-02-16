@@ -31,6 +31,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
+using Vodovoz.Repository.Store;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
@@ -62,6 +63,7 @@ namespace Vodovoz.Domain.Logistic
 				new OrganizationParametersProvider(ParametersProvider.Instance));
 
 		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository();
+		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
 
 		#region Свойства
 
@@ -748,8 +750,9 @@ namespace Vodovoz.Domain.Logistic
 			//Терминал для оплаты
 			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
 			var isTerminalLoaded = carLoadDocumentRepository.HasTerminalLoaded(UoW, Id, terminalId);
+			var isTerminalUnLoaded = carUnloadRepository.HasTerminalUnloaded(UoW, Id, terminalId);
 
-			if (isTerminalLoaded) {
+			if (isTerminalLoaded && !isTerminalUnLoaded) {
 				var terminal = UoW.GetById<Nomenclature>(terminalId);
 
 				var discrepancyTerminal = new Discrepancy {
@@ -771,7 +774,7 @@ namespace Vodovoz.Domain.Logistic
 					Name = orderEquip.Nomenclature.Name
 				};
 
-				if(orderEquip.Direction == Domain.Orders.Direction.Deliver)
+				if(orderEquip.Direction == Direction.Deliver)
 					discrepancy.ClientRejected = orderEquip.ReturnedCount;
 				else
 					discrepancy.PickedUpFromClient = orderEquip.ActualCount ?? 0;
