@@ -14,7 +14,7 @@ namespace Vodovoz.EntityRepositories.Store
             var query = uow.Session.QueryOver(() => carLoadDocumentAlias)
                                     .JoinAlias(c => c.Items, () => carLoadDocumentItemAlias)
                                     .Where(() => carLoadDocumentAlias.RouteList.Id == routelistId)
-                                    .And(() => carLoadDocumentItemAlias.Id == terminalId)
+                                    .And(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
                                     .List();
 
             return query.Any();
