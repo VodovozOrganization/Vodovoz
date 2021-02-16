@@ -156,6 +156,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual DeliveryPoint DeliveryPoint {
 			get => deliveryPoint;
 			set {
+				var oldDeliveryPoint = deliveryPoint;
 				if(SetField(ref deliveryPoint, value, () => DeliveryPoint) && value != null) {
 					if(DeliverySchedule == null)
 						DeliverySchedule = value.DeliverySchedule;
@@ -163,7 +164,9 @@ namespace Vodovoz.Domain.Orders
 					if(Id == 0)
 						AddCertificates = DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null;
 
-					UpdateContract();
+					if (oldDeliveryPoint != null) {
+						UpdateContract();
+					}
 				}
 			}
 		}
