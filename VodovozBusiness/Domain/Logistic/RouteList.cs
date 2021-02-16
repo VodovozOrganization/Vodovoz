@@ -24,9 +24,9 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.HumanResources;
@@ -60,6 +60,8 @@ namespace Vodovoz.Domain.Logistic
 		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
 				new OrganizationParametersProvider(ParametersProvider.Instance));
+
+		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository();
 
 		#region Свойства
 
@@ -745,20 +747,14 @@ namespace Vodovoz.Domain.Logistic
 
 			//Терминал для оплаты
 			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
-			var loadDocs = new RouteListRepository().GetCarLoadDocuments(UoW, Id);
-			var isTerminalLoaded =
-				loadDocs.SelectMany(x => x.ObservableItems)
-				        .Any(x => x.Nomenclature.Id == terminalId);
+			var isTerminalLoaded = carLoadDocumentRepository.HasTerminalLoaded(UoW, Id, terminalId);
 
-			var driverTerminalBalance =
-				new EmployeeNomenclatureMovementRepository().GetDriverTerminalBalance(UoW, Driver.Id, terminalId);
-
-			if (isTerminalLoaded && driverTerminalBalance >= 0) {
+			if (isTerminalLoaded) {
 				var terminal = UoW.GetById<Nomenclature>(terminalId);
 
 				var discrepancyTerminal = new Discrepancy {
 					Nomenclature = terminal,
-					PickedUpFromClient = driverTerminalBalance,
+					PickedUpFromClient = 1,
 					Name = terminal.Name
 				};
 				AddDiscrepancy(result, discrepancyTerminal);
