@@ -59,13 +59,7 @@ namespace Vodovoz.Views.Logistic
                         }
                     }
                 }
-                SetEditable();
             }
-        }
-
-        private void SetEditable()
-        {
-            // Not Implemented Yet
         }
 
         /// <summary>
