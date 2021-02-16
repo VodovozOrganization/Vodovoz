@@ -48,6 +48,7 @@ namespace Vodovoz.Views.Logistic
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.buttonAdd.Clicked += new global::System.EventHandler(this.OnButtonAddClicked);
 		}
 	}
 }

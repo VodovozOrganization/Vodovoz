@@ -166,8 +166,6 @@ namespace Vodovoz.Views.Logistic
         public DeliveryPointResponsiblePersonsView()
         {
             this.Build();
-
-            buttonAdd.Clicked += OnButtonAddClicked;
         }
 
         protected void OnButtonAddClicked(object sender, EventArgs e)
