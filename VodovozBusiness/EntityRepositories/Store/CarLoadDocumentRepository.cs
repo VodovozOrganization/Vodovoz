@@ -1,12 +1,13 @@
 ﻿using QS.DomainModel.UoW;
 using System.Linq;
+using NHibernate.Criterion;
 using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.EntityRepositories.Store
 {
     public class CarLoadDocumentRepository : ICarLoadDocumentRepository
     {
-        public bool HasTerminalLoaded(IUnitOfWork uow, int routelistId, int terminalId)
+        public decimal LoadedTerminalAmount(IUnitOfWork uow, int routelistId, int terminalId)
         {
             CarLoadDocument carLoadDocumentAlias = null;
             CarLoadDocumentItem carLoadDocumentItemAlias = null;
@@ -15,9 +16,10 @@ namespace Vodovoz.EntityRepositories.Store
                                     .JoinAlias(c => c.Items, () => carLoadDocumentItemAlias)
                                     .Where(() => carLoadDocumentAlias.RouteList.Id == routelistId)
                                     .And(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
-                                    .List();
+                                    .Select(Projections.Sum(() => carLoadDocumentItemAlias.Amount))
+                                    .SingleOrDefault<decimal>();
 
-            return query.Any();
+            return query;
         }
     }
 }

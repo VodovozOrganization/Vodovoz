@@ -4,6 +4,6 @@ namespace Vodovoz.EntityRepositories.Store
 {
     public interface ICarLoadDocumentRepository
     {
-        bool HasTerminalLoaded(IUnitOfWork uow, int routelistId, int terminalId);
+        decimal LoadedTerminalAmount(IUnitOfWork uow, int routelistId, int terminalId);
     }
 }

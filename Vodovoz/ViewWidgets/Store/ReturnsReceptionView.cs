@@ -12,7 +12,6 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -125,16 +124,15 @@ namespace Vodovoz
 			IList<ReceptionItemNode> returnableEquipment = new List<ReceptionItemNode>();
 			
 			ReceptionItemNode returnableTerminal = null;
-			bool isTerminalLoaded = false;
-			bool isTerminalUnloaded = false;
-			
+			int loadedTerminalAmount = default(int);
+
 			var cashSubdivision = new SubdivisionRepository().GetCashSubdivisions(uow);
 			if(cashSubdivision.Contains(Warehouse.OwningSubdivision)) {
 				
-				isTerminalLoaded = carLoadDocumentRepository.HasTerminalLoaded(UoW, RouteList.Id, terminalId);
-				isTerminalUnloaded = carUnloadRepository.HasTerminalUnloaded(UoW, RouteList.Id, terminalId);
+				loadedTerminalAmount = (int)carLoadDocumentRepository.LoadedTerminalAmount(UoW, RouteList.Id, terminalId);
+				var unloadedTerminalAmount = (int)carUnloadRepository.UnloadedTerminalAmount(UoW, RouteList.Id, terminalId);
 
-				if (isTerminalLoaded)
+				if (loadedTerminalAmount > 0)
                 {
 					var terminal = UoW.GetById<Nomenclature>(terminalId);
 
@@ -142,7 +140,7 @@ namespace Vodovoz
 					{
 						NomenclatureId = terminal.Id,
 						Name = terminal.Name,
-						ExpectedAmount = isTerminalUnloaded ? 0 : 1
+						ExpectedAmount = loadedTerminalAmount - unloadedTerminalAmount
 					};
                 }
 			}
@@ -217,7 +215,7 @@ namespace Vodovoz
 					ReceptionReturnsList.Add(item);
 			}
 
-			if (returnableTerminal != null && isTerminalLoaded) {
+			if (returnableTerminal != null && loadedTerminalAmount > 0) {
 				if (ReceptionReturnsList.All(i => i.NomenclatureId != returnableTerminal.NomenclatureId))
 					ReceptionReturnsList.Add(returnableTerminal);
 			}

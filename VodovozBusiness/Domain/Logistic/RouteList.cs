@@ -749,17 +749,20 @@ namespace Vodovoz.Domain.Logistic
 
 			//Терминал для оплаты
 			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
-			var isTerminalLoaded = carLoadDocumentRepository.HasTerminalLoaded(UoW, Id, terminalId);
-			var isTerminalUnLoaded = carUnloadRepository.HasTerminalUnloaded(UoW, Id, terminalId);
+			var loadedTerminalAmount = carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
+			var unloadedTerminalAmount = carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
-			if (isTerminalLoaded && !isTerminalUnLoaded) {
+			if (loadedTerminalAmount > 0) {
 				var terminal = UoW.GetById<Nomenclature>(terminalId);
 
 				var discrepancyTerminal = new Discrepancy {
 					Nomenclature = terminal,
-					PickedUpFromClient = 1,
+					PickedUpFromClient = loadedTerminalAmount,
 					Name = terminal.Name
 				};
+
+				if (unloadedTerminalAmount > 0) discrepancyTerminal.ToWarehouse = unloadedTerminalAmount;
+
 				AddDiscrepancy(result, discrepancyTerminal);
 			}
 
