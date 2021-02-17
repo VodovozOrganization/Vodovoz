@@ -601,7 +601,15 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref isChainStore, value);
 		}
 
-		IList<SupplierPriceItem> suplierPriceItems = new List<SupplierPriceItem>();
+        private bool isForRetail;
+        [Display(Name = "Для розницы")]
+        public virtual bool IsForRetail
+        {
+            get => isForRetail;
+            set => SetField(ref isForRetail, value);
+        }
+
+        IList<SupplierPriceItem> suplierPriceItems = new List<SupplierPriceItem>();
 		[PropertyChangedAlso(nameof(ObservablePriceNodes))]
 		[Display(Name = "Цены на ТМЦ")]
 		public virtual IList<SupplierPriceItem> SuplierPriceItems {
