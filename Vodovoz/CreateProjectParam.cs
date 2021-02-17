@@ -145,6 +145,8 @@ using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.Views.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
+using Vodovoz.JournalViewers.Retail;
 
 namespace Vodovoz
 {
@@ -270,6 +272,7 @@ namespace Vodovoz
                 .RegisterWidgetForWidgetViewModel<ApplicationDevelopmentProposalsJournalFilterViewModel, ApplicationDevelopmentProposalsJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<RouteListJournalFilterViewModel, RouteListJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<DeliveryPointResponsiblePersonTypeJournalFilterViewModel, DeliveryPointResponsiblePersonTypeJournalFilterView>()
+                .RegisterWidgetForWidgetViewModel<SalesChannelJournalFilterViewModel, SalesChannelJournalFilterView>()
                 ;
 
             DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
