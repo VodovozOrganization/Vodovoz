@@ -765,5 +765,9 @@ namespace Vodovoz
 			}
 			yentryCargoReceiver.Visible = Entity.CargoReceiverSource == CargoReceiverSource.Special;
 		}
-	}
+
+        protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
+        {
+        }
+    }
 }
