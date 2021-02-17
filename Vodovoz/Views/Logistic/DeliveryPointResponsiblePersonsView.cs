@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.Widgets;
 using Gtk;
 using NLog;
@@ -241,6 +242,16 @@ namespace Vodovoz.Views.Logistic
         {
             var empty = new DeliveryPointResponsiblePerson() { DeliveryPoint = DeliveryPoint }; 
             ResponsiblePersonsList.Add(empty);
+        }
+
+        internal void RemoveEmpty()
+        {
+            ResponsiblePersonsList.Where(
+                p => p.Phone.Length == 0 
+                  || p.DeliveryPoint == null 
+                  || p.DeliveryPointResponsiblePersonType == null 
+                  || p.Employee == null
+                ).ToList().ForEach(p => ResponsiblePersonsList.Remove(p));
         }
     }
 }

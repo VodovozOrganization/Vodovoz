@@ -430,7 +430,8 @@ namespace Vodovoz
 		{
 			try {
 				SetSensetivity(false);
-				phonesview1.ViewModel.RemoveEmpty();
+                deliverypointresponsiblepersonsview1.RemoveEmpty();
+                phonesview1.ViewModel.RemoveEmpty();
 
 				if(!Entity.CoordinatesExist && !MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 					return false;
