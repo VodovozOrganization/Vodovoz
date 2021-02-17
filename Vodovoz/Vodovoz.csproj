@@ -1556,6 +1556,9 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryPointResponsiblePersonsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.DeliveryPointResponsiblePersonTypeJournalFilterView.cs" />
     <Compile Include="JournalViewers\DeliveryPointResponsiblePersonTypeJournalFilterView.cs" />
+    <Compile Include="JournalViewers\Retail\SalesChannelJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.DeliveryPointResponsiblePersonTypeFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.Retail.SalesChannelJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1853,6 +1856,7 @@
     <Folder Include="Views\Payments\" />
     <Folder Include="Views\Proposal\" />
     <Folder Include="JournalFilters\Proposal\" />
+    <Folder Include="JournalViewers\Retail\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
