@@ -253,7 +253,8 @@ namespace Vodovoz
 			deliverypointresponsiblepersonsview1.UoW = UoW;
 			if (Entity.ResponsiblePersons == null)
 				Entity.ResponsiblePersons = new List<DeliveryPointResponsiblePerson>();
-			deliverypointresponsiblepersonsview1.ResponsiblePersons = Entity.ResponsiblePersons;
+            deliverypointresponsiblepersonsview1.DeliveryPoint = Entity;
+            deliverypointresponsiblepersonsview1.ResponsiblePersons = Entity.ResponsiblePersons;
 		}
 
 		void MapWidget_MotionNotifyEvent(object o, Gtk.MotionNotifyEventArgs args)

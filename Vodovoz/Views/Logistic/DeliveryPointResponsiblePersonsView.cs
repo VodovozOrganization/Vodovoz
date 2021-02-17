@@ -34,6 +34,7 @@ namespace Vodovoz.Views.Logistic
             }
         }
 
+        public DeliveryPoint DeliveryPoint { get; set; }
 
         private IList<DeliveryPointResponsiblePerson> responsiblePersons;
 
@@ -64,7 +65,7 @@ namespace Vodovoz.Views.Logistic
                     ResponsiblePersonsList.ElementRemoved += OnResponsiblePersonsElementRemoved;
 
                     if (ResponsiblePersonsList.Count == 0) {
-                        ResponsiblePersonsList.Add(new DeliveryPointResponsiblePerson());
+                        ResponsiblePersonsList.Add(new DeliveryPointResponsiblePerson() { DeliveryPoint = DeliveryPoint });
                     }
                     else {
                         foreach (DeliveryPointResponsiblePerson responsiblePerson in ResponsiblePersonsList) {
@@ -238,7 +239,7 @@ namespace Vodovoz.Views.Logistic
 
         protected void OnButtonAddClicked(object sender, EventArgs e)
         {
-            var empty = new DeliveryPointResponsiblePerson();
+            var empty = new DeliveryPointResponsiblePerson() { DeliveryPoint = DeliveryPoint }; 
             ResponsiblePersonsList.Add(empty);
         }
     }

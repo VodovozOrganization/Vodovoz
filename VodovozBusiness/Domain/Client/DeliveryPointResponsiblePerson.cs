@@ -31,6 +31,11 @@ namespace Vodovoz.Domain.Client
             set => SetField(ref deliveryPointResponsiblePersonType, value, () => DeliveryPointResponsiblePersonType);
         }
 
+        /// <summary>
+        /// Точка доступа для работы маппинга Nhibernate
+        /// </summary>
+        public virtual DeliveryPoint DeliveryPoint { get; set; }
+
         Employee employee;
 
         [Display(Name = "Сотрудник")]
