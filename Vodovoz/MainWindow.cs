@@ -182,8 +182,12 @@ public partial class MainWindow : Gtk.Window
 
         // Блокировка отчетов для торговых представителей
 
-        bool userIsSalesRepresentative = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
-            && !QSMain.User.Admin;
+        bool userIsSalesRepresentative;
+
+        using (var uow = UnitOfWorkFactory.CreateWithoutRoot()){
+            userIsSalesRepresentative = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
+            && !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
+        }
 
         // Основные разделы отчетов
 
@@ -795,7 +799,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.SalesReport>(),
-            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport())
+            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport(EmployeeSingletonRepository.GetInstance()))
         );
     }
 
