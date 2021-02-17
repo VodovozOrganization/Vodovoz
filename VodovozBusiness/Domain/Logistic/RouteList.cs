@@ -24,13 +24,14 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
+using Vodovoz.Repository.Store;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
@@ -60,6 +61,9 @@ namespace Vodovoz.Domain.Logistic
 		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
 				new OrganizationParametersProvider(ParametersProvider.Instance));
+
+		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository();
+		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
 
 		#region Свойства
 
@@ -745,22 +749,20 @@ namespace Vodovoz.Domain.Logistic
 
 			//Терминал для оплаты
 			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
-			var loadDocs = new RouteListRepository().GetCarLoadDocuments(UoW, Id);
-			var isTerminalLoaded =
-				loadDocs.SelectMany(x => x.ObservableItems)
-				        .Any(x => x.Nomenclature.Id == terminalId);
+			var loadedTerminalAmount = carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
+			var unloadedTerminalAmount = carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
-			var driverTerminalBalance =
-				new EmployeeNomenclatureMovementRepository().GetDriverTerminalBalance(UoW, Driver.Id, terminalId);
-
-			if (isTerminalLoaded && driverTerminalBalance >= 0) {
+			if (loadedTerminalAmount > 0) {
 				var terminal = UoW.GetById<Nomenclature>(terminalId);
 
 				var discrepancyTerminal = new Discrepancy {
 					Nomenclature = terminal,
-					PickedUpFromClient = driverTerminalBalance,
+					PickedUpFromClient = loadedTerminalAmount,
 					Name = terminal.Name
 				};
+
+				if (unloadedTerminalAmount > 0) discrepancyTerminal.ToWarehouse = unloadedTerminalAmount;
+
 				AddDiscrepancy(result, discrepancyTerminal);
 			}
 
@@ -775,7 +777,7 @@ namespace Vodovoz.Domain.Logistic
 					Name = orderEquip.Nomenclature.Name
 				};
 
-				if(orderEquip.Direction == Domain.Orders.Direction.Deliver)
+				if(orderEquip.Direction == Direction.Deliver)
 					discrepancy.ClientRejected = orderEquip.ReturnedCount;
 				else
 					discrepancy.PickedUpFromClient = orderEquip.ActualCount ?? 0;
