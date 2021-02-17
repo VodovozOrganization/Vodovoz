@@ -19,7 +19,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using Vodovoz.Domain.Organizations;
 using QS.Project.Services;
-using QSProjectsLib;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Reports
 {
@@ -27,16 +27,22 @@ namespace Vodovoz.Reports
 	{
 		SelectableParametersReportFilter filter;
 
-        bool userIsSalesRepresentative = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
-            && !QSMain.User.Admin;
+        bool userIsSalesRepresentative;
+        private readonly IEmployeeRepository employeeRepository;
 
-        public SalesReport()
+        public SalesReport(IEmployeeRepository employeeRepository)
 		{
-			this.Build();
+            this.employeeRepository = employeeRepository;
+
+            this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			filter = new SelectableParametersReportFilter(UoW);
-			ConfigureDlg();
-		}
+
+            userIsSalesRepresentative = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
+                && !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+
+            ConfigureDlg();
+        }
 
 		private void ConfigureDlg()
 		{
@@ -307,8 +313,7 @@ namespace Vodovoz.Reports
 
             if (userIsSalesRepresentative)
             {
-                var currentEmployee = UoW.Session.QueryOver<Employee>()
-                    .Where(x => x.User.Id == ServicesConfig.CommonServices.UserService.CurrentUserId).List().FirstOrDefault();
+                var currentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
                 parameters.Add("order_author_include", new[] { currentEmployee.Id.ToString() });
                 parameters.Add("order_author_exclude", new[] { "0" });
