@@ -25,6 +25,8 @@ using WrapMode = Pango.WrapMode;
 using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -910,6 +912,17 @@ namespace Vodovoz.JournalColumnsConfigs
                         .WrapMode(Pango.WrapMode.WordChar)
                     .RowCells()
                         .AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
+                    .Finish()
+            );
+
+            //DeliveryPointResponsiblePersonTypeJournalViewModel
+            TreeViewColumnsConfigFactory.Register<DeliveryPointResponsiblePersonTypeJournalViewModel>(
+                () => FluentColumnsConfig<DeliveryPointResponsiblePersonTypeJournalNode>.Create()
+                    .AddColumn("Номер")
+                        .AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Имя")
+                        .AddTextRenderer(node => node.Title)
+                    .AddColumn("")
                     .Finish()
             );
         }
