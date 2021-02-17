@@ -87,6 +87,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1859,5 +1861,21 @@ public partial class MainWindow : Gtk.Window
     protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
     {
         MessageDialogHelper.RunInfoDialog("Журнал заказов");
+    }
+
+    protected void OnActionSalesChannelsJournalActivated(object sender, EventArgs e)
+    {
+        MessageDialogHelper.RunInfoDialog("Журнал каналов сбыта");
+    }
+
+    protected void OnActionResponsiblePersonTypesJournalActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            () => new DeliveryPointResponsiblePersonTypeJournalViewModel(
+                    new DeliveryPointResponsiblePersonTypeJournalFilterViewModel(),
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices
+            )
+        );
     }
 }
