@@ -1,4 +1,5 @@
 ﻿using NHibernate.Criterion;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Repository
@@ -9,6 +10,14 @@ namespace Vodovoz.Repository
 		{
 			return QueryOver.Of<DeliverySchedule> ();
 		}
+
+		public static DeliverySchedule GetByBitrixId(IUnitOfWork uow, uint bitrixId)
+		{
+			return uow.Session.QueryOver<DeliverySchedule>()
+				.Where(x => x.BitrixId == bitrixId)
+				.SingleOrDefault();
+		}
+		
 
 	}
 }

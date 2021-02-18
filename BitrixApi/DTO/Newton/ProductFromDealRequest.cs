@@ -13,9 +13,9 @@ namespace BitrixApi.DTO {
         [JsonProperty("OWNER_ID")]  public string OWNER_ID { get; set; }
         [JsonProperty("OWNER_TYPE")] public string OWNER_TYPE { get; set; } 
         [JsonProperty("PRODUCT_ID_X")] public int PRODUCT_ID { get; set; }
-        [JsonProperty("PRODUCT_NAME")] public string PRODUCT_NAME { get; set; }
+        [JsonProperty("PRODUCT_NAME")] public string ProductName { get; set; }
         [JsonProperty("PRODUCT_DESCRIPTION")] public string PRODUCT_DESCRIPTION { get; set; }
-        [JsonProperty("PRICE")] public decimal PRICE { get; set; }
+        [JsonProperty("PRICE")] public decimal Price { get; set; }
         [JsonProperty("PRICE_EXCLUSIVE")] public decimal PRICE_EXCLUSIVE { get; set; }
         [JsonProperty("PRICE_NETTO")] public decimal PRICE_NETTO { get; set; }
         [JsonProperty("SECTION_ID")] public string PRICE_ACCOUNT { get; set; }

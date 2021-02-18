@@ -86,11 +86,8 @@
     <ItemGroup>
         <Compile Include="CreateOrder\BitrixNomenclatureFactory.cs" />
         <Compile Include="CreateOrder\CoR.cs" />
-        <Compile Include="CreateOrder\CounterpartyFactory.cs" />
-        <Compile Include="CreateOrder\DeliveryPointFactory.cs" />
+        <Compile Include="CreateOrder\ICoR.cs" />
         <Compile Include="CreateOrder\Matcher.cs" />
-        <Compile Include="CreateOrder\OrderFactory.cs" />
-        <Compile Include="CreateOrder\OrderItemFactory.cs" />
         <Compile Include="CreateOrder\ProductImporter.cs" />
         <Compile Include="DTO\Email.cs" />
         <Compile Include="DTO\EmailAttachment.cs" />
@@ -105,7 +102,7 @@
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="ServiceInterfaces\IBitrixService.cs" />
         <Compile Include="ServiceInterfaces\IBitrixServiceWeb.cs" />
-        <Compile Include="ServiceInterfaces\IMailjetEventService.cs" />
+        <Compile Include="ServiceInterfaces\IBitrixEventService.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />

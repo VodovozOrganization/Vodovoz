@@ -18,6 +18,7 @@ namespace BitrixApi.REST
         private static readonly HttpClient client = new HttpClient();
         private string token;
         private const string baseURL = "https://vodovoz.bitrix24.ru";
+        static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1,1);
         
         /// <param name="token">BitrixAPI токен из конфига</param>
         public BitrixRestApi(string token)
@@ -29,9 +30,21 @@ namespace BitrixApi.REST
         public async Task<Deal> GetDealAsync( uint id )
         {
             AddJsonHeader();
+            
             string requestUri = $"{baseURL}/rest/2364/{token}/crm.deal.get.json?id={id}";
             var msg = client.GetStringAsync(requestUri);
-            var request = JsonConvert.DeserializeObject<DealRequest>(await msg);
+            await semaphoreSlim.WaitAsync();
+            DealRequest request = null;
+            try{
+                logger.Info("Ждем Deal");
+                Thread.Sleep(1000);
+                request = JsonConvert.DeserializeObject<DealRequest>(await msg);
+                logger.Info("Подождали Deal");
+            }
+            finally{
+                semaphoreSlim.Dispose();
+            }
+           
             return request.Result;
         }
         
@@ -41,7 +54,18 @@ namespace BitrixApi.REST
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/2364/{token}/crm.contact.get.json?id={id}";
             var msg = client.GetStringAsync(requestUri);
-            var request = JsonConvert.DeserializeObject<ContactRequest>(await msg);
+            
+            ContactRequest request = null;
+            try{
+                logger.Info("Ждем Contact");
+                Thread.Sleep(1000);
+                request = JsonConvert.DeserializeObject<ContactRequest>(await msg);
+                logger.Info("Подождали Contact");
+            }
+            finally{
+                semaphoreSlim.Dispose();
+            }
+            
             return request.Result; 
         }
         
@@ -51,18 +75,43 @@ namespace BitrixApi.REST
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/2364/{token}/crm.company.get.json?id={id}";
             var msg = client.GetStringAsync(requestUri);
-            var request = JsonConvert.DeserializeObject<CompanyRequest>(await msg);
+            
+            CompanyRequest request = null;
+            try{
+                logger.Info("Ждем Company");
+
+                Thread.Sleep(1000);
+                request = JsonConvert.DeserializeObject<CompanyRequest>(await msg);
+                logger.Info("Подождали Company");
+
+            }
+            finally{
+                semaphoreSlim.Dispose();
+            }
+            
             return request.Result; 
         }
 
-        
         //crm.product.get
         public async Task<Product> GetProduct( uint id )
         {
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/2364/{token}/crm.product.get.json?id={id}";
             var msg = client.GetStringAsync(requestUri);
-            var request = JsonConvert.DeserializeObject<ProductRequest>(await msg);
+            
+            ProductRequest request = null;
+            try{
+                logger.Info("Ждем Product");
+
+                Thread.Sleep(1000);
+                request = JsonConvert.DeserializeObject<ProductRequest>(await msg);
+                logger.Info("Ждем Product");
+
+            }
+            finally{
+                semaphoreSlim.Dispose();
+            }
+            
             return request.Result; 
         }
 
@@ -71,7 +120,20 @@ namespace BitrixApi.REST
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/2364/{token}/crm.deal.productrows.get.json?id={dealId}";
             var msg = client.GetStringAsync(requestUri);
-            var request = JsonConvert.DeserializeObject<ProductFromDealRequest>(await msg);
+            
+            ProductFromDealRequest request = null;
+            try{
+                logger.Info("Ждем ProductFromDeal");
+
+                Thread.Sleep(1000);
+                request = JsonConvert.DeserializeObject<ProductFromDealRequest>(await msg);
+                logger.Info("Ждем ProductFromDeal");
+
+            }
+            finally{
+                semaphoreSlim.Dispose();
+            }
+            
             return request.Result; 
         }
 
@@ -83,8 +145,18 @@ namespace BitrixApi.REST
         {
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/2364/{token}/crm.deal.userfield.list.json";
+            
             var msg = client.GetStringAsync(requestUri);
-            var request = JsonConvert.DeserializeObject<CustomFieldsDealList>(await msg);
+            
+            CustomFieldsDealList request = null;
+            try{
+                Thread.Sleep(1000);
+                request = JsonConvert.DeserializeObject<CustomFieldsDealList>(await msg);
+            }
+            finally{
+                semaphoreSlim.Dispose();
+            }
+            
             return request.Result; 
         }
         
@@ -94,7 +166,16 @@ namespace BitrixApi.REST
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/2364/{token}/crm.deal.userfield.get.json?id={id}";
             var msg = client.GetStringAsync(requestUri);
-            var request = JsonConvert.DeserializeObject<CustomFileldDealItem>(await msg);
+            
+            CustomFileldDealItem request = null;
+            try{
+                Thread.Sleep(1000);
+                request = JsonConvert.DeserializeObject<CustomFileldDealItem>(await msg);
+            }
+            finally{
+                semaphoreSlim.Dispose();
+            }
+            
             return request.Result; 
         }
 

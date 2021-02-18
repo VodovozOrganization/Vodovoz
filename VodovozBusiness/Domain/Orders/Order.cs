@@ -1782,7 +1782,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddNomenclature(
 			Nomenclature nomenclature, 
-			decimal count = 0, 
+			decimal count = 1, 
 			decimal discount = 0, 
 			bool discountInMoney = false, 
 			DiscountReason discountReason = null, 

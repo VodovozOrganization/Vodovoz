@@ -124,6 +124,8 @@ namespace BitrixIntegration {
             
             if (counterparties.Count == 1){
                 outCounterparty = counterparties.First();
+                outCounterparty.BitrixId = contact.Id;
+                uow.Save(outCounterparty);
                 return true;
             }
             else{

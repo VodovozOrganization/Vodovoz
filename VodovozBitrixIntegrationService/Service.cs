@@ -23,6 +23,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Services;
 
 namespace VodovozBitrixIntegrationService
 {
@@ -190,9 +191,9 @@ namespace VodovozBitrixIntegrationService
 		
 		static async void StartService()
 		{
+			IBitrixServiceSettings baseParameters = new BaseParametersProvider();
+			var bitrixInstanceProvider = new BitrixInstanceProvider(baseParameters);
 			
-			var bitrixInstanceProvider = new BitrixInstanceProvider(new BaseParametersProvider());
-
 			var bitrixHost = new BitrixServiceHost(bitrixInstanceProvider);
 
 			var webContract = typeof(IBitrixServiceWeb);
@@ -213,11 +214,11 @@ namespace VodovozBitrixIntegrationService
 
 			// BitrixManager.AddEvent(deal);
 			var uow = UnitOfWorkFactory.CreateWithoutRoot();
-				var cor = new CoR(token, BitrixRestApiFactory.CreateBitrixRestApi(token), uow, new Matcher());
+				var cor = new CoR(baseParameters, token, BitrixRestApiFactory.CreateBitrixRestApi(token), uow, new Matcher());
 				await cor.Process(138768); //138768 //150772
-			
+			BitrixManager.SetCoR(cor);
 			// await tests();
-			Console.ReadLine();
+			// Console.ReadLine();
 			
 			bitrixHost.AddServiceEndpoint(contract, binding, address);
 			

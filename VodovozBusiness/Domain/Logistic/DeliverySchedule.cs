@@ -42,6 +42,13 @@ namespace Vodovoz.Domain.Logistic
 			get => to;
 			set => SetField (ref to, value, () => To);
 		}
+		
+		private uint bitrixId;
+		[Display (Name = "id в битриксе")]
+		public virtual uint BitrixId {
+			get => bitrixId;
+			set => SetField (ref bitrixId, value);
+		}
 
 		public virtual string DeliveryTime => $"с {from:hh\\:mm} до {to:hh\\:mm}";
 

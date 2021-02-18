@@ -5,7 +5,7 @@ using System.Net;
 using System.ServiceModel.Web;
 using System.Threading;
 using System.Threading.Tasks;
-using BitrixApi.DTO;
+using BitrixApi.DTO.DataContractJsonSerializer;
 using BitrixApi.REST;
 using BitrixIntegration.DTO.Mailjet;
 using Mailjet.Client;
@@ -17,6 +17,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
+using Deal = BitrixApi.DTO.Deal;
+using DealRequest = BitrixApi.DTO.DealRequest;
 using Email = BitrixIntegration.DTO.Email;
 
 namespace BitrixIntegration
@@ -37,7 +39,8 @@ namespace BitrixIntegration
 		static bool IsInitialized => !(string.IsNullOrWhiteSpace(token));
 		static int workerTasksCreatedCounter = 0;
 		static IEmailRepository emailRepository = new EmailRepository();
-
+		private static ICoR cor;
+		
 
 		static BitrixManager()
 		{
@@ -87,18 +90,20 @@ namespace BitrixIntegration
 			return dealsQueue.Count;
 		}
 
-		public static void AddEvent(Deal deal)
+		public static void AddEvent(BitrixPostResponse bitrixEvent)
 		{
+			logger.Info("Получен евент");
 			Task.Run(() => {
 				Thread.CurrentThread.Name = "AddEventWork";
-				ProcessEvent(deal);
+				ProcessEvent(bitrixEvent);
 			});
 		}
 
 		public static Tuple<bool, string> sendOrderStatusToBitrix(OrderStatus status, Order order)
 		{
 			Thread.CurrentThread.Name = "AddNewEmail";
-			logger.Debug("Thread {0} Id {1}: Получен новый статус для обновления в битриксе", Thread.CurrentThread.Name, Thread.CurrentThread.ManagedThreadId);
+			logger.Debug("Thread {0} Id {1}: Получен новый статус для обновления в битриксе", 
+				Thread.CurrentThread.Name, Thread.CurrentThread.ManagedThreadId);
 			try {
 				SendNewOrderStatus(status, order);
 			}
@@ -218,13 +223,6 @@ namespace BitrixIntegration
 					continue;
 				}
 
-				//TODO стоит ли сохранять сделки в базу перед обработкой? наверное нет
-				// if(deal.StoredEmailId == 0) {
-				// 	logger.Debug("{0} Письмо не было сохранено перед добавлением в очередь. Добавлено повторно в очередь", GetThreadInfo());
-				// 	SendNewOrderStatus(deal);
-				// 	continue;
-				// }
-				
 				try {
 					// обработка запроса
 				}
@@ -235,31 +233,35 @@ namespace BitrixIntegration
 			}
 		}
 
-		static async void ProcessEvent(Deal deal)
+		static async void ProcessEvent(BitrixPostResponse bitrixEvent)
 		{
-			//TODO gavr подумать оно надо такое?
-			// if(mailjetEvent.AttemptCount > 0) {
-			// 	logger.Debug("{1} Повторная обработка события с сервера Mailjet. Попытка {2}/{3} \n{0}", mailjetEvent, GetThreadInfo(), mailjetEvent.AttemptCount, MaxSendAttemptsCount);
-			// } else {
-			// 	logger.Debug("{1} Обработка события с сервера Mailjet \n{0}", mailjetEvent, GetThreadInfo());
+			if (bitrixEvent != null){
+				logger.Info("Поступил Event Bitrix с ");
+				await cor.Process(bitrixEvent.Data.Fields.Id);
+			}
+			else{
+				logger.Error("Event Bitrix == null");
+				//TODO gavr вылет?
+			}
+			
+			
+			// else{
+			// 	foreach (var bitrixEventPayload in bitrixEvent.Payloads){
+			// 		foreach (var field in bitrixEventPayload.Field){
+			// 			await cor.Process(field.Id);
+			// 			Thread.Sleep(1000);
+			// 		}
+			// 	}
 			// }
-
-			
-			//Запись информации о письме в базу
-			// using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[BIS]Обработка события DealRequest")) 
-			
-				// Если у нас есть заказ отправляем 200
-				throw new NotImplementedException();
 		}
-
-		
 
 		static void TryResaveEvent(Deal unsavedEvent)
 		{
 			Thread.CurrentThread.Name = "ResaveEventWork";
 			//Попытка пересохранения каждые 20 сек.
 			Thread.Sleep(20000);
-			ProcessEvent(unsavedEvent);
+			// ProcessEvent(unsavedEvent);
+			//TODO gavr тут передача обработки нового статуса для посылки в битрикс
 		}
 
 		#region Service methods
@@ -355,6 +357,11 @@ namespace BitrixIntegration
 				return;
 			}
 			token = _token;
+		}
+
+		public static void SetCoR(ICoR _cor)
+		{
+			cor = _cor;
 		}
 
 		#endregion

@@ -8,14 +8,18 @@ using BitrixApi.REST;
 using QS.DomainModel.UoW;
 using QS.Osm.DTO;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Parameters;
+using Vodovoz.Repository;
+using Vodovoz.Services;
 using Contact = BitrixApi.DTO.Contact;
 using Phone = Vodovoz.Domain.Contacts.Phone;
 
 namespace BitrixIntegration {
-    public class CoR {
+    public class CoR: ICoR {
         private bool needSearchOrder = false;
         private bool needSearchPoint = false;
         private bool needSearchNomenclature = false;
@@ -31,85 +35,132 @@ namespace BitrixIntegration {
         private string token;
         private readonly IBitrixRestApi bitrixApi;
         private readonly IUnitOfWork uow;
+        private readonly IBitrixServiceSettings bitrixServiceSettings;
         
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly Matcher matcher;
         
 
-        public CoR(string _token, IBitrixRestApi _bitrixRestApi, IUnitOfWork _uow, Matcher _matcher)
+        public CoR(IBitrixServiceSettings _bitrixServiceSettings, string _token, IBitrixRestApi _bitrixRestApi, IUnitOfWork _uow, Matcher _matcher)
         {
+	        
 	        token = _token ?? throw new ArgumentNullException(nameof(_token));
 	        bitrixApi = _bitrixRestApi ?? throw new ArgumentNullException(nameof(_bitrixRestApi));
 	        uow = _uow ?? throw new ArgumentNullException(nameof(_uow));
 	        matcher = _matcher ?? throw new ArgumentNullException(nameof(_matcher));
+	        bitrixServiceSettings = _bitrixServiceSettings ?? throw new ArgumentNullException(nameof(_bitrixServiceSettings));
         }
 
-		//main func
-        public async Task Process(uint id)
+        public async Task Process(uint dealId)
         {
 	        try
 	        {
-		        var deal = await ProcessDeal(id);
+		        var deal = await ProcessDeal(dealId);
 		        if (deal == null){
 			        logger.Error("Ошибка при получении сделки из BitrixApi");
 			        return;
 		        }
 
+		        bool isSelfDelivery = deal.DeliveryType == "626";
+		        bool isSmsPayment = deal.PaymentMethod == "1108";
+
 		        //ищем у нас сделку по битрикс Id
 		        needCreateOrder = !matcher.MatchOrderByBitrixId(uow, deal, out var ourOrder);
 		        if (ourOrder != null){
+			        logger.Info($"Сделка {deal.Id} найдена у нас под id: {ourOrder.Id}");
 			        //TODO gavr вернуть 200
 			        return;
+		        } else if (deal.CreateInDV == 0)
+		        {
+			        logger.Info($"Сделка {deal.Id} имеет статус отличный от Завести в ДВ");
+			        //TODO gavr вернуть 200
+			        // return;
 		        }
 		        
-		        Counterparty counterpartyForNewOrder = null;
-		        if (deal.DeliveryType != "626"){
+		        Counterparty counterpartyForNewOrder = counterpartyForNewOrder =
+			        await ProcessCounterparty(
+				        deal); //TODO gavr потом добавить к ней адрес, когда он станет известен
+		        
+		        DeliverySchedule deliveryScheduleForOrder = null;
+		        DeliveryPoint deliveryPointForOrder = null;
+		        if (!isSelfDelivery){
 			        needCreateNomenclature = false;
 			        needSearchNomenclature = false;
-			        counterpartyForNewOrder =
-				        await ProcessCounterparty(
-					        deal); //TODO gavr потом добавить к ней адрес, когда он станет известен
+			        deliveryPointForOrder = ProcessDeliveryPoint(deal, counterpartyForNewOrder);
+			        deliveryScheduleForOrder = DeliveryScheduleRepository.GetByBitrixId(uow, deal.DeliverySchedule);
 		        }
-		        
-		        var deliveryPointForOrder = ProcessDeliveryPoint(deal, counterpartyForNewOrder);
-		        
-		        var nomenclaturesForNewOrder = await ProcessNomenclatures(deal);
-		        
-		        
-		        
+
+
 		        //точку доставки не ищем, её можно только начать сопоставлять тк кк она в сделке
 		        //TODO удалить bitrixId у точек доставки из таблицы, сущности и маппинга 
-		        var newOrder = ProcessOrder(deal, deliveryPointForOrder, counterpartyForNewOrder, nomenclaturesForNewOrder);
-		        uow.Save(newOrder);
-		        uow.Commit();
+		        var newOrder = ProcessOrder(
+			        deal,
+			        deliveryPointForOrder,
+			        counterpartyForNewOrder, 
+			        isSmsPayment,
+			        deliveryScheduleForOrder
+			    );
+		        
+		        var orderWithNomenclatures = await ProcessNomenclaturesAndAddToOrder(deal, newOrder);
 
+		        
+		        uow.Save(orderWithNomenclatures);
+		        uow.Commit();
 	        }
 			catch (Exception e){
-				logger.Error($"При обработке заказа с id {id} возникла ошибка: {e.Message}");
+				logger.Error($"При обработке заказа с id {dealId} возникла ошибка: {e.Message}");
 			}
 			
         }
 
-        private Order ProcessOrder(Deal deal, DeliveryPoint deliveryPointForOrder, Counterparty counterpartyForNewOrder, IList<Nomenclature> nomenclaturesForNewOrder)
+
+        class Sas {
+	        private int a;
+	        private string b;
+	        private bool c;
+
+	        public Sas(int a, string b, bool c)
+	        {
+		        this.a = a;
+		        this.b = b ?? throw new ArgumentNullException(nameof(b));
+		        this.c = c;
+	        }
+        }
+
+        private Order ProcessOrder(
+	        Deal deal,
+	        DeliveryPoint deliveryPointForOrder, 
+	        Counterparty counterpartyForNewOrder,
+	        bool paymentBySms,
+	        DeliverySchedule schedule
+	    )
         {
+	        var bitrixAccaunt = uow.GetById<Employee>(bitrixServiceSettings.EmployeeForOrderCreate);
 	        var newOrder = new Order()
 	        {
 		        UoW = uow,
 		        BitrixId = deal.Id,
 		        PaymentType = deal.GetPaymentMethod(),
 		        CreateDate = deal.CreateDate,
-		        DeliveryDate = deal.DeliveryDate, 
+		        DeliveryDate = deal.DeliveryDate,
+		        DeliverySchedule = schedule,
 		        Client = counterpartyForNewOrder,
 		        DeliveryPoint = deliveryPointForOrder,
-		        OrderStatus = OrderStatus.Accepted
+		        OrderStatus = OrderStatus.Accepted,
+		        Author = bitrixAccaunt,
+		        LastEditor = bitrixAccaunt,
+		        LastEditedTime = DateTime.Now,
+		        PaymentBySms = paymentBySms,
+		        OrderPaymentStatus = deal.GetOrderPaymentStatus(),
+		        SelfDelivery = deal.IsSelfDelivery(),
+		        Comment = deal.Comment,
+		        Trifle = 0,
+		        BottlesReturn = 0
+		        
 		        // Onli
 	        };
-	        
-	        foreach (var nomenclature in nomenclaturesForNewOrder){
-		        newOrder.AddAnyGoodsNomenclatureForSale(nomenclature);
-	        }
-	        
+	       
 	        
 	        return newOrder;
 
@@ -172,7 +223,7 @@ namespace BitrixIntegration {
 	        //Получаем клиента из сделки
 	        var contact = await bitrixApi.GetContact(deal.ContancId);
 	        
-	        //ищем у нас контакт или компанию по битрикс Id
+	        //ищем у нас контакт по битрикс Id
 	        if (matcher.MatchCounterpartyByBitrixId(uow, contact.Id, out var matchedByBitrixId)){
 		        return matchedByBitrixId;
 	        }
@@ -192,21 +243,6 @@ namespace BitrixIntegration {
 		        
 		        uow.Save(newCounerparty);
 		        return newCounerparty;
-		        
-		        //Create new
-		        // using (var uowForNewCounterparty = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>()){
-			       //  
-			       //  uowForNewCounterparty.Root.FullName = contact.SecondName + " " + contact.Name + " " + contact.LastName;
-			       //  uowForNewCounterparty.Root.Name = string.Copy(uowForNewCounterparty.Root.FullName);
-			       //  uowForNewCounterparty.Root.BitrixId = contact.Id;
-			       //  uowForNewCounterparty.Root.PersonType = PersonType.natural;
-			       //  uowForNewCounterparty.Root.PaymentMethod = deal.GetPaymentMethod(); 
-			       //  AddPhonesToCounterpartyFromContact(uowForNewCounterparty, contact);
-			       //  
-			       //  uowForNewCounterparty.Save();
-			       //  // uowForNewCounterparty.Commit();
-			       //  return uowForNewCounterparty.Root;
-		        // }
 	        }
         }
 
@@ -252,7 +288,6 @@ namespace BitrixIntegration {
 		        phonesForNewCounterparty.Add(newPhone);
 		        uow.Save(newPhone);
 	        }
-
 	        newCounterparty.Phones = phonesForNewCounterparty;
         }
 
@@ -286,8 +321,8 @@ namespace BitrixIntegration {
 				        uowForNewCounterparty.Root.Building = deal.GetBuilding();
 			        }
 			        catch (Exception e){
-				        logger.Warn(e.Message);
 				        logger.Warn($"Из заказа {deal.Id} не получилось получить номер дома '{deal.HouseAndBuilding}'");
+				        logger.Warn(e.Message);
 				        // uowForNewCounterparty.Root.Room = RoomType.Room;
 			        }
 			        uowForNewCounterparty.Root.Entrance = string.IsNullOrWhiteSpace(deal.Entrance)? "" : deal.Entrance;
@@ -311,41 +346,26 @@ namespace BitrixIntegration {
 	        }
         }
 
-        async Task AddDeliveryPointsToCounterPartyFromCompany(Counterparty counterparty, Company company)
+        async Task<Order> ProcessNomenclaturesAndAddToOrder(Deal deal, Order newOrder)
         {
-	        
-        }
-        
-        async Task AddDeliveryPointsToCounterPartyFromContact(Counterparty counterparty, Contact contact)
-        {
-	        
-        }
-
-
-        enum NomenclatureUpdateScript {
-	        UpdatePriceFromBitrix,
-	        UpdatePriceFromBitrixWithDiscount,
-	        CreateNew
-        }
-        async Task<IList<Nomenclature>> ProcessNomenclatures(Deal deal)
-        {
-	       
+			//TODO для ускорения не матчить по одинаковые
 	        bool isOurProduct = false; // TODO gavr определять это из товара когда это там появиться 
 	        var productList = await bitrixApi.GetProductsForDeal(deal.Id);
 	        //ищем у нас товары по битрикс Id
-	        IList<Nomenclature> matchedNomenclatures = new List<Nomenclature>();
+	        // IList<Nomenclature> matchedNomenclatures = new List<Nomenclature>();
 	        IList<ProductFromDeal> unmatchedProducts = new List<ProductFromDeal>();
 			
 	        foreach (var productBitrix in productList){
 		        if (matcher.MatchNomenclatureByBitrixId(uow, productBitrix.Id, out var ourNomenclature)){
-
-			        // UpdateNomenclaturePrice(productBitrix, ourNomenclature);
-			        //TODO gavr обновление цен номенклатур
-			        
-			        matchedNomenclatures.Add(ourNomenclature);
+			        logger.Info($"Номенклатура {productBitrix.ProductName} сопоставилась по id {ourNomenclature.BitrixId}");
+			        UpdateNomenclaturePriceIfNeededAndAdd(deal, newOrder, productBitrix, ourNomenclature, false);
+			        // matchedNomenclatures.Add(ourNomenclature);
 		        }
-		        else if (matcher.MatchNomenclatureByName(uow, productBitrix.PRODUCT_NAME, out var outNomenclature)){
-			        matchedNomenclatures.Add(outNomenclature);
+		        else if (matcher.MatchNomenclatureByName(uow, productBitrix.ProductName, out var outNomenclature)){
+			        logger.Info($"Номенклатура {productBitrix.ProductName} сопоставилась имени");
+
+			        // matchedNomenclatures.Add(outNomenclature);
+			        newOrder.AddNomenclature(outNomenclature, 1);
 		        }
 		        else{
 			        unmatchedProducts.Add(productBitrix);
@@ -353,7 +373,7 @@ namespace BitrixIntegration {
 	        }
 
 	        if (unmatchedProducts.Count != 0){
-		        // needCreateNomenclature = true;
+		        needCreateNomenclature = true;
 		        // using (var uowForNewNomenclatures = UnitOfWorkFactory.CreateWithNewRoot<Nomenclature>()){
 			       //  uowForNewNomenclatures.Root. = deal.GetRoomType();
 		        //
@@ -362,14 +382,13 @@ namespace BitrixIntegration {
 			       //  uowForNewNomenclatures.Commit();
 			       //  
 			       //  counterpartyForNewOrder.DeliveryPoints.Add(uowForNewNomenclatures.Root);
-			       //  return uowForNewNomenclatures.Root;
+		        //  return uowForNewNomenclatures.Root;
+					logger.Error($"Есть несовпавшие номенклатуры");
+
 			       throw new NotImplementedException();
 			       // }
 	        }
-
-
-
-	        return matchedNomenclatures;
+	        return newOrder;
         }
 
         //TODO gavr сделать по той логике
@@ -377,14 +396,36 @@ namespace BitrixIntegration {
 	        *	1) если UF_CRM_1596187803 null то мы обновляем цену товара в ДВ на ту что пришла из сделки
 			   2) если UF_CRM_1596187803 не null и товар сопоставился по названию или bitrix id, то отнимаем от цены ДВ цену 
 				  которая пришла и проставляем это значение как скидку в рублях
+				  Второй пункт переносим в обработку заказа потому что цены ордер итемов там
 			   3) Если товара нет в базе, то создаем его заполняя данными битрикса
 	        */
-        private void UpdateNomenclaturePrice(IUnitOfWork uow, bool isOurProduct, Deal deal, ProductFromDeal productBitrix, Nomenclature ourNomenclature)
+        private void UpdateNomenclaturePriceIfNeededAndAdd(
+	        Deal deal, 
+	        Order newOrder,
+	        ProductFromDeal productBitrix,
+	        Nomenclature nomenclature,
+	        bool isOurNomenclature
+	        )
         {
-	        throw new NotImplementedException();
-	        if (!isOurProduct && string.IsNullOrWhiteSpace(deal.Promocode)){
-		        // ourNomenclature.NomenclaturePrice = ;
+	        bool dealHasPromo = !string.IsNullOrEmpty(deal.Promocode);
+	        if (productBitrix.Price != nomenclature.GetPrice(1)){
+		        if (string.IsNullOrWhiteSpace(deal.Promocode)){
+			        nomenclature.SetPrice(productBitrix.Price, 1);
+			        uow.Save(nomenclature);
+			        newOrder.AddNomenclature(nomenclature, 1);
+		        } else if (dealHasPromo && !needCreateNomenclature){
+			        var discount = Math.Abs(nomenclature.GetPrice(1) - productBitrix.Price);
+				    newOrder.AddNomenclature(nomenclature,1,discount,true);
+				    uow.Save(newOrder);
+		        }
 	        }
+        }
+
+        private decimal GetMoneyDiscountIfNeeded(IUnitOfWork uow, Deal deal, ProductFromDeal productBitrix, Nomenclature ourNomenclature, bool isOurNomenclature, bool orderMatched)
+        {
+	        
+
+	        throw new NotImplementedException();
         }
     }
 }

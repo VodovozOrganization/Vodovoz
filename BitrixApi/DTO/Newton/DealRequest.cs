@@ -1,8 +1,11 @@
 using System;
 using System.Linq;
 using Newtonsoft.Json;
+using QS.DomainModel.UoW;
 using QS.Osm.DTO;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using VodovozInfrastructure.Utils;
 
 namespace BitrixApi.DTO
@@ -27,6 +30,7 @@ namespace BitrixApi.DTO
         [JsonProperty("LEAD_ID")] public string LeadId { get; set; }
         [JsonProperty("COMPANY_ID")] public uint? CompanyId { get; set; }
         [JsonProperty("CONTACT_ID")] public uint ContancId { get; set; }
+        [JsonProperty("COMMENTS")] public string Comment { get; set; }
         [JsonProperty("QUOTE_ID")]  public string QuioteId { get; set; }
         [JsonProperty("BEGINDATE")]  public DateTime BegunDate { get; set; }
         [JsonProperty("CLOSEDATE")]  public DateTime CloseDate { get; set; }
@@ -35,6 +39,8 @@ namespace BitrixApi.DTO
         [JsonProperty("MODIFY_BY_ID")]  public int ModifyById { get; set; }
         [JsonProperty("DATE_CREATE")]  public DateTime CreateDate { get; set; }
         [JsonProperty("DATE_MODIFY")]  public DateTime ModifyDate { get; set; }
+        [JsonProperty("UF_CRM_1597998841845")]  public string PartOfTown { get; set; }
+        
         [JsonProperty("UF_CRM_5DA9BBA018649")]  public DateTime DeliveryDate { get; set; }
         [JsonProperty("OPENED")]  public string Opened { get; set; }
         [JsonProperty("CLOSED")]  public string Closed { get; set; }
@@ -58,10 +64,16 @@ namespace BitrixApi.DTO
         [JsonProperty("UF_CRM_5DA85CFA297D5")]  public string Entrance { get; set; } //Парадная/Название БЦ
         [JsonProperty("UF_CRM_1575544790252")]  public string Floor { get; set; }
         [JsonProperty("UF_CRM_5DA85CFA0C838")] public string EntranceType { get; set; }
-
-
+        [JsonProperty("UF_CRM_5DA9BBA03A12A")] public uint DeliverySchedule { get; set; }
+        [JsonProperty("UF_CRM_1603521814")] public uint CreateInDV { get; set; }
+        
+        
+        
+        
+        
         public bool IsSelfDelivery()
         {
+            
             if (string.IsNullOrWhiteSpace(DeliveryType)){
                 throw new ArgumentNullException(nameof(DeliveryType));
             }
@@ -85,6 +97,44 @@ namespace BitrixApi.DTO
                 "202" => QS.Osm.DTO.RoomType.Chamber,
                 "204" => QS.Osm.DTO.RoomType.Section,
                 _ => throw new ArgumentException($"Неизвестный id типа помещения {RoomType}")
+            };
+        }
+        
+        public string GetDeliveryScheduleString()
+        {
+            return DeliverySchedule switch
+            {
+                402 =>  "с 10 до 18",
+                404 =>  "с 18 до 23",
+                406 =>  "с 09 до 13",
+                606 =>  "с 12 до 18",
+                608 =>  "с 12 до 15",
+                610 =>  "с 15 до 18",
+                1174 => "с 18 до 21",
+                1176 => "с 21 до 23",
+                _ => throw new ArgumentException($"Неизвестный id типа расписания доставки {DeliverySchedule}")
+            };
+        }
+
+        public string GetPartOfTown()
+        {
+            return PartOfTown switch
+            {
+                "1120" => "Север",
+                "1122" => "Юг",
+                _ => throw new ArgumentException($"Неизвестный id части города {PartOfTown}")
+            };
+        }
+        
+        public OrderPaymentStatus GetOrderPaymentStatus()
+        {
+            return PaymentStatus switch
+            {
+                "Не оплачен" => OrderPaymentStatus.UnPaid,
+                "Оплачен" => OrderPaymentStatus.Paid,
+                "Частично оплачен" => OrderPaymentStatus.PartiallyPaid,
+                "Нет" => OrderPaymentStatus.None,
+                _ => throw new ArgumentException($"Неизвестный статус оплаты {PaymentStatus}")
             };
         }
 

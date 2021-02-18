@@ -652,6 +652,15 @@ namespace Vodovoz.Domain.Goods
 			return price;
 		}
 
+		public virtual void SetPrice(decimal price, int count)
+		{
+			this.NomenclaturePrice.Add(new NomenclaturePrice {
+				MinCount = count,
+				Nomenclature = this,
+				Price = price
+			});
+		}
+
 		/// <summary>
 		/// Cоздает новый Guid. Uow необходим для сохранения созданного Guid в базу.
 		/// </summary>
