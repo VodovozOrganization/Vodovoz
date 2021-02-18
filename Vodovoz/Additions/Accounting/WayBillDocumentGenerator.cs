@@ -188,14 +188,14 @@ namespace Vodovoz.Additions.Accounting
                 {
                     var routesCount = Math.Min(randomizer.Next(12, 15), currentDayOrders.Count);
                     var randomTimeInterval = GenerateRandomRouteTime();
-                    GenerateWayBill(currentDayOrders.Take(routesCount).ToList(), routesCount, randomTimeInterval, employeeToCarPair.Key, employeeToCarPair.Value );
+                    GenerateWayBill(currentDayOrders.Take(routesCount).ToList(), routesCount, day, randomTimeInterval, employeeToCarPair.Key, employeeToCarPair.Value );
                     
                     currentDayOrders = currentDayOrders.Skip(routesCount).ToList();
                 }
             }
         }
 
-        private void GenerateWayBill(IList<Order> orders, int waypointsCount, TimeSpan[] timeInterval, Employee employee, Car car)
+        private void GenerateWayBill(IList<Order> orders, int waypointsCount, DateTime generationDate, TimeSpan[] timeInterval, Employee employee, Car car)
         {
             var wayBillDocument = new WayBillDocument();
 
@@ -292,8 +292,8 @@ namespace Vodovoz.Additions.Accounting
             wayBillDocument.CarPassportSerialNumber = car.DocPTSSeries;
             wayBillDocument.CarPassportNumber = car.DocPTSNumber;
 
-            wayBillDocument.GarageLeavingDateTime = startDate.Add(wayBillDocument.WayBillDocumentItems.First().HoursFrom);
-            wayBillDocument.GarageReturningDateTime = endDate.Add(wayBillDocument.WayBillDocumentItems.Last().HoursTo);
+            wayBillDocument.GarageLeavingDateTime = generationDate.Add(wayBillDocument.WayBillDocumentItems.First().HoursFrom);
+            wayBillDocument.GarageReturningDateTime = generationDate.Add(wayBillDocument.WayBillDocumentItems.Last().HoursTo);
             wayBillDocument.CarFuelType = car.FuelType;
             wayBillDocument.CarFuelConsumption = (decimal)car.FuelConsumption;
 
