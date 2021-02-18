@@ -146,6 +146,9 @@ using Vodovoz.Views.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.JournalFilters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
+using Vodovoz.ViewModels.ViewModels.Retail;
+using Vodovoz.Views.Retail;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz
 {
@@ -228,6 +231,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<MovementWagonViewModel, MovementWagonView>()
 				.RegisterWidgetForTabViewModel<UserViewModel, UserView>()
                 .RegisterWidgetForTabViewModel<ApplicationDevelopmentProposalViewModel, ApplicationDevelopmentProposalView>()
+                .RegisterWidgetForTabViewModel<SalesChannelViewModel, SalesChannelView>()
+                .RegisterWidgetForTabViewModel<DeliveryPointResponsiblePersonTypeViewModel, DeliveryPointResponsiblePersonTypeView>()
                 ;
 
             //Регистрация виджетов
