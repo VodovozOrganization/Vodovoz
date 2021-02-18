@@ -1554,11 +1554,10 @@
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
     <Compile Include="Views\Logistic\DeliveryPointResponsiblePersonsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryPointResponsiblePersonsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalFilters.DeliveryPointResponsiblePersonTypeJournalFilterView.cs" />
     <Compile Include="JournalViewers\DeliveryPointResponsiblePersonTypeJournalFilterView.cs" />
-    <Compile Include="JournalViewers\Retail\SalesChannelJournalFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalFilters.DeliveryPointResponsiblePersonTypeFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.Retail.SalesChannelJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.DeliveryPointResponsiblePersonTypeJournalFilterView.cs" />
+    <Compile Include="JournalViewers\SalesChannelJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.SalesChannelJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
