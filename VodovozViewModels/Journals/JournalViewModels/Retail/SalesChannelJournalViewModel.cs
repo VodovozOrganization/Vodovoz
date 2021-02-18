@@ -17,6 +17,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Retail
         public SalesChannelJournalViewModel(SalesChannelJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
+            TabName = "Журнал каналов сбыта";
         }
 
         protected override Func<IUnitOfWork, IQueryOver<SalesChannel>> ItemsSourceQueryFunction => (uow) =>
