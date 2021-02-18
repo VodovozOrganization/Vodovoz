@@ -160,7 +160,7 @@ namespace Vodovoz.Domain.Documents
         }
 
         [Display(Name = "Выдано по заправочному листу")]
-        public decimal FuelByFuelList => 150 * CarFuelConsumption;
+        public decimal FuelByFuelList => CarFuelConsumption * 1.5m;
 
         [Display (Name = "Всего пробега")]
         public virtual decimal TotalMileage => WayBillDocumentItems.Sum(x => x.Mileage);
