@@ -497,6 +497,10 @@
     <Compile Include="gtk-gui\Vodovoz.StockBalanceFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
     <Compile Include="Dialogs\ProductSpecificationDlg.cs" />
+    <Compile Include="Views\Logistic\DriverWorkScheduleSetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverWorkScheduleSetView.cs" />
+    <Compile Include="Views\Logistic\DriverDistrictPrioritySetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverDistrictPrioritySetView.cs" />
     <Compile Include="ViewWidgets\ProductSpecificationMaterialsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationMaterialsView.cs" />
@@ -1334,7 +1338,6 @@
     <Compile Include="Infrastructure\DefaultUnhandledExceptionHandler.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ErrorMessageView.cs" />
     <Compile Include="Views\ErrorReporting\ErrorMessageView.cs" />
-    <Compile Include="Dialogs\Employees\DriverWorkScheduleNode.cs" />
     <Compile Include="ErrorHandlers.cs" />
     <Compile Include="ViewModels\TransferDocumentsFromBankParser.cs" />
     <Compile Include="Views\Payments\PaymentLoaderView.cs" />

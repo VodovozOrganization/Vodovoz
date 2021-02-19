@@ -23,6 +23,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.GeographicGroup).Column("geographic_group_id");
 			References(x => x.DistrictsSet).Column("districts_set_id");
 			References(x => x.CopyOf).Column("copy_of");
+			References(x => x.CopiedTo).Column("copied_to");
 
 			HasMany(x => x.CommonDistrictRuleItems).Cascade.AllDeleteOrphan().Inverse().KeyColumn("district_id");
 

@@ -201,6 +201,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
+				.RegisterWidgetForTabViewModel<DriverWorkScheduleSetViewModel, DriverWorkScheduleSetView>()
+				.RegisterWidgetForTabViewModel<DriverDistrictPrioritySetViewModel, DriverDistrictPrioritySetView>()
 				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
 				.RegisterWidgetForTabViewModel<IncomingInvoiceViewModel, IncomingInvoiceView>()

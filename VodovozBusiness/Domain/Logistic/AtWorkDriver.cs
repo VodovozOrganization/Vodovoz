@@ -159,9 +159,15 @@ namespace Vodovoz.Domain.Logistic
 			this.car = car;
 			DaySchedule = daySchedule;
 
-			districtsPriorities = new List<AtWorkDriverDistrictPriority>(driver.Districts.Select(x => x.CreateAtDay(this)));
-			if(car?.GeographicGroups.Count() == 1)
+			var activePrioritySet = driver.DriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
+			if(activePrioritySet != null && activePrioritySet.DriverDistrictPriorities.Any()) {
+				districtsPriorities = new List<AtWorkDriverDistrictPriority>(
+					activePrioritySet.DriverDistrictPriorities.Select(x => x.CreateAtDay(this))
+				);
+			}
+			if(car?.GeographicGroups.Count() == 1) {
 				this.GeographicGroup = car.GeographicGroups[0];
+			}
 		}
 
 		#region Функции

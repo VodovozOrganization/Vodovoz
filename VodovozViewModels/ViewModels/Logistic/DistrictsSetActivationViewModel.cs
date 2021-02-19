@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NHibernate.Persister.Entity;
+using NLog;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
@@ -25,12 +29,14 @@ namespace Vodovoz.ViewModels.Logistic
             
             ActivationInProgress = false;
             WasActivated = false;
-            DeletedPriorities = new List<DriverDistrictPriority>();
+            NotCopiedPriorities = new List<DriverDistrictPriority>();
             ActiveDistrictsSet = UoW.Session.QueryOver<DistrictsSet>()
                 .Where(x => x.Status == DistrictsSetStatus.Active)
                 .Take(1)
                 .SingleOrDefault();
         }
+
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         private DistrictsSet activeDistrictsSet;
         public DistrictsSet ActiveDistrictsSet {
@@ -50,10 +56,10 @@ namespace Vodovoz.ViewModels.Logistic
             set => SetField(ref activationStatus, value, () => ActivationStatus);
         }
 
-        private List<DriverDistrictPriority> deletedPriorities;
-        public List<DriverDistrictPriority> DeletedPriorities {
-            get => deletedPriorities;
-            set => SetField(ref deletedPriorities, value, () => DeletedPriorities);
+        private List<DriverDistrictPriority> notCopiedPriorities;
+        public List<DriverDistrictPriority> NotCopiedPriorities {
+            get => notCopiedPriorities;
+            set => SetField(ref notCopiedPriorities, value);
         }
 
         private bool wasActivated;
@@ -65,56 +71,74 @@ namespace Vodovoz.ViewModels.Logistic
         #region Commands
 
         private DelegateCommand activateDistrictsSetCommand;
-        public DelegateCommand ActivateDistrictsSetCommand => activateDistrictsSetCommand ?? (activateDistrictsSetCommand = new DelegateCommand(
-            () => {
-                Task.Run(() => {
+        public DelegateCommand ActivateDistrictsSetCommand => activateDistrictsSetCommand ??
+            (activateDistrictsSetCommand = new DelegateCommand(
+                async () => {
                     try {
                         ActivationInProgress = true;
-                        
-                        ReAssignDeliveryPoints();
-                        TryToFindNearbyDistrict();
-                        ReAssignDriverDistirctPriorities();
-                        
-                        Entity.Status = DistrictsSetStatus.Active;
+
+                        var task = Task.Run(() => {
+                            if(ActiveDistrictsSet != null) {
+                                ActiveDistrictsSet.Status = DistrictsSetStatus.Draft;
+                                UoW.Save(ActiveDistrictsSet);
+                            }
+                            Entity.Status = DistrictsSetStatus.Active;
+                            UoW.Save(Entity);
+                            UoW.Commit();
+
+                            ReAssignDeliveryPoints();
+                            TryToFindNearbyDistrict();
+                            ReAssignDriverDistirctPriorities();
+                        });
+                        await task;
+
+                        ActiveDistrictsSet.DateActivated = null;
                         Entity.DateActivated = DateTime.Now;
+                        UoW.Save(ActiveDistrictsSet);
                         UoW.Save(Entity);
+                        UoW.Commit();
+                        
+                        WasActivated = true;
+                        ActivationStatus = "Активация завершена";
+                        OnPropertyChanged(nameof(NotCopiedPriorities));
+                        ActiveDistrictsSet = Entity;
+                    }
+                    catch(Exception ex) {
+                        logger.Error(ex, "Ошибка при активации версии районов");
+                        ActivationStatus = "Ошибка при активации версии районов. Попробуйте активировать версию ещё раз";
+                        
                         if(ActiveDistrictsSet != null) {
-                            ActiveDistrictsSet.Status = DistrictsSetStatus.Draft;
-                            ActiveDistrictsSet.DateActivated = null;
+                            ActiveDistrictsSet.Status = DistrictsSetStatus.Active;
                             UoW.Save(ActiveDistrictsSet);
                         }
-                        WasActivated = true;
+                        Entity.Status = DistrictsSetStatus.Draft;
+                        UoW.Save(Entity);
                         UoW.Commit();
-                        ActivationStatus = "Активация завершена";
-                        ActiveDistrictsSet = Entity;
-                        OnPropertyChanged(nameof(DeletedPriorities));
-                    }
-                    catch (Exception ex) {
-                        ActivationStatus = "Ошибка при активации версии районов";
                     }
                     finally {
                         ActivationInProgress = false;
                     }
-                });
-                
-            }, () => true
-        ));
-        
-        
+                },
+                () => !ActivationInProgress
+            ));
+
         #endregion
-        
+
         public bool CanClose()
         {
+            if(ActivationInProgress) {
+                CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Дождитесь окончания активации версии районов", "Активация версии районов");
+            }
             return !ActivationInProgress;
         }
-        
+
         private void ReAssignDeliveryPoints()
         {
             ActivationStatus = "Переприсвоение районов точкам доставки...";
             
             var factory = UoW.Session.SessionFactory;
-            var dpPersister = factory.GetClassMetadata(typeof(DeliveryPoint)) as AbstractEntityPersister;
-            var districtPersister = factory.GetClassMetadata(typeof(District)) as AbstractEntityPersister;
+            var dpPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(DeliveryPoint));
+            var districtPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(District));
             
             var districtColumn = dpPersister.GetPropertyColumnNames(nameof(DeliveryPoint.District)).First();
             var latColumn = dpPersister.GetPropertyColumnNames(nameof(DeliveryPoint.Latitude)).First();
@@ -155,30 +179,27 @@ namespace Vodovoz.ViewModels.Logistic
         private void ReAssignDriverDistirctPriorities()
         {
             ActivationStatus = "Переприсвоение приоритетов доставки водителей...";
-            DeletedPriorities.Clear();
-            
-            var priorities = UoW.Session.QueryOver<DriverDistrictPriority>().List();
-            foreach (var priority in priorities.ToList()) {
-                if(priority.District.DistrictsSet.Id == Entity.Id)
+            NotCopiedPriorities.Clear();
+
+            DriverDistrictPrioritySet districtPrioritySetAlias = null;
+            var drivers = UoW.Session.QueryOver<Employee>()
+                .Inner.JoinAlias(x => x.DriverDistrictPrioritySets, () => districtPrioritySetAlias)
+                .List();
+
+            foreach(var driver in drivers) {
+                var currentActivePrioritySet = driver.DriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
+                if(currentActivePrioritySet == null || !currentActivePrioritySet.DriverDistrictPriorities.Any()) {
                     continue;
-                
-                var newDistrict = Entity.Districts.FirstOrDefault(x => x.CopyOf == priority.District);
-                if(newDistrict == null) {
-                    DeletedPriorities.Add(new DriverDistrictPriority {
-                        District = priority.District,
-                        Driver = priority.Driver,
-                        Id = priority.Id,
-                        Priority = priority.Priority
-                    });
-                    var driver = priority.Driver;
-                    driver.Districts.Remove(priority);
-                    driver.CheckAndFixDriverPriorities();
-                    UoW.Save(driver);
-                    UoW.Delete(priority);
                 }
-                else {
-                    priority.District = newDistrict;
-                    UoW.Save(priority);
+                var newSet = DriverDistrictPriorityController.CopyPrioritySetWithActiveDistricts(
+                    currentActivePrioritySet,
+                    out var notCopied
+                );
+                newSet.IsCreatedAutomatically = true;
+                NotCopiedPriorities.AddRange(notCopied);
+
+                if(newSet.DriverDistrictPriorities.Any()) {
+                    driver.AddActiveDriverDistrictPrioritySet(newSet);
                 }
             }
         }

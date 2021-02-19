@@ -1,27 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using InstantSmsService;
 using NLog;
 using QS.Banks.Domain;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
-using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
+using QS.Services;
 using QS.Validation;
 using QS.Widgets.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Additions;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
@@ -29,7 +31,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -38,14 +39,13 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure;
-using Vodovoz.Journals.FilterViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz
@@ -112,7 +112,6 @@ namespace Vodovoz
 		private bool canManageDriversAndForwarders;
 		private bool canManageOfficeWorkers;
 		private bool canEditOrganisationForSalary;
-		private GenericObservableList<DriverWorkScheduleNode> driverWorkDays;
 
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly MySQLUserRepository mySQLUserRepository;
@@ -222,30 +221,10 @@ namespace Vodovoz
 			specialListCmbOrganisation.ItemsList = UoW.GetAll<Organization>();
 			specialListCmbOrganisation.Binding.AddBinding(Entity, e => e.OrganisationForSalary, w => w.SelectedItem).InitializeFromSource();
 			specialListCmbOrganisation.Sensitive = canEditOrganisationForSalary;
+
+			ConfigureWorkSchedules();
+			ConfigureDistrictPriorities();
 			
-			Entity.CheckAndFixDriverPriorities();
-			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
-				.AddColumn("Район").AddTextRenderer(x => x.District.DistrictName)
-				.AddColumn("Приоритет").AddNumericRenderer(x => x.Priority + 1)
-				.Finish();
-			ytreeviewDistricts.Reorderable = true;
-			ytreeviewDistricts.SetItemsSource(Entity.ObservableDistricts);
-
-			FillDriverWorkSchedule(new BaseParametersProvider());
-
-			driverWorkDays.PropertyOfElementChanged += DriverWorkDays_PropertyOfElementChanged;
-
-			ytreeviewDriverSchedule.ColumnsConfig = FluentColumnsConfig<DriverWorkScheduleNode>.Create()
-				.AddColumn("").AddToggleRenderer(x => x.AtWork)
-				.AddColumn("День").AddTextRenderer(x => x.WeekDay.GetEnumTitle())
-				.AddColumn("Ходки")
-					.AddComboRenderer(x => x.DaySchedule)
-					.SetDisplayFunc(x => x.Name)
-					.FillItems(UoW.GetAll<DeliveryDaySchedule>().ToList())
-					.Editing()
-				.Finish();
-			ytreeviewDriverSchedule.SetItemsSource(driverWorkDays);
-
 			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
 				.AddColumn("Доп. название").AddTextRenderer(x => x.Name)
@@ -273,6 +252,297 @@ namespace Vodovoz
 
 			logger.Info("Ok");
 		}
+
+		#region DriverDistrictPriorities
+
+		private IPermissionResult driverDistrictPrioritySetPermission;
+
+		private void ConfigureDistrictPriorities()
+		{
+			driverDistrictPrioritySetPermission =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(
+					typeof(DriverDistrictPrioritySet));
+			
+			ytreeDistrictPrioritySets.ColumnsConfig = FluentColumnsConfig<DriverDistrictPrioritySet>.Create()
+				.AddColumn("Код")
+					.HeaderAlignment(0.5f)
+					.MinWidth(75)
+					.AddTextRenderer(x => x.Id == 0 ? "Новый" : x.Id.ToString())
+					.XAlign(0.5f)
+				.AddColumn("Активен")
+					.HeaderAlignment(0.5f)
+					.AddToggleRenderer(x => x.IsActive)
+					.XAlign(0.5f)
+					.Editing(false)
+				.AddColumn("Дата\nактивации")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.DateActivated.ToString("g"))
+				.AddColumn("Дата\nдеактивации")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.DateDeactivated != null ? x.DateDeactivated.Value.ToString("g") : "")
+				.AddColumn("Автор")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Author != null ? x.Author.ShortName : "-")
+					.XAlign(0.5f)
+				.AddColumn("Изменил")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.LastEditor != null ? x.LastEditor.ShortName : "-")
+					.XAlign(0.5f)
+				.AddColumn("Создан\nавтоматически")
+					.HeaderAlignment(0.5f)
+					.AddToggleRenderer(x => x.IsCreatedAutomatically)
+					.XAlign(0.5f)
+					.Editing(false)
+				.AddColumn("")
+				.Finish();
+
+			ytreeDistrictPrioritySets.RowActivated += (o, args) => {
+				if(ytreeDistrictPrioritySets.GetSelectedObject() != null &&
+					(driverDistrictPrioritySetPermission.CanUpdate || driverDistrictPrioritySetPermission.CanRead)
+				) {
+					OpenDistrictPrioritySetEditWindow();
+				}
+			};
+			ytreeDistrictPrioritySets.ItemsDataSource = Entity.ObservableDriverDistrictPrioritySets;
+
+			ybuttonCopyDistrictPrioritySet.Sensitive = false;
+			ybuttonCopyDistrictPrioritySet.Clicked += OnButtonCopyDistrictPrioritySetClicked;
+
+			ybuttonEditDistrictPrioritySet.Sensitive = false;
+			ybuttonEditDistrictPrioritySet.Clicked += (sender, args) => OpenDistrictPrioritySetEditWindow();
+
+			ytreeDistrictPrioritySets.Selection.Changed += (o, args) => {
+				ybuttonCopyDistrictPrioritySet.Sensitive = ytreeDistrictPrioritySets.GetSelectedObject() != null
+					&& driverDistrictPrioritySetPermission.CanCreate;
+				ybuttonEditDistrictPrioritySet.Sensitive = ytreeDistrictPrioritySets.GetSelectedObject() != null
+					&& (driverDistrictPrioritySetPermission.CanUpdate || driverDistrictPrioritySetPermission.CanRead);
+			};
+
+			ybuttonCreateDistrictPrioritySet.Clicked += (sender, args) => OpenDistrictPrioritySetCreateWindow();
+			ybuttonCreateDistrictPrioritySet.Sensitive = driverDistrictPrioritySetPermission.CanCreate;
+		}
+
+		private void OnButtonCopyDistrictPrioritySetClicked(object sender, EventArgs e)
+		{
+			if(!(ytreeDistrictPrioritySets.GetSelectedObject() is DriverDistrictPrioritySet selectedDistrictPrioritySet)) {
+				return;
+			}
+			if(selectedDistrictPrioritySet.Id == 0) {
+				ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Перед копированием нового набора необходимо сохранить сотрудника");
+				return;
+			}
+			
+			var newDistrictPrioritySet = DriverDistrictPriorityController.CopyPrioritySetWithActiveDistricts(
+				selectedDistrictPrioritySet,
+				out var notCopiedPriorities
+			);
+			newDistrictPrioritySet.IsCreatedAutomatically = false;
+
+			if(notCopiedPriorities.Any()) {
+				var messageBuilder = new StringBuilder(
+					"Для некоторых приоритетов районов\n" +
+					$"из выбранного набора для копирования (Код: {selectedDistrictPrioritySet.Id})\n" +
+					"не были найдены связанные районы из активной\n" +
+					"версии районов. Список приоритетов районов,\n" +
+					"которые не будут скопированы:\n"
+				);
+				foreach(var driverDistrictPriority in notCopiedPriorities) {
+					messageBuilder.AppendLine(
+						$"Район: ({driverDistrictPriority.District.Id}) {driverDistrictPriority.District.DistrictName}. " +
+						$"Приоритет: {driverDistrictPriority.Priority + 1}"
+					);
+				}
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, messageBuilder.ToString());
+			}
+
+			var driverDistrictPrioritySetViewModel = new DriverDistrictPrioritySetViewModel(
+				newDistrictPrioritySet,
+				UoW,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new BaseParametersProvider(),
+				EmployeeSingletonRepository.GetInstance()
+			);
+			driverDistrictPrioritySetViewModel.EntityAccepted += (o, eventArgs) => {
+				Entity.AddActiveDriverDistrictPrioritySet(newDistrictPrioritySet);
+			};
+			
+			TabParent.AddSlaveTab(this, driverDistrictPrioritySetViewModel);
+		}
+
+		private void OpenDistrictPrioritySetEditWindow()
+		{
+			if(!(ytreeDistrictPrioritySets.GetSelectedObject() is DriverDistrictPrioritySet districtPrioritySet)) {
+				return;
+			}
+				
+			var driverDistrictPrioritySetViewModel = new DriverDistrictPrioritySetViewModel(
+				districtPrioritySet,
+				UoW,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new BaseParametersProvider(),
+				EmployeeSingletonRepository.GetInstance()
+			);
+			TabParent.AddSlaveTab(this, driverDistrictPrioritySetViewModel);
+		}
+		
+		private void OpenDistrictPrioritySetCreateWindow()
+		{
+			var newDistrictPrioritySet = new DriverDistrictPrioritySet {
+				Driver = Entity,
+				IsCreatedAutomatically = false
+			};
+			
+			var driverDistrictPrioritySetViewModel = new DriverDistrictPrioritySetViewModel(
+				newDistrictPrioritySet,
+				UoW,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new BaseParametersProvider(),
+				EmployeeSingletonRepository.GetInstance()
+			);
+			driverDistrictPrioritySetViewModel.EntityAccepted += (o, eventArgs) => {
+				Entity.AddActiveDriverDistrictPrioritySet(newDistrictPrioritySet);
+			};
+			
+			TabParent.AddSlaveTab(this, driverDistrictPrioritySetViewModel);
+		}
+
+		#endregion
+
+		#region DriverWorkSchedules
+
+		private IPermissionResult driverWorkScheduleSetPermission;
+		
+		private void ConfigureWorkSchedules()
+		{
+			driverWorkScheduleSetPermission =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(
+					typeof(DriverWorkScheduleSet));
+			
+			ytreeDriverScheduleSets.ColumnsConfig = FluentColumnsConfig<DriverWorkScheduleSet>.Create()
+				.AddColumn("Код")
+					.HeaderAlignment(0.5f)
+					.MinWidth(75)
+					.AddTextRenderer(x => x.Id == 0 ? "Новый" : x.Id.ToString())
+					.XAlign(0.5f)
+				.AddColumn("Активен")
+					.HeaderAlignment(0.5f)
+					.AddToggleRenderer(x => x.IsActive)
+					.XAlign(0.5f)
+					.Editing(false)
+				.AddColumn("Дата\nактивации")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.DateActivated.ToString("g"))
+				.AddColumn("Дата\nдеактивации")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.DateDeactivated != null ? x.DateDeactivated.Value.ToString("g") : "")
+				.AddColumn("Автор")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Author != null ? x.Author.ShortName : "-")
+					.XAlign(0.5f)
+				.AddColumn("Изменил")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.LastEditor != null ? x.LastEditor.ShortName : "-")
+					.XAlign(0.5f)
+				.AddColumn("Создан\nавтоматически")
+					.HeaderAlignment(0.5f)
+					.AddToggleRenderer(x => x.IsCreatedAutomatically)
+					.XAlign(0.5f)
+					.Editing(false)
+				.AddColumn("")
+				.Finish();
+
+			ytreeDriverScheduleSets.RowActivated += (o, args) => {
+				if(ytreeDriverScheduleSets.GetSelectedObject() != null 
+					&& (driverWorkScheduleSetPermission.CanUpdate || driverWorkScheduleSetPermission.CanRead)) {
+					OpenDriverWorkScheduleSetEditWindow();
+				}
+			};
+			ytreeDriverScheduleSets.ItemsDataSource = Entity.ObservableDriverWorkScheduleSets;
+			
+			ybuttonCopyScheduleSet.Sensitive = false;
+			ybuttonCopyScheduleSet.Clicked += OnButtonCopyScheduleSetClicked;
+
+			ybuttonEditScheduleSet.Sensitive = false;
+			ybuttonEditScheduleSet.Clicked += (sender, args) => OpenDriverWorkScheduleSetEditWindow();
+
+			ytreeDriverScheduleSets.Selection.Changed += (o, args) => {
+				ybuttonCopyScheduleSet.Sensitive = ytreeDriverScheduleSets.GetSelectedObject() != null
+					&& driverWorkScheduleSetPermission.CanCreate;
+				ybuttonEditScheduleSet.Sensitive = ytreeDriverScheduleSets.GetSelectedObject() != null
+					&& (driverWorkScheduleSetPermission.CanUpdate || driverWorkScheduleSetPermission.CanRead);
+			};
+
+			ybuttonCreateScheduleSet.Clicked += (sender, args) => OpenDriverWorkScheduleSetCreateWindow();
+			ybuttonCreateScheduleSet.Sensitive = driverWorkScheduleSetPermission.CanCreate;
+		}
+
+		private void OnButtonCopyScheduleSetClicked(object sender, EventArgs args)
+		{
+			var selectedScheduleSet = ytreeDriverScheduleSets.GetSelectedObject() as DriverWorkScheduleSet;
+
+			if(selectedScheduleSet != null && selectedScheduleSet.Id == 0) {
+				ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					"Перед копированием нового набора необходимо сохранить сотрудника");
+				return;
+			}
+
+			if(selectedScheduleSet != null
+				&& ServicesConfig.CommonServices.InteractiveService.Question(
+					$"Скопировать и активировать выбранный набор графиков работы водителя (Код: {selectedScheduleSet.Id})?"
+				)
+			) {
+				var employeeForCurrentUser = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+
+				var newScheduleSet = (DriverWorkScheduleSet)selectedScheduleSet.Clone();
+				newScheduleSet.Author = employeeForCurrentUser;
+				newScheduleSet.LastEditor = employeeForCurrentUser;
+				newScheduleSet.IsCreatedAutomatically = false;
+
+				Entity.AddActiveDriverWorkScheduleSet(newScheduleSet);
+			}
+		}
+
+		private void OpenDriverWorkScheduleSetEditWindow()
+		{
+			if(!(ytreeDriverScheduleSets.GetSelectedObject() is DriverWorkScheduleSet workScheduleSet)) {
+				return;
+			}
+				
+			var driverWorkScheduleSetViewModel = new DriverWorkScheduleSetViewModel(
+				workScheduleSet,
+				UoW,
+				ServicesConfig.CommonServices,
+				new BaseParametersProvider(),
+				EmployeeSingletonRepository.GetInstance()
+			);
+			TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
+		}
+		
+		private void OpenDriverWorkScheduleSetCreateWindow()
+		{
+			var newDriverWorkScheduleSet = new DriverWorkScheduleSet {
+				Driver = Entity,
+				IsCreatedAutomatically = false
+			};
+			
+			var driverWorkScheduleSetViewModel = new DriverWorkScheduleSetViewModel(
+				newDriverWorkScheduleSet,
+				UoW,
+				ServicesConfig.CommonServices,
+				new BaseParametersProvider(),
+				EmployeeSingletonRepository.GetInstance()
+			);
+			driverWorkScheduleSetViewModel.EntityAccepted += (o, eventArgs) => {
+				Entity.AddActiveDriverWorkScheduleSet(newDriverWorkScheduleSet);
+			};
+			
+			TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
+		}
+
+		#endregion
 
 		private void ConfigureCategory() 
 		{
@@ -348,67 +618,6 @@ namespace Vodovoz
 		}
 
 		bool CanCreateNewUser => Entity.User == null && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
-
-		private void FillDriverWorkSchedule(IDefaultDeliveryDaySchedule defaultDelDaySchedule)
-		{
-			driverWorkDays = new GenericObservableList<DriverWorkScheduleNode> {
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.Monday},
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.Tuesday},
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.Wednesday},
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.Thursday},
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.Friday},
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.Saturday},
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.Sunday}
-			};
-
-			var daySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDelDaySchedule.GetDefaultDeliveryDayScheduleId());
-
-			foreach(DriverWorkScheduleNode workDay in driverWorkDays) {
-				workDay.DaySchedule = daySchedule;
-
-				if(Entity.ObservableWorkDays.Count > 0) {
-					var day = Entity.ObservableWorkDays.SingleOrDefault(d => d.WeekDay == workDay.WeekDay);
-					if(day != null) {
-						workDay.AtWork = day.AtWork;
-						workDay.DaySchedule = day.DaySchedule;
-						workDay.DrvWorkSchedule = day;
-					}
-				}
-			}
-		}
-
-		void DriverWorkDays_PropertyOfElementChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			//Пребираем строки с графиком работы
-			foreach(DriverWorkScheduleNode workDay in driverWorkDays) {
-				//Если день отмечен как рабочий и нет записи в БД
-				if(workDay.AtWork && workDay.DrvWorkSchedule == null) {
-					//Создаем рабочий день
-					var newWorkDay = new DriverWorkSchedule {
-						AtWork = true,
-						DaySchedule = workDay.DaySchedule,
-						WeekDay = workDay.WeekDay,
-						Employee = Entity
-					};
-					workDay.DrvWorkSchedule = newWorkDay;
-					Entity.ObservableWorkDays.Add(newWorkDay);
-				} else { //Иначе смотрим в базе нужный день
-					var day = Entity.ObservableWorkDays.SingleOrDefault(d => d.WeekDay == workDay.WeekDay
-																			 && d.DaySchedule != workDay.DaySchedule);
-					//Если запись есть меняем в ней график
-					if(day != null)
-						day.DaySchedule = workDay.DaySchedule;
-				}
-
-				//Если сняли рабочий день и запись в базе присутствует
-				if(!workDay.AtWork && workDay.DrvWorkSchedule != null) {
-					//находим запись и удаляем
-					var day = Entity.ObservableWorkDays.SingleOrDefault(d => d.WeekDay == workDay.WeekDay);
-					Entity.ObservableWorkDays.Remove(day);
-					workDay.DrvWorkSchedule = null;
-				}
-			}
-		}
 
 		void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
@@ -581,7 +790,7 @@ namespace Vodovoz
 				return;
 			} 
 			if(Entity.Registration != RegistrationType.Contract) {
-				MessageDialogHelper.RunInfoDialog("Должен быть указан тип регистрации: 'ГПК' ");//FIXME: Временно до задачи I-1556
+				MessageDialogHelper.RunInfoDialog("Должен быть указан тип регистрации: 'ГПК' ");
 				return;
 			}
 			EmployeeContractDlg dlg = new EmployeeContractDlg(doc[0], Entity, UoW);
@@ -612,30 +821,6 @@ namespace Vodovoz
 		#endregion
 
 		#region Driver & forwarder
-		protected void OnButtonAddDistrictClicked(object sender, EventArgs e)
-		{
-			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active, OnlyWithBorders = true };
-			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
-				EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false, SelectionMode = JournalSelectionMode.Multiple
-			};
-			journalViewModel.OnEntitySelectedResult += (o, args) => {
-				var addDistricts = args.SelectedNodes;
-				addDistricts.Where(x => Entity.Districts.All(d => d.District.Id != x.Id))
-					.Select(x => new DriverDistrictPriority {
-						Driver = Entity,
-						District = UoW.GetById<District>(x.Id)
-					})
-					.ToList()
-					.ForEach(x => Entity.ObservableDistricts.Add(x));
-			};
-			TabParent.AddSlaveTab(this, journalViewModel);
-		}
-
-		protected void OnButtonRemoveDistrictClicked(object sender, EventArgs e)
-		{
-			var toRemoveDistricts = ytreeviewDistricts.GetSelectedObjects<DriverDistrictPriority>().ToList();
-			toRemoveDistricts.ForEach(x => Entity.ObservableDistricts.Remove(x));
-		}
 
 		protected void OnComboCategoryEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{

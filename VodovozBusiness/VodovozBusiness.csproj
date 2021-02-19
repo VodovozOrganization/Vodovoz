@@ -60,6 +60,7 @@
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />
     <Compile Include="Controllers\RouteListClosingDocumentsController.cs" />
     <Compile Include="Controllers\IRouteListClosingDocumentsController.cs" />
+    <Compile Include="Controllers\DriverDistrictPriorityController.cs" />
     <Compile Include="Domain\Cash\CashRequest.cs" />
     <Compile Include="Domain\Cash\CashRequestSumItem.cs" />
     <Compile Include="Domain\Cash\AdvanceCashOrganisationDistributor.cs" />
@@ -111,6 +112,10 @@
     <Compile Include="Domain\WageCalculation\WageParameterItem.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItemTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverDistrictPriority.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverDistrictPrioritySet.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverWorkSchedule.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverWorkScheduleSet.cs" />
     <Compile Include="EntityRepositories\Logistic\IWayBillDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\WayBillDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Cash\IRouteListItemCashDistributionDocumentRepository.cs" />
@@ -158,6 +163,10 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPriorityMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPrioritySetMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
@@ -419,8 +428,6 @@
     <Compile Include="Domain\Logistic\AtWorkForwarder.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkDriverMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkForwarderMap.cs" />
-    <Compile Include="Domain\Logistic\DriverDistrictPriority.cs" />
-    <Compile Include="HibernateMapping\Logistic\DriverDistrictPriorityMap.cs" />
     <Compile Include="Repositories\Logistics\CarRepository.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
@@ -837,8 +844,6 @@
     <Compile Include="Tools\ErrorReporting\IErrorMessageModelFactory.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageModelBase.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageViewModel.cs" />
-    <Compile Include="Domain\Logistic\DriverWorkSchedule.cs" />
-    <Compile Include="HibernateMapping\Logistic\DriverWorkScheduleMap.cs" />
     <Compile Include="Services\IDefaultDeliveryDaySchedule.cs" />
     <Compile Include="Domain\Payments\Payment.cs" />
     <Compile Include="Domain\Payments\CategoryProfit.cs" />
