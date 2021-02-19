@@ -249,7 +249,7 @@ namespace Vodovoz
 				var domain = domainAndUser[0];
 				var windowsUser = domainAndUser[1];
 
-				var rm = UoW.Session.QueryOver<RegisteredRM>(() => registeredRMAlias).Where(x => x.SID == SID).List().FirstOrDefault();
+				var rm = UoW.Session.QueryOver<RegisteredRM>(() => registeredRMAlias).Where(x => x.SID == SID && x.IsActive).List().FirstOrDefault();
 
                 if (rm != null)
                 {
