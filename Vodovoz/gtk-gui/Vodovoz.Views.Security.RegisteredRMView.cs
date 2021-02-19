@@ -132,7 +132,6 @@ namespace Vodovoz.Views.Security
 			this.yentryDomainame = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryDomainame.CanFocus = true;
 			this.yentryDomainame.Name = "yentryDomainame";
-			this.yentryDomainame.Text = global::Mono.Unix.Catalog.GetString("vodovoz");
 			this.yentryDomainame.IsEditable = true;
 			this.yentryDomainame.InvisibleChar = '•';
 			this.hbox1.Add(this.yentryDomainame);
