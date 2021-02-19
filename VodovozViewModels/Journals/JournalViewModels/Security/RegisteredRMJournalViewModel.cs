@@ -17,6 +17,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Security
         public RegisteredRMJournalViewModel(RegisteredRMJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
+            TabName = "Журнал зарегистрированных RM";
         }
 
         protected override Func<IUnitOfWork, IQueryOver<RegisteredRM>> ItemsSourceQueryFunction => (uow) =>

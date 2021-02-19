@@ -87,6 +87,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1837,5 +1839,12 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnRegisteredRMActionActivated(object sender, EventArgs e)
     {
+        tdiMain.AddTab(
+            new RegisteredRMJournalViewModel(
+                new RegisteredRMJournalFilterViewModel(),
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices
+            )
+        ) ;
     }
 }

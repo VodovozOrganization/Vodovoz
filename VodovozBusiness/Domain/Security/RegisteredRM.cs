@@ -1,10 +1,15 @@
 ﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Security
 {
+    [Appellative(Gender = GrammaticalGender.Masculine,
+        NominativePlural = "зарегистрированные RM",
+        Nominative = "зарегистрированный RM")]
+    [EntityPermission]
     public class RegisteredRM : PropertyChangedBase, IDomainObject, IValidatableObject
     {
         /// <summary>
