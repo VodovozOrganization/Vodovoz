@@ -33,7 +33,7 @@ namespace Vodovoz.Domain.Client
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		#region Свойства
-
+		
 		public virtual int Id { get; set; }
 
 		int minutesToUnload;

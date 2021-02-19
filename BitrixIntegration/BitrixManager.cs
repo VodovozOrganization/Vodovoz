@@ -10,7 +10,6 @@ using BitrixApi.REST;
 using BitrixIntegration.DTO.Mailjet;
 using Mailjet.Client;
 using Mailjet.Client.Resources;
-using Newtonsoft.Json.Linq;
 using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
@@ -235,6 +234,7 @@ namespace BitrixIntegration
 
 		static async void ProcessEvent(BitrixPostResponse bitrixEvent)
 		{
+			
 			if (bitrixEvent != null){
 				logger.Info("Поступил Event Bitrix с ");
 				await cor.Process(bitrixEvent.Data.Fields.Id);
@@ -292,55 +292,7 @@ namespace BitrixIntegration
 			return errorResult;
 		}
 
-		private static MailjetRequest CreateMailjetRequest(Email email)
-		{
-			MailjetRequest request = new MailjetRequest {
-				Resource = Send.Resource
-			};
-			var attachments = new JArray();
-			foreach(var item in email.AttachmentsBinary) {
-				attachments.Add(new JObject{
-					{"ContentType", "application/octet-stream"},
-					{"Filename", item.Key},
-					{"Base64Content", item.Value}
-				});
-			}
-			var inlinedAttachments = new JArray();
-			foreach(var item in email.InlinedAttachments) {
-				inlinedAttachments.Add(new JObject{
-					{"ContentID", item.Key},
-					{"ContentType", item.Value.ContentType},
-					{"Filename", item.Value.FileName},
-					{"Base64Content", item.Value.Base64String}
-				});
-			}
-			var message = new JObject {
-				{"From", new JObject {
-						{"Email", email.Sender.EmailAddress},
-						{"Name", email.Sender.Title}
-					}
-				},
-				{"To", new JArray {
-						new JObject {
-							{"Email", email.Recipient.EmailAddress},
-							{"Name", email.Recipient.Title}
-						}
-					}
-				},
-				{"Subject", email.Title},
-				{"TextPart", email.Text},
-				{"HTMLPart", email.HtmlText},
-				{"CustomID", email.StoredEmailId.ToString()},
-				{"Attachments", attachments},
-				{"InlinedAttachments", inlinedAttachments},
-				{"TrackOpens", "account_default"},
-				{"TrackClicks", "account_default"}
-			};
-
-			request.Property(Send.Messages, new JArray { message });
-
-			return request;
-		}
+	
 		#region На выброс
 		// private static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
 		// {

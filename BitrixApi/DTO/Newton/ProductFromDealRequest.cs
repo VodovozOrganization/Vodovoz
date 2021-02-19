@@ -20,7 +20,7 @@ namespace BitrixApi.DTO {
         [JsonProperty("PRICE_NETTO")] public decimal PRICE_NETTO { get; set; }
         [JsonProperty("SECTION_ID")] public string PRICE_ACCOUNT { get; set; }
         
-        [JsonProperty("QUANTITY")] public int QUANTITY { get; set; }
+        [JsonProperty("QUANTITY")] public int Count { get; set; }
         [JsonProperty("DISCOUNT_TYPE_ID")] public int DISCOUNT_TYPE_ID { get; set; }
         [JsonProperty("DISCOUNT_RATE")] public int DISCOUNT_RATE { get; set; }
         [JsonProperty("DISCOUNT_SUM")] public int DISCOUNT_SUM { get; set; }

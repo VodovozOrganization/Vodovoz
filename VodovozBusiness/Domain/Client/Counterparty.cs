@@ -44,13 +44,13 @@ namespace Vodovoz.Domain.Client
 
 		#region Свойства
 
-		private IList<CounterpartyContract> counterpartyContracts;
+		private IList<CounterpartyContract> counterpartyContracts = new List<CounterpartyContract>();
 
 		[Display(Name = "Договоры")]
 		public virtual IList<CounterpartyContract> CounterpartyContracts {
 			get => counterpartyContracts;
 			set => SetField(ref counterpartyContracts, value, () => CounterpartyContracts);
-		}
+		} 
 
 		private IList<DeliveryPoint> deliveryPoints = new List<DeliveryPoint>();
 

@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -23,6 +24,8 @@ namespace BitrixApi.DTO
         [JsonProperty("COMPANY_ID")] public string COMPANY_ID { get; set; }
         [JsonProperty("ASSIGNED_BY_ID")] public int ASSIGNED_BY_ID { get; set; }
         [JsonProperty("CREATED_BY_ID")] public int CREATED_BY_ID { get; set; }
+        [JsonProperty("DATE_CREATE")] public DateTime CreatedDate { get; set; }
+        
         [JsonProperty("MODIFY_BY_ID")] public int MODIFY_BY_ID { get; set; }
         [JsonProperty("OPENED")] public string OPENED { get; set; }
         

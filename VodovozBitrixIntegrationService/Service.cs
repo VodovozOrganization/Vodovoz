@@ -31,8 +31,9 @@ namespace VodovozBitrixIntegrationService
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		private static readonly string configFile = "/home/gavr/vodovoz-bitrix-integration-service.conf"; //TODO gavr  вернуть на место
-
+		private static readonly string configFile = "/home/gavr/vodovoz-bitrix-integration-service.conf"; 
+		// private static readonly string configFile = "/etc/vodovoz-bitrix-integration-service.conf"; 
+			
 		//Service
 		private static string serviceHostName;
 		private static string servicePort;
@@ -75,7 +76,6 @@ namespace VodovozBitrixIntegrationService
 				
 				IConfig bitrixConfig = confFile.Configs["Bitrix"];
 				token = bitrixConfig.GetString("api_key");
-			
 				
 			}
 			catch(Exception ex) {
@@ -198,8 +198,12 @@ namespace VodovozBitrixIntegrationService
 
 			var webContract = typeof(IBitrixServiceWeb);
 			var webBinding = new WebHttpBinding();
+			logger.Info("до");
 			var webAddress = $"http://{serviceHostName}:{serviceWebPort}/BitrixServiceWeb";
+			logger.Info("после");
+
 			var webEndPoint = bitrixHost.AddServiceEndpoint(webContract, webBinding, webAddress);
+			
 			
 			WebHttpBehavior httpBehavior = new WebHttpBehavior();
 			webEndPoint.Behaviors.Add(httpBehavior);
@@ -211,18 +215,19 @@ namespace VodovozBitrixIntegrationService
 
 			BitrixManager.SetToken(token);
 //ТЕСТ текущих функций
+			logger.Info($"{address}");
+			logger.Info($"{webAddress}");
 
 			// BitrixManager.AddEvent(deal);
 			var uow = UnitOfWorkFactory.CreateWithoutRoot();
-				var cor = new CoR(baseParameters, token, BitrixRestApiFactory.CreateBitrixRestApi(token), uow, new Matcher());
-				await cor.Process(138768); //138768 //150772
+				var cor = new CoR(baseParameters, /*token,*/ BitrixRestApiFactory.CreateBitrixRestApi(token), uow, new Matcher());
+				await cor.Process(158740); //138768 //150772 // 158740 тестовый
 			BitrixManager.SetCoR(cor);
-			// await tests();
-			// Console.ReadLine();
-			
+
 			bitrixHost.AddServiceEndpoint(contract, binding, address);
-			
+
 			bitrixHost.Open();
+
 			logger.Log(LogLevel.Info, "Сервис запущен");
 
 		
@@ -235,131 +240,6 @@ namespace VodovozBitrixIntegrationService
 			// MailjetEventsHost.Open();
 		}
 		//
-		// static async Task tests()
-		// {
-		// 	// Нужно ли умное сопоставление
-		// 	bool needSearchOrder = false, 
-		// 		needSearchPoint = false, 
-		// 		needSearchNomenclature = false, 
-		// 		needSearchCounterParty = false;
-		// 	
-		// 	//Нужно ли создавать если не сработало умное сопоставление
-		// 	bool needCreateOrder = false,
-		// 		needCreateDeliveryPoint = false,
-		// 		needCreateNomenclature = false,
-		// 		needCreateCounterParty = false;
-		//
-		// 	bool isCompany = false;
-		//
-		// 	#region Загрузка сущностей
-		// 	
-		// 	var bitrixApi = BitrixRestApiFactory.CreateBitrixRestApi(token);
-		// 	
-		// 	//Получаем сделку из битрикса
-		// 	var deal = await bitrixApi.GetDealAsync(138768);
-		// 	
-		// 	//Определение это там контакт или компания
-		// 	if (deal.CompanyId != 0)
-		// 		isCompany = true;
-		// 	else
-		// 		isCompany = false;
-		// 	
-		// 	
-		// 	//Получаем клиента из сделки
-		// 	var contact = await bitrixApi.GetContact(deal.ContancId);
-		//
-		// 	//Получаем список товаров из сделки
-		// 	var productList = await bitrixApi.GetProductsForDeal(deal.Id);
-		// 	
-		// 	#endregion Загрузка сущностей
-		//
-		// 	#region Проверка есть ли эти сущности у нас по BitrixId
-		// 	
-		// 	//ищем у нас сделку по битрикс Id
-		// 	needCreateOrder = Matcher.MatchOrderByBitrixId(deal, out var ourOrder);
-		// 	if (ourOrder != null)
-		// 		return;
-		// 	//ищем у нас контакт или компанию по битрикс Id
-		// 	needCreateCounterParty = Matcher.MatchCounterpartyByBitrixId(contact.Id, out var ourCounterparty);
-		// 	//точку доставки не ищем, её можно только начать сопоставлять тк кк она в сделке
-		// 	//TODO удалить bitrixId у точек доставки из таблицы, сущности и маппинга 
-		// 	
-		// 	//ищем у нас товары по битрикс Id
-		// 	IList<Nomenclature> matchedNomenclatures = new List<Nomenclature>();
-		// 	IList<ProductFromDeal> unmatchedProducts = new List<ProductFromDeal>();
-		// 	
-		// 	foreach (var productBitrix in productList){
-		// 		if (Matcher.MatchNomenclatureByBitrixId(productBitrix.Id, out var ourNomenclature)){
-		// 			matchedNomenclatures.Add(ourNomenclature);
-		// 		}
-		// 		else{
-		// 			unmatchedProducts.Add(productBitrix);
-		// 		}
-		// 	}
-		//
-		// 	if (unmatchedProducts.Count != 0)
-		// 		needCreateNomenclature = true;
-		//
-		// 	#endregion BitrixId
-		//
-		// 	#region Для тех сущностей которых у нас еще нет, сопоставление
-		// 	
-		// 	
-		// 	Counterparty counterparty = null;
-		// 	//Сопоставление Counterparty by phone + secondName
-		// 	Matcher.MatchCounterpartyByPhoneAndSecondName(contact, out counterparty);
-  //           
-		// 	//Сопоставление точки доставки для клиента
-		// 	DeliveryPoint deliveryPoint = null;
-		// 	Matcher.MatchDeliveryPoint(deal, counterparty, out deliveryPoint);
-		//
-		// 	
-		// 	#endregion сопоставление
-		// 	
-		// 	#region Для тех сущностей который у нас нет, создание их с BitrixId 
-		// 	
-		// 	#endregion Создание
-		// 	
-		// 	#region Создание заказа
-		// 	
-		// 	#endregion Создание заказа
-		// 	
-		// 	
-		// 	
-		// 	
-		// 	///////////////////
-		// 	#region Сопоставление
-		//
-		// 	
-		// 	
-		//
-		// 	
-		//
-		// 	#endregion Сопоставление
-		// 	
-		// 	#region Создаем сущности если нужны
-		//
-		// 	if (needCreateNomenclature){
-		// 		
-		// 	}
-		// 	
-		// 	if (needCreateDeliveryPoint){
-		// 		
-		// 	}
-		// 	
-		// 	if (needCreateCounterParty){
-		// 		
-		// 	}
-		// 	
-		// 	if (needCreateOrder){
-		// 		
-		// 	}
-		// 	
-		// 	
-		// 	
-		// 	#endregion
-		//
-		// }
 
 		#endregion StartService
 

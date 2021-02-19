@@ -21,22 +21,21 @@ namespace BitrixIntegration {
         
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         #region ByBitrixId
-        public bool MatchOrderByBitrixId(IUnitOfWork uow, Deal deal, out Order outOrder)
+        public bool MatchOrderByBitrixId(IUnitOfWork uow, uint dealId, out Order outOrder)
         {
-            // using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-            // {
-                Order order = null;
-                order = OrderSingletonRepository.GetInstance().GetOrderByBitrixId(uow, deal.Id);
-                
-                if (order == null){
-                    outOrder = null;
-                    return false;
-                }
-                else{
-                    outOrder = order;
-                    return true;
-                }
-            // }
+            Order order = null;
+            order = OrderSingletonRepository.GetInstance().GetOrderByBitrixId(uow, dealId);
+            
+            if (order == null){
+                logger.Info($"Не удалось сопоставить Order по BitrixId сделки: {dealId}");
+                outOrder = null;
+                return false;
+            }
+            else{
+                outOrder = order;
+                logger.Info($"Сопоставление Order: {outOrder.Id} по BitrixId сделки: {dealId} прошло успешно");
+                return true;
+            }
         }
         
         public bool MatchCounterpartyByBitrixId(IUnitOfWork uow, uint bitrixId, out Counterparty outCounterparty)
@@ -47,10 +46,14 @@ namespace BitrixIntegration {
             
             if (counterparty == null){
                 outCounterparty = null;
+                logger.Info($"Не удалось сопоставить Counterparty по BitrixId: {bitrixId}");
+
                 return false;
             }
             else{
                 outCounterparty = counterparty;
+                logger.Info($"Сопоставление Counterparty: {outCounterparty.Id} по BitrixId: {bitrixId} прошло успешно");
+
                 return true;
             }
             
@@ -63,10 +66,13 @@ namespace BitrixIntegration {
             
             if (nomenclature == null){
                 outNomenclature = null;
+                logger.Info($"Не удалось сопоставить Nommenclature по BitrixId: {productId}");
+
                 return false;
             }
             else{
                 outNomenclature = nomenclature;
+                logger.Info($"Сопоставление Counterparty: {outNomenclature.Id} по BitrixId: {productId} прошло успешно");
                 return true;
             }
         }
@@ -74,25 +80,34 @@ namespace BitrixIntegration {
         #endregion ByBitrixId
             
         
+        /// <summary>
+        /// Находит компанию по номеру телефона и названию
+        /// </summary>
+        /// <exception cref="NullReferenceException">Контакт не содержит имени, фамилии и отчества, необходимых для сопоставления</exception>
         public bool MatchCompanyPhoneAndName(IUnitOfWork uow, Company company, out Counterparty outCounterparty)
         {
             //Формат записанный в Value +7 (981) 944-86-31
-            var phone = company.PHONE.First().Value;
+            var phone = company.Phones.First().Value;
             var digitsNum = PhoneUtils.NumberTrim(phone, out var _);
 
             IList<Counterparty> counterparties = null;
             
             counterparties = CounterpartyRepository.GetCounterpartesByPartOfName(
                 uow,
-                company.Title,
+                company.Title?? 
+                throw new NullReferenceException($"Компания с BitrixId {company.Id} не содержит названия, необходимого для сопоставления"),
                 digitsNum
             );
             
             if (counterparties.Count == 1){
                 outCounterparty = counterparties.First();
+                outCounterparty.BitrixId = company.Id;
+                logger.Info($"Для компании с BitrixId {company.Id} у нас найден 1 контрагент {outCounterparty.Id} по телефону и названию");
+                uow.Save(outCounterparty);
                 return true;
             }
             else{
+                logger.Warn($"Для контакта с BitrixId {company.Id} у нас не найдено контрагентов по телефону и названию");
                 outCounterparty = null;
                 return false;
             }
@@ -118,17 +133,22 @@ namespace BitrixIntegration {
             counterparties = CounterpartyRepository.GetCounterpartesByPartOfName(
                 uow,
                 contact.SecondName?? contact.LastName ?? contact.Name ?? 
-                    throw new NullReferenceException("Контакт не содержит имени, фамилии и отчества, необходимых для сопоставления"),
+                    throw new NullReferenceException("Контакт не содержит имени, фамилии и отчества, " +
+                                                     "необходимых для сопоставления"),
                 digitsNum
             );
             
             if (counterparties.Count == 1){
                 outCounterparty = counterparties.First();
                 outCounterparty.BitrixId = contact.Id;
+                logger.Info($"Для контакта с BitrixId {contact.Id} у нас найден 1 контрагент {outCounterparty.Id}" +
+                            " по телефону и части имени");
                 uow.Save(outCounterparty);
                 return true;
             }
             else{
+                logger.Warn($"Для контакта с BitrixId {contact.Id} у нас не найдено контрагентов " +
+                            "по телефону и части имени");
                 outCounterparty = null;
                 return false;
             }
@@ -155,40 +175,55 @@ namespace BitrixIntegration {
 
             if (decimal.TryParse(longitudeString,NumberStyles.Any, CultureInfo.InvariantCulture, out var longitude) &&
                 decimal.TryParse(latitudeString, NumberStyles.Any, CultureInfo.InvariantCulture, out var latitude)){
-                
-                IList<DeliveryPoint> deliveryPoints = DeliveryPointRepository.GetDeliveryPointForCounterpartyByCoordinates(uow, latitude, longitude, counterparty.Id);
+                logger.Info($"Распаршены координаты: longitude: {longitude} и latitude {latitude}");
+                IList<DeliveryPoint> deliveryPointsOfCounerparty = DeliveryPointRepository.GetDeliveryPointForCounterpartyByCoordinates(uow, latitude, longitude, counterparty.Id);
             
-                if (deliveryPoints.Count == 1){
-                    outDeliveryPoint = deliveryPoints.First();
+                if (deliveryPointsOfCounerparty.Count == 1){
+                    logger.Info($"Сопоставлена 1 точка доставки Id: {deliveryPointsOfCounerparty.First().Id}, {deliveryPointsOfCounerparty.First().ShortAddress}");
+                    outDeliveryPoint = deliveryPointsOfCounerparty.First();
                     return true;
                 }
                 // В одном доме несколько наших клиентов
-                else if(deliveryPoints.Count > 1){
+                else if(deliveryPointsOfCounerparty.Count > 1){
+                    logger.Info($"В одном доме несколько наших клиентов deliveryPoints.Count: {deliveryPointsOfCounerparty.Count}");
+
                     //СОПОСТАВЛЯЕМ ПО ДОМУ УЛИЦЕ ИТД
-                    foreach (var dp in deliveryPoints){
+                    foreach (var dp in deliveryPointsOfCounerparty){
                        if(dp.Room != null && dp.Room != "." && dp.Room != "-") {
                             // Тк кк значения бывают такие "13-Н ком.21"
                             if (dp.Room.Contains(deal.RoomNumber)){
+                                logger.Info($"Сопоставлено по комнате: {dp.Room} и {deal.RoomNumber}");
                                 outDeliveryPoint = dp;
                                 return true;
                             }
                             else{
+                                logger.Info($"Сопоставлено по комнате не удалось, попытка сопоставить по вхождению чисел");
+
                                 // Более медленный способ, на случай если RoomNumber содержит не только одно число, проверяем по вхождению каждого числа по отдельности
                                 var numbersFromRoom = NumbersUtils.GetNumbersFromString(deal.RoomNumber);
+                                uint counter = 0;
                                 foreach (var num in numbersFromRoom){
                                     if (dp.Room.Contains(num.ToString())){
-                                        outDeliveryPoint = dp;
-                                        return true;
+                                        counter++;
                                     }
+                                }
+
+                                if (counter >= 1){
+                                    logger.Info($"Между номерами комнат сошлось: {counter} чисел");
+                                    logger.Info($"Сопоставлено по комнате: {dp.Room} и {deal.RoomNumber}");
+                                    outDeliveryPoint = dp;
+                                    return true;
                                 }
                             }
                        }
                     }
-                
+                    logger.Warn($"Сопоставлено точки доставки для сделки: {deal.Id} для контрагента: {counterparty.Id} не удалось");
+                    
                     outDeliveryPoint = null;
                     return false;
                 }
                 else{
+                    logger.Warn($"У контрагента {counterparty.Id} не нашлось точки доставки с координатами из битрикса {deal.Id}");
                     // У контрагента не нашлось точки доставки с координатами из битрикса
                     // Берем все точки доставки контрагента и пытаемся сопоставить по наличию в них дома + квартиры
                     var deliveryPointsForCounterparty = DeliveryPointRepository.DeliveryPointsForCounterpartyQuery(uow, counterparty);
@@ -199,18 +234,25 @@ namespace BitrixIntegration {
                         var hasRoom = false;
                         
                         foreach (var i in numsFromHouse)
-                            if (dp.Building.Contains(i.ToString())) 
+                            if (dp.Building.Contains(i.ToString())){
+                                logger.Info($"Номер дома {dp.Building} сопоставился с {i.ToString()}");
                                 hasBuilding = true;
+                            }
                         
                         foreach (var i in numsFromRoom)
-                            if (dp.Room.Contains(i.ToString())) 
+                            if (dp.Room.Contains(i.ToString())){
+                                logger.Info($"Офис/Квартира {dp.Building} сопоставилась с {i.ToString()}");
+
                                 hasRoom = true;
+                            }
                         
                         if (hasBuilding && hasRoom){ 
+                            logger.Info($"Для сделки {deal.Id} с контрагентом {counterparty.Id} сопоставлен адрес");
                             outDeliveryPoint = dp; 
                             return true;
                         };
                     }
+                    logger.Warn($"Для сделки {deal.Id} с контрагентом {counterparty.Id} не получилось сопоставить адрес");
                     outDeliveryPoint = null;
                     return false;
                 }
@@ -225,20 +267,12 @@ namespace BitrixIntegration {
             //Сопоставление номенклатуры
             Nomenclature nomenclature = NomenclatureRepository.GetNomenclatureByName(uow, productName);
             if (nomenclature != null){
-                logger.Info($"Номенклатура {nomenclature.ShortName} найдена по bitrix id {nomenclature.BitrixId}");
+                logger.Info($"Номенклатура {nomenclature.ShortName} сопоставлена по названию {productName}");
                 outNomenclature = nomenclature;
-                
-                //
-                //Сравнение информации о номенклатуре и обновление если она отличается
-                //Проверять по id интернет магазинов, есть справочник интернет магазинов, если указана любая кроме первой значит они пришли извне
-                // if (nomenclature.NomenclaturePrice.First(x => x.MinCount == 1).Price != product.Price){
-                    //Обновить цену
-                // }
-                //
-                
                 return true;
             }
-            
+            logger.Warn($"Номенклатура не найдена по названию {productName}");
+
             outNomenclature = null;
             return false;
         }
@@ -258,11 +292,15 @@ namespace BitrixIntegration {
 
             if (decimal.TryParse(longitudeString, NumberStyles.Any, CultureInfo.InvariantCulture, out var _longitude) &&
                 decimal.TryParse(latitudeString, NumberStyles.Any, CultureInfo.InvariantCulture, out var _latitude)){
+                logger.Info($"Парсинг координат удался longitude {_longitude}, latitude {_latitude}");
+
                 latitude = _latitude;
                 longitude = _longitude;
                 return true;
             }
             else{
+                logger.Warn($"Парсинг координат не удался longitude {_longitude},  latitude");
+
                 latitude = 0;
                 longitude = 0;
                 return false;

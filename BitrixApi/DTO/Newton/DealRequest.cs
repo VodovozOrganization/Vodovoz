@@ -28,12 +28,12 @@ namespace BitrixApi.DTO
         [JsonProperty("IS_MANUAL_OPPORTUNITY")]  public string IsManualOpportunity { get; set; }
         [JsonProperty("TAX_VALUE")]  public decimal TaxValue { get; set; }
         [JsonProperty("LEAD_ID")] public string LeadId { get; set; }
-        [JsonProperty("COMPANY_ID")] public uint? CompanyId { get; set; }
+        [JsonProperty("COMPANY_ID")] public uint CompanyId { get; set; }
         [JsonProperty("CONTACT_ID")] public uint ContancId { get; set; }
         [JsonProperty("COMMENTS")] public string Comment { get; set; }
         [JsonProperty("QUOTE_ID")]  public string QuioteId { get; set; }
         [JsonProperty("BEGINDATE")]  public DateTime BegunDate { get; set; }
-        [JsonProperty("CLOSEDATE")]  public DateTime CloseDate { get; set; }
+        // [JsonProperty("CLOSEDATE")]  public DateTime CloseDate { get; set; }
         [JsonProperty("ASSIGNED_BY_ID")]  public int AssignedById { get; set; }
         [JsonProperty("CREATED_BY_ID")] public int CreatedById { get; set; } 
         [JsonProperty("MODIFY_BY_ID")]  public int ModifyById { get; set; }
@@ -66,7 +66,7 @@ namespace BitrixApi.DTO
         [JsonProperty("UF_CRM_5DA85CFA0C838")] public string EntranceType { get; set; }
         [JsonProperty("UF_CRM_5DA9BBA03A12A")] public uint DeliverySchedule { get; set; }
         [JsonProperty("UF_CRM_1603521814")] public uint CreateInDV { get; set; }
-        
+        [JsonProperty("UF_CRM_1613635090586")] public int? BottlsToReturn { get; set; }
         
         
         

@@ -15,7 +15,7 @@ namespace BitrixApi.DTO
     {
         [JsonProperty("ID")] public uint Id { get; set; }
         [JsonProperty("COMPANY_TYPE")] public string? COMPANY_TYPE { get; set; }
-        [JsonProperty("TITLE")] public string Title { get; set; }
+        [JsonProperty("TITLE")] public string? Title { get; set; }
         [JsonProperty("LEAD_ID")] public string? LEAD_ID { get; set; }
         [JsonProperty("HAS_PHONE")] public string? HAS_PHONE { get; set; }
         [JsonProperty("HAS_EMAIL")] public string? HAS_EMAIL { get; set; }
@@ -62,10 +62,7 @@ namespace BitrixApi.DTO
         [JsonProperty("UF_CRM_5DB83D2E05E81")] public string? RoomType { get; set; }
 
         
-
-        
-        
-        [JsonProperty("PHONE")] public IList<Phone> PHONE { get; set; }
+        [JsonProperty("PHONE")] public IList<Phone> Phones { get; set; }
     }
     
     

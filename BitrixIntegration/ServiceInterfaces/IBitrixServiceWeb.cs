@@ -23,11 +23,12 @@ namespace BitrixIntegration.ServiceInterfaces
 		// 	RequestFormat = WebMessageFormat.Json)]
 		// void OnCrmDealUpdate(BitrixApi.DTO.DataContractJsonSerializer.DealRequest dealRequest); 
 
-		// [OperationContract]
+		[OperationContract()]
 		// [WebInvoke(Method = "POST",
 		// 	BodyStyle = WebMessageBodyStyle.Wrapped,
 		// 	ResponseFormat = WebMessageFormat.Json,
 		// 	RequestFormat = WebMessageFormat.Json)]
-		// void PostEvent(BitrixPostResponse response);
+		[WebGet(ResponseFormat = WebMessageFormat.Json)]
+		void PostEvent(BitrixPostResponse response);
 	}
 }
