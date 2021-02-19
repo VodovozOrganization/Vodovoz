@@ -1834,4 +1834,8 @@ public partial class MainWindow : Gtk.Window
             () => new QSReport.ReportViewDlg(new OrderChangesReport())
         );
     }
+
+    protected void OnRegisteredRMActionActivated(object sender, EventArgs e)
+    {
+    }
 }

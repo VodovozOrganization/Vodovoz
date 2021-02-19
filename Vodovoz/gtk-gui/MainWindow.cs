@@ -439,6 +439,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionOrderChangesReport;
 
+	private global::Gtk.Action registeredRMAction;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -1140,6 +1142,9 @@ public partial class MainWindow
 		this.ActionOrderChangesReport = new global::Gtk.Action("ActionOrderChangesReport", global::Mono.Unix.Catalog.GetString("Отчет по изменениям заказа при доставке"), null, null);
 		this.ActionOrderChangesReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по изменениям заказа при доставке");
 		w1.Add(this.ActionOrderChangesReport, null);
+		this.registeredRMAction = new global::Gtk.Action("registeredRMAction", global::Mono.Unix.Catalog.GetString("Зарегистрированные RM"), null, null);
+		this.registeredRMAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Зарегистрированные RM");
+		w1.Add(this.registeredRMAction, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -1304,21 +1309,21 @@ public partial class MainWindow
 				"tionReport\' action=\'ActionProducedProductionReport\'/></menu></menu><menu name=\'A" +
 				"ctionAdministration\' action=\'ActionAdministration\'><menuitem name=\'ActionTypesOf" +
 				"Entities\' action=\'ActionTypesOfEntities\'/><menuitem name=\'ActionUsers\' action=\'A" +
-				"ctionUsers\'/><menuitem name=\'ActionParameters\' action=\'ActionParameters\'/><menu " +
-				"name=\'ActionService\' action=\'ActionService\'><menuitem name=\'Action45\' action=\'Ac" +
-				"tion45\'/><menuitem name=\'ActionAddressDuplicetes\' action=\'ActionAddressDuplicete" +
-				"s\'/><menuitem name=\'ActionDistanceFromCenter\' action=\'ActionDistanceFromCenter\'/" +
-				"><menuitem name=\'ActionOrdersWithoutBottlesOperation\' action=\'ActionOrdersWithou" +
-				"tBottlesOperation\'/><menuitem name=\'ActionLoad1cCounterpartyAndDeliveryPoints\' a" +
-				"ction=\'ActionLoad1cCounterpartyAndDeliveryPoints\'/><menuitem name=\'ActionToOnlin" +
-				"eStore\' action=\'ActionToOnlineStore\'/><menuitem name=\'Action62\' action=\'Action62" +
-				"\'/></menu><separator/><menuitem name=\'ActionDocTemplates\' action=\'ActionDocTempl" +
-				"ates\'/><menuitem name=\'ActionGeographicGroups\' action=\'ActionGeographicGroups\'/>" +
-				"<menuitem name=\'ActionImages\' action=\'ActionImages\'/></menu><menu name=\'ActionAb" +
-				"out\' action=\'ActionAbout\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></m" +
-				"enu><menu name=\'ActionProposals\' action=\'ActionProposals\'><menuitem name=\'Action" +
-				"OpenProposalsJournal\' action=\'ActionOpenProposalsJournal\'/></menu></menubar></ui" +
-				">");
+				"ctionUsers\'/><menuitem name=\'registeredRMAction\' action=\'registeredRMAction\'/><m" +
+				"enuitem name=\'ActionParameters\' action=\'ActionParameters\'/><menu name=\'ActionSer" +
+				"vice\' action=\'ActionService\'><menuitem name=\'Action45\' action=\'Action45\'/><menui" +
+				"tem name=\'ActionAddressDuplicetes\' action=\'ActionAddressDuplicetes\'/><menuitem n" +
+				"ame=\'ActionDistanceFromCenter\' action=\'ActionDistanceFromCenter\'/><menuitem name" +
+				"=\'ActionOrdersWithoutBottlesOperation\' action=\'ActionOrdersWithoutBottlesOperati" +
+				"on\'/><menuitem name=\'ActionLoad1cCounterpartyAndDeliveryPoints\' action=\'ActionLo" +
+				"ad1cCounterpartyAndDeliveryPoints\'/><menuitem name=\'ActionToOnlineStore\' action=" +
+				"\'ActionToOnlineStore\'/><menuitem name=\'Action62\' action=\'Action62\'/></menu><sepa" +
+				"rator/><menuitem name=\'ActionDocTemplates\' action=\'ActionDocTemplates\'/><menuite" +
+				"m name=\'ActionGeographicGroups\' action=\'ActionGeographicGroups\'/><menuitem name=" +
+				"\'ActionImages\' action=\'ActionImages\'/></menu><menu name=\'ActionAbout\' action=\'Ac" +
+				"tionAbout\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></menu><menu name=" +
+				"\'ActionProposals\' action=\'ActionProposals\'><menuitem name=\'ActionOpenProposalsJo" +
+				"urnal\' action=\'ActionOpenProposalsJournal\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1599,6 +1604,7 @@ public partial class MainWindow
 		this.ActionOpenProposalsJournal.Activated += new global::System.EventHandler(this.OnActionOpenProposalsJournalActivated);
 		this.Action71.Activated += new global::System.EventHandler(this.OnAction71Activated);
 		this.ActionOrderChangesReport.Activated += new global::System.EventHandler(this.OnActionOrderChangesReportActivated);
+		this.registeredRMAction.Activated += new global::System.EventHandler(this.OnRegisteredRMActionActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
