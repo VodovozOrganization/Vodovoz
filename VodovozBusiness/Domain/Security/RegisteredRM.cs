@@ -1,7 +1,9 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Security
@@ -60,6 +62,27 @@ namespace Vodovoz.Domain.Security
         {
             get => users;
             set { SetField(ref users, value, () => Users); }
+        }
+
+        GenericObservableList<User> observableUsers;
+        //FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+        public virtual GenericObservableList<User> ObservableUsers
+        {
+            get
+            {
+                if (observableUsers == null)
+                {
+                    observableUsers = new GenericObservableList<User>(users);
+                    observableUsers.ListContentChanged += ObservableUsers_ListContentChanged;
+                }
+
+                return observableUsers;
+            }
+        }
+
+        private void ObservableUsers_ListContentChanged(object sender, EventArgs e)
+        {
+            OnPropertyChanged(nameof(ObservableUsers));
         }
 
         private bool isActive;

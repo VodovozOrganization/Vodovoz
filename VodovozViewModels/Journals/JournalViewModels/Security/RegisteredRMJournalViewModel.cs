@@ -1,5 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Transform;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -18,6 +19,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Security
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал зарегистрированных RM";
+
+            NotifyConfiguration.Enable();
+            NotifyConfiguration.Instance.BatchSubscribeOnEntity<RegisteredRM>(OnRegisteredRMChanged);
+        }
+
+        private void OnRegisteredRMChanged(EntityChangeEvent[] changeEvents)
+        {
+            Refresh();
         }
 
         protected override Func<IUnitOfWork, IQueryOver<RegisteredRM>> ItemsSourceQueryFunction => (uow) =>
