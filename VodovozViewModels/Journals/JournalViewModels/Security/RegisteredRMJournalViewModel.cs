@@ -20,13 +20,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Security
         {
             TabName = "Журнал зарегистрированных RM";
 
-            NotifyConfiguration.Enable();
-            NotifyConfiguration.Instance.BatchSubscribeOnEntity<RegisteredRM>(OnRegisteredRMChanged);
-        }
-
-        private void OnRegisteredRMChanged(EntityChangeEvent[] changeEvents)
-        {
-            Refresh();
+            UpdateOnChanges(
+                typeof(RegisteredRM)
+            );
         }
 
         protected override Func<IUnitOfWork, IQueryOver<RegisteredRM>> ItemsSourceQueryFunction => (uow) =>
