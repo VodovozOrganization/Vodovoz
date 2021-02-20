@@ -230,21 +230,18 @@ namespace Vodovoz
 
 		private static bool CanLogin()
         {
-			using (var UoW = UnitOfWorkFactory.GetDefaultFactory.CreateWithoutRoot())
+			using (var uow = UnitOfWorkFactory.GetDefaultFactory.CreateWithoutRoot())
 			{
-				var DBLogin = ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).Login;
+				var dBLogin = ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).Login;
 
 				// Получение данных пользователя системы
-				var windowsIdentity = WindowsIdentity.GetCurrent() ?? throw new ArgumentNullException("Не удается получить идентификатор пользователя");
-				var sid = windowsIdentity?.User.ToString() ?? "";
-				var domainAndUser = windowsIdentity?.Name.Split('\\');
-				var domain = domainAndUser[0];
-				var windowsUser = domainAndUser[1];
+				var windowsIdentity = WindowsIdentity.GetCurrent();
+				var sid = windowsIdentity.User?.ToString() ?? "";
 
 				RegisteredRM registeredRMAlias = null;
-				var rm = UoW.Session.QueryOver<RegisteredRM>(() => registeredRMAlias).Where(x => x.SID == sid && x.IsActive).List().FirstOrDefault();
+				var rm = uow.Session.QueryOver<RegisteredRM>(() => registeredRMAlias).Where(x => x.SID == sid && x.IsActive).List().FirstOrDefault();
 
-				return (rm == null) || rm.Users.Any(u => u.Login == DBLogin);
+				return (rm == null) || rm.Users.Any(u => u.Login == dBLogin);
 			}
 		} 
 	}
