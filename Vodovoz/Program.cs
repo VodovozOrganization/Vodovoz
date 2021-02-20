@@ -236,13 +236,13 @@ namespace Vodovoz
 
 				// Получение данных пользователя системы
 				var windowsIdentity = WindowsIdentity.GetCurrent() ?? throw new ArgumentNullException("Не удается получить идентификатор пользователя");
-				var SID = windowsIdentity?.User.ToString() ?? "";
+				var sid = windowsIdentity?.User.ToString() ?? "";
 				var domainAndUser = windowsIdentity?.Name.Split('\\');
 				var domain = domainAndUser[0];
 				var windowsUser = domainAndUser[1];
 
 				RegisteredRM registeredRMAlias = null;
-				var rm = UoW.Session.QueryOver<RegisteredRM>(() => registeredRMAlias).Where(x => x.SID == SID && x.IsActive).List().FirstOrDefault();
+				var rm = UoW.Session.QueryOver<RegisteredRM>(() => registeredRMAlias).Where(x => x.SID == sid && x.IsActive).List().FirstOrDefault();
 
 				return (rm == null) || rm.Users.Any(u => u.Login == DBLogin);
 			}
