@@ -152,10 +152,14 @@ namespace Vodovoz.ViewModels.Logistic
             () => CanEdit
         ));
 
-        private DelegateCommand<IEnumerable<DriverDistrictPriorityNode>> deleteDistrictCommand;
-        public DelegateCommand<IEnumerable<DriverDistrictPriorityNode>> DeleteDistrictsCommand => deleteDistrictCommand
-            ?? (deleteDistrictCommand = new DelegateCommand<IEnumerable<DriverDistrictPriorityNode>>(
+        private DelegateCommand<IList<DriverDistrictPriorityNode>> deleteDistrictCommand;
+        public DelegateCommand<IList<DriverDistrictPriorityNode>> DeleteDistrictsCommand => deleteDistrictCommand
+            ?? (deleteDistrictCommand = new DelegateCommand<IList<DriverDistrictPriorityNode>>(
                 priorities => {
+                    if(!priorities.Any()) {
+                        commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран ни 1 приоритет района водителя", "Удаление");
+                        return;
+                    }
                     foreach(var priority in priorities) {
                         ObservableDriverDistrictPriorities.Remove(priority);
                     }

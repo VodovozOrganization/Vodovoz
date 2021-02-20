@@ -57,16 +57,9 @@ namespace Vodovoz.Views.Logistic
 
             ybuttonAddDistricts.Clicked += (sender, args) => ViewModel.AddDistrictsCommand.Execute();
             ybuttonAddDistricts.Sensitive = ViewModel.CanEdit;
-            
-            ybuttonDeleteDistricts.Clicked += (sender, args) => {
-                var selectedPriorities = ytreeDriverDistrictPriorities
-                    .GetSelectedObjects<DriverDistrictPriorityNode>();
-                if(!selectedPriorities.Any()) {
-                    MessageDialogHelper.RunInfoDialog("Не выбран ни 1 приоритет района водителя", "Удаление");
-                    return;
-                }
-                ViewModel.DeleteDistrictsCommand.Execute(selectedPriorities);
-            };
+
+            ybuttonDeleteDistricts.Clicked += (sender, args) => ViewModel.DeleteDistrictsCommand.Execute(
+                ytreeDriverDistrictPriorities.GetSelectedObjects<DriverDistrictPriorityNode>());
             ybuttonDeleteDistricts.Sensitive = ViewModel.CanEdit;
         }
     }
