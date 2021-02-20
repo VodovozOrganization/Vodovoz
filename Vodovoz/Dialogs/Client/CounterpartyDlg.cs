@@ -40,6 +40,7 @@ using Vodovoz.Domain.EntityFactories;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Retail;
 using System.Data.Bindings.Collections.Generic;
+using NHibernate.Transform;
 
 namespace Vodovoz
 {
@@ -375,6 +376,8 @@ namespace Vodovoz
 
 			#endregion Особая печать
 
+			yspinDelayDaysForTechProcessing.Binding.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt).InitializeFromSource();
+
 			// Настройка каналов сбыта
 
 			ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
@@ -382,9 +385,24 @@ namespace Vodovoz
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.Finish();
 
+			SalesChannel salesChannelAlias = null;
+			SalesChannelSelectableNode salesChannelSelectableNodeAlias = null;
+
+			var list = UoW.Session.QueryOver(() => salesChannelAlias)
+				.SelectList(list => list
+				.SelectGroup(
+					.Select(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
+					.Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name)
+				)).TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>());
+
+			salesChannels = new GenericObservableList<SalesChannelSelectableNode>(list);
+
+			foreach(var selectableChannel = salesChannels.Where(x => Entity.SalesChannels.Contains(x.Id)))
+            {
+				selectableChannel.Selected = true;
+			}
+
 			ytreeviewSalesChannels.ItemsDataSource = salesChannels;
-
-
 
 			//SalesChannelSelectableNode
 		}
