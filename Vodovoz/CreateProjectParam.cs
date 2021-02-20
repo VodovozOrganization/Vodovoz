@@ -144,6 +144,9 @@ using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.Views.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Security;
+using Vodovoz.Views.Security;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 
 namespace Vodovoz
 {
@@ -228,10 +231,11 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<MovementWagonViewModel, MovementWagonView>()
 				.RegisterWidgetForTabViewModel<UserViewModel, UserView>()
                 .RegisterWidgetForTabViewModel<ApplicationDevelopmentProposalViewModel, ApplicationDevelopmentProposalView>()
-                ;
+				.RegisterWidgetForTabViewModel<RegisteredRMViewModel, RegisteredRMView>()
+				;
 
-            //Регистрация виджетов
-            ViewModelWidgetResolver.Instance
+			//Регистрация виджетов
+			ViewModelWidgetResolver.Instance
 				.RegisterWidgetForWidgetViewModel<DistrictsSetJournalFilterViewModel, DistrictsSetJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<DistrictJournalFilterViewModel, DistrictJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<SelectableParameterReportFilterViewModel, SelectableParameterReportFilterView>()
@@ -270,7 +274,8 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UserJournalFilterViewModel, UserJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<ApplicationDevelopmentProposalsJournalFilterViewModel, ApplicationDevelopmentProposalsJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<RouteListJournalFilterViewModel, RouteListJournalFilterView>()
-                ;
+				.RegisterWidgetForWidgetViewModel<RegisteredRMJournalFilterViewModel, RegisteredRMJournalFilterView>()
+				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
