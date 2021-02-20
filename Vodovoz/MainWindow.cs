@@ -209,6 +209,12 @@ public partial class MainWindow : Gtk.Window
         ActionOrderCreationDateReport.Visible = 
             ActionPlanImplementationReport.Visible =
             ActionSetBillsReport.Visible = !userIsSalesRepresentative;
+
+        // Управление ограничением доступа через зарегистрированные RM
+
+        var userCanManageRegisteredRMs = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
+
+        registeredRMAction.Visible = userCanManageRegisteredRMs;
     }
 
     public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)

@@ -251,13 +251,8 @@ namespace Vodovoz
 
 				var rm = UoW.Session.QueryOver<RegisteredRM>(() => registeredRMAlias).Where(x => x.SID == SID && x.IsActive).List().FirstOrDefault();
 
-                if (rm != null)
-                {
-					return rm.Users.Any(u => u.Login == DBLogin);
-                }
+				return (rm == null) || rm.Users.Any(u => u.Login == DBLogin);
 			}
-
-			return true;
 		} 
 	}
 }
