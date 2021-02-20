@@ -235,13 +235,12 @@ namespace Vodovoz
 				var dBLogin = ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).Login;
 
 				string sid = "";
-                // Получение данных пользователя системы
-                try
-                {
+				// Получение данных пользователя системы
+				if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+				{
 					var windowsIdentity = WindowsIdentity.GetCurrent();
 					sid = windowsIdentity.User?.ToString() ?? "";
 				}
-                catch (Exception ex) { }
 
 				RegisteredRM registeredRMAlias = null;
 				var rm = uow.Session.QueryOver<RegisteredRM>(() => registeredRMAlias).Where(x => x.SID == sid && x.IsActive).List().FirstOrDefault();
