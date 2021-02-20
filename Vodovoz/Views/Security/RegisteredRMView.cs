@@ -37,6 +37,11 @@ namespace Vodovoz.Views.Security
             ytreeviewUsers.ItemsDataSource = ViewModel.Entity.ObservableUsers;
             ytreeviewUsers.YTreeModel.EmitModelChanged();
 
+            if (string.IsNullOrWhiteSpace(ViewModel.Entity.Domain))
+            {
+                ViewModel.Entity.Domain = "VODOVOZ";
+            }
+
             buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
             buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
         }
