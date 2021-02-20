@@ -73,8 +73,6 @@ namespace Vodovoz
 			if (LoginResult == ResponseType.DeleteEvent || LoginResult == ResponseType.Cancel)
 				return;
 
-			
-
 			LoginDialog.Destroy ();
 
 			PerformanceHelper.StartMeasurement ("Замер запуска приложения");
@@ -234,21 +232,16 @@ namespace Vodovoz
         {
 			using (var UoW = UnitOfWorkFactory.GetDefaultFactory.CreateForRoot<User>(QSMain.User.Id))
 			{
-				RegisteredRM registeredRMAlias = null;
-
 				var DBLogin = UoW.Root.Login;
 
 				// Получение данных пользователя системы
-
 				var windowsIdentity = WindowsIdentity.GetCurrent();
-
 				var SID = windowsIdentity.User.ToString();
-
 				var domainAndUser = windowsIdentity.Name.Split('\\');
-
 				var domain = domainAndUser[0];
 				var windowsUser = domainAndUser[1];
 
+				RegisteredRM registeredRMAlias = null;
 				var rm = UoW.Session.QueryOver<RegisteredRM>(() => registeredRMAlias).Where(x => x.SID == SID && x.IsActive).List().FirstOrDefault();
 
 				return (rm == null) || rm.Users.Any(u => u.Login == DBLogin);
