@@ -28,7 +28,7 @@ namespace Vodovoz.Domain.Security
         public virtual string Username
         {
             get => username;
-            set { SetField(ref username, value, () => Username); }
+            set => SetField(ref username, value);
         }
 
         private string domain;
@@ -39,7 +39,7 @@ namespace Vodovoz.Domain.Security
         public virtual string Domain
         {
             get => domain;
-            set { SetField(ref domain, value, () => Domain); }
+            set => SetField(ref domain, value);
         }
 
         private string sID;
@@ -50,7 +50,7 @@ namespace Vodovoz.Domain.Security
         public virtual string SID
         {
             get => sID;
-            set { SetField(ref sID, value, () => SID); }
+            set => SetField(ref sID, value);
         }
 
         private IList<User> users = new List<User>();
@@ -61,7 +61,7 @@ namespace Vodovoz.Domain.Security
         public virtual IList<User> Users
         {
             get => users;
-            set { SetField(ref users, value, () => Users); }
+            set => SetField(ref users, value);
         }
 
         GenericObservableList<User> observableUsers;
@@ -93,7 +93,7 @@ namespace Vodovoz.Domain.Security
         public virtual bool IsActive
         {
             get => isActive;
-            set { SetField(ref isActive, value, () => IsActive); }
+            set => SetField(ref isActive, value);
         }
 
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
