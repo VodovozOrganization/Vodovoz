@@ -36,7 +36,9 @@ namespace Vodovoz.Domain.Retail
 
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(Name))
+                yield return new ValidationResult("Название канала сбыта не может быть пустым",
+                    new[] { nameof(Name) });
         }
     }
 }
