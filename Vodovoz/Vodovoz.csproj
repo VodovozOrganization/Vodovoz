@@ -1549,6 +1549,10 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
     <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
+    <Compile Include="JournalViewers\RegisteredRMJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.RegisteredRMJournalFilterView.cs" />
+    <Compile Include="Views\Security\RegisteredRMView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Security.RegisteredRMView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1846,6 +1850,7 @@
     <Folder Include="Views\Payments\" />
     <Folder Include="Views\Proposal\" />
     <Folder Include="JournalFilters\Proposal\" />
+    <Folder Include="Views\Security\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

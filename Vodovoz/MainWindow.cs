@@ -87,6 +87,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -207,6 +209,12 @@ public partial class MainWindow : Gtk.Window
         ActionOrderCreationDateReport.Visible = 
             ActionPlanImplementationReport.Visible =
             ActionSetBillsReport.Visible = !userIsSalesRepresentative;
+
+        // Управление ограничением доступа через зарегистрированные RM
+
+        var userCanManageRegisteredRMs = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
+
+        registeredRMAction.Visible = userCanManageRegisteredRMs;
     }
 
     public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
@@ -1833,5 +1841,16 @@ public partial class MainWindow : Gtk.Window
             QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
             () => new QSReport.ReportViewDlg(new OrderChangesReport())
         );
+    }
+
+    protected void OnRegisteredRMActionActivated(object sender, EventArgs e)
+    {
+        tdiMain.AddTab(
+            new RegisteredRMJournalViewModel(
+                new RegisteredRMJournalFilterViewModel(),
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices
+            )
+        ) ;
     }
 }
