@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Employees
 		public virtual IList<RegisteredRM> RegisteredRMs
 		{
 			get => registeredRMs;
-			set { SetField(ref registeredRMs, value, () => RegisteredRMs); }
+			set => SetField(ref registeredRMs, value);
 		}
 	}
 }
