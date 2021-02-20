@@ -1552,6 +1552,10 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
     <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
+    <Compile Include="JournalViewers\RegisteredRMJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.RegisteredRMJournalFilterView.cs" />
+    <Compile Include="Views\Security\RegisteredRMView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Security.RegisteredRMView.cs" />
     <Compile Include="Views\Logistic\DeliveryPointResponsiblePersonsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryPointResponsiblePersonsView.cs" />
     <Compile Include="JournalViewers\DeliveryPointResponsiblePersonTypeJournalFilterView.cs" />
@@ -1859,6 +1863,7 @@
     <Folder Include="Views\Payments\" />
     <Folder Include="Views\Proposal\" />
     <Folder Include="JournalFilters\Proposal\" />
+    <Folder Include="Views\Security\" />
     <Folder Include="JournalViewers\Retail\" />
     <Folder Include="Views\Retail\" />
   </ItemGroup>

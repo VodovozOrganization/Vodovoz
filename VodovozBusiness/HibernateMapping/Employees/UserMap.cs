@@ -18,6 +18,12 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.NeedPasswordChange).Column("need_password_change");
 
 			Map(x => x.WarehouseAccess).Column("warehouse_access").LazyLoad();
+
+			HasManyToMany(x => x.RegisteredRMs)
+					.Table("user_rm_restrictions")
+					.ParentKeyColumn("user_id")
+					.ChildKeyColumn("registered_rm_id")
+					.LazyLoad();
 		}
 	}
 }

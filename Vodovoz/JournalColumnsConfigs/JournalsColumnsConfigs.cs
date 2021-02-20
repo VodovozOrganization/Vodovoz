@@ -25,6 +25,7 @@ using WrapMode = Pango.WrapMode;
 using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
@@ -916,6 +917,19 @@ namespace Vodovoz.JournalColumnsConfigs
                     .Finish()
             );
 
+			//RegisteredRMJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RegisteredRMJournalViewModel>(
+				() => FluentColumnsConfig<RegisteredRMJournalNode>.Create()
+					.AddColumn("Имя пользователя")
+						.AddTextRenderer(node => node.Username)
+					.AddColumn("Домен")
+						.AddTextRenderer(node => node.Domain)
+					.AddColumn("SID пользователя")
+						.AddTextRenderer(node => node.SID)
+					.AddColumn("")
+					.Finish()
+			);
+
             //DeliveryPointResponsiblePersonTypeJournalViewModel
             TreeViewColumnsConfigFactory.Register<DeliveryPointResponsiblePersonTypeJournalViewModel>(
                 () => FluentColumnsConfig<DeliveryPointResponsiblePersonTypeJournalNode>.Create()
@@ -937,6 +951,6 @@ namespace Vodovoz.JournalColumnsConfigs
                     .AddColumn("")
                     .Finish()
             );
-        }
+		}
 	}
 }
