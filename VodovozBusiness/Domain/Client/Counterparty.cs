@@ -19,6 +19,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Retail;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
@@ -609,7 +610,36 @@ namespace Vodovoz.Domain.Client
             set => SetField(ref isForRetail, value);
         }
 
-        IList<SupplierPriceItem> suplierPriceItems = new List<SupplierPriceItem>();
+		IList<SalesChannel> salesChannels = new List<SalesChannel>();
+		[PropertyChangedAlso(nameof(ObservableSalesChannels))]
+		[Display(Name = "Каналы сбыта")]
+		public virtual IList<SalesChannel> SalesChannels
+		{
+			get => salesChannels;
+			set => SetField(ref salesChannels, value);
+		}
+
+		GenericObservableList<SalesChannel> observableSalesChannels;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<SalesChannel> ObservableSalesChannels
+		{
+			get
+			{
+				if (observableSalesChannels == null)
+					observableSalesChannels = new GenericObservableList<SalesChannel>(SalesChannels);
+				return observableSalesChannels;
+			}
+		}
+
+		private int technicalProcessingDelay;
+		[Display(Name = "Отсрочка технической обработки")]
+		public virtual int TechnicalProcessingDelay
+		{
+			get => technicalProcessingDelay;
+			set => SetField(ref technicalProcessingDelay, value);
+		}
+
+		IList<SupplierPriceItem> suplierPriceItems = new List<SupplierPriceItem>();
 		[PropertyChangedAlso(nameof(ObservablePriceNodes))]
 		[Display(Name = "Цены на ТМЦ")]
 		public virtual IList<SupplierPriceItem> SuplierPriceItems {

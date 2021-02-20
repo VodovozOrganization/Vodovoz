@@ -38,6 +38,8 @@ using Vodovoz.Models;
 using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Retail;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -57,6 +59,8 @@ namespace Vodovoz
 				return nomenclatureRepository;
 			}
 		}
+
+		private GenericObservableList<SalesChannelSelectableNode> salesChannels;
 		
 		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
@@ -370,6 +374,19 @@ namespace Vodovoz
 			UpdateCargoReceiver();
 
 			#endregion Особая печать
+
+			// Настройка каналов сбыта
+
+			ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
+				.AddColumn("Название").AddTextRenderer(node => node.Name)
+				.AddColumn("").AddToggleRenderer(x => x.Selected)
+				.Finish();
+
+			ytreeviewSalesChannels.ItemsDataSource = salesChannels;
+
+
+
+			//SalesChannelSelectableNode
 		}
 
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
@@ -772,4 +789,35 @@ namespace Vodovoz
         {
         }
     }
+	public class SalesChannelSelectableNode : PropertyChangedBase
+	{
+		private int id;
+		public virtual int Id
+		{
+			get => id;
+			set => SetField(ref id, value);
+		}
+
+		private bool selected;
+		public virtual bool Selected
+		{
+			get => selected;
+			set => SetField(ref selected, value);
+		}
+
+		private string name;
+		public virtual string Name
+		{
+			get => name;
+			set => SetField(ref name, value);
+		}
+
+		public string Title => Name;
+
+		public SalesChannelSelectableNode(SalesChannel routeListStatus)
+		{
+			Id = routeListStatus.Id;
+			Name = routeListStatus.Name;
+		}
+	}
 }
