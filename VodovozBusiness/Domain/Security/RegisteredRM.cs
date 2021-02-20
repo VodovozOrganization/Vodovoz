@@ -100,15 +100,15 @@ namespace Vodovoz.Domain.Security
         {
             if (string.IsNullOrWhiteSpace(Username))
                 yield return new ValidationResult("Имя пользователя не может быть пустым",
-                    new[] { GetPropertyName(() => Username)});
+                    new[] { nameof(Username) });
 
             if (string.IsNullOrWhiteSpace(Domain))
                 yield return new ValidationResult("Домен не может быть пустым",
-                    new[] { GetPropertyName(() => Domain) });
+                    new[] { nameof(Domain) });
 
             if (string.IsNullOrWhiteSpace(SID))
                 yield return new ValidationResult("SID пользователя не может быть пустым",
-                    new[] { GetPropertyName(() => SID) });
+                    new[] { nameof(SID) });
         }
     }
 }
