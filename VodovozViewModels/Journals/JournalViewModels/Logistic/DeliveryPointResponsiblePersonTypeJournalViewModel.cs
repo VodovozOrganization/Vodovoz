@@ -21,6 +21,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал типов ответственного за точку доставки лица";
+
+            UpdateOnChanges(
+                typeof(DeliveryPointResponsiblePersonType)
+            );
         }
 
         protected override Func<IUnitOfWork, IQueryOver<DeliveryPointResponsiblePersonType>> ItemsSourceQueryFunction => (uow) =>

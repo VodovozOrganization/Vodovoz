@@ -34,7 +34,9 @@ namespace Vodovoz.Domain.Client
 
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(Title))
+                yield return new ValidationResult("Название типа ответственного за точку доставки лица не может быть пустым",
+                    new[] { nameof(Title) });
         }
     }
 }

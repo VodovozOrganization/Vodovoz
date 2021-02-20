@@ -58,7 +58,13 @@ namespace Vodovoz.Domain.Client
 
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            throw new NotImplementedException();
+            if (Employee == null)
+                yield return new ValidationResult("Необходимо выбрать сотрудника для ответственного за точку доставки лица",
+                    new[] { nameof(Employee) });
+
+            if (string.IsNullOrWhiteSpace(Phone))
+                yield return new ValidationResult("Телефон ответственного за точку доставки лица не может быть пустым",
+                    new[] { nameof(Phone) });
         }
     }
 }
