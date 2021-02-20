@@ -230,14 +230,14 @@ namespace Vodovoz
 
 		private static bool CanLogin()
         {
-			using (var UoW = UnitOfWorkFactory.GetDefaultFactory.CreateForRoot<User>(QSMain.User.Id))
+			using (var UoW = UnitOfWorkFactory.GetDefaultFactory.CreateWithoutRoot())
 			{
-				var DBLogin = UoW.Root.Login;
+				var DBLogin = ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).Login;
 
 				// Получение данных пользователя системы
-				var windowsIdentity = WindowsIdentity.GetCurrent();
-				var SID = windowsIdentity.User.ToString();
-				var domainAndUser = windowsIdentity.Name.Split('\\');
+				var windowsIdentity = WindowsIdentity.GetCurrent() ?? throw new ArgumentNullException("Не удается получить идентификатор пользователя");
+				var SID = windowsIdentity?.User.ToString() ?? "";
+				var domainAndUser = windowsIdentity?.Name.Split('\\');
 				var domain = domainAndUser[0];
 				var windowsUser = domainAndUser[1];
 
