@@ -28,7 +28,7 @@ namespace Vodovoz.Domain.Client
         public virtual DeliveryPointResponsiblePersonType DeliveryPointResponsiblePersonType
         {
             get => deliveryPointResponsiblePersonType;
-            set => SetField(ref deliveryPointResponsiblePersonType, value, () => DeliveryPointResponsiblePersonType);
+            set => SetField(ref deliveryPointResponsiblePersonType, value);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Vodovoz.Domain.Client
         public virtual Employee Employee
         {
             get => employee;
-            set => SetField(ref employee, value, () => Employee);
+            set => SetField(ref employee, value);
         }
 
         string phone;
@@ -51,7 +51,7 @@ namespace Vodovoz.Domain.Client
         public virtual string Phone
         {
             get => phone;
-            set => SetField(ref phone, value, () => Phone);
+            set => SetField(ref phone, value);
         }
 
         #endregion

@@ -29,7 +29,7 @@ namespace Vodovoz.Domain.Retail
         public virtual string Name
         {
             get => name;
-            set => SetField(ref name, value, () => Name);
+            set => SetField(ref name, value);
         }
 
         #endregion

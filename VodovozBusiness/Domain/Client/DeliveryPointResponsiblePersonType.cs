@@ -27,7 +27,7 @@ namespace Vodovoz.Domain.Client
         public virtual string Title
         {
             get => title;
-            set => SetField(ref title, value, () => Title);
+            set => SetField(ref title, value);
         }
 
         #endregion
