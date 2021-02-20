@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -20,35 +21,38 @@ namespace Vodovoz.ViewModels.ViewModels.Security
         {
         }
 
-        public void AddUser(User user)
-        {
-            Entity.ObservableUsers.Add(user);
-        }
+        private DelegateCommand addUserCommand;
+        public DelegateCommand AddUserCommand => addUserCommand ?? (addUserCommand = new DelegateCommand(
+            () => {
+                var userFilterViewModel = new UserJournalFilterViewModel();
+                var userJournalViewModel = new UserJournalViewModel(
+                        userFilterViewModel,
+                        UnitOfWorkFactory,
+                        ServicesConfig.CommonServices)
+                {
+                    SelectionMode = JournalSelectionMode.Single,
+                };
 
-        public void RemoveUser(User user)
-        {
-            Entity.ObservableUsers.Remove(user);
-        }
+                userJournalViewModel.OnEntitySelectedResult += (s, ea) =>
+                {
+                    var selectedNode = ea.SelectedNodes.FirstOrDefault();
+                    if (selectedNode == null)
+                        return;
 
-        public void OpenUserSelectionTab()
-        {
-            var userFilterViewModel = new UserJournalFilterViewModel();
-            var userJournalViewModel = new UserJournalViewModel(
-                    userFilterViewModel,
-                    UnitOfWorkFactory,
-                    ServicesConfig.CommonServices)
-            {
-                SelectionMode = JournalSelectionMode.Single,
-            };
+                    var user = UoWGeneric.Session.Get<User>(selectedNode.Id);
 
-            userJournalViewModel.OnEntitySelectedResult += (s, ea) => {
-                var selectedNode = ea.SelectedNodes.FirstOrDefault();
-                if (selectedNode == null)
-                    return;
+                    Entity.ObservableUsers.Add(user);
+                };
 
-                AddUser(UoWGeneric.Session.Get<User>(selectedNode.Id));
-            };
-            TabParent.AddSlaveTab(this, userJournalViewModel);
-        }
+                TabParent.AddSlaveTab(this, userJournalViewModel);
+            }, () => true
+        ));
+
+        private DelegateCommand<User> removeUserCommand;
+        public DelegateCommand<User> RemoveUserCommand => removeUserCommand ?? (removeUserCommand = new DelegateCommand<User>(
+            (user) => {
+                Entity.ObservableUsers.Remove(user);
+            }, (user) => true
+        ));
     }
 }

@@ -42,12 +42,12 @@ namespace Vodovoz.Views.Security
 
         protected void OnButtonAddUserClicked(object sender, System.EventArgs e)
         {
-            ViewModel.OpenUserSelectionTab();
+            ViewModel.AddUserCommand.Execute();
         }
 
         protected void OnButtonDeleteUserClicked(object sender, System.EventArgs e)
         {
-            ViewModel.RemoveUser(ytreeviewUsers.GetSelectedObject<User>());
+            ViewModel.RemoveUserCommand.Execute(ytreeviewUsers.GetSelectedObject<User>());
         }
     }
 }
