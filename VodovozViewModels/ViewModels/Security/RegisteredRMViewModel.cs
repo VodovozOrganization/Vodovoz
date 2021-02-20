@@ -51,7 +51,10 @@ namespace Vodovoz.ViewModels.ViewModels.Security
         private DelegateCommand<User> removeUserCommand;
         public DelegateCommand<User> RemoveUserCommand => removeUserCommand ?? (removeUserCommand = new DelegateCommand<User>(
             (user) => {
-                Entity.ObservableUsers.Remove(user);
+                if (user != null)
+                {
+                    Entity.ObservableUsers.Remove(user);
+                }
             }, (user) => true
         ));
     }
