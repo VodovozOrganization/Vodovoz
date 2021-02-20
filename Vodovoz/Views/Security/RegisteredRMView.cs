@@ -2,12 +2,6 @@
 using Vodovoz.ViewModels.ViewModels.Security;
 using Vodovoz.Domain.Employees;
 using Gamma.GtkWidgets;
-using Vodovoz.Journals.FilterViewModels.Employees;
-using Vodovoz.Journals;
-using QS.DomainModel.UoW;
-using QS.Project.Services;
-using QS.Project.Journal;
-using System.Linq;
 
 namespace Vodovoz.Views.Security
 {
@@ -48,29 +42,12 @@ namespace Vodovoz.Views.Security
 
         protected void OnButtonAddUserClicked(object sender, System.EventArgs e)
         {
-            var userFilterViewModel = new UserJournalFilterViewModel();
-            var userJournalViewModel = new UserJournalViewModel(
-                    userFilterViewModel,
-                    UnitOfWorkFactory.GetDefaultFactory,
-                    ServicesConfig.CommonServices)
-            {
-                SelectionMode = JournalSelectionMode.Single,
-            };
-
-            userJournalViewModel.OnEntitySelectedResult += (s, ea) => {
-                var selectedNode = ea.SelectedNodes.FirstOrDefault();
-                if (selectedNode == null)
-                    return;
-
-                ViewModel.AddUser(ViewModel.UoWGeneric.Session.Get<User>(selectedNode.Id));
-            };
-            Tab.TabParent.AddSlaveTab(Tab, userJournalViewModel);
+            ViewModel.OpenUserSelectionTab();
         }
-
 
         protected void OnButtonDeleteUserClicked(object sender, System.EventArgs e)
         {
-            ViewModel.Entity.ObservableUsers.Remove(ytreeviewUsers.GetSelectedObject<User>());
+            ViewModel.RemoveUser(ytreeviewUsers.GetSelectedObject<User>());
         }
     }
 }
