@@ -1780,6 +1780,9 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(newItem);
 		}
 
+		/// <summary>
+		/// У Contact обязательно должен быть установлен Counterparty
+		/// </summary>
 		public virtual void AddNomenclature(
 			Nomenclature nomenclature, 
 			decimal count = 1, 

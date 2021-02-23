@@ -15,7 +15,10 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
+using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.Services;
 using Contact = BitrixApi.DTO.Contact;
@@ -45,15 +48,26 @@ namespace BitrixIntegration {
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly Matcher matcher;
+        private readonly CounterpartyContractRepository counterpartyContractRepository;
+        private readonly CounterpartyContractFactory counterpartyContractFactory;
         
 
-        public CoR(IBitrixServiceSettings _bitrixServiceSettings, /*string _token,*/ IBitrixRestApi _bitrixRestApi, IUnitOfWork _uow, Matcher _matcher)
+        public CoR(
+	        IBitrixServiceSettings _bitrixServiceSettings,
+	        IBitrixRestApi _bitrixRestApi, 
+	        IUnitOfWork _uow,
+	        Matcher _matcher,
+	        CounterpartyContractRepository _counterpartyContractRepository,
+	        CounterpartyContractFactory _counterpartyContractFactory
+	        )
         {
 	        // token = _token ?? throw new ArgumentNullException(nameof(_token));
 	        bitrixApi = _bitrixRestApi ?? throw new ArgumentNullException(nameof(_bitrixRestApi));
 	        uow = _uow ?? throw new ArgumentNullException(nameof(_uow));
 	        matcher = _matcher ?? throw new ArgumentNullException(nameof(_matcher));
 	        bitrixServiceSettings = _bitrixServiceSettings ?? throw new ArgumentNullException(nameof(_bitrixServiceSettings));
+	        counterpartyContractRepository = _counterpartyContractRepository ?? throw new ArgumentNullException(nameof(_counterpartyContractRepository));
+	        counterpartyContractFactory = _counterpartyContractFactory ?? throw new ArgumentNullException(nameof(_counterpartyContractFactory));
 	        QS.Osm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
         }
 
@@ -161,7 +175,12 @@ namespace BitrixIntegration {
 		        Contract = new CounterpartyContract()
 		        // Onli
 	        };
-
+	        // var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+	        // var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+	        // var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
+	        // var counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
+			newOrder.UpdateOrCreateContract(uow, counterpartyContractRepository, counterpartyContractFactory);
+			
 	        if (needSetFirstOrderForCounterparty){
 		        counterpartyForNewOrder.FirstOrder = newOrder;
 	        }
@@ -380,14 +399,14 @@ namespace BitrixIntegration {
 	        IList<ProductFromDeal> unmatchedProducts = new List<ProductFromDeal>();
 			
 	        foreach (var productBitrix in productList){
-		        if (matcher.MatchNomenclatureByBitrixId(uow, productBitrix.Id, out var ourNomenclatureByBitrixId)){
+		        if (matcher.MatchNomenclatureByBitrixId(uow, productBitrix.ProductId, out var ourNomenclatureByBitrixId)){
 			        logger.Info($"Номенклатура {productBitrix.ProductName} сопоставилась по id {ourNomenclatureByBitrixId.BitrixId}");
-			        var isOur = await IsNomenclatureFromDV(productBitrix.Id);
+			        var isOur = await IsNomenclatureFromDV(productBitrix.ProductId);
 			        UpdateNomenclaturePriceIfNeededAndAdd(deal, newOrder, productBitrix, ourNomenclatureByBitrixId, isOur);
 		        }
 		        else if (matcher.MatchNomenclatureByName(uow, productBitrix.ProductName, out var ourNomenclatureByName)){
 			        logger.Info($"Номенклатура {productBitrix.ProductName} сопоставилась по имени");
-			        var isOur = await IsNomenclatureFromDV(productBitrix.Id);
+			        var isOur = await IsNomenclatureFromDV(productBitrix.ProductId);
 			        UpdateNomenclaturePriceIfNeededAndAdd(deal, newOrder, productBitrix, ourNomenclatureByName, isOur);
 		        }
 		        else{
@@ -411,7 +430,7 @@ namespace BitrixIntegration {
 				        Name = productFromDeal.ProductName,
 				        CreateDate = DateTime.Now,
 				        Category = NomenclatureCategory.additional, //TODO gavr не факт
-				        BitrixId = productFromDeal.Id,
+				        BitrixId = productFromDeal.ProductId,
 				        // VAT = VAT.Vat20, //TODO gavr уточнить
 				        OnlineStoreExternalId = "3",
 				        Unit = measurement,
@@ -428,7 +447,7 @@ namespace BitrixIntegration {
 
         private async Task<ProductGroup> ProcessProductGroup(ProductFromDeal productFromDeal)
         {
-	        var product = await bitrixApi.GetProduct(productFromDeal.PRODUCT_ID);
+	        var product = await bitrixApi.GetProduct(productFromDeal.ProductId);
 	        // Красота и здоровье/Уход/Уход за лицом/Маски для лица
 	        var allProductGroups = product.CategoryObj.IsOurProduct.Split('/');
 	        //Сопоставляем только последнюю, иначе нужно создавать
@@ -507,11 +526,11 @@ namespace BitrixIntegration {
 			        uow.Save(nomenclature);
 		        }
 
-		        newOrder.AddNomenclature(nomenclature, productBitrix.Count);
+		        newOrder.AddAnyGoodsNomenclatureForSale(nomenclature, cnt: productBitrix.Count);
 	        }
 	        else {
 		        var discount = Math.Abs(nomenclature.GetPrice(1) - productBitrix.Price);
-			    newOrder.AddNomenclature(nomenclature, productBitrix.Count, discount, true);
+			    newOrder.AddNomenclature(nomenclature, productBitrix.Count, discount, true); //TODO gavr тут будет вылет изза того что у Order.Contract.Counterparty == null, а в GetFixedPriceOrNull оно используется
 			    uow.Save(newOrder);
 	        }
 	        

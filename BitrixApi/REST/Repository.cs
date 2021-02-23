@@ -42,7 +42,7 @@ namespace BitrixApi.REST
                 logger.Info("Подождали Deal");
             }
             finally{
-                semaphoreSlim.Dispose();
+                semaphoreSlim.Release();
             }
            
             return request.Result;
@@ -64,7 +64,7 @@ namespace BitrixApi.REST
                 logger.Info("Подождали Contact");
             }
             finally{
-                semaphoreSlim.Dispose();
+                semaphoreSlim.Release();
             }
             
             return request.Result; 
@@ -86,7 +86,7 @@ namespace BitrixApi.REST
                 logger.Info("Подождали Company");
             }
             finally{
-                semaphoreSlim.Dispose();
+                semaphoreSlim.Release();
             }
             
             return request.Result; 
@@ -106,11 +106,11 @@ namespace BitrixApi.REST
 
                 Thread.Sleep(1000);
                 request = JsonConvert.DeserializeObject<ProductRequest>(await msg);
-                logger.Info("Ждем Product");
+                logger.Info("Подождали Product");
 
             }
             finally{
-                semaphoreSlim.Dispose();
+                semaphoreSlim.Release();
             }
             
             return request.Result; 
@@ -129,11 +129,11 @@ namespace BitrixApi.REST
 
                 Thread.Sleep(1000);
                 request = JsonConvert.DeserializeObject<ProductFromDealRequest>(await msg);
-                logger.Info("Ждем ProductFromDeal");
+                logger.Info("Подождали ProductFromDeal");
 
             }
             finally{
-                semaphoreSlim.Dispose();
+                semaphoreSlim.Release();
             }
             
             return request.Result; 
@@ -147,16 +147,17 @@ namespace BitrixApi.REST
         {
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/2364/{token}/crm.deal.userfield.list.json";
-            
             var msg = client.GetStringAsync(requestUri);
             
             CustomFieldsDealList request = null;
             try{
+                logger.Info("Ждем AllCustomFieldsFromDeal");
                 Thread.Sleep(1000);
                 request = JsonConvert.DeserializeObject<CustomFieldsDealList>(await msg);
+                logger.Info("Подождали ProductFromDeal");
             }
             finally{
-                semaphoreSlim.Dispose();
+                semaphoreSlim.Release();
             }
             
             return request.Result; 
@@ -175,7 +176,7 @@ namespace BitrixApi.REST
                 request = JsonConvert.DeserializeObject<CustomFileldDealItem>(await msg);
             }
             finally{
-                semaphoreSlim.Dispose();
+                semaphoreSlim.Release();
             }
             
             return request.Result; 

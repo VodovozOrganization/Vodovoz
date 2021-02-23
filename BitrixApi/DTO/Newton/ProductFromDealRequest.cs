@@ -9,10 +9,11 @@ namespace BitrixApi.DTO {
     }
     
     public class ProductFromDeal {
-        [JsonProperty("ID")]  public uint Id { get; set; }
+        // [JsonProperty("ID")]  public uint Id { get; set; }
         [JsonProperty("OWNER_ID")]  public string OWNER_ID { get; set; }
         [JsonProperty("OWNER_TYPE")] public string OWNER_TYPE { get; set; } 
-        [JsonProperty("PRODUCT_ID")] public uint PRODUCT_ID { get; set; }
+        //Вот это настоящий BitrixId товара
+        [JsonProperty("PRODUCT_ID")] public uint ProductId { get; set; }
         [JsonProperty("PRODUCT_NAME")] public string ProductName { get; set; }
         [JsonProperty("PRODUCT_DESCRIPTION")] public string PRODUCT_DESCRIPTION { get; set; }
         [JsonProperty("PRICE")] public decimal Price { get; set; }

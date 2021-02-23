@@ -15,6 +15,9 @@ using QS.Project.DB;
 using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Models;
+using Vodovoz.Repositories.Client;
 using Vodovoz.Services;
 
 namespace VodovozBitrixIntegrationService
@@ -23,8 +26,8 @@ namespace VodovozBitrixIntegrationService
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		// private static readonly string configFile = "/home/gavr/vodovoz-bitrix-integration-service.conf"; 
-		private static readonly string configFile = "/etc/vodovoz-bitrix-integration-service.conf"; 
+		private static readonly string configFile = "/home/gavr/vodovoz-bitrix-integration-service.conf"; 
+		// private static readonly string configFile = "/etc/vodovoz-bitrix-integration-service.conf"; 
 			
 		//Service
 		private static string serviceHostName;
@@ -210,8 +213,23 @@ namespace VodovozBitrixIntegrationService
 
 			// BitrixManager.AddEvent(deal);
 			var uow = UnitOfWorkFactory.CreateWithoutRoot();
-				var cor = new CoR(baseParameters, /*token,*/ BitrixRestApiFactory.CreateBitrixRestApi(token), uow, new Matcher());
-				// await cor.Process(158740); //138768 //150772 // 158740 тестовый
+			var matcher = new Matcher();
+			var bitrixApi = BitrixRestApiFactory.CreateBitrixRestApi(token);
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
+			var counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
+			
+				var cor = new CoR(
+					baseParameters, 
+					bitrixApi,
+					uow, 
+					matcher,
+					counterpartyContractRepository,
+					counterpartyContractFactory
+				);
+				
+				await cor.Process(138768); //138768 //150772 // 158740 тестовый
 			BitrixManager.SetCoR(cor);
 
 			bitrixHost.AddServiceEndpoint(contract, binding, address);
