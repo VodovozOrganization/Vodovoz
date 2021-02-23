@@ -312,28 +312,17 @@ namespace BitrixIntegration {
         //должна будет создаваться категория в группе 502, с каким нибудь системным названием типа "Без названия".
         //Позже служба актуализирует информацию по ней
         
-        public bool MatchNomenclatureGroup(IUnitOfWork uow, Product product, out ProductGroup outProductGroup)
+        public bool MatchNomenclatureGroupByName(IUnitOfWork uow, string lastGroup, out ProductGroup outProductGroup)
         {
-            var allProductGroups = product.CategoryObj.Category.Split('/');
-            
-            //Сопоставление с каждой?
-            // foreach (var productGroupName in allProductGroups){
-            //     var group = Vodovoz.EntityRepositories.Goods.NomenclatureRepository.GetProductGroupFromBitrixProductGroup(uow, productGroupName);
-            //     if (group != null){
-            //         
-            //     }
-            // }
-            
-            //Сопоставление номенклатуры
-            ProductGroup productGroup = NomenclatureRepository.GetProductGroupFromBitrixProductGroup(uow, product.Name);
-            if (productGroup != null){
-                //Сравнение информации о номенклатуре и обновление если она отличается
-                outProductGroup = productGroup;
+            var group = NomenclatureRepository.GetProductGroupByName(uow, lastGroup);
+            if (group != null){
+                outProductGroup = group;
                 return true;
             }
-        
-            outProductGroup = null;
-            return false;
+            else{
+                outProductGroup = null;
+                return false;
+            }
         }
     }
 }

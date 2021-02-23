@@ -54,7 +54,8 @@ namespace BitrixApi.REST
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/2364/{token}/crm.contact.get.json?id={id}";
             var msg = client.GetStringAsync(requestUri);
-            
+            await semaphoreSlim.WaitAsync();
+
             ContactRequest request = null;
             try{
                 logger.Info("Ждем Contact");
@@ -75,15 +76,14 @@ namespace BitrixApi.REST
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/2364/{token}/crm.company.get.json?id={id}";
             var msg = client.GetStringAsync(requestUri);
-            
+            await semaphoreSlim.WaitAsync();
+
             CompanyRequest request = null;
             try{
                 logger.Info("Ждем Company");
-
                 Thread.Sleep(1000);
                 request = JsonConvert.DeserializeObject<CompanyRequest>(await msg);
                 logger.Info("Подождали Company");
-
             }
             finally{
                 semaphoreSlim.Dispose();
@@ -98,7 +98,8 @@ namespace BitrixApi.REST
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/2364/{token}/crm.product.get.json?id={id}";
             var msg = client.GetStringAsync(requestUri);
-            
+            await semaphoreSlim.WaitAsync();
+
             ProductRequest request = null;
             try{
                 logger.Info("Ждем Product");
@@ -120,7 +121,8 @@ namespace BitrixApi.REST
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/2364/{token}/crm.deal.productrows.get.json?id={dealId}";
             var msg = client.GetStringAsync(requestUri);
-            
+            await semaphoreSlim.WaitAsync();
+
             ProductFromDealRequest request = null;
             try{
                 logger.Info("Ждем ProductFromDeal");

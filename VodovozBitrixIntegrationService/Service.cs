@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Threading;
-using System.Threading.Tasks;
-using BitrixApi.DTO;
 using BitrixApi.REST;
 using BitrixIntegration;
-using BitrixIntegration.DTO;
 using BitrixIntegration.ServiceInterfaces;
 using Mono.Unix;
 using Mono.Unix.Native;
@@ -20,9 +15,6 @@ using QS.Project.DB;
 using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 
 namespace VodovozBitrixIntegrationService
@@ -31,8 +23,8 @@ namespace VodovozBitrixIntegrationService
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		private static readonly string configFile = "/home/gavr/vodovoz-bitrix-integration-service.conf"; 
-		// private static readonly string configFile = "/etc/vodovoz-bitrix-integration-service.conf"; 
+		// private static readonly string configFile = "/home/gavr/vodovoz-bitrix-integration-service.conf"; 
+		private static readonly string configFile = "/etc/vodovoz-bitrix-integration-service.conf"; 
 			
 		//Service
 		private static string serviceHostName;
@@ -198,9 +190,7 @@ namespace VodovozBitrixIntegrationService
 
 			var webContract = typeof(IBitrixServiceWeb);
 			var webBinding = new WebHttpBinding();
-			logger.Info("до");
 			var webAddress = $"http://{serviceHostName}:{serviceWebPort}/BitrixServiceWeb";
-			logger.Info("после");
 
 			var webEndPoint = bitrixHost.AddServiceEndpoint(webContract, webBinding, webAddress);
 			
@@ -221,11 +211,12 @@ namespace VodovozBitrixIntegrationService
 			// BitrixManager.AddEvent(deal);
 			var uow = UnitOfWorkFactory.CreateWithoutRoot();
 				var cor = new CoR(baseParameters, /*token,*/ BitrixRestApiFactory.CreateBitrixRestApi(token), uow, new Matcher());
-				await cor.Process(158740); //138768 //150772 // 158740 тестовый
+				// await cor.Process(158740); //138768 //150772 // 158740 тестовый
 			BitrixManager.SetCoR(cor);
 
 			bitrixHost.AddServiceEndpoint(contract, binding, address);
-
+			
+			bitrixHost.Description.Behaviors.Add(new PreFilter());
 			bitrixHost.Open();
 
 			logger.Log(LogLevel.Info, "Сервис запущен");
@@ -233,7 +224,6 @@ namespace VodovozBitrixIntegrationService
 		
 
 #if DEBUG
-			// EmailSendingHost.Description.Behaviors.Add(new PreFilter());
 			// MailjetEventsHost.Description.Behaviors.Add(new PreFilter());
 #endif
 			// EmailSendingHost.Open();

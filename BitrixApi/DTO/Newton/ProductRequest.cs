@@ -23,12 +23,17 @@ namespace BitrixApi.DTO
         [JsonProperty("PRICE")] public decimal Price { get; set; }
         [JsonProperty("CURRENCY_ID")] public string CURRENCY_ID { get; set; }
         [JsonProperty("VAT_INCLUDED")] public string VAT_INCLUDED { get; set; } 
-        [JsonProperty("MEASURE")] public int MEASURE { get; set; } //TODO gavr узнать че ето у товара, может быть в битриксе есть таблица соответствий мер типа грам это id 9
+        [JsonProperty("MEASURE")] public int MEASURE { get; set; }
         [JsonProperty("PROPERTY_174")] public ProductCategory CategoryObj { get; set; }
+        [JsonProperty("PROPERTY_176")] public ProductIsOur IsOurObj { get; set; }
     }
 
     public class ProductCategory {
         [JsonProperty("valueId")] public string valueId { get; set; }
-        [JsonProperty("value")] public string Category { get; set; }
+        [JsonProperty("value")] public string IsOurProduct { get; set; }
+    }
+    public class ProductIsOur {
+        [JsonProperty("valueId")] public string valueId { get; set; }
+        [JsonProperty("value")] public string IsOurProduct { get; set; }
     }
 }

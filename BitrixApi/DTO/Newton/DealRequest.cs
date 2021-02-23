@@ -67,6 +67,7 @@ namespace BitrixApi.DTO
         [JsonProperty("UF_CRM_5DA9BBA03A12A")] public uint DeliverySchedule { get; set; }
         [JsonProperty("UF_CRM_1603521814")] public uint CreateInDV { get; set; }
         [JsonProperty("UF_CRM_1613635090586")] public int? BottlsToReturn { get; set; }
+        [JsonProperty("UF_CRM_5DADB4A27E1EC")] public int? Trifle { get; set; }
         
         
         

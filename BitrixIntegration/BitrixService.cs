@@ -1,24 +1,13 @@
 ﻿using System;
-using System.Net;
 using System.ServiceModel.Web;
-using System.Threading.Tasks;
 using BitrixApi.DTO.DataContractJsonSerializer;
-using BitrixApi.REST;
-using BitrixIntegration.DTO.Mailjet;
 using BitrixIntegration.ServiceInterfaces;
-using QS.DomainModel.UoW;
-using QS.Project.DB;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.StoredEmails;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services;
-using Email = BitrixIntegration.DTO.Email;
 
 namespace BitrixIntegration
 {
-	public class BitrixService : IBitrixService, IBitrixEventService, IBitrixServiceWeb
+	public class BitrixService : IBitrixService, /*IBitrixEventService,*/ IBitrixServiceWeb
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IBitrixServiceSettings bitrixServiceSettings;
@@ -36,16 +25,18 @@ namespace BitrixIntegration
 		}
 
 		public int Add(int a, int b)
-		{
-			return a + b;
-		}
+			=> a + b;
+		
 		
 		
 		public void PostEvent(BitrixPostResponse response)
 		{
+			// logger.Info("Получен из битрикса: \n" + response.ToString());
 			BitrixManager.AddEvent(response);
-			if (WebOperationContext.Current != null)
+			if (WebOperationContext.Current != null){
+				logger.Info(WebOperationContext.Current.IncomingResponse.ToString());
 				WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.OK;
+			}
 		}
 
 		public bool ServiceStatus()

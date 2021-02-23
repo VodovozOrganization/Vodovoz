@@ -246,7 +246,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Where(x => x.BitrixId == bitrixId)
 				.SingleOrDefault();
 		
-		public static ProductGroup GetProductGroupFromBitrixProductGroup(IUnitOfWork uow, string productGroup)
+		public static ProductGroup GetProductGroupByName(IUnitOfWork uow, string productGroup)
 		{
 			return uow.Session.QueryOver<ProductGroup>()
 				.Where(x => x.Name == productGroup)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ServiceModel;
 using System.ServiceModel.Web;
-using BitrixIntegration.DTO;
 using Vodovoz.Domain.Orders;
 
 namespace BitrixIntegration.ServiceInterfaces

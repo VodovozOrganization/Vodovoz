@@ -12,7 +12,7 @@ namespace BitrixApi.DTO {
         [JsonProperty("ID")]  public uint Id { get; set; }
         [JsonProperty("OWNER_ID")]  public string OWNER_ID { get; set; }
         [JsonProperty("OWNER_TYPE")] public string OWNER_TYPE { get; set; } 
-        [JsonProperty("PRODUCT_ID_X")] public int PRODUCT_ID { get; set; }
+        [JsonProperty("PRODUCT_ID")] public uint PRODUCT_ID { get; set; }
         [JsonProperty("PRODUCT_NAME")] public string ProductName { get; set; }
         [JsonProperty("PRODUCT_DESCRIPTION")] public string PRODUCT_DESCRIPTION { get; set; }
         [JsonProperty("PRICE")] public decimal Price { get; set; }
@@ -28,6 +28,6 @@ namespace BitrixApi.DTO {
         [JsonProperty("TAX_INCLUDED")] public string TAX_INCLUDED { get; set; } // Bool
         [JsonProperty("CUSTOMIZED")] public string CUSTOMIZED { get; set; }
         [JsonProperty("MEASURE_CODE")] public string MEASURE_CODE { get; set; }
-        [JsonProperty("MEASURE_NAME")] public string MEASURE_NAME { get; set; } // шт
+        [JsonProperty("MEASURE_NAME")] public string MeasureName { get; set; } // шт
     }
 }

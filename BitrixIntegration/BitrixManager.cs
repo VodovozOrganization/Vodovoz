@@ -1,24 +1,15 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Net;
-using System.ServiceModel.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using BitrixApi.DTO.DataContractJsonSerializer;
-using BitrixApi.REST;
-using BitrixIntegration.DTO.Mailjet;
-using Mailjet.Client;
-using Mailjet.Client.Resources;
 using NLog;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Deal = BitrixApi.DTO.Deal;
 using DealRequest = BitrixApi.DTO.DealRequest;
-using Email = BitrixIntegration.DTO.Email;
 
 namespace BitrixIntegration
 {
@@ -59,7 +50,7 @@ namespace BitrixIntegration
 		{
 			workerTasksCreatedCounter++;
 			logger.Info("Запуск новой задачи по отправке писем");
-			Task workerTask = Task.Factory.StartNew(() => ProcessDealCycle(), cancellationToken.Token);
+			Task workerTask = Task.Factory.StartNew(ProcessDealCycle, cancellationToken.Token);
 			// Перезапуск тасков на случай если вылетели из while true
 			workerTask.ContinueWith((task) => StartNewWorker());
 		}
@@ -75,13 +66,6 @@ namespace BitrixIntegration
 				return;
 			}
 			logger.Error("Token не выставлен");
-			// IMailjetParametersProvider parametersProvider = new BaseParametersProvider();
-
-			// try {
-			// 	SetLoginSetting(parametersProvider.MailjetUserId, parametersProvider.MailjetSecretKey);
-			// } catch(Exception ex) {
-			// 	logger.Error(ex);
-			// }
 		}
 
 		public static int CountOrderNewStatusesInQueue()
@@ -154,60 +138,12 @@ namespace BitrixIntegration
 			//TODO gavr отправка статус в битрикс должна быть в репозитории здесь
 			
 			throw new NotImplementedException();
-			// if(!emailRepository.CanSendByTimeout(email.Recipient.EmailAddress, email.Order, email.OrderDocumentType)) {
-			// 	logger.Error("{0} Попытка отправить статус до истечения минимального времени до повторной отправки", GetThreadInfo());
-			// 	throw new Exception("Отправка на один и тот же адрес возможна раз в 10 минут");
-			// }
-			//
-			// logger.Debug("{0} Запись в базу информации о письме", GetThreadInfo());
-			// using(var uow = UnitOfWorkFactory.CreateWithNewRoot<StoredEmail>($"[ES]Добавление письма на отправку")) {
-			// 	//Заполнение нового письма данными
-			// 	switch (email.OrderDocumentType)
-			// 	{
-			// 		case OrderDocumentType.Bill:
-			// 			uow.Root.Order = uow.GetById<Order>(email.Order);
-			// 			break;
-			// 		case OrderDocumentType.BillWSForDebt:
-			// 			uow.Root.OrderWithoutShipmentForDebt = uow.GetById<OrderWithoutShipmentForDebt>(email.Order);
-			// 			break;
-			// 		case OrderDocumentType.BillWSForAdvancePayment:
-			// 			uow.Root.OrderWithoutShipmentForAdvancePayment = uow.GetById<OrderWithoutShipmentForAdvancePayment>(email.Order);
-			// 			break;
-			// 		case OrderDocumentType.BillWSForPayment:
-			// 			uow.Root.OrderWithoutShipmentForPayment = uow.GetById<OrderWithoutShipmentForPayment>(email.Order);
-			// 			break;
-			// 	}
-			// 	
-			// 	uow.Root.DocumentType = email.OrderDocumentType;
-			// 	uow.Root.SendDate = DateTime.Now;
-			// 	uow.Root.StateChangeDate = DateTime.Now;
-			// 	uow.Root.HtmlText = email.HtmlText;
-			// 	uow.Root.Text = email.Text;
-			// 	uow.Root.Title = email.Title;
-			// 	uow.Root.State = StoredEmailStates.WaitingToSend;
-			// 	uow.Root.SenderName = email.Sender.Title;
-			// 	uow.Root.SenderAddress = email.Sender.EmailAddress;
-			// 	uow.Root.RecipientName = email.Recipient.Title;
-			// 	uow.Root.RecipientAddress = email.Recipient.EmailAddress;
-			// 	uow.Root.ManualSending = email.ManualSending;
-			// 	uow.Root.Author = email.AuthorId != 0 ? uow.GetById<Employee>(email.AuthorId) : null;
-			// 	try {
-			// 		uow.Save();
-			// 	}
-			// 	catch(Exception ex) {
-			// 		logger.Debug(string.Format("{1} Ошибка при сохранении. Ошибка: {0}", ex.Message, GetThreadInfo()));
-			// 		throw ex;
-			// 	}
-			// 	email.StoredEmailId = uow.Root.Id;
-			// 	dealsQueue.Add(email);
-			// 	logger.Debug("{0} Письмо добавлено в очередь на отправку. Писем в очереди: {1}", GetThreadInfo(), dealsQueue.Count);
-			// 	logger.Debug("{0} Закончил работу.", GetThreadInfo());
-			// }
+			
 		}
 
 		//основной бесконечный цикл по обработке поступивших штук
 		// скорее всего лучше переделать под цикл посылки изменившихся статусов заказов
-		static async Task ProcessDealCycle()
+		static void ProcessDealCycle()
 		{
 			Thread.CurrentThread.Name = "EmailSendWorker";
 			while(true) {
@@ -230,6 +166,8 @@ namespace BitrixIntegration
 				}
 				
 			}
+			throw new NotImplementedException();
+			
 		}
 
 		static async void ProcessEvent(BitrixPostResponse bitrixEvent)
@@ -237,7 +175,7 @@ namespace BitrixIntegration
 			
 			if (bitrixEvent != null){
 				logger.Info("Поступил Event Bitrix с ");
-				await cor.Process(bitrixEvent.Data.Fields.Id);
+				await cor.Process(bitrixEvent.Fields.Id);
 			}
 			else{
 				logger.Error("Event Bitrix == null");
@@ -278,19 +216,19 @@ namespace BitrixIntegration
 			uow.Save();
 		}
 
-		private static string GetErrors(MailjetMessage[] messages)
-		{
-			string errorResult = "";
-			foreach(var message in messages) {
-				foreach(var error in message.Errors) {
-					if(!string.IsNullOrWhiteSpace(errorResult)) {
-						errorResult += "\n";
-					}
-					errorResult += string.Format("StatusCode: {0}, ErrorCode: {1}, Error message: {2}", error.StatusCode, error.ErrorCode, error.ErrorMessage);
-				}
-			}
-			return errorResult;
-		}
+		// private static string GetErrors(MailjetMessage[] messages)
+		// {
+		// 	string errorResult = "";
+		// 	foreach(var message in messages) {
+		// 		foreach(var error in message.Errors) {
+		// 			if(!string.IsNullOrWhiteSpace(errorResult)) {
+		// 				errorResult += "\n";
+		// 			}
+		// 			errorResult += string.Format("StatusCode: {0}, ErrorCode: {1}, Error message: {2}", error.StatusCode, error.ErrorCode, error.ErrorMessage);
+		// 		}
+		// 	}
+		// 	return errorResult;
+		// }
 
 	
 		#region На выброс
