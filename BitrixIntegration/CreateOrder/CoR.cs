@@ -133,6 +133,10 @@ namespace BitrixIntegration {
 		        logger.Info("Обработка номенклатур");
 		        var orderWithNomenclatures = await ProcessNomenclaturesAndAddToOrder(deal, newOrder);
 
+		        foreach (var orderItem in orderWithNomenclatures.OrderItems){
+			        uow.Save(orderItem.Nomenclature);
+		        }
+		        
 		        uow.Save(orderWithNomenclatures);
 		        uow.Commit();
 	        }
@@ -173,16 +177,12 @@ namespace BitrixIntegration {
 		        Trifle = deal.Trifle ?? 0,
 		        BottlesReturn = deal.BottlsToReturn,
 		        Contract = new CounterpartyContract()
-		        // Onli
 	        };
-	        // var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-	        // var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-	        // var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
-	        // var counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
+
 			newOrder.UpdateOrCreateContract(uow, counterpartyContractRepository, counterpartyContractFactory);
 			
 	        if (needSetFirstOrderForCounterparty){
-		        counterpartyForNewOrder.FirstOrder = newOrder;
+		        counterpartyForNewOrder.FirstOrder = newOrder; //TODO gavr не факт что это ферст ордер, ведь в битриксе это возможно уже не ферст ордер, так что возможно выставлять это неверно
 	        }
 	       
 	        logger.Info("-------------------------");
@@ -391,11 +391,7 @@ namespace BitrixIntegration {
 
         async Task<Order> ProcessNomenclaturesAndAddToOrder(Deal deal, Order newOrder)
         {
-			//TODO для ускорения не матчить по одинаковые
-	        
 	        var productList = await bitrixApi.GetProductsForDeal(deal.Id);
-	        //ищем у нас товары по битрикс Id
-	        // IList<Nomenclature> matchedNomenclatures = new List<Nomenclature>();
 	        IList<ProductFromDeal> unmatchedProducts = new List<ProductFromDeal>();
 			
 	        foreach (var productBitrix in productList){
@@ -414,33 +410,27 @@ namespace BitrixIntegration {
 		        }
 	        }
 
-	        if (unmatchedProducts.Count != 0){
-		        needCreateNomenclature = true;
-		        foreach (var productFromDeal in unmatchedProducts){
-			        //Если нет такой группы то создаем группу
-
-			        #region ProductGroup
-
-			        var group = await ProcessProductGroup(productFromDeal);
-
-			        #endregion
-			        var measurement = MeasurementUnitsRepository.GetUnitsByBitrix(uow, productFromDeal.MeasureName);
-			        var newNomenclature = new Nomenclature()
-			        {
-				        Name = productFromDeal.ProductName,
-				        CreateDate = DateTime.Now,
-				        Category = NomenclatureCategory.additional, //TODO gavr не факт
-				        BitrixId = productFromDeal.ProductId,
-				        // VAT = VAT.Vat20, //TODO gavr уточнить
-				        OnlineStoreExternalId = "3",
-				        Unit = measurement,
-				        ProductGroup = group
-			        };
-			        newNomenclature.SetPrice(productFromDeal.Price, 1);
-		        }
-		        
-		        logger.Error($"Есть несовпавшие номенклатуры");
-		        throw new NotImplementedException();
+	        if (unmatchedProducts.Count == 0) return newOrder;
+	        needCreateNomenclature = true;
+	        foreach (var productFromDeal in unmatchedProducts){
+		        //Если нет такой группы то создаем группу
+		        var group = await ProcessProductGroup(productFromDeal);
+		        var measurement = MeasurementUnitsRepository.GetUnitsByBitrix(uow, productFromDeal.MeasureName);
+		        var newNomenclature = new Nomenclature()
+		        {
+			        Name = productFromDeal.ProductName,
+			        OfficialName = productFromDeal.ProductName,
+			        Description = productFromDeal.ProductDescription ?? "",
+			        CreateDate = DateTime.Now,
+			        Category = NomenclatureCategory.additional, //TODO gavr не факт
+			        BitrixId = productFromDeal.ProductId,
+			        // VAT = VAT.Vat20, //TODO gavr уточнить
+			        OnlineStoreExternalId = "3",
+			        Unit = measurement,
+			        ProductGroup = group
+		        };
+		        newNomenclature.SetPrice(productFromDeal.Price, productFromDeal.Count);
+		        newOrder.AddAnyGoodsNomenclatureForSale(newNomenclature, cnt: productFromDeal.Count);
 	        }
 	        return newOrder;
         }
@@ -457,54 +447,48 @@ namespace BitrixIntegration {
 		        return productGroup; //Маски для лица нашлись
 	        }
 	        else{
-		        // находим по иерархии те которых не хватает, добавляем их в список, находим первую что сопоставилась и добавляем остальные в виде её детей
-		        
 		        //Последняя незаматченная группа уже есть (проверена выше)
-		        
 		        // Красота и здоровье /Уход/ Уход за лицом
 		        var reversedProductGroups = allProductGroups.Take(allProductGroups.Length - 1).Reverse();
 		        ProductGroup lastGroupWeHave = null;
-		        IList<ProductGroup> matchedProductGroups = new List<ProductGroup>();
-		        IList<ProductGroup> unmatchedProductGroups = new List<ProductGroup>();
-		        unmatchedProductGroups.Add(new ProductGroup {Name = lastGroupName});
+		        IList<ProductGroup> allNewProductGroups = new List<ProductGroup>();
+		        allNewProductGroups.Add(new ProductGroup {Name = lastGroupName});
 		        
 		        foreach (var reversedProductGroupName in reversedProductGroups){
 			        if (matcher.MatchNomenclatureGroupByName(uow, reversedProductGroupName, out var matchedProductGroup)){
-				        matchedProductGroups.Add(matchedProductGroup);
+				        allNewProductGroups.Add(matchedProductGroup);
 			        }
 			        else{
 				        var newUnmatchedProductGroup = new ProductGroup()
-				        {
-					        Name = reversedProductGroupName
-				        };
-				        unmatchedProductGroups.Add(newUnmatchedProductGroup);
+							{Name = reversedProductGroupName};
+				        allNewProductGroups.Add(newUnmatchedProductGroup);
 			        }
 		        }
 		        //matchaed	unmatchad
 		        // a / b / (c / d / e) 
-		        
-		        //связь c, d, e
-		        if (unmatchedProductGroups.Any()){
-			        for (var i = 0; i < unmatchedProductGroups.Count-1; i++){
-				        unmatchedProductGroups[i].Parent = unmatchedProductGroups[i + 1];
-				        uow.Save(unmatchedProductGroups[i]);
+		 
+		        //Проверяем что a, b связаны правильно
+		        //Просто связываем все
+		        if (allNewProductGroups.Any()){
+			        for (var i = 0; i < allNewProductGroups.Count-1; i++){
+				        allNewProductGroups[i].Parent = allNewProductGroups[i + 1];
+				        uow.Save(allNewProductGroups[i]);
 			        }
 		        }
+		        
 		        //связываем 'c' с 'b'
-				// unmatchedProductGroups инвертированы поэтому у них берем last, а matched в обычном порядке, поэтому у них тоже last
-		        unmatchedProductGroups.Last().Parent = matchedProductGroups.Last();
-				uow.Save(unmatchedProductGroups.Last());
-				return unmatchedProductGroups.First();
+		        uow.Save(allNewProductGroups.Last());
+				return allNewProductGroups.First();
 	        }
 
         }
 
-        /*
+           /*
 				товар сопоставился по названию или bitrix id - 1 2
 	        *	1) если UF_CRM_1596187803 null то мы обновляем цену товара в ДВ на ту что пришла из сделки
 			   2) если UF_CRM_1596187803 не null  , то отнимаем от цены ДВ цену 
 				  которая пришла и проставляем это значение как скидку в рублях
-				
+
 			   3) Если товара нет в базе, то создаем его заполняя данными битрикса
 	        */
         private void UpdateNomenclaturePriceIfNeededAndAdd(
@@ -530,7 +514,7 @@ namespace BitrixIntegration {
 	        }
 	        else {
 		        var discount = Math.Abs(nomenclature.GetPrice(1) - productBitrix.Price);
-			    newOrder.AddNomenclature(nomenclature, productBitrix.Count, discount, true); //TODO gavr тут будет вылет изза того что у Order.Contract.Counterparty == null, а в GetFixedPriceOrNull оно используется
+			    newOrder.AddNomenclature(nomenclature, productBitrix.Count, discount, true); //TODO gavr тут будет вылет изза того что у Order.Contract.Counterparty == null, а в GetFixedPriceOrNull оно используется UPD уже нет
 			    uow.Save(newOrder);
 	        }
 	        
@@ -538,14 +522,6 @@ namespace BitrixIntegration {
 
         private async Task<bool> IsNomenclatureFromDV(uint productId)
 	        => (await bitrixApi.GetProduct(productId)).IsOurObj.IsOurProduct == "Y";
-	         
         
-
-        private decimal GetMoneyDiscountIfNeeded(IUnitOfWork uow, Deal deal, ProductFromDeal productBitrix, Nomenclature ourNomenclature, bool isOurNomenclature, bool orderMatched)
-        {
-	        
-
-	        throw new NotImplementedException();
-        }
     }
 }

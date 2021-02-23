@@ -229,7 +229,7 @@ namespace VodovozBitrixIntegrationService
 					counterpartyContractFactory
 				);
 				
-				await cor.Process(138768); //138768 //150772 // 158740 тестовый
+				await cor.Process(158740); //138768 //150772 // 158740 тестовый
 			BitrixManager.SetCoR(cor);
 
 			bitrixHost.AddServiceEndpoint(contract, binding, address);

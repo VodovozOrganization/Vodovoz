@@ -15,7 +15,7 @@ namespace BitrixApi.DTO {
         //Вот это настоящий BitrixId товара
         [JsonProperty("PRODUCT_ID")] public uint ProductId { get; set; }
         [JsonProperty("PRODUCT_NAME")] public string ProductName { get; set; }
-        [JsonProperty("PRODUCT_DESCRIPTION")] public string PRODUCT_DESCRIPTION { get; set; }
+        [JsonProperty("PRODUCT_DESCRIPTION")] public string ProductDescription { get; set; }
         [JsonProperty("PRICE")] public decimal Price { get; set; }
         [JsonProperty("PRICE_EXCLUSIVE")] public decimal PRICE_EXCLUSIVE { get; set; }
         [JsonProperty("PRICE_NETTO")] public decimal PRICE_NETTO { get; set; }
