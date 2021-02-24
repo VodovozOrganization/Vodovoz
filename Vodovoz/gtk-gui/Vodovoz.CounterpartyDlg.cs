@@ -100,7 +100,7 @@ namespace Vodovoz
 
 		private global::Gtk.Alignment GtkAlignment52;
 
-		private global::Gtk.Button buttonAddDocument;
+		private global::Vodovoz.Views.Client.CounterpartyFilesView counterpartyfilesview1;
 
 		private global::Gtk.Label GtkLabel74;
 
@@ -581,7 +581,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 9;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -898,12 +898,10 @@ namespace Vodovoz
 			this.GtkAlignment52.Name = "GtkAlignment52";
 			this.GtkAlignment52.LeftPadding = ((uint)(12));
 			// Container child GtkAlignment52.Gtk.Container+ContainerChild
-			this.buttonAddDocument = new global::Gtk.Button();
-			this.buttonAddDocument.CanFocus = true;
-			this.buttonAddDocument.Name = "buttonAddDocument";
-			this.buttonAddDocument.UseUnderline = true;
-			this.buttonAddDocument.Label = global::Mono.Unix.Catalog.GetString("Добавить файл");
-			this.GtkAlignment52.Add(this.buttonAddDocument);
+			this.counterpartyfilesview1 = new global::Vodovoz.Views.Client.CounterpartyFilesView();
+			this.counterpartyfilesview1.Events = ((global::Gdk.EventMask)(256));
+			this.counterpartyfilesview1.Name = "counterpartyfilesview1";
+			this.GtkAlignment52.Add(this.counterpartyfilesview1);
 			this.frame3.Add(this.GtkAlignment52);
 			this.GtkLabel74 = new global::Gtk.Label();
 			this.GtkLabel74.Name = "GtkLabel74";
@@ -1082,7 +1080,6 @@ namespace Vodovoz
 			w66.Position = 1;
 			// Container child hboxCameFrom.Gtk.Box+BoxChild
 			this.ycheckIsForRetail = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckIsForRetail.TooltipMarkup = "Больше не работаем с этим клиентом";
 			this.ycheckIsForRetail.CanFocus = true;
 			this.ycheckIsForRetail.Name = "ycheckIsForRetail";
 			this.ycheckIsForRetail.Label = global::Mono.Unix.Catalog.GetString("Для розницы");
@@ -2438,7 +2435,6 @@ namespace Vodovoz
 			this.rbnPrices.Toggled += new global::System.EventHandler(this.OnRadioTagsToggled);
 			this.enumPersonType.Changed += new global::System.EventHandler(this.OnEnumPersonTypeChanged);
 			this.yEnumCounterpartyType.Changed += new global::System.EventHandler(this.OnEnumPersonTypeChanged);
-			this.buttonAddDocument.Clicked += new global::System.EventHandler(this.OnButtonAddDocumentClicked);
 			this.ycheckSpecialDocuments.Toggled += new global::System.EventHandler(this.OnYcheckSpecialDocumentsToggled);
 			this.ycheckAlwaysSendReceitps.Toggled += new global::System.EventHandler(this.OnYcheckSpecialDocumentsToggled);
 			this.chkNeedNewBottles.Toggled += new global::System.EventHandler(this.OnChkNeedNewBottlesToggled);

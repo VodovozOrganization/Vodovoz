@@ -42,6 +42,7 @@ using Vodovoz.Domain.Retail;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz
 {
@@ -458,7 +459,12 @@ namespace Vodovoz
 			}
 
 			ytreeviewSalesChannels.ItemsDataSource = SalesChannels;
-		}
+
+            // Прикрепляемые документы
+
+            var filesViewModel = new CounterpartyFilesViewModel(Entity, UoW, new GtkFilePicker(), ServicesConfig.CommonServices);
+            counterpartyfilesview1.ViewModel = filesViewModel;
+        }
 
         private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
@@ -856,9 +862,6 @@ namespace Vodovoz
 			yentryCargoReceiver.Visible = Entity.CargoReceiverSource == CargoReceiverSource.Special;
 		}
 
-        protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
-        {
-        }
     }
 	public class SalesChannelSelectableNode : PropertyChangedBase
 	{
