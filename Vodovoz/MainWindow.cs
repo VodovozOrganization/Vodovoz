@@ -1866,7 +1866,55 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
     {
-        MessageDialogHelper.RunInfoDialog("Журнал рекламаций");
+        IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
+
+        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+
+        IEntityAutocompleteSelectorFactory employeeSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+                ServicesConfig.CommonServices);
+
+        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
+                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
+                nomenclatureRepository, UserSingletonRepository.GetInstance());
+
+        ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+        IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
+        IFilePickerService filePickerService = new GtkFilePicker();
+
+        tdiMain.OpenTab(
+            () =>
+            {
+                return new ComplaintsJournalViewModel(
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices,
+                    undeliveriesViewOpener,
+                    VodovozGtkServicesConfig.EmployeeService,
+                    employeeSelectorFactory,
+                    counterpartySelectorFactory,
+                    nomenclatureSelectorFactory,
+                    routeListItemRepository,
+                    SubdivisionParametersProvider.Instance,
+                    new ComplaintFilterViewModel(
+                        ServicesConfig.CommonServices,
+                        subdivisionRepository,
+                        employeeSelectorFactory
+                    )
+                    { IsForRetail = true },
+                    filePickerService,
+                    subdivisionRepository,
+                    new GtkReportViewOpener(),
+                    new GtkTabsOpener(),
+                    nomenclatureRepository,
+                    UserSingletonRepository.GetInstance()
+                );
+            }
+        );
     }
 
     protected void OnActionRetailUndeliveredOrdersJournalActivated(object sender, EventArgs e)
