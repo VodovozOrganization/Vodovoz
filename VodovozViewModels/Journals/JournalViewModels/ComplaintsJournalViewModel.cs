@@ -260,6 +260,12 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			if(FilterViewModel != null) {
 
+
+				if (FilterViewModel.IsForRetail != null)
+				{
+					query.Where(c => c.Counterparty.IsForRetail == FilterViewModel.IsForRetail);
+				}
+
 				FilterViewModel.EndDate = FilterViewModel.EndDate.Date.AddHours(23).AddMinutes(59);
 				if(FilterViewModel.StartDate.HasValue)
 					FilterViewModel.StartDate = FilterViewModel.StartDate.Value.Date;
