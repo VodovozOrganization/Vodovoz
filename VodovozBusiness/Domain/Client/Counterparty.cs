@@ -712,6 +712,26 @@ namespace Vodovoz.Domain.Client
 				new GenericObservableList<NomenclatureFixedPrice>(NomenclatureFixedPrices));
 		}
 
+		IList<CounterpartyFile> files = new List<CounterpartyFile>();
+		[Display(Name = "Документы")]
+		public virtual IList<CounterpartyFile> Files
+		{
+			get => files;
+			set => SetField(ref files, value);
+		}
+
+		GenericObservableList<CounterpartyFile> observableFiles;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<CounterpartyFile> ObservableFiles
+		{
+			get
+			{
+				if (observableFiles == null)
+					observableFiles = new GenericObservableList<CounterpartyFile>(Files);
+				return observableFiles;
+			}
+		}
+
 		#region Calculated Properties
 
 		public virtual string RawJurAddress {

@@ -101,6 +101,7 @@ namespace Vodovoz.HibernateMapping
 						  .LazyLoad();
 			HasMany(x => x.SuplierPriceItems).Cascade.AllDeleteOrphan().LazyLoad().Inverse()
 				.KeyColumn("supplier_id");
+			HasMany(x => x.Files).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("counterparty_id");
 		}
 	}
 }
