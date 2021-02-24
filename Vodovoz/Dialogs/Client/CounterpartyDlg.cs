@@ -327,8 +327,9 @@ namespace Vodovoz
 			checkIsChainStore.Binding.AddBinding(Entity, e => e.IsChainStore, w => w.Active).InitializeFromSource();
 
             ycheckIsForRetail.Binding.AddBinding(Entity, e => e.IsForRetail, w => w.Active).InitializeFromSource();
-			
-			if (Entity.Id != 0 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+            ycheckNoPhoneCall.Binding.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active).InitializeFromSource();
+
+            if (Entity.Id != 0 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
 				"can_change_delay_days_for_buyers_and_chain_store")) {
 				checkIsChainStore.Sensitive = false;
 				DelayDaysForBuyerValue.Sensitive = false;

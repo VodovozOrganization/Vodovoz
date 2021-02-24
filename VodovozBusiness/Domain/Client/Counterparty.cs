@@ -642,7 +642,15 @@ namespace Vodovoz.Domain.Client
             set => SetField(ref isForRetail, value);
         }
 
-		IList<SalesChannel> salesChannels = new List<SalesChannel>();
+        private bool noPhoneCall;
+        [Display(Name = "Без прозвона")]
+        public virtual bool NoPhoneCall
+        {
+            get => noPhoneCall;
+            set => SetField(ref noPhoneCall, value);
+        }
+
+        IList<SalesChannel> salesChannels = new List<SalesChannel>();
 		[PropertyChangedAlso(nameof(ObservableSalesChannels))]
 		[Display(Name = "Каналы сбыта")]
 		public virtual IList<SalesChannel> SalesChannels
