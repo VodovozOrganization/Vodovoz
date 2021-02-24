@@ -527,6 +527,16 @@ namespace Vodovoz
 
         protected void OnButtonApplyLimitsToAllDeliveryPointsOfCounterpartyClicked(object sender, EventArgs e)
         {
+			foreach(var deliveryPoint in Entity.Counterparty.DeliveryPoints)
+            {
+				if(deliveryPoint.Id == Entity.Id)
+                {
+					continue;
+                }
+
+				deliveryPoint.MaximalOrderSumLimit = Entity.MaximalOrderSumLimit;
+				deliveryPoint.MinimalOrderSumLimit = Entity.MinimalOrderSumLimit;
+            }
         }
     }
 }
