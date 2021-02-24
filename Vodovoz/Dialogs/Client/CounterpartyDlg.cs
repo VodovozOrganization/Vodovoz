@@ -41,6 +41,7 @@ using QS.DomainModel.Entity;
 using Vodovoz.Domain.Retail;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
+using System.ComponentModel;
 
 namespace Vodovoz
 {
@@ -61,9 +62,55 @@ namespace Vodovoz
 			}
 		}
 
-		private GenericObservableList<SalesChannelSelectableNode> salesChannels;
-		
-		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+        #region Список каналов сбыта
+
+        private GenericObservableList<SalesChannelSelectableNode> salesChannels = new GenericObservableList<SalesChannelSelectableNode>();
+		public GenericObservableList<SalesChannelSelectableNode> SalesChannels {
+			get => salesChannels; 
+			private set {
+				UnsubscribeOnCheckChanged();
+				salesChannels = value;
+				SubscribeOnCheckChanged();
+			}
+		}
+
+        private void UnsubscribeOnCheckChanged()
+        {
+			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
+			{
+				selectableSalesChannel.PropertyChanged -= OnStatusCheckChanged;
+			}
+		}
+
+        private void SubscribeOnCheckChanged()
+        {
+			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
+			{
+				selectableSalesChannel.PropertyChanged += OnStatusCheckChanged;
+			}
+		}
+
+		private void OnStatusCheckChanged(object sender, PropertyChangedEventArgs e)
+		{
+			var salesChannelSelectableNode = sender as SalesChannelSelectableNode;
+
+			if(salesChannelSelectableNode.Selected) {
+				if (!Entity.SalesChannels.Any(x => x.Id == salesChannelSelectableNode.Id))
+                {
+					Entity.SalesChannels.Add(UoW.Session.Get<SalesChannel>(salesChannelSelectableNode.Id));
+				}
+			} else {
+				SalesChannel salesChannelToRemove = Entity.SalesChannels.Where(x => x.Id == salesChannelSelectableNode.Id).FirstOrDefault();
+				if (salesChannelToRemove != null)
+				{
+					Entity.SalesChannels.Remove(salesChannelToRemove);
+				}
+			}
+		}
+
+        #endregion
+
+        private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
 			get {
 				if(counterpartySelectorFactory == null) {
@@ -102,7 +149,7 @@ namespace Vodovoz
 			set => base.HasChanges = value;
 		}
 
-		public CounterpartyDlg()
+        public CounterpartyDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
@@ -389,25 +436,22 @@ namespace Vodovoz
 			SalesChannelSelectableNode salesChannelSelectableNodeAlias = null;
 
 			var list = UoW.Session.QueryOver(() => salesChannelAlias)
-				.SelectList(list => list
-				.SelectGroup(
-					.Select(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
+				.SelectList(scList => scList
+				.SelectGroup(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
 					.Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name)
-				)).TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>());
+				).TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>()).List<SalesChannelSelectableNode>();
 
-			salesChannels = new GenericObservableList<SalesChannelSelectableNode>(list);
+			SalesChannels = new GenericObservableList<SalesChannelSelectableNode>(list);
 
-			foreach(var selectableChannel = salesChannels.Where(x => Entity.SalesChannels.Contains(x.Id)))
+			foreach(var selectableChannel in SalesChannels.Where(x => Entity.SalesChannels.Any(sc => sc.Id == x.Id)))
             {
 				selectableChannel.Selected = true;
 			}
 
-			ytreeviewSalesChannels.ItemsDataSource = salesChannels;
-
-			//SalesChannelSelectableNode
+			ytreeviewSalesChannels.ItemsDataSource = SalesChannels;
 		}
 
-		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
+        private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
 			if (Entity.IsChainStore) {
 				lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = true;
@@ -832,10 +876,12 @@ namespace Vodovoz
 
 		public string Title => Name;
 
-		public SalesChannelSelectableNode(SalesChannel routeListStatus)
+        public SalesChannelSelectableNode(){}
+
+		public SalesChannelSelectableNode(SalesChannel salesChannel)
 		{
-			Id = routeListStatus.Id;
-			Name = routeListStatus.Name;
+			Id = salesChannel.Id;
+			Name = salesChannel.Name;
 		}
 	}
 }
