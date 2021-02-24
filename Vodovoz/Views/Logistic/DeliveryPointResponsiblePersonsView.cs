@@ -116,6 +116,7 @@ namespace Vodovoz.Views.Logistic
             phoneDataEntry.ValidationMode = ValidationType.phone;
             phoneDataEntry.Tag = responsiblePerson;
             phoneDataEntry.WidthChars = 19;
+            phoneDataEntry.WidthRequest = 50;
             phoneDataEntry.Binding.AddBinding(responsiblePerson, e => e.Phone, w => w.Text).InitializeFromSource();
             datatableResponsiblePersons.Attach(
                 phoneDataEntry,
@@ -151,7 +152,63 @@ namespace Vodovoz.Views.Logistic
                 (uint)6, (uint)7, rowsCount, rowsCount + 1,
                 (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
 
+            Button copyToAllDeliveryPointsButton = new Button();
+            copyToAllDeliveryPointsButton.Label = "Добавить ко всем точкам доставки контрагента";
+            copyToAllDeliveryPointsButton.Clicked += OnButtonCopyToAllDeliveryPointsClicked;
+            datatableResponsiblePersons.Attach(
+                copyToAllDeliveryPointsButton,
+                (uint)7, (uint)8, rowsCount, rowsCount + 1,
+                (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
+
             datatableResponsiblePersons.ShowAll();
+        }
+
+        private void OnButtonCopyToAllDeliveryPointsClicked(object sender, EventArgs e)
+        {
+            Table.TableChild delButtonInfo = ((Table.TableChild)(this.datatableResponsiblePersons[(Widget)sender]));
+            Widget foundWidget = null;
+            foreach (Widget wid in datatableResponsiblePersons.AllChildren)
+            {
+                if (wid is yValidatedEntry && delButtonInfo.TopAttach == (datatableResponsiblePersons[wid] as Table.TableChild).TopAttach)
+                {
+                    foundWidget = wid;
+                    break;
+                }
+            }
+            if (foundWidget == null)
+            {
+                logger.Warn("Не найден виджет ассоциированный с телефоном.");
+                return;
+            }
+
+            var responsiblePersonToCopy = (DeliveryPointResponsiblePerson)(foundWidget as yValidatedEntry).Tag;
+
+            var currentDeliveryPoint = responsiblePersonToCopy.DeliveryPoint;
+
+            foreach (var deliveryPoint in currentDeliveryPoint.Counterparty.DeliveryPoints)
+            {
+                if (currentDeliveryPoint == deliveryPoint)
+                {
+                    continue;
+                }
+                if (deliveryPoint.ResponsiblePersons.Any(x 
+                    => x.DeliveryPointResponsiblePersonType == responsiblePersonToCopy.DeliveryPointResponsiblePersonType
+                    && x.Employee == responsiblePersonToCopy.Employee
+                    && x.Phone == responsiblePersonToCopy.Phone
+                )){
+                    continue;
+                }
+
+                deliveryPoint.ResponsiblePersons.Add(
+                    new DeliveryPointResponsiblePerson()
+                    {
+                        DeliveryPointResponsiblePersonType = responsiblePersonToCopy.DeliveryPointResponsiblePersonType,
+                        DeliveryPoint = deliveryPoint,
+                        Phone = responsiblePersonToCopy.Phone,
+                        Employee = responsiblePersonToCopy.Employee
+                    }
+                    );
+            }
         }
 
         private void OnButtonDeleteClicked(object sender, EventArgs e)
