@@ -40,7 +40,12 @@ namespace Vodovoz.JournalViewModels
 
 			var query = uow.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
-			if(FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive) {
+			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			{
+				query.Where(c => c.IsForRetail == FilterViewModel.IsForRetail);
+			}
+
+			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive) {
 				query.Where(c => !c.IsArchive);
 			}
 

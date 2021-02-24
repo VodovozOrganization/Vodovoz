@@ -19,14 +19,12 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewers;
 using Vodovoz.Repositories;
-using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepository;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
@@ -100,6 +98,11 @@ namespace Vodovoz.JournalViewModels
 			Nomenclature sanitizationNomenclature = nomenclatureRepository.GetSanitisationNomenclature(uow);
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
+
+			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			{
+				query.Where(o => o.Client.IsForRetail == FilterViewModel.IsForRetail);
+			}
 
 			if (FilterViewModel.ViewTypes != ViewTypes.Order && FilterViewModel.ViewTypes != ViewTypes.All)
 			{

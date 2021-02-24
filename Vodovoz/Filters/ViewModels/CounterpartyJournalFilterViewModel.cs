@@ -1,7 +1,6 @@
 ﻿using QS.Project.Filter;
 using QS.Project.Journal;
 using QS.RepresentationModel.GtkUI;
-using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Representations;
 
@@ -45,5 +44,12 @@ namespace Vodovoz.Filters.ViewModels
 				return tagVM;
 			}
 		}
-	}
+
+        private bool? isForRetail;
+        public bool? IsForRetail
+        {
+            get => isForRetail;
+			set => SetField(ref isForRetail, value);
+        }
+    }
 }
