@@ -1023,6 +1023,9 @@ namespace Vodovoz.Domain.Client
 					yield return fixedPriceValidationResult;
 				}
 			}
+
+			if (TechnicalProcessingDelay > 0 && Files.Count == 0)
+				yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
 		}
 
 		#endregion
