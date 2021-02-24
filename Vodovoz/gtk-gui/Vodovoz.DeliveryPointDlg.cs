@@ -458,7 +458,7 @@ namespace Vodovoz
 			w26.Expand = false;
 			w26.Fill = false;
 			// Container child hbox14.Gtk.Box+BoxChild
-			this.ySpinLimitMin = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.ySpinLimitMin = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 1D);
 			this.ySpinLimitMin.WidthRequest = 0;
 			this.ySpinLimitMin.HeightRequest = 0;
 			this.ySpinLimitMin.CanFocus = true;
@@ -483,7 +483,7 @@ namespace Vodovoz
 			w28.Expand = false;
 			w28.Fill = false;
 			// Container child hbox14.Gtk.Box+BoxChild
-			this.ySpinLimitMax = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.ySpinLimitMax = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 1D);
 			this.ySpinLimitMax.WidthRequest = 0;
 			this.ySpinLimitMax.HeightRequest = 0;
 			this.ySpinLimitMax.CanFocus = true;
