@@ -1876,7 +1876,12 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionRetailCounterpartyJournalActivated(object sender, EventArgs e)
     {
-        MessageDialogHelper.RunInfoDialog("Журнал контрагентов");
+        CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel() { IsForRetail = true };
+        var counterpartyJournal = new CounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+
+        tdiMain.OpenTab(
+            () => counterpartyJournal
+        );
     }
 
     protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
