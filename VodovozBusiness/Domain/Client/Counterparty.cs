@@ -875,7 +875,25 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
+        public virtual void AddFile(CounterpartyFile file)
+        {
+            if (ObservableFiles.Contains(file))
+            {
+                return;
+            }
+            file.Counterparty = this;
+            ObservableFiles.Add(file);
+        }
+
+        public virtual void RemoveFile(CounterpartyFile file)
+        {
+            if (ObservableFiles.Contains(file))
+            {
+                ObservableFiles.Remove(file);
+            }
+        }
+
+        public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
 		{
 			var removableItems = new List<SupplierPriceItem>(
 				ObservableSuplierPriceItems.Where(i => i.NomenclatureToBuy.Id == nomenclatureId).ToList()

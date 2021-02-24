@@ -288,6 +288,7 @@
     <Compile Include="Journals\JournalViewModels\Employees\UserJournalViewModel.cs" />
     <Compile Include="ViewModels\Users\UserViewModel.cs" />
     <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
+    <Compile Include="ViewModels\Counterparty\CounterpartyFilesViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />
@@ -320,6 +321,7 @@
     <Folder Include="Journals\Nodes\Cash\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="ViewModels\Payments\" />
+    <Folder Include="ViewModels\Counterparty\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
