@@ -1881,7 +1881,29 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
     {
-        MessageDialogHelper.RunInfoDialog("Журнал заказов");
+        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+
+        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
+                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
+                nomenclatureRepository, UserSingletonRepository.GetInstance());
+
+        tdiMain.OpenTab(
+            () => new OrderJournalViewModel(
+                    new OrderJournalFilterViewModel() { IsForRetail = true },
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices,
+                    VodovozGtkServicesConfig.EmployeeService,
+                    nomenclatureSelectorFactory,
+                    counterpartySelectorFactory,
+                    nomenclatureRepository,
+                    UserSingletonRepository.GetInstance()
+            )
+        );
     }
 
     protected void OnActionSalesChannelsJournalActivated(object sender, EventArgs e)
