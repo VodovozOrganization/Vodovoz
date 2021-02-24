@@ -532,6 +532,38 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref updCount, value);
 		}
 
+		int? updAllCount;
+		[Display(Name = "Кол-во УПД")]
+		public virtual int? AllUPDCount
+		{
+			get => updAllCount;
+			set => SetField(ref updAllCount, value);
+		}
+
+		int? torg12Count;
+		[Display(Name = "Кол-во Торг-12")]
+		public virtual int? Torg12Count
+		{
+			get => torg12Count;
+			set => SetField(ref torg12Count, value);
+		}
+
+		int? shetFacturaCount;
+		[Display(Name = "Кол-во отчет-фактур")]
+		public virtual int? ShetFacturaCount
+		{
+			get => shetFacturaCount;
+			set => SetField(ref shetFacturaCount, value);
+		}
+
+		int? carProxyCount;
+		[Display(Name = "Кол-во доверенностей вод-ль")]
+		public virtual int? CarProxyCount
+		{
+			get => carProxyCount;
+			set => SetField(ref carProxyCount, value);
+		}
+
 		string okpo;
 		[Display(Name = "ОКПО")]
 		public virtual string OKPO {

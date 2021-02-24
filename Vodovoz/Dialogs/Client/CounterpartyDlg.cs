@@ -400,9 +400,18 @@ namespace Vodovoz
 			yspeccomboboxTTNCount.ItemsList = docCount;
 			yspeccomboboxTorg2Count.ItemsList = docCount;
 			yspeccomboboxUPDForNonCashlessCount.ItemsList = docCount;
+			yspeccomboboxUPDCount.ItemsList = docCount;
+			yspeccomboboxTorg12Count.ItemsList = docCount;
+			yspeccomboboxShetFacturaCount.ItemsList = docCount;
+			yspeccomboboxCarProxyCount.ItemsList = docCount;
+
 			yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
 			yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
 			yspeccomboboxUPDForNonCashlessCount.Binding.AddBinding(Entity, e => e.UPDCount, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxUPDCount.Binding.AddBinding(Entity, e => e.AllUPDCount, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxTorg12Count.Binding.AddBinding(Entity, e => e.Torg12Count, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxShetFacturaCount.Binding.AddBinding(Entity, e => e.ShetFacturaCount, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxCarProxyCount.Binding.AddBinding(Entity, e => e.CarProxyCount, w => w.SelectedItem).InitializeFromSource();
 
 			enumcomboCargoReceiverSource.ItemsEnum = typeof(CargoReceiverSource);
 			enumcomboCargoReceiverSource.Binding.AddBinding(Entity, e => e.CargoReceiverSource, w => w.SelectedItem).InitializeFromSource();

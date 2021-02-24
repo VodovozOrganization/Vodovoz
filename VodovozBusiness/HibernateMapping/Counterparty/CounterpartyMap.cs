@@ -48,6 +48,10 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Torg2Count).Column("torg2_count");
 			Map(x => x.TTNCount).Column("ttn_count");
 			Map(x => x.UPDCount).Column("upd_count");
+			Map(x => x.AllUPDCount).Column("all_upd_count");
+			Map(x => x.Torg12Count).Column("torg12_count");
+			Map(x => x.ShetFacturaCount).Column("shet_factura_count");
+			Map(x => x.CarProxyCount).Column("car_proxy_count");
 			Map(x => x.CounterpartyType).Column("counterparty_type").CustomType<CounterpartyTypeStringType>();
 			Map(x => x.IsChainStore).Column("is_chain_store");
             Map(x => x.IsForRetail).Column("is_for_retail");
