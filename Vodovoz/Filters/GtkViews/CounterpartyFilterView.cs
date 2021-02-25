@@ -22,12 +22,18 @@ namespace Vodovoz.Filters.GtkViews
 			yenumCounterpartyType.Binding.AddBinding(ViewModel, vm => vm.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
 			checkIncludeArhive.Binding.AddBinding(ViewModel, vm => vm.RestrictIncludeArchive, w => w.Active).InitializeFromSource();
 
-            ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
-                .AddColumn("Название").AddTextRenderer(node => node.Name)
-                .AddColumn("").AddToggleRenderer(x => x.Selected)
-                .Finish();
+			if (ViewModel?.IsForRetail ?? false)
+			{
+				ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("").AddToggleRenderer(x => x.Selected)
+					.Finish();
 
-            ytreeviewSalesChannels.ItemsDataSource = ViewModel.SalesChannels;
+				ytreeviewSalesChannels.ItemsDataSource = ViewModel.SalesChannels;
+			} else
+            {
+				frame2.Visible = false;
+			}
         }
 	}
 }

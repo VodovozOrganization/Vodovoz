@@ -1,4 +1,5 @@
-﻿using System.Data.Bindings.Collections.Generic;
+﻿using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using QS.Project.Filter;
 using QS.Project.Journal;
@@ -70,7 +71,32 @@ namespace Vodovoz.Filters.ViewModels
         public GenericObservableList<SalesChannelSelectableNode> SalesChannels
         {
             get => salesChannels;
-            set => SetField(ref salesChannels, value);
-        }
-    }
+            set {
+				UnsubscribeOnCheckChanged();
+				SetField(ref salesChannels, value);
+				SubscribeOnCheckChanged();
+			}
+		}
+
+		private void UnsubscribeOnCheckChanged()
+		{
+			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
+			{
+				selectableSalesChannel.PropertyChanged -= OnStatusCheckChanged;
+			}
+		}
+
+		private void SubscribeOnCheckChanged()
+		{
+			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
+			{
+				selectableSalesChannel.PropertyChanged += OnStatusCheckChanged;
+			}
+		}
+
+		private void OnStatusCheckChanged(object sender, PropertyChangedEventArgs e)
+		{
+			Update();
+		}
+	}
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -10,6 +11,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
+using Vodovoz.Domain.Retail;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -37,12 +39,19 @@ namespace Vodovoz.JournalViewModels
 			DeliveryPoint addressAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			Tag tagAliasForSubquery = null;
+			SalesChannel salesChannelAlias = null;
 
 			var query = uow.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
 			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
 				query.Where(c => c.IsForRetail == FilterViewModel.IsForRetail);
+
+				if (FilterViewModel.SalesChannels.Any(x => x.Selected))
+				{
+					query.Left.JoinAlias(c => c.SalesChannels, () => salesChannelAlias);
+					query.Where(() => salesChannelAlias.Id.IsIn(FilterViewModel.SalesChannels.Where(x => x.Selected).Select(x => x.Id).ToArray()));
+                }
 			}
 
 			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive) {
