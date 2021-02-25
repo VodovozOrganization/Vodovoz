@@ -147,6 +147,11 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Security;
 using Vodovoz.Views.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
+using Vodovoz.ViewModels.ViewModels.Retail;
+using Vodovoz.Views.Retail;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz
 {
@@ -230,10 +235,12 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UserViewModel, UserView>()
                 .RegisterWidgetForTabViewModel<ApplicationDevelopmentProposalViewModel, ApplicationDevelopmentProposalView>()
 				.RegisterWidgetForTabViewModel<RegisteredRMViewModel, RegisteredRMView>()
-				;
+                .RegisterWidgetForTabViewModel<SalesChannelViewModel, SalesChannelView>()
+                .RegisterWidgetForTabViewModel<DeliveryPointResponsiblePersonTypeViewModel, DeliveryPointResponsiblePersonTypeView>()
+                ;
 
-			//Регистрация виджетов
-			ViewModelWidgetResolver.Instance
+            //Регистрация виджетов
+            ViewModelWidgetResolver.Instance
 				.RegisterWidgetForWidgetViewModel<DistrictsSetJournalFilterViewModel, DistrictsSetJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<DistrictJournalFilterViewModel, DistrictJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<SelectableParameterReportFilterViewModel, SelectableParameterReportFilterView>()
@@ -273,9 +280,11 @@ namespace Vodovoz
                 .RegisterWidgetForWidgetViewModel<ApplicationDevelopmentProposalsJournalFilterViewModel, ApplicationDevelopmentProposalsJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<RouteListJournalFilterViewModel, RouteListJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<RegisteredRMJournalFilterViewModel, RegisteredRMJournalFilterView>()
-				;
+				.RegisterWidgetForWidgetViewModel<DeliveryPointResponsiblePersonTypeJournalFilterViewModel, DeliveryPointResponsiblePersonTypeJournalFilterView>()
+                .RegisterWidgetForWidgetViewModel<SalesChannelJournalFilterViewModel, SalesChannelJournalFilterView>()
+                ;
 
-			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
+            DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 
 		static void ConfigureJournalColumnsConfigs()

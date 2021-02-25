@@ -132,6 +132,13 @@ namespace Vodovoz.FilterViewModels
 			set => SetField(ref endDate, value, () => EndDate);
 		}
 
+		private bool? isForRetail;
+		public bool? IsForRetail
+		{
+			get => isForRetail;
+			set => SetField(ref isForRetail, value);
+		}
+
 		public void SelectMyComplaint()
 		{
 			if(EmployeeService == null)

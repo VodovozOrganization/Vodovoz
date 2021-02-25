@@ -36,6 +36,7 @@ using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Models;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.TempAdapters;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -100,15 +101,6 @@ namespace Vodovoz
 			entryCity.CitiesDataLoader = new CitiesDataLoader(OsmWorker.GetOsmService());
 			entryStreet.StreetsDataLoader = new StreetsDataLoader(OsmWorker.GetOsmService());
 			entryBuilding.HousesDataLoader = new HousesDataLoader(OsmWorker.GetOsmService());
-
-			buttonDeleteResponsiblePerson.Sensitive = false;
-			ytreeviewResponsiblePersons.ColumnsConfig = FluentColumnsConfig<Contact>.Create()
-				.AddColumn("Ответственные лица").AddTextRenderer(x => x.FullName)
-				.AddColumn("Телефоны").AddTextRenderer(x => String.Join("\n", x.Phones))
-				.Finish();
-			ytreeviewResponsiblePersons.Selection.Mode = Gtk.SelectionMode.Multiple;
-			ytreeviewResponsiblePersons.ItemsDataSource = Entity.ObservableContacts;
-			ytreeviewResponsiblePersons.Selection.Changed += YtreeviewResponsiblePersons_Selection_Changed;
 
 			phonesview1.ViewModel = new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance);
 			phonesview1.ViewModel.PhonesList = Entity.ObservablePhones;
@@ -251,11 +243,23 @@ namespace Vodovoz
 			rightsidepanel1.PanelHided += Rightsidepanel1_PanelHided;
 			Entity.PropertyChanged += Entity_PropertyChanged;
 			UpdateAddressOnMap();
-		}
 
-		void YtreeviewResponsiblePersons_Selection_Changed(object sender, EventArgs e)
-		{
-			buttonDeleteResponsiblePerson.Sensitive = ytreeviewResponsiblePersons.GetSelectedObjects().Length > 0;
+			ySpinLimitMin.ValueAsInt = int.MinValue;
+			ySpinLimitMax.ValueAsInt = int.MaxValue;
+
+			var userCanEditOrdersLimits = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_edit_orders_limits");
+
+			ySpinLimitMin.Sensitive = userCanEditOrdersLimits;
+			ySpinLimitMax.Sensitive = userCanEditOrdersLimits;
+
+			ySpinLimitMin.Binding.AddBinding(Entity, e => e.MinimalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
+			ySpinLimitMax.Binding.AddBinding(Entity, e => e.MaximalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
+
+			deliverypointresponsiblepersonsview1.UoW = UoW;
+			if (Entity.ResponsiblePersons == null)
+				Entity.ResponsiblePersons = new List<DeliveryPointResponsiblePerson>();
+            deliverypointresponsiblepersonsview1.DeliveryPoint = Entity;
+            deliverypointresponsiblepersonsview1.ResponsiblePersons = Entity.ResponsiblePersons;
 		}
 
 		void MapWidget_MotionNotifyEvent(object o, Gtk.MotionNotifyEventArgs args)
@@ -431,7 +435,8 @@ namespace Vodovoz
 		{
 			try {
 				SetSensetivity(false);
-				phonesview1.ViewModel.RemoveEmpty();
+                deliverypointresponsiblepersonsview1.RemoveEmpty();
+                phonesview1.ViewModel.RemoveEmpty();
 
 				if(!Entity.CoordinatesExist && !MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 					return false;
@@ -465,12 +470,6 @@ namespace Vodovoz
 				notebook1.CurrentPage = 1;
 		}
 
-		protected void OnRadioContactsToggled(object sender, EventArgs e)
-		{
-			if(radioContacts.Active)
-				notebook1.CurrentPage = 2;
-		}
-
 		private void OnRadioFixedPricesToggled(object sender, EventArgs e)
 		{
 			if (radioFixedPrices.Active)
@@ -480,32 +479,6 @@ namespace Vodovoz
 		public void OpenFixedPrices()
 		{
 			notebook1.CurrentPage = 3;
-		}
-
-		protected void OnButtonAddResponsiblePersonClicked(object sender, EventArgs e)
-		{
-			var dlg = new PermissionControlledRepresentationJournal(new ContactsVM(UoW, Entity.Counterparty)) {
-				Mode = JournalSelectMode.Multiple
-			};
-			dlg.ObjectSelected += Dlg_ObjectSelected;
-			TabParent.AddSlaveTab(this, dlg);
-		}
-
-		void Dlg_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
-		{
-			var selectedIds = e.GetSelectedIds();
-			if(!selectedIds.Any()) {
-				return;
-			}
-			var contacts = UoW.GetById<Contact>(selectedIds).ToList();
-			contacts.ForEach(Entity.AddContact);
-		}
-
-		protected void OnButtonDeleteResponsiblePersonClicked(object sender, EventArgs e)
-		{
-			var selected = ytreeviewResponsiblePersons.GetSelectedObjects<Contact>();
-			foreach(var toDelete in selected)
-				Entity.ObservableContacts.Remove(toDelete);
 		}
 
 		protected void OnButtonInsertFromBufferClicked(object sender, EventArgs e)
@@ -556,6 +529,20 @@ namespace Vodovoz
 
 			return false;
 		}
-	}
+
+        protected void OnButtonApplyLimitsToAllDeliveryPointsOfCounterpartyClicked(object sender, EventArgs e)
+        {
+			foreach(var deliveryPoint in Entity.Counterparty.DeliveryPoints)
+            {
+				if(deliveryPoint.Id == Entity.Id)
+                {
+					continue;
+                }
+
+				deliveryPoint.MaximalOrderSumLimit = Entity.MaximalOrderSumLimit;
+				deliveryPoint.MinimalOrderSumLimit = Entity.MinimalOrderSumLimit;
+            }
+        }
+    }
 }
 

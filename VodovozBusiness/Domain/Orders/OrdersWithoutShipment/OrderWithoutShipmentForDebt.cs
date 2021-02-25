@@ -6,7 +6,6 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Print;
 using QS.Report;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using QS.HistoryLog;
@@ -73,6 +72,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				Identifier = "Documents.BillWithoutShipmentForDebt",
 				Parameters = new Dictionary<string, object> {
 					{ "bill_ws_for_debt_id", Id },
+					{ "special_contract_number", SpecialContractNumber },
 					{ "organization_id", new OrganizationParametersProvider(ParametersProvider.Instance).GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
 					{ "special", false }
@@ -82,9 +82,11 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public virtual string Title => string.Format($"Счет №Ф{Id} от {CreateDate:d}");
+		public virtual string Title => string.Format($"Счет №Ф{Id} от {CreateDate:d} {SpecialContractNumber}");
 
 		public virtual string Name => string.Format($"Счет №Ф{Id}");
+
+		public virtual string SpecialContractNumber => Client.SpecialContractNumber;
 
 		public virtual DateTime? DocumentDate => CreateDate;
 

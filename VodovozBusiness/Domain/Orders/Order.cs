@@ -1079,6 +1079,22 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.EShopOrder) }
 				);
 			}
+
+			if (DeliveryPoint.MinimalOrderSumLimit != 0 && OrderTotalSum < DeliveryPoint.MinimalOrderSumLimit)
+			{
+				yield return new ValidationResult(
+					"Сумма заказа меньше минимальной погоровой установленной для точки доставки",
+					new[] { this.GetPropertyName(o => o.OrderTotalSum) }
+				);
+			}
+
+			if (DeliveryPoint.MaximalOrderSumLimit != 0 && OrderTotalSum > DeliveryPoint.MaximalOrderSumLimit)
+			{
+				yield return new ValidationResult(
+					"Сумма заказа больше максимальной погоровой установленной для точки доставки",
+					new[] { this.GetPropertyName(o => o.OrderTotalSum) }
+				);
+			}
 		}
 
 		#endregion

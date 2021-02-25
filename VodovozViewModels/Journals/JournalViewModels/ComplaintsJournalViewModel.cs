@@ -259,6 +259,10 @@ namespace Vodovoz.Journals.JournalViewModels
 			#region Filter
 
 			if(FilterViewModel != null) {
+				if (FilterViewModel.IsForRetail != null)
+				{
+					query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
+				}
 
 				FilterViewModel.EndDate = FilterViewModel.EndDate.Date.AddHours(23).AddMinutes(59);
 				if(FilterViewModel.StartDate.HasValue)
