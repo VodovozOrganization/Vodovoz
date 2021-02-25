@@ -327,7 +327,10 @@ namespace Vodovoz
 			checkIsChainStore.Binding.AddBinding(Entity, e => e.IsChainStore, w => w.Active).InitializeFromSource();
 
             ycheckIsForRetail.Binding.AddBinding(Entity, e => e.IsForRetail, w => w.Active).InitializeFromSource();
-            ycheckNoPhoneCall.Binding.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active).InitializeFromSource();
+
+			ycheckNoPhoneCall.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_activate_no_phone_call_in_counterparty");
+
+			ycheckNoPhoneCall.Binding.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active).InitializeFromSource();
 
             if (Entity.Id != 0 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
 				"can_change_delay_days_for_buyers_and_chain_store")) {
