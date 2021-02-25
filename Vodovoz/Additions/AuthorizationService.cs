@@ -1,5 +1,4 @@
 using System;
-using FluentNHibernate.Data;
 using InstantSmsService;
 using NLog;
 using QS.Dialog.GtkUI;
@@ -7,7 +6,6 @@ using QS.DomainModel.UoW;
 using QS.Project.Repositories;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Services;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Additions
@@ -45,7 +43,7 @@ namespace Vodovoz.Additions
 
             #endregion
 
-            #region ОтпарвляемSMS
+            #region ОтправляемSMS
             
             string phone = CreatePhoneAndLogin(employee);
             string messageText = $"Логин: {login}\nПароль: {password}";
@@ -58,6 +56,9 @@ namespace Vodovoz.Additions
             return  service.SendSms(smsNotification);
             #endregion
         }
+
+        public ResultMessage ResetPasswordToGenerated(Employee employee, int passwordLength) 
+	        => ResetPassword(employee, passwordGenerator.GeneratePassword(passwordLength));
 
         private string CreatePhoneAndLogin(Employee employee)
         {

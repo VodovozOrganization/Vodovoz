@@ -87,6 +87,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -182,8 +184,12 @@ public partial class MainWindow : Gtk.Window
 
         // Блокировка отчетов для торговых представителей
 
-        bool userIsSalesRepresentative = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
-            && !QSMain.User.Admin;
+        bool userIsSalesRepresentative;
+
+        using (var uow = UnitOfWorkFactory.CreateWithoutRoot()){
+            userIsSalesRepresentative = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
+            && !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
+        }
 
         // Основные разделы отчетов
 
@@ -203,6 +209,12 @@ public partial class MainWindow : Gtk.Window
         ActionOrderCreationDateReport.Visible = 
             ActionPlanImplementationReport.Visible =
             ActionSetBillsReport.Visible = !userIsSalesRepresentative;
+
+        // Управление ограничением доступа через зарегистрированные RM
+
+        var userCanManageRegisteredRMs = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
+
+        registeredRMAction.Visible = userCanManageRegisteredRMs;
     }
 
     public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
@@ -795,7 +807,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.SalesReport>(),
-            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport())
+            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport(EmployeeSingletonRepository.GetInstance()))
         );
     }
 
@@ -1829,5 +1841,16 @@ public partial class MainWindow : Gtk.Window
             QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
             () => new QSReport.ReportViewDlg(new OrderChangesReport())
         );
+    }
+
+    protected void OnRegisteredRMActionActivated(object sender, EventArgs e)
+    {
+        tdiMain.AddTab(
+            new RegisteredRMJournalViewModel(
+                new RegisteredRMJournalFilterViewModel(),
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices
+            )
+        ) ;
     }
 }

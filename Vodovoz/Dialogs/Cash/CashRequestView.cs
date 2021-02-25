@@ -221,10 +221,10 @@ namespace Vodovoz.Dialogs.Cash
 			speccomboOrganization.Visible = ViewModel.VisibleOnlyForFinancer;
 			labelcomboOrganization.Visible = ViewModel.VisibleOnlyForFinancer;
 
-            labelCategoryEntityviewmodelentry.Visible =
-                ExpenseCategoryEntityviewmodelentry.Visible = (ViewModel.UserRole == UserRole.Cashier || ViewModel.UserRole == UserRole.Financier);
+            labelCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible);
+            ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible);
 
-            yentryReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
+			yentryReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 			labelReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 			
 			yentryCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
