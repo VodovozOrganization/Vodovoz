@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using NLog;
+using System.Globalization;
 
 namespace SmsRuSendService
 {
@@ -26,10 +27,15 @@ namespace SmsRuSendService
             {
                 var balanceResponse = smsRuProvider.CheckBalance(EnumAuthenticationTypes.StrongApi);
 
+                var lines = balanceResponse.Split('\n');
+
+                var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+                culture.NumberFormat.NumberDecimalSeparator = ".";
+
                 BalanceResponse balance = new BalanceResponse()
                 {
                     BalanceType = BalanceType.CurrencyBalance,
-                    BalanceValue = decimal.Parse(balanceResponse)
+                    BalanceValue = decimal.Parse(lines[1], NumberStyles.AllowDecimalPoint, culture.NumberFormat)
                 };
 
                 return balance;
@@ -58,7 +64,10 @@ namespace SmsRuSendService
 
                         var balanceLine = lines.FirstOrDefault(x => x.StartsWith("balance="));
 
-                        if (balanceLine != null && decimal.TryParse(balanceLine.Substring("balance=".Length), out decimal newBalance))
+                        var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+                        culture.NumberFormat.NumberDecimalSeparator = ".";
+
+                        if (balanceLine != null && decimal.TryParse(balanceLine.Substring("balance=".Length), NumberStyles.AllowDecimalPoint, culture.NumberFormat, out decimal newBalance))
                         {
                             OnBalanceChange?.Invoke(this, new SmsBalanceEventArgs(BalanceType.CurrencyBalance, newBalance));
                         }
