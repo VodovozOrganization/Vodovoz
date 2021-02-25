@@ -247,6 +247,11 @@ namespace Vodovoz
 			ySpinLimitMin.ValueAsInt = int.MinValue;
 			ySpinLimitMax.ValueAsInt = int.MaxValue;
 
+			var userCanEditOrdersLimits = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_edit_orders_limits");
+
+			ySpinLimitMin.Sensitive = userCanEditOrdersLimits;
+			ySpinLimitMax.Sensitive = userCanEditOrdersLimits;
+
 			ySpinLimitMin.Binding.AddBinding(Entity, e => e.MinimalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
 			ySpinLimitMax.Binding.AddBinding(Entity, e => e.MaximalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
 
