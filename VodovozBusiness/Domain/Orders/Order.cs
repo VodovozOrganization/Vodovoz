@@ -2852,7 +2852,7 @@ namespace Vodovoz.Domain.Orders
 				if(unloadedNoms.ContainsKey(nGrp.Key))
 					totalCount += unloadedNoms[nGrp.Key];
 
-				if((int)totalCount != nGrp.Value)
+				if(totalCount != nGrp.Value)
 					canCloseOrder = false;
 			}
 
