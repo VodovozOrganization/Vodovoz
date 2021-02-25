@@ -1,4 +1,3 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
@@ -142,7 +141,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsBlissSendService", "Serv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsPaymentService", "Services\Library\SmsPaymentService\SmsPaymentService.csproj", "{EFE73102-83BC-4036-8642-D3A4121E8351}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsSendInterface", "Services\Library\SmsSendInterface\SmsSendInterface.csproj", "{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmsSendInterface", "Services\Library\SmsSendInterface\SmsSendInterface.csproj", "{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Contacts", "..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj", "{B1DD034B-EC88-400C-9C6B-83CE68AB3541}"
 EndProject
@@ -159,6 +158,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MangoControllerForNet", "Services\Library\MangoControllerForNet\MangoControllerForNet.csproj", "{322CC78B-9068-4E5B-87F1-5FED9B5AB5E0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.MachineConfig", "..\QSProjects\QS.MachineConfig\QS.MachineConfig.csproj", "{769710D2-BF98-4120-9E07-67BD740CFA1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsRuSendService", "SmsRuSendService\SmsRuSendService.csproj", "{9083162F-81A6-49B3-A2D6-F355D62EC5C2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{03DF8ADE-4BA1-4AF0-8881-D45D04C4FABE}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -900,6 +906,18 @@ Global
 		{769710D2-BF98-4120-9E07-67BD740CFA1D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{769710D2-BF98-4120-9E07-67BD740CFA1D}.Release|x86.ActiveCfg = Release|Any CPU
 		{769710D2-BF98-4120-9E07-67BD740CFA1D}.Release|x86.Build.0 = Release|Any CPU
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2}.Debug|x86.Build.0 = Debug|Any CPU
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2}.Release|x86.ActiveCfg = Release|Any CPU
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -978,6 +996,7 @@ Global
 		{892519BA-D891-43B6-971C-6415EA4D14E5} = {029100AD-4EE8-4BD7-8FC8-C7ECF4C7B484}
 		{322CC78B-9068-4E5B-87F1-5FED9B5AB5E0} = {029100AD-4EE8-4BD7-8FC8-C7ECF4C7B484}
 		{769710D2-BF98-4120-9E07-67BD740CFA1D} = {4C931756-0F11-43FD-BE5D-F5691FCB8B01}
+		{9083162F-81A6-49B3-A2D6-F355D62EC5C2} = {029100AD-4EE8-4BD7-8FC8-C7ECF4C7B484}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}

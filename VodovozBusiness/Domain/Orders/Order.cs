@@ -1070,6 +1070,15 @@ namespace Vodovoz.Domain.Orders
 					"Ошибка программы. В заказе автоматически подобрана неверная организация или к организации не привязан кассовый аппарат",
 					new[] { nameof(Contract.Organization) });
 			}
+
+			if (OrderItems.Any(oi => !string.IsNullOrWhiteSpace(oi.Nomenclature.OnlineStoreExternalId))
+				&& EShopOrder == null)
+			{
+				yield return new ValidationResult(
+					"В заказе есть товары ИМ, но не указан номер заказа ИМ",
+					new[] { this.GetPropertyName(o => o.EShopOrder) }
+				);
+			}
 		}
 
 		#endregion

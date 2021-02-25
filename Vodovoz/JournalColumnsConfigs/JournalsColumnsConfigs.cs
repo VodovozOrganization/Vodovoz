@@ -25,6 +25,7 @@ using WrapMode = Pango.WrapMode;
 using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -912,6 +913,19 @@ namespace Vodovoz.JournalColumnsConfigs
                         .AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
                     .Finish()
             );
-        }
+
+			//RegisteredRMJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RegisteredRMJournalViewModel>(
+				() => FluentColumnsConfig<RegisteredRMJournalNode>.Create()
+					.AddColumn("Имя пользователя")
+						.AddTextRenderer(node => node.Username)
+					.AddColumn("Домен")
+						.AddTextRenderer(node => node.Domain)
+					.AddColumn("SID пользователя")
+						.AddTextRenderer(node => node.SID)
+					.AddColumn("")
+					.Finish()
+			);
+		}
 	}
 }
