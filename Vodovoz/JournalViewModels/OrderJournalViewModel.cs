@@ -297,8 +297,13 @@ namespace Vodovoz.JournalViewModels
 			{
 				query.Where(o => o.Id == -1);
 			}
-			
-			if(FilterViewModel.RestrictStartDate != null) {
+
+			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			{
+				query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
+			}
+
+			if (FilterViewModel.RestrictStartDate != null) {
 				query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
 			}
 
@@ -391,8 +396,13 @@ namespace Vodovoz.JournalViewModels
 			{
 				query.Where(o => o.Id == -1);
 			}
-			
-			if(FilterViewModel.RestrictStartDate != null) {
+
+			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			{
+				query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
+			}
+
+			if (FilterViewModel.RestrictStartDate != null) {
 				query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
 			}
 
@@ -506,8 +516,13 @@ namespace Vodovoz.JournalViewModels
 			{
 				query.Where(o => o.Id == -1);
 			}
-			
-			if(FilterViewModel.RestrictStartDate != null) {
+
+			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			{
+				query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
+			}
+
+			if (FilterViewModel.RestrictStartDate != null) {
 				query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
 			}
 
