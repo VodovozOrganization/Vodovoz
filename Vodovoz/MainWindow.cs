@@ -219,6 +219,14 @@ public partial class MainWindow : Gtk.Window
         var userCanManageRegisteredRMs = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
 
         registeredRMAction.Visible = userCanManageRegisteredRMs;
+
+        // Настройки розницы
+
+        var userHaveAccessToRetail = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
+
+        ActionRetail.Sensitive = userHaveAccessToRetail;
+
+        ActionRetailUndeliveredOrdersJournal.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
     }
 
     public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
