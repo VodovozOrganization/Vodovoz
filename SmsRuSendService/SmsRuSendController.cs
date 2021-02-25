@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using NLog;
+using System.Globalization;
 
 namespace SmsRuSendService
 {
@@ -13,6 +14,7 @@ namespace SmsRuSendService
         private readonly SmsRuProvider smsRuProvider;
         private readonly ISmsRuConfiguration configuration;
         private readonly static Logger logger = LogManager.GetCurrentClassLogger();
+        private const string balanceStringPrefix = "balance=";
 
         public SmsRuSendController(ISmsRuConfiguration configuration)
         {
@@ -26,10 +28,15 @@ namespace SmsRuSendService
             {
                 var balanceResponse = smsRuProvider.CheckBalance(EnumAuthenticationTypes.StrongApi);
 
+                var lines = balanceResponse.Split('\n');
+
+                var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+                culture.NumberFormat.NumberDecimalSeparator = ".";
+
                 BalanceResponse balance = new BalanceResponse()
                 {
                     BalanceType = BalanceType.CurrencyBalance,
-                    BalanceValue = decimal.Parse(balanceResponse)
+                    BalanceValue = decimal.Parse(lines[1], NumberStyles.AllowDecimalPoint, culture.NumberFormat)
                 };
 
                 return balance;
@@ -56,9 +63,12 @@ namespace SmsRuSendService
                     case ResponseOnSendRequest.MessageAccepted:
                         smsSendResponse = new SmsSendResult(SmsSentStatus.Accepted);
 
-                        var balanceLine = lines.FirstOrDefault(x => x.StartsWith("balance="));
+                        var balanceLine = lines.FirstOrDefault(x => x.StartsWith(balanceStringPrefix));
 
-                        if (balanceLine != null && decimal.TryParse(balanceLine.Substring("balance=".Length), out decimal newBalance))
+                        var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+                        culture.NumberFormat.NumberDecimalSeparator = ".";
+
+                        if (balanceLine != null && decimal.TryParse(balanceLine.Substring(balanceStringPrefix.Length), NumberStyles.AllowDecimalPoint, culture.NumberFormat, out decimal newBalance))
                         {
                             OnBalanceChange?.Invoke(this, new SmsBalanceEventArgs(BalanceType.CurrencyBalance, newBalance));
                         }
