@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
@@ -21,6 +21,13 @@ namespace Vodovoz.Filters.GtkViews
 			yenumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
 			yenumCounterpartyType.Binding.AddBinding(ViewModel, vm => vm.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
 			checkIncludeArhive.Binding.AddBinding(ViewModel, vm => vm.RestrictIncludeArchive, w => w.Active).InitializeFromSource();
-		}
+
+            ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
+                .AddColumn("Название").AddTextRenderer(node => node.Name)
+                .AddColumn("").AddToggleRenderer(x => x.Selected)
+                .Finish();
+
+            ytreeviewSalesChannels.ItemsDataSource = ViewModel.SalesChannels;
+        }
 	}
 }
