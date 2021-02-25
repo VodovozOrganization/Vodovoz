@@ -14,6 +14,7 @@ namespace SmsRuSendService
         private readonly SmsRuProvider smsRuProvider;
         private readonly ISmsRuConfiguration configuration;
         private readonly static Logger logger = LogManager.GetCurrentClassLogger();
+        private const string balanceStringPrefix = "balance=";
 
         public SmsRuSendController(ISmsRuConfiguration configuration)
         {
@@ -62,12 +63,12 @@ namespace SmsRuSendService
                     case ResponseOnSendRequest.MessageAccepted:
                         smsSendResponse = new SmsSendResult(SmsSentStatus.Accepted);
 
-                        var balanceLine = lines.FirstOrDefault(x => x.StartsWith("balance="));
+                        var balanceLine = lines.FirstOrDefault(x => x.StartsWith(balanceStringPrefix));
 
                         var culture = CultureInfo.CreateSpecificCulture("ru-RU");
                         culture.NumberFormat.NumberDecimalSeparator = ".";
 
-                        if (balanceLine != null && decimal.TryParse(balanceLine.Substring("balance=".Length), NumberStyles.AllowDecimalPoint, culture.NumberFormat, out decimal newBalance))
+                        if (balanceLine != null && decimal.TryParse(balanceLine.Substring(balanceStringPrefix.Length), NumberStyles.AllowDecimalPoint, culture.NumberFormat, out decimal newBalance))
                         {
                             OnBalanceChange?.Invoke(this, new SmsBalanceEventArgs(BalanceType.CurrencyBalance, newBalance));
                         }
