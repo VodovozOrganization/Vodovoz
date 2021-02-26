@@ -17,6 +17,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -191,7 +192,7 @@ namespace Vodovoz.ViewModels.Logistic
                 if(currentActivePrioritySet == null || !currentActivePrioritySet.DriverDistrictPriorities.Any()) {
                     continue;
                 }
-                var newSet = DriverDistrictPriorityController.CopyPrioritySetWithActiveDistricts(
+                var newSet = DriverDistrictPriorityHelper.CopyPrioritySetWithActiveDistricts(
                     currentActivePrioritySet,
                     out var notCopied
                 );

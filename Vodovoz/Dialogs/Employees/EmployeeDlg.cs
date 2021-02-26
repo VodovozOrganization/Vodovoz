@@ -44,6 +44,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools;
+using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.WageCalculation;
@@ -332,7 +333,7 @@ namespace Vodovoz
 				return;
 			}
 			
-			var newDistrictPrioritySet = DriverDistrictPriorityController.CopyPrioritySetWithActiveDistricts(
+			var newDistrictPrioritySet = DriverDistrictPriorityHelper.CopyPrioritySetWithActiveDistricts(
 				selectedDistrictPrioritySet,
 				out var notCopiedPriorities
 			);

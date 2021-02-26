@@ -2,9 +2,9 @@
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.Controllers
+namespace Vodovoz.Tools.Logistic
 {
-    public static class DriverDistrictPriorityController
+    public static class DriverDistrictPriorityHelper
     {
         public static DriverDistrictPrioritySet CopyPrioritySetWithActiveDistricts(DriverDistrictPrioritySet districtPrioritySet, out IList<DriverDistrictPriority> notCopiedPriorities)
         {
