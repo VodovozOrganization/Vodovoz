@@ -31,7 +31,8 @@ namespace Vodovoz.FilterViewModels
 				x => x.EndDate,
 				x => x.Subdivision,
 				x => x.FilterDateType,
-				x => x.ComplaintKind
+				x => x.ComplaintKind,
+				x => x.ComplaintCurrentUserSubdivisionStatus
 			);
 		}
 
@@ -40,8 +41,8 @@ namespace Vodovoz.FilterViewModels
 			ISubdivisionRepository subdivisionRepository,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory
 		) {
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices)); 
-			
+			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
 				commonServices,
@@ -52,9 +53,9 @@ namespace Vodovoz.FilterViewModels
 			};
 
 			GuiltyItemVM.Entity.OnGuiltyTypeChange = () => {
-				if(GuiltyItemVM.Entity.GuiltyType != ComplaintGuiltyTypes.Employee)
+				if (GuiltyItemVM.Entity.GuiltyType != ComplaintGuiltyTypes.Employee)
 					GuiltyItemVM.Entity.Employee = null;
-				if(GuiltyItemVM.Entity.GuiltyType != ComplaintGuiltyTypes.Subdivision)
+				if (GuiltyItemVM.Entity.GuiltyType != ComplaintGuiltyTypes.Subdivision)
 					GuiltyItemVM.Entity.Subdivision = null;
 			};
 			GuiltyItemVM.OnGuiltyItemReady += (sender, e) => Update();
@@ -67,7 +68,8 @@ namespace Vodovoz.FilterViewModels
 				x => x.EndDate,
 				x => x.Subdivision,
 				x => x.FilterDateType,
-				x => x.ComplaintKind
+				x => x.ComplaintKind,
+				x => x.ComplaintCurrentUserSubdivisionStatus
 			);
 		}
 
@@ -100,6 +102,15 @@ namespace Vodovoz.FilterViewModels
 			get => complaintStatus;
 			set => SetField(ref complaintStatus, value, () => ComplaintStatus);
 		}
+
+		private ComplaintStatuses? complaintCurrentUserSubdivisionStatus;
+		public virtual ComplaintStatuses? ComplaintCurrentUserSubdivisionStatus
+		{
+			get => complaintCurrentUserSubdivisionStatus;
+			set => SetField(ref complaintCurrentUserSubdivisionStatus, value, () => ComplaintCurrentUserSubdivisionStatus);
+		}
+
+		public Subdivision CurrentUserSubdivision => EmployeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
 
 		private Employee employee;
 		public virtual Employee Employee {
