@@ -1370,7 +1370,7 @@ namespace Vodovoz
 			// Container child GtkScrolledWindow6.Gtk.Container+ContainerChild
 			this.ytreeDriverScheduleSets = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeDriverScheduleSets.CanFocus = true;
-			this.ytreeDriverScheduleSets.Name = "ytreeviewDriverSchedule";
+			this.ytreeDriverScheduleSets.Name = "ytreeDriverScheduleSets";
 			this.GtkScrolledWindow6.Add(this.ytreeDriverScheduleSets);
 			this.vboxPageLogistic.Add(this.GtkScrolledWindow6);
 			global::Gtk.Box.BoxChild w96 = ((global::Gtk.Box.BoxChild)(this.vboxPageLogistic[this.GtkScrolledWindow6]));
@@ -1444,7 +1444,7 @@ namespace Vodovoz
 			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
 			this.ytreeDistrictPrioritySets = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeDistrictPrioritySets.CanFocus = true;
-			this.ytreeDistrictPrioritySets.Name = "ytreeviewDistricts";
+			this.ytreeDistrictPrioritySets.Name = "ytreeDistrictPrioritySets";
 			this.GtkScrolledWindow2.Add(this.ytreeDistrictPrioritySets);
 			this.vboxPageLogistic.Add(this.GtkScrolledWindow2);
 			global::Gtk.Box.BoxChild w106 = ((global::Gtk.Box.BoxChild)(this.vboxPageLogistic[this.GtkScrolledWindow2]));
