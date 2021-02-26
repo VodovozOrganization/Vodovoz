@@ -17,7 +17,6 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -52,6 +51,8 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly IUserRepository userRepository;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+
+		private bool canCloseComplaint = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
 
@@ -538,8 +539,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Закрыть рекламацию",
-					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed,
-					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate,
+					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed && canCloseComplaint,
+					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate && canCloseComplaint,
 					n => {
 						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
 						ComplaintViewModel currentComplaintVM = null;
