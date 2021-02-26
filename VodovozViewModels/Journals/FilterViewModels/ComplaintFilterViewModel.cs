@@ -94,20 +94,20 @@ namespace Vodovoz.FilterViewModels
 		private ComplaintType? complaintType;
 		public virtual ComplaintType? ComplaintType {
 			get => complaintType;
-			set => SetField(ref complaintType, value, () => ComplaintType);
+			set => SetField(ref complaintType, value);
 		}
 
 		private ComplaintStatuses? complaintStatus;
 		public virtual ComplaintStatuses? ComplaintStatus {
 			get => complaintStatus;
-			set => SetField(ref complaintStatus, value, () => ComplaintStatus);
+			set => SetField(ref complaintStatus, value);
 		}
 
 		private ComplaintStatuses? complaintCurrentUserSubdivisionStatus;
 		public virtual ComplaintStatuses? ComplaintCurrentUserSubdivisionStatus
 		{
 			get => complaintCurrentUserSubdivisionStatus;
-			set => SetField(ref complaintCurrentUserSubdivisionStatus, value, () => ComplaintCurrentUserSubdivisionStatus);
+			set => SetField(ref complaintCurrentUserSubdivisionStatus, value);
 		}
 
 		public Subdivision CurrentUserSubdivision => EmployeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
@@ -127,20 +127,20 @@ namespace Vodovoz.FilterViewModels
 				else if(value?.Id != null)
 					ComplaintStatus = ComplaintStatuses.InProcess;
 
-				SetField(ref subdivision, value, () => Subdivision);
+				SetField(ref subdivision, value);
 			}
 		}
 
 		private DateTime? startDate;
 		public virtual DateTime? StartDate {
 			get => startDate;
-			set => SetField(ref startDate, value, () => StartDate);
+			set => SetField(ref startDate, value);
 		}
 
 		private DateTime endDate = DateTime.Now;
 		public virtual DateTime EndDate {
 			get => endDate;
-			set => SetField(ref endDate, value, () => EndDate);
+			set => SetField(ref endDate, value);
 		}
 
 		private bool? isForRetail;

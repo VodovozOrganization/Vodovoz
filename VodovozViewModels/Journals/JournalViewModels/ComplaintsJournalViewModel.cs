@@ -312,7 +312,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				if(FilterViewModel.Employee != null)
 					query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
 
-				if (FilterViewModel.ComplaintCurrentUserSubdivisionStatus != null)
+				if (FilterViewModel.CurrentUserSubdivision != null 
+					&& FilterViewModel.ComplaintCurrentUserSubdivisionStatus != null)
                 {
 					query = query.Where(() => discussionAlias.Subdivision == FilterViewModel.CurrentUserSubdivision)
 						.And(() => discussionAlias.Status == FilterViewModel.ComplaintCurrentUserSubdivisionStatus);
