@@ -41,7 +41,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public bool IsInAnyRouteList(IUnitOfWork uow, Car car)
         {
 			var rll = uow.Session.QueryOver<RouteList>()
-				.Where(rl => rl.Car == car).List();
+				.Where(rl => rl.Car == car).Take(1).List();
 
 			return rll.Any();
         }
