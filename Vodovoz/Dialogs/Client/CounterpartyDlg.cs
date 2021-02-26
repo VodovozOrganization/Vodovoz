@@ -38,6 +38,11 @@ using Vodovoz.Models;
 using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Retail;
+using System.Data.Bindings.Collections.Generic;
+using NHibernate.Transform;
+using System.ComponentModel;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz
 {
@@ -57,8 +62,56 @@ namespace Vodovoz
 				return nomenclatureRepository;
 			}
 		}
-		
-		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+
+        #region Список каналов сбыта
+
+        private GenericObservableList<SalesChannelSelectableNode> salesChannels = new GenericObservableList<SalesChannelSelectableNode>();
+		public GenericObservableList<SalesChannelSelectableNode> SalesChannels {
+			get => salesChannels; 
+			private set {
+				UnsubscribeOnCheckChanged();
+				salesChannels = value;
+				SubscribeOnCheckChanged();
+			}
+		}
+
+        private void UnsubscribeOnCheckChanged()
+        {
+			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
+			{
+				selectableSalesChannel.PropertyChanged -= OnStatusCheckChanged;
+			}
+		}
+
+        private void SubscribeOnCheckChanged()
+        {
+			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
+			{
+				selectableSalesChannel.PropertyChanged += OnStatusCheckChanged;
+			}
+		}
+
+		private void OnStatusCheckChanged(object sender, PropertyChangedEventArgs e)
+		{
+			var salesChannelSelectableNode = sender as SalesChannelSelectableNode;
+
+			if(salesChannelSelectableNode.Selected) {
+				if (!Entity.SalesChannels.Any(x => x.Id == salesChannelSelectableNode.Id))
+                {
+					Entity.SalesChannels.Add(UoW.Session.Get<SalesChannel>(salesChannelSelectableNode.Id));
+				}
+			} else {
+				SalesChannel salesChannelToRemove = Entity.SalesChannels.Where(x => x.Id == salesChannelSelectableNode.Id).FirstOrDefault();
+				if (salesChannelToRemove != null)
+				{
+					Entity.SalesChannels.Remove(salesChannelToRemove);
+				}
+			}
+		}
+
+        #endregion
+
+        private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
 			get {
 				if(counterpartySelectorFactory == null) {
@@ -97,7 +150,7 @@ namespace Vodovoz
 			set => base.HasChanges = value;
 		}
 
-		public CounterpartyDlg()
+        public CounterpartyDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
@@ -272,8 +325,14 @@ namespace Vodovoz
 
 			checkIsChainStore.Toggled += CheckIsChainStoreOnToggled;
 			checkIsChainStore.Binding.AddBinding(Entity, e => e.IsChainStore, w => w.Active).InitializeFromSource();
-			
-			if (Entity.Id != 0 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+
+            ycheckIsForRetail.Binding.AddBinding(Entity, e => e.IsForRetail, w => w.Active).InitializeFromSource();
+
+			ycheckNoPhoneCall.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_activate_no_phone_call_in_counterparty");
+
+			ycheckNoPhoneCall.Binding.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active).InitializeFromSource();
+
+            if (Entity.Id != 0 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
 				"can_change_delay_days_for_buyers_and_chain_store")) {
 				checkIsChainStore.Sensitive = false;
 				DelayDaysForBuyerValue.Sensitive = false;
@@ -346,9 +405,18 @@ namespace Vodovoz
 			yspeccomboboxTTNCount.ItemsList = docCount;
 			yspeccomboboxTorg2Count.ItemsList = docCount;
 			yspeccomboboxUPDForNonCashlessCount.ItemsList = docCount;
+			yspeccomboboxUPDCount.ItemsList = docCount;
+			yspeccomboboxTorg12Count.ItemsList = docCount;
+			yspeccomboboxShetFacturaCount.ItemsList = docCount;
+			yspeccomboboxCarProxyCount.ItemsList = docCount;
+
 			yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
 			yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
 			yspeccomboboxUPDForNonCashlessCount.Binding.AddBinding(Entity, e => e.UPDCount, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxUPDCount.Binding.AddBinding(Entity, e => e.AllUPDCount, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxTorg12Count.Binding.AddBinding(Entity, e => e.Torg12Count, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxShetFacturaCount.Binding.AddBinding(Entity, e => e.ShetFacturaCount, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxCarProxyCount.Binding.AddBinding(Entity, e => e.CarProxyCount, w => w.SelectedItem).InitializeFromSource();
 
 			enumcomboCargoReceiverSource.ItemsEnum = typeof(CargoReceiverSource);
 			enumcomboCargoReceiverSource.Binding.AddBinding(Entity, e => e.CargoReceiverSource, w => w.SelectedItem).InitializeFromSource();
@@ -368,9 +436,41 @@ namespace Vodovoz
 			UpdateCargoReceiver();
 
 			#endregion Особая печать
-		}
 
-		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
+			yspinDelayDaysForTechProcessing.Binding.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt).InitializeFromSource();
+
+			// Настройка каналов сбыта
+
+			ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
+				.AddColumn("Название").AddTextRenderer(node => node.Name)
+				.AddColumn("").AddToggleRenderer(x => x.Selected)
+				.Finish();
+
+			SalesChannel salesChannelAlias = null;
+			SalesChannelSelectableNode salesChannelSelectableNodeAlias = null;
+
+			var list = UoW.Session.QueryOver(() => salesChannelAlias)
+				.SelectList(scList => scList
+				.SelectGroup(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
+					.Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name)
+				).TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>()).List<SalesChannelSelectableNode>();
+
+			SalesChannels = new GenericObservableList<SalesChannelSelectableNode>(list);
+
+			foreach(var selectableChannel in SalesChannels.Where(x => Entity.SalesChannels.Any(sc => sc.Id == x.Id)))
+            {
+				selectableChannel.Selected = true;
+			}
+
+			ytreeviewSalesChannels.ItemsDataSource = SalesChannels;
+
+            // Прикрепляемые документы
+
+            var filesViewModel = new CounterpartyFilesViewModel(Entity, UoW, new GtkFilePicker(), ServicesConfig.CommonServices);
+            counterpartyfilesview1.ViewModel = filesViewModel;
+        }
+
+        private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
 			if (Entity.IsChainStore) {
 				lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = true;
@@ -764,6 +864,40 @@ namespace Vodovoz
 				Entity.CargoReceiver = cargoReceiverBackupBuffer;
 			}
 			yentryCargoReceiver.Visible = Entity.CargoReceiverSource == CargoReceiverSource.Special;
+		}
+
+    }
+	public class SalesChannelSelectableNode : PropertyChangedBase
+	{
+		private int id;
+		public virtual int Id
+		{
+			get => id;
+			set => SetField(ref id, value);
+		}
+
+		private bool selected;
+		public virtual bool Selected
+		{
+			get => selected;
+			set => SetField(ref selected, value);
+		}
+
+		private string name;
+		public virtual string Name
+		{
+			get => name;
+			set => SetField(ref name, value);
+		}
+
+		public string Title => Name;
+
+        public SalesChannelSelectableNode(){}
+
+		public SalesChannelSelectableNode(SalesChannel salesChannel)
+		{
+			Id = salesChannel.Id;
+			Name = salesChannel.Name;
 		}
 	}
 }

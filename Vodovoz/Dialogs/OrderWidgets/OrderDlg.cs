@@ -456,6 +456,13 @@ namespace Vodovoz
 
 			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPoint.CanEditReference = true;
+
+			referenceDeliveryPoint.ChangedByUser += (s,e) => {
+				if (!Entity.DeliveryPoint.IsActive && 
+					!MessageDialogHelper.RunQuestionDialog("Данный адрес деактивирован, вы уверены, что хотите выбрать его?")
+				) { Entity.DeliveryPoint = null; }
+			};
+
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer");
 
 			buttonViewDocument.Sensitive = false;

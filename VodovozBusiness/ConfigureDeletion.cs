@@ -446,7 +446,7 @@ namespace Vodovoz
 				.AddDeleteDependenceFromCollection(item => item.Phones)
 				.AddClearDependence<Counterparty>(item => item.MainContact)
 				.AddClearDependence<Counterparty>(item => item.FinancialContact)
-				.AddRemoveFromDependence<DeliveryPoint>(x => x.Contacts);
+				.AddRemoveFromDependence<DeliveryPoint>(x => x.ResponsiblePersons);
 
 			DeleteConfig.AddClearDependence<Post>(ClearDependenceInfo.Create<Contact>(item => item.Post));
 

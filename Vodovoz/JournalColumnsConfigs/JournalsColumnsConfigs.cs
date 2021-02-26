@@ -26,6 +26,9 @@ using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -928,6 +931,28 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.Finish()
 			);
+
+            //DeliveryPointResponsiblePersonTypeJournalViewModel
+            TreeViewColumnsConfigFactory.Register<DeliveryPointResponsiblePersonTypeJournalViewModel>(
+                () => FluentColumnsConfig<DeliveryPointResponsiblePersonTypeJournalNode>.Create()
+                    .AddColumn("Номер")
+                        .AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Имя")
+                        .AddTextRenderer(node => node.Title)
+                    .AddColumn("")
+                    .Finish()
+            );
+
+            //DeliveryPointResponsiblePersonTypeJournalViewModel
+            TreeViewColumnsConfigFactory.Register<SalesChannelJournalViewModel>(
+                () => FluentColumnsConfig<SalesChannelJournalNode>.Create()
+                    .AddColumn("Номер")
+                        .AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Имя")
+                        .AddTextRenderer(node => node.Title)
+                    .AddColumn("")
+                    .Finish()
+            );
 		}
 	}
 }

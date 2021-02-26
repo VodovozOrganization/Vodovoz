@@ -13,7 +13,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
     public class FixedPricesPanelViewModel : UoWWidgetViewModelBase
     {
         private readonly IFixedPricesDialogOpener fixedPricesDialogOpener;
-        private Counterparty counterparty;
+        private Domain.Client.Counterparty counterparty;
         private DeliveryPoint deliveryPoint;
         
         public FixedPricesPanelViewModel(IFixedPricesDialogOpener fixedPricesDialogOpener)
@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
             }
         }
 
-        public void Refresh(Counterparty counterparty, DeliveryPoint deliveryPoint)
+        public void Refresh(Domain.Client.Counterparty counterparty, DeliveryPoint deliveryPoint)
         {
             this.counterparty = counterparty;
             this.deliveryPoint = deliveryPoint;

@@ -1429,7 +1429,7 @@ WHERE stored_resource.id = @id1</CommandText>
       <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15.75pt</Height>
         <Width>213.27pt</Width>
-        <Value>='Счет № Ф-' + First({bwsfap_id}, 'Order') + ' от ' + First({bill_date}, 'Order')</Value>
+        <Value>='Счет № Ф-' + First({bwsfap_id}, 'Order') + ' от ' + First({bill_date}, 'Order') + ' ' + {?special_contract_number}</Value>
         <ZIndex>1</ZIndex>
         <Left>39.20pt</Left>
         <Top>216.10pt</Top>
@@ -2102,6 +2102,13 @@ Iif(
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="special_contract_number">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

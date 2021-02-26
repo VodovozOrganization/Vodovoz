@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -116,10 +116,13 @@
     <Compile Include="Journals\FilterViewModels\ExpenseCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\FinancialDistrictsSetsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\IncomeCategoryJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DeliveryPointResponsiblePersonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictsSetJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\RouteListJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Proposal\ApplicationDevelopmentProposalsJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Retail\SalesChannelJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Security\RegisteredRMJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\MovementWagonJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
@@ -129,10 +132,13 @@
     <Compile Include="Journals\JournalNodes\ExpenseCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\FinancialDistrictsSetsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\IncomeCategoryJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonTypeJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\MovementWagonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RegisteredRMJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RouteListJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RouteListStatusNode.cs" />
+    <Compile Include="Journals\JournalNodes\SalesChannelJournalNode.cs" />
     <Compile Include="Journals\JournalSelectors\ExpanceCategoryAutoCompleteSelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />
@@ -142,11 +148,14 @@
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\FinancialDistrictsSetsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\MovementWagonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Proposal\ApplicationDevelopmentProposalsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Security\RegisteredRMJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Retail\SalesChannelJournalViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TempAdapters\ICarJournalFactory.cs" />
     <Compile Include="TempAdapters\ICounterpartyJournalFactory.cs" />
@@ -177,6 +186,8 @@
     <Compile Include="Infrastructure\InfoProviders\PanelViewType.cs" />
     <Compile Include="ViewModels\Goods\FixedPriceItemViewModel.cs" />
     <Compile Include="ViewModels\Logistic\AcceptBeforeViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DeliveryPointResponsiblePersonTypeViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DeliveryPointResponsiblePersonViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictsSetActivationViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DriverDistrictPriorityNode.cs" />
@@ -190,6 +201,7 @@
     <Compile Include="TempAdapters\IGtkTabsOpenerForRouteListViewAndOrderView.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
+    <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
     <Compile Include="ViewModels\Store\MovementWagonViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\WageDistrictLevelRateViewModel.cs" />
@@ -280,6 +292,7 @@
     <Compile Include="Journals\JournalViewModels\Employees\UserJournalViewModel.cs" />
     <Compile Include="ViewModels\Users\UserViewModel.cs" />
     <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
+    <Compile Include="ViewModels\Counterparty\CounterpartyFilesViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />
@@ -312,6 +325,7 @@
     <Folder Include="Journals\Nodes\Cash\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="ViewModels\Payments\" />
+    <Folder Include="ViewModels\Counterparty\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">

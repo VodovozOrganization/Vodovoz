@@ -89,6 +89,10 @@ using Vodovoz.Tools.Logistic;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -215,6 +219,14 @@ public partial class MainWindow : Gtk.Window
         var userCanManageRegisteredRMs = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
 
         registeredRMAction.Visible = userCanManageRegisteredRMs;
+
+        // Настройки розницы
+
+        var userHaveAccessToRetail = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
+
+        ActionRetail.Sensitive = userHaveAccessToRetail;
+
+        ActionRetailUndeliveredOrdersJournal.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
     }
 
     public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
@@ -1851,6 +1863,129 @@ public partial class MainWindow : Gtk.Window
                 UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices
             )
-        ) ;
+        );
+    }
+
+    protected void OnActionRetailActivated(object sender, EventArgs e)
+    {
+        if (ActionRetail.Active)
+            SwitchToUI("retail.xml");
+    }
+
+    protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
+    {
+        IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
+
+        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+
+        IEntityAutocompleteSelectorFactory employeeSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+                ServicesConfig.CommonServices);
+
+        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
+                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
+                nomenclatureRepository, UserSingletonRepository.GetInstance());
+
+        ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+        IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
+        IFilePickerService filePickerService = new GtkFilePicker();
+
+        tdiMain.OpenTab(
+            () =>
+            {
+                return new ComplaintsJournalViewModel(
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices,
+                    undeliveriesViewOpener,
+                    VodovozGtkServicesConfig.EmployeeService,
+                    employeeSelectorFactory,
+                    counterpartySelectorFactory,
+                    nomenclatureSelectorFactory,
+                    routeListItemRepository,
+                    SubdivisionParametersProvider.Instance,
+                    new ComplaintFilterViewModel(
+                        ServicesConfig.CommonServices,
+                        subdivisionRepository,
+                        employeeSelectorFactory
+                    )
+                    { IsForRetail = true },
+                    filePickerService,
+                    subdivisionRepository,
+                    new GtkReportViewOpener(),
+                    new GtkTabsOpener(),
+                    nomenclatureRepository,
+                    UserSingletonRepository.GetInstance()
+                );
+            }
+        );
+    }
+
+    protected void OnActionRetailUndeliveredOrdersJournalActivated(object sender, EventArgs e)
+    {
+        MessageDialogHelper.RunInfoDialog("Журнал недовозов");
+    }
+
+    protected void OnActionRetailCounterpartyJournalActivated(object sender, EventArgs e)
+    {
+        CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel() { IsForRetail = true };
+        var counterpartyJournal = new CounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+
+        tdiMain.OpenTab(
+            () => counterpartyJournal
+        );
+    }
+
+    protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
+    {
+        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+
+        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
+                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
+                nomenclatureRepository, UserSingletonRepository.GetInstance());
+
+        tdiMain.OpenTab(
+            () => new OrderJournalViewModel(
+                    new OrderJournalFilterViewModel() { IsForRetail = true },
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices,
+                    VodovozGtkServicesConfig.EmployeeService,
+                    nomenclatureSelectorFactory,
+                    counterpartySelectorFactory,
+                    nomenclatureRepository,
+                    UserSingletonRepository.GetInstance()
+            )
+        );
+    }
+
+    protected void OnActionSalesChannelsJournalActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            () => new SalesChannelJournalViewModel(
+                    new SalesChannelJournalFilterViewModel(),
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices
+            )
+        );
+    }
+
+    protected void OnActionResponsiblePersonTypesJournalActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            () => new DeliveryPointResponsiblePersonTypeJournalViewModel(
+                    new DeliveryPointResponsiblePersonTypeJournalFilterViewModel(),
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices
+            )
+        );
     }
 }
