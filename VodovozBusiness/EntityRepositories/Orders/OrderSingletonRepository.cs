@@ -583,7 +583,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				)
 			);
 
-			var positiveOrderSumRestriction = Restrictions.Gt(orderSumProjection, 0);
+			var orderSumRestriction = Restrictions.Between(orderSumProjection, 1, 19999);
 
 			var alwaysSendOrdersRestriction = Restrictions.Disjunction()
 				.Add(() => productGroupAlias.IsOnlineStore)
@@ -619,7 +619,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(alwaysSendOrdersRestriction)
 				.And(paidByCardRestriction)
 				.And(orderDeliveredStatuses)
-				.And(positiveOrderSumRestriction)
+				.And(orderSumRestriction)
 				.And(orderPaymentTypesRestriction)
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.IsNull(Projections.Property(() => cashReceiptAlias.Id)))
@@ -651,7 +651,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(Restrictions.Not(alwaysSendOrdersRestriction))
 				.And(paidByCardRestriction)
 				.And(orderDeliveredStatuses)
-				.And(positiveOrderSumRestriction)
+				.And(orderSumRestriction)
 				.And(orderPaymentTypesRestriction);
 
 			if(startDate.HasValue) {
