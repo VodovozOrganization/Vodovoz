@@ -29,10 +29,13 @@ namespace BitrixIntegration
 		
 		
 		
-		public void PostEvent(BitrixPostResponse response)
+		public void PostEvent(dynamic FIELDS)
 		{
-			// logger.Info("Получен из битрикса: \n" + response.ToString());
-			BitrixManager.AddEvent(response);
+			logger.Info("\nПолучен из битрикса");
+			if (FIELDS == null){
+				logger.Info("и он = null (((\n");
+			}
+			BitrixManager.AddEvent(FIELDS);
 			if (WebOperationContext.Current != null){
 				logger.Info(WebOperationContext.Current.IncomingResponse.ToString());
 				WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.OK;

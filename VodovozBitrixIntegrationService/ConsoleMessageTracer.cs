@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
@@ -35,10 +36,12 @@ namespace VodovozBitrixIntegrationService
 
         public object AfterReceiveRequest(ref Message request, IClientChannel channel, InstanceContext instanceContext)
         {
-            logger.Info($"Headers.Action {request.Headers.Action}");
+            logger.Info($"\nHeaders.Action {request.Headers.Action}");
             logger.Info($"Headers.From {request.Headers.From}");
             logger.Info($"Headers.To {request.Headers.To}");
             logger.Info($"Headers.Count {request.Headers.Count}");
+            logger.Info($"request.Headers.First().Name {request.Headers.First().Name}");
+            
             logger.Info($"Properties.Keys {request.Properties.Keys.ToString()}");
             logger.Info($"Properties.Keys.Count {request.Properties.Keys.Count}");
             logger.Info($"Properties.Properties.Count {request.Properties.Count}");

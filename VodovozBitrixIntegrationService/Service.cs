@@ -2,6 +2,7 @@
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Threading;
+using System.Threading.Tasks;
 using BitrixApi.REST;
 using BitrixIntegration;
 using BitrixIntegration.ServiceInterfaces;
@@ -229,12 +230,17 @@ namespace VodovozBitrixIntegrationService
 					counterpartyContractFactory
 				);
 				
-				await cor.Process(158740); //138768 //150772 // 158740 тестовый
+				// await cor.Process(158740); //138768 //150772 // 158740 тестовый
+				await IdeaTests(cor);
+				
 			BitrixManager.SetCoR(cor);
 
 			bitrixHost.AddServiceEndpoint(contract, binding, address);
 			
 			bitrixHost.Description.Behaviors.Add(new PreFilter());
+			ServiceDebugBehavior debug = bitrixHost.Description.Behaviors.Find<ServiceDebugBehavior>();
+			debug.IncludeExceptionDetailInFaults = true;
+			
 			bitrixHost.Open();
 
 			logger.Log(LogLevel.Info, "Сервис запущен");
@@ -247,6 +253,13 @@ namespace VodovozBitrixIntegrationService
 			// EmailSendingHost.Open();
 			// MailjetEventsHost.Open();
 		}
+
+		private static async Task IdeaTests(CoR cor)
+		{
+			await cor.IdeaTest();
+		}
+
+
 		//
 
 		#endregion StartService

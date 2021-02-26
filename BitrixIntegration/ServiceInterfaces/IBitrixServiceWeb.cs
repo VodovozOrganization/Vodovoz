@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 
 namespace BitrixIntegration.ServiceInterfaces
 {
-	[ServiceContract (Name = "Bitrix", Namespace="urn:bitrixintegration:serviceinterfaces")]
+	[ServiceContract (Name = "BitrixServiceWeb", Namespace="urn:bitrixintegration:serviceinterfaces")]
 	public interface IBitrixServiceWeb
 	{
 		[WebGet(ResponseFormat = WebMessageFormat.Json)]
@@ -24,15 +24,16 @@ namespace BitrixIntegration.ServiceInterfaces
 		// 	RequestFormat = WebMessageFormat.Json)]
 		// void OnCrmDealUpdate(BitrixApi.DTO.DataContractJsonSerializer.DealRequest dealRequest); 
 
-		[OperationContract()]
+		[OperationContract]
 		// [WebInvoke(
-		// 		// Method = "POST",
-		// 	// BodyStyle = WebMessageBodyStyle.Wrapped,
+		// 		Method = "POST")
+			// BodyStyle = WebMessageBodyStyle.Wrapped,
 		// 	ResponseFormat = WebMessageFormat.Json)
 		// 	// RequestFormat = WebMessageFormat.Json)
 		// ]
-		[WebGet(ResponseFormat = WebMessageFormat.Xml)]
-		void PostEvent(BitrixPostResponse response);
+		// [WebGet(ResponseFormat = WebMessageFormat.Xml)]
+		[WebGet/*(ResponseFormat = WebMessageFormat.Json)*/]
+		void PostEvent(dynamic FIELDS);
 		// void PostEvent(BitrixPostResponse response);
 	}
 }

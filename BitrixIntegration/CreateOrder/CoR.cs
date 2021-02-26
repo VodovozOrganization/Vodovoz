@@ -4,12 +4,16 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using BitrixApi.DTO;
 using BitrixApi.REST;
+using Newtonsoft.Json;
 using QS.BusinessCommon.Repository;
 using QS.DomainModel.UoW;
 using QS.Osm.DTO;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -21,6 +25,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.Services;
+using VodovozInfrastructure.Utils;
 using Contact = BitrixApi.DTO.Contact;
 using Phone = Vodovoz.Domain.Contacts.Phone;
 
@@ -522,6 +527,30 @@ namespace BitrixIntegration {
 
         private async Task<bool> IsNomenclatureFromDV(uint productId)
 	        => (await bitrixApi.GetProduct(productId)).IsOurObj.IsOurProduct == "Y";
+
+
+        private static int a = 0;
+        public async Task IdeaTest()
+        {
+	        var date = DateTime.Parse("25.02.2021");
+	        // var a = await bitrixApi.GetDealsBetweenDates(uow,date.StartOfDay(), date.EndOfDay());
+	        var a = new DealCollector(bitrixApi);
+	        var dealsList = await a.CollectDeals(uow, date);
+        }
         
+        private static async Task EventAAsync()
+        {
+	        while (true)
+	        {
+		        Task.Run(() =>
+		        {
+			        Console.WriteLine("The Elapsed event A was raised at {0}, a{1}", DateTime.Now, ++a);
+		        });
+		        await Task.Delay(TimeSpan.FromSeconds(5));
+	        }
+        }
+        
+        
+
     }
 }

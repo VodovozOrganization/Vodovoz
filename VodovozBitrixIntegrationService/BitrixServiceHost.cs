@@ -9,7 +9,9 @@ namespace VodovozBitrixIntegrationService
 	{
 		public BitrixServiceHost(BitrixInstanceProvider bitrixInstanceProvider) : base(typeof(BitrixService))
 		{
+			
 			Description.Behaviors.Add(new BitrixServiceBehavior(bitrixInstanceProvider));
+			
 		}
 	}
 }

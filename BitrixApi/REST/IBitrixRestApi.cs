@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BitrixApi.DTO;
 using Newtonsoft.Json;
+using QS.DomainModel.UoW;
 
 namespace BitrixApi.REST
 {
@@ -13,21 +14,23 @@ namespace BitrixApi.REST
        
         
         //crm.deal.get
-        public Task<Deal> GetDealAsync(uint id);
+        Task<Deal> GetDealAsync(uint id);
         // public Task<Deal> GetDeal(uint id);
         
         //crm.contact.get
-        public Task<Contact> GetContact(uint id);
+        Task<Contact> GetContact(uint id);
         
         //crm.company.get
-        public Task<Company> GetCompany(uint id);
+        Task<Company> GetCompany(uint id);
 
         
         //crm.product.get
-        public Task<Product> GetProduct(uint id);
+        Task<Product> GetProduct(uint id);
         
         //crm.deal.productrows.get
-        public Task<IList<ProductFromDeal>> GetProductsForDeal(uint dealId);
+        Task<IList<ProductFromDeal>> GetProductsForDeal(uint dealId);
+        
+        Task<IList<uint>> GetDealsIdsBetweenDates(IUnitOfWork uow, DateTime date1, DateTime date2);
 
 
         #region CustomFields

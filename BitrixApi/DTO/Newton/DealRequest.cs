@@ -26,7 +26,7 @@ namespace BitrixApi.DTO
         [JsonProperty("CURRENCY_ID")]  public string CurrencyId { get; set; }
         [JsonProperty("OPPORTUNITY")]  public decimal Opportunity { get; set; }
         [JsonProperty("IS_MANUAL_OPPORTUNITY")]  public string IsManualOpportunity { get; set; }
-        [JsonProperty("TAX_VALUE")]  public decimal TaxValue { get; set; }
+        [JsonProperty("TAX_VALUE")]  public decimal? TaxValue { get; set; }
         [JsonProperty("LEAD_ID")] public string LeadId { get; set; }
         [JsonProperty("COMPANY_ID")] public uint CompanyId { get; set; }
         [JsonProperty("CONTACT_ID")] public uint ContancId { get; set; }

@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
+    <Compile Include="Domain\DealFromBitrix.cs" />
     <Compile Include="Domain\Documents\WayBillDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocumentItem.cs" />
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />
@@ -117,6 +118,9 @@
     <Compile Include="EntityRepositories\Cash\RouteListItemCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\ISelfDeliveryCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\SelfDeliveryCashDistributionDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Online\DealFromBitrixRepository.cs" />
+    <Compile Include="EntityRepositories\Online\IDealFromBitrixRepository.cs" />
+    <Compile Include="HibernateMapping\DealFromBitrixMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
     <Compile Include="EntityRepositories\Cash\Requests\CashRequestRepository.cs" />
