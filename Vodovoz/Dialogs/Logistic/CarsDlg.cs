@@ -96,6 +96,8 @@ namespace Vodovoz
 
 			carRepository = new CarRepository();
 
+			checkIsRaskat.Active = Entity.IsRaskat;
+
 			Entity.PropertyChanged += (s, e) => {
 				if (e.PropertyName == nameof(Entity.IsRaskat) && checkIsRaskat.Active != Entity.IsRaskat) {
 					checkIsRaskat.Active = Entity.IsRaskat;
