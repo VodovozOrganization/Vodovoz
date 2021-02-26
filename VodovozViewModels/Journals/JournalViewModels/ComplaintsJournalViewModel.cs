@@ -315,7 +315,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				if (FilterViewModel.CurrentUserSubdivision != null 
 					&& FilterViewModel.ComplaintCurrentUserSubdivisionStatus != null)
                 {
-					query = query.Where(() => discussionAlias.Subdivision == FilterViewModel.CurrentUserSubdivision)
+					query = query.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.CurrentUserSubdivision.Id)
 						.And(() => discussionAlias.Status == FilterViewModel.ComplaintCurrentUserSubdivisionStatus);
 				}
 
