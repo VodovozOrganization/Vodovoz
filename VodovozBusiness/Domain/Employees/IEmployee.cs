@@ -21,10 +21,10 @@ namespace Vodovoz.Domain.Employees
 		CarTypeOfUse? DriverOf { get; set; }
 		float DriverSpeed { get; set; }
 		short TripPriority { get; set; }
-		IList<DriverDistrictPriority> Districts { get; set; }
-		IList<DriverWorkSchedule> WorkDays { get; set; }
-		GenericObservableList<DriverDistrictPriority> ObservableDistricts { get; }
-		GenericObservableList<DriverWorkSchedule> ObservableWorkDays { get; }
+		IList<DriverDistrictPrioritySet> DriverDistrictPrioritySets { get; set; }
+		IList<DriverWorkScheduleSet> DriverWorkScheduleSets { get; set; }
+		GenericObservableList<DriverDistrictPrioritySet> ObservableDriverDistrictPrioritySets { get; }
+		GenericObservableList<DriverWorkScheduleSet> ObservableDriverWorkScheduleSets { get; }
 		bool VisitingMaster { get; set; }
 
 		double TimeCorrection(long timeValue);

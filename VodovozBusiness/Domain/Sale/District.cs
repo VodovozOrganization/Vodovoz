@@ -99,6 +99,13 @@ namespace Vodovoz.Domain.Sale
 			set => SetField(ref copyOf, value, () => CopyOf);
 		}
 		
+		private District copiedTo;
+		[Display(Name = "Район, скопированный из этого района")]
+		public virtual District CopiedTo {
+			get => copiedTo;
+			set => SetField(ref copiedTo, value);
+		}
+		
 		#endregion
 
 		#region CommonDistrictRuleItems
@@ -533,6 +540,11 @@ namespace Vodovoz.Domain.Sale
 			SundayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
 		}
 
+		/// <summary>
+		/// Активная ли версия районов, связанная с этим районом
+		/// </summary>
+		public virtual bool IsActive => DistrictsSet?.Status == DistrictsSetStatus.Active;
+
 		#endregion
 
 		#region IValidatableObject implementation
@@ -600,19 +612,19 @@ namespace Vodovoz.Domain.Sale
 			newDistrict.InitializeAllCollections();
 
 			foreach (var commonRuleItem in CommonDistrictRuleItems) {
-				var newCommonRuleItem = commonRuleItem.Clone() as CommonDistrictRuleItem;
+				var newCommonRuleItem = (CommonDistrictRuleItem)commonRuleItem.Clone();
 				newCommonRuleItem.District = newDistrict;
 				newDistrict.CommonDistrictRuleItems
 					.Add(newCommonRuleItem);
 			}
 			foreach (var scheduleRestriction in GetAllDeliveryScheduleRestrictions()) {
-				var newScheduleRestriction = scheduleRestriction.Clone() as DeliveryScheduleRestriction;
+				var newScheduleRestriction = (DeliveryScheduleRestriction)scheduleRestriction.Clone();
 				newScheduleRestriction.District = newDistrict;
 				newDistrict.GetScheduleRestrictionCollectionByWeekDayName(scheduleRestriction.WeekDay)
 					.Add(newScheduleRestriction);
 			}
 			foreach (var weekDayRule in GetAllWeekDayDistrictRuleItems()) {
-				var newWeekDayRule = weekDayRule.Clone() as WeekDayDistrictRuleItem;
+				var newWeekDayRule = (WeekDayDistrictRuleItem)weekDayRule.Clone();
 				newWeekDayRule.District = newDistrict;
 				newDistrict.GetWeekDayRuleItemCollectionByWeekDayName(weekDayRule.WeekDay)
 					.Add(newWeekDayRule);
@@ -634,6 +646,19 @@ namespace Vodovoz.Domain.Sale
 				case DayOfWeek.Saturday: return WeekDayName.Saturday;
 				case DayOfWeek.Sunday: return WeekDayName.Sunday;
 				default: throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		public static District GetDistrictFromActiveDistrictsSetOrNull(District district)
+		{
+			while(true) {
+				if(district?.DistrictsSet == null) {
+					return null;
+				}
+				if(district.DistrictsSet.Status == DistrictsSetStatus.Active) {
+					return district;
+				}
+				district = district.CopiedTo;
 			}
 		}
 	}

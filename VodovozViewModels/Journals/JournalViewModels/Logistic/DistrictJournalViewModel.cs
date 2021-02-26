@@ -21,9 +21,9 @@ namespace Vodovoz.Journals.JournalViewModels
         {
             TabName = "Журнал районов";
             
-            EnableAddButton = true;
-            EnableDeleteButton = true;
-            EnableEditButton = true;
+            EnableAddButton = false;
+            EnableDeleteButton = false;
+            EnableEditButton = false;
         }
 
         public bool EnableAddButton { get; set; }
@@ -37,8 +37,8 @@ namespace Vodovoz.Journals.JournalViewModels
             WageDistrict wageDistrictAlias = null;
 
             var query = uow.Session.QueryOver<District>(() => districtAlias)
-                .Left.JoinAlias(() => districtAlias.WageDistrict, () => wageDistrictAlias)
-                .Left.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias);
+                .Inner.JoinAlias(() => districtAlias.WageDistrict, () => wageDistrictAlias)
+                .Inner.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias);
 
             if(FilterViewModel != null) {
                 if(FilterViewModel.Status.HasValue)
@@ -58,7 +58,9 @@ namespace Vodovoz.Journals.JournalViewModels
                     .Select(c => c.Id).WithAlias(() => districtJournalNode.Id)
                     .Select(c => c.DistrictName).WithAlias(() => districtJournalNode.Name)
                     .Select(() => wageDistrictAlias.Name).WithAlias(() => districtJournalNode.WageDistrict)
-                    .Select(() => districtsSetAlias.Status).WithAlias(() => districtJournalNode.DistrictsSetStatus))
+                    .Select(() => districtsSetAlias.Status).WithAlias(() => districtJournalNode.DistrictsSetStatus)
+                    .Select(() => districtsSetAlias.Id).WithAlias(() => districtJournalNode.DistrictsSetId))
+                .OrderBy(() => districtsSetAlias.Id).Desc
                 .TransformUsing(Transformers.AliasToBean<DistrictJournalNode>());
 
             return result;

@@ -190,6 +190,10 @@
     <Compile Include="ViewModels\Logistic\DeliveryPointResponsiblePersonViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictsSetActivationViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DriverDistrictPriorityNode.cs" />
+    <Compile Include="ViewModels\Logistic\DriverDistrictPrioritySetViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DriverWorkScheduleNode.cs" />
+    <Compile Include="ViewModels\Logistic\DriverWorkScheduleSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
     <Compile Include="ViewModels\Organization\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />

@@ -501,14 +501,9 @@ public partial class MainWindow : Window
 
 	void ActionAtWorks_Activated(object sender, System.EventArgs e)
 	{
-		var authService = new AuthorizationService(
-			new PasswordGenerator(),
-			new MySQLUserRepository(
-				new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-				new GtkInteractiveService()));
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AtWorksDlg>(),
-			() => new AtWorksDlg(authService)
+			() => new AtWorksDlg(new BaseParametersProvider())
 		);
 	}
 
@@ -531,7 +526,8 @@ public partial class MainWindow : Window
 					new AtWorkRepository(),
 					new CarRepository(),
 					NavigationManagerProvider.NavigationManager,
-					UserSingletonRepository.GetInstance()
+					UserSingletonRepository.GetInstance(),
+					new BaseParametersProvider()
 				)
 			);
 	}

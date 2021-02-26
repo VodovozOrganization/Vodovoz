@@ -65,7 +65,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.AddColumn("Зарплатный район").AddTextRenderer(node => node.WageDistrict)
-					.AddColumn("Статус набора районов").AddTextRenderer(node => node.DistrictsSetStatus.GetEnumTitle())
+					.AddColumn("Статус версии районов").AddTextRenderer(node => node.DistrictsSetStatus.GetEnumTitle())
+					.AddColumn("Код версии").AddNumericRenderer(node => node.DistrictsSetId)
+					.AddColumn("")
 					.Finish()
 			);
 			

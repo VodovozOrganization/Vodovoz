@@ -44,7 +44,8 @@ namespace Vodovoz.JournalViewModels
 				new MySQLUserRepository(
 					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
 					new GtkInteractiveService()));
-				UpdateOnChanges(typeof(Employee));
+
+			UpdateOnChanges(typeof(Employee));
 		}
 
 		private readonly IAuthorizationService authorizationService;
@@ -52,23 +53,11 @@ namespace Vodovoz.JournalViewModels
 		protected override Func<IUnitOfWork, IQueryOver<Employee>> ItemsSourceQueryFunction => (uow) => {
 			EmployeeJournalNode resultAlias = null;
 			Employee employeeAlias = null;
-			DriverWorkSchedule drvWorkScheduleAlias = null;
-			DeliveryDaySchedule dlvDayScheduleAlias = null;
-			DeliveryShift shiftAlias = null;
 
 			var query = uow.Session.QueryOver(() => employeeAlias);
 
 			if(FilterViewModel?.Status != null)
 				query.Where(e => e.Status == FilterViewModel.Status);
-
-			if(FilterViewModel?.DrvStartTime != null && FilterViewModel.DrvEndTime != null && FilterViewModel.WeekDay != null) {
-				query.Left.JoinAlias(() => employeeAlias.WorkDays, () => drvWorkScheduleAlias)
-					 .Left.JoinAlias(() => drvWorkScheduleAlias.DaySchedule, () => dlvDayScheduleAlias)
-					 .Left.JoinAlias(() => dlvDayScheduleAlias.Shifts, () => shiftAlias)
-					 .Where(() => (int)drvWorkScheduleAlias.WeekDay == (int)FilterViewModel.WeekDay.Value.DayOfWeek
-								   && shiftAlias.StartTime >= FilterViewModel.DrvStartTime
-								   && shiftAlias.StartTime <= FilterViewModel.DrvEndTime);
-			}
 
 			if(FilterViewModel?.Category != null)
 				query.Where(e => e.Category == FilterViewModel.Category);
