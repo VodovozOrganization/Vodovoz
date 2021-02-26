@@ -312,7 +312,14 @@ namespace Vodovoz.Journals.JournalViewModels
 				if(FilterViewModel.Employee != null)
 					query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
 
-				if(FilterViewModel.GuiltyItemVM?.Entity?.GuiltyType != null) {
+				if (FilterViewModel.CurrentUserSubdivision != null 
+					&& FilterViewModel.ComplaintCurrentUserSubdivisionStatus != null)
+                {
+					query = query.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.CurrentUserSubdivision.Id)
+						.And(() => discussionAlias.Status == FilterViewModel.ComplaintCurrentUserSubdivisionStatus);
+				}
+
+				if (FilterViewModel.GuiltyItemVM?.Entity?.GuiltyType != null) {
 					var subquery = QueryOver.Of<ComplaintGuiltyItem>()
 											.Where(g => g.GuiltyType == FilterViewModel.GuiltyItemVM.Entity.GuiltyType.Value);
 					switch(FilterViewModel.GuiltyItemVM.Entity.GuiltyType) {
