@@ -76,79 +76,77 @@ namespace BitrixIntegration {
 	        QS.Osm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
         }
 
-        public async Task Process(uint dealId)
+        public async Task<Order> Process(Deal deal)
         {
-	        try{
-		        needSetFirstOrderForCounterparty = false;
-		        needCreateNomenclature = false;
-		        
-		        var deal = await ProcessDeal(dealId);
-		        if (deal == null){
-			        logger.Error("Ошибка при получении сделки из BitrixApi");
-			        return;
-		        }
+        
+	        needSetFirstOrderForCounterparty = false;
+	        needCreateNomenclature = false;
+	        
+	        // var deal = await ProcessDeal(dealId);
+	        // if (deal == null){
+		       //  logger.Error("Ошибка при получении сделки из BitrixApi");
+		       //  return;
+	        // }
 
-		        logger.Info($"Обработка Deal: {deal.Id}");
-		        bool isSelfDelivery = deal.DeliveryType == "626";
-		        bool isSmsPayment = deal.PaymentMethod == "1108";
-		        if (isSelfDelivery)
-			        logger.Info("Сделка является самовызовом");
-		        if (isSmsPayment)
-			        logger.Info("Сделка оплачивается по СМС");
-		        
+	        logger.Info($"Обработка Deal: {deal.Id}");
+	        bool isSelfDelivery = deal.DeliveryType == "626";
+	        bool isSmsPayment = deal.PaymentMethod == "1108";
+	        if (isSelfDelivery)
+		        logger.Info("Сделка является самовызовом");
+	        if (isSmsPayment)
+		        logger.Info("Сделка оплачивается по СМС");
+	        
 
-		        //ищем у нас сделку по битрикс Id
-		        needCreateOrder = !matcher.MatchOrderByBitrixId(uow, deal.Id, out var ourOrder);
-		        if (ourOrder != null){
-			        logger.Info($"Сделка {deal.Id} найдена у нас под id: {ourOrder.Id}, обработка не требуется");
-			        return;
-		        } else if (deal.CreateInDV == 0)
-		        {
-			        logger.Info($"Сделка {deal.Id} имеет статус отличный от Завести в ДВ");
-			        // return;
-		        }
-		        
-		        logger.Info("Обработка контрагента");
-		        Counterparty counterpartyForNewOrder =
-			        await ProcessCounterparty(
-				        deal); //TODO gavr потом добавить к ней адрес, когда он станет известен
-		        
-		        DeliverySchedule deliveryScheduleForOrder = null;
-		        DeliveryPoint deliveryPointForOrder = null;
-		        
-		        if (!isSelfDelivery){
-			        logger.Info("Обработка точек доставки");
-			        needCreateNomenclature = false;
-			        needSearchNomenclature = false;
-			        deliveryPointForOrder = ProcessDeliveryPoint(deal, counterpartyForNewOrder);
-			        deliveryScheduleForOrder = DeliveryScheduleRepository.GetByBitrixId(uow, deal.DeliverySchedule);
-		        }
-
-		        //точку доставки не ищем, её можно только начать сопоставлять тк кк она в сделке
-		        //TODO удалить bitrixId у точек доставки из таблицы, сущности и маппинга 
-		        logger.Info("Сборка заказа");
-		        var newOrder = ProcessOrder(
-			        deal,
-			        deliveryPointForOrder,
-			        counterpartyForNewOrder, 
-			        isSmsPayment,
-			        deliveryScheduleForOrder
-			    );
-		        
-		        logger.Info("Обработка номенклатур");
-		        var orderWithNomenclatures = await ProcessNomenclaturesAndAddToOrder(deal, newOrder);
-
-		        foreach (var orderItem in orderWithNomenclatures.OrderItems){
-			        uow.Save(orderItem.Nomenclature);
-		        }
-		        
-		        uow.Save(orderWithNomenclatures);
-		        uow.Commit();
+	        //ищем у нас сделку по битрикс Id
+	        needCreateOrder = !matcher.MatchOrderByBitrixId(uow, deal.Id, out var ourOrder);
+	        if (ourOrder != null){
+		        logger.Info($"Сделка {deal.Id} найдена у нас под id: {ourOrder.Id}, обработка не требуется");
+		        return ourOrder; //TODO gavr получается сверху будет лишняя попытка зарегестрировать деал
+	        } else if (deal.CreateInDV == 0)
+	        {
+		        logger.Info($"Сделка {deal.Id} имеет статус отличный от Завести в ДВ");
+		        // return;
 	        }
-			catch (Exception e){
-				logger.Error($"При обработке заказа с id {dealId} возникла ошибка: {e.Message}\n");
-				logger.Error($"Внутренняя ошибка: {e.InnerException}");
-			}
+	        
+	        logger.Info("Обработка контрагента");
+	        Counterparty counterpartyForNewOrder =
+		        await ProcessCounterparty(
+			        deal); //TODO gavr потом добавить к ней адрес, когда он станет известен
+	        
+	        DeliverySchedule deliveryScheduleForOrder = null;
+	        DeliveryPoint deliveryPointForOrder = null;
+	        
+	        if (!isSelfDelivery){
+		        logger.Info("Обработка точек доставки");
+		        needCreateNomenclature = false;
+		        needSearchNomenclature = false;
+		        deliveryPointForOrder = ProcessDeliveryPoint(deal, counterpartyForNewOrder);
+		        deliveryScheduleForOrder = DeliveryScheduleRepository.GetByBitrixId(uow, deal.DeliverySchedule);
+	        }
+
+	        //точку доставки не ищем, её можно только начать сопоставлять тк кк она в сделке
+	        //TODO удалить bitrixId у точек доставки из таблицы, сущности и маппинга 
+	        logger.Info("Сборка заказа");
+	        var newOrder = ProcessOrder(
+		        deal,
+		        deliveryPointForOrder,
+		        counterpartyForNewOrder, 
+		        isSmsPayment,
+		        deliveryScheduleForOrder
+		    );
+	        
+	        logger.Info("Обработка номенклатур");
+	        var orderWithNomenclatures = await ProcessNomenclaturesAndAddToOrder(deal, newOrder);
+
+	        foreach (var orderItem in orderWithNomenclatures.OrderItems){
+		        uow.Save(orderItem.Nomenclature);
+	        }
+	        
+	        uow.Save(orderWithNomenclatures);
+	        uow.Commit();
+	        return orderWithNomenclatures;
+        
+			
 			
         }
 
@@ -527,28 +525,7 @@ namespace BitrixIntegration {
 
         private async Task<bool> IsNomenclatureFromDV(uint productId)
 	        => (await bitrixApi.GetProduct(productId)).IsOurObj.IsOurProduct == "Y";
-
-
-        private static int a = 0;
-        public async Task IdeaTest()
-        {
-	        var date = DateTime.Parse("25.02.2021");
-	        // var a = await bitrixApi.GetDealsBetweenDates(uow,date.StartOfDay(), date.EndOfDay());
-	        var a = new DealCollector(bitrixApi);
-	        var dealsList = await a.CollectDeals(uow, date);
-        }
         
-        private static async Task EventAAsync()
-        {
-	        while (true)
-	        {
-		        Task.Run(() =>
-		        {
-			        Console.WriteLine("The Elapsed event A was raised at {0}, a{1}", DateTime.Now, ++a);
-		        });
-		        await Task.Delay(TimeSpan.FromSeconds(5));
-	        }
-        }
         
         
 

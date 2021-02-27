@@ -231,7 +231,10 @@ namespace VodovozBitrixIntegrationService
 				);
 				
 				// await cor.Process(158740); //138768 //150772 // 158740 тестовый
-				await IdeaTests(cor);
+				var dealCollector = new DealCollector(bitrixApi);
+				var mainCycle = new MainCycle(uow);
+				
+				await IdeaTests(cor, dealCollector, mainCycle);
 				
 			BitrixManager.SetCoR(cor);
 
@@ -254,11 +257,10 @@ namespace VodovozBitrixIntegrationService
 			// MailjetEventsHost.Open();
 		}
 
-		private static async Task IdeaTests(CoR cor)
+		private static async Task IdeaTests(CoR cor, DealCollector dealCollector, MainCycle cycle)
 		{
-			await cor.IdeaTest();
+			await cycle.RunProcessCycle(cor, dealCollector);
 		}
-
 
 		//
 

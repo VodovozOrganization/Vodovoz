@@ -30,7 +30,8 @@ namespace BitrixApi.REST
         //crm.deal.productrows.get
         Task<IList<ProductFromDeal>> GetProductsForDeal(uint dealId);
         
-        Task<IList<uint>> GetDealsIdsBetweenDates(IUnitOfWork uow, DateTime date1, DateTime date2);
+        Task<IList<uint>> GetDealsIdsBetweenDates(DateTime date1, DateTime date2);
+        Task<bool> SendWONBitrixStatus(uint bitrixId);
 
 
         #region CustomFields

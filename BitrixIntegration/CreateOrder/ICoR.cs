@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
+using BitrixApi.DTO;
+using Vodovoz.Domain.Orders;
 
 namespace BitrixIntegration {
     public interface ICoR {
-        Task Process(uint id);
+        Task<Order> Process(Deal deal);
     }
 }

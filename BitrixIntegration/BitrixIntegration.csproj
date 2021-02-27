@@ -121,6 +121,7 @@
         <Compile Include="BitrixService.cs" />
         <Compile Include="BitrixServiceSetting.cs" />
         <Compile Include="DealCollector.cs" />
+        <Compile Include="MainCycle.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="ServiceInterfaces\IBitrixService.cs" />
         <Compile Include="ServiceInterfaces\IBitrixServiceWeb.cs" />

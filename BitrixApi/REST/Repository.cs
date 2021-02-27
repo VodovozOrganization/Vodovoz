@@ -145,7 +145,7 @@ namespace BitrixApi.REST
             return request.Result; 
         }
 
-        public async Task<IList<uint>> GetDealsIdsBetweenDates(IUnitOfWork uow, DateTime date1, DateTime date2)
+        public async Task<IList<uint>> GetDealsIdsBetweenDates( DateTime date1, DateTime date2)
         {
             string date1Formatted = date1.ToString("dd.MM.yyyy HH:mm:ss");
             string date2Formatted = date2.ToString("dd.MM.yyyy HH:mm:ss");
@@ -188,216 +188,86 @@ namespace BitrixApi.REST
 
             return listOfIds;
         }
-        
-        // public async Task<IList<Deal>> GetDealsBetweenDates(IUnitOfWork uow, DateTime date1, DateTime date2)
-        // {
-            // string date1Formatted = date1.ToString("dd.MM.yyyy HH:mm:ss");
-            // string date2Formatted = date2.ToString("dd.MM.yyyy HH:mm:ss");
-            // IList<uint> listOfIds = new List<uint>();
-            // IList<Deal> listOfdeals = new List<Deal>();
-            // AddJsonHeader();
-            // ListofDealsRequest request;//хак для цикла
-            // uint i = 1;
-            // bool needOneMoretime = false;
-            // do{
-            //     string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.deal.list.json?" +
-            //                         $"FILTER[>DATE_MODIFY]={date1Formatted}&" +
-            //                         $"FILTER[<DATE_MODIFY]={date2Formatted}&" +
-            //                         $"FILTER[STAGE_ID]={createInDVStageId}&" +
-            //                         $"start={50 * i}";
-            //     request = JsonConvert.DeserializeObject<ListofDealsRequest>(await client.GetStringAsync(requestUri));
-            //     if (request.Total > 50)
-            //         needOneMoretime = true;
-            //     
-            //     foreach (var dealFromList in request.Result)
-            //         listOfIds.Add(dealFromList.Id);
-            //     
-            //     ++i;
-            // } while (request.Next != null);
-            //
-            // if(needOneMoretime){
-            //     string requestUri2 = $"{baseURL}/rest/{userId}/{token}/crm.deal.list.json?" +
-            //                          $"FILTER[>DATE_MODIFY]={date1Formatted}&" +
-            //                          $"FILTER[<DATE_MODIFY]={date2Formatted}&" +
-            //                          $"FILTER[STAGE_ID]={createInDVStageId}&" +
-            //                          $"start={50 * i}";
-            //     request = JsonConvert.DeserializeObject<ListofDealsRequest>(await client.GetStringAsync(requestUri2));
-            //     foreach (var dealFromList in request.Result)
-            //         listOfIds.Add(dealFromList.Id);
-            // }
-            //
-            //
-            // logger.Info($"В период между {date1} и {date2} получено {listOfIds.Count} сделок в статусе завести в ДВ" +
-            //             "Десериализация в DTO...");
-            //
-            // listOfIds.Add(16088200);
-            // // listOfIds.Add(160882);
-            //
-            // int j = 0;
-            // Dictionary<uint, string> failedIdToExeprion = new Dictionary<uint, string>();
-            // foreach (var dealId in listOfIds){
-            //     Deal deal = null;
-            //     try{
-            //         deal = await GetDealAsync(dealId);
-            //     }
-            //     catch (JsonSerializationException e){
-            //         if (e.Message.Contains("UF_CRM_5DA9BBA03A12A")){
-            //             string exeption = 
-            //                 $"Сделка с id: {dealId} не содержит периода доставки, " +
-            //                 $"скорее всего это сделка появилась в битриксе не из CRM, " +
-            //                 $"а была добавлена из ДВ в виде подтверждения оплдаты по СМС, " +
-            //                 $"эта сделка не должна была сюда попасть (выборка по сделкам со статусом завести в ДВ)";
-            //             logger.Warn(exeption);
-            //             var dealFromBitrix = new DealFromBitrix()
-            //             {
-            //                 Success = false,
-            //                 BitrixId = dealId,
-            //                 ExtensionText = exeption,
-            //                 CreateDate = DateTime.Now
-            //             };
-            //             uow.Save(dealFromBitrix);
-            //             uow.Commit();
-            //         }
-            //         else{
-            //             failedIdToExeprion[dealId] = e.ToString();
-            //         }
-            //         j++;
-            //         continue;
-            //     }
-            //     catch (HttpRequestException e){
-            //         if (e.Message.Contains("400 (Bad Request)")){
-            //             string exeption = $"Сделка с id: {dealId} не найдена в системе битрикс";
-            //             logger.Warn(exeption);
-            //             SendFailedDealFromBitrixToDB(uow, dealId, exeption);
-            //             var ordr = uow.GetById<Order>(100);
-            //             // SendSuccessDealFromBitrixToDB(uow, dealId, ordr);
-            //         }
-            //         else{
-            //             failedIdToExeprion[dealId] = e.ToString();
-            //         }
-            //         j++;
-            //         continue;
-            //     }
-            //     catch (Exception e){
-            //         failedIdToExeprion[dealId] = e.ToString();
-            //         j++;
-            //         continue;
-            //     }
-            //     
-            //     listOfdeals.Add(deal);
-            //     
-            //     if (j  == 50){
-            //         Thread.Sleep(1000);
-            //         j = 0;
-            //     }
-            //     j++;
-            // }
-            // logger.Info($"Десериализовано: {listOfdeals.Count} сделок," +
-            //             $" не отправленных в базу ошибок: {failedIdToExeprion.Count}");
-            // foreach (var keyValuePair in failedIdToExeprion){
-            //     
-            //         var sas = new DealFromBitrix()
-            //         {
-            //             Success = false,
-            //             CreateDate = DateTime.Now,
-            //             BitrixId = 100/*keyValuePair.Key*/, //TODO gavr 
-            //             ExtensionText = keyValuePair.Value.Length < 1000? keyValuePair.Value: keyValuePair.Value.Take(1000).ToString()
-            //         };
-            //         uow.Save(sas);
-            //     try{
-            //         uow.Commit();
-            //     }
-            //     catch (Exception e){
-            //         //Если не сохранилось в базу то сохраняем в файл
-            //         //Если уже есть в базе то просто логгируем(или может вообщее лучше ничего не делать?)
-            //         if (e.Message.Contains("sas"))
-            //             logger.Info($"Причина ошибки сделки {keyValuePair.Key} успершно сохранена в базе");
-            //         else
-            //             logger.Error("Не получилось отправить в базу ошибку об обработке сделки");
-            //
-            //     }
-            // }
-            //
-            //
-            //
-            // return listOfdeals;
-        // }
-        //
-        // private void SendFailedDealFromBitrixToDB(IUnitOfWork uow, uint dealId, string exeption)
-        // {
-        //     var dealFromBitrix = new DealFromBitrix()
-        //     {
-        //         Success = false,
-        //         BitrixId = dealId,
-        //         ExtensionText = exeption,
-        //         CreateDate = DateTime.Now
-        //     };
-        //     try{
-        //         uow.Save(dealFromBitrix);
-        //         uow.Commit();
-        //     }
-        //     catch (Exception exception){
-        //         if (exception.InnerException != null && exception.InnerException.Message.Contains("Duplicate entry")){
-        //             logger.Info($"Ошибка обработки сделки {dealId} уже была зарегистрирована");
-        //         }
-        //         else{
-        //             logger.Error($"!Ошибка при отправке ошибочной сделки {dealId}");
-        //         }
-        //     }
-        // }   
-        // private void SendSuccessDealFromBitrixToDB(IUnitOfWork uow, uint dealId, Order order)
-        // {
-        //     var sas = uow.GetById<DealFromBitrix>((int)dealId);
-        //     if (sas != null && sas.Success == false){
-        //         logger.Info($"Сделка {dealId} уже была добавлена как обработанная с ошибкой, обновление...");
-        //         sas.Order = order;
-        //         sas.Success = true;
-        //         sas.ProcessedDate = DateTime.Now;
-        //         sas.ExtensionText = "";
-        //         try{
-        //             uow.Save(sas);
-        //             uow.Commit();
-        //         }
-        //         catch (Exception exception){
-        //             logger.Error($"!Ошибка при отправке ошибочной сделки {dealId}\n{exception.Message}\n{exception?.InnerException}");
-        //         }
-        //     }
-        //     else{
-        //         var dealFromBitrix = new DealFromBitrix()
-        //         {
-        //             Success = true,
-        //             BitrixId = dealId,
-        //             Order = order,
-        //             CreateDate = DateTime.Now,
-        //             ProcessedDate = DateTime.Now
-        //         };
-        //         try{
-        //             uow.Save(dealFromBitrix);
-        //             uow.Commit();
-        //         }
-        //         catch (Exception exception){
-        //             logger.Error($"!Ошибка при отправке ошибочной сделки {dealId}\n{exception.Message}\n{exception?.InnerException}");
-        //         }
-        //     }
-        //     
-        // }   
-        
 
-        // void someFunc(int i, ref DateTime date1Formatted, ref DateTime date2Formatted, ref ListofDealsRequest request, ref IList<uint> listOfIds)
-        // {
-        //     string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.deal.list.json?" +
-        //                         $"FILTER[>DATE_MODIFY]={date1Formatted}&" +
-        //                         $"FILTER[<DATE_MODIFY]={date2Formatted}&" +
-        //                         $"start={50 * i}";
-        //     var msg = client.GetStringAsync(requestUri);
-        //     request = JsonConvert.DeserializeObject<ListofDealsRequest>(await msg);
-        //     foreach (var dealFromList in request.Result){
-        //         listOfIds.Add(dealFromList.Id);
-        //     }
-        //
-        // }
+        public async Task<bool> SendWONBitrixStatus(uint bitrixId)
+        {
+            bitrixId = 163726; //TODO gavr убрать
+            AddJsonHeader();
+            string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.deal.update.json?id={bitrixId}&FIELDS[STAGE_ID]=WON";
+            var msg = client.GetStringAsync(requestUri);
+            
+            await semaphoreSlim.WaitAsync();
 
-      
+            ChangeStatusResult request = null;
+            try{
+                logger.Info("Ждем ProductFromDeal");
+
+                Thread.Sleep(1000);
+                request = JsonConvert.DeserializeObject<ChangeStatusResult>(await msg);
+                logger.Info("Подождали ProductFromDeal");
+            }
+            finally{
+                semaphoreSlim.Release();
+            }
+            
+            return request.Result; 
+        }
+        
+        public void CreateLead( uint dealId )
+    {
+        try
+        {                
+            throw new NotImplementedException();
+            //
+            // string accessToken = GetNewAccessToken();
+            //
+            // string url = string.Format( "https://{0}/rest/crm.lead.add.json", portal_name );
+            //
+            // var data = new
+            // {
+            //     fields = new
+            //     {
+            //         TITLE = title,
+            //         CURRENCY_ID = "RUB",
+            //         STATUS_ID = "NEW",
+            //         OPENED = "Y",
+            //         OPPORTUNITY = opportunity,
+            //         ASSIGNED_BY_ID = 46,
+            //         COMPANY_TITLE = contactName,
+            //         PHONE =  new List<PHONE>() { new PHONE() { VALUE_TYPE = "WORK", TYPE_ID = "PHONE", VALUE = phoneNumber } }.ToArray(),
+            //         EMAIL = new List<EMAIL>() { new EMAIL() { VALUE_TYPE = "WORK", TYPE_ID = "EMAIL", VALUE = email } }.ToArray()
+            //     },
+            //     @params = new
+            //     {
+            //         REGISTER_SONET_EVENT = "Y"
+            //     }
+            // };
+            //
+            // BitrixLead lead = new BitrixLead();
+            //
+            // lead.TITLE = title;
+            // lead.CURRENCY_ID = "RUB";
+            // lead.STATUS_ID = "NEW";
+            // lead.OPENED = "Y";
+            // lead.OPPORTUNITY = opportunity.ToString();                
+            //
+            // if (!string.IsNullOrEmpty( contactName ))
+            //     lead.COMPANY_TITLE = contactName;
+            //
+            // if (!string.IsNullOrEmpty( phoneNumber ))
+            //     lead.PHONE = new List<PHONE>() { new PHONE() { VALUE_TYPE="WORK", TYPE_ID="PHONE", VALUE = phoneNumber }}.ToArray();
+            //
+            // if (!string.IsNullOrEmpty( email ))
+            //     lead.EMAIL = new List<EMAIL>() { new EMAIL() { VALUE_TYPE = "WORK", TYPE_ID = "EMAIL", VALUE = email } }.ToArray();
+            //
+            //
+            // PostToAPI( url, accessToken, data );
+        }
+        catch (Exception exc)
+        {
+        }
+    }
+        
 
 
         #region CustomFields

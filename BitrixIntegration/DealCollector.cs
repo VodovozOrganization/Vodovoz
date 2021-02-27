@@ -25,9 +25,9 @@ namespace BitrixIntegration {
 
         public async Task<IList<Deal>> CollectDeals(IUnitOfWork uow, DateTime day)
         {
-            var listOfIds = await bitrixApi.GetDealsIdsBetweenDates(uow, day.StartOfDay(), day.EndOfDay());
+            var listOfIds = await bitrixApi.GetDealsIdsBetweenDates(day.StartOfDay(), day.EndOfDay());
 
-            listOfIds.Add(16088200);
+            // listOfIds.Add(16088200);
             // listOfIds.Add(160882);
             
             int j = 0;
@@ -64,9 +64,7 @@ namespace BitrixIntegration {
                     if (e.Message.Contains("400 (Bad Request)")){
                         string exeption = $"Сделка с id: {dealId} не найдена в системе битрикс";
                         logger.Warn(exeption);
-                        // SendFailedDealFromBitrixToDB(uow, dealId, exeption);
-                        var ordr = uow.GetById<Order>(100); // TODO gavr это для теста
-                        SendSuccessDealFromBitrixToDB(uow, dealId, ordr);
+                        SendFailedDealFromBitrixToDB(uow, dealId, exeption);
                     }
                     else{
                         failedIdToExeprion[dealId] = e.ToString();
@@ -103,10 +101,11 @@ namespace BitrixIntegration {
         }
         
         
-        private void SendFailedDealFromBitrixToDB(IUnitOfWork uow, uint dealId, string exeption)
+        public void SendFailedDealFromBitrixToDB(IUnitOfWork uow, uint dealId, string exeption)
         {
             var deal = uow.GetById<DealFromBitrix>((int)dealId);  //TODO gavr нужен новый GetById с UInt иначе NHibernate кидает ошибку
             if (deal != null && deal.Success == false){
+                
                 #region Обновление существующей ошибочной сделки
                 logger.Info($"Сделка {dealId} уже была добавлена как обработанная с ошибкой, обновление...");
                 deal.Success = false;
@@ -144,50 +143,44 @@ namespace BitrixIntegration {
             }
         }   
         
-        private void SendSuccessDealFromBitrixToDB(IUnitOfWork uow, uint dealId, Order order)
+        public async Task SendSuccessDealFromBitrixToDB(IUnitOfWork uow, uint dealId, Order order)
         {
-            var deal = uow.GetById<DealFromBitrix>(dealId);
-            if (deal != null && deal.Success == true){
+            #region Загрузка новой сделки
                 
-                #region Обновление существующей успешной сделки
-                
-                logger.Info($"Сделка {dealId} уже была добавлена как обработанная с ошибкой, обновление...");
-                deal.Order = order;
-                deal.Success = true;
-                deal.ProcessedDate = DateTime.Now;
-                deal.ExtensionText = "";
-                try{
-                    uow.Save(deal);
-                    uow.Commit();
+            var dealFromBitrix = new DealFromBitrix()
+            {
+                Success = true,
+                BitrixId = dealId,
+                Order = order,
+                CreateDate = DateTime.Now,
+                ProcessedDate = DateTime.Now
+            };
+            try{
+                uow.Save(dealFromBitrix); 
+                uow.Commit();
+                bool success = await bitrixApi.SendWONBitrixStatus(dealId);;
+                for (int i = 0; i < 2; i++){
+                    if (!success){
+                        Thread.Sleep(500);
+                        success = await bitrixApi.SendWONBitrixStatus(dealId);
+                        continue;
+                    }
+                    logger.Info($"Статус сделки {dealId} успешно изменен в битриксе");
+                    break;
                 }
-                catch (Exception exception){
-                    logger.Error($"!Ошибка при отправке обновленной успешной сделки сделки {dealId}\n{exception.Message}\n{exception?.InnerException}");
-                }
-                
-                #endregion
+                if (!success)
+                    logger.Error($"!Статус о том что сделка {dealId} успешно" +
+                             " создана в ДВ не получилось изменить в битриксе");
             }
-            else{
-                #region Загрузка новой ошибочной сделки
-                
-                var dealFromBitrix = new DealFromBitrix()
-                {
-                    Success = true,
-                    BitrixId = dealId,
-                    Order = order,
-                    CreateDate = DateTime.Now,
-                    ProcessedDate = DateTime.Now
-                };
-                try{
-                    uow.Save(dealFromBitrix);
-                    uow.Commit();
+            catch (Exception exception){
+                if (exception.InnerException != null && exception.InnerException.Message.Contains("Duplicate entry")){
+                    logger.Error($"Сделка {dealId} уже обработана");
                 }
-                catch (Exception exception){
-                    logger.Error($"!Ошибка при отправке ошибочной сделки {dealId}\n{exception.Message}\n{exception?.InnerException}");
-                }
-                
-                #endregion
+                else
+                    logger.Error($"!Ошибка при отправке успешной сделки {dealId}\n{exception.Message}\n{exception?.InnerException}");
             }
-            
+                
+            #endregion
         }   
     }
 }
