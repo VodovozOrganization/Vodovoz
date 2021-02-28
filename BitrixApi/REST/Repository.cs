@@ -191,7 +191,8 @@ namespace BitrixApi.REST
 
         public async Task<bool> SendWONBitrixStatus(uint bitrixId)
         {
-            bitrixId = 163726; //TODO gavr убрать
+            return true; //TODO test
+            // bitrixId = 163726; //TODO gavr убрать
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.deal.update.json?id={bitrixId}&FIELDS[STAGE_ID]=WON";
             var msg = client.GetStringAsync(requestUri);

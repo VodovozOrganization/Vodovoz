@@ -47,7 +47,7 @@ namespace BitrixIntegration {
 
         // private string token;
         private readonly IBitrixRestApi bitrixApi;
-        private readonly IUnitOfWork uow;
+        // private readonly IUnitOfWork uow;
         private readonly IBitrixServiceSettings bitrixServiceSettings;
         
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -68,7 +68,7 @@ namespace BitrixIntegration {
         {
 	        // token = _token ?? throw new ArgumentNullException(nameof(_token));
 	        bitrixApi = _bitrixRestApi ?? throw new ArgumentNullException(nameof(_bitrixRestApi));
-	        uow = _uow ?? throw new ArgumentNullException(nameof(_uow));
+	        // uow = _uow ?? throw new ArgumentNullException(nameof(_uow));
 	        matcher = _matcher ?? throw new ArgumentNullException(nameof(_matcher));
 	        bitrixServiceSettings = _bitrixServiceSettings ?? throw new ArgumentNullException(nameof(_bitrixServiceSettings));
 	        counterpartyContractRepository = _counterpartyContractRepository ?? throw new ArgumentNullException(nameof(_counterpartyContractRepository));
@@ -95,62 +95,70 @@ namespace BitrixIntegration {
 		        logger.Info("Сделка является самовызовом");
 	        if (isSmsPayment)
 		        logger.Info("Сделка оплачивается по СМС");
-	        
 
-	        //ищем у нас сделку по битрикс Id
-	        needCreateOrder = !matcher.MatchOrderByBitrixId(uow, deal.Id, out var ourOrder);
-	        if (ourOrder != null){
-		        logger.Info($"Сделка {deal.Id} найдена у нас под id: {ourOrder.Id}, обработка не требуется");
-		        return ourOrder; //TODO gavr получается сверху будет лишняя попытка зарегестрировать деал
-	        } else if (deal.CreateInDV == 0)
-	        {
-		        logger.Info($"Сделка {deal.Id} имеет статус отличный от Завести в ДВ");
-		        // return;
-	        }
-	        
-	        logger.Info("Обработка контрагента");
-	        Counterparty counterpartyForNewOrder =
-		        await ProcessCounterparty(
-			        deal); //TODO gavr потом добавить к ней адрес, когда он станет известен
-	        
-	        DeliverySchedule deliveryScheduleForOrder = null;
-	        DeliveryPoint deliveryPointForOrder = null;
-	        
-	        if (!isSelfDelivery){
-		        logger.Info("Обработка точек доставки");
-		        needCreateNomenclature = false;
-		        needSearchNomenclature = false;
-		        deliveryPointForOrder = ProcessDeliveryPoint(deal, counterpartyForNewOrder);
-		        deliveryScheduleForOrder = DeliveryScheduleRepository.GetByBitrixId(uow, deal.DeliverySchedule);
-	        }
+	        using (var uow2 = UnitOfWorkFactory.CreateWithoutRoot() )
+	        {	
+		        //ищем у нас сделку по битрикс Id
+		        needCreateOrder = !matcher.MatchOrderByBitrixId(uow2, deal.Id, out var ourOrder);
+		        if (ourOrder != null)
+		        {
+			        logger.Info($"Сделка {deal.Id} найдена у нас под id: {ourOrder.Id}, обработка не требуется");
+			        return ourOrder; //TODO gavr получается сверху будет лишняя попытка зарегестрировать деал
+		        }
+		        else if (deal.CreateInDV == 0)
+		        {
+			        logger.Info($"Сделка {deal.Id} имеет статус отличный от Завести в ДВ");
+			        // return;
+		        }
 
-	        //точку доставки не ищем, её можно только начать сопоставлять тк кк она в сделке
-	        //TODO удалить bitrixId у точек доставки из таблицы, сущности и маппинга 
-	        logger.Info("Сборка заказа");
-	        var newOrder = ProcessOrder(
-		        deal,
-		        deliveryPointForOrder,
-		        counterpartyForNewOrder, 
-		        isSmsPayment,
-		        deliveryScheduleForOrder
-		    );
-	        
-	        logger.Info("Обработка номенклатур");
-	        var orderWithNomenclatures = await ProcessNomenclaturesAndAddToOrder(deal, newOrder);
+		        logger.Info("Обработка контрагента");
+		        Counterparty counterpartyForNewOrder =
+			        await ProcessCounterparty(uow2, deal); //TODO gavr потом добавить к ней адрес, когда он станет известен
 
-	        foreach (var orderItem in orderWithNomenclatures.OrderItems){
-		        uow.Save(orderItem.Nomenclature);
+		        DeliverySchedule deliveryScheduleForOrder = null;
+		        DeliveryPoint deliveryPointForOrder = null;
+
+		        if (!isSelfDelivery)
+		        {
+			        logger.Info("Обработка точек доставки");
+			        needCreateNomenclature = false;
+			        needSearchNomenclature = false;
+			        deliveryPointForOrder = ProcessDeliveryPoint(uow2, deal, counterpartyForNewOrder);
+			        deliveryScheduleForOrder = DeliveryScheduleRepository.GetByBitrixId(uow2, deal.DeliverySchedule);
+		        }
+
+		        //точку доставки не ищем, её можно только начать сопоставлять тк кк она в сделке
+		        //TODO удалить bitrixId у точек доставки из таблицы, сущности и маппинга 
+		        logger.Info("Сборка заказа");
+		        var newOrder = ProcessOrder(
+			        uow2,
+			        deal,
+			        deliveryPointForOrder,
+			        counterpartyForNewOrder,
+			        isSmsPayment,
+			        deliveryScheduleForOrder
+		        );
+
+		        logger.Info("Обработка номенклатур");
+		        var orderWithNomenclatures = await ProcessNomenclaturesAndAddToOrder(uow2, deal, newOrder);
+
+		        foreach (var orderItem in orderWithNomenclatures.OrderItems)
+		        {
+			        uow2.Save(orderItem.Nomenclature);
+		        }
+
+		        uow2.Save(orderWithNomenclatures);
+		        uow2.Commit();
+		        return orderWithNomenclatures;
+
 	        }
-	        
-	        uow.Save(orderWithNomenclatures);
-	        uow.Commit();
-	        return orderWithNomenclatures;
         
 			
 			
         }
 
         private Order ProcessOrder(
+	        IUnitOfWork uow,
 	        Deal deal,
 	        DeliveryPoint deliveryPointForOrder, 
 	        Counterparty counterpartyForNewOrder,
@@ -208,16 +216,16 @@ namespace BitrixIntegration {
 
 	        return deal;
         }
-        async Task<Counterparty> ProcessCounterparty(Deal deal)
+        async Task<Counterparty> ProcessCounterparty(IUnitOfWork uow, Deal deal)
         {
 	        if (deal.CompanyId == 0){
-		        return await ProcessContact(deal);
+		        return await ProcessContact(uow, deal);
 	        } else {
-		        return await ProcessCompany(deal);
+		        return await ProcessCompany(uow, deal);
 	        }
         }
 
-        async Task<Counterparty> ProcessContact(Deal deal)
+        async Task<Counterparty> ProcessContact(IUnitOfWork uow, Deal deal)
         {
 	        logger.Info("-------ProcessContact-------");
 	        //Получаем клиента из сделки
@@ -244,7 +252,7 @@ namespace BitrixIntegration {
 			        PaymentMethod = deal.GetPaymentMethod(),
 			        CounterpartyContracts = new List<CounterpartyContract>()
 		        };
-		        AddPhonesToCounterpartyFromContact(newCounterparty, contact);
+		        AddPhonesToCounterpartyFromContact(uow, newCounterparty, contact);
 		        
 		        uow.Save(newCounterparty);
 		        logger.Info("-------EndProcessContact-------");
@@ -253,7 +261,7 @@ namespace BitrixIntegration {
 	        }
         }
 
-        async Task<Counterparty> ProcessCompany(Deal deal)
+        async Task<Counterparty> ProcessCompany(IUnitOfWork uow, Deal deal)
         {
 	        logger.Info("-------ProcessCompany-------");
 
@@ -282,7 +290,7 @@ namespace BitrixIntegration {
 			        IsArchive = false,
 			        CounterpartyContracts = new List<CounterpartyContract>()
 		        };
-		        AddPhonesToCounterpartyFromCompany(newCounerparty, company);
+		        AddPhonesToCounterpartyFromCompany(uow, newCounerparty, company);
 		        
 		        uow.Save(newCounerparty);
 		        logger.Info("-------EndProcessCompany-------");
@@ -291,7 +299,7 @@ namespace BitrixIntegration {
 	        }
         }
 
-        void AddPhonesToCounterpartyFromContact(Counterparty newCounterparty, Contact contact)
+        void AddPhonesToCounterpartyFromContact(IUnitOfWork uow, Counterparty newCounterparty, Contact contact)
         {
 	        //Конвертация телефонов из дто в нормальные
 	        IList<Phone> phonesForNewCounterparty = new List<Phone>();
@@ -308,7 +316,7 @@ namespace BitrixIntegration {
 	        uow.Save(newCounterparty);
         }
         
-        void AddPhonesToCounterpartyFromCompany(Counterparty newCounterparty, Company company)
+        void AddPhonesToCounterpartyFromCompany(IUnitOfWork uow, Counterparty newCounterparty, Company company)
         {
 	        //Конвертация телефонов из дто в нормальные
 	        IList<Phone> phonesForNewCounterparty = new List<Phone>();
@@ -325,7 +333,7 @@ namespace BitrixIntegration {
 	        uow.Save(newCounterparty);
         }
 
-        DeliveryPoint ProcessDeliveryPoint(Deal deal, Counterparty counterpartyForNewOrder)
+        DeliveryPoint ProcessDeliveryPoint(IUnitOfWork uow, Deal deal, Counterparty counterpartyForNewOrder)
         {
 	        logger.Info("-------ProcessDeliveryPoint-------");
 	        if (counterpartyForNewOrder == null) 
@@ -392,7 +400,7 @@ namespace BitrixIntegration {
 	        }
         }
 
-        async Task<Order> ProcessNomenclaturesAndAddToOrder(Deal deal, Order newOrder)
+        async Task<Order> ProcessNomenclaturesAndAddToOrder(IUnitOfWork uow, Deal deal, Order newOrder)
         {
 	        var productList = await bitrixApi.GetProductsForDeal(deal.Id);
 	        IList<ProductFromDeal> unmatchedProducts = new List<ProductFromDeal>();
@@ -401,12 +409,12 @@ namespace BitrixIntegration {
 		        if (matcher.MatchNomenclatureByBitrixId(uow, productBitrix.ProductId, out var ourNomenclatureByBitrixId)){
 			        logger.Info($"Номенклатура {productBitrix.ProductName} сопоставилась по id {ourNomenclatureByBitrixId.BitrixId}");
 			        var isOur = await IsNomenclatureFromDV(productBitrix.ProductId);
-			        UpdateNomenclaturePriceIfNeededAndAdd(deal, newOrder, productBitrix, ourNomenclatureByBitrixId, isOur);
+			        UpdateNomenclaturePriceIfNeededAndAdd(uow, deal, newOrder, productBitrix, ourNomenclatureByBitrixId, isOur);
 		        }
 		        else if (matcher.MatchNomenclatureByName(uow, productBitrix.ProductName, out var ourNomenclatureByName)){
 			        logger.Info($"Номенклатура {productBitrix.ProductName} сопоставилась по имени");
 			        var isOur = await IsNomenclatureFromDV(productBitrix.ProductId);
-			        UpdateNomenclaturePriceIfNeededAndAdd(deal, newOrder, productBitrix, ourNomenclatureByName, isOur);
+			        UpdateNomenclaturePriceIfNeededAndAdd(uow, deal, newOrder, productBitrix, ourNomenclatureByName, isOur);
 		        }
 		        else{
 			        unmatchedProducts.Add(productBitrix);
@@ -417,7 +425,7 @@ namespace BitrixIntegration {
 	        needCreateNomenclature = true;
 	        foreach (var productFromDeal in unmatchedProducts){
 		        //Если нет такой группы то создаем группу
-		        var group = await ProcessProductGroup(productFromDeal);
+		        var group = await ProcessProductGroup(uow, productFromDeal);
 		        var measurement = MeasurementUnitsRepository.GetUnitsByBitrix(uow, productFromDeal.MeasureName);
 		        var newNomenclature = new Nomenclature()
 		        {
@@ -438,7 +446,7 @@ namespace BitrixIntegration {
 	        return newOrder;
         }
 
-        private async Task<ProductGroup> ProcessProductGroup(ProductFromDeal productFromDeal)
+        private async Task<ProductGroup> ProcessProductGroup(IUnitOfWork uow, ProductFromDeal productFromDeal)
         {
 	        var product = await bitrixApi.GetProduct(productFromDeal.ProductId);
 	        // Красота и здоровье/Уход/Уход за лицом/Маски для лица
@@ -495,6 +503,7 @@ namespace BitrixIntegration {
 			   3) Если товара нет в базе, то создаем его заполняя данными битрикса
 	        */
         private void UpdateNomenclaturePriceIfNeededAndAdd(
+	        IUnitOfWork uow,
 	        Deal deal, 
 	        Order newOrder,
 	        ProductFromDeal productBitrix,

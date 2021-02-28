@@ -248,9 +248,15 @@ namespace Vodovoz.EntityRepositories.Goods
 		
 		public static ProductGroup GetProductGroupByName(IUnitOfWork uow, string productGroup)
 		{
-			return uow.Session.QueryOver<ProductGroup>()
+			var a = uow.Session.QueryOver<ProductGroup>()
 				.Where(x => x.Name == productGroup)
-				.SingleOrDefault();
+				.List();
+			if (a.Count == 0)
+				return null;
+			else 
+				return a.First();
+			//Если несколько то на SingleOrDefault вылетает, если 0 то на List вылетает
+			
 		}
 		
 

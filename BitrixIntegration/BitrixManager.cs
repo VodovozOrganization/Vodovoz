@@ -175,7 +175,7 @@ namespace BitrixIntegration
 			
 			if (bitrixEvent != null){
 				logger.Info("Поступил Event Bitrix с ");
-				await cor.Process(bitrixEvent.Fields.Id);
+				// await cor.Process(bitrixEvent.Fields.Id);
 			}
 			else{
 				logger.Error("Event Bitrix == null");

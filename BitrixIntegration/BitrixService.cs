@@ -35,7 +35,7 @@ namespace BitrixIntegration
 			if (FIELDS == null){
 				logger.Info("и он = null (((\n");
 			}
-			BitrixManager.AddEvent(FIELDS);
+			// BitrixManager.AddEvent(FIELDS);
 			if (WebOperationContext.Current != null){
 				logger.Info(WebOperationContext.Current.IncomingResponse.ToString());
 				WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.OK;
