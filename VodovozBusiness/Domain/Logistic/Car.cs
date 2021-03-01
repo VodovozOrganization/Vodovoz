@@ -233,6 +233,13 @@ namespace Vodovoz.Domain.Logistic
 			get => fuelCardNumber;
 			set => SetField(ref fuelCardNumber, value, () => FuelCardNumber);
 		}
+		
+		private DriverCarKind driverCarKind;
+		[Display(Name = "Вид наёмного автомобиля")]
+		public virtual DriverCarKind DriverCarKind {
+			get => driverCarKind;
+			set => SetField(ref driverCarKind, value);
+		}
 
 		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
 		[Display(Name = "Группа района")]
