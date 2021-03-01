@@ -151,10 +151,13 @@
             <Width>52.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>105.7pt</Width>
+            <Width>59.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>93.8pt</Width>
+            <Width>63.0pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>75.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>64.0pt</Width>
@@ -377,6 +380,24 @@
                       <Value>Новое
 значение</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>Водитель</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -626,6 +647,26 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>={driver_fio}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingTop>1pt</PaddingTop>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -704,7 +745,8 @@
 	END as operation,
 	IF(source.operation = 'Delete', n2.official_name, source.old_value) as old_value,
 	IF(source.operation = 'Create', n2.official_name, source.new_value) as new_value,
-	IF(hc2.user_login = 'vodovoz_service', 'Служба', GET_PERSON_NAME_WITH_INITIALS(e2.last_name, e2.name, e2.patronymic)) as author
+	IF(hc2.user_login = 'vodovoz_service', 'Служба', GET_PERSON_NAME_WITH_INITIALS(e2.last_name, e2.name, e2.patronymic)) as author,
+	CONCAT(driver.name, ' ', driver.last_name, ' ', driver.patronymic) as driver_fio
 FROM
 	(
 		SELECT
@@ -899,6 +941,9 @@ FROM
 	LEFT JOIN employees e2 ON e2.user_id = hc2.user_id
 	LEFT JOIN order_items oi3 ON oi3.id = source.entity_id AND source.entity_class = 'OrderItem'
 	LEFT JOIN nomenclature n2 ON n2.id = oi3.nomenclature_id
+	LEFT JOIN route_list_addresses rla ON source.order_id = rla.order_id 
+	LEFT JOIN route_lists rl ON rla.route_list_id = rl.id 
+	LEFT JOIN employees driver ON rl.driver_id = driver.id
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date_from">
@@ -959,6 +1004,10 @@ FROM
         </Field>
         <Field Name="author">
           <DataField>author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="driver_fio">
+          <DataField>driver_fio</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
