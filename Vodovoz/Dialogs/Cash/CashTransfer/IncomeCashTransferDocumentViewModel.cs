@@ -469,5 +469,11 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		}
 
 		#endregion Настройка списков доступных подразделений кассы
+
+		public override void Dispose()
+		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			base.Dispose();
+		}
 	}
 }

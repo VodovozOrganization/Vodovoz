@@ -25,7 +25,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -41,15 +40,16 @@ namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListsOnDayViewModel : TabViewModelBase
 	{
-		readonly IRouteListRepository routeListRepository;
-		readonly ISubdivisionRepository subdivisionRepository;
-		readonly IOrderRepository orderRepository;
-		readonly IAtWorkRepository atWorkRepository;
-		readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener;
-		readonly ICarRepository carRepository;
+		private readonly IRouteListRepository routeListRepository;
+		private readonly ISubdivisionRepository subdivisionRepository;
+		private readonly IOrderRepository orderRepository;
+		private readonly IAtWorkRepository atWorkRepository;
+		private readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener;
+		private readonly ICarRepository carRepository;
 		private readonly IUserRepository userRepository;
-		readonly ICommonServices commonServices;
-
+		private readonly ICommonServices commonServices;
+		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
+		
 		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
@@ -61,9 +61,11 @@ namespace Vodovoz.ViewModels.Logistic
 			IAtWorkRepository atWorkRepository,
 			ICarRepository carRepository,
 			INavigationManager navigationManager,
-			IUserRepository userRepository
+			IUserRepository userRepository,
+			IDefaultDeliveryDaySchedule defaultDeliveryDaySchedule
 		) : base(commonServices.InteractiveService, navigationManager)
 		{
+			if(defaultDeliveryDaySchedule == null) throw new ArgumentNullException(nameof(defaultDeliveryDaySchedule));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -103,6 +105,7 @@ namespace Vodovoz.ViewModels.Logistic
 					foundGeoGroup.Selected = true;
 			}
 			Optimizer = new RouteOptimizer(commonServices.InteractiveService);
+			this.defaultDeliveryDaySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDaySchedule.GetDefaultDeliveryDayScheduleId());
 
 			CreateCommands();
 			LoadAddressesTypesDefaults();
@@ -225,7 +228,7 @@ namespace Vodovoz.ViewModels.Logistic
 								continue;
 							}
 
-							var daySchedule = GetDriverWorkDaySchedule(drv, new BaseParametersProvider());
+							var daySchedule = GetDriverWorkDaySchedule(drv);
 
 							var driver = new AtWorkDriver(
 									drv,
@@ -1303,17 +1306,15 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		private DeliveryDaySchedule GetDriverWorkDaySchedule(Employee driver, IDefaultDeliveryDaySchedule defaultDelDaySchedule)
+		private DeliveryDaySchedule GetDriverWorkDaySchedule(Employee driver)
 		{
-			DeliveryDaySchedule daySchedule;
-			var drvDaySchedule = driver.ObservableWorkDays.SingleOrDefault(x => (int)x.WeekDay == (int)DateForRouting.DayOfWeek);
+			var driverWorkSchedule = driver
+				.ObservableDriverWorkScheduleSets.SingleOrDefault(x => x.IsActive)
+				?.ObservableDriverWorkSchedules.SingleOrDefault(x => (int)x.WeekDay == (int)DateForRouting.DayOfWeek);
 
-			if(drvDaySchedule == null)
-				daySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDelDaySchedule.GetDefaultDeliveryDayScheduleId());
-			else
-				daySchedule = drvDaySchedule.DaySchedule;
-
-			return daySchedule;
+			return driverWorkSchedule == null 
+				? defaultDeliveryDaySchedule
+				: driverWorkSchedule.DaySchedule;
 		}
 	}
 }

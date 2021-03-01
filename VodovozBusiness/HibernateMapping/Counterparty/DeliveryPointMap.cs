@@ -54,6 +54,9 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.FixPrice4)				.Column("fix_price4");
 			Map(x => x.FixPrice5)				.Column("fix_price5");
 
+			Map(x => x.MinimalOrderSumLimit)	.Column("minimal_order_sum_limit");
+			Map(x => x.MaximalOrderSumLimit)	.Column("maximal_order_sum_limit");
+
 			References(x => x.Counterparty)				.Column("counterparty_id");
 			References(x => x.DeliverySchedule)			.Column("delivery_schedule_id");
 			References(x => x.СoordsLastChangeUser)		.Column("coords_lastchange_user_id");
@@ -61,13 +64,9 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.District)					.Column("district_id");
 			References(x => x.Category)					.Column("delivery_point_category_id");
 
-			HasManyToMany(x => x.Contacts).Table("counterparty_delivery_point_contacts")
-				.ParentKeyColumn("delivery_point_id")
-				.ChildKeyColumn("contact_person_id")
-				.LazyLoad();
-
 			HasMany(x => x.Phones).Cascade.All().LazyLoad().KeyColumn("delivery_point_id");
 			HasMany(x => x.NomenclatureFixedPrices).Cascade.All().LazyLoad().KeyColumn("delivery_point_id");
-		}
-	}
+            HasMany(x => x.ResponsiblePersons).Inverse().Cascade.All().LazyLoad().KeyColumn("delivery_point_id");
+        }
+    }
 }

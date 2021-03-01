@@ -163,6 +163,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual DeliveryPoint DeliveryPoint {
 			get => deliveryPoint;
 			set {
+				var oldDeliveryPoint = deliveryPoint;
 				if(SetField(ref deliveryPoint, value, () => DeliveryPoint) && value != null) {
 					if(DeliverySchedule == null)
 						DeliverySchedule = value.DeliverySchedule;
@@ -170,7 +171,9 @@ namespace Vodovoz.Domain.Orders
 					if(Id == 0)
 						AddCertificates = DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null;
 
-					UpdateContract();
+					if (oldDeliveryPoint != null) {
+						UpdateContract();
+					}
 				}
 			}
 		}
@@ -1082,6 +1085,25 @@ namespace Vodovoz.Domain.Orders
 					"В заказе есть товары ИМ, но не указан номер заказа ИМ",
 					new[] { this.GetPropertyName(o => o.EShopOrder) }
 				);
+			}
+
+			if (DeliveryPoint != null)
+            {
+				if (DeliveryPoint.MinimalOrderSumLimit != 0 && OrderTotalSum < DeliveryPoint.MinimalOrderSumLimit)
+				{
+					yield return new ValidationResult(
+						"Сумма заказа меньше минимальной погоровой установленной для точки доставки",
+						new[] { this.GetPropertyName(o => o.OrderTotalSum) }
+					);
+				}
+
+				if (DeliveryPoint.MaximalOrderSumLimit != 0 && OrderTotalSum > DeliveryPoint.MaximalOrderSumLimit)
+				{
+					yield return new ValidationResult(
+						"Сумма заказа больше максимальной погоровой установленной для точки доставки",
+						new[] { this.GetPropertyName(o => o.OrderTotalSum) }
+					);
+				}
 			}
 		}
 
@@ -2843,7 +2865,7 @@ namespace Vodovoz.Domain.Orders
 				if(unloadedNoms.ContainsKey(nGrp.Key))
 					totalCount += unloadedNoms[nGrp.Key];
 
-				if((int)totalCount != nGrp.Value)
+				if(totalCount != nGrp.Value)
 					canCloseOrder = false;
 			}
 

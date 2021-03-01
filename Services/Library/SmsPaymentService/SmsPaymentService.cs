@@ -376,7 +376,6 @@ namespace SmsPaymentService
 
                     if(payments.Count == 0) {
                         logger.Info($"Не найдено ни одного платежа для синхронизации");
-                        
                     }
                     else {
                         if(count != 0)

@@ -32,10 +32,6 @@
     <Compile Include="ResultMessage.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c">
-      <HintPath>..\..\..\packages\NLog.4.7.5\lib\net45\NLog.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.ServiceModel" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
@@ -49,17 +45,17 @@
     <Reference Include="System.ServiceModel.Web" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SmsRuSendService\SmsRuSendService.csproj">
+      <Project>{9083162f-81a6-49b3-a2d6-f355d62ec5c2}</Project>
+      <Name>SmsRuSendService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SmsSendInterface\SmsSendInterface.csproj">
       <Project>{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85}</Project>
       <Name>SmsSendInterface</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SmsBlissSendService\SmsBlissSendService.csproj">
-      <Project>{6A2E255D-4702-4955-9C8C-80AD435EF217}</Project>
-      <Name>SmsBlissSendService</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <PackageReference Include="NLog" Version="4.7.5" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

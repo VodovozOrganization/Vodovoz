@@ -13,12 +13,16 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Logistic;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz
 {
 	public partial class CarsDlg : QS.Dialog.Gtk.EntityDialogBase<Car>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+
+		private ICarRepository carRepository;
 
 		public override bool HasChanges => UoWGeneric.HasChanges || attachmentFiles.HasChanges;
 
@@ -90,7 +94,25 @@ namespace Vodovoz
 			photoviewCar.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewCar.GetSaveFileName = () => String.Format("{0}({1})", Entity.Model, Entity.RegistrationNumber);
 
-			checkIsRaskat.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Active).InitializeFromSource();
+			carRepository = new CarRepository();
+
+			checkIsRaskat.Active = Entity.IsRaskat;
+
+			Entity.PropertyChanged += (s, e) => {
+				if (e.PropertyName == nameof(Entity.IsRaskat) && checkIsRaskat.Active != Entity.IsRaskat) {
+					checkIsRaskat.Active = Entity.IsRaskat;
+				}
+			};
+
+			checkIsRaskat.Toggled += (s, e) => { 
+				if (carRepository.IsInAnyRouteList(UoW, Entity)) {
+					Entity.IsRaskat = checkIsRaskat.Active;
+				} else if (checkIsRaskat.Active != Entity.IsRaskat) {
+					checkIsRaskat.Active = Entity.IsRaskat;
+					MessageDialogHelper.RunWarningDialog("На данном автомобиле есть МЛ, смена типа невозможна");
+                }
+			};
+
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
 			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Car));
@@ -109,7 +131,7 @@ namespace Vodovoz
 			maxVolumeSpin.Sensitive = canChangeVolumeWeightConsumption;
 			maxWeightSpin.Sensitive = canChangeVolumeWeightConsumption;
 
-			checkIsRaskat.Sensitive = CarTypeIsEditable();
+			checkIsRaskat.Sensitive = CarTypeIsEditable() || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_is_raskat");
 			comboTypeOfUse.Sensitive = CarTypeIsEditable();
 
 			minBottlesFromAddressSpin.Sensitive = canChangeBottlesFromAddress;
@@ -129,8 +151,9 @@ namespace Vodovoz
 		public override bool Save()
 		{
 			var valid = new QSValidator<Car>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+            if (valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel)) {
 				return false;
+			}
 
 			logger.Info("Сохраняем автомобиль...");
 			try {
@@ -146,7 +169,6 @@ namespace Vodovoz
 			}
 			logger.Info("Ok");
 			return true;
-
 		}
 
 		protected void OnRadiobuttonMainToggled(object sender, EventArgs e)
@@ -193,11 +215,13 @@ namespace Vodovoz
 
 		void SelectGeographicGroups_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			if(yTreeGeographicGroups.ItemsDataSource is GenericObservableList<GeographicGroup> ggList)
-				foreach(var item in e.Subjects) {
-					if(item is GeographicGroup group && !ggList.Any(x => x.Id == group.Id))
+			if (yTreeGeographicGroups.ItemsDataSource is GenericObservableList<GeographicGroup> ggList) {
+				foreach (var item in e.Subjects) {
+					if (item is GeographicGroup group && !ggList.Any(x => x.Id == group.Id)) {
 						ggList.Add(group);
+					}
 				}
+			}
 		}
 
 		protected void OnBtnRemoveGeographicGroupClicked(object sender, EventArgs e)

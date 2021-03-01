@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Data.Common;
-using EmailService;
+using System.Globalization;
 using Gtk;
 using NLog;
 using QSProjectsLib;
 using Vodovoz.Parameters;
 using Vodovoz.Additions;
+using EmailService;
 using QS.Project.Dialogs.GtkUI;
 using QS.Utilities.Text;
 using QSSupportLib;
@@ -19,9 +20,11 @@ using QS.ErrorReporting;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools;
 using QS.Osm;
-using QS.Permissions;
 using QS.Tools;
 using SmsPaymentService;
+using System.Security.Principal;
+using Vodovoz.Domain.Security;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -33,6 +36,7 @@ namespace Vodovoz
 		[STAThread]
 		public static void Main (string[] args)
 		{
+			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 			Application.Init ();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			var appInfo = new ApplicationInfo();
@@ -134,7 +138,6 @@ namespace Vodovoz
 
 			AutofacClassConfig();
 			PerformanceHelper.AddTimePoint("Закончена настройка AutoFac.");
-
 			if(QSMain.User.Login == "root") {
 				string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
 				MessageDialog md = new MessageDialog(null, DialogFlags.Modal,
@@ -149,8 +152,10 @@ namespace Vodovoz
 				usersDlg.Destroy();
 				return;
 			} else {
-				if(ChangePassword(LoginDialog.BaseName))
+                if (ChangePassword(LoginDialog.BaseName) && CanLogin())
+                {
 					StartMainWindow(LoginDialog.BaseName);
+				}
 				else
 					return;
 			}
@@ -224,5 +229,26 @@ namespace Vodovoz
 			QSMain.ErrorDlgParrent = MainWin;
 			MainWin.Show();
 		}
+
+		private static bool CanLogin()
+        {
+			using (var uow = UnitOfWorkFactory.GetDefaultFactory.CreateWithoutRoot())
+			{
+				var dBLogin = ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).Login;
+
+				string sid = "";
+				// Получение данных пользователя системы
+				if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+				{
+					var windowsIdentity = WindowsIdentity.GetCurrent();
+					sid = windowsIdentity.User?.ToString() ?? "";
+				}
+
+				RegisteredRM registeredRMAlias = null;
+				var rm = uow.Session.QueryOver<RegisteredRM>(() => registeredRMAlias).Where(x => x.SID == sid && x.IsActive).List().FirstOrDefault();
+
+				return (rm == null) || rm.Users.Any(u => u.Login == dBLogin);
+			}
+		} 
 	}
 }

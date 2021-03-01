@@ -6,15 +6,15 @@ using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.Threading;
 using InstantSmsService;
+using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
-using Nini.Config;
 using NLog;
-using SmsBlissSendService;
+using SmsRuSendService;
 
 namespace VodovozInstantSmsService
 {
-	public class Service
+    public class Service
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -24,26 +24,39 @@ namespace VodovozInstantSmsService
 		private static string serviceHostName;
 		private static string servicePort;
 
-		//SmsService
-		private static string smsServiceLogin;
-		private static string smsServicePassword;
-
 		public static void Main(string[] args)
 		{
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
+			SmsRuConfiguration smsRuConfig;
+
 			try {
-				IniConfigSource confFile = new IniConfigSource(configFile);
-				confFile.Reload();
+				var builder = new ConfigurationBuilder()
+					.AddIniFile(configFile, optional: false);
 
-				IConfig serviceConfig = confFile.Configs["Service"];
-				serviceHostName = serviceConfig.GetString("service_host_name");
-				servicePort = serviceConfig.GetString("service_port");
+				var configuration = builder.Build();
 
-				IConfig smsConfig = confFile.Configs["SmsService"];
-				smsServiceLogin = smsConfig.GetString("sms_service_login");
-				smsServicePassword = smsConfig.GetString("sms_service_password");
+				var serviceSection = configuration.GetSection("Service");
+				serviceHostName = serviceSection["service_host_name"];
+				servicePort = serviceSection["service_port"];
 
+				var smsRuSection = configuration.GetSection("SmsRu");
+
+				smsRuConfig = new SmsRuConfiguration(
+					smsRuSection["login"],
+					smsRuSection["password"],
+					smsRuSection["appId"],
+					smsRuSection["partnerId"],
+					smsRuSection["email"],
+					smsRuSection["smsNumberFrom"],
+					smsRuSection["smtpLogin"],
+					smsRuSection["smtpPassword"],
+					smsRuSection["smtpServer"],
+					int.Parse(smsRuSection["smtpPort"]),
+					bool.Parse(smsRuSection["smtpUseSSL"]),
+					bool.Parse(smsRuSection["translit"]),
+					bool.Parse(smsRuSection["test"])
+					);
 			}
 			catch(Exception ex) {
 				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
@@ -51,7 +64,8 @@ namespace VodovozInstantSmsService
 			}
 
 			try {
-				SmsBlissSendController smsSender = new SmsBlissSendController(smsServiceLogin, smsServicePassword, SmsSendInterface.BalanceType.CurrencyBalance);
+				SmsRuSendController smsSender = new SmsRuSendController(smsRuConfig);
+
 				InstantSmsServiceInstanceProvider instantSmsInstanceProvider = new InstantSmsServiceInstanceProvider(smsSender);
 				ServiceHost InstantSmsServiceHost = new InstantSmsServiceHost(instantSmsInstanceProvider);
 

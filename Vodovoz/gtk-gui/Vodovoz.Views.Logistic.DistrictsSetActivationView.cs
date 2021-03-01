@@ -117,7 +117,7 @@ namespace Vodovoz.Views.Logistic
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.ylabelPriorities = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelPriorities.Name = "ylabelPriorities";
-			this.ylabelPriorities.LabelProp = global::Mono.Unix.Catalog.GetString("Удалены следующие приоритеты районов водителей:");
+			this.ylabelPriorities.LabelProp = global::Mono.Unix.Catalog.GetString("На новую версию не были перенесены следующие приоритеты районов водителей:");
 			this.vbox1.Add(this.ylabelPriorities);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelPriorities]));
 			w8.Position = 1;

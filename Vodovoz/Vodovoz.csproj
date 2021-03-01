@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -383,6 +383,9 @@
     <EmbeddedResource Include="icons\phone\make-call-32.png" />
     <EmbeddedResource Include="icons\phone\make-call-16.png" />
     <EmbeddedResource Include="icons\buttons\user22.png" />
+    <EmbeddedResource Include="toolbars\retail.xml">
+      <LogicalName>retail.xml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
@@ -497,6 +500,10 @@
     <Compile Include="gtk-gui\Vodovoz.StockBalanceFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
     <Compile Include="Dialogs\ProductSpecificationDlg.cs" />
+    <Compile Include="Views\Logistic\DriverWorkScheduleSetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverWorkScheduleSetView.cs" />
+    <Compile Include="Views\Logistic\DriverDistrictPrioritySetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverDistrictPrioritySetView.cs" />
     <Compile Include="ViewWidgets\ProductSpecificationMaterialsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationMaterialsView.cs" />
@@ -1334,7 +1341,6 @@
     <Compile Include="Infrastructure\DefaultUnhandledExceptionHandler.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ErrorMessageView.cs" />
     <Compile Include="Views\ErrorReporting\ErrorMessageView.cs" />
-    <Compile Include="Dialogs\Employees\DriverWorkScheduleNode.cs" />
     <Compile Include="ErrorHandlers.cs" />
     <Compile Include="ViewModels\TransferDocumentsFromBankParser.cs" />
     <Compile Include="Views\Payments\PaymentLoaderView.cs" />
@@ -1549,6 +1555,22 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
     <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
+    <Compile Include="JournalViewers\RegisteredRMJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.RegisteredRMJournalFilterView.cs" />
+    <Compile Include="Views\Security\RegisteredRMView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Security.RegisteredRMView.cs" />
+    <Compile Include="Views\Logistic\DeliveryPointResponsiblePersonsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryPointResponsiblePersonsView.cs" />
+    <Compile Include="JournalViewers\DeliveryPointResponsiblePersonTypeJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.DeliveryPointResponsiblePersonTypeJournalFilterView.cs" />
+    <Compile Include="JournalViewers\SalesChannelJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.SalesChannelJournalFilterView.cs" />
+    <Compile Include="Views\Logistic\DeliveryPointResponsiblePersonTypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryPointResponsiblePersonTypeView.cs" />
+    <Compile Include="Views\Retail\SalesChannelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Retail.SalesChannelView.cs" />
+    <Compile Include="Views\Client\CounterpartyFilesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyFilesView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1846,6 +1868,9 @@
     <Folder Include="Views\Payments\" />
     <Folder Include="Views\Proposal\" />
     <Folder Include="JournalFilters\Proposal\" />
+    <Folder Include="Views\Security\" />
+    <Folder Include="JournalViewers\Retail\" />
+    <Folder Include="Views\Retail\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

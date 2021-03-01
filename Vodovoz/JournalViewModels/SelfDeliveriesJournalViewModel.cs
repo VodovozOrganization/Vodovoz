@@ -151,7 +151,7 @@ namespace Vodovoz.Representations
 					)).WithAlias(() => resultAlias.BottleAmount)
 					.Select(Projections.Sum(
 						Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?2, ?1) * ?3 - ?4"),
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(IFNULL(?2, ?1) * ?3 - ?4, 2)"),
 							NHibernateUtil.Decimal,
 							Projections.Property(() => orderItemAlias.Count),
 							Projections.Property(() => orderItemAlias.ActualCount),

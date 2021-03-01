@@ -21,13 +21,14 @@ namespace Vodovoz.Views.Logistic
 			ylabelSelectedDistrictsSetStr.Text = ViewModel.Entity?.Name ?? "";
 			
 			ybuttonActivate.Clicked += (sender, args) => {
-				if(MessageDialogHelper.RunQuestionDialog($"Переключить базу на версию районов \"{ViewModel.Entity.Name}\""))
+				if(MessageDialogHelper.RunQuestionDialog($"Переключить базу на версию районов \"{ViewModel.Entity.Name}\"")) {
 					ViewModel.ActivateDistrictsSetCommand.Execute();
+				}
 			};
-
+			
 			ytreePrioritiesToDelete.ColumnsConfig = ColumnsConfigFactory.Create<DriverDistrictPriority>()
 				.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
-				.AddColumn("Водитель").AddTextRenderer(x => x.Driver.ShortName)
+				.AddColumn("Водитель").AddTextRenderer(x => x.DriverDistrictPrioritySet.Driver.ShortName)
 				.AddColumn("Старый район").AddTextRenderer(x => x.District.DistrictName)
 				.AddColumn("")
 				.Finish();
@@ -40,8 +41,8 @@ namespace Vodovoz.Views.Logistic
 						ybuttonActivate.Sensitive = !ViewModel.ActivationInProgress && !ViewModel.WasActivated;
 					if(args.PropertyName == nameof(ViewModel.ActiveDistrictsSet))
 						ylabelCurrentDistrictsSetStr.Text = ViewModel.ActiveDistrictsSet.Name;
-					if(args.PropertyName == nameof(ViewModel.DeletedPriorities))
-						ytreePrioritiesToDelete.ItemsDataSource = ViewModel.DeletedPriorities;
+					if(args.PropertyName == nameof(ViewModel.NotCopiedPriorities))
+						ytreePrioritiesToDelete.ItemsDataSource = ViewModel.NotCopiedPriorities;
 				});
 			};
 		}

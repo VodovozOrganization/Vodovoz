@@ -64,7 +64,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		{
 			OldRoute = oldRoute;
 			Shift = oldRoute.Shift;
-			Districts = Driver.Districts.Cast<IDistrictPriority>().ToArray();
+
+			var activeDistrictsSet = Driver.DriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
+			if(activeDistrictsSet != null && activeDistrictsSet.DriverDistrictPriorities.Any()) {
+				Districts = activeDistrictsSet.DriverDistrictPriorities.Cast<IDistrictPriority>().ToArray();
+			}
 		}
 	}
 }

@@ -17,7 +17,6 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -52,6 +51,8 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly IUserRepository userRepository;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+
+		private bool canCloseComplaint = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
 
@@ -259,6 +260,10 @@ namespace Vodovoz.Journals.JournalViewModels
 			#region Filter
 
 			if(FilterViewModel != null) {
+				if (FilterViewModel.IsForRetail != null)
+				{
+					query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
+				}
 
 				FilterViewModel.EndDate = FilterViewModel.EndDate.Date.AddHours(23).AddMinutes(59);
 				if(FilterViewModel.StartDate.HasValue)
@@ -307,7 +312,14 @@ namespace Vodovoz.Journals.JournalViewModels
 				if(FilterViewModel.Employee != null)
 					query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
 
-				if(FilterViewModel.GuiltyItemVM?.Entity?.GuiltyType != null) {
+				if (FilterViewModel.CurrentUserSubdivision != null 
+					&& FilterViewModel.ComplaintCurrentUserSubdivisionStatus != null)
+                {
+					query = query.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.CurrentUserSubdivision.Id)
+						.And(() => discussionAlias.Status == FilterViewModel.ComplaintCurrentUserSubdivisionStatus);
+				}
+
+				if (FilterViewModel.GuiltyItemVM?.Entity?.GuiltyType != null) {
 					var subquery = QueryOver.Of<ComplaintGuiltyItem>()
 											.Where(g => g.GuiltyType == FilterViewModel.GuiltyItemVM.Entity.GuiltyType.Value);
 					switch(FilterViewModel.GuiltyItemVM.Entity.GuiltyType) {
@@ -534,8 +546,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Закрыть рекламацию",
-					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed,
-					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate,
+					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed && canCloseComplaint,
+					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate && canCloseComplaint,
 					n => {
 						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
 						ComplaintViewModel currentComplaintVM = null;

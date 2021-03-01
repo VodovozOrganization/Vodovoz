@@ -19,6 +19,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Retail;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
@@ -539,6 +540,38 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref updCount, value);
 		}
 
+		int? updAllCount;
+		[Display(Name = "Кол-во УПД")]
+		public virtual int? AllUPDCount
+		{
+			get => updAllCount;
+			set => SetField(ref updAllCount, value);
+		}
+
+		int? torg12Count;
+		[Display(Name = "Кол-во Торг-12")]
+		public virtual int? Torg12Count
+		{
+			get => torg12Count;
+			set => SetField(ref torg12Count, value);
+		}
+
+		int? shetFacturaCount;
+		[Display(Name = "Кол-во отчет-фактур")]
+		public virtual int? ShetFacturaCount
+		{
+			get => shetFacturaCount;
+			set => SetField(ref shetFacturaCount, value);
+		}
+
+		int? carProxyCount;
+		[Display(Name = "Кол-во доверенностей вод-ль")]
+		public virtual int? CarProxyCount
+		{
+			get => carProxyCount;
+			set => SetField(ref carProxyCount, value);
+		}
+
 		string okpo;
 		[Display(Name = "ОКПО")]
 		public virtual string OKPO {
@@ -609,6 +642,51 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref isChainStore, value);
 		}
 
+        private bool isForRetail;
+        [Display(Name = "Для розницы")]
+        public virtual bool IsForRetail
+        {
+            get => isForRetail;
+            set => SetField(ref isForRetail, value);
+        }
+
+        private bool noPhoneCall;
+        [Display(Name = "Без прозвона")]
+        public virtual bool NoPhoneCall
+        {
+            get => noPhoneCall;
+            set => SetField(ref noPhoneCall, value);
+        }
+
+        IList<SalesChannel> salesChannels = new List<SalesChannel>();
+		[PropertyChangedAlso(nameof(ObservableSalesChannels))]
+		[Display(Name = "Каналы сбыта")]
+		public virtual IList<SalesChannel> SalesChannels
+		{
+			get => salesChannels;
+			set => SetField(ref salesChannels, value);
+		}
+
+		GenericObservableList<SalesChannel> observableSalesChannels;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<SalesChannel> ObservableSalesChannels
+		{
+			get
+			{
+				if (observableSalesChannels == null)
+					observableSalesChannels = new GenericObservableList<SalesChannel>(SalesChannels);
+				return observableSalesChannels;
+			}
+		}
+
+		private int technicalProcessingDelay;
+		[Display(Name = "Отсрочка технической обработки")]
+		public virtual int TechnicalProcessingDelay
+		{
+			get => technicalProcessingDelay;
+			set => SetField(ref technicalProcessingDelay, value);
+		}
+
 		IList<SupplierPriceItem> suplierPriceItems = new List<SupplierPriceItem>();
 		[PropertyChangedAlso(nameof(ObservablePriceNodes))]
 		[Display(Name = "Цены на ТМЦ")]
@@ -648,6 +726,26 @@ namespace Vodovoz.Domain.Client
 		public virtual GenericObservableList<NomenclatureFixedPrice> ObservableNomenclatureFixedPrices {
 			get => observableNomenclatureFixedPrices ?? (observableNomenclatureFixedPrices =
 				new GenericObservableList<NomenclatureFixedPrice>(NomenclatureFixedPrices));
+		}
+
+		IList<CounterpartyFile> files = new List<CounterpartyFile>();
+		[Display(Name = "Документы")]
+		public virtual IList<CounterpartyFile> Files
+		{
+			get => files;
+			set => SetField(ref files, value);
+		}
+
+		GenericObservableList<CounterpartyFile> observableFiles;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<CounterpartyFile> ObservableFiles
+		{
+			get
+			{
+				if (observableFiles == null)
+					observableFiles = new GenericObservableList<CounterpartyFile>(Files);
+				return observableFiles;
+			}
 		}
 
 		#region Calculated Properties
@@ -793,7 +891,25 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
+        public virtual void AddFile(CounterpartyFile file)
+        {
+            if (ObservableFiles.Contains(file))
+            {
+                return;
+            }
+            file.Counterparty = this;
+            ObservableFiles.Add(file);
+        }
+
+        public virtual void RemoveFile(CounterpartyFile file)
+        {
+            if (ObservableFiles.Contains(file))
+            {
+                ObservableFiles.Remove(file);
+            }
+        }
+
+        public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
 		{
 			var removableItems = new List<SupplierPriceItem>(
 				ObservableSuplierPriceItems.Where(i => i.NomenclatureToBuy.Id == nomenclatureId).ToList()
@@ -920,6 +1036,9 @@ namespace Vodovoz.Domain.Client
 					yield return fixedPriceValidationResult;
 				}
 			}
+
+			if (TechnicalProcessingDelay > 0 && Files.Count == 0)
+				yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
 		}
 
 		#endregion

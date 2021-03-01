@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
+    <Compile Include="Domain\Client\CounterpartyFile.cs" />
     <Compile Include="Domain\DealFromBitrix.cs" />
     <Compile Include="Domain\Documents\WayBillDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocumentItem.cs" />
@@ -102,16 +103,22 @@
     <Compile Include="Domain\Payments\PaymentsFromYookassaParser.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposalStatus.cs" />
+    <Compile Include="Domain\Retail\SalesChannel.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
+    <Compile Include="Domain\Security\RegisteredRM.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItem.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItemTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverDistrictPriority.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverDistrictPrioritySet.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverWorkSchedule.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverWorkScheduleSet.cs" />
     <Compile Include="EntityRepositories\Logistic\IWayBillDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\WayBillDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Cash\IRouteListItemCashDistributionDocumentRepository.cs" />
@@ -133,6 +140,7 @@
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\CounterpartyFileMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverDiscrepancyDocumentItemMap.cs" />
@@ -156,12 +164,18 @@
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
+    <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
+    <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPriorityMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPrioritySetMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
@@ -423,8 +437,6 @@
     <Compile Include="Domain\Logistic\AtWorkForwarder.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkDriverMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkForwarderMap.cs" />
-    <Compile Include="Domain\Logistic\DriverDistrictPriority.cs" />
-    <Compile Include="HibernateMapping\Logistic\DriverDistrictPriorityMap.cs" />
     <Compile Include="Repositories\Logistics\CarRepository.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
@@ -439,6 +451,7 @@
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="HibernateMapping\Service\CullingCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\CommentTemplateMap.cs" />
+    <Compile Include="Tools\Logistic\DriverDistrictPriorityHelper.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
     <Compile Include="HibernateMapping\Logistic\CachedDistanceMap.cs" />
@@ -463,9 +476,9 @@
     <Compile Include="DocTemplates\EquipmentAgreementParser.cs" />
     <Compile Include="HibernateMapping\Counterparty\SalesEquipmentMap.cs" />
     <Compile Include="Repositories\Client\CounterpartyContractFactory.cs" />
-	<Compile Include="Domain\Client\Tag.cs" />
+    <Compile Include="Domain\Client\Tag.cs" />
     <Compile Include="HibernateMapping\Counterparty\TagMap.cs" />
-	<Compile Include="Tools\Logistic\DeliveryPriceCalculator.cs" />	
+    <Compile Include="Tools\Logistic\DeliveryPriceCalculator.cs" />
     <Compile Include="Domain\Documents\ShiftChangeWarehouseDocument.cs" />
     <Compile Include="Domain\Documents\ShiftChangeWarehouseDocumentItem.cs" />
     <Compile Include="HibernateMapping\Documents\ShiftChangeWarehouseDocumentMap.cs" />
@@ -767,6 +780,8 @@
     <Compile Include="EntityRepositories\Orders\ReceiptForOrderNode.cs" />
     <Compile Include="EntityRepositories\Store\CarUnloadSingletonRepository.cs" />
     <Compile Include="EntityRepositories\Store\ICarUnloadRepository.cs" />
+    <Compile Include="EntityRepositories\Store\CarLoadDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Store\ICarLoadDocumentRepository.cs" />
     <Compile Include="Services\IWageParametersProvider.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionPermissionExtended.cs" />
     <Compile Include="PermissionExtensions\EntityExtendedPermissionValidator.cs" />
@@ -840,8 +855,6 @@
     <Compile Include="Tools\ErrorReporting\IErrorMessageModelFactory.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageModelBase.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageViewModel.cs" />
-    <Compile Include="Domain\Logistic\DriverWorkSchedule.cs" />
-    <Compile Include="HibernateMapping\Logistic\DriverWorkScheduleMap.cs" />
     <Compile Include="Services\IDefaultDeliveryDaySchedule.cs" />
     <Compile Include="Domain\Payments\Payment.cs" />
     <Compile Include="Domain\Payments\CategoryProfit.cs" />
@@ -882,6 +895,10 @@
     <Compile Include="Journal\INodeSelectorFactory.cs" />
     <Compile Include="Journal\INodeAutocompleteSelectorFactory.cs" />
     <Compile Include="Journal\NodeAutocompleteSelectorFactory.cs" />
+    <Compile Include="Domain\Client\DeliveryPointResponsiblePerson.cs" />
+    <Compile Include="Domain\Client\DeliveryPointResponsiblePersonType.cs" />
+    <Compile Include="HibernateMapping\Counterparty\DeliveryPointResponsiblePersonTypeMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\DeliveryPointResponsiblePersonMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

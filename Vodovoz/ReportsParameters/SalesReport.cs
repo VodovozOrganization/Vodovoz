@@ -4,7 +4,6 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -19,6 +18,8 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using Vodovoz.Domain.Organizations;
+using QS.Project.Services;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Reports
 {
@@ -26,17 +27,26 @@ namespace Vodovoz.Reports
 	{
 		SelectableParametersReportFilter filter;
 
-		public SalesReport()
+        bool userIsSalesRepresentative;
+        private readonly IEmployeeRepository employeeRepository;
+
+        public SalesReport(IEmployeeRepository employeeRepository)
 		{
-			this.Build();
+            this.employeeRepository = employeeRepository;
+
+            this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			filter = new SelectableParametersReportFilter(UoW);
-			ConfigureDlg();
-		}
+
+            userIsSalesRepresentative = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
+                && !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+
+            ConfigureDlg();
+        }
 
 		private void ConfigureDlg()
 		{
-			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
+            dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 			
 			var nomenclatureTypeParam = filter.CreateParameterSet(
 				"Типы номенклатур",
@@ -184,35 +194,42 @@ namespace Vodovoz.Reports
 				})
 			);
 
-			filter.CreateParameterSet(
-				"Авторы заказов",
-				"order_author",
-				new ParametersFactory(UoW, (filters) => {
-					SelectableEntityParameter<Employee> resultAlias = null;
-					var query = UoW.Session.QueryOver<Employee>();
+            if (!userIsSalesRepresentative)
+            {
+                filter.CreateParameterSet(
+                "Авторы заказов",
+                "order_author",
+                new ParametersFactory(UoW, (filters) => {
+                    SelectableEntityParameter<Employee> resultAlias = null;
+                    var query = UoW.Session.QueryOver<Employee>();
 
-					if(filters != null && filters.Any()) {
-						foreach(var f in filters) {
-							query.Where(f());
-						}
-					}
+                    if (filters != null && filters.Any())
+                    {
+                        foreach (var f in filters)
+                        {
+                            query.Where(f());
+                        }
+                    }
 
-					IProjection authorProjection = Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?2, ?1, ?3)"),
-						NHibernateUtil.String,
-						Projections.Property<Employee>(x => x.Name),
-						Projections.Property<Employee>(x => x.LastName),
-						Projections.Property<Employee>(x => x.Patronymic)
-					);
+                    IProjection authorProjection = Projections.SqlFunction(
+                        new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?2, ?1, ?3)"),
+                        NHibernateUtil.String,
+                        Projections.Property<Employee>(x => x.Name),
+                        Projections.Property<Employee>(x => x.LastName),
+                        Projections.Property<Employee>(x => x.Patronymic)
+                    );
 
-					query.SelectList(list => list
-							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-							.Select(authorProjection).WithAlias(() => resultAlias.EntityTitle)
-						);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
-					return query.List<SelectableParameter>();
-				})
-			);
+                    query.SelectList(list => list
+                            .Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+                            .Select(authorProjection).WithAlias(() => resultAlias.EntityTitle)
+                        );
+                    query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
+                    var paremetersSet = query.List<SelectableParameter>();
+
+                    return paremetersSet;
+                    })
+                );
+            }
 
 			filter.CreateParameterSet(
 				"Части города",
@@ -291,11 +308,19 @@ namespace Vodovoz.Reports
 			{
 				{ "start_date", dateperiodpicker.StartDateOrNull },
 				{ "end_date", dateperiodpicker.EndDateOrNull },
-				{"creation_date", DateTime.Now}
+				{ "creation_date", DateTime.Now }
 			};
-			foreach(var item in filter.GetParameters()) {
-				parameters.Add(item.Key, item.Value);
 
+            if (userIsSalesRepresentative)
+            {
+                var currentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
+
+                parameters.Add("order_author_include", new[] { currentEmployee.Id.ToString() });
+                parameters.Add("order_author_exclude", new[] { "0" });
+            }
+
+            foreach (var item in filter.GetParameters()) {
+				parameters.Add(item.Key, item.Value);
 			}
 
 			return new ReportInfo {

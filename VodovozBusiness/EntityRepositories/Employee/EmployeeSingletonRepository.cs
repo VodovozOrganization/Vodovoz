@@ -64,20 +64,23 @@ namespace Vodovoz.EntityRepositories.Employees
 		public IList<Employee> GetWorkingDriversAtDay(IUnitOfWork uow, DateTime date)
 		{
 			Employee employeeAlias = null;
-			DriverWorkSchedule drvWorkScheduleAlias = null;
-			DeliveryDaySchedule dlvDayScheduleAlias = null;
+			DriverWorkScheduleSet driverWorkScheduleSetAlias = null;
+			DriverWorkSchedule driverWorkScheduleAlias = null;
+			DeliveryDaySchedule deliveryDayScheduleAlias = null;
 			DeliveryShift shiftAlias = null;
 
-			var query = uow.Session.QueryOver(() => employeeAlias)
-							  .JoinAlias(() => employeeAlias.WorkDays, () => drvWorkScheduleAlias)
-							  .JoinAlias(() => drvWorkScheduleAlias.DaySchedule, () => dlvDayScheduleAlias)
-					 		  .JoinAlias(() => dlvDayScheduleAlias.Shifts, () => shiftAlias)
-					 		  .Where(() => employeeAlias.Status == EmployeeStatus.IsWorking
-											&& (int)drvWorkScheduleAlias.WeekDay == (int)date.DayOfWeek)
-							  .TransformUsing(Transformers.DistinctRootEntity)
-							  .List<Employee>();
-
-			return query;
+			return uow.Session.QueryOver(() => employeeAlias)
+				.Inner.JoinAlias(() => employeeAlias.DriverWorkScheduleSets, () => driverWorkScheduleSetAlias)
+				.Inner.JoinAlias(() => driverWorkScheduleSetAlias.DriverWorkSchedules, () => driverWorkScheduleAlias)
+				.Inner.JoinAlias(() => driverWorkScheduleAlias.DaySchedule, () => deliveryDayScheduleAlias)
+				.Inner.JoinAlias(() => deliveryDayScheduleAlias.Shifts, () => shiftAlias)
+				.Where(() =>
+					employeeAlias.Status == EmployeeStatus.IsWorking
+					&& (int)driverWorkScheduleAlias.WeekDay == (int)date.DayOfWeek
+					&& driverWorkScheduleSetAlias.IsActive
+				)
+				.TransformUsing(Transformers.DistinctRootEntity)
+				.List<Employee>();
 		}
 
 		public Employee GetEmployeeByINNAndAccount(IUnitOfWork uow, string inn, string account)

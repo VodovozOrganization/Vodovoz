@@ -269,8 +269,13 @@ namespace Vodovoz
 				.AddDeleteDependence<Chat>(x => x.Driver)
 				.AddDeleteDependence<AtWorkDriver>(x => x.Employee)
 				.AddDeleteDependence<AtWorkForwarder>(x => x.Employee)
-				.AddDeleteDependence<DriverDistrictPriority>(x => x.Driver)
+				.AddDeleteDependence<DriverDistrictPrioritySet>(x => x.Driver)
+				.AddDeleteDependence<DriverWorkScheduleSet>(x => x.Driver)
 				.AddDeleteDependence<EmployeeContract>(x => x.Employee)
+				.AddClearDependence<DriverDistrictPrioritySet>(x => x.Author)
+				.AddClearDependence<DriverDistrictPrioritySet>(x => x.LastEditor)
+				.AddClearDependence<DriverWorkScheduleSet>(x => x.Author)
+				.AddClearDependence<DriverWorkScheduleSet>(x => x.LastEditor)
 				.AddClearDependence<Car>(item => item.Driver)
 				.AddClearDependence<Counterparty>(item => item.Accountant)
 				.AddClearDependence<Counterparty>(item => item.SalesManager)
@@ -441,7 +446,7 @@ namespace Vodovoz
 				.AddDeleteDependenceFromCollection(item => item.Phones)
 				.AddClearDependence<Counterparty>(item => item.MainContact)
 				.AddClearDependence<Counterparty>(item => item.FinancialContact)
-				.AddRemoveFromDependence<DeliveryPoint>(x => x.Contacts);
+				.AddRemoveFromDependence<DeliveryPoint>(x => x.ResponsiblePersons);
 
 			DeleteConfig.AddClearDependence<Post>(ClearDependenceInfo.Create<Contact>(item => item.Post));
 
@@ -574,10 +579,18 @@ namespace Vodovoz
 				.AddClearDependence<AtWorkDriver>(x => x.WithForwarder);
 
 			DeleteConfig.AddHibernateDeleteInfo<DriverDistrictPriority>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<DriverDistrictPrioritySet>()
+				.AddDeleteDependence<DriverDistrictPriority>(x => x.DriverDistrictPrioritySet);
 
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryDaySchedule>()
 				.AddDeleteDependence<AtWorkDriver>(x => x.DaySchedule);
 				//.AddClearDependence<Employee>(x => x.DefaultDaySheldule);
+				
+			DeleteConfig.AddHibernateDeleteInfo<DriverWorkSchedule>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<DriverWorkScheduleSet>()
+				.AddDeleteDependence<DriverWorkSchedule>(x => x.DriverWorkScheduleSet);
 
 			#endregion
 
@@ -600,7 +613,7 @@ namespace Vodovoz
 				.AddDeleteDependence<District>(x => x.DistrictsSet);
 
 			DeleteConfig.AddHibernateDeleteInfo<District>()
-				.AddClearDependence<DriverDistrictPriority>(i => i.District)
+				.AddDeleteDependence<DriverDistrictPriority>(i => i.District)
 				.AddClearDependence<AtWorkDriverDistrictPriority>(i => i.District)
 				.AddClearDependence<DeliveryPoint>(i => i.District)
 				.AddClearDependence<District>(i => i.CopyOf)
