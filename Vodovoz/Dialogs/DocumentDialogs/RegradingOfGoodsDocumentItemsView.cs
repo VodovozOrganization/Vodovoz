@@ -183,18 +183,51 @@ namespace Vodovoz
 					AmountInStock = selectedNode.StockAmount
 				};
 
-				var selectNewNomenclature = new OrmReference(QueryOver.Of<Nomenclature>().Where(n => n.Category.IsIn(Nomenclature.GetCategoriesForGoods())));
-				selectNewNomenclature.Mode = OrmReferenceMode.Select;
-				selectNewNomenclature.TabName = "Выберите новую номенклатуру";
-				selectNewNomenclature.ObjectSelected += SelectNewNomenclature_ObjectSelected;
-				MyTab.TabParent.AddSlaveTab(MyTab, selectNewNomenclature);
+				var nomenclatureFilter = new NomenclatureFilterViewModel();
+
+				var nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
+
+				var userRepository = UserSingletonRepository.GetInstance();
+
+				var employeeService = VodovozGtkServicesConfig.EmployeeService;
+
+				var counterpartySelectorFactory =
+					new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+						ServicesConfig.CommonServices);
+
+				var nomenclatureAutoCompleteSelectorFactory =
+					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+						ServicesConfig.CommonServices,
+						nomenclatureFilter,
+						counterpartySelectorFactory,
+						nomenclatureRepository,
+						userRepository
+						);
+
+				var nomenclaturesJournalViewModel =
+				new NomenclaturesJournalViewModel(
+					nomenclatureFilter,
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices,
+					employeeService,
+					nomenclatureAutoCompleteSelectorFactory,
+					counterpartySelectorFactory,
+					nomenclatureRepository,
+					userRepository
+					);
+
+				nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
+                nomenclaturesJournalViewModel.OnEntitySelectedResult += SelectNewNomenclature_ObjectSelected;
+
+				MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
 			};
 			MyTab.TabParent.AddSlaveTab(MyTab, vm);
 		}
 
-		void SelectNewNomenclature_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+        void SelectNewNomenclature_ObjectSelected (object sender, JournalSelectedNodesEventArgs e)
 		{
-			var nomenclature = e.Subject as Nomenclature;
+			var nomenclature = DocumentUoW.GetById<Nomenclature>(e.SelectedNodes.FirstOrDefault().Id);
+
 			if(!nomenclature.IsDefectiveBottle){
 				newRow.Source = DefectSource.None;
 				newRow.TypeOfDefect = null;
