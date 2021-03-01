@@ -226,14 +226,20 @@ namespace Vodovoz
 
         void SelectNewNomenclature_ObjectSelected (object sender, JournalSelectedNodesEventArgs e)
 		{
-			var nomenclature = DocumentUoW.GetById<Nomenclature>(e.SelectedNodes.FirstOrDefault().Id);
+			var journalNode = e?.SelectedNodes?.FirstOrDefault();
+			if (journalNode != null)
+            {
+				var nomenclature = DocumentUoW.GetById<Nomenclature>(journalNode.Id);
 
-			if(!nomenclature.IsDefectiveBottle){
-				newRow.Source = DefectSource.None;
-				newRow.TypeOfDefect = null;
+				if (!nomenclature.IsDefectiveBottle)
+				{
+					newRow.Source = DefectSource.None;
+					newRow.TypeOfDefect = null;
+				}
+
+				newRow.NomenclatureNew = nomenclature;
+				DocumentUoW.Root.AddItem(newRow);
 			}
-			newRow.NomenclatureNew = nomenclature;
-			DocumentUoW.Root.AddItem(newRow);
 		}
 
 		private void LoadStock()
