@@ -759,9 +759,9 @@ FROM
 				AND hc_pay_type.`type` = 'Changed'
 				AND hc_pay_type.field_name = 'PaymentType'
 				AND (
-					hc_pay_type.new_value IN ('cash', 'ByCard', 'Terminal')
+					hc_pay_type.new_value IN ('cash', 'ByCard', 'Terminal', 'cashless')
 					OR
-					hc_pay_type.old_value IN ('cash', 'ByCard', 'Terminal')
+					hc_pay_type.old_value IN ('cash', 'ByCard', 'Terminal', 'cashless')
 				)
 			INNER JOIN (
 				SELECT
@@ -878,9 +878,9 @@ FROM
 						AND hc_pay_type.`type` = 'Changed'
 						AND hc_pay_type.field_name = 'PaymentType'
 						AND (
-							hc_pay_type.new_value IN ('cash', 'ByCard', 'Terminal')
+							hc_pay_type.new_value IN ('cash', 'ByCard', 'Terminal', 'cashless')
 							OR
-							hc_pay_type.old_value IN ('cash', 'ByCard', 'Terminal')
+							hc_pay_type.old_value IN ('cash', 'ByCard', 'Terminal', 'cashless')
 						)
 				GROUP BY hce_pay_type.entity_id
 			) payment_type_changes ON payment_type_changes.order_id = o.id
