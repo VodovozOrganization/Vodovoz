@@ -266,8 +266,8 @@ namespace Vodovoz.ViewModels.Complaints
 		[PropertyChangedAlso(nameof(CanAddFine), nameof(CanAttachFine))]
 		public bool CanEdit => PermissionResult.CanUpdate;
 
-		public bool CanAddGuilty => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_guilty_in_complaints");
-		public bool CanClose => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
+		public bool CanAddGuilty => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_guilty_in_complaints");
+		public bool CanClose => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
 
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 
