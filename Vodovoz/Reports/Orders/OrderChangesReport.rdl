@@ -942,7 +942,7 @@ FROM
 	LEFT JOIN order_items oi3 ON oi3.id = source.entity_id AND source.entity_class = 'OrderItem'
 	LEFT JOIN nomenclature n2 ON n2.id = oi3.nomenclature_id
 	LEFT JOIN route_list_addresses rla ON source.order_id = rla.order_id 
-	LEFT JOIN route_lists rl ON rla.route_list_id = rl.id 
+	LEFT JOIN route_lists rl ON rla.route_list_id = rl.id AND rla.status &lt;&gt; 'Transfered'
 	LEFT JOIN employees driver ON rl.driver_id = driver.id
 ;</CommandText>
         <QueryParameters>
