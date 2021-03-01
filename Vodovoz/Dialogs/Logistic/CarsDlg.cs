@@ -105,7 +105,7 @@ namespace Vodovoz
 			};
 
 			checkIsRaskat.Toggled += (s, e) => { 
-				if (carRepository.IsInAnyRouteList(UoW, Entity)) {
+				if (!carRepository.IsInAnyRouteList(UoW, Entity)) {
 					Entity.IsRaskat = checkIsRaskat.Active;
 				} else if (checkIsRaskat.Active != Entity.IsRaskat) {
 					checkIsRaskat.Active = Entity.IsRaskat;
