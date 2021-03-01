@@ -1,5 +1,4 @@
 ﻿using Gamma.ColumnConfig;
-using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
@@ -11,7 +10,6 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
 
@@ -114,6 +112,9 @@ namespace Vodovoz.Views.Complaints
 			comboType.Binding.AddBinding(ViewModel.Entity, vm => vm.ComplaintType, w => w.SelectedItem).InitializeFromSource();
 
 			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
+
+			guiltyitemsview.Visible = ViewModel.CanAddGuilty;
+			labelNameGuilties.Visible = ViewModel.CanAddGuilty;
 
 			vboxDicussions.Add(new ComplaintDiscussionsView(ViewModel.DiscussionsViewModel));
 			vboxDicussions.ShowAll();
