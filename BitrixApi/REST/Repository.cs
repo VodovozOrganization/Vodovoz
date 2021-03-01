@@ -9,9 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using BitrixApi.DTO;
 using Newtonsoft.Json;
-using QS.DomainModel.UoW;
-using Vodovoz.Domain;
-using Vodovoz.Domain.Orders;
 
 namespace BitrixApi.REST
 {

@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using BitrixApi.DTO;
-using Newtonsoft.Json;
-using QS.DomainModel.UoW;
 
 namespace BitrixApi.REST
 {
@@ -15,8 +11,7 @@ namespace BitrixApi.REST
         
         //crm.deal.get
         Task<Deal> GetDealAsync(uint id);
-        // public Task<Deal> GetDeal(uint id);
-        
+
         //crm.contact.get
         Task<Contact> GetContact(uint id);
         

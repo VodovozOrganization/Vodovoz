@@ -167,6 +167,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamma.Utilities.Gtk", "..\GammaBinding\Gamma.Utilities.Gtk\Gamma.Utilities.Gtk.csproj", "{5735D438-792E-40CE-BAFD-25814C8879BC}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitrixIntegration", "BitrixIntegration\BitrixIntegration.csproj", "{7F55D466-CE81-4A81-AAC1-D7D58544F7AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozBitrixIntegrationService", "VodovozBitrixIntegrationService\VodovozBitrixIntegrationService.csproj", "{033C8C2F-0EE5-46AD-9DE6-D9387F528DF3}"

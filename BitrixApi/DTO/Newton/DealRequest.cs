@@ -1,10 +1,8 @@
 using System;
 using System.Linq;
 using Newtonsoft.Json;
-using QS.DomainModel.UoW;
 using QS.Osm.DTO;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using VodovozInfrastructure.Utils;
 
