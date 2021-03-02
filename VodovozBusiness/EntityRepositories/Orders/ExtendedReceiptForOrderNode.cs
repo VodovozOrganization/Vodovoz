@@ -1,4 +1,5 @@
 using System;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.EntityRepositories.Orders
 {
@@ -9,5 +10,6 @@ namespace Vodovoz.EntityRepositories.Orders
         public bool? WasSent { get; set; }
         public decimal? OrderSum { get; set; }
         public DateTime? DeliveryDate { get; set; }
+        public PaymentType PaymentType { get; set; }
     }
 }

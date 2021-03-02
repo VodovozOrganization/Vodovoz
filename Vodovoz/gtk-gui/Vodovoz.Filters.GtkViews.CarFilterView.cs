@@ -6,7 +6,21 @@ namespace Vodovoz.Filters.GtkViews
 	{
 		private global::Gtk.Table table1;
 
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+
+		private global::Gamma.Widgets.EnumCheckList enumcheckCarTypeOfUse;
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckIncludeArchive;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboRaskat;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboVisitingMaster;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel1;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel2;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel4;
 
 		protected virtual void Build()
 		{
@@ -15,21 +29,107 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.CarFilterView";
 			// Container child Vodovoz.Filters.GtkViews.CarFilterView.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(1)), false);
+			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.WidthRequest = 400;
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w1 = new global::Gtk.Viewport();
+			w1.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport.Gtk.Container+ContainerChild
+			this.enumcheckCarTypeOfUse = new global::Gamma.Widgets.EnumCheckList();
+			this.enumcheckCarTypeOfUse.HeightRequest = 80;
+			this.enumcheckCarTypeOfUse.Name = "enumcheckCarTypeOfUse";
+			w1.Add(this.enumcheckCarTypeOfUse);
+			this.GtkScrolledWindow.Add(w1);
+			this.table1.Add(this.GtkScrolledWindow);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow]));
+			w4.BottomAttach = ((uint)(3));
+			w4.LeftAttach = ((uint)(2));
+			w4.RightAttach = ((uint)(3));
+			w4.XPadding = ((uint)(10));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ycheckIncludeArchive = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckIncludeArchive.CanFocus = true;
 			this.ycheckIncludeArchive.Name = "ycheckIncludeArchive";
-			this.ycheckIncludeArchive.Label = global::Mono.Unix.Catalog.GetString("Включая архивных");
+			this.ycheckIncludeArchive.Label = "";
 			this.ycheckIncludeArchive.DrawIndicator = true;
 			this.ycheckIncludeArchive.UseUnderline = true;
+			this.ycheckIncludeArchive.Xalign = 1F;
 			this.table1.Add(this.ycheckIncludeArchive);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckIncludeArchive]));
-			w1.XOptions = ((global::Gtk.AttachOptions)(4));
-			w1.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckIncludeArchive]));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yenumcomboRaskat = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboRaskat.Name = "yenumcomboRaskat";
+			this.yenumcomboRaskat.ShowSpecialStateAll = false;
+			this.yenumcomboRaskat.ShowSpecialStateNot = false;
+			this.yenumcomboRaskat.UseShortTitle = false;
+			this.yenumcomboRaskat.DefaultFirst = false;
+			this.table1.Add(this.yenumcomboRaskat);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcomboRaskat]));
+			w6.TopAttach = ((uint)(2));
+			w6.BottomAttach = ((uint)(3));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yenumcomboVisitingMaster = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboVisitingMaster.Name = "yenumcomboVisitingMaster";
+			this.yenumcomboVisitingMaster.ShowSpecialStateAll = false;
+			this.yenumcomboVisitingMaster.ShowSpecialStateNot = false;
+			this.yenumcomboVisitingMaster.UseShortTitle = false;
+			this.yenumcomboVisitingMaster.DefaultFirst = false;
+			this.table1.Add(this.yenumcomboVisitingMaster);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcomboVisitingMaster]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel1.Name = "ylabel1";
+			this.ylabel1.Xalign = 1F;
+			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Водитель - выездной мастер:");
+			this.table1.Add(this.ylabel1);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel1]));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel2.Name = "ylabel2";
+			this.ylabel2.Xalign = 1F;
+			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Раскат:");
+			this.table1.Add(this.ylabel2);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel2]));
+			w9.TopAttach = ((uint)(2));
+			w9.BottomAttach = ((uint)(3));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabel4 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel4.Name = "ylabel4";
+			this.ylabel4.Xalign = 1F;
+			this.ylabel4.LabelProp = global::Mono.Unix.Catalog.GetString("Включая архивных:");
+			this.table1.Add(this.ylabel4);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel4]));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{

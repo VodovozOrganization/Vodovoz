@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using Vodovoz;
+using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
@@ -52,8 +52,8 @@ namespace Dialogs.Employees
 			yentryEmployee.RepresentationModel = new EmployeesVM();
 			yentryEmployee.Changed += YentryEmployee_Changed;
 
-			yenumcomboMonth.ItemsEnum = typeof(Months);
-			yenumcomboMonth.SelectedItem = (Months)now.Month;
+			yenumcomboMonth.ItemsEnum = typeof(Month);
+			yenumcomboMonth.SelectedItem = (Month)now.Month;
 			yenumcomboMonth.EnumItemSelected += YenumcomboMonth_EnumItemSelected;
 
 			yspinYear.Value = (double)now.Year;
@@ -246,22 +246,7 @@ namespace Dialogs.Employees
 			previousEmployee = new Employee();
 			workcharttable.Reset();
 		}
-
-		public enum Months
-		{
-			[Display(Name = "Январь")] 	 Jan = 1,
-			[Display(Name = "Февраль")]  Feb,
-			[Display(Name = "Март")] 	 Mar,
-			[Display(Name = "Апрель")] 	 Apr,
-			[Display(Name = "Май")] 	 May,
-			[Display(Name = "Июнь")] 	 Jun,
-			[Display(Name = "Июль")] 	 Jul,
-			[Display(Name = "Август")] 	 Aug,
-			[Display(Name = "Сентябрь")] Sep,
-			[Display(Name = "Октябрь")]  Oct,
-			[Display(Name = "Ноябрь")] 	 Nov,
-			[Display(Name = "Декабрь")]  Dec,
-		}
+		
 	}
 }
 

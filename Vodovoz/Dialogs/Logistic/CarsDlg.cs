@@ -53,6 +53,9 @@ namespace Vodovoz
 
 			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
+			
+			comboDriverCarKind.ItemsList = UoW.GetAll<DriverCarKind>();
+			comboDriverCarKind.Binding.AddBinding(Entity, e => e.DriverCarKind, w => w.SelectedItem).InitializeFromSource();
 
 			yentryVIN.Binding.AddBinding(Entity, e => e.VIN, w => w.Text).InitializeFromSource();
 			yentryManufactureYear.Binding.AddBinding(Entity, e => e.ManufactureYear, w => w.Text).InitializeFromSource();
@@ -105,7 +108,7 @@ namespace Vodovoz
 			};
 
 			checkIsRaskat.Toggled += (s, e) => { 
-				if (carRepository.IsInAnyRouteList(UoW, Entity)) {
+				if (!carRepository.IsInAnyRouteList(UoW, Entity)) {
 					Entity.IsRaskat = checkIsRaskat.Active;
 				} else if (checkIsRaskat.Active != Entity.IsRaskat) {
 					checkIsRaskat.Active = Entity.IsRaskat;
@@ -237,6 +240,7 @@ namespace Vodovoz
 
 			if(Entity.IsCompanyCar) {
 				Entity.Driver = null;
+				Entity.DriverCarKind = null;
 			}
 			if(CarTypeIsEditable())
 				Entity.IsRaskat = false;
@@ -244,7 +248,8 @@ namespace Vodovoz
 
 		private void UpdateSensitivity()
 		{
-			dataentryreferenceDriver.Sensitive = !Entity.IsCompanyCar;
+			dataentryreferenceDriver.Sensitive = Entity.TypeOfUse.HasValue && !Entity.IsCompanyCar;
+			comboDriverCarKind.Sensitive = Entity.TypeOfUse.HasValue && !Entity.IsCompanyCar;
 		}
 	}
 }
