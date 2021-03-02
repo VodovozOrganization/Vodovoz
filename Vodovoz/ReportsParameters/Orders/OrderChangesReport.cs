@@ -26,8 +26,9 @@ namespace Vodovoz.ReportsParameters.Orders
         {
             UoW = UnitOfWorkFactory.CreateWithoutRoot();
             buttonCreateReport.Clicked += OnButtonCreateReportClicked;
-            ydatepickerDateFrom.Date = DateTime.Now.AddDays(-7);
-            ydatepickerDateFrom.DateChanged += OnDateChanged;
+            dateperiodpicker.StartDate = DateTime.Today.AddDays(-1);
+            dateperiodpicker.EndDate = DateTime.Today.AddDays(-1);
+            dateperiodpicker.PeriodChangedByUser += OnDateChanged;
             comboOrganization.ItemsList = UoW.GetAll<Organization>();
             comboOrganization.SetRenderTextFunc<Organization>(x => x.FullName);
             comboOrganization.Changed += (sender, e) => UpdateSensitivity();
@@ -74,7 +75,7 @@ namespace Vodovoz.ReportsParameters.Orders
                 UseUserVariables = true,
                 Parameters = new Dictionary<string, object>
                 {
-                    { "date_from", ydatepickerDateFrom.Date },
+                    { "date_from", dateperiodpicker.StartDate },
                     { "organization_id", ordganizationId },
                     { "change_types", selectedChangeTypes },
                     { "change_types_rus", selectedChangeTypesTitles }
@@ -84,8 +85,8 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private void OnButtonCreateReportClicked(object sender, EventArgs e)
         {
-            if (ydatepickerDateFrom.DateOrNull == null
-                || (ydatepickerDateFrom.DateOrNull != null && ydatepickerDateFrom.Date >= DateTime.Now)
+            if (dateperiodpicker.StartDateOrNull == null
+                || (dateperiodpicker.StartDateOrNull != null && dateperiodpicker.StartDate >= DateTime.Now)
                 || comboOrganization.SelectedItem == null
                 || !changeTypes.Any(x => x.Selected)
                 ) {
@@ -98,7 +99,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private void UpdateSensitivity()
         {
-            bool hasValidDate = ydatepickerDateFrom.DateOrNull != null && ydatepickerDateFrom.Date < DateTime.Now;
+            bool hasValidDate = dateperiodpicker.StartDateOrNull != null && dateperiodpicker.StartDate < DateTime.Now;
             bool hasOrganization = comboOrganization.SelectedItem != null;
             bool hasChangeTypes = changeTypes.Any(x => x.Selected);
             buttonCreateReport.Sensitive = hasValidDate && hasOrganization && hasChangeTypes;
@@ -106,12 +107,12 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private void UpdatePeriodMessage()
         {
-            if(ydatepickerDateFrom.DateOrNull == null) {
+            if(dateperiodpicker.StartDateOrNull == null) {
                 ylabelDateWarning.Visible = false;
                 return;
             }
 
-            var period = DateTime.Now - ydatepickerDateFrom.Date;
+            var period = DateTime.Now - dateperiodpicker.StartDate;
             ylabelDateWarning.Visible = period.Days > 14;
         }
 
