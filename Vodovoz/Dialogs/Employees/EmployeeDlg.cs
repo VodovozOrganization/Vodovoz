@@ -640,6 +640,7 @@ namespace Vodovoz
 				return false;
 
 			if(Entity.User != null) {
+				Entity.User.Deactivated = Entity.Status == EmployeeStatus.IsFired;
 				var associatedEmployees = EmployeeSingletonRepository.GetInstance().GetEmployeesForUser(UoW, Entity.User.Id);
 				if(associatedEmployees.Any(e => e.Id != Entity.Id)) {
 					string mes = String.Format("Пользователь {0} уже связан с сотрудником {1}, при привязке этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",
@@ -672,6 +673,7 @@ namespace Vodovoz
 					}
 				}
 			}
+
 			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
 			phonesView.RemoveEmpty();
