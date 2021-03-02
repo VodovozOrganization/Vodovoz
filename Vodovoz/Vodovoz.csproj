@@ -1555,6 +1555,12 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
     <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
+    <Compile Include="ReportsParameters\Logistic\CarsExploitationReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.CarsExploitationReport.cs" />
+    <Compile Include="Views\Logistic\DriverCarKindView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverCarKindView.cs" />
+    <Compile Include="Filters\GtkViews\DriverCarKindJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DriverCarKindJournalFilterView.cs" />
     <Compile Include="JournalViewers\RegisteredRMJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RegisteredRMJournalFilterView.cs" />
     <Compile Include="Views\Security\RegisteredRMView.cs" />
@@ -1970,6 +1976,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Cash\CashFlowDetailIncomeReturn.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\CarsExploitationReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Orders\OrderChangesReport.rdl">
