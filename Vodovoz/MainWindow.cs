@@ -2006,7 +2006,7 @@ public partial class MainWindow : Gtk.Window
                         RestrictedCarTypesOfUse = new List<CarTypeOfUse>(
                             new[] { CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.DriverCar })
                     };
-                    filter.SetFilterSensetivity(false);
+                    filter.SetFilterSensitivity(false);
                     return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
                         ServicesConfig.CommonServices);
                 }

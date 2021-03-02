@@ -15,7 +15,7 @@ namespace Vodovoz.Filters.ViewModels
 			raskat = AllYesNo.All;
 
 			RestrictedCarTypesOfUse = new List<CarTypeOfUse>((CarTypeOfUse[])Enum.GetValues(typeof(CarTypeOfUse)));
-			SetFilterSensetivity(true);
+			SetFilterSensitivity(true);
 		}
 		
 		private bool includeArchive;
@@ -47,7 +47,7 @@ namespace Vodovoz.Filters.ViewModels
 		public bool CanChangeRaskat { get; private set; }
 		public bool CanChangeRestrictedCarTypesOfUse { get; private set; }
 
-		public void SetFilterSensetivity(bool isSensitive)
+		public void SetFilterSensitivity(bool isSensitive)
 		{
 			CanChangeRaskat = isSensitive;
 			CanChangeIsArchive = isSensitive;
