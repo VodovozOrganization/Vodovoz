@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using QS.Report;
 using QSReport;
@@ -30,9 +31,11 @@ namespace Vodovoz.ReportsParameters.Orders
             dateperiodpicker.StartDate = DateTime.Today.AddDays(-1);
             dateperiodpicker.EndDate = DateTime.Today.AddDays(-1);
             dateperiodpicker.PeriodChangedByUser += OnDateChanged;
-            comboOrganization.ItemsList = UoW.GetAll<Organization>();
+            var organizations = UoW.GetAll<Organization>();
+            comboOrganization.ItemsList = organizations;
             comboOrganization.SetRenderTextFunc<Organization>(x => x.FullName);
             comboOrganization.Changed += (sender, e) => UpdateSensitivity();
+            comboOrganization.SelectedItem = organizations.Where(x => x.Name == "ООО \"Веселый Водовоз ЮГ\"").FirstOrDefault();
             ytreeviewChangeTypes.ColumnsConfig = FluentColumnsConfig<SelectedChangeTypeNode>.Create()
                 .AddColumn("✓").AddToggleRenderer(x => x.Selected)
                 .AddColumn("Тип").AddTextRenderer(x => x.Title)
