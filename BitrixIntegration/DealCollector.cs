@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using BitrixApi.DTO;
 using BitrixApi.REST;
 using Newtonsoft.Json;
-using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;

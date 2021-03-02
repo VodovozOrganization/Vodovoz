@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 

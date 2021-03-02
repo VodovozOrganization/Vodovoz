@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using BitrixApi.DTO;
 using Newtonsoft.Json;
-using Vodovoz.EntityRepositories;
 
 namespace BitrixApi.REST
 {

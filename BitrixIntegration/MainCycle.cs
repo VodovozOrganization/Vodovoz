@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using BitrixApi.DTO;
 using QS.DomainModel.UoW;
-using VodovozInfrastructure.Utils;
 
 namespace BitrixIntegration {
     public class MainCycle {
@@ -15,7 +12,7 @@ namespace BitrixIntegration {
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly DealCollector dealCollector;
         private readonly CoR cor;
-        private const UInt64 MINDEALWAITSEC = 60;
+        private const int MINDEALWAITSEC = 60;
 
         public MainCycle(IUnitOfWork _uow, DealCollector _dealCollector, CoR _cor)
         {
@@ -25,9 +22,7 @@ namespace BitrixIntegration {
         }
         public async Task RunProcessCycle()
         {
-          
             await EventAAsync();
-        
         }
         
         
