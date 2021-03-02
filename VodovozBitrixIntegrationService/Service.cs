@@ -27,8 +27,8 @@ namespace VodovozBitrixIntegrationService
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		private static readonly string configFile = "/home/gavr/vodovoz-bitrix-integration-service.conf"; 
-		// private static readonly string configFile = "/etc/vodovoz-bitrix-integration-service.conf"; 
+		// private static readonly string configFile = "/home/gavr/vodovoz-bitrix-integration-service.conf"; 
+		private static readonly string configFile = "/etc/vodovoz-bitrix-integration-service.conf"; 
 			
 		//Service
 		private static string serviceHostName;
@@ -212,7 +212,6 @@ namespace VodovozBitrixIntegrationService
 			logger.Info($"{address}");
 			logger.Info($"{webAddress}");
 
-			// BitrixManager.AddEvent(deal);
 			var uow = UnitOfWorkFactory.CreateWithoutRoot();
 			var matcher = new Matcher();
 			var bitrixApi = BitrixRestApiFactory.CreateBitrixRestApi(token);
@@ -224,17 +223,17 @@ namespace VodovozBitrixIntegrationService
 				var cor = new CoR(
 					baseParameters, 
 					bitrixApi,
-					uow, 
 					matcher,
 					counterpartyContractRepository,
 					counterpartyContractFactory
 				);
 				
 				// await cor.Process(158740); //138768 //150772 // 158740 тестовый
-				var dealCollector = new DealCollector(bitrixApi);
-				var mainCycle = new MainCycle(uow);
 				
-				await IdeaTests(cor, dealCollector, mainCycle);
+				var dealCollector = new DealCollector(bitrixApi, new DealFromBitrixRepository());
+				var mainCycle = new MainCycle(uow, dealCollector, cor);
+				
+				await mainCycle.RunProcessCycle();
 				
 			BitrixManager.SetCoR(cor);
 
@@ -256,13 +255,6 @@ namespace VodovozBitrixIntegrationService
 			// EmailSendingHost.Open();
 			// MailjetEventsHost.Open();
 		}
-
-		private static async Task IdeaTests(CoR cor, DealCollector dealCollector, MainCycle cycle)
-		{
-			await cycle.RunProcessCycle(cor, dealCollector);
-		}
-
-		//
 
 		#endregion StartService
 

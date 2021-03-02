@@ -38,6 +38,7 @@ namespace BitrixApi.DTO
         [JsonProperty("DATE_CREATE")]  public DateTime CreateDate { get; set; }
         [JsonProperty("DATE_MODIFY")]  public DateTime ModifyDate { get; set; }
         [JsonProperty("UF_CRM_1597998841845")]  public string PartOfTown { get; set; }
+        [JsonProperty("UF_CRM_1593010244990")]  public string PaymentStatus { get; set; }
         
         [JsonProperty("UF_CRM_5DA9BBA018649")]  public DateTime DeliveryDate { get; set; }
         [JsonProperty("OPENED")]  public string Opened { get; set; }
@@ -50,7 +51,6 @@ namespace BitrixApi.DTO
         [JsonProperty("UF_CRM_5DA85CFA4B2FD")]  public string RoomNumber { get; set; }
         //Пример значения: "д 104"
         [JsonProperty("UF_CRM_5DADB4A25AFE5")]  public string HouseAndBuilding { get; set; }
-        [JsonProperty("UF_CRM_1593010244990")]  public string PaymentStatus { get; set; }
         // Может быть Null or empty
         [JsonProperty("UF_CRM_1596187803")]  public string Promocode { get; set; }
         //624 - Курьерская, 626 - Самовывоз
@@ -66,6 +66,7 @@ namespace BitrixApi.DTO
         [JsonProperty("UF_CRM_1603521814")] public uint CreateInDV { get; set; }
         [JsonProperty("UF_CRM_1613635090586")] public int? BottlsToReturn { get; set; }
         [JsonProperty("UF_CRM_5DADB4A27E1EC")] public int? Trifle { get; set; }
+        [JsonProperty("UF_CRM_1596873234121")] public int? OrderNumber { get; set; }
         
         
         
@@ -110,6 +111,9 @@ namespace BitrixApi.DTO
                 608 =>  "с 12 до 15",
                 610 =>  "с 15 до 18",
                 1174 => "с 18 до 21",
+                1222 => "с 09 до 16",
+                1224 => "с 16 до 20",
+                1226 => "с 09 до 18",
                 1176 => "с 21 до 23",
                 _ => throw new ArgumentException($"Неизвестный id типа расписания доставки {DeliverySchedule}")
             };

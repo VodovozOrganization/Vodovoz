@@ -3,71 +3,116 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BitrixApi.DTO;
 using QS.DomainModel.UoW;
+using VodovozInfrastructure.Utils;
 
 namespace BitrixIntegration {
     public class MainCycle {
         // Для фиксации того что сменился день
 
-        private static int a;
+        private static int eventCount;
         
         private readonly IUnitOfWork uow;
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly DealCollector dealCollector;
+        private readonly CoR cor;
+        private const UInt64 MINDEALWAITSEC = 60;
 
-
-        public MainCycle(IUnitOfWork _uow)
+        public MainCycle(IUnitOfWork _uow, DealCollector _dealCollector, CoR _cor)
         {
             uow = _uow ?? throw new ArgumentNullException(nameof(_uow));
+            dealCollector = _dealCollector ?? throw new ArgumentNullException(nameof(_dealCollector));
+            cor = _cor ?? throw new ArgumentNullException(nameof(_cor));
         }
-        public async Task RunProcessCycle(CoR cor, DealCollector dealCollector)
+        public async Task RunProcessCycle()
         {
-            var date = DateTime.Parse("25.02.2021");
-            // var a = await bitrixApi.GetDealsBetweenDates(uow,date.StartOfDay(), date.EndOfDay());
-            var dealsList = await dealCollector.CollectDeals(uow, date);
-            dealsList = new List<Deal>();
-            Console.Out.WriteLine("Sas");
+          
             await EventAAsync();
-            
-            foreach (var deal in dealsList){
-                try{
-                    var order = await cor.Process(deal);
-                    await dealCollector.SendSuccessDealFromBitrixToDB(uow, deal.Id, order);
-
-                }
-                catch (Exception e){
-                    dealCollector.SendFailedDealFromBitrixToDB(uow, deal.Id,
-                        e.Message + "\n" + e.InnerException?.Message);
-
-                    logger.Error(e);
-                }
-               
-               
-            }
+        
         }
         
         
         private int SavedDay;
+        private int SavedHour;
+        
         private async Task EventAAsync()
         {
-            SavedDay = DateTime.Today.Minute;
+            SavedDay = DateTime.Now.Day;
+            SavedHour = DateTime.Now.Hour;
             while (true)
             {
-                Task.Run(() =>
+                await Task.Run(async () =>
                 {
-                    if (DateTime.Now.Minute != SavedDay)
+                    //Сменился день
+                    if (DateTime.Now.Day != SavedDay)
                     {
                         Console.Out.WriteLine("Day Changed");
-                        //обработка всех за день
+                        //обработка всех за весь предыдущий день
+                        // var date = DateTime.Parse("25.02.2021");
+                        var date = DateTime.Now.AddDays(-1);
+                        
+                        var dealsList = await dealCollector.CollectDeals(uow, date, true);
+                        foreach (var deal in dealsList){
+                            try{
+                                var order = await cor.Process(deal);
+                                await dealCollector.SendSuccessDealFromBitrixToDB(uow, deal.Id, order);
 
-                        SavedDay = DateTime.Now.Minute;
+                            }
+                            catch (Exception e){
+                                dealCollector.SendFailedDealFromBitrixToDB(uow, deal.Id,
+                                    e.Message + "\n" + e.InnerException?.Message);
+
+                                logger.Error(e);
+                            }
+                        }
+                        
+                        SavedDay = DateTime.Now.Day;
                     }
+                    //Сменился час
+                    else if (DateTime.Now.Hour != SavedHour)
+                    {
+                        // Обработка всех за предыдущий час
+                        var date = DateTime.Now.AddHours(-1);
+                        
+                        var dealsList = await dealCollector.CollectDeals(uow, date, true);
+                        foreach (var deal in dealsList){
+                            try{
+                                var order = await cor.Process(deal);
+                                await dealCollector.SendSuccessDealFromBitrixToDB(uow, deal.Id, order);
+
+                            }
+                            catch (Exception e){
+                                dealCollector.SendFailedDealFromBitrixToDB(uow, deal.Id,
+                                    e.Message + "\n" + e.InnerException?.Message);
+
+                                logger.Error(e);
+                            }
+                        }
+                        
+                        SavedHour = DateTime.Now.Hour;
+                    }
+                    //Каждая минута
                     else
                     {
-                        Console.WriteLine("The Elapsed event A was raised at {0}, a{1}", DateTime.Now, ++a);
+                        logger.Info($" {DateTime.Now}, event number{++eventCount}");
                         //обработка всех за час
+                        var date = DateTime.Now;
+                        
+                        var dealsList = await dealCollector.CollectDeals(uow, date, true);////////////////false
+                        foreach (var deal in dealsList){
+                            try{
+                                var order = await cor.Process(deal);
+                                await dealCollector.SendSuccessDealFromBitrixToDB(uow, deal.Id, order);
+                            }
+                            catch (Exception e){
+                                dealCollector.SendFailedDealFromBitrixToDB(uow, deal.Id,
+                                    e.Message + "\n" + e.InnerException?.Message);
 
+                                logger.Error(e);
+                            }
+                        }
                     }
                 });
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(TimeSpan.FromSeconds(MINDEALWAITSEC));
             }
         }
     }

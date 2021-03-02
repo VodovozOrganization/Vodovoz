@@ -60,15 +60,12 @@ namespace BitrixIntegration {
         public CoR(
 	        IBitrixServiceSettings _bitrixServiceSettings,
 	        IBitrixRestApi _bitrixRestApi, 
-	        IUnitOfWork _uow,
 	        Matcher _matcher,
 	        CounterpartyContractRepository _counterpartyContractRepository,
 	        CounterpartyContractFactory _counterpartyContractFactory
 	        )
         {
-	        // token = _token ?? throw new ArgumentNullException(nameof(_token));
 	        bitrixApi = _bitrixRestApi ?? throw new ArgumentNullException(nameof(_bitrixRestApi));
-	        // uow = _uow ?? throw new ArgumentNullException(nameof(_uow));
 	        matcher = _matcher ?? throw new ArgumentNullException(nameof(_matcher));
 	        bitrixServiceSettings = _bitrixServiceSettings ?? throw new ArgumentNullException(nameof(_bitrixServiceSettings));
 	        counterpartyContractRepository = _counterpartyContractRepository ?? throw new ArgumentNullException(nameof(_counterpartyContractRepository));
@@ -125,6 +122,10 @@ namespace BitrixIntegration {
 			        needSearchNomenclature = false;
 			        deliveryPointForOrder = ProcessDeliveryPoint(uow2, deal, counterpartyForNewOrder);
 			        deliveryScheduleForOrder = DeliveryScheduleRepository.GetByBitrixId(uow2, deal.DeliverySchedule);
+			        if (deliveryScheduleForOrder == null)
+			        {
+				        throw new Exception("Не найдено время в DeliveryShedule по bitrixId");
+			        }
 		        }
 
 		        //точку доставки не ищем, её можно только начать сопоставлять тк кк она в сделке
@@ -150,11 +151,7 @@ namespace BitrixIntegration {
 		        uow2.Save(orderWithNomenclatures);
 		        uow2.Commit();
 		        return orderWithNomenclatures;
-
 	        }
-        
-			
-			
         }
 
         private Order ProcessOrder(
@@ -187,8 +184,14 @@ namespace BitrixIntegration {
 		        Comment = deal.Comment,
 		        Trifle = deal.Trifle ?? 0,
 		        BottlesReturn = deal.BottlsToReturn,
-		        Contract = new CounterpartyContract()
+		        Contract = new CounterpartyContract(),
+		        EShopOrder = (int)deal.Id,
+		        OnlineOrder = deal.OrderNumber ?? null
 	        };
+	        if (newOrder.PaymentType == PaymentType.ByCard)
+	        {
+		        newOrder.PaymentByCardFrom = uow.GetById<PaymentFrom>(7);
+	        }
 
 			newOrder.UpdateOrCreateContract(uow, counterpartyContractRepository, counterpartyContractFactory);
 			
@@ -433,7 +436,7 @@ namespace BitrixIntegration {
 			        OfficialName = productFromDeal.ProductName,
 			        Description = productFromDeal.ProductDescription ?? "",
 			        CreateDate = DateTime.Now,
-			        Category = NomenclatureCategory.additional, //TODO gavr не факт
+			        Category = NomenclatureCategory.additional,
 			        BitrixId = productFromDeal.ProductId,
 			        // VAT = VAT.Vat20, //TODO gavr уточнить
 			        OnlineStoreExternalId = "3",
@@ -449,6 +452,13 @@ namespace BitrixIntegration {
         private async Task<ProductGroup> ProcessProductGroup(IUnitOfWork uow, ProductFromDeal productFromDeal)
         {
 	        var product = await bitrixApi.GetProduct(productFromDeal.ProductId);
+	        if (product == null)
+	        {
+		        throw new Exception($"Продукт с id {productFromDeal.ProductId} не найден в битриксе");
+	        } else if (product.IsOurObj == null)
+	        {
+		        throw new Exception($"Продукт с id {productFromDeal.ProductId} не имеет отметки наш он(товар из водовоза) или нет, поле PROPERTY_174");
+	        }
 	        // Красота и здоровье/Уход/Уход за лицом/Маски для лица
 	        var allProductGroups = product.CategoryObj.IsOurProduct.Split('/');
 	        //Сопоставляем только последнюю, иначе нужно создавать
@@ -522,7 +532,7 @@ namespace BitrixIntegration {
 			        uow.Save(nomenclature);
 		        }
 
-		        newOrder.AddAnyGoodsNomenclatureForSale(nomenclature, cnt: productBitrix.Count);
+		        newOrder.AddNomenclature(nomenclature, productBitrix.Count);
 	        }
 	        else {
 		        var discount = Math.Abs(nomenclature.GetPrice(1) - productBitrix.Price);

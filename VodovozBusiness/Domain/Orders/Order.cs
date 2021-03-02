@@ -1026,7 +1026,7 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
-			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
+			if(PaymentType == PaymentType.ByCard && (OnlineOrder == null || BitrixId == null))
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 

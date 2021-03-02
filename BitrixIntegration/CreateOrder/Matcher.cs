@@ -258,7 +258,7 @@ namespace BitrixIntegration {
                 }
             } 
             else{
-                throw new Exception($"Ошибка в парсинге координат{longitudeString} и {latitudeString}");
+                throw new Exception($"Ошибка в парсинге координат в числа: longitude:{longitudeString} и latitude:{latitudeString} для заказа с Id: {deal.Id}");
             }
         }
 

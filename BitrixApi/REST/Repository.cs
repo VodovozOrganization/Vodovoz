@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BitrixApi.DTO;
 using Newtonsoft.Json;
+using Vodovoz.EntityRepositories;
 
 namespace BitrixApi.REST
 {
@@ -142,15 +143,14 @@ namespace BitrixApi.REST
             return request.Result; 
         }
 
-        public async Task<IList<uint>> GetDealsIdsBetweenDates( DateTime date1, DateTime date2)
+        public async Task<IList<uint>> GetDealsIdsBetweenDates(DateTime date1, DateTime date2)
         {
             string date1Formatted = date1.ToString("dd.MM.yyyy HH:mm:ss");
             string date2Formatted = date2.ToString("dd.MM.yyyy HH:mm:ss");
             IList<uint> listOfIds = new List<uint>();
-            IList<Deal> listOfdeals = new List<Deal>();
             AddJsonHeader();
-            ListofDealsRequest request;//хак для цикла
-            uint i = 1;
+            ListofDealsRequest request;
+            uint i = 0;
             bool needOneMoretime = false;
             do{
                 string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.deal.list.json?" +
@@ -181,8 +181,12 @@ namespace BitrixApi.REST
             
          
             logger.Info($"В период между {date1} и {date2} получено {listOfIds.Count} сделок в статусе завести в ДВ" +
-                        "Десериализация в DTO...");
-
+                        "\nДесериализация в DTO...");
+            
+            // listOfIds.Add(163722);
+            // listOfIds.Add(169056); тут нет цены 
+            
+            // listOfIds.Add(168902); // нет времени доставки
             return listOfIds;
         }
 
@@ -190,6 +194,13 @@ namespace BitrixApi.REST
         {
             return true; //TODO test
             // bitrixId = 163726; //TODO gavr убрать
+            
+            /*
+             * Можешь поставить кулдаун в 10 секунд?
+             * У нас есть ошибка жоская, скорее всего она вызвана тем, что операторы слишком быстро стадии переключают и скрипты срабатывать не успевают)
+             * Я блять не знаю как это работает, кроме того, что работает оно через задницу)
+             */
+            Thread.Sleep(10000);
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.deal.update.json?id={bitrixId}&FIELDS[STAGE_ID]=WON";
             var msg = client.GetStringAsync(requestUri);
@@ -210,63 +221,6 @@ namespace BitrixApi.REST
             
             return request.Result; 
         }
-        
-        public void CreateLead( uint dealId )
-    {
-        try
-        {                
-            throw new NotImplementedException();
-            //
-            // string accessToken = GetNewAccessToken();
-            //
-            // string url = string.Format( "https://{0}/rest/crm.lead.add.json", portal_name );
-            //
-            // var data = new
-            // {
-            //     fields = new
-            //     {
-            //         TITLE = title,
-            //         CURRENCY_ID = "RUB",
-            //         STATUS_ID = "NEW",
-            //         OPENED = "Y",
-            //         OPPORTUNITY = opportunity,
-            //         ASSIGNED_BY_ID = 46,
-            //         COMPANY_TITLE = contactName,
-            //         PHONE =  new List<PHONE>() { new PHONE() { VALUE_TYPE = "WORK", TYPE_ID = "PHONE", VALUE = phoneNumber } }.ToArray(),
-            //         EMAIL = new List<EMAIL>() { new EMAIL() { VALUE_TYPE = "WORK", TYPE_ID = "EMAIL", VALUE = email } }.ToArray()
-            //     },
-            //     @params = new
-            //     {
-            //         REGISTER_SONET_EVENT = "Y"
-            //     }
-            // };
-            //
-            // BitrixLead lead = new BitrixLead();
-            //
-            // lead.TITLE = title;
-            // lead.CURRENCY_ID = "RUB";
-            // lead.STATUS_ID = "NEW";
-            // lead.OPENED = "Y";
-            // lead.OPPORTUNITY = opportunity.ToString();                
-            //
-            // if (!string.IsNullOrEmpty( contactName ))
-            //     lead.COMPANY_TITLE = contactName;
-            //
-            // if (!string.IsNullOrEmpty( phoneNumber ))
-            //     lead.PHONE = new List<PHONE>() { new PHONE() { VALUE_TYPE="WORK", TYPE_ID="PHONE", VALUE = phoneNumber }}.ToArray();
-            //
-            // if (!string.IsNullOrEmpty( email ))
-            //     lead.EMAIL = new List<EMAIL>() { new EMAIL() { VALUE_TYPE = "WORK", TYPE_ID = "EMAIL", VALUE = email } }.ToArray();
-            //
-            //
-            // PostToAPI( url, accessToken, data );
-        }
-        catch (Exception exc)
-        {
-        }
-    }
-        
-
 
         #region CustomFields
 

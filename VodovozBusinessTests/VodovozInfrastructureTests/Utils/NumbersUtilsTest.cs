@@ -18,11 +18,10 @@ namespace VodovozInfrastructureTests.Utils {
         public void ReturnOnlyNumbersFromString(string number, List<int> result)
         {
             // arrange
-            string processedNumber;
-            bool needBoth;
+            List<int> numbersFromString;
 
             // act
-            var numbersFromString = VodovozInfrastructure.Utils.NumbersUtils.GetNumbersFromString(number).ToList();
+            numbersFromString = VodovozInfrastructure.Utils.NumbersUtils.GetNumbersFromString(number).ToList();
 
             //assert
             Assert.That(numbersFromString.SequenceEqual(result));
