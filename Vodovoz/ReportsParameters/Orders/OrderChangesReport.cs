@@ -15,6 +15,7 @@ namespace Vodovoz.ReportsParameters.Orders
     public partial class OrderChangesReport : SingleUoWWidgetBase, IParametersWidget
     {
         private List<SelectedChangeTypeNode> changeTypes = new List<SelectedChangeTypeNode>();
+        private List<SelectedIssueTypeNode> issueTypes = new List<SelectedIssueTypeNode>();
 
         public OrderChangesReport()
         {
@@ -43,6 +44,17 @@ namespace Vodovoz.ReportsParameters.Orders
             AddChangeType("Тип оплаты заказа", "PaymentType");
 
             ytreeviewChangeTypes.ItemsDataSource = changeTypes;
+
+            ytreeviewIssueTypes.ColumnsConfig = FluentColumnsConfig<SelectedIssueTypeNode>.Create()
+                .AddColumn("✓").AddToggleRenderer(x => x.Selected)
+                .AddColumn("Тип").AddTextRenderer(x => x.Title)
+                .Finish();
+
+            AddIssueType("Проблемы с смс", "SmsIssues");
+            AddIssueType("Проблемы с терминалами", "TerminalIssues");
+            AddIssueType("Проблемы менеджеров", "ManagersIssues");
+
+            ytreeviewIssueTypes.ItemsDataSource = issueTypes;
         }
 
         private void AddChangeType(string title, string value)
@@ -53,6 +65,16 @@ namespace Vodovoz.ReportsParameters.Orders
             changeType.PropertyChanged += (sender, e) => UpdateSensitivity();
             changeType.Selected = true;
             changeTypes.Add(changeType);
+        }
+
+        private void AddIssueType(string title, string value)
+        {
+            var issueType = new SelectedIssueTypeNode();
+            issueType.Title = title;
+            issueType.Value = value;
+            issueType.PropertyChanged += (sender, e) => UpdateSensitivity();
+            issueType.Selected = true;
+            issueTypes.Add(issueType);
         }
 
         #region IParametersWidget implementation
@@ -67,6 +89,7 @@ namespace Vodovoz.ReportsParameters.Orders
         {
             var ordganizationId = ((Organization)comboOrganization.SelectedItem).Id;
             var selectedChangeTypes = string.Join(",", changeTypes.Where(x => x.Selected).Select(x => x.Value));
+            var selectedIssueTypes = string.Join(",", issueTypes.Where(x => x.Selected).Select(x => x.Value));
             var selectedChangeTypesTitles = string.Join(", ", changeTypes.Where(x => x.Selected).Select(x => x.Title)); 
 
             return new ReportInfo
@@ -75,8 +98,10 @@ namespace Vodovoz.ReportsParameters.Orders
                 UseUserVariables = true,
                 Parameters = new Dictionary<string, object>
                 {
-                    { "date_from", dateperiodpicker.StartDate },
+                    { "start_date", dateperiodpicker.StartDate },
+                    { "end_date", dateperiodpicker.EndDate },
                     { "organization_id", ordganizationId },
+                    { "issue_types", selectedIssueTypes },
                     { "change_types", selectedChangeTypes },
                     { "change_types_rus", selectedChangeTypesTitles }
                 }
@@ -124,6 +149,20 @@ namespace Vodovoz.ReportsParameters.Orders
     }
 
     public class SelectedChangeTypeNode : PropertyChangedBase
+    {
+        private bool selected;
+        public virtual bool Selected
+        {
+            get => selected;
+            set => SetField(ref selected, value);
+        }
+
+        public string Title { get; set; }
+
+        public string Value { get; set; }
+    }
+
+    public class SelectedIssueTypeNode : PropertyChangedBase
     {
         private bool selected;
         public virtual bool Selected
