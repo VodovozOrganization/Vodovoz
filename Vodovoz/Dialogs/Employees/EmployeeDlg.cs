@@ -329,7 +329,7 @@ namespace Vodovoz
 				return;
 			}
 			if(selectedDistrictPrioritySet.Id == 0) {
-				ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Перед копированием нового набора необходимо сохранить сотрудника");
+				ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Перед копированием новой версии необходимо сохранить сотрудника");
 				return;
 			}
 			
@@ -342,7 +342,7 @@ namespace Vodovoz
 			if(notCopiedPriorities.Any()) {
 				var messageBuilder = new StringBuilder(
 					"Для некоторых приоритетов районов\n" +
-					$"из выбранного набора для копирования (Код: {selectedDistrictPrioritySet.Id})\n" +
+					$"из выбранной для копирования версии (Код: {selectedDistrictPrioritySet.Id})\n" +
 					"не были найдены связанные районы из активной\n" +
 					"версии районов. Список приоритетов районов,\n" +
 					"которые не будут скопированы:\n"
@@ -486,13 +486,13 @@ namespace Vodovoz
 
 			if(selectedScheduleSet != null && selectedScheduleSet.Id == 0) {
 				ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-					"Перед копированием нового набора необходимо сохранить сотрудника");
+					"Перед копированием новой версии необходимо сохранить сотрудника");
 				return;
 			}
 
 			if(selectedScheduleSet != null
 				&& ServicesConfig.CommonServices.InteractiveService.Question(
-					$"Скопировать и активировать выбранный набор графиков работы водителя (Код: {selectedScheduleSet.Id})?"
+					$"Скопировать и активировать выбранную версию графиков работы водителя (Код: {selectedScheduleSet.Id})?"
 				)
 			) {
 				var employeeForCurrentUser = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);

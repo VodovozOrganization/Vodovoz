@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Logistic
         public virtual int Id { get; set; }
 
         private DriverWorkScheduleSet driverWorkScheduleSet;
-        [Display(Name = "Набор графиков работы водителя")]
+        [Display(Name = "Версия графиков работы водителя")]
         public virtual DriverWorkScheduleSet DriverWorkScheduleSet {
             get => driverWorkScheduleSet;
             set => SetField(ref driverWorkScheduleSet, value);

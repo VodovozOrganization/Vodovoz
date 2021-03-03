@@ -412,7 +412,7 @@ namespace Vodovoz
 			this.notebookMain = new global::Gtk.Notebook();
 			this.notebookMain.CanFocus = true;
 			this.notebookMain.Name = "notebookMain";
-			this.notebookMain.CurrentPage = 1;
+			this.notebookMain.CurrentPage = 0;
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -1356,7 +1356,7 @@ namespace Vodovoz
 			this.label29 = new global::Gtk.Label();
 			this.label29.Name = "label29";
 			this.label29.Xalign = 0F;
-			this.label29.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Наборы графиков работы</b>");
+			this.label29.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Версии графиков работы</b>");
 			this.label29.UseMarkup = true;
 			this.vboxPageLogistic.Add(this.label29);
 			global::Gtk.Box.BoxChild w94 = ((global::Gtk.Box.BoxChild)(this.vboxPageLogistic[this.label29]));
@@ -1430,7 +1430,7 @@ namespace Vodovoz
 			this.label25 = new global::Gtk.Label();
 			this.label25.Name = "label25";
 			this.label25.Xalign = 0F;
-			this.label25.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Наборы приоритетов районов доставки</b>");
+			this.label25.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Версии приоритетов районов доставки</b>");
 			this.label25.UseMarkup = true;
 			this.vboxPageLogistic.Add(this.label25);
 			global::Gtk.Box.BoxChild w104 = ((global::Gtk.Box.BoxChild)(this.vboxPageLogistic[this.label25]));

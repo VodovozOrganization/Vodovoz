@@ -8,9 +8,9 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {
-    [Appellative(Gender = GrammaticalGender.Masculine,
-        Nominative = "Набор приоритетов районов водителя",
-        NominativePlural = "Наборы приоритетов районов водителя")]
+    [Appellative(Gender = GrammaticalGender.Feminine,
+        Nominative = "Версия приоритетов районов водителя",
+        NominativePlural = "Версии приоритетов районов водителя")]
     [EntityPermission]
     public class DriverDistrictPrioritySet : PropertyChangedBase, IDomainObject, ICloneable
     {
@@ -52,14 +52,14 @@ namespace Vodovoz.Domain.Logistic
         }
 
         private bool isActive;
-        [Display(Name = "Набор активирован")]
+        [Display(Name = "Версия активирована")]
         public virtual bool IsActive {
             get => isActive;
             set => SetField(ref isActive, value);
         }
         
         private bool isCreatedAutomatically;
-        [Display(Name = "Создан автоматически")]
+        [Display(Name = "Создана автоматически")]
         public virtual bool IsCreatedAutomatically {
             get => isCreatedAutomatically;
             set => SetField(ref isCreatedAutomatically, value);
