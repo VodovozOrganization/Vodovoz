@@ -709,7 +709,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
 		WHERE oi2.order_id = source.order_id
 	) as summary,
 	n2.name as nomenclature_name,
-	CONCAT(c2.full_name, IF(c2.person_type = 'legal', CONCAT(' ', c2.inn), '')) as counterparty,
+	CONCAT(c2.full_name, IF(c2.person_type = 'legal', CONCAT(' ИНН ', c2.inn), '')) as counterparty,
 	source.delivery_date,
 	source.time_delivered,
 	source.change_time,
@@ -765,6 +765,7 @@ FROM
 			INNER JOIN orders o ON o.id = hce.entity_id
 				AND hce.entity_class = 'Order'
 				AND hce.`datetime` &gt;= @start_date
+				AND hce.`datetime` &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
 				AND hce.operation = 'Change'
 			INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id 
 				AND cc.organization_id = @organization_id
@@ -787,6 +788,7 @@ FROM
 					INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
 						AND hce_inner.entity_class = 'Order'
 						AND hce_inner.`datetime` &gt;= @start_date
+						AND hce_inner.`datetime` &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
 						AND hce_inner.operation = 'Change'
 					INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id		
 						AND hc_inner.`type` = 'Changed' 
@@ -854,6 +856,7 @@ FROM
 			INNER JOIN order_items oi ON oi.id = hce.entity_id
 				AND hce.entity_class = 'OrderItem'
 				AND hce.`datetime` &gt;= @start_date
+				AND hce.`datetime` &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
 				AND hce.operation IN ('Create','Change','Delete')		
 			INNER JOIN orders o ON o.id = oi.order_id
 			INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id 
@@ -869,6 +872,7 @@ FROM
 					INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
 						AND hce_inner.entity_class = 'Order'
 						AND hce_inner.`datetime` &gt;= @start_date
+						AND hce_inner.`datetime` &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
 						AND hce_inner.operation = 'Change'
 					INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id		
 						AND hc_inner.`type` = 'Changed' 
@@ -887,6 +891,7 @@ FROM
 					INNER JOIN orders o_pay_type ON o_pay_type.id = hce_pay_type.entity_id
 						AND hce_pay_type.entity_class = 'Order'
 						AND hce_pay_type.`datetime` &gt;= @start_date
+						AND hce_pay_type.`datetime` &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
 						AND hce_pay_type.operation = 'Change'
 					INNER JOIN history_changes hc_pay_type ON hc_pay_type.chaged_entity_id = hce_pay_type.id
 						AND hc_pay_type.`type` = 'Changed'
@@ -926,6 +931,9 @@ FROM
           </QueryParameter>
           <QueryParameter Name="change_types">
             <Value>={?change_types}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Format(Convert.ToDateTime({?end_date}), "yyyy-MM-dd")</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
