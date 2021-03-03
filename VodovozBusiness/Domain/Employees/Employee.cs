@@ -237,7 +237,7 @@ namespace Vodovoz.Domain.Employees
 		#region DriverDistrictPrioritySets
 
 		private IList<DriverDistrictPrioritySet> driverDistrictPrioritySets = new List<DriverDistrictPrioritySet>();
-		[Display(Name = "Наборы приоритетов районов водителя")]
+		[Display(Name = "Версии приоритетов районов водителя")]
 		public virtual IList<DriverDistrictPrioritySet> DriverDistrictPrioritySets {
 			get => driverDistrictPrioritySets;
 			set => SetField(ref driverDistrictPrioritySets, value);
@@ -253,7 +253,7 @@ namespace Vodovoz.Domain.Employees
 		#region ObservableDriverWorkScheduleSets
 
 		private IList<DriverWorkScheduleSet> driverWorkScheduleSets = new List<DriverWorkScheduleSet>();
-		[Display(Name = "Наборы графиков работы водителя")]
+		[Display(Name = "Версии графиков работы водителя")]
 		public virtual IList<DriverWorkScheduleSet> DriverWorkScheduleSets {
 			get => driverWorkScheduleSets;
 			set => SetField(ref driverWorkScheduleSets, value);

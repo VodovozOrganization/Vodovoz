@@ -140,10 +140,10 @@ namespace Vodovoz.ViewModels.Logistic
         private void UpdateTabName()
         {
             if(Entity.Id == 0) {
-                TabName = "Новый набор графиков работы водителя" + (Entity.Driver != null ? $" [{Entity.Driver.ShortName}]" : "");
+                TabName = "Новая версия графиков работы водителя" + (Entity.Driver != null ? $" [{Entity.Driver.ShortName}]" : "");
             }
             else {
-                TabName = "Набор графиков работы водителя" + (Entity.Driver != null ? $" [{Entity.Driver.ShortName}]" : "");
+                TabName = "Версия графиков работы водителя" + (Entity.Driver != null ? $" [{Entity.Driver.ShortName}]" : "");
             }
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NHibernate.Persister.Entity;
+using NHibernate.Transform;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
@@ -183,9 +184,11 @@ namespace Vodovoz.ViewModels.Logistic
             NotCopiedPriorities.Clear();
 
             DriverDistrictPrioritySet districtPrioritySetAlias = null;
+            
             var drivers = UoW.Session.QueryOver<Employee>()
                 .Inner.JoinAlias(x => x.DriverDistrictPrioritySets, () => districtPrioritySetAlias)
-                .List();
+                .TransformUsing(Transformers.DistinctRootEntity)
+                .List<Employee>();
 
             foreach(var driver in drivers) {
                 var currentActivePrioritySet = driver.DriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
