@@ -206,7 +206,7 @@ namespace BitrixIntegration {
                 try{
                     uow.Save(dealFromBitrix); 
                     uow.Commit();
-                    bool success = true;//await bitrixApi.SendWONBitrixStatus(dealId);; //TODO gavr убрать aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    bool success = true;//await bitrixApi.SendWONBitrixStatus(dealId);; //TODO gavr раскоментить чтобы обновлялись статусы сделок
                     for (int i = 0; i < 2; i++){
                         if (!success){
                             Thread.Sleep(500);

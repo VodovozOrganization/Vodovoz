@@ -28,7 +28,6 @@ namespace BitrixIntegration
 		static BlockingCollection<DealRequest> unsavedEventsQueue = new BlockingCollection<DealRequest>();
 		static bool IsInitialized => !(string.IsNullOrWhiteSpace(token));
 		static int workerTasksCreatedCounter = 0;
-		static IEmailRepository emailRepository = new EmailRepository();
 		private static ICoR cor;
 		
 
@@ -174,23 +173,15 @@ namespace BitrixIntegration
 		{
 			
 			if (bitrixEvent != null){
+				//Теперь сделки получаются не по обратным хукам, а обрабатываются по дням
 				logger.Info("Поступил Event Bitrix с ");
 				// await cor.Process(bitrixEvent.Fields.Id);
 			}
 			else{
 				logger.Error("Event Bitrix == null");
-				//TODO gavr вылет?
 			}
 			
-			
-			// else{
-			// 	foreach (var bitrixEventPayload in bitrixEvent.Payloads){
-			// 		foreach (var field in bitrixEventPayload.Field){
-			// 			await cor.Process(field.Id);
-			// 			Thread.Sleep(1000);
-			// 		}
-			// 	}
-			// }
+	
 		}
 
 		static void TryResaveEvent(Deal unsavedEvent)
@@ -215,32 +206,7 @@ namespace BitrixIntegration
 			uow.Root.AddDescription(errorInfo);
 			uow.Save();
 		}
-
-		// private static string GetErrors(MailjetMessage[] messages)
-		// {
-		// 	string errorResult = "";
-		// 	foreach(var message in messages) {
-		// 		foreach(var error in message.Errors) {
-		// 			if(!string.IsNullOrWhiteSpace(errorResult)) {
-		// 				errorResult += "\n";
-		// 			}
-		// 			errorResult += string.Format("StatusCode: {0}, ErrorCode: {1}, Error message: {2}", error.StatusCode, error.ErrorCode, error.ErrorMessage);
-		// 		}
-		// 	}
-		// 	return errorResult;
-		// }
-
-	
-		#region На выброс
-		// private static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
-		// {
-		// 	DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-		// 	dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
-		// 	return dtDateTime;
-		// }
-		#endregion На выброс
-	
-
+		
 		public static void SetToken(string _token)
 		{
 			if(IsInitialized) {

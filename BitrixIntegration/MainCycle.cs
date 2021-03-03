@@ -4,8 +4,6 @@ using QS.DomainModel.UoW;
 
 namespace BitrixIntegration {
     public class MainCycle {
-        // Для фиксации того что сменился день
-
         private static int eventCount;
         
         private readonly IUnitOfWork uow;
@@ -41,8 +39,6 @@ namespace BitrixIntegration {
                     if (DateTime.Now.Day != SavedDay)
                     {
                         Console.Out.WriteLine("Day Changed");
-                        //обработка всех за весь предыдущий день
-                        // var date = DateTime.Parse("25.02.2021");
                         var date = DateTime.Now.AddDays(-1);
                         
                         var dealsList = await dealCollector.CollectDeals(uow, date, true);
@@ -65,7 +61,6 @@ namespace BitrixIntegration {
                     //Сменился час
                     else if (DateTime.Now.Hour != SavedHour)
                     {
-                        // Обработка всех за предыдущий час
                         var date = DateTime.Now.AddHours(-1);
                         
                         var dealsList = await dealCollector.CollectDeals(uow, date, true);
@@ -89,10 +84,9 @@ namespace BitrixIntegration {
                     else
                     {
                         logger.Info($" {DateTime.Now}, event number{++eventCount}");
-                        //обработка всех за час
                         var date = DateTime.Now;
                         
-                        var dealsList = await dealCollector.CollectDeals(uow, date, true);////////////////false
+                        var dealsList = await dealCollector.CollectDeals(uow, date, false);
                         foreach (var deal in dealsList){
                             try{
                                 var order = await cor.Process(deal);

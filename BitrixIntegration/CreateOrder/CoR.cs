@@ -28,7 +28,6 @@ namespace BitrixIntegration {
         private bool needSearchNomenclature = false;
         private bool needSearchCounterParty = false;
 
-        private bool needCreateOrder = false;
         private bool needCreateDeliveryPoint = false;
         private bool needCreateNomenclature = false;
         private bool needCreateCounterParty = false;
@@ -88,21 +87,20 @@ namespace BitrixIntegration {
 	        using (var uow2 = UnitOfWorkFactory.CreateWithoutRoot() )
 	        {	
 		        //ищем у нас сделку по битрикс Id
-		        needCreateOrder = !matcher.MatchOrderByBitrixId(uow2, deal.Id, out var ourOrder);
+		        var needCreateOrder = !matcher.MatchOrderByBitrixId(uow2, deal.Id, out var ourOrder);
 		        if (ourOrder != null)
 		        {
 			        logger.Info($"Сделка {deal.Id} найдена у нас под id: {ourOrder.Id}, обработка не требуется");
-			        return ourOrder; //TODO gavr получается сверху будет лишняя попытка зарегестрировать деал
+			        return ourOrder; 
 		        }
 		        else if (deal.CreateInDV == 0)
 		        {
-			        logger.Info($"Сделка {deal.Id} имеет статус отличный от Завести в ДВ");
-			        // return;
+			        logger.Warn($"Сделка {deal.Id} имеет статус отличный от Завести в ДВ");
 		        }
 
 		        logger.Info("Обработка контрагента");
 		        Counterparty counterpartyForNewOrder =
-			        await ProcessCounterparty(uow2, deal); //TODO gavr потом добавить к ней адрес, когда он станет известен
+			        await ProcessCounterparty(uow2, deal); 
 
 		        DeliverySchedule deliveryScheduleForOrder = null;
 		        DeliveryPoint deliveryPointForOrder = null;
@@ -188,7 +186,7 @@ namespace BitrixIntegration {
 			newOrder.UpdateOrCreateContract(uow, counterpartyContractRepository, counterpartyContractFactory);
 			
 	        if (needSetFirstOrderForCounterparty){
-		        counterpartyForNewOrder.FirstOrder = newOrder; //TODO gavr не факт что это ферст ордер, ведь в битриксе это возможно уже не ферст ордер, так что возможно выставлять это неверно
+		        counterpartyForNewOrder.FirstOrder = newOrder; 
 	        }
 	       
 	        logger.Info("-------------------------");
