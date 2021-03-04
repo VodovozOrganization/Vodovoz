@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11.69in</PageHeight>
-  <PageWidth>8.27in</PageWidth>
+  <PageHeight>8.5in</PageHeight>
+  <PageWidth>11in</PageWidth>
   <Width>.1pt</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -17,7 +17,7 @@
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>724.2pt</Height>
+    <Height>596.3pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table1">
@@ -42,13 +42,16 @@
             <Width>57.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>104.8pt</Width>
+            <Width>128.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>42.7pt</Width>
+            <Width>61.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.4pt</Width>
+            <Width>44.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>45.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>62.0pt</Width>
@@ -57,10 +60,13 @@
             <Width>39.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.0pt</Width>
+            <Width>70.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.4pt</Width>
+            <Width>68.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>68.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -147,7 +153,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>Товар, шт.</Value>
+                      <Value>План. кол-во товара</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -155,6 +161,25 @@
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>Факт. кол-во товара</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -191,8 +216,25 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>План. сумма, руб</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>Сумма, руб. (без доставки)</Value>
+                      <Value>Факт. сумма, руб. (без доставки)</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -200,6 +242,8 @@
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -232,7 +276,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>=Fields!eshop_order_id.Value</Value>
+                      <Value>={eshop_order_id}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -240,8 +284,8 @@
                         </BorderStyle>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -249,7 +293,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>=Fields!online_store_external_id.Value</Value>
+                      <Value>={online_store_external_id}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -257,6 +301,8 @@
                         </BorderStyle>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -264,7 +310,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>=Fields!delivery_date.Value</Value>
+                      <Value>={delivery_date}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -282,7 +328,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>=Fields!nomenclature_name.Value</Value>
+                      <Value>={nomenclature_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -293,6 +339,8 @@
                         <PaddingTop>17pt</PaddingTop>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -301,7 +349,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>=Fields!nomenclature_price.Value</Value>
+                      <Value>={nomenclature_price}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -319,7 +367,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>=Fields!amount.Value</Value>
+                      <Value>={planned_amount}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -327,7 +375,24 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>#0.00</Format>
+                        <Format>= "N" + {nomenclature_count_numbers}</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>={actual_amount}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>= "N" + {nomenclature_count_numbers}</Format>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
@@ -337,7 +402,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>=Fields!delivery_price.Value</Value>
+                      <Value>={delivery_price}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -355,7 +420,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value>=Fields!discount.Value</Value>
+                      <Value>={discount}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -372,8 +437,25 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>={planned_sum}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox19">
-                      <Value>=Fields!total_sum.Value</Value>
+                      <Value>={actual_sum}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -391,7 +473,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
-                      <Value>=Fields!order_status.Value</Value>
+                      <Value>={order_status}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -399,6 +481,8 @@
                         </BorderStyle>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -408,12 +492,12 @@
           </TableRows>
         </Details>
         <Left>0.8pt</Left>
-        <Top>62.8pt</Top>
+        <Top>97.2pt</Top>
         <PageBreakAtEnd>true</PageBreakAtEnd>
       </Table>
       <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>21.84pt</Height>
-        <Width>559.41pt</Width>
+        <Height>25.60pt</Height>
+        <Width>756.66pt</Width>
         <Value>= "Отчет по продажам ИМ " + "(c " + (Format(Cdate(Parameters!start_date), "dd/MM/yyyy")) + " по " + (Format(Cdate(Parameters!end_date), "dd/MM/yyyy")) + ")"</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
@@ -439,8 +523,8 @@
         <Width>203.99pt</Width>
         <Value>= "Сформирован: " + Format({?creation_timestamp}, 'dd.MM.yyyy HH:MM')</Value>
         <ZIndex>1</ZIndex>
-        <Left>349.7pt</Left>
-        <Top>27pt</Top>
+        <Left>554.2pt</Left>
+        <Top>25.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -449,14 +533,20 @@
         </Style>
       </Textbox>
       <Textbox Name="Textbox25">
-        <Height>12.78pt</Height>
-        <Width>182.98pt</Width>
-        <Value>= "Интернет магазин: " + First({online_store_name}, 'EShopName')</Value>
+        <Height>66.90pt</Height>
+        <Width>301.94pt</Width>
+        <Value>= "Интернет магазин: " + First({online_store_name}, 'EShopName') + '\n' +
+"Статусы заказа: " + {?order_statuses_rus}</Value>
         <ZIndex>1</ZIndex>
-        <Left>60.5pt</Left>
-        <Top>27pt</Top>
+        <Left>60.50pt</Left>
+        <Top>27.00pt</Top>
+        <Style >
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
       </Textbox>
-      <Table Name="Table2" >
+      <Table Name="Table2">
         <DataSetName>Data</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -466,22 +556,25 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>34.3pt</Width>
+            <Width>39.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.5pt</Width>
+            <Width>62.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>40.2pt</Width>
+            <Width>39.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.3pt</Width>
+            <Width>69.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>67.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Footer>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>12.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -501,7 +594,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>=Sum(Iif(Fields!eshop_order_row_number = 1, Fields!delivery_price.Value, 0))</Value>
+                      <Value>=Sum(Iif({eshop_order_row_number} = 1, {delivery_price}, 0))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -516,7 +609,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
-                      <Value>=Sum(Fields!discount.Value)</Value>
+                      <Value>=Sum({discount})</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -531,9 +624,24 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
-                      <Value>=Sum(Fields!total_sum.Value)</Value>
+                      <Value>=Sum({planned_sum})</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>=Sum({actual_sum})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -548,8 +656,8 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>319.4pt</Left>
-        <Top>155.5pt</Top>
+        <Left>411.0pt</Left>
+        <Top>160.8pt</Top>
       </Table>
     </ReportItems>
   </Body>
@@ -559,8 +667,8 @@
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>6.50pt</Top>
-        <Left>343.50pt</Left>
+        <Top>6.5pt</Top>
+        <Left>533.9pt</Left>
         <Height>12.00pt</Height>
         <Width>216.81pt</Width>
         <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
@@ -591,12 +699,15 @@
     n.online_store_external_id AS online_store_external_id,
     o.delivery_date AS delivery_date,
     n.official_name AS nomenclature_name,
-    IF(oi.price IS NULL, 0, oi.price) AS nomenclature_price,
-    oi.count AS amount,
+    mu.digits AS nomenclature_count_numbers,
+    COALESCE(oi.price, 0) AS nomenclature_price,
+    COALESCE(oi.count, 0) AS planned_amount,
+    COALESCE(oi.actual_count, 0) AS actual_amount,
     IF(d.price IS NULL, 0, (d.price - d.discount_money)) AS delivery_price,
     ROW_NUMBER() OVER(PARTITION BY o.e_shop_order) AS eshop_order_row_number,
     oi.discount_money AS discount,
-    (IF(oi.price IS NULL, 0, oi.price)) * COALESCE(oi.actual_count, oi.count, 0) - oi.discount_money AS total_sum,
+    COALESCE(oi.price, 0) * COALESCE(oi.count, 0) - IF(oi.count &gt; 0 AND oi.price &gt; 0, oi.discount_money, 0) AS planned_sum,
+    COALESCE(oi.price, 0) * COALESCE(oi.actual_count, 0) - IF(oi.actual_count &gt; 0 AND oi.price &gt; 0 , oi.discount_money, 0) AS actual_sum,
     CASE
         WHEN o.order_status = 'NewOrder' THEN 'Новый'
         WHEN o.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
@@ -615,6 +726,7 @@
 FROM order_items oi 
 LEFT JOIN orders o ON o.id = oi.order_id
 LEFT JOIN nomenclature n ON n.id = oi.nomenclature_id
+LEFT JOIN measurement_units mu ON n.unit_id = mu.id 
 LEFT JOIN order_items d ON oi.order_id = d.order_id AND d.nomenclature_id = (SELECT CAST(bp.str_value AS UNSIGNED INTEGER) FROM base_parameters bp WHERE bp.name = 'paid_delivery_nomenclature_id')
 WHERE o.id IS NOT NULL
   AND o.e_shop_order IS NOT NULL
@@ -622,6 +734,7 @@ WHERE o.id IS NOT NULL
   AND o.delivery_date &lt;= @end_date
   AND n.online_store_external_id IS NOT NULL
   AND (@e_shop_id = -1 OR n.online_store_id = @e_shop_id)
+  AND (o.order_status IN (@order_statuses))
 GROUP BY oi.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -632,6 +745,9 @@ GROUP BY oi.id</CommandText>
           </QueryParameter>
           <QueryParameter Name="e_shop_id">
             <Value>=Parameters!e_shop_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_statuses">
+            <Value>=Parameters!order_statuses</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -656,10 +772,6 @@ GROUP BY oi.id</CommandText>
           <DataField>nomenclature_price</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="amount">
-          <DataField>amount</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
         <Field Name="delivery_price">
           <DataField>delivery_price</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -668,16 +780,32 @@ GROUP BY oi.id</CommandText>
           <DataField>discount</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="total_sum">
-          <DataField>total_sum</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
         <Field Name="order_status">
           <DataField>order_status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="eshop_order_row_number">
           <DataField>eshop_order_row_number</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="planned_amount">
+          <DataField>planned_amount</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="actual_amount">
+          <DataField>actual_amount</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="planned_sum">
+          <DataField>planned_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="actual_sum">
+          <DataField>actual_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="nomenclature_count_numbers">
+          <DataField>nomenclature_count_numbers</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
@@ -702,7 +830,7 @@ WHERE (@e_shop_id = -1 OR id = @e_shop_id)</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
@@ -734,6 +862,21 @@ WHERE (@e_shop_id = -1 OR id = @e_shop_id)</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_statuses">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_statuses_rus">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

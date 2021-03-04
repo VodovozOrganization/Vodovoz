@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using NHibernate.Criterion;
+using System.Linq;
+using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -29,6 +30,10 @@ namespace Vodovoz.ReportsParameters.Orders
             datePeriodPicker.PeriodChangedByUser += OnDatePeriodPickerPeriodChanged;
 
             EShopsLoad();
+
+            enumchecklistOrderStatus.EnumType = typeof(OrderStatus);
+
+            enumchecklistOrderStatus.SelectAll();
 
             buttonRun.Sensitive = true;
         }
@@ -59,10 +64,12 @@ namespace Vodovoz.ReportsParameters.Orders
         {
             var parameters = new Dictionary<string, object>
             {
-                {"start_date", datePeriodPicker.StartDateOrNull.Value},
-                {"end_date", datePeriodPicker.EndDateOrNull.Value.AddHours(23).AddMinutes(59).AddSeconds(59)},
+                {"start_date", datePeriodPicker.StartDateOrNull.Value.Date},
+                {"end_date", datePeriodPicker.EndDateOrNull.Value.Date.AddDays(1).AddMilliseconds(-1)},
                 {"e_shop_id", (ycomboboxEShopId.SelectedItem as OnlineStore).Id},
-                {"creation_timestamp", DateTime.Now}
+                {"creation_timestamp", DateTime.Now},
+                {"order_statuses", enumchecklistOrderStatus.SelectedValues},
+                {"order_statuses_rus", string.Join(", ", enumchecklistOrderStatus.SelectedValuesList.Select(x => x.GetEnumTitle()))}
             };
 
             return new ReportInfo
@@ -72,8 +79,17 @@ namespace Vodovoz.ReportsParameters.Orders
             };
         }
 
-        void OnUpdate(bool hide = false) =>
-            LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+        void OnUpdate(bool hide = false) {
+
+            if (enumchecklistOrderStatus.SelectedValuesList.Count > 0)
+            {
+                LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+            }
+            else
+            {
+                MessageDialogHelper.RunInfoDialog("Список статусов не может быть пустым");
+            }
+        }
 
         protected void OnDatePeriodPickerPeriodChanged(object sender, EventArgs e)
         {
