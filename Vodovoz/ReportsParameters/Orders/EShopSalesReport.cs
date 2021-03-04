@@ -79,8 +79,17 @@ namespace Vodovoz.ReportsParameters.Orders
             };
         }
 
-        void OnUpdate(bool hide = false) =>
-            LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+        void OnUpdate(bool hide = false) {
+
+            if (enumchecklistOrderStatus.SelectedValuesList.Count > 0)
+            {
+                LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+            }
+            else
+            {
+                MessageDialogHelper.RunInfoDialog("Список статусов не может быть пустым");
+            }
+        }
 
         protected void OnDatePeriodPickerPeriodChanged(object sender, EventArgs e)
         {
