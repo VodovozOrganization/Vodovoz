@@ -334,9 +334,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingBottom>17pt</PaddingBottom>
+                        <PaddingBottom>=Len({nomenclature_name}) / 6 + "pt"</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop>17pt</PaddingTop>
+                        <PaddingTop>=Len({nomenclature_name}) / 6 + "pt"</PaddingTop>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <BorderColor />
@@ -540,7 +540,7 @@
         <ZIndex>1</ZIndex>
         <Left>60.50pt</Left>
         <Top>27.00pt</Top>
-        <Style >
+        <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
@@ -693,7 +693,7 @@
   </DataSources>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT o.e_shop_order AS eshop_order_id,
     n.online_store_external_id AS online_store_external_id,
@@ -751,7 +751,7 @@ GROUP BY oi.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="eshop_order_id">
           <DataField>eshop_order_id</DataField>
           <TypeName>System.String</TypeName>
@@ -830,7 +830,7 @@ WHERE (@e_shop_id = -1 OR id = @e_shop_id)</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
