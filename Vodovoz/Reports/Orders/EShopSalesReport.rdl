@@ -535,10 +535,16 @@
       <Textbox Name="Textbox25">
         <Height>12.78pt</Height>
         <Width>182.98pt</Width>
-        <Value>= "Интернет магазин: " + First({online_store_name}, 'EShopName')</Value>
+        <Value>= "Интернет магазин: " + First({online_store_name}, 'EShopName') + '\n' +
+"Статусы заказа" + {?order_statuses_rus}</Value>
         <ZIndex>1</ZIndex>
-        <Left>60.5pt</Left>
-        <Top>27pt</Top>
+        <Left>60.50pt</Left>
+        <Top>27.00pt</Top>
+        <Style >
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
       </Textbox>
       <Table Name="Table2">
         <DataSetName>Data</DataSetName>
@@ -550,19 +556,19 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>34.3pt</Width>
+            <Width>39.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.5pt</Width>
+            <Width>62.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>39.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>70.9pt</Width>
+            <Width>69.3pt</Width>
           </TableColumn>
-          <TableColumn >
-            <Width>70.9pt</Width>
+          <TableColumn>
+            <Width>67.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Footer>
@@ -631,7 +637,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value>=Sum({actual_sum})</Value>
@@ -650,8 +656,8 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>415.7pt</Left>
-        <Top>150.0pt</Top>
+        <Left>411.0pt</Left>
+        <Top>133.6pt</Top>
       </Table>
     </ReportItems>
   </Body>
@@ -728,6 +734,7 @@ WHERE o.id IS NOT NULL
   AND o.delivery_date &lt;= @end_date
   AND n.online_store_external_id IS NOT NULL
   AND (@e_shop_id = -1 OR n.online_store_id = @e_shop_id)
+  AND (o.order_status IN (@order_statuses))
 GROUP BY oi.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -738,6 +745,9 @@ GROUP BY oi.id</CommandText>
           </QueryParameter>
           <QueryParameter Name="e_shop_id">
             <Value>=Parameters!e_shop_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_statuses">
+            <Value>=Parameters!order_statuses</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -852,6 +862,21 @@ WHERE (@e_shop_id = -1 OR id = @e_shop_id)</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_statuses">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_statuses_rus">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
