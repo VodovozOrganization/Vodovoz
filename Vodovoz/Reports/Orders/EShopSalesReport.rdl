@@ -301,8 +301,8 @@
                         </BorderStyle>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -339,8 +339,8 @@
                         <PaddingTop>17pt</PaddingTop>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -492,7 +492,7 @@
           </TableRows>
         </Details>
         <Left>0.8pt</Left>
-        <Top>62.8pt</Top>
+        <Top>97.2pt</Top>
         <PageBreakAtEnd>true</PageBreakAtEnd>
       </Table>
       <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -533,10 +533,10 @@
         </Style>
       </Textbox>
       <Textbox Name="Textbox25">
-        <Height>12.78pt</Height>
-        <Width>182.98pt</Width>
+        <Height>66.90pt</Height>
+        <Width>301.94pt</Width>
         <Value>= "Интернет магазин: " + First({online_store_name}, 'EShopName') + '\n' +
-"Статусы заказа" + {?order_statuses_rus}</Value>
+"Статусы заказа: " + {?order_statuses_rus}</Value>
         <ZIndex>1</ZIndex>
         <Left>60.50pt</Left>
         <Top>27.00pt</Top>
@@ -657,7 +657,7 @@
           </TableRows>
         </Footer>
         <Left>411.0pt</Left>
-        <Top>133.6pt</Top>
+        <Top>160.8pt</Top>
       </Table>
     </ReportItems>
   </Body>
@@ -830,7 +830,7 @@ WHERE (@e_shop_id = -1 OR id = @e_shop_id)</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>

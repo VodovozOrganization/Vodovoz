@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -58,14 +60,14 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private ReportInfo GetReportInfo()
         {
-
             var parameters = new Dictionary<string, object>
             {
-                {"start_date", datePeriodPicker.StartDateOrNull.Value},
-                {"end_date", datePeriodPicker.EndDateOrNull.Value.AddHours(23).AddMinutes(59).AddSeconds(59)},
+                {"start_date", datePeriodPicker.StartDateOrNull.Value.Date},
+                {"end_date", datePeriodPicker.EndDateOrNull.Value.Date.AddDays(1).AddMilliseconds(-1)},
                 {"e_shop_id", (ycomboboxEShopId.SelectedItem as OnlineStore).Id},
                 {"creation_timestamp", DateTime.Now},
-                {"order_statuses", enumchecklistOrderStatus.SelectedValues}
+                {"order_statuses", enumchecklistOrderStatus.SelectedValues},
+                {"order_statuses_rus", string.Join(", ", enumchecklistOrderStatus.SelectedValuesList.Select(x => x.GetEnumTitle()))}
             };
 
             return new ReportInfo
