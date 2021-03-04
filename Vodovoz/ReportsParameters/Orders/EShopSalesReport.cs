@@ -33,6 +33,8 @@ namespace Vodovoz.ReportsParameters.Orders
 
             enumchecklistOrderStatus.EnumType = typeof(OrderStatus);
 
+            enumchecklistOrderStatus.SelectAll();
+
             buttonRun.Sensitive = true;
         }
 
