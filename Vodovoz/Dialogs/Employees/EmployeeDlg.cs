@@ -639,8 +639,15 @@ namespace Vodovoz
 				MessageDialogHelper.RunInfoDialog("У вас недостаточно прав для создания сотрудника");
 				return false;
 			}
-			//Проверяем, чтобы в БД не попала пустая строка
-			if(string.IsNullOrWhiteSpace(Entity.AndroidLogin))
+
+            if (Entity.SkillLevel < 0 || Entity.SkillLevel > 5)
+            {
+                MessageDialogHelper.RunInfoDialog("Уровень квалификации находится в пределах 0-5");
+                return false;
+            }
+
+            //Проверяем, чтобы в БД не попала пустая строка
+            if (string.IsNullOrWhiteSpace(Entity.AndroidLogin))
 				Entity.AndroidLogin = null;
 
 			var valid = new QSValidator<Employee>(UoWGeneric.Root, Entity.GetValidationContextItems(subdivisionService));
