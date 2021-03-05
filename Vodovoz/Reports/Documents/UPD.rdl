@@ -372,6 +372,29 @@ FROM stored_resource
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="Stamp">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT sr.binary_file as image
+FROM orders o 
+LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+LEFT JOIN organizations org ON cc.organization_id = org.id 
+LEFT JOIN stored_resource sr ON org.stamp_id = sr.id
+WHERE o.id = @order_id
+</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="image">
+          <DataField>image</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -3737,7 +3760,7 @@ FROM stored_resource
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
-            <ZIndex >0</ZIndex>
+            <ZIndex>0</ZIndex>
           </Image>
           <Image Name="Image3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>20.21pt</Height>
@@ -3756,7 +3779,7 @@ FROM stored_resource
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
-            <ZIndex >0</ZIndex>
+            <ZIndex>0</ZIndex>
           </Image>
           <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>102.39pt</Height>
@@ -3769,9 +3792,9 @@ FROM stored_resource
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>=First( {IM11} , "Image" )</Value>
+            <Value>=First( {image} , "Stamp" )</Value>
             <Sizing>Fit</Sizing>
-            <MIMEType>image/jpeg</MIMEType>
+            <MIMEType>image/png</MIMEType>
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
