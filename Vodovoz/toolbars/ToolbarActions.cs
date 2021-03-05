@@ -862,7 +862,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<Order>(0),
-			() => new OrderDlg()
+			() => new OrderDlg(false)
 		);
 	}
 
