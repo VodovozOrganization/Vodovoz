@@ -93,21 +93,27 @@ namespace Vodovoz.ReportsParameters.Orders
             var ordganizationId = ((Organization)comboOrganization.SelectedItem).Id;
             var selectedChangeTypes = string.Join(",", changeTypes.Where(x => x.Selected).Select(x => x.Value));
             var selectedIssueTypes = string.Join(",", issueTypes.Where(x => x.Selected).Select(x => x.Value));
-            var selectedChangeTypesTitles = string.Join(", ", changeTypes.Where(x => x.Selected).Select(x => x.Title)); 
+            var selectedChangeTypesTitles = string.Join(", ", changeTypes.Where(x => x.Selected).Select(x => x.Title));
+
+            var parameters = new Dictionary<string, object>
+                {
+                    { "start_date", dateperiodpicker.StartDate },
+                    { "end_date", dateperiodpicker.EndDate },
+                    { "organization_id", ordganizationId },
+                    { "change_types", selectedChangeTypes },
+                    { "change_types_rus", selectedChangeTypesTitles }
+                };
+
+            if (issuesSensitive)
+            {
+                parameters.Add("issue_types", selectedIssueTypes);
+            }
 
             return new ReportInfo
             {
                 Identifier = "Orders.OrderChangesReport",
                 UseUserVariables = true,
-                Parameters = new Dictionary<string, object>
-                {
-                    { "start_date", dateperiodpicker.StartDate },
-                    { "end_date", dateperiodpicker.EndDate },
-                    { "organization_id", ordganizationId },
-                    { "issue_types", selectedIssueTypes },
-                    { "change_types", selectedChangeTypes },
-                    { "change_types_rus", selectedChangeTypesTitles }
-                }
+                Parameters = parameters
             };
         }
 
@@ -125,12 +131,15 @@ namespace Vodovoz.ReportsParameters.Orders
             LoadReport?.Invoke(this, new LoadReportEventArgs(reportInfo));
         }
 
+        private bool issuesSensitive => changeTypes.Any(x => x.Value == "PaymentType" && !x.Selected);
+
         private void UpdateSensitivity()
         {
             bool hasValidDate = dateperiodpicker.StartDateOrNull != null && dateperiodpicker.StartDate < DateTime.Now;
             bool hasOrganization = comboOrganization.SelectedItem != null;
             bool hasChangeTypes = changeTypes.Any(x => x.Selected);
             buttonCreateReport.Sensitive = hasValidDate && hasOrganization && hasChangeTypes;
+            ytreeviewIssueTypes.Sensitive = issuesSensitive;
         }
 
         private void UpdatePeriodMessage()
