@@ -297,6 +297,10 @@
     <Compile Include="ViewModels\Users\UserViewModel.cs" />
     <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyFilesViewModel.cs" />
+    <Compile Include="ViewModels\Employees\EmployeePostViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\EmployeePostJournalNode.cs" />
+    <Compile Include="Journals\JournalSelectors\EmployeePostsJournalFactory.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\EmployeePostsJournalViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />

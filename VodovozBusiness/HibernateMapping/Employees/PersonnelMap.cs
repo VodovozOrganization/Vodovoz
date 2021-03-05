@@ -23,11 +23,13 @@ namespace Vodovoz.HibernateMapping.Employees
 			Map(x => x.BirthdayDate)		.Column("birthday_date");
 			Map(x => x.AddressCurrent)		.Column("address_current");
 			Map(x => x.INN)					.Column("inn");
-			Map(x => x.IsRussianCitizen).Column("is_russian_citizen");
+            Map(x => x.SkillLevel)          .Column("skill_level");
+            Map(x => x.IsRussianCitizen).Column("is_russian_citizen");
 
 
 			References(x => x.Nationality)	.Column("nationality_id");
 			References(x => x.Citizenship)	.Column("citizenship_id");
+            References(x => x.Post)         .Column("employees_posts_id");
 
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");

@@ -46,6 +46,7 @@ using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.WageCalculation;
 
@@ -155,8 +156,9 @@ namespace Vodovoz
 			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			dataentryPatronymic.Binding.AddBinding(Entity, e => e.Patronymic, w => w.Text).InitializeFromSource();
 			dataentryInnerPhone.Binding.AddBinding(Entity, e => e.InnerPhone, w => w.Text, new Gamma.Binding.Converters.NumbersToStringConverter()).InitializeFromSource();
+            dataentrySkillLevel.Binding.AddBinding(Entity, e => e.SkillLevel, w => w.Text, new Gamma.Binding.Converters.NumbersToStringConverter()).InitializeFromSource();
 
-			entryAddressCurrent.Binding.AddBinding(Entity, e => e.AddressCurrent, w => w.Text).InitializeFromSource();
+            entryAddressCurrent.Binding.AddBinding(Entity, e => e.AddressCurrent, w => w.Text).InitializeFromSource();
 			entryAddressRegistration.Binding.AddBinding(Entity, e => e.AddressRegistration, w => w.Text).InitializeFromSource();
 			entryInn.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
 
@@ -171,7 +173,13 @@ namespace Vodovoz
 			repEntDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			repEntDefaultForwarder.Binding.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
 
-			referenceNationality.SubjectType = typeof(Nationality);
+            var unitOfWorkFactory = UnitOfWorkFactory.GetDefaultFactory;
+            var commonServices = ServicesConfig.CommonServices;
+            var employeePostJournalFactory = new EmployeePostsJournalFactory(unitOfWorkFactory, commonServices);
+            entryEmployeePost.SetEntityAutocompleteSelectorFactory(employeePostJournalFactory);
+            entryEmployeePost.Binding.AddBinding(Entity, e => e.Post, w => w.Subject).InitializeFromSource();
+
+            referenceNationality.SubjectType = typeof(Nationality);
 			referenceNationality.Binding.AddBinding(Entity, e => e.Nationality, w => w.Subject).InitializeFromSource();
 			referenceCitizenship.SubjectType = typeof(Citizenship);
 			referenceCitizenship.Binding.AddBinding(Entity, e => e.Citizenship, w => w.Subject).InitializeFromSource();
