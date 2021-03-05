@@ -428,7 +428,7 @@ namespace Vodovoz
             txtRingUpPhones.Binding.AddBinding(Entity, e => e.RingUpPhone, w => w.Buffer.Text).InitializeFromSource();
 
             contactsview1.CounterpartyUoW = UoWGeneric;
-            contactsview1.Visible = false;
+            contactsview1.Visible = true;
         }
 
         private void ConfigureTabRequisites()

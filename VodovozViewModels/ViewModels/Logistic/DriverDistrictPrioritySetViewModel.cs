@@ -229,10 +229,10 @@ namespace Vodovoz.ViewModels.Logistic
         private void UpdateTabName()
         {
             if(Entity.Id == 0) {
-                TabName = "Новый набор приоритетов районов водителя" + (Entity.Driver != null ? $" [{Entity.Driver.ShortName}]" : "");
+                TabName = "Новая версия приоритетов районов водителя" + (Entity.Driver != null ? $" [{Entity.Driver.ShortName}]" : "");
             }
             else {
-                TabName = "Набор приоритетов районов водителя" + (Entity.Driver != null ? $" [{Entity.Driver.ShortName}]" : "");
+                TabName = "Версия приоритетов районов водителя" + (Entity.Driver != null ? $" [{Entity.Driver.ShortName}]" : "");
             }
         }
 

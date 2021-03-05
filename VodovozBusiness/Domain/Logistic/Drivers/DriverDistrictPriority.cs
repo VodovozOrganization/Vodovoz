@@ -38,7 +38,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		private DriverDistrictPrioritySet driverDistrictPrioritySet;
-		[Display(Name = "Набор приоритетов районов водителя")]
+		[Display(Name = "Версия приоритетов районов водителя")]
 		public virtual DriverDistrictPrioritySet DriverDistrictPrioritySet {
 			get => driverDistrictPrioritySet;
 			set => SetField(ref driverDistrictPrioritySet, value);

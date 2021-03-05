@@ -14,6 +14,14 @@ namespace Vodovoz.ReportsParameters.Orders
 
 		private global::Gtk.Label label2;
 
+		private global::Gtk.Label label3;
+
+		private global::Gtk.ScrolledWindow scrolledwindow1;
+
+		private global::Gtk.VBox vbox2;
+
+		private global::Gamma.Widgets.EnumCheckList enumchecklistOrderStatus;
+
 		private global::Gamma.Widgets.yListComboBox ycomboboxEShopId;
 
 		protected virtual void Build()
@@ -23,7 +31,7 @@ namespace Vodovoz.ReportsParameters.Orders
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ReportsParameters.Orders.EShopSalesReport";
 			// Container child Vodovoz.ReportsParameters.Orders.EShopSalesReport.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -36,8 +44,8 @@ namespace Vodovoz.ReportsParameters.Orders
 			this.buttonRun.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.table1.Add(this.buttonRun);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonRun]));
-			w1.TopAttach = ((uint)(2));
-			w1.BottomAttach = ((uint)(3));
+			w1.TopAttach = ((uint)(3));
+			w1.BottomAttach = ((uint)(4));
 			w1.RightAttach = ((uint)(2));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -73,18 +81,58 @@ namespace Vodovoz.ReportsParameters.Orders
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.label3 = new global::Gtk.Label();
+			this.label3.Name = "label3";
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Статус заказа:");
+			this.table1.Add(this.label3);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.label3]));
+			w5.TopAttach = ((uint)(2));
+			w5.BottomAttach = ((uint)(3));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.scrolledwindow1 = new global::Gtk.ScrolledWindow();
+			this.scrolledwindow1.CanFocus = true;
+			this.scrolledwindow1.Name = "scrolledwindow1";
+			this.scrolledwindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrolledwindow1.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w6 = new global::Gtk.Viewport();
+			w6.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport1.Gtk.Container+ContainerChild
+			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.enumchecklistOrderStatus = new global::Gamma.Widgets.EnumCheckList();
+			this.enumchecklistOrderStatus.Name = "enumchecklistOrderStatus";
+			this.vbox2.Add(this.enumchecklistOrderStatus);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.enumchecklistOrderStatus]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
+			w6.Add(this.vbox2);
+			this.scrolledwindow1.Add(w6);
+			this.table1.Add(this.scrolledwindow1);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.scrolledwindow1]));
+			w10.TopAttach = ((uint)(2));
+			w10.BottomAttach = ((uint)(3));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ycomboboxEShopId = new global::Gamma.Widgets.yListComboBox();
 			this.ycomboboxEShopId.Name = "ycomboboxEShopId";
 			this.ycomboboxEShopId.AddIfNotExist = false;
 			this.ycomboboxEShopId.DefaultFirst = true;
 			this.table1.Add(this.ycomboboxEShopId);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.ycomboboxEShopId]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.ycomboboxEShopId]));
+			w11.TopAttach = ((uint)(1));
+			w11.BottomAttach = ((uint)(2));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
