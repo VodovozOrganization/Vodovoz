@@ -262,7 +262,7 @@ namespace Vodovoz.JournalViewModels
 			var ordersConfig = RegisterEntity<VodovozOrder>(GetOrdersQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new OrderDlg(),
+					() => new OrderDlg(FilterViewModel.IsForRetail),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderDlg(node.Id),
 					//функция идентификации документа 

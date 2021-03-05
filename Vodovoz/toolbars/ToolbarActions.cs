@@ -862,7 +862,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<Order>(0),
-			() => new OrderDlg()
+			() => new OrderDlg(false)
 		);
 	}
 
@@ -909,7 +909,7 @@ public partial class MainWindow : Window
 				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
 				UserSingletonRepository.GetInstance());
 		
-		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel();
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel() { IsForRetail = false };
 		var ordersJournal = new OrderJournalViewModel(filter, 
 													  UnitOfWorkFactory.GetDefaultFactory, 
 													  ServicesConfig.CommonServices,
