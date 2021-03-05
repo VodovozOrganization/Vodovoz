@@ -404,7 +404,7 @@ WHERE stored_resource.id = @id1</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Stamp">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT sr.binary_file as image
 FROM orders o 
@@ -419,7 +419,7 @@ WHERE o.id = @order_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="image">
           <DataField>image</DataField>
           <TypeName>System.String</TypeName>
@@ -1441,25 +1441,6 @@ WHERE o.id = @order_id
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
           </Image>
-          <Image Name="Image3">
-            <Height>102.39pt</Height>
-            <Width>112.93pt</Width>
-            <Left>330.7pt</Left>
-            <Top>0.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontFamily>Calibri</FontFamily>
-            </Style>
-            <Source>Database</Source>
-            <Value>=First( {image} , "Stamp" )</Value>
-            <Sizing>FitProportional</Sizing>
-            <ZIndex>1</ZIndex>
-            <Visibility>
-              <Hidden>={?hide_signature}</Hidden>
-            </Visibility>
-          </Image>
           <Image Name="Image4">
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
@@ -1738,6 +1719,25 @@ Iif(
         <Visibility>
         </Visibility>
         <MIMEType>image/jpeg</MIMEType>
+      </Image>
+      <Image Name="Image7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>102.39pt</Height>
+        <Width>112.93pt</Width>
+        <Left>330.7pt</Left>
+        <Top>433.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Database</Source>
+        <Value>=First( {image} , "Stamp" )</Value>
+        <Sizing>Fit</Sizing>
+        <MIMEType>image/png</MIMEType>
+        <Visibility>
+          <Hidden>={?hide_signature}</Hidden>
+        </Visibility>
+        <ZIndex>20</ZIndex>
       </Image>
     </ReportItems>
   </Body>
