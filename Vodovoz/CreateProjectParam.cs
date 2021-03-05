@@ -241,6 +241,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RegisteredRMViewModel, RegisteredRMView>()
                 .RegisterWidgetForTabViewModel<SalesChannelViewModel, SalesChannelView>()
                 .RegisterWidgetForTabViewModel<DeliveryPointResponsiblePersonTypeViewModel, DeliveryPointResponsiblePersonTypeView>()
+                .RegisterWidgetForTabViewModel<EmployeePostViewModel, EmployeePostView>()
                 ;
 
             //Регистрация виджетов
@@ -287,7 +288,6 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<RegisteredRMJournalFilterViewModel, RegisteredRMJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryPointResponsiblePersonTypeJournalFilterViewModel, DeliveryPointResponsiblePersonTypeJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<SalesChannelJournalFilterViewModel, SalesChannelJournalFilterView>()
-                .RegisterWidgetForTabViewModel<EmployeePostViewModel, EmployeePostView>()
                 ;
 
             DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

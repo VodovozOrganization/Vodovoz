@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
             _commonServices);
 
         protected override Func<EmployeePostJournalNode, EmployeePostViewModel> OpenDialogFunction => (node) => new EmployeePostViewModel(
-            EntityUoWBuilder.ForCreate(),
+            EntityUoWBuilder.ForOpen(node.Id),
             QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
             _commonServices
         );

@@ -221,14 +221,16 @@ namespace Vodovoz.Domain.Employees
 			return mainDocuments;
 		}
 
-		#region IValidatableObject implementation
+        public virtual List<int> GetSkillLevels() => new List<int> { 0, 1, 2, 3, 4, 5 };
 
-		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        #region IValidatableObject implementation
+
+        public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(String.IsNullOrEmpty(LastName))
 				yield return new ValidationResult("Фамилия должна быть заполнена", new[] { "LastName" });
 
-			var employees = UoW.Session.QueryOver<Employee>()
+            var employees = UoW.Session.QueryOver<Employee>()
 				.Where(e => e.Name == this.Name && e.LastName == this.LastName && e.Patronymic == this.Patronymic)
 				.WhereNot(e => e.Id == this.Id)
 				.List();

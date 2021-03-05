@@ -156,7 +156,9 @@ namespace Vodovoz
 			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			dataentryPatronymic.Binding.AddBinding(Entity, e => e.Patronymic, w => w.Text).InitializeFromSource();
 			dataentryInnerPhone.Binding.AddBinding(Entity, e => e.InnerPhone, w => w.Text, new Gamma.Binding.Converters.NumbersToStringConverter()).InitializeFromSource();
-            dataentrySkillLevel.Binding.AddBinding(Entity, e => e.SkillLevel, w => w.Text, new Gamma.Binding.Converters.NumbersToStringConverter()).InitializeFromSource();
+            comboSkillLevel.ItemsList = Entity.GetSkillLevels();
+            comboSkillLevel.Binding.AddBinding(Entity, e => e.SkillLevel, w => w.ActiveText, new Gamma.Binding.Converters.NumbersToStringConverter()).InitializeFromSource();
+            comboSkillLevel.SelectedItem = Entity.SkillLevel;
 
             entryAddressCurrent.Binding.AddBinding(Entity, e => e.AddressCurrent, w => w.Text).InitializeFromSource();
 			entryAddressRegistration.Binding.AddBinding(Entity, e => e.AddressRegistration, w => w.Text).InitializeFromSource();
@@ -639,12 +641,6 @@ namespace Vodovoz
 				MessageDialogHelper.RunInfoDialog("У вас недостаточно прав для создания сотрудника");
 				return false;
 			}
-
-            if (Entity.SkillLevel < 0 || Entity.SkillLevel > 5)
-            {
-                MessageDialogHelper.RunInfoDialog("Уровень квалификации находится в пределах 0-5");
-                return false;
-            }
 
             //Проверяем, чтобы в БД не попала пустая строка
             if (string.IsNullOrWhiteSpace(Entity.AndroidLogin))

@@ -30,7 +30,7 @@ namespace Vodovoz.Domain.Employees
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (String.IsNullOrWhiteSpace(Name))
-                yield return new ValidationResult("Название должно быть заполнено" + nameof(Name));
+                yield return new ValidationResult("Название должно быть заполнено", new[] { nameof(Name) });
         }
     }
 }

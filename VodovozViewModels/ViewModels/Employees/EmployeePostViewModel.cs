@@ -23,7 +23,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
         public string PostName
         {
             get => Entity.Name;
-            set => Entity.Name = value;
+            set
+            {
+                Entity.Name = value;
+                OnPropertyChanged(PostName);
+            }
         }
 
         public bool CanEdit => PermissionResult.CanUpdate;
