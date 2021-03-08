@@ -72,7 +72,7 @@
             <Width>41.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>145.5pt</Width>
+            <Width>122.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>63.4pt</Width>
@@ -84,12 +84,15 @@
             <Width>88.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>159.7pt</Width>
+            <Width>110.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>74.2pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>74.2pt</Width>
+          </TableColumn>
+          <TableColumn >
             <Width>74.2pt</Width>
           </TableColumn>
         </TableColumns>
@@ -275,6 +278,23 @@
                   <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>Автор заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Комментарий</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -499,6 +519,23 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>={comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -612,6 +649,10 @@ ORDER BY author, payment_date DESC, orderdate DESC, orders.id DESC;</CommandText
         </Field>
         <Field Name="payment_purpose">
           <DataField>payment_purpose</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
