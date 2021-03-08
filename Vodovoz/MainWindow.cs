@@ -97,6 +97,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.Domain.Common;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -389,7 +390,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionUnitsActivated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(MeasurementUnits));
+        OrmReference refWin = new OrmReference(typeof(MeasurementUnit));
         tdiMain.AddTab(refWin);
     }
 

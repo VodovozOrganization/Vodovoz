@@ -9,8 +9,6 @@ using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QSBanks;
 using QSBanks.Repositories;
-using QS.BusinessCommon.Domain;
-using QS.BusinessCommon.Repository;
 using QSProjectsLib;
 using QSWidgetLib;
 using ServiceDialogs.LoadFrom1c;
@@ -28,6 +26,8 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Core.DataService;
 using QS.Project.Services;
 using Vodovoz.Tools;
+using Vodovoz.Domain.Common;
+using Vodovoz.EntityRepositories.Common;
 
 namespace Vodovoz
 {
@@ -320,8 +320,8 @@ namespace Vodovoz
 
 		List<DeliverySchedule> 	DeliverySchedules = null;
 
-		MeasurementUnits unitU;
-		MeasurementUnits UnitServ;
+		MeasurementUnit unitU;
+		MeasurementUnit UnitServ;
 
 
 		public LoadFrom1cDlg ()
@@ -336,8 +336,8 @@ namespace Vodovoz
 			filechooserXML.Filter = Filter;
 
 			DeliverySchedules  = uow.GetAll<DeliverySchedule>().ToList();
-			unitU 	 = MeasurementUnitsRepository.GetDefaultGoodsUnit(uow);
-			UnitServ = MeasurementUnitsRepository.GetDefaultGoodsService(uow);
+			unitU 	 = new MeasurementUnitsRepository().GetDefaultGoodsUnit(uow);
+			UnitServ = new MeasurementUnitsRepository().GetDefaultGoodsService(uow);
 
 			vboxChanges.Visible = false;
 			ytreeEntites.ColumnsConfig = ColumnsConfigFactory.Create<ChangedItem>()

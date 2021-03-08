@@ -9,6 +9,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using Vodovoz.Domain.Common;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -50,7 +51,7 @@ namespace Vodovoz.JournalViewModels
 			SetOrder(x => x.Name);
 			UpdateOnChanges(
 				typeof(Nomenclature),
-				typeof(MeasurementUnits),
+				typeof(MeasurementUnit),
 				typeof(WarehouseMovementOperation),
 				typeof(VodovozOrder),
 				typeof(OrderItem)
@@ -67,7 +68,7 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) => {
 			Nomenclature nomenclatureAlias = null;
-			MeasurementUnits unitAlias = null;
+			MeasurementUnit unitAlias = null;
 			WaterJournalNode resultAlias = null;
 
 			var itemsQuery = uow.Session.QueryOver(() => nomenclatureAlias)

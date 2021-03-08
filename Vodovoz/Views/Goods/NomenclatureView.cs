@@ -14,6 +14,7 @@ using QSOrmProject;
 using QSWidgetLib;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Common;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Filters.ViewModels;
@@ -140,7 +141,7 @@ namespace Vodovoz.Views.Goods
 			yentryProductGroup.RepresentationModel = new ProductGroupVM(ViewModel.UoW, new ProductGroupFilterViewModel());
 			yentryProductGroup.Binding.AddBinding(ViewModel.Entity, e => e.ProductGroup, w => w.Subject).InitializeFromSource();
 			
-			referenceUnit.SubjectType = typeof(MeasurementUnits);
+			referenceUnit.SubjectType = typeof(MeasurementUnit);
 			referenceUnit.Binding.AddBinding(ViewModel.Entity, n => n.Unit, w => w.Subject).InitializeFromSource();
 			
 			referenceRouteColumn.SubjectType = typeof(RouteColumn);

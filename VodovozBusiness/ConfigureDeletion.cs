@@ -12,6 +12,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Common;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
@@ -136,7 +137,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddDeleteInfo(
 				new DeleteInfo {
-					ObjectClass = typeof(MeasurementUnits),
+					ObjectClass = typeof(MeasurementUnit),
 					SqlSelect = "SELECT id, name FROM @tablename ",
 					DisplayString = "{1}",
 					ClearItems = new List<ClearDependenceInfo> {

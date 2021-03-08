@@ -14,6 +14,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
 using QS.Project.Services;
+using Vodovoz.Domain.Common;
 
 namespace Vodovoz.ViewModel
 {
@@ -31,7 +32,7 @@ namespace Vodovoz.ViewModel
 		public override void UpdateNodes()
 		{
 			Nomenclature nomenclatureAlias = null;
-			MeasurementUnits unitAlias = null;
+			MeasurementUnit unitAlias = null;
 			NomenclatureForSaleVMNode resultAlias = null;
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;

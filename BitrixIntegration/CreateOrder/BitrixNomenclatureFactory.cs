@@ -1,6 +1,7 @@
 using System;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Common;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Services;
@@ -28,7 +29,7 @@ namespace BitrixIntegration {
         {
             var nomenclature = new Nomenclature {
                 Category = NomenclatureCategory.additional,
-                Unit = uow.GetById<MeasurementUnits>(measurementUnitForOnlineStoreNomenclatures),
+                Unit = uow.GetById<MeasurementUnit>(measurementUnitForOnlineStoreNomenclatures),
                 Code1c = nomenclatureRepository.GetNextCode1c(uow),
                 VAT = VAT.Vat20,
                 Folder1C = uow.GetById<Folder1c>(folder1cForOnlineStoreNomenclatures),

@@ -9,6 +9,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using Vodovoz.Domain.Common;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -53,7 +54,7 @@ namespace Vodovoz.JournalViewModels
 			SetOrder(x => x.Name);
 			UpdateOnChanges(
 				typeof(Nomenclature),
-				typeof(MeasurementUnits),
+				typeof(MeasurementUnit),
 				typeof(WarehouseMovementOperation),
 				typeof(VodovozOrder),
 				typeof(OrderItem)
@@ -72,7 +73,7 @@ namespace Vodovoz.JournalViewModels
 			var canAddEquipmentNotForSale = commonServices.PermissionService.ValidateUserPresetPermission("can_add_equipment_not_for_sale_to_order", currentUserId);
 
 			Nomenclature nomenclatureAlias = null;
-			MeasurementUnits unitAlias = null;
+			MeasurementUnit unitAlias = null;
 			NomenclatureJournalNode resultAlias = null;
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;

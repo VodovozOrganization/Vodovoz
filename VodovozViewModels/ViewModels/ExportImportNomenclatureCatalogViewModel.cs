@@ -28,6 +28,7 @@ using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Common;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -242,7 +243,7 @@ namespace Vodovoz.ViewModels
 		{
 			NomenclatureCatalogNode resultAlias = null;
 			NomenclaturePrice nomenclaturePriceAlias = null;
-			MeasurementUnits measurementUnitsAlias = null;
+			MeasurementUnit measurementUnitsAlias = null;
 			Folder1c folder1CAlias = null;
 			FuelType fuelTypeAlias = null;
 			EquipmentType equipmentTypeAlias = null;
@@ -328,7 +329,7 @@ namespace Vodovoz.ViewModels
 				IEnumerable<ProductGroup> productGroups = UoW.GetById<ProductGroup>(productGroupIds.Distinct());
 				IEnumerable<EquipmentType> equipmentTypes = UoW.GetAll<EquipmentType>();
 				IEnumerable<Folder1c> folders1C = UoW.GetAll<Folder1c>();
-				IEnumerable<MeasurementUnits> measurementUnits = UoW.GetAll<MeasurementUnits>();
+				IEnumerable<MeasurementUnit> measurementUnits = UoW.GetAll<MeasurementUnit>();
 				IEnumerable<FuelType> fuelTypes = UoW.GetAll<FuelType>();
 				User currentUser = UoW.GetById<User>(commonServices.UserService.CurrentUserId);
 

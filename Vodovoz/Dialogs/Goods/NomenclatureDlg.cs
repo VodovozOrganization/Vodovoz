@@ -30,6 +30,7 @@ using QS.Project.Services;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Representations;
+using Vodovoz.Domain.Common;
 
 namespace Vodovoz
 {
@@ -133,7 +134,7 @@ namespace Vodovoz
 			yentryProductGroup.RepresentationModel = new ProductGroupVM(UoW, new ProductGroupFilterViewModel());
 			yentryProductGroup.Binding.AddBinding(Entity, e => e.ProductGroup, w => w.Subject).InitializeFromSource();
 			
-			referenceUnit.SubjectType = typeof(MeasurementUnits);
+			referenceUnit.SubjectType = typeof(MeasurementUnit);
 			referenceUnit.Binding.AddBinding(Entity, n => n.Unit, w => w.Subject).InitializeFromSource();
 			yentryrefEqupmentType.SubjectType = typeof(EquipmentType);
 			yentryrefEqupmentType.Binding.AddBinding(Entity, e => e.Type, w => w.Subject).InitializeFromSource();

@@ -10,6 +10,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Common;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -174,10 +175,10 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref isSerial, value, () => IsSerial);
 		}
 
-		private MeasurementUnits unit;
+		private MeasurementUnit unit;
 
 		[Display(Name = "Единица измерения")]
-		public virtual MeasurementUnits Unit {
+		public virtual MeasurementUnit Unit {
 			get => unit;
 			set => SetField(ref unit, value, () => Unit);
 		}

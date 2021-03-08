@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using BitrixApi.DTO;
 using BitrixApi.REST;
-using QS.BusinessCommon.Repository;
 using QS.DomainModel.UoW;
 using QS.Osm.DTO;
 using Vodovoz.Domain.Client;
@@ -14,6 +13,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Common;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
@@ -419,7 +419,8 @@ namespace BitrixIntegration {
 	        foreach (var productFromDeal in unmatchedProducts){
 		        //Если нет такой группы то создаем группу
 		        var group = await ProcessProductGroup(uow, productFromDeal);
-		        var measurement = MeasurementUnitsRepository.GetUnitsByBitrix(uow, productFromDeal.MeasureName);
+				var repository = new MeasurementUnitsRepository();
+				var measurement = repository.GetUnitsByBitrix(uow, productFromDeal.MeasureName);
 		        var newNomenclature = new Nomenclature()
 		        {
 			        Name = productFromDeal.ProductName,
@@ -496,11 +497,11 @@ namespace BitrixIntegration {
 
            /*
 				товар сопоставился по названию или bitrix id - 1 2
-	        *	1) если UF_CRM_1596187803 null то мы обновляем цену товара в ДВ на ту что пришла из сделки
-			   2) если UF_CRM_1596187803 не null  , то отнимаем от цены ДВ цену 
+				1) если UF_CRM_1596187803 null то мы обновляем цену товара в ДВ на ту что пришла из сделки
+				2) если UF_CRM_1596187803 не null  , то отнимаем от цены ДВ цену 
 				  которая пришла и проставляем это значение как скидку в рублях
 
-			   3) Если товара нет в базе, то создаем его заполняя данными битрикса
+				3) Если товара нет в базе, то создаем его заполняя данными битрикса
 	        */
         private void UpdateNomenclaturePriceIfNeededAndAdd(
 	        IUnitOfWork uow,

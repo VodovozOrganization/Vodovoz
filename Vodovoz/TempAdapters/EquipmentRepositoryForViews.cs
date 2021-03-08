@@ -7,6 +7,7 @@ using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using QS.RepresentationModel.GtkUI;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Common;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -51,7 +52,7 @@ namespace Vodovoz.TempAdapters
 				.Select(Projections.Sum(() => localOrderEquipmentAlias.Count));
 
 			NomenclatureForRentVMNode resultAlias = null;
-			MeasurementUnits unitAlias = null;
+			MeasurementUnit unitAlias = null;
 			EquipmentType equipmentType = null;
 
 			//Запрос выбирающий количество добавленное на склад, отгруженное со склада 
