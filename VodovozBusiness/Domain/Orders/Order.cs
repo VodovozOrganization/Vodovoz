@@ -118,7 +118,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref acceptedOrderEmployee, value);
 		}
 
-
 		Counterparty client;
 		[Display(Name = "Клиент")]
 		public virtual Counterparty Client {
@@ -126,6 +125,7 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == client)
 					return;
+				IsForRetail = value.IsForRetail;
 				if(orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
@@ -553,6 +553,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isBottleStock, value, () => IsBottleStock);
 		}
 
+		private bool isForRetail;
+		[Display(Name = "Для розницы")]
+		public virtual bool IsForRetail
+		{
+			get => isForRetail;
+			set => SetField(ref isForRetail, value, () => IsForRetail);
+		}
+
 		private int bottlesByStockCount;
 		[Display(Name = "Количество бутылей по акции")]
 		public virtual int BottlesByStockCount {
@@ -844,6 +852,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			var order = new Order {
 				client = service.Counterparty,
+				IsForRetail = service.Counterparty.IsForRetail,
 				DeliveryPoint = service.DeliveryPoint,
 				DeliveryDate = service.ServiceStartDate,
 				PaymentType = service.Payment,
