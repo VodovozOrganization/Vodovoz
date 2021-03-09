@@ -49,11 +49,13 @@ namespace Vodovoz.ViewModels.Logistic
 		readonly ICarRepository carRepository;
 		private readonly IUserRepository userRepository;
 		readonly ICommonServices commonServices;
+		private readonly int closingDocumentDeliveryScheduleId;
 
 		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
 			ICommonServices commonServices,
+			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener,
 			IRouteListRepository routeListRepository,
 			ISubdivisionRepository subdivisionRepository,
@@ -72,7 +74,10 @@ namespace Vodovoz.ViewModels.Logistic
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-
+			
+			closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
+				throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
+			
 			CreateUoW();
 
 			Employee currentEmployee = VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
@@ -1091,10 +1096,12 @@ namespace Vodovoz.ViewModels.Logistic
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 
 			if(AddressTypes.Any(x => x.Selected)) {
-				var query = QueryOver.Of<Order>().Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
-													.Where(o => o.DeliverySchedule != null)
-													.Where(x => x.DeliveryPoint != null)
-													;
+				var query = QueryOver.Of<Order>()
+					.Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
+					.Where(o => o.DeliverySchedule != null)
+					.Where(x => x.DeliveryPoint != null)
+					.And(x => x.DeliverySchedule.Id != closingDocumentDeliveryScheduleId);
+				
 				if(!ShowCompleted)
 					query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
 				else
