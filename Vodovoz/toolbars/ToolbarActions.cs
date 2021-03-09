@@ -558,8 +558,6 @@ public partial class MainWindow : Window
 
 	void ActionPaymentFromBank_Activated(object sender, System.EventArgs e)
 	{
-		var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-		
 		var filter = new PaymentsJournalFilterViewModel();
 
 		var paymentsJournalViewModel = new PaymentsJournalViewModel(
@@ -568,7 +566,8 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			NavigationManagerProvider.NavigationManager,
 			OrderSingletonRepository.GetInstance(),
-			orderOrganizationProviderFactory.CreateOrderOrganizationProvider()
+			new OrganizationParametersProvider(ParametersProvider.Instance),
+			new BaseParametersProvider()
 		);
 
 		tdiMain.AddTab(paymentsJournalViewModel);

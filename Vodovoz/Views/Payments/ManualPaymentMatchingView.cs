@@ -20,119 +20,139 @@ namespace Vodovoz.Views
 		public ManualPaymentMatchingView(ManualPaymentMatchingViewModel manualPaymentLoaderViewModel) : base(manualPaymentLoaderViewModel)
 		{
 			this.Build();
-			ConfigureDlg();
+			Configure();
 		}
 
-		void ConfigureDlg() {
-			notebook1.ShowTabs = false;
+		void Configure()
+        {
+            notebook1.ShowTabs = false;
 
-			#region Radio buttons
+            #region Radio buttons
 
-			radioBtnAllocateOrders.Active = true;
-			radioBtnAllocateOrders.Toggled += RadioBtnAllocateOrdersOnToggled;
-			radioBtnAllocatedOrders.Toggled += RadioBtnAllocatedOrdersOnToggled;
-			radioBtnAllocatedOrders.Binding.AddBinding(ViewModel, vm => vm.HasPaymentItems, w => w.Sensitive).InitializeFromSource();
+            radioBtnAllocateOrders.Active = true;
+            radioBtnAllocateOrders.Toggled += RadioBtnAllocateOrdersOnToggled;
+            radioBtnAllocatedOrders.Toggled += RadioBtnAllocatedOrdersOnToggled;
+            radioBtnAllocatedOrders.Binding.AddBinding(ViewModel, vm => vm.HasPaymentItems, w => w.Sensitive).InitializeFromSource();
 
-			#endregion
-			
-			btnSave.Clicked += (sender, args) => ViewModel.SaveViewModelCommand.Execute();
-			btnCancel.Clicked += (sender, args) => ViewModel.CloseViewModelCommand.Execute();
-			buttonComplete.Clicked += (sender, args) => ViewModel.CompleteAllocation.Execute();
-			btnAddCounterparty.Clicked += (sender, args) => ViewModel.AddCounterpatyCommand.Execute(ViewModel.Entity);
-			ybtnRevertPayment.Clicked += (sender, args) => ViewModel.RevertAllocatedSum.Execute();
-			ybtnRevertPayment.Binding.AddBinding(ViewModel, vm => vm.CanRevertPayFromOrder, w => w.Sensitive).InitializeFromSource();
+            #endregion
 
-			daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
-			daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
-			daterangepicker1.PeriodChangedByUser += (sender, e) => ViewModel.UpdateNodes();
-			yenumcomboOrderStatus.ItemsEnum = typeof(OrderStatus);
-			yenumcomboOrderStatus.Binding.AddBinding(ViewModel, vm => vm.OrderStatusVM, w => w.SelectedItemOrNull).InitializeFromSource();
-			yenumcomboOrderStatus.ChangedByUser += (sender, e) => ViewModel.UpdateNodes();
-			yenumcomboOrderPaymentStatus.ItemsEnum = typeof(OrderPaymentStatus);
-			yenumcomboOrderPaymentStatus.Binding.AddBinding(ViewModel, vm => vm.OrderPaymentStatusVM, w => w.SelectedItemOrNull).InitializeFromSource();
-			yenumcomboOrderPaymentStatus.ChangedByUser += (sender, e) => ViewModel.UpdateNodes();
+            btnSave.Clicked += (sender, args) => ViewModel.SaveViewModelCommand.Execute();
+            btnCancel.Clicked += (sender, args) => ViewModel.CloseViewModelCommand.Execute();
+            buttonComplete.Clicked += (sender, args) => ViewModel.CompleteAllocation.Execute();
+            btnAddCounterparty.Clicked += (sender, args) => ViewModel.AddCounterpatyCommand.Execute(ViewModel.Entity);
+            ybtnRevertPayment.Clicked += (sender, args) => ViewModel.RevertAllocatedSum.Execute();
+            ybtnRevertPayment.Binding.AddBinding(ViewModel, vm => vm.CanRevertPayFromOrder, w => w.Sensitive).InitializeFromSource();
 
-			labelTotalSum.Text = ViewModel.Entity.Total.ToString();
-			labelLastBalance.Binding.AddBinding(ViewModel, vm => vm.LastBalance, w => w.Text, new DecimalToStringConverter()).InitializeFromSource();
-			labelToAllocate.Binding.AddBinding(ViewModel, vm => vm.SumToAllocate, w => w.Text, new DecimalToStringConverter()).InitializeFromSource();
+            daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
+            daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
+            daterangepicker1.PeriodChangedByUser += (sender, e) => ViewModel.UpdateNodes();
+            yenumcomboOrderStatus.ItemsEnum = typeof(OrderStatus);
+            yenumcomboOrderStatus.Binding.AddBinding(ViewModel, vm => vm.OrderStatusVM, w => w.SelectedItemOrNull).InitializeFromSource();
+            yenumcomboOrderStatus.ChangedByUser += (sender, e) => ViewModel.UpdateNodes();
+            yenumcomboOrderPaymentStatus.ItemsEnum = typeof(OrderPaymentStatus);
+            yenumcomboOrderPaymentStatus.Binding.AddBinding(ViewModel, vm => vm.OrderPaymentStatusVM, w => w.SelectedItemOrNull).InitializeFromSource();
+            yenumcomboOrderPaymentStatus.ChangedByUser += (sender, e) => ViewModel.UpdateNodes();
 
-			ylabelCurBalance.Binding.AddBinding(ViewModel, vm => vm.CurrentBalance, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
-			ylabelAllocated.Binding.AddBinding(ViewModel, vm => vm.AllocatedSum, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
-			ylabelCounterpartyDebt.Binding.AddBinding(ViewModel, vm => vm.CounterpartyDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
+            labelTotalSum.Text = ViewModel.Entity.Total.ToString();
+            labelLastBalance.Binding.AddBinding(ViewModel, vm => vm.LastBalance, w => w.Text, new DecimalToStringConverter()).InitializeFromSource();
+            labelToAllocate.Binding.AddBinding(ViewModel, vm => vm.SumToAllocate, w => w.Text, new DecimalToStringConverter()).InitializeFromSource();
 
-			labelPayer.Text = ViewModel.Entity.CounterpartyName;
-			labelPaymentNum.Text = ViewModel.Entity.PaymentNum.ToString();
-			labelDate.Text = ViewModel.Entity.Date.ToShortDateString();
-			
-			ytextviewPaymentPurpose.Buffer.Text = ViewModel.Entity.PaymentPurpose;
-			ytextviewComments.Binding.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text).InitializeFromSource();
+            ylabelCurBalance.Binding.AddBinding(ViewModel, vm => vm.CurrentBalance, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
+            ylabelAllocated.Binding.AddBinding(ViewModel, vm => vm.AllocatedSum, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
+            ylabelCounterpartyDebt.Binding.AddBinding(ViewModel, vm => vm.CounterpartyDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
+            labelPayer.Text = ViewModel.Entity.CounterpartyName;
+            labelPaymentNum.Text = ViewModel.Entity.PaymentNum.ToString();
+            labelDate.Text = ViewModel.Entity.Date.ToShortDateString();
 
-			entryCounterparty.Binding.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
-			entryCounterparty.ChangedByUser += (sender, e) =>
-			{
-				ViewModel.UpdateNodes();
-				ViewModel.GetLastBalance();
-				ViewModel.GetCounterpatyDebt();
-			};
+            ytextviewPaymentPurpose.Buffer.Text = ViewModel.Entity.PaymentPurpose;
+            ytextviewComments.Binding.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text).InitializeFromSource();
 
-			var searchView = new SearchView((SearchViewModel)ViewModel.Search);
-			hboxSearch.Add(searchView);
-			searchView.Show();
+            entryCounterparty.SetEntityAutocompleteSelectorFactory(
+                new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 
-			ytreeviewOrdersAllocate.ColumnsConfig = FluentColumnsConfig<ManualPaymentMatchingViewModelNode>.Create()
-				.AddColumn("№ заказа").AddTextRenderer(node => node.Id.ToString()).XAlign(0.5f)
-				.AddColumn("Статус").AddEnumRenderer(node => node.OrderStatus)
-				.AddColumn("Дата заказа").AddTextRenderer(node => node.OrderDate.ToShortDateString()).XAlign(0.5f)
-				.AddColumn("Сумма заказа, р.").AddTextRenderer(node => $"{node.ActualOrderSum}").XAlign(0.5f)
-				.AddColumn("Прошлые оплаты, р.").AddNumericRenderer(node => node.LastPayments).Digits(2)
-				.AddColumn("Текущая оплата, р.").AddNumericRenderer(node => node.CurrentPayment).Editing().Digits(2)
-					.Adjustment(new Adjustment(0, 0, 10000000, 1, 10, 10)).EditedEvent(TreeViewCurentPaymentEdited)
-				.AddColumn("Статус оплаты").AddEnumRenderer(node => node.OrderPaymentStatus)
-				.AddColumn("Рассчитать остаток?").AddToggleRenderer(node => node.Calculate).ToggledEvent(UseFine_Toggled)
-				.AddColumn("")
-			.Finish();
-			
-			ytreeviewOrdersAllocate.ItemsDataSource = ViewModel.ListNodes;
-			ytreeviewOrdersAllocate.ButtonReleaseEvent += YtreeviewOrdersAllocate_ButtonReleaseEvent;
-			
-			yTreeViewAllocatedOrders.ColumnsConfig = FluentColumnsConfig<ManualPaymentMatchingViewModelAllocatedNode>.Create()
-				.AddColumn("№ заказа")
-					.AddTextRenderer(node => node.Id.ToString())
-					.XAlign(0.5f)
-				.AddColumn("Статус")
-					.AddEnumRenderer(node => node.OrderStatus)
-				.AddColumn("Дата заказа")
-					.AddTextRenderer(node => node.OrderDate.ToShortDateString())
-					.XAlign(0.5f)
-				.AddColumn("Сумма заказа, р.")
-					.AddTextRenderer(node => $"{node.ActualOrderSum}")
-					.XAlign(0.5f)
-				.AddColumn("Прошлая оплата, р.")
-					.AddNumericRenderer(node => node.LastPayments)
-					.Digits(2)
-					.XAlign(0.5f)
-				.AddColumn("Распределенная сумма, р.").AddNumericRenderer(node => node.AllocatedSum)
-					.Editing()
-					.Digits(2)
-					.XAlign(0.5f)
-					.Adjustment(new Adjustment(0, 0, 10000000, 1, 10, 10))
-					.EditedEvent(TreeViewAllocatedSumEdited)
-				.AddColumn("Статус оплаты")
-					.AddEnumRenderer(node => node.OrderPaymentStatus)
-					.XAlign(0.5f)
-				.AddColumn("")
-				.Finish();
+            entryCounterparty.Binding.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
+            entryCounterparty.ChangedByUser += (sender, e) =>
+            {
+                ViewModel.UpdateNodes();
+                ViewModel.GetLastBalance();
+                ViewModel.GetCounterpatyDebt();
+            };
 
-			yTreeViewAllocatedOrders.ItemsDataSource = ViewModel.ListAllocatedNodes;
-			yTreeViewAllocatedOrders.Binding.AddBinding(ViewModel, vm => vm.CanRevertPayFromOrder, w => w.Sensitive).InitializeFromSource();
-		}
+            var searchView = new SearchView((SearchViewModel)ViewModel.Search);
+            hboxSearch.Add(searchView);
+            searchView.Show();
 
-		#region Переключение вкладок
+            ConfigureTrees();
+        }
 
-		private void RadioBtnAllocateOrdersOnToggled(object sender, EventArgs e) {
+        private void ConfigureTrees()
+        {
+            ytreeviewOrdersAllocate.ColumnsConfig = FluentColumnsConfig<ManualPaymentMatchingViewModelNode>.Create()
+                .AddColumn("№ заказа")
+                    .AddTextRenderer(node => node.Id.ToString())
+                    .XAlign(0.5f)
+                .AddColumn("Статус")
+                    .AddEnumRenderer(node => node.OrderStatus)
+                .AddColumn("Дата заказа")
+                    .AddTextRenderer(node => node.OrderDate.ToShortDateString())
+                    .XAlign(0.5f)
+                .AddColumn("Сумма заказа, р.")
+                    .AddTextRenderer(node => $"{node.ActualOrderSum}")
+                    .XAlign(0.5f)
+                .AddColumn("Прошлые оплаты, р.")
+                    .AddNumericRenderer(node => node.LastPayments)
+                    .Digits(2)
+                .AddColumn("Текущая оплата, р.")
+                    .AddNumericRenderer(node => node.CurrentPayment).Editing().Digits(2)
+                    .Adjustment(new Adjustment(0, 0, 10000000, 1, 10, 10))
+                    .AddSetter((node, cell) => ViewModel.CurrentPaymentChangedByUser(cell))
+                .AddColumn("Статус оплаты")
+                    .AddEnumRenderer(node => node.OrderPaymentStatus)
+                .AddColumn("Рассчитать остаток?")
+                    .AddToggleRenderer(node => node.Calculate)
+                    .ToggledEvent(UseFine_Toggled)
+                .AddColumn("")
+                .Finish();
+
+            ytreeviewOrdersAllocate.ItemsDataSource = ViewModel.ListNodes;
+            ytreeviewOrdersAllocate.ButtonReleaseEvent += YtreeviewOrdersAllocate_ButtonReleaseEvent;
+
+            yTreeViewAllocatedOrders.ColumnsConfig = FluentColumnsConfig<ManualPaymentMatchingViewModelAllocatedNode>.Create()
+                .AddColumn("№ заказа")
+                    .AddTextRenderer(node => node.Id.ToString())
+                    .XAlign(0.5f)
+                .AddColumn("Статус")
+                    .AddEnumRenderer(node => node.OrderStatus)
+                .AddColumn("Дата заказа")
+                    .AddTextRenderer(node => node.OrderDate.ToShortDateString())
+                    .XAlign(0.5f)
+                .AddColumn("Сумма заказа, р.")
+                    .AddTextRenderer(node => $"{node.ActualOrderSum}")
+                    .XAlign(0.5f)
+                .AddColumn("Прошлая оплата, р.")
+                    .AddNumericRenderer(node => node.LastPayments)
+                    .Digits(2)
+                    .XAlign(0.5f)
+                .AddColumn("Распределенная сумма, р.").AddNumericRenderer(node => node.AllocatedSum)
+                    .Editing()
+                    .Digits(2)
+                    .XAlign(0.5f)
+                    .Adjustment(new Adjustment(0, 0, 10000000, 1, 10, 10))
+                    .AddSetter((node, cell) => ViewModel.TreeViewAllocatedSumChangedByUser(cell))
+                .AddColumn("Статус оплаты")
+                    .AddEnumRenderer(node => node.OrderPaymentStatus)
+                    .XAlign(0.5f)
+                .AddColumn("")
+                .Finish();
+
+            yTreeViewAllocatedOrders.ItemsDataSource = ViewModel.ListAllocatedNodes;
+            yTreeViewAllocatedOrders.Binding.AddBinding(ViewModel, vm => vm.CanRevertPayFromOrder, w => w.Sensitive).InitializeFromSource();
+        }
+
+        #region Переключение вкладок
+
+        private void RadioBtnAllocateOrdersOnToggled(object sender, EventArgs e) {
 			if (radioBtnAllocateOrders.Active)
 				notebook1.CurrentPage = 0;
 		}
@@ -143,36 +163,6 @@ namespace Vodovoz.Views
 		}
 
 		#endregion
-		
-		private void TreeViewCurentPaymentEdited(object o, EditedArgs args) 
-			=> Application.Invoke((sender, eventArgs) => CurrentPaymentChangedByUser(this, EventArgs.Empty));
-
-		private void TreeViewAllocatedSumEdited(object o, EditedArgs args)
-			=> Application.Invoke((sender, eventArgs) => TreeViewAllocatedSumChangedByUser(this, args));
-			
-		private void CurrentPaymentChangedByUser(object o, EventArgs args) 
-		{ 
-			var selectedObj = ytreeviewOrdersAllocate.GetSelectedObject();
-
-			if(selectedObj == null)
-				return;
-
-			var node = selectedObj as ManualPaymentMatchingViewModelNode;
-
-			ViewModel.CurrentPaymentChangedByUser(node);
-		}
-		
-		private void TreeViewAllocatedSumChangedByUser(object o, EditedArgs args) 
-		{ 
-			var selectedObj = yTreeViewAllocatedOrders.GetSelectedObject();
-
-			if(selectedObj == null)
-				return;
-
-			var node = selectedObj as ManualPaymentMatchingViewModelAllocatedNode;
-			
-			ViewModel.TreeViewAllocatedSumChangedByUser(node);
-		}
 		
 		private void UseFine_Toggled(object o, ToggledArgs args) =>
 			//Вызываем через Application.Invoke чтобы событие вызывалось уже после того как поле обновилось.
