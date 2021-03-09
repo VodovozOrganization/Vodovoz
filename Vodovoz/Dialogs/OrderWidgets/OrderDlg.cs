@@ -376,6 +376,10 @@ namespace Vodovoz
 
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
 			enumSignatureType.Binding.AddBinding(Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource();
+            if (!Entity.IsForRetail)
+            {
+				enumSignatureType.AddEnumToHideList(new object[] { OrderSignatureType.SignatureTranscript });
+			}
 
 			labelCreationDateValue.Binding.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
 
