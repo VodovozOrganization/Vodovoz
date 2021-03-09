@@ -306,6 +306,11 @@ namespace Vodovoz.ViewModels
 		{
 			SaveViewModelCommand = new DelegateCommand(
 				() => {
+					if(CurrentBalance < 0) {
+						ShowWarningMessage("Остаток не может быть отрицательным!");
+						return;
+					}
+					
 					AllocateOrders();
 					SaveAndClose();
 				},
