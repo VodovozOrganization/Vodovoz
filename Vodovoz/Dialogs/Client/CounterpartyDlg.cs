@@ -280,6 +280,7 @@ namespace Vodovoz
 
             ycheckNoPhoneCall.Binding.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active).InitializeFromSource();
             ycheckNoPhoneCall.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_activate_no_phone_call_in_counterparty");
+            ycheckNoPhoneCall.Visible = Entity.IsForRetail;
 
             DelayDaysForBuyerValue.Binding.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt).InitializeFromSource();
             lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = false;
@@ -349,28 +350,39 @@ namespace Vodovoz
 
             // Настройка каналов сбыта
 
-            ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
-                .AddColumn("Название").AddTextRenderer(node => node.Name)
-                .AddColumn("").AddToggleRenderer(x => x.Selected)
-                .Finish();
+            if(Entity.IsForRetail) { 
+                ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
+                    .AddColumn("Название").AddTextRenderer(node => node.Name)
+                    .AddColumn("").AddToggleRenderer(x => x.Selected)
+                    .Finish();
 
-            SalesChannel salesChannelAlias = null;
-            SalesChannelSelectableNode salesChannelSelectableNodeAlias = null;
+                SalesChannel salesChannelAlias = null;
+                SalesChannelSelectableNode salesChannelSelectableNodeAlias = null;
 
-            var list = UoW.Session.QueryOver(() => salesChannelAlias)
-                .SelectList(scList => scList
-                .SelectGroup(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
-                    .Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name)
-                ).TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>()).List<SalesChannelSelectableNode>();
+                var list = UoW.Session.QueryOver(() => salesChannelAlias)
+                    .SelectList(scList => scList
+                    .SelectGroup(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
+                        .Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name)
+                    ).TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>()).List<SalesChannelSelectableNode>();
 
-            SalesChannels = new GenericObservableList<SalesChannelSelectableNode>(list);
+                SalesChannels = new GenericObservableList<SalesChannelSelectableNode>(list);
 
-            foreach (var selectableChannel in SalesChannels.Where(x => Entity.SalesChannels.Any(sc => sc.Id == x.Id)))
-            {
-                selectableChannel.Selected = true;
+                foreach (var selectableChannel in SalesChannels.Where(x => Entity.SalesChannels.Any(sc => sc.Id == x.Id)))
+                {
+                    selectableChannel.Selected = true;
+                }
+
+                ytreeviewSalesChannels.ItemsDataSource = SalesChannels;
+            } else {
+                yspinDelayDaysForTechProcessing.Visible = false;
+                lblDelayDaysForTechProcessing.Visible = false;
+                frame2.Visible = false;
+                frame3.Visible = false;
+                label46.Visible = false;
+                label47.Visible = false;
+                label48.Visible = false;
+                label49.Visible = false;
             }
-
-            ytreeviewSalesChannels.ItemsDataSource = SalesChannels;
 
             SetVisibilityForCloseDeliveryComments();
         }
@@ -491,18 +503,28 @@ namespace Vodovoz
             yspeccomboboxTTNCount.ItemsList = docCount;
             yspeccomboboxTorg2Count.ItemsList = docCount;
             yspeccomboboxUPDForNonCashlessCount.ItemsList = docCount;
-            yspeccomboboxUPDCount.ItemsList = docCount;
-            yspeccomboboxTorg12Count.ItemsList = docCount;
-            yspeccomboboxShetFacturaCount.ItemsList = docCount;
-            yspeccomboboxCarProxyCount.ItemsList = docCount;
 
             yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
             yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
             yspeccomboboxUPDForNonCashlessCount.Binding.AddBinding(Entity, e => e.UPDCount, w => w.SelectedItem).InitializeFromSource();
-            yspeccomboboxUPDCount.Binding.AddBinding(Entity, e => e.AllUPDCount, w => w.SelectedItem).InitializeFromSource();
-            yspeccomboboxTorg12Count.Binding.AddBinding(Entity, e => e.Torg12Count, w => w.SelectedItem).InitializeFromSource();
-            yspeccomboboxShetFacturaCount.Binding.AddBinding(Entity, e => e.ShetFacturaCount, w => w.SelectedItem).InitializeFromSource();
-            yspeccomboboxCarProxyCount.Binding.AddBinding(Entity, e => e.CarProxyCount, w => w.SelectedItem).InitializeFromSource();
+
+            if (Entity.IsForRetail)
+            {
+                yspeccomboboxUPDCount.ItemsList = docCount;
+                yspeccomboboxTorg12Count.ItemsList = docCount;
+                yspeccomboboxShetFacturaCount.ItemsList = docCount;
+                yspeccomboboxCarProxyCount.ItemsList = docCount;
+
+                yspeccomboboxUPDCount.Binding.AddBinding(Entity, e => e.AllUPDCount, w => w.SelectedItem).InitializeFromSource();
+                yspeccomboboxTorg12Count.Binding.AddBinding(Entity, e => e.Torg12Count, w => w.SelectedItem).InitializeFromSource();
+                yspeccomboboxShetFacturaCount.Binding.AddBinding(Entity, e => e.ShetFacturaCount, w => w.SelectedItem).InitializeFromSource();
+                yspeccomboboxCarProxyCount.Binding.AddBinding(Entity, e => e.CarProxyCount, w => w.SelectedItem).InitializeFromSource();
+            } else {
+                yspeccomboboxUPDCount.Visible = false;
+                yspeccomboboxTorg12Count.Visible = false;
+                yspeccomboboxShetFacturaCount.Visible = false;
+                yspeccomboboxCarProxyCount.Visible = false;
+            }
 
             ytreeviewSpecialNomenclature.ColumnsConfig = ColumnsConfigFactory.Create<SpecialNomenclature>()
                 .AddColumn("№").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Id.ToString() : "0")
