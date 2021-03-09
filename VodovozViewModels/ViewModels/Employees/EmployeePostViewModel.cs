@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
             set
             {
                 Entity.Name = value;
-                OnPropertyChanged(PostName);
+                OnPropertyChanged(nameof(PostName));
             }
         }
 
