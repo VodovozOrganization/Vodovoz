@@ -93,7 +93,20 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		}
 		
 		public virtual OrderDocumentType Type => OrderDocumentType.BillWSForAdvancePayment;
-		public virtual Order Order { get; set; }
+
+		private Order order;
+		public virtual Order Order
+		{
+			get => order;
+			set
+			{
+				if (value != null)
+				{
+					IsForRetail = value.IsForRetail;
+					SetField(ref order, value);
+				}
+			}
+		}
 
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo()
@@ -137,6 +150,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual bool HideSignature {
 			get => hideSignature;
 			set => SetField(ref hideSignature, value);
+		}
+
+		private bool isForRetail;
+		[Display(Name = "Для розницы")]
+		public virtual bool IsForRetail
+		{
+			get => isForRetail;
+			set => SetField(ref isForRetail, value, () => IsForRetail);
 		}
 
 		#endregion
