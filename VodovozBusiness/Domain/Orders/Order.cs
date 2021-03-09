@@ -1024,7 +1024,13 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В точке доставки необходимо указать координаты.",
 				new[] { this.GetPropertyName(o => o.DeliveryPoint) });
 			}
-			if(Client == null)
+
+            if(DriverCallId != null && string.IsNullOrWhiteSpace(CommentManager)){
+                yield return new ValidationResult("Необходимо заполнить комментарий водителя.",
+                    new[] { this.GetPropertyName(o => o.CommentManager) });
+            }
+
+            if (Client == null)
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
