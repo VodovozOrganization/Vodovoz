@@ -35,15 +35,12 @@
         <Height>23.21pt</Height>
         <Width>801.63pt</Width>
         <Value>В отчет попадают заказы в статусе "Ожидание оплаты" и со статусом оплаты "Оплачен", "Частично оплачен"
-Сортировка: по дате оплаты, затем по дате счета и наконец по номеру заказа</Value>
+Сортировка: по автору, затем по дате оплаты, потом по дате счета и наконец по номеру заказа</Value>
         <ZIndex>1</ZIndex>
         <Left>1.6pt</Left>
         <Top>32.4pt</Top>
         <Style>
           <FontSize>8pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
@@ -75,7 +72,7 @@
             <Width>41.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>122.8pt</Width>
+            <Width>145.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>63.4pt</Width>
@@ -87,10 +84,7 @@
             <Width>88.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>110.5pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>74.2pt</Width>
+            <Width>159.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>74.2pt</Width>
@@ -281,23 +275,6 @@
                   <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>Автор заказа</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox24">
-                      <Value>Комментарий</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -522,23 +499,6 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox25">
-                      <Value>={comment}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -569,7 +529,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="payments">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	MAX(date(payments.payment_date)) as payment_date,
@@ -606,14 +566,14 @@ WHERE
 	AND order_payment_status IN ('Paid', 'PartiallyPaid')
 	AND employees.subdivision_id  = @subdivision_id
 GROUP BY orders.id
-ORDER BY payment_date DESC, orderdate DESC, orders.id DESC;</CommandText>
+ORDER BY author, payment_date DESC, orderdate DESC, orders.id DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="subdivision_id">
             <Value>=Parameters!subdivision_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -652,10 +612,6 @@ ORDER BY payment_date DESC, orderdate DESC, orders.id DESC;</CommandText>
         </Field>
         <Field Name="payment_purpose">
           <DataField>payment_purpose</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="comment">
-          <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
