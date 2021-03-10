@@ -573,17 +573,16 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual void AddActiveDriverDistrictPrioritySet(DriverDistrictPrioritySet activeDistrictPrioritySet)
 		{
+			var saveTime = DateTime.Now;
+				
 			var currentActiveSet = ObservableDriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
 			if(currentActiveSet != null) {
 				currentActiveSet.IsActive = false;
-				
-				currentActiveSet.DateDeactivated = currentActiveSet.DateActivated.Date > DateTime.Today
-					? currentActiveSet.DateActivated.Date.AddDays(1).AddMilliseconds(-1)
-					: DateTime.Today.AddDays(1).AddMilliseconds(-1);
+				currentActiveSet.DateDeactivated = saveTime;
 			}
 
 			activeDistrictPrioritySet.IsActive = true;
-			activeDistrictPrioritySet.DateActivated = currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
+			activeDistrictPrioritySet.DateActivated = saveTime.AddSeconds(1);
 			
 			if(ObservableDriverDistrictPrioritySets.Any()) {
 				ObservableDriverDistrictPrioritySets.Insert(0, activeDistrictPrioritySet);
@@ -595,17 +594,16 @@ namespace Vodovoz.Domain.Employees
 		
 		public virtual void AddActiveDriverWorkScheduleSet(DriverWorkScheduleSet activeDriverWorkScheduleSet)
 		{
+			var saveTime = DateTime.Now;
+				
 			var currentActiveSet = ObservableDriverWorkScheduleSets.SingleOrDefault(x => x.IsActive);
 			if(currentActiveSet != null) {
 				currentActiveSet.IsActive = false;
-				
-				currentActiveSet.DateDeactivated = currentActiveSet.DateActivated.Date > DateTime.Today
-					? currentActiveSet.DateActivated.Date.AddDays(1).AddMilliseconds(-1)
-					: DateTime.Today.AddDays(1).AddMilliseconds(-1);
+				currentActiveSet.DateDeactivated = saveTime;
 			}
 
 			activeDriverWorkScheduleSet.IsActive = true;
-			activeDriverWorkScheduleSet.DateActivated = currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
+			activeDriverWorkScheduleSet.DateActivated = saveTime.AddSeconds(1);
 			
 			if(ObservableDriverWorkScheduleSets.Any()) {
 				ObservableDriverWorkScheduleSets.Insert(0, activeDriverWorkScheduleSet);
