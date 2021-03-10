@@ -6,6 +6,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Operations;
 using NHibernate.Criterion;
 using Vodovoz.Services;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Repositories.Payments
 {
@@ -42,14 +43,20 @@ namespace Vodovoz.Repositories.Payments
 			return shops;
 		}
 
-		public static bool PaymentFromBankClientExists(IUnitOfWork uow, DateTime date, int number, string counterpartyInn, string accountNumber)
+		public static bool PaymentFromBankClientExists(
+			IUnitOfWork uow, DateTime date, int number, string organisationInn, string counterpartyInn, string accountNumber)
 		{
+			Organization organizationAlias = null;
+
 			var payment = uow.Session.QueryOver<Payment>()
+				.JoinAlias(x => x.Organization, () => organizationAlias)
 				.Where(p => p.Date == date &&
 						p.PaymentNum == number &&
 						p.CounterpartyInn == counterpartyInn &&
 						p.CounterpartyCurrentAcc == accountNumber)
+				.And(() => organizationAlias.INN == organisationInn)
 				.SingleOrDefault<Payment>();
+			
 			return payment != null;
 		}
 

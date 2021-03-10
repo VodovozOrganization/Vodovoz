@@ -205,7 +205,7 @@ namespace Vodovoz
 			base.Destroy();
 		}
 
-		public OrderDlg()
+		public OrderDlg(bool? isForRetail = null)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
@@ -217,17 +217,20 @@ namespace Vodovoz
 			}
 			Entity.OrderStatus = OrderStatus.NewOrder;
 			TabName = "Новый заказ";
+			this.isForRetail = isForRetail;
 			ConfigureDlg();
-		}
+        }
 
 		public OrderDlg(Counterparty client) :this()
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
+			isForRetail = Entity.Client.IsForRetail;
 		}
 		public OrderDlg(int id)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
+			isForRetail = UoWGeneric.Root.Client.IsForRetail;
 			ConfigureDlg();
 		}
 
@@ -373,6 +376,10 @@ namespace Vodovoz
 
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
 			enumSignatureType.Binding.AddBinding(Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource();
+            if (!Entity.IsForRetail)
+            {
+				enumSignatureType.AddEnumToHideList(new object[] { OrderSignatureType.SignatureTranscript });
+			}
 
 			labelCreationDateValue.Binding.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
 
@@ -432,12 +439,12 @@ namespace Vodovoz
 			enumTax.ItemsEnum = typeof(TaxType);
 			Enum[] hideTaxTypeEnums = { TaxType.None };
 			enumTax.AddEnumToHideList(hideTaxTypeEnums);
-			enumTax.ChangedByUser += (sender, args) => { Entity.Client.TaxType = (TaxType)enumTax.SelectedItem; }; 
-			
-			var counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
+			enumTax.ChangedByUser += (sender, args) => { Entity.Client.TaxType = (TaxType)enumTax.SelectedItem; };
+
+			var counterpartyFilter = new CounterpartyJournalFilterViewModel() { IsForRetail = this.isForRetail, RestrictIncludeArchive = false };
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
+				new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(typeof(Counterparty), 
+				() => new CounterpartyJournalViewModel(counterpartyFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices))
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
@@ -515,7 +522,7 @@ namespace Vodovoz
 			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
 			enumDiverCallType.Binding.AddBinding(Entity, s => s.DriverCallType, w => w.SelectedItem).InitializeFromSource();
 
-			referenceDriverCallId.Binding.AddBinding(Entity, e => e.DriverCallId, w => w.Subject).InitializeFromSource();
+            driverCallId.Binding.AddFuncBinding(Entity, e => e.DriverCallId == null ? "" : e.DriverCallId.ToString(), w => w.LabelProp).InitializeFromSource();
 
 			ySpecCmbNonReturnReason.ItemsList = UoW.Session.QueryOver<NonReturnReason>().List();
 			ySpecCmbNonReturnReason.Binding.AddBinding(Entity, e => e.TareNonReturnReason, w => w.SelectedItem).InitializeFromSource();
@@ -595,7 +602,9 @@ namespace Vodovoz
 		}
 
 		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");
-		private void OnContractChanged()
+        private readonly bool? isForRetail;
+
+        private void OnContractChanged()
 		{
 			if(Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(enumDocumentType)) {
 				hboxDocumentType.Remove(enumDocumentType);
