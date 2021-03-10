@@ -16,7 +16,8 @@ namespace Vodovoz.HibernateMapping.Order.OrdersWithoutShipment
             Map (x => x.IncludeNDS).Column ("include_nds");
             Map (x => x.ValueAddedTax).Column ("value_added_tax");
             Map (x => x.IsBillWithoutShipmentSent).Column ("is_bill_sent");
-            
+            Map(x => x.IsForRetail).Column("is_for_retail");
+
             References(x => x.Author).Column("author_id");
             References(x => x.Client).Column("client_id");
         }
