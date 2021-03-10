@@ -26,6 +26,7 @@ namespace Vodovoz.Domain.Orders.Documents
 					{ "organization_id", new OrganizationParametersProvider(ParametersProvider.Instance).GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
 					{ "special", false },
+					{ "special_contract_number", SpecialContractNumber},
 					{ "without_vat", Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT }
 				}
 			};
