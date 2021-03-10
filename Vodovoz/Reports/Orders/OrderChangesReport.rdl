@@ -100,8 +100,8 @@
         <Width>409.15pt</Width>
         <Value>='Типы изменений: ' + {?change_types_rus}</Value>
         <ZIndex>1</ZIndex>
-        <Left>13.6pt</Left>
-        <Top>72.8pt</Top>
+        <Left>13.60pt</Left>
+        <Top>72.80pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <BorderStyle />
@@ -123,7 +123,7 @@
           <TableColumn>
             <Width>24.1pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>99.9pt</Width>
           </TableColumn>
           <TableColumn>
@@ -144,7 +144,7 @@
           <TableColumn>
             <Width>51.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>104.0pt</Width>
           </TableColumn>
           <TableColumn>
@@ -431,12 +431,12 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
                       <Value>={counterparty}</Value>
@@ -450,7 +450,7 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -468,7 +468,7 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -487,7 +487,7 @@
                         <Format>dd.MM.yyyy HH:mm</Format>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -505,7 +505,7 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -526,7 +526,7 @@
                         <Format>0.00</Format>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -546,7 +546,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
                         <Format>dd.MM.yyyy</Format>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -565,12 +565,12 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
                         <Format>dd.MM.yyyy HH:mm</Format>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
                       <Value>={nomenclature_name}</Value>
@@ -583,7 +583,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
                         <Format>dd.MM.yyyy HH:mm</Format>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -601,7 +601,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -621,7 +621,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
                         <PaddingTop>1pt</PaddingTop>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -640,7 +640,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
                         <PaddingTop>1pt</PaddingTop>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -658,7 +658,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -668,8 +668,22 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>96.8pt</Top>
+        <Top>108.0pt</Top>
       </Table>
+      <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.04pt</Height>
+        <Width>409.15pt</Width>
+        <Value>='Типы проблем: ' + {?issue_types}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>13.6pt</Left>
+        <Top>88.8pt</Top>
+        <CanGrow>true</CanGrow>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -772,10 +786,45 @@ FROM
 			INNER JOIN history_changes hc_pay_type ON hc_pay_type.chaged_entity_id = hce.id
 				AND hc_pay_type.`type` = 'Changed'
 				AND hc_pay_type.field_name = 'PaymentType'
-				AND (
-					hc_pay_type.new_value IN ('cash', 'ByCard', 'Terminal', 'cashless')
+				AND 
+				(
+					(
+						(
+							hc_pay_type.new_value IN ('cash', 'cashless')
+							OR
+							hc_pay_type.old_value IN ('cash', 'cashless') 
+						)
+						AND FIND_IN_SET('PaymentType', @change_types) &gt; 0
+					)
+					OR 
+					(
+						(
+							hc_pay_type.new_value = 'Terminal' 
+							OR hc_pay_type.old_value = 'Terminal'
+						) 
+						AND FIND_IN_SET('TerminalIssues', @issue_types) &gt; 0 
+					)
+					OR 
+					(
+						(
+							hc_pay_type.new_value = 'ByCard' 
+							OR hc_pay_type.old_value = 'ByCard'
+						) 
+						AND
+						(
+							(
+								FIND_IN_SET('ManagersIssues', @issue_types) &gt; 0 
+								AND o.payment_from_id &lt;&gt; GET_PARAMETER('sms_payment_by_card_from_id')
+							) 
+						)
+						
+					)
 					OR
-					hc_pay_type.old_value IN ('cash', 'ByCard', 'Terminal', 'cashless')
+					(
+						FIND_IN_SET('SmsIssues', @issue_types) &gt; 0 
+						AND o.payment_from_id = GET_PARAMETER('sms_payment_by_card_from_id')
+						AND hc_pay_type.new_value = 'ByCard' 
+					)
 				)
 			INNER JOIN (
 				SELECT
@@ -801,7 +850,7 @@ FROM
 			hce.`datetime` &gt; shipped.`datetime`
 			AND hc.`type` = 'Changed'
 			AND hc.field_name = 'PaymentType'
-			AND FIND_IN_SET('PaymentType', @change_types) &gt; 0
+			AND (FIND_IN_SET('PaymentType', @change_types) &gt; 0 OR @issue_types &lt;&gt; '')
 		UNION ALL
 		SELECT
 			o.id as order_id,
@@ -896,10 +945,47 @@ FROM
 					INNER JOIN history_changes hc_pay_type ON hc_pay_type.chaged_entity_id = hce_pay_type.id
 						AND hc_pay_type.`type` = 'Changed'
 						AND hc_pay_type.field_name = 'PaymentType'
-						AND (
-							hc_pay_type.new_value IN ('cash', 'ByCard', 'Terminal', 'cashless')
+						AND 
+						(
+							(
+								(
+									hc_pay_type.new_value IN ('cash', 'cashless')
+									OR
+									hc_pay_type.old_value IN ('cash', 'cashless') 
+								)
+								AND FIND_IN_SET('PaymentType', @change_types) &gt; 0
+							)
+							OR 
+							(
+								(
+									hc_pay_type.new_value = 'Terminal' 
+									OR hc_pay_type.old_value = 'Terminal'
+								) 
+								AND 
+								FIND_IN_SET('TerminalIssues', @issue_types) &gt; 0 
+							)
+							OR 
+							(
+								(
+									hc_pay_type.new_value = 'ByCard' 
+									OR
+									hc_pay_type.old_value = 'ByCard'
+								) 
+								AND
+								(
+									FIND_IN_SET('ManagersIssues', @issue_types) &gt; 0 
+									AND
+									o_pay_type.payment_from_id &lt;&gt; GET_PARAMETER('sms_payment_by_card_from_id')
+								)
+							)
 							OR
-							hc_pay_type.old_value IN ('cash', 'ByCard', 'Terminal', 'cashless')
+							(
+								FIND_IN_SET('SmsIssues', @issue_types) &gt; 0 
+								AND 
+								o_pay_type.payment_from_id = GET_PARAMETER('sms_payment_by_card_from_id')
+								AND 
+								hc_pay_type.new_value = 'ByCard' 
+							)
 						)
 				GROUP BY hce_pay_type.entity_id
 			) payment_type_changes ON payment_type_changes.order_id = o.id
@@ -934,6 +1020,9 @@ FROM
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>=Format(Convert.ToDateTime({?end_date}), "yyyy-MM-dd")</Value>
+          </QueryParameter>
+          <QueryParameter Name="issue_types">
+            <Value>={?issue_types}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1047,7 +1136,8 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="organization_id">
       <DataType>Integer</DataType>
@@ -1059,26 +1149,27 @@ FROM
     </ReportParameter>
     <ReportParameter Name="change_types">
       <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="change_types_rus">
       <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="issue_types">
       <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

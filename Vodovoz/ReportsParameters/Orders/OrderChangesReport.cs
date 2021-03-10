@@ -92,7 +92,7 @@ namespace Vodovoz.ReportsParameters.Orders
         {
             var ordganizationId = ((Organization)comboOrganization.SelectedItem).Id;
             var selectedChangeTypes = string.Join(",", changeTypes.Where(x => x.Selected).Select(x => x.Value));
-            var selectedIssueTypes = string.Join(",", issueTypes.Where(x => x.Selected).Select(x => x.Value));
+            var selectedIssueTypes = changeTypes.Any(x => x.Selected && x.Value == "PaymentType") ? string.Empty : string.Join(",", issueTypes.Where(x => x.Selected).Select(x => x.Value));
             var selectedChangeTypesTitles = string.Join(", ", changeTypes.Where(x => x.Selected).Select(x => x.Title));
 
             var parameters = new Dictionary<string, object>
@@ -101,13 +101,9 @@ namespace Vodovoz.ReportsParameters.Orders
                     { "end_date", dateperiodpicker.EndDate },
                     { "organization_id", ordganizationId },
                     { "change_types", selectedChangeTypes },
+                    { "issue_types", selectedIssueTypes },
                     { "change_types_rus", selectedChangeTypesTitles }
                 };
-
-            if (issuesSensitive)
-            {
-                parameters.Add("issue_types", selectedIssueTypes);
-            }
 
             return new ReportInfo
             {
@@ -122,7 +118,7 @@ namespace Vodovoz.ReportsParameters.Orders
             if (dateperiodpicker.StartDateOrNull == null
                 || (dateperiodpicker.StartDateOrNull != null && dateperiodpicker.StartDate >= DateTime.Now)
                 || comboOrganization.SelectedItem == null
-                || !changeTypes.Any(x => x.Selected)
+                || (!changeTypes.Any(x => x.Selected) && !issueTypes.Any(x => x.Selected))
                 ) {
                 return;
             }
@@ -138,7 +134,8 @@ namespace Vodovoz.ReportsParameters.Orders
             bool hasValidDate = dateperiodpicker.StartDateOrNull != null && dateperiodpicker.StartDate < DateTime.Now;
             bool hasOrganization = comboOrganization.SelectedItem != null;
             bool hasChangeTypes = changeTypes.Any(x => x.Selected);
-            buttonCreateReport.Sensitive = hasValidDate && hasOrganization && hasChangeTypes;
+            bool hasIssueTypes = issueTypes.Any(x => x.Selected);
+            buttonCreateReport.Sensitive = hasValidDate && hasOrganization && (hasChangeTypes || hasIssueTypes);
             ytreeviewIssueTypes.Sensitive = issuesSensitive;
         }
 
