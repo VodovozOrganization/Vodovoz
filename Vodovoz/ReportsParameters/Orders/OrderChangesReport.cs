@@ -94,6 +94,7 @@ namespace Vodovoz.ReportsParameters.Orders
             var selectedChangeTypes = string.Join(",", changeTypes.Where(x => x.Selected).Select(x => x.Value));
             var selectedIssueTypes = changeTypes.Any(x => x.Selected && x.Value == "PaymentType") ? string.Empty : string.Join(",", issueTypes.Where(x => x.Selected).Select(x => x.Value));
             var selectedChangeTypesTitles = string.Join(", ", changeTypes.Where(x => x.Selected).Select(x => x.Title));
+            var selectedIssueTypesTitles = changeTypes.Any(x => x.Selected && x.Value == "PaymentType") ? string.Empty : string.Join(", ", issueTypes.Where(x => x.Selected).Select(x => x.Title));
 
             var parameters = new Dictionary<string, object>
                 {
@@ -101,8 +102,9 @@ namespace Vodovoz.ReportsParameters.Orders
                     { "end_date", dateperiodpicker.EndDate },
                     { "organization_id", ordganizationId },
                     { "change_types", selectedChangeTypes },
+                    { "change_types_rus", selectedChangeTypesTitles },
                     { "issue_types", selectedIssueTypes },
-                    { "change_types_rus", selectedChangeTypesTitles }
+                    { "issue_types_rus", selectedIssueTypesTitles }
                 };
 
             return new ReportInfo

@@ -673,7 +673,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
       <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15.04pt</Height>
         <Width>409.15pt</Width>
-        <Value>='Типы проблем: ' + {?issue_types}</Value>
+        <Value>='Типы проблем: ' + {?issue_types_rus}</Value>
         <ZIndex>1</ZIndex>
         <Left>13.6pt</Left>
         <Top>88.8pt</Top>
@@ -709,7 +709,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS</DataSourceName>
         <Timeout>300</Timeout>
         <CommandText>SELECT
@@ -1026,7 +1026,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="comment_manager">
           <DataField>comment_manager</DataField>
           <TypeName>System.String</TypeName>
@@ -1122,7 +1122,7 @@ FROM
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
@@ -1170,6 +1170,13 @@ FROM
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="issue_types_rus">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
