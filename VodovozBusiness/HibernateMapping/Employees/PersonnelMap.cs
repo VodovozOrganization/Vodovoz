@@ -61,13 +61,15 @@ namespace Vodovoz.HibernateMapping.Employees
 				Map(x => x.MinRouteAddresses) .Column("min_route_addresses");
 				Map(x => x.MaxRouteAddresses) .Column("max_route_addresses");
 				Map(x => x.DriverType)        .Column("driver_type").CustomType<DriverTypeStringType>();
+                Map(x => x.SkillLevel)        .Column("skill_level");
 
-				References(x => x.Subdivision)          .Column("subdivision_id");
+                References(x => x.Subdivision)          .Column("subdivision_id");
 				References(x => x.User)                 .Column("user_id");
 				References(x => x.DefaultForwarder)     .Column("default_forwarder_id");
 				References(x => x.OrganisationForSalary).Column("organisation_for_salary_id");
+                References(x => x.Post)                 .Column("employees_posts_id");
 
-				HasMany(x => x.Contracts).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
+                HasMany(x => x.Contracts).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 				HasMany(x => x.WageParameters).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 				
 				HasMany(x => x.DriverWorkScheduleSets)
