@@ -6,24 +6,20 @@ using QS.DomainModel.UoW;
 using QS.ViewModels;
 using QS.Services;
 using QS.Navigation;
+using Vodovoz.Core.DataService;
 using Vodovoz.Services;
 using Vodovoz.Domain.Payments;
 using NLog;
 using Vodovoz.Repositories.Payments;
 using QS.Commands;
+using Vodovoz.Models;
 using Vodovoz.Repositories;
 
 namespace Vodovoz.ViewModels
 {
 	public class PaymentLoaderViewModel : DialogTabViewModelBase
 	{
-		private readonly IProfitCategoryProvider profitCategoryProvider;
-		private readonly int vodovozId;
-		private readonly int vodovozSouthId;
-		private IReadOnlyList<Domain.Organizations.Organization> organisations;
-		//убираем из выписки Юмани и банк СИАБ (платежи от физ. лиц)
-		private readonly string[] excludeInnForVodovozSouth = new []{ "2465037737", "7750005725" };
-
+		private readonly IOrganizationProvider organizationProvider;
 		private Logger logger = LogManager.GetCurrentClassLogger();
 		double progress;
 
@@ -33,53 +29,25 @@ namespace Vodovoz.ViewModels
 			set => SetField(ref isNotAutoMatchingMode, value);
 		}
 		public TransferDocumentsFromBankParser Parser { get; private set; }
-		public GenericObservableList<Payment> ObservablePayments { get; } = 
-			new GenericObservableList<Payment>();
+		public GenericObservableList<Payment> ObservablePayments { get; set; }
 		public IList<CategoryProfit> ProfitCategories { get; private set; }
 		public event Action<string, double> UpdateProgress;
 
-		public PaymentLoaderViewModel(
-			IUnitOfWorkFactory unitOfWorkFactory, 
-			ICommonServices commonServices, 
-			INavigationManager navigationManager,
-			IOrganizationParametersProvider organizationParametersProvider,
-			IProfitCategoryProvider profitCategoryProvider) 
+		public PaymentLoaderViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigationManager, IOrganizationProvider organizationProvider) 
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
-			this.profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
-
-			if(organizationParametersProvider == null)
-            {
-				throw new ArgumentNullException(nameof(organizationParametersProvider));
-            }
-
-			vodovozId = organizationParametersProvider.VodovozOrganizationId;
-			vodovozSouthId = organizationParametersProvider.VodovozSouthOrganizationId;
-
+			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
-			
-			TabName = "Выгрузка выписки из банк-клиента";
 
-			GetOrganisations();
+			ObservablePayments = new GenericObservableList<Payment>();
+
 			CreateCommands();
 			GetProfitCategories();
 		}
 
-		private void GetOrganisations()
-        {
-			var orgs = new List<Domain.Organizations.Organization>();
-
-			var vodovozOrg = UoW.GetById<Domain.Organizations.Organization>(vodovozId);
-			var vodovozSouthOrg = UoW.GetById<Domain.Organizations.Organization>(vodovozSouthId);
-
-			orgs.Add(vodovozOrg);
-			orgs.Add(vodovozSouthOrg);
-
-			organisations = orgs;
-        }
-
 		private void CreateCommands() {
 			CreateSaveCommand();
+			CreateCloseViewModelCommand();
 			CreateParseCommand();
 		}
 		
@@ -87,9 +55,7 @@ namespace Vodovoz.ViewModels
 			ProfitCategories = UoW.GetAll<CategoryProfit>().ToList();
 		}
 
-        #region Команды
-
-        public DelegateCommand<GenericObservableList<Payment>> SaveCommand { get; private set; }
+		public DelegateCommand<GenericObservableList<Payment>> SaveCommand { get; private set; }
 
 		private void CreateSaveCommand()
 		{
@@ -116,6 +82,14 @@ namespace Vodovoz.ViewModels
 
 		public DelegateCommand CloseViewModelCommand { get; private set; }
 
+		private void CreateCloseViewModelCommand()
+		{
+			CloseViewModelCommand = new DelegateCommand(
+				() => Close(false, CloseSource.Cancel),
+				() => true
+			);
+		}
+
 		public DelegateCommand<string> ParseCommand { get; private set; }
 
 		private void CreateParseCommand()
@@ -126,9 +100,7 @@ namespace Vodovoz.ViewModels
 			);
 		}
 
-        #endregion Команды
-
-        public void Init(string docPath)
+		public void Init(string docPath)
 		{
 			IsNotAutoMatchingMode = false;
 			progress = 0;
@@ -137,84 +109,65 @@ namespace Vodovoz.ViewModels
 			Parser.Parse();
 
 			UpdateProgress?.Invoke("Сопоставляем полученные платежи...", progress);
-			MatchPayments();
+			MatchPayments(organizationProvider, new BaseParametersProvider());
 		}
 
-		public void MatchPayments()
-        {
-            var count = 0;
-            var countDuplicates = 0;
-			
-            AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(UoW);
-            var defaultProfitCategory = UoW.GetById<CategoryProfit>(profitCategoryProvider.GetDefaultProfitCategory());
-            var paymentsToVodovoz = Parser.TransferDocuments.Where(x => x.RecipientInn == organisations[0].INN).ToList();
-            var paymentsToVodovozSouth = 
-				Parser.TransferDocuments.Where(x => 
-					x.RecipientInn == organisations[1].INN
-					&& !excludeInnForVodovozSouth.Contains(x.PayerInn)).ToList();
-			var totalCount = paymentsToVodovoz.Count + paymentsToVodovozSouth.Count;
+		public void MatchPayments(IOrganizationProvider orgProvider, IProfitCategoryProvider profitCategoryProvider)
+		{
+			var count = 0;
+			var countDuplicates = 0;
 
-			progress = 1d / totalCount;
+			AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(UoW);
+			var org = UoW.GetById<Domain.Organizations.Organization>(orgProvider.GetMainOrganization());
+			var defaultProfitCategory = UoW.GetById<CategoryProfit>(profitCategoryProvider.GetDefaultProfitCategory());
+			var parserDocs = Parser.TransferDocuments.Where(x => x.RecipientInn == org.INN).ToList();
 
-            Match(ref count, ref countDuplicates, totalCount, autoPaymentMatching, defaultProfitCategory, paymentsToVodovoz, organisations[0]);
-			Match(ref count, ref countDuplicates, totalCount, autoPaymentMatching, defaultProfitCategory, paymentsToVodovozSouth, organisations[1]);
+			progress = 1d / parserDocs.Count;
 
-            var paymentsSum = ObservablePayments.Sum(x => x.Total);
-            UpdateProgress?.Invoke($"Загрузка завершена. Обработано платежей {count} на сумму: {paymentsSum}р. из них не загружено дублей: {countDuplicates}", progress);
+			foreach(var doc in parserDocs){
 
-            IsNotAutoMatchingMode = true;
-        }
+				var curDoc = ObservablePayments.SingleOrDefault(x => x.Date == doc.Date
+																&& x.PaymentNum == int.Parse(doc.DocNum)
+																&& x.CounterpartyInn == doc.PayerInn
+																&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount);
 
-        private void Match(
-			ref int count,
-			ref int countDuplicates,
-			int totalCount,
-			AutoPaymentMatching autoPaymentMatching,
-			CategoryProfit defaultProfitCategory,
-			IList<TransferDocument> parsedPayments,
-			Domain.Organizations.Organization org)
-        {
-            foreach (var doc in parsedPayments)
-            {
-                var curDoc = ObservablePayments.SingleOrDefault(x => x.Date == doc.Date
-                                                                && x.PaymentNum == int.Parse(doc.DocNum)
-                                                                && x.Organization.INN == doc.RecipientInn
-                                                                && x.CounterpartyInn == doc.PayerInn
-                                                                && x.CounterpartyCurrentAcc == doc.PayerCurrentAccount);
+				if(PaymentsRepository.PaymentFromBankClientExists(UoW,
+															   	doc.Date,
+															   	int.Parse(doc.DocNum),
+															   	doc.PayerInn,
+															   	doc.PayerCurrentAccount) || curDoc != null) {
 
-                if (PaymentsRepository.PaymentFromBankClientExists(UoW,
-                                                                   doc.Date,
-                                                                   int.Parse(doc.DocNum),
-																   doc.RecipientInn,
-                                                                   doc.PayerInn,
-                                                                   doc.PayerCurrentAccount) || curDoc != null)
-                {
-                    count++;
-                    countDuplicates++;
-                    UpdateProgress?.Invoke($"Обработан платеж {count} из {totalCount}", progress);
-                    continue;
-                }
+					count++;
+					countDuplicates++;
+					UpdateProgress?.Invoke($"Обработан платеж {count} из {parserDocs.Count}", progress);
+					continue;
+				}
 
-                var counterparty = CounterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
+				var counterparty = CounterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
+
 				var curPayment = new Payment(doc, org, counterparty);
 
-				if (!autoPaymentMatching.IncomePaymentMatch(curPayment)){
+				if(!autoPaymentMatching.IncomePaymentMatch(curPayment))
 					curPayment.Status = PaymentState.undistributed;
-				}
-				else{
+				else {
 					curPayment.Status = PaymentState.distributed;
 				}
 
-                count++;
-                curPayment.ProfitCategory = defaultProfitCategory;
+				count++;
+				curPayment.ProfitCategory = defaultProfitCategory;
 
-                ObservablePayments.Add(curPayment);
+				ObservablePayments.Add(curPayment);
 
-                UpdateProgress?.Invoke($"Обработан платеж {count} из {totalCount}", progress);
-            }
-        }
+				UpdateProgress?.Invoke($"Обработан платеж {count} из {parserDocs.Count}", progress);
+			}
 
-        private void CreateOperations(Payment payment)
+			var paymentsSum = ObservablePayments.Sum(x => x.Total);
+			UpdateProgress?.Invoke($"Загрузка завершена. Обработано платежей {count} на сумму: {paymentsSum}р. из них не загружено дублей: {countDuplicates}", progress);
+
+			IsNotAutoMatchingMode = true;
+		}
+
+		private void CreateOperations(Payment payment)
 		{
 			payment.CreateIncomeOperation();
 			UoW.Save(payment.CashlessMovementOperation);

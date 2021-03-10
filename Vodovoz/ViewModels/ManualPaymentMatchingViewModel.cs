@@ -194,8 +194,6 @@ namespace Vodovoz.ViewModels
 
 		public void CurrentPaymentChangedByUser(ManualPaymentMatchingViewModelNode node)
 		{
-			if (node?.CurrentPayment == 0 && node?.OldCurrentPayment == 0) return;
-
 			if(node.CurrentPayment < 0) {
 				node.CurrentPayment = node.OldCurrentPayment;
 				return;
@@ -222,9 +220,6 @@ namespace Vodovoz.ViewModels
 		}
 		
 		public void TreeViewAllocatedSumChangedByUser(ManualPaymentMatchingViewModelAllocatedNode node) {
-
-			if (node == null) return;
-
 			if (node.AllocatedSum > node.LastPayments)
 				node.AllocatedSum = node.LastPayments;
 			
@@ -306,11 +301,6 @@ namespace Vodovoz.ViewModels
 		{
 			SaveViewModelCommand = new DelegateCommand(
 				() => {
-					if(CurrentBalance < 0) {
-						ShowWarningMessage("Остаток не может быть отрицательным!");
-						return;
-					}
-					
 					AllocateOrders();
 					SaveAndClose();
 				},
@@ -510,17 +500,13 @@ namespace Vodovoz.ViewModels
 			VodOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			PaymentItem paymentItemAlias = null;
-			Domain.Organizations.Organization organisationAlias = null;
-			CounterpartyContract contractAlias = null;
 
 			var incomePaymentQuery = UoW.Session.QueryOver(() => orderAlias)
-					.Left.JoinAlias(x => x.Contract, () => contractAlias)
-					.Left.JoinAlias(() => contractAlias.Organization, () => organisationAlias)
+					.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 					.Where(x => x.OrderStatus != OrderStatus.Canceled)
 					.And(x => x.OrderStatus != OrderStatus.DeliveryCanceled)
 					.And(x => x.OrderStatus != OrderStatus.NotDelivered)
-					.And(x => x.PaymentType == PaymentType.cashless)
-					.And(() => organisationAlias.Id == Entity.Organization.Id);
+					.Where(x => x.PaymentType == PaymentType.cashless);
 
 			if(Entity.Counterparty != null)
 				incomePaymentQuery.Where(x => x.Client == Entity.Counterparty);

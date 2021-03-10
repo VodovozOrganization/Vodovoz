@@ -14,10 +14,11 @@ using VodOrder = Vodovoz.Domain.Orders.Order;
 using NHibernate.Criterion;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using Vodovoz.Repositories.Payments;
 using System.Linq;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Services;
+using Vodovoz.Models;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -27,8 +28,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly INavigationManager navigationManager;
 		private readonly ICommonServices commonServices;
 		private readonly IOrderRepository orderRepository;
-		private readonly IOrganizationParametersProvider organizationParametersProvider;
-		private readonly IProfitCategoryProvider profitCategoryProvider;
+		private readonly IOrganizationProvider organizationProvider;
 
 		public PaymentsJournalViewModel(
 			PaymentsJournalFilterViewModel filterViewModel,
@@ -36,18 +36,19 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			IOrderRepository orderRepository,
-			IOrganizationParametersProvider organizationParametersProvider,
-			IProfitCategoryProvider profitCategoryProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IOrganizationProvider organizationProvider
+		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал платежей из банк-клиента";
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
-			this.profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
+			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
 			this.navigationManager = navigationManager;
 
 			RegisterPayments();
+
+			var threadLoader = DataLoader as ThreadDataLoader<PaymentJournalNode>;
 
 			FinishJournalConfiguration();
 
@@ -147,8 +148,7 @@ namespace Vodovoz.JournalViewModels
 						unitOfWorkFactory,
 						commonServices,
 						navigationManager,
-						organizationParametersProvider,
-						profitCategoryProvider
+						organizationProvider
 					),
 					//функция диалога открытия документа
 					(PaymentJournalNode node) => new ManualPaymentMatchingViewModel(

@@ -101,7 +101,7 @@ namespace Vodovoz.JournalViewModels
 
 			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(o => o.IsForRetail == FilterViewModel.IsForRetail);
+				query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
 			}
 
 			if (FilterViewModel.ViewTypes != ViewTypes.Order && FilterViewModel.ViewTypes != ViewTypes.All)
@@ -262,7 +262,7 @@ namespace Vodovoz.JournalViewModels
 			var ordersConfig = RegisterEntity<VodovozOrder>(GetOrdersQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new OrderDlg(FilterViewModel.IsForRetail),
+					() => new OrderDlg(),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderDlg(node.Id),
 					//функция идентификации документа 
@@ -300,7 +300,7 @@ namespace Vodovoz.JournalViewModels
 
 			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(o => o.IsForRetail == FilterViewModel.IsForRetail);
+				query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
 			}
 
 			if (FilterViewModel.RestrictStartDate != null) {
@@ -399,7 +399,7 @@ namespace Vodovoz.JournalViewModels
 
 			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(o => o.IsForRetail == FilterViewModel.IsForRetail);
+				query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
 			}
 
 			if (FilterViewModel.RestrictStartDate != null) {
@@ -519,7 +519,7 @@ namespace Vodovoz.JournalViewModels
 
 			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(o => o.IsForRetail == FilterViewModel.IsForRetail);
+				query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
 			}
 
 			if (FilterViewModel.RestrictStartDate != null) {

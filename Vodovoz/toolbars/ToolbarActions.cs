@@ -519,7 +519,6 @@ public partial class MainWindow : Window
 				"AutoRouting",
 				() => new RouteListsOnDayViewModel(
 					ServicesConfig.CommonServices,
-					new DeliveryScheduleParametersProvider(ParametersProvider.Instance),
 					new GtkTabsOpener(),
 					new RouteListRepository(),
 					new SubdivisionRepository(),
@@ -559,6 +558,8 @@ public partial class MainWindow : Window
 
 	void ActionPaymentFromBank_Activated(object sender, System.EventArgs e)
 	{
+		var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+		
 		var filter = new PaymentsJournalFilterViewModel();
 
 		var paymentsJournalViewModel = new PaymentsJournalViewModel(
@@ -567,8 +568,7 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			NavigationManagerProvider.NavigationManager,
 			OrderSingletonRepository.GetInstance(),
-			new OrganizationParametersProvider(ParametersProvider.Instance),
-			new BaseParametersProvider()
+			orderOrganizationProviderFactory.CreateOrderOrganizationProvider()
 		);
 
 		tdiMain.AddTab(paymentsJournalViewModel);
@@ -862,7 +862,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<Order>(0),
-			() => new OrderDlg(false)
+			() => new OrderDlg()
 		);
 	}
 
@@ -909,7 +909,7 @@ public partial class MainWindow : Window
 				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
 				UserSingletonRepository.GetInstance());
 		
-		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel() { IsForRetail = false };
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel();
 		var ordersJournal = new OrderJournalViewModel(filter, 
 													  UnitOfWorkFactory.GetDefaultFactory, 
 													  ServicesConfig.CommonServices,

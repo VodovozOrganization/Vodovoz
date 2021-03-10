@@ -92,7 +92,6 @@ namespace Vodovoz.ReportsParameters.Orders
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.scrolledwindow1 = new global::Gtk.ScrolledWindow();
-			this.scrolledwindow1.HeightRequest = 300;
 			this.scrolledwindow1.CanFocus = true;
 			this.scrolledwindow1.Name = "scrolledwindow1";
 			this.scrolledwindow1.ShadowType = ((global::Gtk.ShadowType)(1));

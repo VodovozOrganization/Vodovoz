@@ -6,7 +6,6 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.StoredResources;
 
 namespace Vodovoz.Domain.Organizations
 {
@@ -145,14 +144,6 @@ namespace Vodovoz.Domain.Organizations
         public virtual bool WithoutVAT {
             get => withoutVAT;
             set => SetField(ref withoutVAT, value);
-        }
-
-        private StoredImageResource stamp;
-        [Display(Name = "Печать")]
-        public virtual StoredImageResource Stamp
-        {
-            get => stamp;
-            set => SetField(ref stamp, value);
         }
 
         #endregion
