@@ -72,7 +72,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>59.8pt</Height>
+              <Height>40.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -375,7 +375,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>= "N" + Iif({nomenclature_count_numbers} &gt; 0, 3, 0)</Format>
+                        <Format>= "N" + {nomenclature_count_numbers}</Format>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
@@ -392,7 +392,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>= "N" + Iif({nomenclature_count_numbers} &gt; 0, 3, 0)</Format>
+                        <Format>= "N" + {nomenclature_count_numbers}</Format>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
@@ -493,7 +493,7 @@
         </Details>
         <Left>0.8pt</Left>
         <Top>97.2pt</Top>
-        <PageBreakAtEnd>false</PageBreakAtEnd>
+        <PageBreakAtEnd>true</PageBreakAtEnd>
       </Table>
       <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>25.60pt</Height>
@@ -556,7 +556,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>42.3pt</Width>
+            <Width>39.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>62.0pt</Width>
@@ -656,9 +656,8 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>408.7pt</Left>
-        <Top>184.6pt</Top>
-        <PageBreakAtStart >false</PageBreakAtStart>
+        <Left>411.0pt</Left>
+        <Top>160.8pt</Top>
       </Table>
     </ReportItems>
   </Body>

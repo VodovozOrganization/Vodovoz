@@ -244,31 +244,22 @@ namespace Vodovoz
 			Entity.PropertyChanged += Entity_PropertyChanged;
 			UpdateAddressOnMap();
 
-			if (Entity.Counterparty.IsForRetail)
-			{
-				ySpinLimitMin.ValueAsInt = int.MinValue;
-				ySpinLimitMax.ValueAsInt = int.MaxValue;
+			ySpinLimitMin.ValueAsInt = int.MinValue;
+			ySpinLimitMax.ValueAsInt = int.MaxValue;
 
-				var userCanEditOrdersLimits = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_edit_orders_limits");
+			var userCanEditOrdersLimits = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_edit_orders_limits");
 
-				ySpinLimitMin.Sensitive = userCanEditOrdersLimits;
-				ySpinLimitMax.Sensitive = userCanEditOrdersLimits;
+			ySpinLimitMin.Sensitive = userCanEditOrdersLimits;
+			ySpinLimitMax.Sensitive = userCanEditOrdersLimits;
 
-				ySpinLimitMin.Binding.AddBinding(Entity, e => e.MinimalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
-				ySpinLimitMax.Binding.AddBinding(Entity, e => e.MaximalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
+			ySpinLimitMin.Binding.AddBinding(Entity, e => e.MinimalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
+			ySpinLimitMax.Binding.AddBinding(Entity, e => e.MaximalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
 
-				deliverypointresponsiblepersonsview1.UoW = UoW;
-				if (Entity.ResponsiblePersons == null)
-					Entity.ResponsiblePersons = new List<DeliveryPointResponsiblePerson>();
-				deliverypointresponsiblepersonsview1.DeliveryPoint = Entity;
-				deliverypointresponsiblepersonsview1.ResponsiblePersons = Entity.ResponsiblePersons;
-			} else
-            {
-				label5.Visible = false; // Порог
-				hbox14.Visible = false;
-				deliverypointresponsiblepersonsview1.Visible = false;
-				label17.Visible = false; // Ответственные лица
-            }
+			deliverypointresponsiblepersonsview1.UoW = UoW;
+			if (Entity.ResponsiblePersons == null)
+				Entity.ResponsiblePersons = new List<DeliveryPointResponsiblePerson>();
+            deliverypointresponsiblepersonsview1.DeliveryPoint = Entity;
+            deliverypointresponsiblepersonsview1.ResponsiblePersons = Entity.ResponsiblePersons;
 		}
 
 		void MapWidget_MotionNotifyEvent(object o, Gtk.MotionNotifyEventArgs args)
