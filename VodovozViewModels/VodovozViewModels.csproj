@@ -141,9 +141,6 @@
     <Compile Include="Journals\JournalNodes\RouteListJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RouteListStatusNode.cs" />
     <Compile Include="Journals\JournalNodes\SalesChannelJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\MovementWagonJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\RouteListJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\RouteListStatusNode.cs" />
     <Compile Include="Journals\JournalSelectors\ExpanceCategoryAutoCompleteSelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />
@@ -200,8 +197,6 @@
     <Compile Include="ViewModels\Logistic\DriverDistrictPrioritySetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DriverWorkScheduleNode.cs" />
     <Compile Include="ViewModels\Logistic\DriverWorkScheduleSetViewModel.cs" />
-    <Compile Include="ViewModels\Logistic\DistrictsSetActivationViewModel.cs" />
-    <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DriverCarKindViewModel.cs" />
     <Compile Include="ViewModels\Organization\SubdivisionViewModel.cs" />

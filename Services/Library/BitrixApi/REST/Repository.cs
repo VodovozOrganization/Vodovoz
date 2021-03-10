@@ -17,16 +17,21 @@ namespace BitrixApi.REST
         static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private static readonly HttpClient client = new HttpClient();
         private string token;
+        private string userId;
         private const string baseURL = "https://vodovoz.bitrix24.ru";
         static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1,1);
-        private const string userId = "2364";
         private const string createInDVStageId = "13";
         
         
         /// <param name="token">BitrixAPI токен из конфига</param>
-        public BitrixRestApi(string token)
+        public BitrixRestApi(string userId, string token)
         {
-            this.token = token ?? throw new ArgumentNullException(nameof(token));
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(userId));
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));
+            this.userId = userId;
+            this.token = token;
         }
         
         //crm.deal.get

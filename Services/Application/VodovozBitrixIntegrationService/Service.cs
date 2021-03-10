@@ -43,6 +43,7 @@ namespace VodovozBitrixIntegrationService
 		
 		//Bitrix
 		private static string token;
+		private static string userId;
 		
 
 		public static void Main(string[] args)
@@ -50,7 +51,6 @@ namespace VodovozBitrixIntegrationService
 			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
 			AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 			logger.Info("Чтение конфигурационного файла...");
-			// ReadConfig();
 
 			#region ReadConfig
 
@@ -71,7 +71,7 @@ namespace VodovozBitrixIntegrationService
 				
 				IConfig bitrixConfig = confFile.Configs["Bitrix"];
 				token = bitrixConfig.GetString("api_key");
-				
+				userId = bitrixConfig.GetString("user_id");
 			}
 			catch(Exception ex) {
 				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
@@ -86,34 +86,6 @@ namespace VodovozBitrixIntegrationService
 		}
 
 		#region Configure
-
-		//TODO gavr в отдельной функции не работает изза бага в Nini
-		static void ReadConfig()
-		{
-			try {
-				IniConfigSource confFile = new IniConfigSource(configFile);
-				confFile.Reload();
-				IConfig serviceConfig = confFile.Configs["Service"];
-				serviceHostName = serviceConfig.GetString("service_host_name");
-				servicePort = serviceConfig.GetString("service_port");
-				serviceWebPort = serviceConfig.GetString("service_web_port");
-
-				IConfig mysqlConfig = confFile.Configs["Mysql"];
-				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
-				mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
-				mysqlUser = mysqlConfig.GetString("mysql_user");
-				mysqlPassword = mysqlConfig.GetString("mysql_password");
-				mysqlDatabase = mysqlConfig.GetString("mysql_database");
-				
-				IConfig bitrixConfig = confFile.Configs["Bitrix"];
-				token = bitrixConfig.GetString("api_key");
-			}
-			
-			catch(Exception ex) {
-				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
-				return;
-			}
-		}
 
 		static void ConfigureDBConnection()
 		{
@@ -215,7 +187,7 @@ namespace VodovozBitrixIntegrationService
 
 				var uow = UnitOfWorkFactory.CreateWithoutRoot();
 				var matcher = new Matcher();
-				var bitrixApi = BitrixRestApiFactory.CreateBitrixRestApi(token);
+				var bitrixApi = BitrixRestApiFactory.CreateBitrixRestApi(userId, token);
 				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
