@@ -6,10 +6,9 @@ using QSReport;
 using Vodovoz.Domain.Organizations;
 using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
-using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSSupportLib;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -18,9 +17,11 @@ namespace Vodovoz.ReportsParameters.Orders
     {
         private List<SelectedChangeTypeNode> changeTypes = new List<SelectedChangeTypeNode>();
         private List<SelectedIssueTypeNode> issueTypes = new List<SelectedIssueTypeNode>();
+        private readonly IReportDefaultsProvider reportDefaultsProvider;
 
-        public OrderChangesReport()
+        public OrderChangesReport(IReportDefaultsProvider reportDefaultsProvider)
         {
+            this.reportDefaultsProvider = reportDefaultsProvider ?? throw new ArgumentNullException(nameof(reportDefaultsProvider));
             this.Build();
             Configure();
         }
@@ -36,7 +37,7 @@ namespace Vodovoz.ReportsParameters.Orders
             comboOrganization.ItemsList = organizations;
             comboOrganization.SetRenderTextFunc<Organization>(x => x.FullName);
             comboOrganization.Changed += (sender, e) => UpdateSensitivity();
-            comboOrganization.SelectedItem = organizations.Where(x => x.Id == int.Parse(MainSupport.BaseParameters.All["order_changes_default_organization_id"])).FirstOrDefault();
+            comboOrganization.SelectedItem = organizations.Where(x => x.Id == reportDefaultsProvider.GetDefaultOrderChangesOrganizationId).FirstOrDefault();
             ytreeviewChangeTypes.ColumnsConfig = FluentColumnsConfig<SelectedChangeTypeNode>.Create()
                 .AddColumn("✓").AddToggleRenderer(x => x.Selected)
                 .AddColumn("Тип").AddTextRenderer(x => x.Title)
