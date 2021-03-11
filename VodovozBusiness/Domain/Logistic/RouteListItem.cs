@@ -625,9 +625,10 @@ namespace Vodovoz.Domain.Logistic
 					item.OriginalDiscountReason = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReason : null;
 				}
 				item.ActualCount = 0m;
-			}
-			foreach(var equip in Order.OrderEquipments)
-				equip.ActualCount = 0;
+                BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
+            }
+            foreach (var equip in Order.OrderEquipments)
+                equip.ActualCount = 0;
 
 			foreach(var deposit in Order.OrderDepositItems)
 				deposit.ActualCount = 0;
