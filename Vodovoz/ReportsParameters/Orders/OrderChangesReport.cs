@@ -9,6 +9,7 @@ using QS.DomainModel.Entity;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QSSupportLib;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -35,7 +36,7 @@ namespace Vodovoz.ReportsParameters.Orders
             comboOrganization.ItemsList = organizations;
             comboOrganization.SetRenderTextFunc<Organization>(x => x.FullName);
             comboOrganization.Changed += (sender, e) => UpdateSensitivity();
-            comboOrganization.SelectedItem = organizations.Where(x => x.Name == "ООО \"Веселый Водовоз ЮГ\"").FirstOrDefault();
+            comboOrganization.SelectedItem = organizations.Where(x => x.Id == int.Parse(MainSupport.BaseParameters.All["order_changes_default_organization_id"])).FirstOrDefault();
             ytreeviewChangeTypes.ColumnsConfig = FluentColumnsConfig<SelectedChangeTypeNode>.Create()
                 .AddColumn("✓").AddToggleRenderer(x => x.Selected)
                 .AddColumn("Тип").AddTextRenderer(x => x.Title)
