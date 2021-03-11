@@ -283,7 +283,7 @@ namespace Vodovoz
             ycheckNoPhoneCall.Visible = Entity.IsForRetail;
 
             DelayDaysForBuyerValue.Binding.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt).InitializeFromSource();
-            lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = false;
+            lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = Entity?.IsChainStore ?? false;
 
             yspinDelayDaysForTechProcessing.Binding.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt).InitializeFromSource();
 
