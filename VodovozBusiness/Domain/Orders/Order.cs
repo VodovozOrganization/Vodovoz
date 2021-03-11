@@ -124,10 +124,6 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == client)
 					return;
-				if(value != null)
-                {
-					IsForRetail = value.IsForRetail;
-				}
 				if (orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
@@ -148,6 +144,10 @@ namespace Vodovoz.Domain.Orders
                     if(oldClient != null) {
 						UpdateContract();
                     }
+					if (value != null)
+					{
+						IsForRetail = value.IsForRetail;
+					}
 				}
 			}
 		}
