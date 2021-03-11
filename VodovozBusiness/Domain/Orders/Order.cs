@@ -118,7 +118,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref acceptedOrderEmployee, value);
 		}
 
-
 		Counterparty client;
 		[Display(Name = "Клиент")]
 		public virtual Counterparty Client {
@@ -126,6 +125,7 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == client)
 					return;
+				IsForRetail = value.IsForRetail;
 				if(orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
@@ -156,6 +156,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual DeliveryPoint DeliveryPoint {
 			get => deliveryPoint;
 			set {
+				var oldDeliveryPoint = deliveryPoint;
 				if(SetField(ref deliveryPoint, value, () => DeliveryPoint) && value != null) {
 					if(DeliverySchedule == null)
 						DeliverySchedule = value.DeliverySchedule;
@@ -163,7 +164,9 @@ namespace Vodovoz.Domain.Orders
 					if(Id == 0)
 						AddCertificates = DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null;
 
-					UpdateContract();
+					if (oldDeliveryPoint != null) {
+						UpdateContract();
+					}
 				}
 			}
 		}
@@ -550,6 +553,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isBottleStock, value, () => IsBottleStock);
 		}
 
+		private bool isForRetail;
+		[Display(Name = "Для розницы")]
+		public virtual bool IsForRetail
+		{
+			get => isForRetail;
+			set => SetField(ref isForRetail, value, () => IsForRetail);
+		}
+
 		private int bottlesByStockCount;
 		[Display(Name = "Количество бутылей по акции")]
 		public virtual int BottlesByStockCount {
@@ -841,6 +852,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			var order = new Order {
 				client = service.Counterparty,
+				IsForRetail = service.Counterparty.IsForRetail,
 				DeliveryPoint = service.DeliveryPoint,
 				DeliveryDate = service.ServiceStartDate,
 				PaymentType = service.Payment,
@@ -1066,6 +1078,34 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult(
 					"Ошибка программы. В заказе автоматически подобрана неверная организация или к организации не привязан кассовый аппарат",
 					new[] { nameof(Contract.Organization) });
+			}
+
+			if (OrderItems.Any(oi => !string.IsNullOrWhiteSpace(oi.Nomenclature.OnlineStoreExternalId))
+				&& EShopOrder == null)
+			{
+				yield return new ValidationResult(
+					"В заказе есть товары ИМ, но не указан номер заказа ИМ",
+					new[] { this.GetPropertyName(o => o.EShopOrder) }
+				);
+			}
+
+			if (DeliveryPoint != null)
+            {
+				if (DeliveryPoint.MinimalOrderSumLimit != 0 && OrderTotalSum < DeliveryPoint.MinimalOrderSumLimit)
+				{
+					yield return new ValidationResult(
+						"Сумма заказа меньше минимальной погоровой установленной для точки доставки",
+						new[] { this.GetPropertyName(o => o.OrderTotalSum) }
+					);
+				}
+
+				if (DeliveryPoint.MaximalOrderSumLimit != 0 && OrderTotalSum > DeliveryPoint.MaximalOrderSumLimit)
+				{
+					yield return new ValidationResult(
+						"Сумма заказа больше максимальной погоровой установленной для точки доставки",
+						new[] { this.GetPropertyName(o => o.OrderTotalSum) }
+					);
+				}
 			}
 		}
 
@@ -2824,7 +2864,7 @@ namespace Vodovoz.Domain.Orders
 				if(unloadedNoms.ContainsKey(nGrp.Key))
 					totalCount += unloadedNoms[nGrp.Key];
 
-				if((int)totalCount != nGrp.Value)
+				if(totalCount != nGrp.Value)
 					canCloseOrder = false;
 			}
 

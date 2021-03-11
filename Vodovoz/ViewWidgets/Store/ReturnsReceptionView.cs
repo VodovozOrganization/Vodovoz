@@ -12,14 +12,15 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Repository.Store;
 using Vodovoz.Services;
 
 namespace Vodovoz
@@ -28,7 +29,9 @@ namespace Vodovoz
 	public partial class ReturnsReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
-		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
+		private readonly ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
+		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository();
+		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
 
 		public IList<ReceptionItemNode> Items => ReceptionReturnsList;
 
@@ -57,7 +60,7 @@ namespace Vodovoz
 
 		private void CalculateAmount(ReceptionItemNode node)
 		{
-			if (node.Name == "Терминал для оплаты" && node.Amount > node.ExpectedAmount) 
+			if (node.Name == "Терминал для оплаты" && node.Amount > node.ExpectedAmount && UoW.IsNew) 
 				node.Amount = node.ExpectedAmount;
 		}
 
@@ -116,42 +119,30 @@ namespace Vodovoz
 			OrderEquipment orderEquipmentAlias = null;
 			RouteListItem routeListItemAlias = null;
 			RouteListItem routeListItemToAlias = null;
-			Employee employeeAlias = null;
 
 			IList<ReceptionItemNode> returnableItems = new List<ReceptionItemNode>();
 			IList<ReceptionItemNode> returnableEquipment = new List<ReceptionItemNode>();
 			
 			ReceptionItemNode returnableTerminal = null;
-			bool isTerminalLoaded = false;
-			
+			int loadedTerminalAmount = default(int);
+
 			var cashSubdivision = new SubdivisionRepository().GetCashSubdivisions(uow);
 			if(cashSubdivision.Contains(Warehouse.OwningSubdivision)) {
-				var loadDocs = uow.Session.QueryOver<CarLoadDocument>()
-					.Where(x => x.RouteList.Id == RouteList.Id)
-					.List();
+				
+				loadedTerminalAmount = (int)carLoadDocumentRepository.LoadedTerminalAmount(UoW, RouteList.Id, terminalId);
+				var unloadedTerminalAmount = (int)carUnloadRepository.UnloadedTerminalAmount(UoW, RouteList.Id, terminalId);
 
-				isTerminalLoaded =
-					loadDocs.SelectMany(x => x.ObservableItems)
-						.Any(x => x.Nomenclature.Id == terminalId);
+				if (loadedTerminalAmount > 0)
+                {
+					var terminal = UoW.GetById<Nomenclature>(terminalId);
 
-				EmployeeNomenclatureMovementOperation employeeOperationAlias = null;
-			
-				returnableTerminal = uow.Session.QueryOver<EmployeeNomenclatureMovementOperation>(() => employeeOperationAlias)
-					.Left.JoinAlias(x => x.Nomenclature, () => nomenclatureAlias)
-					.Left.JoinAlias(x => x.Employee, () => employeeAlias)
-					.Where(() => employeeAlias.Id == RouteList.Driver.Id)
-					.And(() => nomenclatureAlias.Id == terminalId)
-					.SelectList(list => list
-						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-						.Select(Projections.Sum(
-							Projections.Cast(
-								NHibernateUtil.Int32, 
-								Projections.Property(() => employeeOperationAlias.Amount)))
-						).WithAlias(() => resultAlias.ExpectedAmount)
-					)
-					.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
-					.SingleOrDefault<ReceptionItemNode>();
+					returnableTerminal = new ReceptionItemNode
+					{
+						NomenclatureId = terminal.Id,
+						Name = terminal.Name,
+						ExpectedAmount = loadedTerminalAmount - unloadedTerminalAmount
+					};
+                }
 			}
 			else {
 				returnableItems = UoW.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
@@ -224,7 +215,7 @@ namespace Vodovoz
 					ReceptionReturnsList.Add(item);
 			}
 
-			if (returnableTerminal != null && isTerminalLoaded) {
+			if (returnableTerminal != null && loadedTerminalAmount > 0) {
 				if (ReceptionReturnsList.All(i => i.NomenclatureId != returnableTerminal.NomenclatureId))
 					ReceptionReturnsList.Add(returnableTerminal);
 			}

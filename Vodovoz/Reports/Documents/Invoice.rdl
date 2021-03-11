@@ -2058,9 +2058,6 @@ WHERE stored_resource.id = @id1</CommandText>
             </TableRow>
             <TableRow>
               <Height>11.3pt</Height>
-              <Visibility>
-                <Hidden>=Iif(Fields!bottles_return.Value = Nothing, true, false)</Hidden>
-              </Visibility>
               <TableCells>
                 <TableCell>
                   <ReportItems>

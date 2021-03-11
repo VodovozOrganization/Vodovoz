@@ -101,15 +101,7 @@ namespace Android
 			Counterparty = item.Order.Client.FullName;
 			BottlesReturn = item.DriverBottlesReturned == null ? null :item.DriverBottlesReturned.ToString() ;
 
-			if (item.Order.DeliveryPoint != null && item.Order.DeliveryPoint.Contacts.Count > 0)
-			{
-				//FIXME Сделать обработку нескольких контантных лиц.
-				DPContact = item.Order.DeliveryPoint.Contacts[0].FullName;
-			}
-			else 
-			{
-				DPContact = "Контактные лица не указаны";
-			}
+			DPContact = "Контактные лица не указаны";
 
 			//FIXME Чисто временное решение, так как необходимо обновлять Анройд клиент.
 			DPPhone = String.Join("\n", item.Order.DeliveryPoint.Phones.Select(x => x.LongText));

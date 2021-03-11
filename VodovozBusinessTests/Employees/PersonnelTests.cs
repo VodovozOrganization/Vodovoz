@@ -34,7 +34,7 @@ namespace VodovozBusinessTests.Employees
 			traineeMock.Name.Returns("TestName");
 			traineeMock.LastName.Returns("TestLastName");
 			traineeMock.Patronymic.Returns("TestPatronymic");
-			traineeMock.DrivingNumber.Returns("TestPassportSeria");
+			traineeMock.DrivingLicense.Returns("TestPassportSeria");
 			traineeMock.AddressRegistration.Returns("TestPassportSeria");
 			traineeMock.AddressCurrent.Returns("TestPassportSeria");
 			traineeMock.INN.Returns("TestPassportSeria");
@@ -100,9 +100,9 @@ namespace VodovozBusinessTests.Employees
 				result = false;
 				output += nameof(traineeMock.Patronymic) + ", ";
 			}
-			if(traineeMock.DrivingNumber != employeeMock.DrivingNumber) {
+			if(traineeMock.DrivingLicense != employeeMock.DrivingLicense) {
 				result = false;
-				output += nameof(traineeMock.DrivingNumber) + ", ";
+				output += nameof(traineeMock.DrivingLicense) + ", ";
 			}
 			if(traineeMock.AddressRegistration != employeeMock.AddressRegistration) {
 				result = false;

@@ -55,6 +55,9 @@
           <TableColumn>
             <Width>42.1pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>42.1pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>47.3pt</Width>
           </TableColumn>
@@ -62,16 +65,16 @@
             <Width>70.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>79.6pt</Width>
+            <Width>74.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>54.5pt</Width>
+            <Width>51.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>116.7pt</Width>
+            <Width>95.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>47.6pt</Width>
@@ -86,7 +89,7 @@
             <Width>21.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>89.6pt</Width>
+            <Width>86.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -133,6 +136,24 @@
                     <Textbox Name="Textbox4">
                       <Value>Дата</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Время
+создания</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -397,6 +418,24 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>=Fields!creation_date.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>HH:mm:ss</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
@@ -504,7 +543,7 @@
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
                       </Style>
-                      <CanShrink>true</CanShrink>
+                      <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -543,7 +582,7 @@
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
                       </Style>
-                      <CanShrink>true</CanShrink>
+                      <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -580,6 +619,7 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -596,9 +636,11 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
-                      <CanShrink>true</CanShrink>
+                      <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -606,8 +648,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>3.5pt</Left>
-        <Top>12.6pt</Top>
+        <Left>0.0pt</Left>
+        <Top>14.8pt</Top>
       </Table>
     </ReportItems>
   </Body>
@@ -634,7 +676,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Complaint">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     complaints.id,
@@ -734,7 +776,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
         </Field>

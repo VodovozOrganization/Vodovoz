@@ -84,7 +84,7 @@ namespace Vodovoz.Dialogs.Cash
 
 		private global::Gtk.Label labelCancelReason;
 
-		private global::Gtk.Label labelCategoryEntityviewmodelentry;
+		private global::Gamma.GtkWidgets.yLabel labelCategoryEntityviewmodelentry;
 
 		private global::Gtk.Label labelcomboOrganization;
 
@@ -514,7 +514,7 @@ namespace Vodovoz.Dialogs.Cash
 			w40.XOptions = ((global::Gtk.AttachOptions)(4));
 			w40.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelCategoryEntityviewmodelentry = new global::Gtk.Label();
+			this.labelCategoryEntityviewmodelentry = new global::Gamma.GtkWidgets.yLabel();
 			this.labelCategoryEntityviewmodelentry.Name = "labelCategoryEntityviewmodelentry";
 			this.labelCategoryEntityviewmodelentry.Xalign = 0F;
 			this.labelCategoryEntityviewmodelentry.LabelProp = global::Mono.Unix.Catalog.GetString("Статья расхода:");

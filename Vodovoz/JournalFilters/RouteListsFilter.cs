@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Widgets;
 using QS.DomainModel.UoW;
@@ -13,6 +12,7 @@ using Vodovoz.EntityRepositories;
 using QS.Project.Services;
 using Gamma.ColumnConfig;
 using System.ComponentModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 namespace Vodovoz
 {
@@ -249,22 +249,5 @@ namespace Vodovoz
             OnRefiltered();
         }
     }
-
-    //значения для списка ТС
-    public enum RLFilterTransport
-	{
-		[Display(Name = "Наёмники")]
-		Mercenaries,
-		[Display(Name = "Раскат")]
-		Raskat,
-		[Display(Name = "Ларгус")]
-		Largus,
-		[Display(Name = "ГАЗель")]
-		GAZelle,
-		[Display(Name = "Фура")]
-		Waggon,
-		[Display(Name = "Прочее")]
-		Others
-	}
 }
 

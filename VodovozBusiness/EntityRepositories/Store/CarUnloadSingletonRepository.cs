@@ -62,5 +62,22 @@ namespace Vodovoz.Repository.Store
 			else
 				return true;
 		}
+
+		public decimal UnloadedTerminalAmount(IUnitOfWork uow, int routelistId, int terminalId)
+		{
+			CarUnloadDocument docAlias = null;
+			CarUnloadDocumentItem docItemsAlias = null;
+			WarehouseMovementOperation warehouseMovementOperationAlias = null;
+
+			var query = uow.Session.QueryOver(() => docAlias)
+				.JoinAlias(d => d.Items, () => docItemsAlias)
+				.JoinAlias(() => docItemsAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias)
+				.Where(() => docAlias.RouteList.Id == routelistId)
+				.And(() => warehouseMovementOperationAlias.Nomenclature.Id == terminalId)
+				.Select(Projections.Sum(() => warehouseMovementOperationAlias.Amount))
+				.SingleOrDefault<decimal>();
+
+			return query;
+		}
 	}
 }

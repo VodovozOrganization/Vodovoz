@@ -1,8 +1,11 @@
-﻿using QS.Project.Filter;
+﻿using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
+using NHibernate.Transform;
+using QS.Project.Filter;
 using QS.Project.Journal;
 using QS.RepresentationModel.GtkUI;
-using QS.Services;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Retail;
 using Vodovoz.Representations;
 
 namespace Vodovoz.Filters.ViewModels
@@ -16,7 +19,18 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.RestrictIncludeArchive,
 				x => x.Tag
 			);
-		}
+
+            SalesChannel salesChannelAlias = null;
+            SalesChannelSelectableNode salesChannelSelectableNodeAlias = null;
+
+            var list = UoW.Session.QueryOver(() => salesChannelAlias)
+                .SelectList(scList => scList
+                .SelectGroup(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
+                    .Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name)
+                ).TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>()).List<SalesChannelSelectableNode>();
+
+            SalesChannels = new GenericObservableList<SalesChannelSelectableNode>(list);
+        }
 
 		private CounterpartyType? counterpartyType;
 		public virtual CounterpartyType? CounterpartyType {
@@ -44,6 +58,45 @@ namespace Vodovoz.Filters.ViewModels
 				}
 				return tagVM;
 			}
+		}
+
+        private bool? isForRetail;
+        public bool? IsForRetail
+        {
+            get => isForRetail;
+			set => SetField(ref isForRetail, value);
+        }
+
+        private GenericObservableList<SalesChannelSelectableNode> salesChannels = new GenericObservableList<SalesChannelSelectableNode>();
+        public GenericObservableList<SalesChannelSelectableNode> SalesChannels
+        {
+            get => salesChannels;
+            set {
+				UnsubscribeOnCheckChanged();
+				SetField(ref salesChannels, value);
+				SubscribeOnCheckChanged();
+			}
+		}
+
+		private void UnsubscribeOnCheckChanged()
+		{
+			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
+			{
+				selectableSalesChannel.PropertyChanged -= OnStatusCheckChanged;
+			}
+		}
+
+		private void SubscribeOnCheckChanged()
+		{
+			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
+			{
+				selectableSalesChannel.PropertyChanged += OnStatusCheckChanged;
+			}
+		}
+
+		private void OnStatusCheckChanged(object sender, PropertyChangedEventArgs e)
+		{
+			Update();
 		}
 	}
 }

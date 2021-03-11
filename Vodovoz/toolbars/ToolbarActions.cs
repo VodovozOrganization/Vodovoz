@@ -68,6 +68,7 @@ using VodovozInfrastructure.Interfaces;
 using Action = Gtk.Action;
 using Vodovoz.Old1612ExportTo1c;
 using Vodovoz.JournalFilters.Cash;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 public partial class MainWindow : Window
 {
@@ -162,7 +163,7 @@ public partial class MainWindow : Window
 		ActionAtWorks = new Action("ActionAtWorks", "На работе", null, "table");
 		ActionRouteListsAtDay = new Action("ActionRouteListsAtDay", "Формирование МЛ", null, null);
 		ActionRouteListsPrint = new Action("ActionRouteListsPrint", "Печать МЛ", null, "print");
-		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов", null, "table");
+		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Работа кассы с МЛ", null, "table");
 		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин", null, "table");
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
@@ -500,14 +501,9 @@ public partial class MainWindow : Window
 
 	void ActionAtWorks_Activated(object sender, System.EventArgs e)
 	{
-		var authService = new AuthorizationService(
-			new PasswordGenerator(),
-			new MySQLUserRepository(
-				new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-				new GtkInteractiveService()));
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AtWorksDlg>(),
-			() => new AtWorksDlg(authService)
+			() => new AtWorksDlg(new BaseParametersProvider())
 		);
 	}
 
@@ -523,6 +519,7 @@ public partial class MainWindow : Window
 				"AutoRouting",
 				() => new RouteListsOnDayViewModel(
 					ServicesConfig.CommonServices,
+					new DeliveryScheduleParametersProvider(ParametersProvider.Instance),
 					new GtkTabsOpener(),
 					new RouteListRepository(),
 					new SubdivisionRepository(),
@@ -530,7 +527,8 @@ public partial class MainWindow : Window
 					new AtWorkRepository(),
 					new CarRepository(),
 					NavigationManagerProvider.NavigationManager,
-					UserSingletonRepository.GetInstance()
+					UserSingletonRepository.GetInstance(),
+					new BaseParametersProvider()
 				)
 			);
 	}
@@ -561,8 +559,6 @@ public partial class MainWindow : Window
 
 	void ActionPaymentFromBank_Activated(object sender, System.EventArgs e)
 	{
-		var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-		
 		var filter = new PaymentsJournalFilterViewModel();
 
 		var paymentsJournalViewModel = new PaymentsJournalViewModel(
@@ -571,7 +567,8 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			NavigationManagerProvider.NavigationManager,
 			OrderSingletonRepository.GetInstance(),
-			orderOrganizationProviderFactory.CreateOrderOrganizationProvider()
+			new OrganizationParametersProvider(ParametersProvider.Instance),
+			new BaseParametersProvider()
 		);
 
 		tdiMain.AddTab(paymentsJournalViewModel);
@@ -780,11 +777,23 @@ public partial class MainWindow : Window
 
 	void ActionRouteListClosingTable_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RouteListClosingView>(),
-			() => new RouteListClosingView()
-		);
-	}
+        tdiMain.OpenTab(
+            () => {
+                var routeListFilter = new RouteListJournalFilterViewModel();
+
+                return new RouteListWorkingJournalViewModel(
+                     routeListFilter,
+                     UnitOfWorkFactory.GetDefaultFactory,
+                     ServicesConfig.CommonServices,
+                     new RouteListRepository(),
+                     new FuelRepository(),
+                     new CallTaskRepository(),
+                     new BaseParametersProvider(),
+                     new SubdivisionRepository()
+                     );
+            }
+        );
+    }
 
 	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)
 	{
@@ -853,7 +862,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<Order>(0),
-			() => new OrderDlg()
+			() => new OrderDlg(false)
 		);
 	}
 
@@ -900,7 +909,7 @@ public partial class MainWindow : Window
 				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
 				UserSingletonRepository.GetInstance());
 		
-		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel();
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel() { IsForRetail = false };
 		var ordersJournal = new OrderJournalViewModel(filter, 
 													  UnitOfWorkFactory.GetDefaultFactory, 
 													  ServicesConfig.CommonServices,

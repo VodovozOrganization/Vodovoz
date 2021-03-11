@@ -77,7 +77,7 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (DeliveryPoint updatedSubject)
 		{
-			return Counterparty.Id == updatedSubject.Counterparty.Id;
+			return Counterparty?.Id == updatedSubject?.Counterparty?.Id;
 		}
 
 		#endregion
@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModel
 
 		public bool IsActive { get; set; }
 
-		public string RowColor { get { return IsActive ? "black" : "grey"; } }
+		public string RowColor { get { return IsActive ? "black" : "red"; } }
 
 		[UseForSearch]
 		[SearchHighlight]

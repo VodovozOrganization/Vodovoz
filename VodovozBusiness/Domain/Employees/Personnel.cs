@@ -100,12 +100,12 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Тип")]
 		public abstract EmployeeType EmployeeType { get; set; }
 
-		string drivingNumber;
+		string drivingLicense;
 
 		[Display(Name = "Водительское удостоверение")]
-		public virtual string DrivingNumber {
-			get { return drivingNumber; }
-			set { SetField(ref drivingNumber, value, () => DrivingNumber); }
+		public virtual string DrivingLicense {
+			get { return drivingLicense; }
+			set { SetField(ref drivingLicense, value, () => DrivingLicense); }
 		}
 
 		string addressRegistration;
@@ -302,7 +302,7 @@ namespace Vodovoz.Domain.Employees
 		string Name { get; set; }
 		string LastName { get; set; }
 		string Patronymic { get; set; }
-		string DrivingNumber { get; set; }
+		string DrivingLicense { get; set; }
 		string AddressRegistration { get; set; }
 		string AddressCurrent { get; set; }
 		string INN { get; set; }

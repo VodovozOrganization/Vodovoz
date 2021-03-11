@@ -1,6 +1,6 @@
 ﻿using System;
 using NLog;
-using SmsBlissSendService;
+using SmsRuSendService;
 using SmsSendInterface;
 
 namespace InstantSmsService

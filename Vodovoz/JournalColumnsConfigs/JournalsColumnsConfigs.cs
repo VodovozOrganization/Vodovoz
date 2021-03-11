@@ -25,6 +25,10 @@ using WrapMode = Pango.WrapMode;
 using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -61,7 +65,17 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.AddColumn("Зарплатный район").AddTextRenderer(node => node.WageDistrict)
-					.AddColumn("Статус набора районов").AddTextRenderer(node => node.DistrictsSetStatus.GetEnumTitle())
+					.AddColumn("Статус версии районов").AddTextRenderer(node => node.DistrictsSetStatus.GetEnumTitle())
+					.AddColumn("Код версии").AddNumericRenderer(node => node.DistrictsSetId)
+					.AddColumn("")
+					.Finish()
+			);
+			
+			//DriverCarKindJournalViewModel
+			TreeViewColumnsConfigFactory.Register<DriverCarKindJournalViewModel>(
+				() => FluentColumnsConfig<DriverCarKindNode>.Create()
+					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.Finish()
 			);
 			
@@ -884,6 +898,69 @@ namespace Vodovoz.JournalColumnsConfigs
 							c.ForegroundGdk = n.Status == ApplicationDevelopmentProposalStatus.Rejected ? colorRed : colorBlack)
 					.Finish()
 			);
+
+            //RouteListWorkingJournalViewModel
+            TreeViewColumnsConfigFactory.Register<RouteListWorkingJournalViewModel>(
+                () => FluentColumnsConfig<RouteListJournalNode>.Create()
+                    .AddColumn("Номер")
+                        .AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Дата")
+                        .AddTextRenderer(node => node.Date.ToString("d"))
+                    .AddColumn("Смена")
+                        .AddTextRenderer(node => node.ShiftName)
+                    .AddColumn("Статус")
+                        .AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
+                    .AddColumn("Водитель и машина")
+                        .AddTextRenderer(node => node.DriverAndCar)
+                    .AddColumn("Сдается в кассу")
+                        .AddTextRenderer(node => node.ClosingSubdivision)
+                    .AddColumn("Комментарий ЛО")
+                        .AddTextRenderer(node => node.LogisticiansComment)
+                        .WrapWidth(300)
+                        .WrapMode(Pango.WrapMode.WordChar)
+                    .AddColumn("Комментарий по закрытию")
+                        .AddTextRenderer(node => node.ClosinComments)
+                        .WrapWidth(300)
+                        .WrapMode(Pango.WrapMode.WordChar)
+                    .RowCells()
+                        .AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
+                    .Finish()
+            );
+
+			//RegisteredRMJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RegisteredRMJournalViewModel>(
+				() => FluentColumnsConfig<RegisteredRMJournalNode>.Create()
+					.AddColumn("Имя пользователя")
+						.AddTextRenderer(node => node.Username)
+					.AddColumn("Домен")
+						.AddTextRenderer(node => node.Domain)
+					.AddColumn("SID пользователя")
+						.AddTextRenderer(node => node.SID)
+					.AddColumn("")
+					.Finish()
+			);
+
+            //DeliveryPointResponsiblePersonTypeJournalViewModel
+            TreeViewColumnsConfigFactory.Register<DeliveryPointResponsiblePersonTypeJournalViewModel>(
+                () => FluentColumnsConfig<DeliveryPointResponsiblePersonTypeJournalNode>.Create()
+                    .AddColumn("Номер")
+                        .AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Имя")
+                        .AddTextRenderer(node => node.Title)
+                    .AddColumn("")
+                    .Finish()
+            );
+
+            //DeliveryPointResponsiblePersonTypeJournalViewModel
+            TreeViewColumnsConfigFactory.Register<SalesChannelJournalViewModel>(
+                () => FluentColumnsConfig<SalesChannelJournalNode>.Create()
+                    .AddColumn("Номер")
+                        .AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Имя")
+                        .AddTextRenderer(node => node.Title)
+                    .AddColumn("")
+                    .Finish()
+            );
 		}
 	}
 }

@@ -54,7 +54,7 @@
           <TableColumn>
             <Width>54.6pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>83.4pt</Width>
           </TableColumn>
           <TableColumn>
@@ -144,7 +144,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
                       <Value>Адрес доставки</Value>
@@ -364,7 +364,7 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingLeft>2pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -386,7 +386,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
                       <Value>={delivery_points_compiled_address_short}</Value>
@@ -399,9 +399,9 @@
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingTop >3pt</PaddingTop>
-                        <PaddingBottom >3pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -440,7 +440,7 @@
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
-                        <Format >dd.MM.yyyy</Format>
+                        <Format>dd.MM.yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -492,7 +492,7 @@
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
-                        <Format >dd.MM.yyyy</Format>
+                        <Format>dd.MM.yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -550,7 +550,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingLeft>2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -570,7 +570,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingLeft>2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -637,7 +637,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
                       <Value>
@@ -1068,7 +1068,7 @@ FROM
         LEFT JOIN employees ON employees.id = orders.author_employee_id
         LEFT JOIN delivery_points dp on dp.id = orders.delivery_point_id
 WHERE
-        DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days_for_buyers, 0) DAY) &lt;= DATE(@date)
+        DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days_for_buyers, 0) DAY) &lt; DATE(@date)
   AND orders.order_payment_status IN ('UnPaid', 'PartiallyPaid')
   AND counterparty.is_chain_store = 1
   AND orders.payment_type = 'cashless'

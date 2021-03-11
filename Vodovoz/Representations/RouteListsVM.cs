@@ -32,6 +32,7 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using QS.Project.Domain;
 using QS.DomainModel.NotifyChange;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 namespace Vodovoz.ViewModel
 {
@@ -243,11 +244,6 @@ namespace Vodovoz.ViewModel
 			RouteListStatus.InLoading
 		};
 
-		private List<RouteListStatus> TakingMoneyStatuses = new List<RouteListStatus> {
-			RouteListStatus.OnClosing,
-			RouteListStatus.MileageCheck
-		};
-
 		private List<RouteListStatus> ClosingDlgStatuses = new List<RouteListStatus> {
 			RouteListStatus.Delivered,
 			RouteListStatus.OnClosing,
@@ -256,6 +252,7 @@ namespace Vodovoz.ViewModel
 		};
 
 		private List<RouteListStatus> AnalysisViewModelStatuses = new List<RouteListStatus> {
+			RouteListStatus.EnRoute,
 			RouteListStatus.Delivered,
 			RouteListStatus.OnClosing,
 			RouteListStatus.MileageCheck,

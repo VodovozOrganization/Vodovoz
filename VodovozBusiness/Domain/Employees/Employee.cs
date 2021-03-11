@@ -191,6 +191,13 @@ namespace Vodovoz.Domain.Employees
 			get { return driverOf; }
 			set { SetField(ref driverOf, value, () => DriverOf); }
 		}
+		
+		private Gender? gender;
+		[Display(Name = "Пол сотрудника")]
+		public virtual Gender? Gender {
+			get { return gender; }
+			set { SetField(ref gender, value); }
+		}
 
 		private float driverSpeed = 1;
 
@@ -227,44 +234,37 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref maxRouteAddresses, value, () => MaxRouteAddresses); }
 		}
 
-		private IList<DriverDistrictPriority> districts = new List<DriverDistrictPriority>();
+		#region DriverDistrictPrioritySets
 
-		[Display(Name = "Районы")]
-		public virtual IList<DriverDistrictPriority> Districts {
-			get { return districts; }
-			set { SetField(ref districts, value, () => Districts); }
+		private IList<DriverDistrictPrioritySet> driverDistrictPrioritySets = new List<DriverDistrictPrioritySet>();
+		[Display(Name = "Версии приоритетов районов водителя")]
+		public virtual IList<DriverDistrictPrioritySet> DriverDistrictPrioritySets {
+			get => driverDistrictPrioritySets;
+			set => SetField(ref driverDistrictPrioritySets, value);
 		}
 
-		GenericObservableList<DriverDistrictPriority> observableDistricts;
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<DriverDistrictPriority> ObservableDistricts {
-			get {
-				if(observableDistricts == null) {
-					observableDistricts = new GenericObservableList<DriverDistrictPriority>(districts);
-					observableDistricts.ElementAdded += ObservableDistricts_ElementAdded;
-					observableDistricts.ElementRemoved += ObservableDistricts_ElementRemoved;
-				}
-				return observableDistricts;
-			}
+		private GenericObservableList<DriverDistrictPrioritySet> observableDriverDistrictPrioritySets;
+		public virtual GenericObservableList<DriverDistrictPrioritySet> ObservableDriverDistrictPrioritySets =>
+			observableDriverDistrictPrioritySets ?? (observableDriverDistrictPrioritySets =
+				new GenericObservableList<DriverDistrictPrioritySet>(DriverDistrictPrioritySets));
+
+		#endregion
+
+		#region ObservableDriverWorkScheduleSets
+
+		private IList<DriverWorkScheduleSet> driverWorkScheduleSets = new List<DriverWorkScheduleSet>();
+		[Display(Name = "Версии графиков работы водителя")]
+		public virtual IList<DriverWorkScheduleSet> DriverWorkScheduleSets {
+			get => driverWorkScheduleSets;
+			set => SetField(ref driverWorkScheduleSets, value);
 		}
 
-		private IList<DriverWorkSchedule> workDays = new List<DriverWorkSchedule>();
+		private GenericObservableList<DriverWorkScheduleSet> observableDriverWorkScheduleSets;
+		public virtual GenericObservableList<DriverWorkScheduleSet> ObservableDriverWorkScheduleSets
+			=> observableDriverWorkScheduleSets ?? (observableDriverWorkScheduleSets =
+				new GenericObservableList<DriverWorkScheduleSet>(DriverWorkScheduleSets));
 
-		[Display(Name = "График работы водителя")]
-		public virtual IList<DriverWorkSchedule> WorkDays {
-			get => workDays;
-			set => SetField(ref workDays, value, () => WorkDays);
-		}
-
-		GenericObservableList<DriverWorkSchedule> observableWorkDays;
-		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<DriverWorkSchedule> ObservableWorkDays {
-			get {
-				if(observableWorkDays == null)
-					observableWorkDays = new GenericObservableList<DriverWorkSchedule>(WorkDays);
-				return observableWorkDays;
-			}
-		}
+		#endregion
 
 		IList<EmployeeWageParameter> wageParameters = new List<EmployeeWageParameter>();
 		[Display(Name = "Параметры расчета зарплаты")]
@@ -323,7 +323,7 @@ namespace Vodovoz.Domain.Employees
 			Name = String.Empty;
 			LastName = String.Empty;
 			Patronymic = String.Empty;
-			DrivingNumber = String.Empty;
+			DrivingLicense = String.Empty;
 			Category = EmployeeCategory.office;
 			AddressRegistration = String.Empty;
 			AddressCurrent = String.Empty;
@@ -426,22 +426,6 @@ namespace Vodovoz.Domain.Employees
 		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = WageSingletonRepository.GetInstance();
 
 		public virtual string GetPersonNameWithInitials() => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
-
-		public virtual void CheckAndFixDriverPriorities() => CheckDistrictsPriorities();
-
-		void CheckDistrictsPriorities()
-		{
-			for(int i = 0; i < Districts.Count; i++) {
-				if(Districts[i] == null) {
-					Districts.RemoveAt(i);
-					i--;
-					continue;
-				}
-
-				if(Districts[i].Priority != i)
-					Districts[i].Priority = i;
-			}
-		}
 
 		public virtual double TimeCorrection(long timeValue) => (double)timeValue / DriverSpeed;
 
@@ -587,17 +571,51 @@ namespace Vodovoz.Domain.Employees
 			return stringPhoneNumber;
 		}
 
+		public virtual void AddActiveDriverDistrictPrioritySet(DriverDistrictPrioritySet activeDistrictPrioritySet)
+		{
+			var currentActiveSet = ObservableDriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
+			if(currentActiveSet != null) {
+				currentActiveSet.IsActive = false;
+				
+				currentActiveSet.DateDeactivated = currentActiveSet.DateActivated.Date > DateTime.Today
+					? currentActiveSet.DateActivated.Date.AddDays(1).AddMilliseconds(-1)
+					: DateTime.Today.AddDays(1).AddMilliseconds(-1);
+			}
+
+			activeDistrictPrioritySet.IsActive = true;
+			activeDistrictPrioritySet.DateActivated = currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
+			
+			if(ObservableDriverDistrictPrioritySets.Any()) {
+				ObservableDriverDistrictPrioritySets.Insert(0, activeDistrictPrioritySet);
+			}
+			else {
+				ObservableDriverDistrictPrioritySets.Add(activeDistrictPrioritySet);
+			}
+		}
+		
+		public virtual void AddActiveDriverWorkScheduleSet(DriverWorkScheduleSet activeDriverWorkScheduleSet)
+		{
+			var currentActiveSet = ObservableDriverWorkScheduleSets.SingleOrDefault(x => x.IsActive);
+			if(currentActiveSet != null) {
+				currentActiveSet.IsActive = false;
+				
+				currentActiveSet.DateDeactivated = currentActiveSet.DateActivated.Date > DateTime.Today
+					? currentActiveSet.DateActivated.Date.AddDays(1).AddMilliseconds(-1)
+					: DateTime.Today.AddDays(1).AddMilliseconds(-1);
+			}
+
+			activeDriverWorkScheduleSet.IsActive = true;
+			activeDriverWorkScheduleSet.DateActivated = currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
+			
+			if(ObservableDriverWorkScheduleSets.Any()) {
+				ObservableDriverWorkScheduleSets.Insert(0, activeDriverWorkScheduleSet);
+			}
+			else {
+				ObservableDriverWorkScheduleSets.Add(activeDriverWorkScheduleSet);
+			}
+		}
+
 		#endregion
-
-		void ObservableDistricts_ElementAdded(object aList, int[] aIdx)
-		{
-			CheckDistrictsPriorities();
-		}
-
-		void ObservableDistricts_ElementRemoved(object aList, int[] aIdx, object aObject)
-		{
-			CheckDistrictsPriorities();
-		}
 	}
 
 	public enum EmployeeCategory
@@ -646,6 +664,14 @@ namespace Vodovoz.Domain.Employees
 		OnMaternityLeave,
 		[Display(Name = "Уволен")]
 		IsFired
+	}
+	
+	public enum Gender
+	{
+		[Display(Name = "М")]
+		male,
+		[Display(Name = "Ж")]
+		female
 	}
 
 	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType

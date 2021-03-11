@@ -38,7 +38,7 @@
 #sum if it's order
         WHEN docs.doc_name = 'Заказ' THEN
             (SELECT
-                 IF(docs.doc_status &lt;&gt; 'WaitForPayment', ROUND(SUM(order_items.price * IFNULL(order_items.actual_count, 0) - order_items.discount_money)), 0)
+                 IF(docs.doc_status &lt;&gt; 'WaitForPayment', ROUND(SUM(order_items.price * COALESCE(order_items.actual_count, order_items.count, 0) - order_items.discount_money)), 0)
              FROM
                  order_items
              WHERE

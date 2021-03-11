@@ -34,6 +34,32 @@ namespace Vodovoz
             }
         }
 
+        public string GetExportFolderPath()
+        {
+            //Создается здесь а не в конструкторе, потому что единственный способ
+            //закрыть это destroy
+            fileChooser =
+                new Gtk.FileChooserDialog("Выберите где сохранить файл",
+                    this,
+                    FileChooserAction.SelectFolder,
+                    "Отмена", ResponseType.Cancel,
+                    "Сохранить", ResponseType.Accept);
+            fileChooser.CurrentName = fileName;
+
+            var result = fileChooser.Run();
+            if (result == (int)ResponseType.Accept)
+            {
+                var path = fileChooser.Filename;
+                CloseWindow();
+                return path;
+            }
+            else
+            {
+                CloseWindow();
+                return "";
+            }
+        }
+
         public void CloseWindow()
         {
             fileChooser.Destroy();

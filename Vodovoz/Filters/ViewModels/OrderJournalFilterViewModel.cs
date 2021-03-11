@@ -216,6 +216,13 @@ namespace Vodovoz.Filters.ViewModels
 			}
 		}
 
+		private bool? isForRetail;
+		public bool? IsForRetail
+		{
+			get => isForRetail;
+			set => SetField(ref isForRetail, value);
+		}
+
 		#region Selfdelivery
 
 		private bool? restrictOnlySelfDelivery;

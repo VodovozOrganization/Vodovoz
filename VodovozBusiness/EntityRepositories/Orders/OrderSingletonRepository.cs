@@ -583,7 +583,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				)
 			);
 
-			var positiveOrderSumRestriction = Restrictions.Gt(orderSumProjection, 0);
+			var orderSumRestriction = Restrictions.Gt(orderSumProjection, 0);
 
 			var alwaysSendOrdersRestriction = Restrictions.Disjunction()
 				.Add(() => productGroupAlias.IsOnlineStore)
@@ -593,7 +593,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					new[] { PaymentType.ByCard, PaymentType.Terminal }.ToArray()));
 
 			var orderDeliveredStatuses = Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
-				new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed }.ToArray());
+				new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock }.ToArray());
 			
 			var orderPaymentTypesRestriction = Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
 				new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.ToArray());
@@ -619,7 +619,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(alwaysSendOrdersRestriction)
 				.And(paidByCardRestriction)
 				.And(orderDeliveredStatuses)
-				.And(positiveOrderSumRestriction)
+				.And(orderSumRestriction)
 				.And(orderPaymentTypesRestriction)
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.IsNull(Projections.Property(() => cashReceiptAlias.Id)))
@@ -628,14 +628,16 @@ namespace Vodovoz.EntityRepositories.Orders
 			if(startDate.HasValue)
 				alwaysSendOrdersQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
 
-			var alwaysSendOrderNodes = alwaysSendOrdersQuery
+			var alwaysSendOrders = alwaysSendOrdersQuery
 				.SelectList(list => list
-					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
-					.Select(() => cashReceiptAlias.Id).WithAlias(() => resultAlias.ReceiptId)
-					.Select(() => cashReceiptAlias.Sent).WithAlias(() => resultAlias.WasSent))
-				.TransformUsing(Transformers.AliasToBean<ReceiptForOrderNode>())
-				.Future<ReceiptForOrderNode>();
-
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.OrderId)
+					.Select(() => orderAlias.PaymentType).WithAlias(() => extendedReceiptForOrderNodeAlias.PaymentType)
+					.Select(orderSumProjection).WithAlias(() => extendedReceiptForOrderNodeAlias.OrderSum)
+					.Select(() => cashReceiptAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.ReceiptId)
+					.Select(() => cashReceiptAlias.Sent).WithAlias(() => extendedReceiptForOrderNodeAlias.WasSent))
+				.TransformUsing(Transformers.AliasToBean<ExtendedReceiptForOrderNode>())
+				.Future<ExtendedReceiptForOrderNode>();
+			
 			#endregion
 
 			#region UniqueOrderSumSendOrders
@@ -651,21 +653,27 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(Restrictions.Not(alwaysSendOrdersRestriction))
 				.And(paidByCardRestriction)
 				.And(orderDeliveredStatuses)
-				.And(positiveOrderSumRestriction)
+				.And(orderSumRestriction)
 				.And(orderPaymentTypesRestriction);
 
-			if(startDate.HasValue)
+			if(startDate.HasValue) {
 				uniqueOrderSumSendOrdersQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
+			}
 
-			var notUniqueOrderSumSendOrders = uniqueOrderSumSendOrdersQuery
+			var notUniqueOrderSumSendOrdersTemp = uniqueOrderSumSendOrdersQuery
 				.SelectList(list => list
 					.SelectGroup(() => orderAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.OrderId)
+					.Select(() => orderAlias.PaymentType).WithAlias(() => extendedReceiptForOrderNodeAlias.PaymentType)
 					.Select(orderSumProjection).WithAlias(() => extendedReceiptForOrderNodeAlias.OrderSum)
 					.Select(CustomProjections.Date(() => orderAlias.DeliveryDate)).WithAlias(() => extendedReceiptForOrderNodeAlias.DeliveryDate)
 					.Select(() => cashReceiptAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.ReceiptId)
 					.Select(() => cashReceiptAlias.Sent).WithAlias(() => extendedReceiptForOrderNodeAlias.WasSent))
 				.TransformUsing(Transformers.AliasToBean<ExtendedReceiptForOrderNode>())
 				.Future<ExtendedReceiptForOrderNode>();
+
+			var notUniqueOrderSumSendOrders = notUniqueOrderSumSendOrdersTemp.Where(x =>
+				x.PaymentType != PaymentType.cash
+				|| x.PaymentType == PaymentType.cash && x.OrderSum < 20000).ToList();
 			
 			var alreadySentOrders = new List<ExtendedReceiptForOrderNode>(notUniqueOrderSumSendOrders.Where(x => x.WasSent.HasValue && x.WasSent.Value));
 			var uniqueOrderSumSendNodes = new List<ExtendedReceiptForOrderNode>();
@@ -681,6 +689,17 @@ namespace Vodovoz.EntityRepositories.Orders
 				{ OrderId = x.OrderId, ReceiptId = x.ReceiptId, WasSent = x.WasSent });
 
 			#endregion
+
+			//Здесь и выше фильтрация идёт не на уровне запроса, т.к. не NHibernate упорно не хочет клась сложное условие в HAVING
+			var alwaysSendOrderNodes = alwaysSendOrders
+				.Where(x =>
+					x.PaymentType != PaymentType.cash
+					|| x.PaymentType == PaymentType.cash && x.OrderSum < 20000)
+				.Select(x => new ReceiptForOrderNode {
+					OrderId = x.OrderId,
+					ReceiptId = x.ReceiptId,
+					WasSent = x.WasSent
+				});
 
 			return alwaysSendOrderNodes.Union(uniqueOrderSumSendOrderNodes);
 		}
