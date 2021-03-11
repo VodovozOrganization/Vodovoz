@@ -124,10 +124,11 @@ namespace Vodovoz.Domain.Logistic
                 Districts = new List<District>()
             };
             foreach (var district in Districts) {
-                var newDistrict = district.Clone() as District;
+                var newDistrict = (District)district.Clone();
                 newDistrict.DistrictsSet = newDistrictsSet;
                 newDistrict.CopyOf = district;
                 newDistrictsSet.Districts.Add(newDistrict);
+                district.CopiedTo = newDistrict;
             }
             return newDistrictsSet;
         }

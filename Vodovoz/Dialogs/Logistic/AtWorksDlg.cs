@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using FluentNHibernate.Data;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gdk;
-using Google.OrTools.ConstraintSolver;
 using Gtk;
 using QS.Dialog;
 using QS.Dialog.Gtk;
@@ -17,7 +14,6 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
-using Vodovoz.Additions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
@@ -26,17 +22,17 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Services;
-using Vodovoz.Core.DataService;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
-		public AtWorksDlg(IAuthorizationService authorizationService)
+		public AtWorksDlg(IDefaultDeliveryDaySchedule defaultDeliveryDaySchedule)
 		{
-			this.authorizationService =
-				authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+			if(defaultDeliveryDaySchedule == null) 
+				throw new ArgumentNullException(nameof(defaultDeliveryDaySchedule));
+			
 			this.Build();
 
 			var colorWhite = new Color(0xff, 0xff, 0xff);
@@ -103,20 +99,23 @@ namespace Vodovoz.Dialogs.Logistic
 			ydateAtWorks.Date = DateTime.Today;
 			
 			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-			CanReturnDriver = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_return_driver_to_work", currentUserId);
+			canReturnDriver = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_return_driver_to_work", currentUserId);
+
+			this.defaultDeliveryDaySchedule =
+				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDaySchedule.GetDefaultDeliveryDayScheduleId());
 		}
 		
 		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		
 		private readonly Gdk.Pixbuf vodovozCarIcon = Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
-		private readonly IAuthorizationService authorizationService;
-			
+
 		private IList<AtWorkDriver> driversAtDay;
 		private IList<AtWorkForwarder> forwardersAtDay;
 		private HashSet<AtWorkDriver> driversWithCommentChanged = new HashSet<AtWorkDriver>();
 		private GenericObservableList<AtWorkDriver> observableDriversAtDay;
 		private GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
-		private bool CanReturnDriver;
+		private readonly bool canReturnDriver;
+		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
 
 		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
 		public bool HasChanges => UoW.HasChanges;
@@ -182,7 +181,7 @@ namespace Vodovoz.Dialogs.Logistic
 					}
 
 					var car = CarRepository.GetCarByDriver(UoW, driver);
-					var daySchedule = GetDriverWorkDaySchedule(driver, new BaseParametersProvider());
+					var daySchedule = GetDriverWorkDaySchedule(driver);
 
 					var atwork = new AtWorkDriver(driver, DialogAtDate, car, daySchedule);
 					GetDefaultForwarder(driver, atwork);
@@ -226,7 +225,7 @@ namespace Vodovoz.Dialogs.Logistic
 					ChangeButtonAddRemove(driver.Status == AtWorkDriver.DriverStatus.IsWorking);
 					if (driver.Status == AtWorkDriver.DriverStatus.NotWorking)
 					{
-						if (CanReturnDriver)
+						if (canReturnDriver)
 						{
 							driver.Status = AtWorkDriver.DriverStatus.IsWorking;
 						}
@@ -244,18 +243,18 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
-			var SelectDriverCar = new OrmReference(
+			var selectDriverCar = new OrmReference(
 				UoW,
 				CarRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
-			SelectDriverCar.Tag = driver;
-			SelectDriverCar.Mode = OrmReferenceMode.Select;
-			SelectDriverCar.ObjectSelected += SelectDriverCar_ObjectSelected;
-			TabParent.AddSlaveTab(this, SelectDriverCar);
+			selectDriverCar.Tag = driver;
+			selectDriverCar.Mode = OrmReferenceMode.Select;
+			selectDriverCar.ObjectSelected += SelectDriverCar_ObjectSelected;
+			TabParent.AddSlaveTab(this, selectDriverCar);
 		}
 		
-				protected void OnButtonAppointForwardersClicked(object sender, EventArgs e)
+		protected void OnButtonAppointForwardersClicked(object sender, EventArgs e)
 		{
 			var toAdd = new List<AtWorkForwarder>();
 			foreach(var forwarder in ForwardersAtDay.Where(f => DriversAtDay.All(d => d.WithForwarder != f))) {
@@ -280,18 +279,28 @@ namespace Vodovoz.Dialogs.Logistic
 					break;
 				}
 
-				Func<int, int> ManOnDistrict = (int districtId) => driversAtDay.Where(dr => dr.Car != null && dr.Car.TypeOfUse != CarTypeOfUse.CompanyLargus && dr.DistrictsPriorities.Any(dd2 => dd2.District.Id == districtId))
-																			   .Sum(dr => dr.WithForwarder == null ? 1 : 2);
+				int ManOnDistrict(int districtId) => driversAtDay
+					.Where(dr =>
+						dr.Car != null
+						&& dr.Car.TypeOfUse != CarTypeOfUse.CompanyLargus
+						&& dr.DistrictsPriorities.Any(dd2 => dd2.District.Id == districtId)
+					)
+					.Sum(dr => dr.WithForwarder == null ? 1 : 2);
 
-				var driver = driversToAdd.OrderByDescending(
-					x => districtsBottles.Where(db => x.Employee.Districts.Any(dd => dd.District.Id == db.Key))
-									   .Max(db => (double)db.Value / ManOnDistrict(db.Key))
-					).First();
+				var driversToAddWithWithActivePrioritySets =
+					driversToAdd.Where(x => x.Employee.DriverDistrictPrioritySets.Any(p => p.IsActive));
 
-				var testSum = driversToAdd.ToDictionary(x => x, x => districtsBottles.Where(db => x.Employee.Districts.Any(dd => dd.District.Id == db.Key))
-														.Max(db => (double)db.Value / ManOnDistrict(db.Key)));
+				var driver = driversToAddWithWithActivePrioritySets
+					.OrderByDescending(x => districtsBottles
+						.Where(db => x.Employee.DriverDistrictPrioritySets
+							.First(s => s.IsActive).DriverDistrictPriorities
+							.Any(dd => dd.District.Id == db.Key))
+						.Max(db => (double)db.Value / ManOnDistrict(db.Key)))
+					.FirstOrDefault();
 
-				driver.WithForwarder = forwarder;
+				if(driver != null) {
+					driver.WithForwarder = forwarder;
+				}
 			}
 
 			MessageDialogHelper.RunInfoDialog("Готово.");
@@ -400,7 +409,7 @@ namespace Vodovoz.Dialogs.Logistic
 					continue;
 				}
 
-				var daySchedule = GetDriverWorkDaySchedule(drv, new BaseParametersProvider());
+				var daySchedule = GetDriverWorkDaySchedule(drv);
 				var atwork = new AtWorkDriver(drv, DialogAtDate, allCars.FirstOrDefault(x => x.Driver.Id == driver.Id), daySchedule);
 
 				GetDefaultForwarder(drv, atwork);
@@ -443,7 +452,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void ChangeButtonAddRemove(bool needRemove)
 		{
-			if (!CanReturnDriver)
+			if (!canReturnDriver)
 			{
 				return;
 			}
@@ -462,17 +471,15 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public void SaveAndClose() { throw new NotImplementedException(); }
 
-		private DeliveryDaySchedule GetDriverWorkDaySchedule(Employee driver, IDefaultDeliveryDaySchedule defaultDelDaySchedule)
+		private DeliveryDaySchedule GetDriverWorkDaySchedule(Employee driver)
 		{
-			DeliveryDaySchedule daySchedule;
-			var drvDaySchedule = driver.ObservableWorkDays.SingleOrDefault(x => (int)x.WeekDay == (int)DialogAtDate.DayOfWeek);
+			var driverWorkSchedule = driver
+				.ObservableDriverWorkScheduleSets.SingleOrDefault(x => x.IsActive)
+				?.ObservableDriverWorkSchedules.SingleOrDefault(x => (int)x.WeekDay == (int)DialogAtDate.DayOfWeek);
 
-			if(drvDaySchedule == null)
-				daySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDelDaySchedule.GetDefaultDeliveryDayScheduleId());
-			else
-				daySchedule = drvDaySchedule.DaySchedule;
-
-			return daySchedule;
+			return driverWorkSchedule == null 
+				? defaultDeliveryDaySchedule
+				: driverWorkSchedule.DaySchedule;
 		}
 
 		private void GetDefaultForwarder(Employee driver, AtWorkDriver atwork)
@@ -544,6 +551,12 @@ namespace Vodovoz.Dialogs.Logistic
 		//Если дата диалога >= даты активации набора районов и есть хотя бы один район у водителя, который не принадлежит активному набору районов
 		private void CheckAndCorrectDistrictPriorities() {
 			var activeDistrictsSet = UoW.Session.QueryOver<DistrictsSet>().Where(x => x.Status == DistrictsSetStatus.Active).SingleOrDefault();
+			if(activeDistrictsSet == null) {
+				throw new ArgumentNullException(nameof(activeDistrictsSet), @"Не найдена активная версия районов");
+			}
+			if(activeDistrictsSet.DateActivated == null) {
+				throw new ArgumentNullException(nameof(activeDistrictsSet), @"У активной версии районов не проставлена дата активации");
+			}
 			if(DialogAtDate.Date >= activeDistrictsSet.DateActivated.Value.Date) {
 				var outDatedpriorities = DriversAtDay.SelectMany(x => x.DistrictsPriorities.Where(d => d.District.DistrictsSet.Id != activeDistrictsSet.Id)).ToList();
 				if(!outDatedpriorities.Any()) 

@@ -8,15 +8,11 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Print;
 using QS.Report;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using QS.HistoryLog;
-using Vodovoz.EntityRepositories;
-using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories.Client;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -97,7 +93,20 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		}
 		
 		public virtual OrderDocumentType Type => OrderDocumentType.BillWSForAdvancePayment;
-		public virtual Order Order { get; set; }
+
+		private Order order;
+		public virtual Order Order
+		{
+			get => order;
+			set
+			{
+				if (value != null)
+				{
+					IsForRetail = value.IsForRetail;
+					SetField(ref order, value);
+				}
+			}
+		}
 
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo()
@@ -107,6 +116,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				Identifier = "Documents.BillWithoutShipmentForAdvancePayment",
 				Parameters = new Dictionary<string, object> {
 					{ "bill_ws_for_advance_payment_id", Id },
+					{ "special_contract_number", SpecialContractNumber },
 					{ "organization_id", new OrganizationParametersProvider(ParametersProvider.Instance).GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
 					{ "special", false }
@@ -116,9 +126,11 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public virtual string Title => string.Format($"Счет №Ф{Id} от {CreateDate:d}");
+		public virtual string Title => string.Format($"Счет №Ф{Id} от {CreateDate:d} {SpecialContractNumber}");
 
 		public virtual string Name => string.Format($"Счет №Ф{Id}");
+
+		public virtual string SpecialContractNumber => Client.IsForRetail ? Client.SpecialContractNumber : string.Empty;
 
 		public virtual DateTime? DocumentDate => CreateDate;
 
@@ -138,6 +150,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual bool HideSignature {
 			get => hideSignature;
 			set => SetField(ref hideSignature, value);
+		}
+
+		private bool isForRetail;
+		[Display(Name = "Для розницы")]
+		public virtual bool IsForRetail
+		{
+			get => isForRetail;
+			set => SetField(ref isForRetail, value, () => IsForRetail);
 		}
 
 		#endregion

@@ -165,32 +165,32 @@ namespace Vodovoz.ReportsParameters.Production
 		}
 		
 	}
-}
-
-enum Month
-{
-	[Display ( Name = "Сентябрь")]
-	September,
-	[Display ( Name = "Октябрь")]
-	October,
-	[Display ( Name = "Ноябрь")]
-	November,
-	[Display ( Name = "Декабрь")]
-	December,
-	[Display ( Name = "Январь")]
-	January,
-	[Display ( Name = "Февраль")]
-	February,
-	[Display ( Name = "Март")]
-	March,
-	[Display ( Name = "Апрель")]
-	April,
-	[Display ( Name = "Май")]
-	May,
-	[Display ( Name = "Июнь")]
-	June,
-	[Display ( Name = "Июль")]
-	July,
-	[Display ( Name = "Август")]
-	August
+	
+	enum Month
+	{
+		[Display ( Name = "Сентябрь")]
+		September,
+		[Display ( Name = "Октябрь")]
+		October,
+		[Display ( Name = "Ноябрь")]
+		November,
+		[Display ( Name = "Декабрь")]
+		December,
+		[Display ( Name = "Январь")]
+		January,
+		[Display ( Name = "Февраль")]
+		February,
+		[Display ( Name = "Март")]
+		March,
+		[Display ( Name = "Апрель")]
+		April,
+		[Display ( Name = "Май")]
+		May,
+		[Display ( Name = "Июнь")]
+		June,
+		[Display ( Name = "Июль")]
+		July,
+		[Display ( Name = "Август")]
+		August
+	}
 }

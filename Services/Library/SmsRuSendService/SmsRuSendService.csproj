@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Services\Library\SmsSendInterface\SmsSendInterface.csproj" />
+    <ProjectReference Include="..\SmsSendInterface\SmsSendInterface.csproj" />
   </ItemGroup>
 
 </Project>

@@ -56,16 +56,7 @@ namespace Vodovoz.ViewWidgets
 
 		private void LoadData()
 		{
-			OrderDocument orderDocumentAlias = null;
 			CounterpartyContract contractAlias = null;
-			Order orderAlias = null;
-
-			//получаем список документов
-			var orderDocuments = UoW.Session.QueryOver<OrderDocument>(() => orderDocumentAlias)
-				.JoinAlias(x => x.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.InnerJoin)
-				.JoinAlias(() => orderAlias.Contract, () => contractAlias, NHibernate.SqlCommand.JoinType.InnerJoin)
-				.Where(() => contractAlias.Counterparty.Id == Counterparty.Id)
-				.List();
 
 			//получаем список контрактов
 			var contracts = UoW.Session.QueryOver<CounterpartyContract>(() => contractAlias)

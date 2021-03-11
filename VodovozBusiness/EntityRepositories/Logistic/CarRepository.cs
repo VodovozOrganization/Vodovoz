@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
@@ -36,5 +37,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return QueryOver.Of<Car>()
 							.Where(x => !x.IsArchive);
 		}
+
+		public bool IsInAnyRouteList(IUnitOfWork uow, Car car)
+        {
+			var rll = uow.Session.QueryOver<RouteList>()
+				.Where(rl => rl.Car == car).Take(1).List();
+
+			return rll.Any();
+        }
 	}
 }

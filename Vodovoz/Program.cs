@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Common;
+using System.Globalization;
 using Gtk;
 using NLog;
 using QSProjectsLib;
@@ -35,6 +36,7 @@ namespace Vodovoz
 		[STAThread]
 		public static void Main (string[] args)
 		{
+			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 			Application.Init ();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			var appInfo = new ApplicationInfo();
