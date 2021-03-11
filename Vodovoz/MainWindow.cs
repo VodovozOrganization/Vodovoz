@@ -154,6 +154,8 @@ public partial class MainWindow : Gtk.Window
         ActionExportImportNomenclatureCatalog.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
         ActionDistricts.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
 
+        ActionCarsExploitationReport.Visible = false;
+
         //Читаем настройки пользователя
         switch (CurrentUserSettings.Settings.ToolbarStyle)
         {
