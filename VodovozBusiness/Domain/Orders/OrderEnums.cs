@@ -71,8 +71,10 @@ namespace Vodovoz.Domain.Orders
 		[Display (Name = "По доверенности")]
 		ByProxy,
 		[Display (Name = "Доверенность на адресе")]
-		ProxyOnDeliveryPoint
-	}
+		ProxyOnDeliveryPoint,
+        [Display (Name = "Подпись/расшифровка")]
+        SignatureTranscript
+    }
 
 	public class OrderSignatureTypeStringType : NHibernate.Type.EnumStringType
 	{

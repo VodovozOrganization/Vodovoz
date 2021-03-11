@@ -11,5 +11,6 @@ namespace Vodovoz.Journals.JournalNodes
 		public string Name { get; set; }
 		public string WageDistrict { get; set; }
 		public DistrictsSetStatus DistrictsSetStatus { get; set; }
+		public int DistrictsSetId { get; set; }
 	}
 }

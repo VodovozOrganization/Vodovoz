@@ -501,14 +501,9 @@ public partial class MainWindow : Window
 
 	void ActionAtWorks_Activated(object sender, System.EventArgs e)
 	{
-		var authService = new AuthorizationService(
-			new PasswordGenerator(),
-			new MySQLUserRepository(
-				new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-				new GtkInteractiveService()));
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AtWorksDlg>(),
-			() => new AtWorksDlg(authService)
+			() => new AtWorksDlg(new BaseParametersProvider())
 		);
 	}
 
@@ -532,7 +527,8 @@ public partial class MainWindow : Window
 					new AtWorkRepository(),
 					new CarRepository(),
 					NavigationManagerProvider.NavigationManager,
-					UserSingletonRepository.GetInstance()
+					UserSingletonRepository.GetInstance(),
+					new BaseParametersProvider()
 				)
 			);
 	}
@@ -563,8 +559,6 @@ public partial class MainWindow : Window
 
 	void ActionPaymentFromBank_Activated(object sender, System.EventArgs e)
 	{
-		var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-		
 		var filter = new PaymentsJournalFilterViewModel();
 
 		var paymentsJournalViewModel = new PaymentsJournalViewModel(
@@ -573,7 +567,8 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			NavigationManagerProvider.NavigationManager,
 			OrderSingletonRepository.GetInstance(),
-			orderOrganizationProviderFactory.CreateOrderOrganizationProvider()
+			new OrganizationParametersProvider(ParametersProvider.Instance),
+			new BaseParametersProvider()
 		);
 
 		tdiMain.AddTab(paymentsJournalViewModel);
@@ -867,7 +862,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<Order>(0),
-			() => new OrderDlg()
+			() => new OrderDlg(false)
 		);
 	}
 
@@ -914,7 +909,7 @@ public partial class MainWindow : Window
 				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
 				UserSingletonRepository.GetInstance());
 		
-		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel();
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel() { IsForRetail = false };
 		var ordersJournal = new OrderJournalViewModel(filter, 
 													  UnitOfWorkFactory.GetDefaultFactory, 
 													  ServicesConfig.CommonServices,

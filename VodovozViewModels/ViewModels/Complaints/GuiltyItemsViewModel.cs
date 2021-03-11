@@ -2,6 +2,7 @@
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
@@ -50,15 +51,11 @@ namespace Vodovoz.ViewModels.Complaints
 			set => SetField(ref canEditGuilty, value, () => CanEditGuilty);
 		}
 
-		bool canAddGuilty;
-		public bool CanAddGuilty {
-			get => canAddGuilty;
-			set => SetField(ref canAddGuilty, value, () => CanAddGuilty);
-		}
+        public bool CanAddGuilty => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_guilty_in_complaints")
+			&& CurrentGuiltyVM == null;
 
 		void UpdateAcessibility()
 		{
-			CanAddGuilty = CurrentGuiltyVM == null;
 			CanEditGuilty = !CanAddGuilty;
 		}
 

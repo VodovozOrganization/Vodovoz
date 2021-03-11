@@ -63,6 +63,8 @@ namespace Vodovoz.Views.Warehouse
 			
 			#region Таблица
 			treeItemsList.ColumnsConfig =  FluentColumnsConfig<IncomingInvoiceItem>.Create ()
+                .AddColumn ("№ п/п")
+                .AddTextRenderer(i => (i.Document.Items.IndexOf(i)+ 1).ToString())
 				.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
 				.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
 				.AddColumn ("% НДС").AddEnumRenderer (i => i.VAT).Editing ()

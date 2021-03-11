@@ -25,6 +25,7 @@ namespace Vodovoz.HibernateMapping
 
             References(x => x.Leader).Column("leader_id");
             References(x => x.Buhgalter).Column("buhgalter_id");
+            References(x => x.Stamp).Column("stamp_id");
 
             HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("org_id");
             HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("org_id");

@@ -1,0 +1,8 @@
+﻿<ui>
+    <toolbar name='toolbarSub'>
+        <toolitem name='ActionRetailOrdersJournal' action='ActionRetailOrdersJournal'/>
+        <toolitem name='ActionRetailCounterpartyJournal' action='ActionRetailCounterpartyJournal'/>
+        <toolitem name='ActionRetailUndeliveredOrdersJournal' action='ActionRetailUndeliveredOrdersJournal'/>
+        <toolitem name='ActionRetailComplaintsJournal' action='ActionRetailComplaintsJournal'/>
+    </toolbar>
+</ui>

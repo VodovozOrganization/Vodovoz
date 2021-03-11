@@ -26,6 +26,10 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxStatus.ItemsEnum = typeof(ComplaintStatuses);
 			yenumcomboboxStatus.Binding.AddBinding(ViewModel, x => x.ComplaintStatus, v => v.SelectedItemOrNull).InitializeFromSource();
 
+			yenumcomboboxCurrentSubdivisionStatus.ItemsEnum = typeof(ComplaintStatuses);
+			yenumcomboboxCurrentSubdivisionStatus.Binding.AddBinding(ViewModel, x => x.ComplaintCurrentUserSubdivisionStatus, v => v.SelectedItemOrNull).InitializeFromSource();
+			ylabelEmployeeSubdivisionStatus.Text = $"Статус в отделе {ViewModel.CurrentUserSubdivision?.ShortName}:";
+
 			cmbComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
 			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
 			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKind, w => w.SelectedItem).InitializeFromSource();

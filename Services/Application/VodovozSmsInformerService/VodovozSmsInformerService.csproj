@@ -89,7 +89,7 @@
       <Project>{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}</Project>
       <Name>QSSupportLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\SmsRuSendService\SmsRuSendService.csproj">
+    <ProjectReference Include="..\..\Library\SmsRuSendService\SmsRuSendService.csproj">
       <Project>{9083162f-81a6-49b3-a2d6-f355d62ec5c2}</Project>
       <Name>SmsRuSendService</Name>
     </ProjectReference>

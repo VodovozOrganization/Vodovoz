@@ -40,7 +40,6 @@ namespace Vodovoz.Journals.JournalViewModels
 			canUpdate = permissionResult.CanUpdate;
 
 			TabName = "Журнал версий районов";
-			EnableDeleteButton = false;
 			UpdateOnChanges(typeof(DistrictsSet));
 		}
 
@@ -51,8 +50,6 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly bool canUpdate;
 		private readonly bool canCreate;
 		private readonly bool canActivateDistrictsSet;
-		
-		public bool EnableDeleteButton { get; set; }
 
 		protected override Func<IUnitOfWork, IQueryOver<DistrictsSet>> ItemsSourceQueryFunction => uow => {
 			DistrictsSet districtsSetAlias = null;
@@ -97,8 +94,9 @@ namespace Vodovoz.Journals.JournalViewModels
 			CreateDefaultEditAction();
 			CreateCopyAction();
 			
-			if(EnableDeleteButton)
+			if(commonServices.UserService.GetCurrentUser(UoW).IsAdmin) {
 				CreateDefaultDeleteAction();
+			}
 		}
 
 		private void CreateCopyAction()
@@ -114,12 +112,12 @@ namespace Vodovoz.Journals.JournalViewModels
 					var alreadyCopiedDistrict = UoW.Session.QueryOver<District>().WhereRestrictionOn(x => x.CopyOf.Id).IsIn(districtsSetToCopy.Districts.Select(x => x.Id).ToArray()).Take(1).SingleOrDefault();
 					if(alreadyCopiedDistrict != null) {
 						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-							$"Выбранная версия районов уже была скопирована\nКопия: {alreadyCopiedDistrict.DistrictsSet.Id} {alreadyCopiedDistrict.DistrictsSet.Name}");
+							$"Выбранная версия районов уже была скопирована\nКопия: (Код: {alreadyCopiedDistrict.DistrictsSet.Id}) {alreadyCopiedDistrict.DistrictsSet.Name}");
 						return;
 					}
 					
 					if(commonServices.InteractiveService.Question($"Скопировать версию районов \"{selectedNode.Name}\"")) {
-						var copy = districtsSetToCopy.Clone() as DistrictsSet;
+						var copy = (DistrictsSet)districtsSetToCopy.Clone();
 						copy.Name += " - копия";
 						copy.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
 						copy.Status = DistrictsSetStatus.Draft;
@@ -163,7 +161,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						}
 						var selectedDistrictsSet = UoW.GetById<DistrictsSet>(selectedNode.Id);
 						if(selectedDistrictsSet.Districts.All(x => x.CopyOf == null) 
-							&& !commonServices.InteractiveService.Question("Активация выбранной версии приведёт к удалению всех приоритетов районов водителей.\nПродолжить?")) {
+							&& !commonServices.InteractiveService.Question("Для выбранной версии невозможно перенести все приоритеты работы водителей\nПродолжить?")) {
 							return;
 						}
 						TabParent.AddSlaveTab(this, 
