@@ -73,7 +73,7 @@ namespace Vodovoz.Views.Employees
 			this.label = new global::Gtk.Label();
 			this.label.Name = "label";
 			this.label.Xalign = 1F;
-			this.label.LabelProp = global::Mono.Unix.Catalog.GetString("Причина:");
+			this.label.LabelProp = global::Mono.Unix.Catalog.GetString("Название должности:");
 			this.hbox2.Add(this.label);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.label]));
 			w6.Position = 0;
