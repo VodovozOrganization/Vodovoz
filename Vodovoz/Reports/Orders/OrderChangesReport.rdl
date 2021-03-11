@@ -534,8 +534,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>= Format(Convert.ToDateTime({delivery_date}), "dd.MM.yyyy") + ' ' +
-Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
+                      <Value>= Format(Convert.ToDateTime({delivery_date}), "dd.MM.yyyy") + ' ' + Iif(Fields!time_delivered.IsMissing, '', 
+Format(Convert.ToDateTime({time_delivered}), "HH:mm"))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -547,6 +547,8 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor/>
+                        <BorderWidth/>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -724,8 +726,28 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
 	) as summary,
 	n2.name as nomenclature_name,
 	CONCAT(c2.full_name, IF(c2.person_type = 'legal', CONCAT(' ИНН ', c2.inn), '')) as counterparty,
-	source.delivery_date,
-	source.time_delivered,
+	(
+		SELECT hc.new_value 
+		FROM history_changed_entities hce 
+		LEFT JOIN history_changes hc 
+		ON hc.chaged_entity_id = hce.id 
+		AND hc.field_name = 'DeliveryDate'
+		WHERE hce.entity_class = 'Order' 
+		AND hce.entity_id = source.order_id 
+		AND hce.operation = 'Create' 
+		LIMIT 1
+	) AS delivery_date,
+	(
+		SELECT hc.new_value 
+		FROM history_changed_entities hce 
+		LEFT JOIN history_changes hc 
+		ON hc.chaged_entity_id = hce.id 
+		AND hc.field_name = 'TimeDelivered'
+		WHERE hce.entity_class = 'Order' 
+		AND hce.entity_id = source.order_id 
+		AND hce.operation = 'Create' 
+		LIMIT 1
+	) AS time_delivered,
 	source.change_time,
 	IF(source.operation = 'Delete', n2.official_name, source.old_value) as old_value,
 	IF(source.operation = 'Create', n2.official_name, source.new_value) as new_value,
@@ -733,12 +755,10 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm")</Value>
 	GET_PERSON_NAME_WITH_INITIALS(driver.last_name, driver.name, driver.patronymic) as driver_fio
 FROM
 	(
-		SELECT
+		SELECT # Выборка изменений в Форме оплаты
 			o.id as order_id,
 			cc.organization_id,
 			o.comment_manager,
-			o.delivery_date,
-			o.time_delivered,
 			cc.counterparty_id,
 			hce.changeset_id,
 			hce.entity_class,
@@ -817,7 +837,6 @@ FROM
 								AND o.payment_from_id &lt;&gt; GET_PARAMETER('sms_payment_by_card_from_id')
 							) 
 						)
-						
 					)
 					OR
 					(
@@ -852,12 +871,10 @@ FROM
 			AND hc.field_name = 'PaymentType'
 			AND (FIND_IN_SET('PaymentType', @change_types) &gt; 0 OR @issue_types &lt;&gt; '')
 		UNION ALL
-		SELECT
+		SELECT # Выборка изменений в количестве или цене в строках заказов
 			o.id as order_id,
 			cc.organization_id,
 			o.comment_manager,
-			o.delivery_date,
-			o.time_delivered,
 			cc.counterparty_id,
 			hce.changeset_id,
 			hce.entity_class,
@@ -1122,7 +1139,7 @@ FROM
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
