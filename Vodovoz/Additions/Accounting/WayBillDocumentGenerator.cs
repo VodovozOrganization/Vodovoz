@@ -58,7 +58,6 @@ namespace Vodovoz.Additions.Accounting
         }
 
         IUnitOfWork uow;
-        RouteList currentRouteList;
 
         #region Events
 
@@ -118,7 +117,14 @@ namespace Vodovoz.Additions.Accounting
         
         public void PrintSelected(SelectablePrintDocument document = null)
         {
-            if(!cancelPrinting) {
+            if (Environment.OSVersion.Platform != PlatformID.MacOSX && Environment.OSVersion.Platform != PlatformID.Unix)
+            {
+                var settingsOperaation = new PrintOperation();
+                settingsOperaation.Run(PrintOperationAction.PrintDialog, null);
+                PrinterSettings = settingsOperaation.PrintSettings;
+            }
+
+            if (!cancelPrinting) {
                 MultiDocPrinter.PrinterSettings = PrinterSettings;
                 if(document == null)
                     MultiDocPrinter.PrintSelectedDocuments();
