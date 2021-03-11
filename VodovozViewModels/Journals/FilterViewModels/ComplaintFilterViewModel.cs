@@ -47,10 +47,9 @@ namespace Vodovoz.FilterViewModels
 				new ComplaintGuiltyItem(),
 				commonServices,
 				subdivisionRepository,
-				employeeSelectorFactory
-			) {
-				UoW = UoW
-			};
+				employeeSelectorFactory,
+				UoW
+			);
 
 			GuiltyItemVM.Entity.OnGuiltyTypeChange = () => {
 				if (GuiltyItemVM.Entity.GuiltyType != ComplaintGuiltyTypes.Employee)
