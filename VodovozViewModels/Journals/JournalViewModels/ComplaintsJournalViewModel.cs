@@ -107,6 +107,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			var currentEmployeeSubdivision = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
 			if(currentEmployeeSubdivision != null) {
+				FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
 				if(FilterViewModel.SubdivisionService.GetOkkId() != currentEmployeeSubdivision.Id)
 					FilterViewModel.Subdivision = currentEmployeeSubdivision;
 				else

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.IO;
-using System.Linq;
-using EmailService;
+﻿using EmailService;
 using fyiReporting.RDL;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -34,6 +29,11 @@ using QSProjectsLib;
 using QSReport;
 using QSWidgetLib;
 using RdlEngine;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -64,8 +64,8 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
 using Vodovoz.Models;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
@@ -81,7 +81,7 @@ using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 
 namespace Vodovoz
 {
-	public partial class OrderDlg : EntityDialogBase<Order>,
+    public partial class OrderDlg : EntityDialogBase<Order>,
 		ICounterpartyInfoProvider,
 		IDeliveryPointInfoProvider,
 		IContractInfoProvider,
@@ -195,6 +195,16 @@ namespace Vodovoz
 			set { callTaskWorker = value; }
 		}
 
+        public bool? IsForRetail
+        {
+			get => isForRetail;
+			set {
+				isForRetail = value;
+            }
+		}
+
+        private bool? isForRetail = null;
+
 		#endregion
 
 		#region Конструкторы, настройка диалога
@@ -205,7 +215,7 @@ namespace Vodovoz
 			base.Destroy();
 		}
 
-		public OrderDlg(bool? isForRetail = null)
+		public OrderDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
@@ -217,20 +227,19 @@ namespace Vodovoz
 			}
 			Entity.OrderStatus = OrderStatus.NewOrder;
 			TabName = "Новый заказ";
-			this.isForRetail = isForRetail;
 			ConfigureDlg();
         }
 
 		public OrderDlg(Counterparty client) :this()
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
-			isForRetail = Entity.Client.IsForRetail;
+			IsForRetail = Entity.Client.IsForRetail;
 		}
 		public OrderDlg(int id)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
-			isForRetail = UoWGeneric.Root.Client.IsForRetail;
+			IsForRetail = UoWGeneric.Root.Client.IsForRetail;
 			ConfigureDlg();
 		}
 
@@ -441,7 +450,7 @@ namespace Vodovoz
 			enumTax.AddEnumToHideList(hideTaxTypeEnums);
 			enumTax.ChangedByUser += (sender, args) => { Entity.Client.TaxType = (TaxType)enumTax.SelectedItem; };
 
-			var counterpartyFilter = new CounterpartyJournalFilterViewModel() { IsForRetail = this.isForRetail, RestrictIncludeArchive = false };
+			var counterpartyFilter = new CounterpartyJournalFilterViewModel() { IsForRetail = this.IsForRetail, RestrictIncludeArchive = false };
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(typeof(Counterparty), 
 				() => new CounterpartyJournalViewModel(counterpartyFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices))
@@ -602,7 +611,6 @@ namespace Vodovoz
 		}
 
 		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");
-        private readonly bool? isForRetail;
 
         private void OnContractChanged()
 		{
