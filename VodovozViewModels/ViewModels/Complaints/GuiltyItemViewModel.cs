@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
@@ -10,23 +11,30 @@ namespace Vodovoz.ViewModels.Complaints
 {
 	public class GuiltyItemViewModel : EntityWidgetViewModelBase<ComplaintGuiltyItem>
 	{
-		readonly ISubdivisionRepository subdivisionRepository;
-
 		public GuiltyItemViewModel(
 			ComplaintGuiltyItem entity,
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IUnitOfWork uow
 		) : base(entity, commonServices)
 		{
-			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			if(subdivisionRepository == null) {
+				throw new ArgumentNullException(nameof(subdivisionRepository));
+			}
 			ConfigureEntityPropertyChanges();
+			AllDepartments = subdivisionRepository.GetAllDepartments(UoW);
 		}
 
 		public event EventHandler OnGuiltyItemReady;
 
-		public IList<Subdivision> AllDepartments => subdivisionRepository.GetAllDepartments(UoW);
+		private IList<Subdivision> allDepartments;
+		public IList<Subdivision> AllDepartments {
+			get => allDepartments;
+			private set => SetField(ref allDepartments, value);
+		}
 
 		public bool CanChooseEmployee => Entity.GuiltyType == ComplaintGuiltyTypes.Employee;
 

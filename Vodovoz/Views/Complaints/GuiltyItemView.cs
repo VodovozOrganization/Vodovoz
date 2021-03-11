@@ -35,7 +35,7 @@ namespace Vodovoz.Views.Complaints
 					return string.Concat(strLst);
 				}
 			);
-			yCmbSubdivision.Binding.AddBinding(ViewModel, s => s.AllDepartments, w => w.ItemsList).InitializeFromSource();
+			yCmbSubdivision.ItemsList = ViewModel.AllDepartments;
 			yCmbSubdivision.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.SelectedItem).InitializeFromSource();
 			yCmbSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanChooseSubdivision, w => w.Visible).InitializeFromSource();
 			yCmbSubdivision.SetSizeRequest(250, 30);
