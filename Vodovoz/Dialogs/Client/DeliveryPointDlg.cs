@@ -487,7 +487,7 @@ namespace Vodovoz
 		
 		public void OpenFixedPrices()
 		{
-			notebook1.CurrentPage = 3;
+			notebook1.CurrentPage = 2;
 		}
 
 		protected void OnButtonInsertFromBufferClicked(object sender, EventArgs e)
