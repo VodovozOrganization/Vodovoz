@@ -35,7 +35,6 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Client;
-using Vodovoz.Repository.Client;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
@@ -125,8 +124,11 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == client)
 					return;
-				IsForRetail = value.IsForRetail;
-				if(orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
+				if(value != null)
+                {
+					IsForRetail = value.IsForRetail;
+				}
+				if (orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
 					OnPropertyChanged(nameof(Client));
