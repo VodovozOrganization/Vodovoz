@@ -110,7 +110,11 @@ namespace Vodovoz.FilterViewModels
 			set => SetField(ref complaintCurrentUserSubdivisionStatus, value);
 		}
 
-		public Subdivision CurrentUserSubdivision => EmployeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
+		private Subdivision currentUserSubdivision;
+		public virtual Subdivision CurrentUserSubdivision {
+			get => currentUserSubdivision;
+			set => SetField(ref currentUserSubdivision, value);
+		}
 
 		private Employee employee;
 		public virtual Employee Employee {
