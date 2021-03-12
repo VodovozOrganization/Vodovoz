@@ -29,6 +29,17 @@ namespace Vodovoz
 			}
 		}
 
+		/// <summary>
+		/// Перезапись встроенного свойства Sensitive
+		/// Sensitive теперь работает только с таблицей
+		/// К сожалению Gtk обходит этот параметр, если выставлять Sensitive какому-либо элементу управления выше по дереву
+		/// </summary>
+		public new bool Sensitive
+        {
+			get => ytreeview2.Sensitive;
+			set => ytreeview2.Sensitive = value;
+		}
+
 		public IList<RouteListControlNotLoadedNode> ItemsLoaded { get; set; }
 
 		protected void Configure()
