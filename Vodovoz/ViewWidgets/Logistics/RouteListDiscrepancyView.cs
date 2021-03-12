@@ -13,7 +13,7 @@ namespace Vodovoz
 	{
 		public RouteListDiscrepancyView()
 		{
-			this.Build();
+			Build();
 			Configure();
 			Items = new List<Discrepancy>();
 		}
@@ -25,7 +25,7 @@ namespace Vodovoz
 			get => items;
 			set {
 				items = value;
-				ytreeview2.ItemsDataSource = items;
+                ytreeRouteListDiscrepancyItemsView.ItemsDataSource = items;
 			}
 		}
 
@@ -36,8 +36,8 @@ namespace Vodovoz
 		/// </summary>
 		public new bool Sensitive
         {
-			get => ytreeview2.Sensitive;
-			set => ytreeview2.Sensitive = value;
+			get => ytreeRouteListDiscrepancyItemsView.Sensitive;
+			set => ytreeRouteListDiscrepancyItemsView.Sensitive = value;
 		}
 
 		public IList<RouteListControlNotLoadedNode> ItemsLoaded { get; set; }
@@ -46,7 +46,7 @@ namespace Vodovoz
 		{
 			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-			ytreeview2.ColumnsConfig = ColumnsConfigFactory.Create<Discrepancy>()
+            ytreeRouteListDiscrepancyItemsView.ColumnsConfig = ColumnsConfigFactory.Create<Discrepancy>()
 				.AddColumn("Название")
 					.AddTextRenderer(node => node.Name)
 				.AddColumn("Недопо-\nгрузка")
