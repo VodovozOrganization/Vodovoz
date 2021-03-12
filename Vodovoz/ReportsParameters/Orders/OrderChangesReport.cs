@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Organizations;
 using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
-using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -15,9 +16,12 @@ namespace Vodovoz.ReportsParameters.Orders
     public partial class OrderChangesReport : SingleUoWWidgetBase, IParametersWidget
     {
         private List<SelectedChangeTypeNode> changeTypes = new List<SelectedChangeTypeNode>();
+        private List<SelectedIssueTypeNode> issueTypes = new List<SelectedIssueTypeNode>();
+        private readonly IReportDefaultsProvider reportDefaultsProvider;
 
-        public OrderChangesReport()
+        public OrderChangesReport(IReportDefaultsProvider reportDefaultsProvider)
         {
+            this.reportDefaultsProvider = reportDefaultsProvider ?? throw new ArgumentNullException(nameof(reportDefaultsProvider));
             this.Build();
             Configure();
         }
@@ -26,11 +30,14 @@ namespace Vodovoz.ReportsParameters.Orders
         {
             UoW = UnitOfWorkFactory.CreateWithoutRoot();
             buttonCreateReport.Clicked += OnButtonCreateReportClicked;
-            ydatepickerDateFrom.Date = DateTime.Now.AddDays(-7);
-            ydatepickerDateFrom.DateChanged += OnDateChanged;
-            comboOrganization.ItemsList = UoW.GetAll<Organization>();
+            dateperiodpicker.StartDate = DateTime.Today.AddDays(-1);
+            dateperiodpicker.EndDate = DateTime.Today.AddDays(-1);
+            dateperiodpicker.PeriodChangedByUser += OnDateChanged;
+            var organizations = UoW.GetAll<Organization>();
+            comboOrganization.ItemsList = organizations;
             comboOrganization.SetRenderTextFunc<Organization>(x => x.FullName);
             comboOrganization.Changed += (sender, e) => UpdateSensitivity();
+            comboOrganization.SelectedItem = organizations.Where(x => x.Id == reportDefaultsProvider.GetDefaultOrderChangesOrganizationId).FirstOrDefault();
             ytreeviewChangeTypes.ColumnsConfig = FluentColumnsConfig<SelectedChangeTypeNode>.Create()
                 .AddColumn("✓").AddToggleRenderer(x => x.Selected)
                 .AddColumn("Тип").AddTextRenderer(x => x.Title)
@@ -42,6 +49,17 @@ namespace Vodovoz.ReportsParameters.Orders
             AddChangeType("Тип оплаты заказа", "PaymentType");
 
             ytreeviewChangeTypes.ItemsDataSource = changeTypes;
+
+            ytreeviewIssueTypes.ColumnsConfig = FluentColumnsConfig<SelectedIssueTypeNode>.Create()
+                .AddColumn("✓").AddToggleRenderer(x => x.Selected)
+                .AddColumn("Тип").AddTextRenderer(x => x.Title)
+                .Finish();
+
+            AddIssueType("Проблемы с смс", "SmsIssues");
+            AddIssueType("Проблемы с терминалами", "TerminalIssues");
+            AddIssueType("Проблемы менеджеров", "ManagersIssues");
+
+            ytreeviewIssueTypes.ItemsDataSource = issueTypes;
         }
 
         private void AddChangeType(string title, string value)
@@ -52,6 +70,16 @@ namespace Vodovoz.ReportsParameters.Orders
             changeType.PropertyChanged += (sender, e) => UpdateSensitivity();
             changeType.Selected = true;
             changeTypes.Add(changeType);
+        }
+
+        private void AddIssueType(string title, string value)
+        {
+            var issueType = new SelectedIssueTypeNode();
+            issueType.Title = title;
+            issueType.Value = value;
+            issueType.PropertyChanged += (sender, e) => UpdateSensitivity();
+            issueType.Selected = true;
+            issueTypes.Add(issueType);
         }
 
         #region IParametersWidget implementation
@@ -66,28 +94,35 @@ namespace Vodovoz.ReportsParameters.Orders
         {
             var ordganizationId = ((Organization)comboOrganization.SelectedItem).Id;
             var selectedChangeTypes = string.Join(",", changeTypes.Where(x => x.Selected).Select(x => x.Value));
-            var selectedChangeTypesTitles = string.Join(", ", changeTypes.Where(x => x.Selected).Select(x => x.Title)); 
+            var selectedIssueTypes = changeTypes.Any(x => x.Selected && x.Value == "PaymentType") ? string.Empty : string.Join(",", issueTypes.Where(x => x.Selected).Select(x => x.Value));
+            var selectedChangeTypesTitles = string.Join(", ", changeTypes.Where(x => x.Selected).Select(x => x.Title));
+            var selectedIssueTypesTitles = changeTypes.Any(x => x.Selected && x.Value == "PaymentType") ? string.Empty : string.Join(", ", issueTypes.Where(x => x.Selected).Select(x => x.Title));
+
+            var parameters = new Dictionary<string, object>
+                {
+                    { "start_date", dateperiodpicker.StartDate },
+                    { "end_date", dateperiodpicker.EndDate },
+                    { "organization_id", ordganizationId },
+                    { "change_types", selectedChangeTypes },
+                    { "change_types_rus", selectedChangeTypesTitles },
+                    { "issue_types", selectedIssueTypes },
+                    { "issue_types_rus", selectedIssueTypesTitles }
+                };
 
             return new ReportInfo
             {
                 Identifier = "Orders.OrderChangesReport",
                 UseUserVariables = true,
-                Parameters = new Dictionary<string, object>
-                {
-                    { "date_from", ydatepickerDateFrom.Date },
-                    { "organization_id", ordganizationId },
-                    { "change_types", selectedChangeTypes },
-                    { "change_types_rus", selectedChangeTypesTitles }
-                }
+                Parameters = parameters
             };
         }
 
         private void OnButtonCreateReportClicked(object sender, EventArgs e)
         {
-            if (ydatepickerDateFrom.DateOrNull == null
-                || (ydatepickerDateFrom.DateOrNull != null && ydatepickerDateFrom.Date >= DateTime.Now)
+            if (dateperiodpicker.StartDateOrNull == null
+                || (dateperiodpicker.StartDateOrNull != null && dateperiodpicker.StartDate >= DateTime.Now)
                 || comboOrganization.SelectedItem == null
-                || !changeTypes.Any(x => x.Selected)
+                || (!changeTypes.Any(x => x.Selected) && !issueTypes.Any(x => x.Selected))
                 ) {
                 return;
             }
@@ -96,22 +131,26 @@ namespace Vodovoz.ReportsParameters.Orders
             LoadReport?.Invoke(this, new LoadReportEventArgs(reportInfo));
         }
 
+        private bool issuesSensitive => changeTypes.Any(x => x.Value == "PaymentType" && !x.Selected);
+
         private void UpdateSensitivity()
         {
-            bool hasValidDate = ydatepickerDateFrom.DateOrNull != null && ydatepickerDateFrom.Date < DateTime.Now;
+            bool hasValidDate = dateperiodpicker.StartDateOrNull != null && dateperiodpicker.StartDate < DateTime.Now;
             bool hasOrganization = comboOrganization.SelectedItem != null;
             bool hasChangeTypes = changeTypes.Any(x => x.Selected);
-            buttonCreateReport.Sensitive = hasValidDate && hasOrganization && hasChangeTypes;
+            bool hasIssueTypes = issueTypes.Any(x => x.Selected);
+            buttonCreateReport.Sensitive = hasValidDate && hasOrganization && (hasChangeTypes || hasIssueTypes);
+            ytreeviewIssueTypes.Sensitive = issuesSensitive;
         }
 
         private void UpdatePeriodMessage()
         {
-            if(ydatepickerDateFrom.DateOrNull == null) {
+            if(dateperiodpicker.StartDateOrNull == null) {
                 ylabelDateWarning.Visible = false;
                 return;
             }
 
-            var period = DateTime.Now - ydatepickerDateFrom.Date;
+            var period = DateTime.Now - dateperiodpicker.StartDate;
             ylabelDateWarning.Visible = period.Days > 14;
         }
 
@@ -123,6 +162,20 @@ namespace Vodovoz.ReportsParameters.Orders
     }
 
     public class SelectedChangeTypeNode : PropertyChangedBase
+    {
+        private bool selected;
+        public virtual bool Selected
+        {
+            get => selected;
+            set => SetField(ref selected, value);
+        }
+
+        public string Title { get; set; }
+
+        public string Value { get; set; }
+    }
+
+    public class SelectedIssueTypeNode : PropertyChangedBase
     {
         private bool selected;
         public virtual bool Selected
