@@ -2418,7 +2418,6 @@ namespace Vodovoz
 			checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
 			//pickerDeliveryDate.Sensitive = val; // оно повторно устанавливается в ChangeOrderEditable(val) -> SetPadInfoSensitive(val)
 			dataSumDifferenceReason.Sensitive = val;
-			treeItems.Sensitive = val;
 			ycheckContactlessDelivery.Sensitive = val;
 			ycheckPaymentBySms.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
@@ -2438,7 +2437,7 @@ namespace Vodovoz
 		void ChangeOrderEditable(bool val)
 		{
 			SetPadInfoSensitive(val);
-			vboxGoods.Sensitive = val;
+			ChangeGoodsTabSensitive(val);
 			buttonAddExistingDocument.Sensitive = val;
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
@@ -2448,6 +2447,18 @@ namespace Vodovoz
 					rlStatus = OrderSingletonRepository.GetInstance().GetAllRLForOrder(uow, Entity).FirstOrDefault()?.Status;
 				tblDriverControl.Sensitive = rlStatus.HasValue && !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
 			}
+		}
+
+		private void ChangeGoodsTabSensitive(bool sensitive)
+        {
+			treeItems.Sensitive = sensitive;
+			hbox12.Sensitive = sensitive;
+			hbox10.Sensitive = sensitive;
+			hboxReturnTareReason.Sensitive = sensitive;
+			orderEquipmentItemsView.Sensitive = sensitive;
+			hbox11.Sensitive = sensitive;
+			depositrefunditemsview.Sensitive = sensitive;
+			table2.Sensitive = sensitive;
 		}
 
 		void SetPadInfoSensitive(bool value)
