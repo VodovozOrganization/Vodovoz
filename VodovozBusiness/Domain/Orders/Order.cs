@@ -144,7 +144,7 @@ namespace Vodovoz.Domain.Orders
                     if(oldClient != null) {
 						UpdateContract();
                     }
-					if (value != null)
+					if (value != null && client != null)
 					{
 						IsForRetail = value.IsForRetail;
 					}
