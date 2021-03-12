@@ -720,7 +720,9 @@ public partial class MainWindow : Gtk.Window
                 return new UserSettingsViewModel(
                     EntityUoWBuilder.ForOpen(CurrentUserSettings.Settings.Id),
                     UnitOfWorkFactory.GetDefaultFactory,
-                    ServicesConfig.CommonServices
+                    ServicesConfig.CommonServices,
+                    VodovozGtkServicesConfig.EmployeeService,
+                    SubdivisionParametersProvider.Instance
                 );
             }
         );
