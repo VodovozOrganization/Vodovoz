@@ -65,10 +65,9 @@ namespace Vodovoz.ViewModels.Complaints
 				new ComplaintGuiltyItem(),
 				commonServices,
 				subdivisionRepository,
-				employeeSelectorFactory
-			) {
-				UoW = UoW
-			};
+				employeeSelectorFactory,
+				UoW
+			);
 			UpdateAcessibility();
 		}
 

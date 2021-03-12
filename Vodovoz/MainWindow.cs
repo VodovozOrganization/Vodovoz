@@ -175,6 +175,7 @@ public partial class MainWindow : Gtk.Window
 		ActionCRM.Visible = false;
 		ActionSuppliers.Visible = false;
 		//ActionComplaints.Visible = false;
+        ActionCarsExploitationReport.Visible = false;
 
         //Читаем настройки пользователя
         switch (CurrentUserSettings.Settings.ToolbarStyle)
