@@ -114,7 +114,7 @@ namespace Vodovoz.ViewModel
 					waterQuery.Where (o => o.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
 
 				var waterList = waterQuery
-				.JoinQueryOver (() => waterAlias.WriteOffWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinQueryOver (() => waterAlias.IncomingWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => waterAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => waterAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
