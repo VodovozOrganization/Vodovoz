@@ -86,8 +86,8 @@ namespace Vodovoz.ViewModels.Orders
 							PromotionalSet = PromotionalSet,
 							IsForZeroDebt = IsForZeroDebt
 						};
-						if(!CommonServices.ValidationService.Validate(newAction))
-							return;
+                        if(!CommonServices.ValidationService.Validate(newAction))
+                            return;
 						PromotionalSet.ObservablePromotionalSetActions.Add(newAction);
 					}
 				},
