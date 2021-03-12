@@ -13,6 +13,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Goods;
 using Gtk;
 using Gdk;
 
@@ -46,6 +47,8 @@ namespace Vodovoz.ViewModel
 			Warehouse warehouseAlias = null;
 			Warehouse secondWarehouseAlias = null;
 			MovementWagon wagonAlias = null;
+
+            Nomenclature product = null;
 
 			CarLoadDocument loadCarAlias = null;
 			CarUnloadDocument unloadCarAlias = null;
@@ -123,6 +126,7 @@ namespace Vodovoz.ViewModel
 					               Projections.Constant ("Не указан", NHibernateUtil.String),
 					               Projections.Property (() => warehouseAlias.Name)))
 					.WithAlias (() => resultAlias.Warehouse)
+                    .Select(() => waterAlias.Product).WithAlias(() => resultAlias.Product)
 					.Select (() => waterAlias.Amount).WithAlias (() => resultAlias.Amount)
 						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
 						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
@@ -525,7 +529,9 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		public int Id { get; set; }
 
-		public DocumentType DocTypeEnum { get; set; }
+        public Nomenclature Product { get; set; }
+
+        public DocumentType DocTypeEnum { get; set; }
 
 		public string DocTypeString => DocTypeEnum.GetEnumTitle();
 
@@ -542,7 +548,7 @@ namespace Vodovoz.ViewModel
 					case DocumentType.IncomingInvoice:
 						return string.Format("Поставщик: {0}; Склад поступления: {1};", Counterparty, Warehouse);
 					case DocumentType.IncomingWater:
-						return string.Format("Количество: {0}; Склад поступления: {1};", Amount, Warehouse);
+                        return string.Format("Количество: {0}; Склад поступления: {1}; Продукт производства: {2}", Amount, Warehouse, Product.Name);
 					case DocumentType.MovementDocument:
 						string carInfo = string.IsNullOrEmpty(CarNumber) ? null : $", Фура: {CarNumber}";
 						return $"{Warehouse} -> {SecondWarehouse}{carInfo}";
