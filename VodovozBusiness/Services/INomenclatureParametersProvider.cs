@@ -18,5 +18,6 @@ namespace Vodovoz.Services
         Nomenclature GetWaterStroika(IUnitOfWork uow);
         Nomenclature GetWaterRuchki(IUnitOfWork uow);
         decimal GetWaterPriceIncrement { get; }
+        int PaidDeliveryNomenclatureId { get; }
     }
 }
