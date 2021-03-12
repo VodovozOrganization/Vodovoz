@@ -1957,8 +1957,15 @@ namespace Vodovoz.Domain.Orders
 			if(Id > 0)
 				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
 
-			foreach(OrderItem orderItem in order.OrderItems) {
+			INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider();
+			var deliveryId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
 
+			foreach (OrderItem orderItem in order.OrderItems) {
+				if (orderItem.Nomenclature.Id == deliveryId)
+                {
+					continue;
+                }
+				
 				decimal discMoney;
 				if(orderItem.DiscountMoney == 0) {
 					if(orderItem.OriginalDiscountMoney == null)
