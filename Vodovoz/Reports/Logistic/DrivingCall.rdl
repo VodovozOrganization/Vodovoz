@@ -46,7 +46,7 @@ FROM orders
 WHERE driver_call_type &lt;&gt; 'NoCall'
   AND (@startDate = '' or delivery_date &gt;= @startDate)
   AND (@endDate = '' or delivery_date &lt;= @endDate)
-GROUP BY oi.id</CommandText>
+GROUP BY orders.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>={?startDate}</Value>
