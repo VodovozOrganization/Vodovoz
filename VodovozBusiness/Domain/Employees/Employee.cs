@@ -502,14 +502,14 @@ namespace Vodovoz.Domain.Employees
 				case EmployeeCategory.driver:
 					EmployeeWageParameter parameterForDriver = new EmployeeWageParameter {
 						WageParameterItem = new ManualWageParameterItem(),
-						DriverWithOurCarsWageParameterItem = new ManualWageParameterItem()
+						WageParameterItemForOurCars = new ManualWageParameterItem()
 					};
 					if(VisitingMaster && !IsDriverForOneDay) {
 						parameterForDriver = new EmployeeWageParameter {
 							WageParameterItem = new PercentWageParameterItem {
 								PercentWageType = PercentWageTypes.Service
 							},
-							DriverWithOurCarsWageParameterItem = new PercentWageParameterItem {
+							WageParameterItemForOurCars = new PercentWageParameterItem {
 								PercentWageType = PercentWageTypes.Service
 							}
 						};
@@ -520,7 +520,7 @@ namespace Vodovoz.Domain.Employees
 							WageParameterItem = new FixedWageParameterItem {
 								RouteListFixedWage = fixedWage
 							},
-							DriverWithOurCarsWageParameterItem = new FixedWageParameterItem {
+							WageParameterItemForOurCars = new FixedWageParameterItem {
 								RouteListFixedWage = fixedWage
 							},
 							IsStartedWageParameter = true
@@ -531,7 +531,7 @@ namespace Vodovoz.Domain.Employees
 							WageParameterItem = new RatesLevelWageParameterItem {
 								WageDistrictLevelRates = defaultLevel
 							},
-							DriverWithOurCarsWageParameterItem = new RatesLevelWageParameterItem {
+							WageParameterItemForOurCars = new RatesLevelWageParameterItem {
 								WageDistrictLevelRates = defaultLevelForOurCar
 							}
 						};
