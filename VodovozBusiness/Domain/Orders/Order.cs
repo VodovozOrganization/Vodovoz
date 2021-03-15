@@ -134,6 +134,9 @@ namespace Vodovoz.Domain.Orders
 					InteractiveService.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
 					return;
 				}
+				if (value != null && (client != null || Id == 0)) {
+					IsForRetail = value.IsForRetail;
+				}
 				var oldClient = client;
 				if(SetField(ref client, value, () => Client)) {
 					if(Client == null || (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id))) {
@@ -144,10 +147,6 @@ namespace Vodovoz.Domain.Orders
                     if(oldClient != null) {
 						UpdateContract();
                     }
-					if (value != null && client != null)
-					{
-						IsForRetail = value.IsForRetail;
-					}
 				}
 			}
 		}
