@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModel
 			Warehouse secondWarehouseAlias = null;
 			MovementWagon wagonAlias = null;
 
-            Nomenclature product = null;
+             Nomenclature productAlias = null;
 
 			CarLoadDocument loadCarAlias = null;
 			CarUnloadDocument unloadCarAlias = null;
@@ -117,6 +117,7 @@ namespace Vodovoz.ViewModel
 				.JoinQueryOver (() => waterAlias.IncomingWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => waterAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => waterAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+                    .Left.JoinAlias(() => waterAlias.Product, () => productAlias)
 				.SelectList (list => list
 					.Select (() => waterAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => waterAlias.TimeStamp).WithAlias (() => resultAlias.Date)
@@ -126,7 +127,7 @@ namespace Vodovoz.ViewModel
 					               Projections.Constant ("Не указан", NHibernateUtil.String),
 					               Projections.Property (() => warehouseAlias.Name)))
 					.WithAlias (() => resultAlias.Warehouse)
-                    .Select(() => waterAlias.Product).WithAlias(() => resultAlias.Product)
+                    .Select(() => productAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select (() => waterAlias.Amount).WithAlias (() => resultAlias.Amount)
 						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
 						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
@@ -528,8 +529,8 @@ namespace Vodovoz.ViewModel
 	{
 		[UseForSearch]
 		public int Id { get; set; }
-
-        public Nomenclature Product { get; set; }
+        
+        public string ProductName { get; set; }
 
         public DocumentType DocTypeEnum { get; set; }
 
@@ -548,7 +549,7 @@ namespace Vodovoz.ViewModel
 					case DocumentType.IncomingInvoice:
 						return string.Format("Поставщик: {0}; Склад поступления: {1};", Counterparty, Warehouse);
 					case DocumentType.IncomingWater:
-                        return string.Format("Количество: {0}; Склад поступления: {1}; Продукт производства: {2}", Amount, Warehouse, Product.Name);
+                        return string.Format("Количество: {0}; Склад поступления: {1}; Продукт производства: {2}", Amount, Warehouse, ProductName);
 					case DocumentType.MovementDocument:
 						string carInfo = string.IsNullOrEmpty(CarNumber) ? null : $", Фура: {CarNumber}";
 						return $"{Warehouse} -> {SecondWarehouse}{carInfo}";
