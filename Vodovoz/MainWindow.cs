@@ -1960,7 +1960,7 @@ public partial class MainWindow : Gtk.Window
                 nomenclatureRepository, UserSingletonRepository.GetInstance());
 
         tdiMain.OpenTab(
-            () => new OrderJournalViewModel(
+            () => new RetailOrderJournalViewModel(
                     new OrderJournalFilterViewModel() { IsForRetail = true },
                     UnitOfWorkFactory.GetDefaultFactory,
                     ServicesConfig.CommonServices,
