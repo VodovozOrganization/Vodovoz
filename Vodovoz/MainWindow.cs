@@ -2033,4 +2033,10 @@ public partial class MainWindow : Gtk.Window
             )
         );
     }
+
+    protected void OnActionRecalculateDriverWagesActivated(object sender, EventArgs e)
+    {
+        var dlg = new RecalculateDriverWageDlg();
+        tdiMain.AddTab(dlg);
+    }
 }

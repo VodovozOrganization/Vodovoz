@@ -461,6 +461,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionDriverCarKind;
 
+	private global::Gtk.Action ActionRecalculateDriverWages;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -525,7 +527,7 @@ public partial class MainWindow
 		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString("Касса");
 		w1.Add(this.ActionCash, null);
 		this.ActionAccounting = new global::Gtk.RadioAction("ActionAccounting", global::Mono.Unix.Catalog.GetString("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionLogistics.Group;
+		this.ActionAccounting.Group = this.ActionCash.Group;
 		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString("Бухгалтерия");
 		w1.Add(this.ActionAccounting, null);
 		this.ActionReports = new global::Gtk.RadioAction("ActionReports", global::Mono.Unix.Catalog.GetString("Отчеты"), null, "report", 0);
@@ -1196,6 +1198,9 @@ public partial class MainWindow
 		this.ActionDriverCarKind = new global::Gtk.Action("ActionDriverCarKind", global::Mono.Unix.Catalog.GetString("Виды наёмных автомобилей"), null, null);
 		this.ActionDriverCarKind.ShortLabel = global::Mono.Unix.Catalog.GetString("Виды наёмных автомобилей");
 		w1.Add(this.ActionDriverCarKind, null);
+		this.ActionRecalculateDriverWages = new global::Gtk.Action("ActionRecalculateDriverWages", global::Mono.Unix.Catalog.GetString("Пересчет ЗП водителей"), null, null);
+		this.ActionRecalculateDriverWages.ShortLabel = global::Mono.Unix.Catalog.GetString("Пересчет ЗП водителей");
+		w1.Add(this.ActionRecalculateDriverWages, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -1375,12 +1380,14 @@ public partial class MainWindow
 				"ttlesOperation\'/><menuitem name=\'ActionLoad1cCounterpartyAndDeliveryPoints\' acti" +
 				"on=\'ActionLoad1cCounterpartyAndDeliveryPoints\'/><menuitem name=\'ActionToOnlineSt" +
 				"ore\' action=\'ActionToOnlineStore\'/><menuitem name=\'Action62\' action=\'Action62\'/>" +
-				"</menu><separator/><menuitem name=\'ActionDocTemplates\' action=\'ActionDocTemplate" +
-				"s\'/><menuitem name=\'ActionGeographicGroups\' action=\'ActionGeographicGroups\'/><me" +
-				"nuitem name=\'ActionImages\' action=\'ActionImages\'/></menu><menu name=\'ActionAbout" +
-				"\' action=\'ActionAbout\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></menu" +
-				"><menu name=\'ActionProposals\' action=\'ActionProposals\'><menuitem name=\'ActionOpe" +
-				"nProposalsJournal\' action=\'ActionOpenProposalsJournal\'/></menu></menubar></ui>");
+				"<menuitem name=\'ActionRecalculateDriverWages\' action=\'ActionRecalculateDriverWag" +
+				"es\'/></menu><separator/><menuitem name=\'ActionDocTemplates\' action=\'ActionDocTem" +
+				"plates\'/><menuitem name=\'ActionGeographicGroups\' action=\'ActionGeographicGroups\'" +
+				"/><menuitem name=\'ActionImages\' action=\'ActionImages\'/></menu><menu name=\'Action" +
+				"About\' action=\'ActionAbout\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/><" +
+				"/menu><menu name=\'ActionProposals\' action=\'ActionProposals\'><menuitem name=\'Acti" +
+				"onOpenProposalsJournal\' action=\'ActionOpenProposalsJournal\'/></menu></menubar></" +
+				"ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1477,7 +1484,7 @@ public partial class MainWindow
 		{
 			this.Child.ShowAll();
 		}
-		this.DefaultWidth = 1369;
+		this.DefaultWidth = 1343;
 		this.Show();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler(this.OnDeleteEvent);
 		this.dialogAuthenticationAction.Activated += new global::System.EventHandler(this.OnDialogAuthenticationActionActivated);
@@ -1670,6 +1677,7 @@ public partial class MainWindow
 		this.ActionSalesChannelsJournal.Activated += new global::System.EventHandler(this.OnActionSalesChannelsJournalActivated);
 		this.ActionCarsExploitationReport.Activated += new global::System.EventHandler(this.OnActionCarsExploitationReportActivated);
 		this.ActionDriverCarKind.Activated += new global::System.EventHandler(this.OnActionDriverCarKindActivated);
+		this.ActionRecalculateDriverWages.Activated += new global::System.EventHandler(this.OnActionRecalculateDriverWagesActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);

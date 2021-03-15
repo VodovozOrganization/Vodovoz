@@ -1578,6 +1578,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Retail.SalesChannelView.cs" />
     <Compile Include="Views\Client\CounterpartyFilesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyFilesView.cs" />
+    <Compile Include="ServiceDialogs\RecalculateDriverWageDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.RecalculateDriverWageDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
