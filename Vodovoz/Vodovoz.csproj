@@ -1579,6 +1579,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyFilesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeePostView.cs" />
     <Compile Include="Views\Employees\EmployeePostView.cs" />
+    <Compile Include="ReportsParameters\Retail\QualityReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.QualityReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1879,6 +1881,8 @@
     <Folder Include="Views\Security\" />
     <Folder Include="JournalViewers\Retail\" />
     <Folder Include="Views\Retail\" />
+    <Folder Include="ReportsParameters\Retail\" />
+    <Folder Include="Reports\Retail\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

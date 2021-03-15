@@ -97,6 +97,9 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ReportsParameters.Retail;
+using Vodovoz.Domain.Retail;
+using Vodovoz.Journals.FilterViewModels.Employees;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -212,7 +215,8 @@ public partial class MainWindow : Gtk.Window
             ActionReportService.Visible =
             ActionBookkeepping.Visible =
             Action61.Visible = // Касса
-            Action70.Visible = !userIsSalesRepresentative; // Производство
+            Action73.Visible =
+            Action70.Visible = !userIsSalesRepresentative;// Производство
 
         // Отчеты в Продажи
 
@@ -921,6 +925,25 @@ public partial class MainWindow : Gtk.Window
             QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.DeliveriesLateReport>(),
             () => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.DeliveriesLateReport())
         );
+    }
+
+    protected void OnActionQualityRetailReport(object sender, EventArgs e)
+    {
+        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        IEntityAutocompleteSelectorFactory employeeSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel,
+                EmployeeFilterViewModel>(ServicesConfig.CommonServices);
+
+        IEntityAutocompleteSelectorFactory salesChannelselectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<SalesChannel, SalesChannelJournalViewModel,
+                SalesChannelJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
+            () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory, employeeSelectorFactory)));
     }
 
     protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenDriverRoutesListRegisterReport();

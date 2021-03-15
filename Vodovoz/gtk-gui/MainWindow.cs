@@ -461,6 +461,10 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionDriverCarKind;
 
+	private global::Gtk.Action Action73;
+
+	private global::Gtk.Action ActionQualityRetailReport;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -1196,6 +1200,12 @@ public partial class MainWindow
 		this.ActionDriverCarKind = new global::Gtk.Action("ActionDriverCarKind", global::Mono.Unix.Catalog.GetString("Виды наёмных автомобилей"), null, null);
 		this.ActionDriverCarKind.ShortLabel = global::Mono.Unix.Catalog.GetString("Виды наёмных автомобилей");
 		w1.Add(this.ActionDriverCarKind, null);
+		this.Action73 = new global::Gtk.Action("Action73", global::Mono.Unix.Catalog.GetString("Розница"), null, null);
+		this.Action73.ShortLabel = global::Mono.Unix.Catalog.GetString("Розница");
+		w1.Add(this.Action73, null);
+		this.ActionQualityRetailReport = new global::Gtk.Action("ActionQualityRetailReport", global::Mono.Unix.Catalog.GetString("Качественный отчет"), null, null);
+		this.ActionQualityRetailReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Качественный отчет");
+		w1.Add(this.ActionQualityRetailReport, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -1363,24 +1373,26 @@ public partial class MainWindow
 				"ort\' action=\'ActionForwarderWageReport\'/><menuitem name=\'ActionWagesOperations\' " +
 				"action=\'ActionWagesOperations\'/><menuitem name=\'ActionCashBook\' action=\'ActionCa" +
 				"shBook\'/></menu><menu name=\'Action70\' action=\'Action70\'><menuitem name=\'ActionPr" +
-				"oducedProductionReport\' action=\'ActionProducedProductionReport\'/></menu></menu><" +
-				"menu name=\'ActionAdministration\' action=\'ActionAdministration\'><menuitem name=\'A" +
-				"ctionTypesOfEntities\' action=\'ActionTypesOfEntities\'/><menuitem name=\'ActionUser" +
-				"s\' action=\'ActionUsers\'/><menuitem name=\'registeredRMAction\' action=\'registeredR" +
-				"MAction\'/><menuitem name=\'ActionParameters\' action=\'ActionParameters\'/><menu nam" +
-				"e=\'ActionService\' action=\'ActionService\'><menuitem name=\'Action45\' action=\'Actio" +
-				"n45\'/><menuitem name=\'ActionAddressDuplicetes\' action=\'ActionAddressDuplicetes\'/" +
-				"><menuitem name=\'ActionDistanceFromCenter\' action=\'ActionDistanceFromCenter\'/><m" +
-				"enuitem name=\'ActionOrdersWithoutBottlesOperation\' action=\'ActionOrdersWithoutBo" +
-				"ttlesOperation\'/><menuitem name=\'ActionLoad1cCounterpartyAndDeliveryPoints\' acti" +
-				"on=\'ActionLoad1cCounterpartyAndDeliveryPoints\'/><menuitem name=\'ActionToOnlineSt" +
-				"ore\' action=\'ActionToOnlineStore\'/><menuitem name=\'Action62\' action=\'Action62\'/>" +
-				"</menu><separator/><menuitem name=\'ActionDocTemplates\' action=\'ActionDocTemplate" +
-				"s\'/><menuitem name=\'ActionGeographicGroups\' action=\'ActionGeographicGroups\'/><me" +
-				"nuitem name=\'ActionImages\' action=\'ActionImages\'/></menu><menu name=\'ActionAbout" +
-				"\' action=\'ActionAbout\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></menu" +
-				"><menu name=\'ActionProposals\' action=\'ActionProposals\'><menuitem name=\'ActionOpe" +
-				"nProposalsJournal\' action=\'ActionOpenProposalsJournal\'/></menu></menubar></ui>");
+				"oducedProductionReport\' action=\'ActionProducedProductionReport\'/></menu><menu na" +
+				"me=\'Action73\' action=\'Action73\'><menuitem name=\'ActionQualityRetailReport\' actio" +
+				"n=\'ActionQualityRetailReport\'/></menu></menu><menu name=\'ActionAdministration\' a" +
+				"ction=\'ActionAdministration\'><menuitem name=\'ActionTypesOfEntities\' action=\'Acti" +
+				"onTypesOfEntities\'/><menuitem name=\'ActionUsers\' action=\'ActionUsers\'/><menuitem" +
+				" name=\'registeredRMAction\' action=\'registeredRMAction\'/><menuitem name=\'ActionPa" +
+				"rameters\' action=\'ActionParameters\'/><menu name=\'ActionService\' action=\'ActionSe" +
+				"rvice\'><menuitem name=\'Action45\' action=\'Action45\'/><menuitem name=\'ActionAddres" +
+				"sDuplicetes\' action=\'ActionAddressDuplicetes\'/><menuitem name=\'ActionDistanceFro" +
+				"mCenter\' action=\'ActionDistanceFromCenter\'/><menuitem name=\'ActionOrdersWithoutB" +
+				"ottlesOperation\' action=\'ActionOrdersWithoutBottlesOperation\'/><menuitem name=\'A" +
+				"ctionLoad1cCounterpartyAndDeliveryPoints\' action=\'ActionLoad1cCounterpartyAndDel" +
+				"iveryPoints\'/><menuitem name=\'ActionToOnlineStore\' action=\'ActionToOnlineStore\'/" +
+				"><menuitem name=\'Action62\' action=\'Action62\'/></menu><separator/><menuitem name=" +
+				"\'ActionDocTemplates\' action=\'ActionDocTemplates\'/><menuitem name=\'ActionGeograph" +
+				"icGroups\' action=\'ActionGeographicGroups\'/><menuitem name=\'ActionImages\' action=" +
+				"\'ActionImages\'/></menu><menu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem n" +
+				"ame=\'aboutAction\' action=\'aboutAction\'/></menu><menu name=\'ActionProposals\' acti" +
+				"on=\'ActionProposals\'><menuitem name=\'ActionOpenProposalsJournal\' action=\'ActionO" +
+				"penProposalsJournal\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1670,6 +1682,7 @@ public partial class MainWindow
 		this.ActionSalesChannelsJournal.Activated += new global::System.EventHandler(this.OnActionSalesChannelsJournalActivated);
 		this.ActionCarsExploitationReport.Activated += new global::System.EventHandler(this.OnActionCarsExploitationReportActivated);
 		this.ActionDriverCarKind.Activated += new global::System.EventHandler(this.OnActionDriverCarKindActivated);
+		this.ActionQualityRetailReport.Activated += new global::System.EventHandler(this.OnActionQualityRetailReport);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
