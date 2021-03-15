@@ -56,8 +56,12 @@ namespace Vodovoz.ReportsParameters.Retail
         void Validate()
         {
             string errorString = string.Empty;
-            if (!string.IsNullOrWhiteSpace(errorString))
+            if (!(ydateperiodpickerCreate.StartDateOrNull.HasValue &&
+                ydateperiodpickerCreate.EndDateOrNull.HasValue) || !(
+                ydateperiodpickerShippind.StartDateOrNull.HasValue &&
+                ydateperiodpickerShippind.EndDateOrNull.HasValue))
             {
+                errorString = "Не выбран ни один из фильтров дат";
                 MessageDialogHelper.RunErrorDialog(errorString);
                 return;
             }

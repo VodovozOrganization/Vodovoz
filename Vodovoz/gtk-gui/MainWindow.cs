@@ -465,6 +465,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionQualityRetailReport;
 
+	private global::Gtk.Action ActionCounterpartyRetailReport;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -1206,6 +1208,9 @@ public partial class MainWindow
 		this.ActionQualityRetailReport = new global::Gtk.Action("ActionQualityRetailReport", global::Mono.Unix.Catalog.GetString("Качественный отчет"), null, null);
 		this.ActionQualityRetailReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Качественный отчет");
 		w1.Add(this.ActionQualityRetailReport, null);
+		this.ActionCounterpartyRetailReport = new global::Gtk.Action("ActionCounterpartyRetailReport", global::Mono.Unix.Catalog.GetString("Отчет по контрагентам"), null, null);
+		this.ActionCounterpartyRetailReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по контрагентам");
+		w1.Add(this.ActionCounterpartyRetailReport, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -1375,24 +1380,25 @@ public partial class MainWindow
 				"shBook\'/></menu><menu name=\'Action70\' action=\'Action70\'><menuitem name=\'ActionPr" +
 				"oducedProductionReport\' action=\'ActionProducedProductionReport\'/></menu><menu na" +
 				"me=\'Action73\' action=\'Action73\'><menuitem name=\'ActionQualityRetailReport\' actio" +
-				"n=\'ActionQualityRetailReport\'/></menu></menu><menu name=\'ActionAdministration\' a" +
-				"ction=\'ActionAdministration\'><menuitem name=\'ActionTypesOfEntities\' action=\'Acti" +
-				"onTypesOfEntities\'/><menuitem name=\'ActionUsers\' action=\'ActionUsers\'/><menuitem" +
-				" name=\'registeredRMAction\' action=\'registeredRMAction\'/><menuitem name=\'ActionPa" +
-				"rameters\' action=\'ActionParameters\'/><menu name=\'ActionService\' action=\'ActionSe" +
-				"rvice\'><menuitem name=\'Action45\' action=\'Action45\'/><menuitem name=\'ActionAddres" +
-				"sDuplicetes\' action=\'ActionAddressDuplicetes\'/><menuitem name=\'ActionDistanceFro" +
-				"mCenter\' action=\'ActionDistanceFromCenter\'/><menuitem name=\'ActionOrdersWithoutB" +
-				"ottlesOperation\' action=\'ActionOrdersWithoutBottlesOperation\'/><menuitem name=\'A" +
-				"ctionLoad1cCounterpartyAndDeliveryPoints\' action=\'ActionLoad1cCounterpartyAndDel" +
-				"iveryPoints\'/><menuitem name=\'ActionToOnlineStore\' action=\'ActionToOnlineStore\'/" +
-				"><menuitem name=\'Action62\' action=\'Action62\'/></menu><separator/><menuitem name=" +
-				"\'ActionDocTemplates\' action=\'ActionDocTemplates\'/><menuitem name=\'ActionGeograph" +
-				"icGroups\' action=\'ActionGeographicGroups\'/><menuitem name=\'ActionImages\' action=" +
-				"\'ActionImages\'/></menu><menu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem n" +
-				"ame=\'aboutAction\' action=\'aboutAction\'/></menu><menu name=\'ActionProposals\' acti" +
-				"on=\'ActionProposals\'><menuitem name=\'ActionOpenProposalsJournal\' action=\'ActionO" +
-				"penProposalsJournal\'/></menu></menubar></ui>");
+				"n=\'ActionQualityRetailReport\'/><menuitem name=\'ActionCounterpartyRetailReport\' a" +
+				"ction=\'ActionCounterpartyRetailReport\'/></menu></menu><menu name=\'ActionAdminist" +
+				"ration\' action=\'ActionAdministration\'><menuitem name=\'ActionTypesOfEntities\' act" +
+				"ion=\'ActionTypesOfEntities\'/><menuitem name=\'ActionUsers\' action=\'ActionUsers\'/>" +
+				"<menuitem name=\'registeredRMAction\' action=\'registeredRMAction\'/><menuitem name=" +
+				"\'ActionParameters\' action=\'ActionParameters\'/><menu name=\'ActionService\' action=" +
+				"\'ActionService\'><menuitem name=\'Action45\' action=\'Action45\'/><menuitem name=\'Act" +
+				"ionAddressDuplicetes\' action=\'ActionAddressDuplicetes\'/><menuitem name=\'ActionDi" +
+				"stanceFromCenter\' action=\'ActionDistanceFromCenter\'/><menuitem name=\'ActionOrder" +
+				"sWithoutBottlesOperation\' action=\'ActionOrdersWithoutBottlesOperation\'/><menuite" +
+				"m name=\'ActionLoad1cCounterpartyAndDeliveryPoints\' action=\'ActionLoad1cCounterpa" +
+				"rtyAndDeliveryPoints\'/><menuitem name=\'ActionToOnlineStore\' action=\'ActionToOnli" +
+				"neStore\'/><menuitem name=\'Action62\' action=\'Action62\'/></menu><separator/><menui" +
+				"tem name=\'ActionDocTemplates\' action=\'ActionDocTemplates\'/><menuitem name=\'Actio" +
+				"nGeographicGroups\' action=\'ActionGeographicGroups\'/><menuitem name=\'ActionImages" +
+				"\' action=\'ActionImages\'/></menu><menu name=\'ActionAbout\' action=\'ActionAbout\'><m" +
+				"enuitem name=\'aboutAction\' action=\'aboutAction\'/></menu><menu name=\'ActionPropos" +
+				"als\' action=\'ActionProposals\'><menuitem name=\'ActionOpenProposalsJournal\' action" +
+				"=\'ActionOpenProposalsJournal\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1683,6 +1689,7 @@ public partial class MainWindow
 		this.ActionCarsExploitationReport.Activated += new global::System.EventHandler(this.OnActionCarsExploitationReportActivated);
 		this.ActionDriverCarKind.Activated += new global::System.EventHandler(this.OnActionDriverCarKindActivated);
 		this.ActionQualityRetailReport.Activated += new global::System.EventHandler(this.OnActionQualityRetailReport);
+		this.ActionCounterpartyRetailReport.Activated += new global::System.EventHandler(this.OnActionCounterpartyRetailReport);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);

@@ -100,6 +100,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Journals.FilterViewModels.Employees;
+using Vodovoz.Journals.FilterViewModels;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2055,5 +2056,20 @@ public partial class MainWindow : Gtk.Window
                 ServicesConfig.CommonServices
             )
         );
+    }
+
+    protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
+    {
+        IEntityAutocompleteSelectorFactory districtSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<District, DistrictJournalViewModel,
+                DistrictJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        IEntityAutocompleteSelectorFactory salesChannelselectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<SalesChannel, SalesChannelJournalViewModel,
+                SalesChannelJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
+            () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory)));
     }
 }

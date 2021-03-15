@@ -1581,6 +1581,8 @@
     <Compile Include="Views\Employees\EmployeePostView.cs" />
     <Compile Include="ReportsParameters\Retail\QualityReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.QualityReport.cs" />
+    <Compile Include="ReportsParameters\Retail\CounterpartyReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.CounterpartyReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
