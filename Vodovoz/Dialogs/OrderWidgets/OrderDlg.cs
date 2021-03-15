@@ -311,6 +311,7 @@ namespace Vodovoz
 			Entity.CopyEquipmentFrom(templateOrder);
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
+			OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded();
 		}
 		
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
@@ -327,6 +328,7 @@ namespace Vodovoz
 			Entity.CopyEquipmentFrom(templateOrder);
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
+			OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded();
 		}
 
 		public void ConfigureDlg()
@@ -2020,7 +2022,18 @@ namespace Vodovoz
 		protected void OnEntityVMEntryClientChangedByUser(object sender, EventArgs e)
 		{
 			chkContractCloser.Active = false;
-			if(Entity.Client != null && Entity.Client.IsDeliveriesClosed) {
+			OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded();
+
+			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
+
+			//Проверяем возможность добавления Акции "Бутыль"
+			ControlsActionBottleAccessibility();
+		}
+
+		protected void OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded()
+        {
+			if (Entity.Client != null && Entity.Client.IsDeliveriesClosed)
+			{
 				string message = "Стоп отгрузки!!!" + Environment.NewLine + "Комментарий от фин.отдела: " + Entity.Client?.CloseDeliveryComment;
 				MessageDialogHelper.RunInfoDialog(message);
 				Enum[] hideEnums = {
@@ -2031,11 +2044,6 @@ namespace Vodovoz
 				};
 				enumPaymentType.AddEnumToHideList(hideEnums);
 			}
-			
-			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
-
-			//Проверяем возможность добавления Акции "Бутыль"
-			ControlsActionBottleAccessibility();
 		}
 
 		protected void OnButtonCancelOrderClicked(object sender, EventArgs e) {
