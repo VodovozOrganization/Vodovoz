@@ -240,8 +240,8 @@ namespace Vodovoz.Representations
 				   .SelectSubQuery(residueQuery).WithAlias(() => resultAlias.IsResidueExist)
 				   .SelectSubQuery(bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
 				   .SelectSubQuery(bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
-				   .SelectSubQuery(TaskExistQuery).WithAlias(() => resultAlias.RowColor)
-					 )
+				   .SelectSubQuery(TaskExistQuery).WithAlias(() => resultAlias.RowColor))
+				.SetTimeout(180)
 				.TransformUsing(Transformers.AliasToBean<DebtorJournalNode>());
 
 			return resultQuery;
