@@ -60,7 +60,7 @@
         <Compile Include="BitrixServiceHost.cs" />
         <Compile Include="ConsoleMessageTracer.cs" />
         <Compile Include="PreFilter.cs" />
-        <Compile Include="Service.cs" />
+        <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
     <ItemGroup>

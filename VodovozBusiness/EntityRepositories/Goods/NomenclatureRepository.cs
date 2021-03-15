@@ -238,7 +238,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		{
 			return uow.Session.QueryOver<Nomenclature>()
 				.Where(x => x.Name == productName)
-				.SingleOrDefault();
+				.List().FirstOrDefault();
 		}
 		
 		public static ProductGroup GetProductGroupByBitrixId(IUnitOfWork uow, uint bitrixId) =>

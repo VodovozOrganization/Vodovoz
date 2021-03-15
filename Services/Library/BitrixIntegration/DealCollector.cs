@@ -36,8 +36,8 @@ namespace BitrixIntegration {
             var listOfIds = await bitrixApi.GetDealsIdsBetweenDates(startDate, endDate);
             if (checkFailed) return await CollectDeals(uow, listOfIds);
             
-            var failedDeals = dealFromBitrixRepository.GetAllFailed(uow, startDate, endDate);
-            listOfIds = FilterFailedDealsFromList(listOfIds, failedDeals);
+            /*var failedDeals = dealFromBitrixRepository.GetAllFailed(uow, startDate, endDate);
+            listOfIds = FilterFailedDealsFromList(listOfIds, failedDeals);*/
             //Теперь listOfIds отфильтрованы зафейленными
             return await CollectDeals(uow, listOfIds);
         }
@@ -124,17 +124,14 @@ namespace BitrixIntegration {
             return listOfdeals;
         }
         
-        
-        public void SendFailedDealFromBitrixToDB(IUnitOfWork uow, uint dealId, string exeption)
+        public void SendFailedDealFromBitrixToDB(IUnitOfWork uow, uint dealId, string exсeption)
         {
             var deal = dealFromBitrixRepository.GetByBitrixId(uow, dealId);
-            if (deal != null && deal.Success == false){
-                
-                #region Обновление существующей ошибочной сделки
+            if (deal != null){
                 logger.Info($"Сделка {dealId} уже была добавлена как обработанная с ошибкой, обновление...");
                 deal.Success = false;
                 deal.ProcessedDate = DateTime.Now;
-                deal.ExtensionText = exeption;
+                deal.ExtensionText = exсeption;
                 try{
                     uow.Save(deal);
                     uow.Commit();
@@ -142,43 +139,34 @@ namespace BitrixIntegration {
                 catch (Exception exception){
                     logger.Error($"!Ошибка при отправке обновленной ошибочной сделки {dealId}\n{exception.Message}\n{exception?.InnerException}");
                 }
-                #endregion
             }
             else{
-                #region Загрузка новой ошибочной сделки
-
-                var dealFromBitrix = new DealFromBitrix()
-                {
+                deal = new DealFromBitrix(){
                     Success = false,
                     BitrixId = dealId,
                     CreateDate = DateTime.Now,
-                    ExtensionText = exeption
+                    ExtensionText = exсeption
                 };
                 try{
-                    uow.Save(dealFromBitrix);
+                    uow.Save(deal);
                     uow.Commit();
                 }
                 catch (Exception exception){
                     if (exception.InnerException != null && exception.InnerException.Message.Contains("Duplicate entry")){
                         logger.Error($"Ошибка о том что сделка: {dealId} не обработана уже отправлена в базу deals_from_bitrix");
                     }
-                    else
-                    {
+                    else {
                         logger.Error($"!Ошибка при отправке ошибочной сделки {dealId}\n{exception.Message}\n{exception?.InnerException}");
                     }
                 }
-                #endregion
             }
-        }   
+        }
         
         public async Task SendSuccessDealFromBitrixToDB(IUnitOfWork uow, uint dealId, Order order)
         {
-            
             var deal = dealFromBitrixRepository.GetByBitrixId(uow, dealId);
-            if (deal != null && deal.Success == false)
-            {
-                #region Обновление существующей ошибочной сделки
-                logger.Info($"Обновление ранее ошибочной сделки {deal.Id} на успешную");
+            if(deal != null) {
+                logger.Info($"Обновление существующей сделки {deal.Id} на успешную");
                 deal.Success = true;
                 deal.ProcessedDate = DateTime.Now;
                 deal.ExtensionText = null;
@@ -187,16 +175,10 @@ namespace BitrixIntegration {
                     uow.Commit();
                 }
                 catch (Exception exception){
-                    logger.Error($"!Ошибка при отправке обновленной успешной(ранее ошибочной) сделки {dealId}\n{exception.Message}\n{exception?.InnerException}");
+                    logger.Error($"!Ошибка при отправке обновленной успешной(ранее ошибочной) сделки {deal.Id}\n{exception.Message}\n{exception?.InnerException}");
                 }
-                #endregion
-            }
-            else
-            {
-                #region Загрузка новой сделки
-
-                var dealFromBitrix = new DealFromBitrix()
-                {
+            } else {
+                deal = new DealFromBitrix() {
                     Success = true,
                     BitrixId = dealId,
                     Order = order,
@@ -204,22 +186,22 @@ namespace BitrixIntegration {
                     ProcessedDate = DateTime.Now
                 };
                 try{
-                    uow.Save(dealFromBitrix); 
+                    uow.Save(deal); 
                     uow.Commit();
-                    bool success = true;
-                    await bitrixApi.SendWONBitrixStatus(dealId);; //TODO gavr раскоментить чтобы обновлялись статусы сделок
-                    for (int i = 0; i < 2; i++){
-                        if (!success){
-                            Thread.Sleep(500);
-                            success = await bitrixApi.SendWONBitrixStatus(dealId);
-                            continue;
-                        }
-                        logger.Info($"Статус сделки {dealId} успешно изменен в битриксе");
-                        break;
+                    var attemptCounts = 0;
+                    var statusUpdated = false;
+                    /*do {
+                        Thread.Sleep(500);
+                        statusUpdated = await bitrixApi.SendWONBitrixStatus(dealId);
+                    } while(!statusUpdated && attemptCounts < 3);*/
+
+                    if(statusUpdated) {
+                        logger.Info($"Статус сделки {dealId} успешно обновлен в битриксе");
                     }
-                    if (!success)
-                        logger.Error($"!Статус о том что сделка {dealId} успешно" +
-                                     " создана в ДВ не получилось изменить в битриксе");
+                    else {
+                        logger.Error($"Статус сделки {dealId} не удалось обновить в битриксе" +
+                                     ", но в ДВ успешно сохранена");
+                    }
                 }
                 catch (Exception exception){
                     if (exception.InnerException != null && exception.InnerException.Message.Contains("Duplicate entry")){
@@ -228,10 +210,7 @@ namespace BitrixIntegration {
                     else
                         logger.Error($"!Ошибка при отправке успешной сделки {dealId}\n{exception.Message}\n{exception?.InnerException}");
                 }
-                
-                #endregion
             }
-           
-        }   
+        }
     }
 }

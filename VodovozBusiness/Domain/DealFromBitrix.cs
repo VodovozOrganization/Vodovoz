@@ -7,7 +7,6 @@ namespace Vodovoz.Domain {
     [Appellative(Gender = GrammaticalGender.Masculine,
         NominativePlural = "телефоны",
         Nominative = "телефон")]
-    // ReSharper disable once ClassNeverInstantiated.Global
     public class DealFromBitrix: PropertyChangedBase, IDomainObject {
         public virtual int Id { get; set; }
         
@@ -15,42 +14,42 @@ namespace Vodovoz.Domain {
         [Display(Name = "Id в Битриксе")]
         public virtual uint BitrixId {
             get => bitrixId;
-            set { SetField(ref bitrixId, value); }
+            set => SetField(ref bitrixId, value);
         }
         
         private DateTime createDate;
-        [Display(Name = "Id в Битриксе")]
+        [Display(Name = "Дата создания")]
         public virtual DateTime CreateDate {
             get => createDate;
-            set { SetField(ref createDate, value); }
+            set => SetField(ref createDate, value);
         }
         
         private DateTime? processedDate;
-        [Display(Name = "Id в Битриксе")]
+        [Display(Name = "Дата обработки")]
         public virtual DateTime? ProcessedDate {
             get => processedDate;
-            set { SetField(ref processedDate, value); }
+            set => SetField(ref processedDate, value);
         }
         
         private bool success;
-        [Display(Name = "Id в Битриксе")]
+        [Display(Name = "Выполнено успешно")]
         public virtual bool Success {
             get => success;
-            set { SetField(ref success, value); }
+            set => SetField(ref success, value);
         }
         
         private Order order;
-        [Display(Name = "Id в Битриксе")]
+        [Display(Name = "Заказ")]
         public virtual Order Order {
             get => order;
-            set { SetField(ref order, value); }
+            set => SetField(ref order, value);
         }
         
         private string extensionText;
         [Display(Name = "Текст ошибки")]
         public virtual string ExtensionText {
             get => extensionText;
-            set { SetField(ref extensionText, value); }
+            set => SetField(ref extensionText, value);
         }
     }
 }

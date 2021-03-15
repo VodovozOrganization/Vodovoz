@@ -535,10 +535,9 @@ namespace BitrixIntegration {
         }
 
         private async Task<bool> IsNomenclatureFromDV(uint productId)
-	        => (await bitrixApi.GetProduct(productId)).IsOurObj.IsOurProduct == "Y";
-        
-        
-        
-
+        {
+	        var product = await bitrixApi.GetProduct(productId);
+	        return product.IsOurObj?.IsOurProduct == "Y";
+        }
     }
 }

@@ -173,98 +173,103 @@ namespace BitrixIntegration {
             var latitudeString = splitted[0].Trim();
             var longitudeString = splitted[1].Trim();
 
-            if (decimal.TryParse(longitudeString,NumberStyles.Any, CultureInfo.InvariantCulture, out var longitude) &&
-                decimal.TryParse(latitudeString, NumberStyles.Any, CultureInfo.InvariantCulture, out var latitude)){
-                logger.Info($"Распаршены координаты: longitude: {longitude} и latitude {latitude}");
-                IList<DeliveryPoint> deliveryPointsOfCounerparty = DeliveryPointRepository.GetDeliveryPointForCounterpartyByCoordinates(uow, latitude, longitude, counterparty.Id);
-            
-                if (deliveryPointsOfCounerparty.Count == 1){
-                    logger.Info($"Сопоставлена 1 точка доставки Id: {deliveryPointsOfCounerparty.First().Id}, {deliveryPointsOfCounerparty.First().ShortAddress}");
-                    outDeliveryPoint = deliveryPointsOfCounerparty.First();
-                    return true;
-                }
-                // В одном доме несколько наших клиентов
-                else if(deliveryPointsOfCounerparty.Count > 1){
-                    logger.Info($"В одном доме несколько наших клиентов deliveryPoints.Count: {deliveryPointsOfCounerparty.Count}");
+            var longitudeParsed = decimal.TryParse(longitudeString, NumberStyles.Any, CultureInfo.InvariantCulture,
+                out var longitude);
 
-                    //СОПОСТАВЛЯЕМ ПО ДОМУ УЛИЦЕ ИТД
-                    foreach (var dp in deliveryPointsOfCounerparty){
-                       if(dp.Room != null && dp.Room != "." && dp.Room != "-") {
-                            // Тк кк значения бывают такие "13-Н ком.21"
-                            if (dp.Room.Contains(deal.RoomNumber)){
+            var latitudeParsed = decimal.TryParse(latitudeString, NumberStyles.Any, CultureInfo.InvariantCulture,
+                out var latitude);
+
+            if(!longitudeParsed || !latitudeParsed) {
+                throw new InvalidOperationException($"Невозможно распарсить координаты: longitude:{longitudeString} и latitude:{latitudeString} для заказа с Id: {deal.Id}");
+            }
+            
+            logger.Info($"Распаршены координаты: longitude: {longitude} и latitude {latitude}");
+            IList<DeliveryPoint> deliveryPointsOfCounerparty = DeliveryPointRepository.GetDeliveryPointForCounterpartyByCoordinates(uow, latitude, longitude, counterparty.Id);
+        
+            if (deliveryPointsOfCounerparty.Count == 1){
+                logger.Info($"Сопоставлена 1 точка доставки Id: {deliveryPointsOfCounerparty.First().Id}, {deliveryPointsOfCounerparty.First().ShortAddress}");
+                outDeliveryPoint = deliveryPointsOfCounerparty.First();
+                return true;
+            }
+            // В одном доме несколько наших клиентов
+
+            if(deliveryPointsOfCounerparty.Count > 1){
+                logger.Info($"В одном доме несколько наших клиентов deliveryPoints.Count: {deliveryPointsOfCounerparty.Count}");
+
+                //СОПОСТАВЛЯЕМ ПО ДОМУ УЛИЦЕ ИТД
+                foreach (var dp in deliveryPointsOfCounerparty){
+                    if(dp.Room != null && dp.Room != "." && dp.Room != "-") {
+                        // Тк кк значения бывают такие "13-Н ком.21"
+                        if (dp.Room.Contains(deal.RoomNumber)){
+                            logger.Info($"Сопоставлено по комнате: {dp.Room} и {deal.RoomNumber}");
+                            outDeliveryPoint = dp;
+                            return true;
+                        }
+                        else{
+                            logger.Info($"Сопоставлено по комнате не удалось, попытка сопоставить по вхождению чисел");
+
+                            // Более медленный способ, на случай если RoomNumber содержит не только одно число, проверяем по вхождению каждого числа по отдельности
+                            var numbersFromRoom = NumbersUtils.GetNumbersFromString(deal.RoomNumber);
+                            uint counter = 0;
+                            foreach (var num in numbersFromRoom){
+                                if (dp.Room.Contains(num.ToString())){
+                                    counter++;
+                                }
+                            }
+
+                            if (counter >= 1){
+                                logger.Info($"Между номерами комнат сошлось: {counter} чисел");
                                 logger.Info($"Сопоставлено по комнате: {dp.Room} и {deal.RoomNumber}");
                                 outDeliveryPoint = dp;
                                 return true;
                             }
-                            else{
-                                logger.Info($"Сопоставлено по комнате не удалось, попытка сопоставить по вхождению чисел");
-
-                                // Более медленный способ, на случай если RoomNumber содержит не только одно число, проверяем по вхождению каждого числа по отдельности
-                                var numbersFromRoom = NumbersUtils.GetNumbersFromString(deal.RoomNumber);
-                                uint counter = 0;
-                                foreach (var num in numbersFromRoom){
-                                    if (dp.Room.Contains(num.ToString())){
-                                        counter++;
-                                    }
-                                }
-
-                                if (counter >= 1){
-                                    logger.Info($"Между номерами комнат сошлось: {counter} чисел");
-                                    logger.Info($"Сопоставлено по комнате: {dp.Room} и {deal.RoomNumber}");
-                                    outDeliveryPoint = dp;
-                                    return true;
-                                }
-                            }
-                       }
+                        }
                     }
-                    logger.Warn($"Сопоставлено точки доставки для сделки: {deal.Id} для контрагента: {counterparty.Id} не удалось");
-                    
-                    outDeliveryPoint = null;
-                    return false;
                 }
-                else{
-                    logger.Warn($"У контрагента {counterparty.Id} не нашлось точки доставки с координатами из битрикса {deal.Id}");
-                    // У контрагента не нашлось точки доставки с координатами из битрикса
-                    // Берем все точки доставки контрагента и пытаемся сопоставить по наличию в них дома + квартиры
-                    var deliveryPointsForCounterparty = DeliveryPointRepository.DeliveryPointsForCounterpartyQuery(uow, counterparty);
-                    foreach (var dp in deliveryPointsForCounterparty){
-                        var numsFromHouse = NumbersUtils.GetNumbersFromString(deal.HouseAndBuilding);
-                        var numsFromRoom = (NumbersUtils.GetNumbersFromString(deal.RoomNumber));
-                        var hasBuilding = false;
-                        var hasRoom = false;
-                        
-                        foreach (var i in numsFromHouse)
-                            if (dp.Building.Contains(i.ToString())){
-                                logger.Info($"Номер дома {dp.Building} сопоставился с {i.ToString()}");
-                                hasBuilding = true;
-                            }
-                        
-                        foreach (var i in numsFromRoom)
-                            if (dp.Room.Contains(i.ToString())){
-                                logger.Info($"Офис/Квартира {dp.Building} сопоставилась с {i.ToString()}");
-
-                                hasRoom = true;
-                            }
-                        
-                        if (hasBuilding && hasRoom){ 
-                            logger.Info($"Для сделки {deal.Id} с контрагентом {counterparty.Id} сопоставлен адрес");
-                            outDeliveryPoint = dp; 
-                            return true;
-                        };
-                    }
-                    logger.Warn($"Для сделки {deal.Id} с контрагентом {counterparty.Id} не получилось сопоставить адрес");
-                    outDeliveryPoint = null;
-                    return false;
-                }
-            } 
-            else{
-                throw new Exception($"Ошибка в парсинге координат в числа: longitude:{longitudeString} и latitude:{latitudeString} для заказа с Id: {deal.Id}");
+                logger.Warn($"Сопоставлено точки доставки для сделки: {deal.Id} для контрагента: {counterparty.Id} не удалось");
+                
+                outDeliveryPoint = null;
+                return false;
             }
+
+            logger.Warn($"У контрагента {counterparty.Id} не нашлось точки доставки с координатами из битрикса {deal.Id}");
+            // У контрагента не нашлось точки доставки с координатами из битрикса
+            // Берем все точки доставки контрагента и пытаемся сопоставить по наличию в них дома + квартиры
+            var deliveryPointsForCounterparty = DeliveryPointRepository.DeliveryPointsForCounterpartyQuery(uow, counterparty);
+            foreach (var dp in deliveryPointsForCounterparty){
+                var numsFromHouse = NumbersUtils.GetNumbersFromString(deal.HouseAndBuilding);
+                var numsFromRoom = (NumbersUtils.GetNumbersFromString(deal.RoomNumber));
+                var hasBuilding = false;
+                var hasRoom = false;
+                    
+                foreach (var i in numsFromHouse)
+                    if (dp.Building.Contains(i.ToString())){
+                        logger.Info($"Номер дома {dp.Building} сопоставился с {i.ToString()}");
+                        hasBuilding = true;
+                    }
+                    
+                foreach (var i in numsFromRoom)
+                    if (dp.Room.Contains(i.ToString())){
+                        logger.Info($"Офис/Квартира {dp.Building} сопоставилась с {i.ToString()}");
+
+                        hasRoom = true;
+                    }
+                    
+                if (hasBuilding && hasRoom){ 
+                    logger.Info($"Для сделки {deal.Id} с контрагентом {counterparty.Id} сопоставлен адрес");
+                    outDeliveryPoint = dp; 
+                    return true;
+                };
+            }
+            logger.Warn($"Для сделки {deal.Id} с контрагентом {counterparty.Id} не получилось сопоставить адрес");
+            outDeliveryPoint = null;
+            return false;
         }
 
         public bool MatchNomenclatureByName(IUnitOfWork uow, string productName, out Nomenclature outNomenclature)
         {
             //Сопоставление номенклатуры
+            //ИСПРАВИТЬ ПРОВЕРКУ SINGLEORDEFAULT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             Nomenclature nomenclature = NomenclatureRepository.GetNomenclatureByName(uow, productName);
             if (nomenclature != null){
                 logger.Info($"Номенклатура {nomenclature.ShortName} сопоставлена по названию {productName}");
