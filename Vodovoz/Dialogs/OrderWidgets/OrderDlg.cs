@@ -234,7 +234,7 @@ namespace Vodovoz
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
 			IsForRetail = Entity.Client.IsForRetail;
-			OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded();
+			CheckForStopDelivery();
 		}
 
 		public OrderDlg(int id)
@@ -266,7 +266,7 @@ namespace Vodovoz
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				FillOrderItems(copiedOrder);
-				OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded();
+				CheckForStopDelivery();
 			}
 		}
 
@@ -314,7 +314,7 @@ namespace Vodovoz
 			Entity.CopyEquipmentFrom(templateOrder);
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
-			OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded();
+			CheckForStopDelivery();
 		}
 		
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
@@ -331,7 +331,7 @@ namespace Vodovoz
 			Entity.CopyEquipmentFrom(templateOrder);
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
-			OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded();
+			CheckForStopDelivery();
 		}
 
 		public void ConfigureDlg()
@@ -2025,7 +2025,7 @@ namespace Vodovoz
 		protected void OnEntityVMEntryClientChangedByUser(object sender, EventArgs e)
 		{
 			chkContractCloser.Active = false;
-			OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded();
+			CheckForStopDelivery();
 
 			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 
@@ -2033,7 +2033,7 @@ namespace Vodovoz
 			ControlsActionBottleAccessibility();
 		}
 
-		protected void OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded()
+		protected void CheckForStopDelivery()
         {
 			if (Entity?.Client != null && Entity.Client.IsDeliveriesClosed)
 			{
