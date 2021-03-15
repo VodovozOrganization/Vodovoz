@@ -234,7 +234,9 @@ namespace Vodovoz
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
 			IsForRetail = Entity.Client.IsForRetail;
+			OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded();
 		}
+
 		public OrderDlg(int id)
 		{
 			this.Build();
@@ -264,6 +266,7 @@ namespace Vodovoz
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				FillOrderItems(copiedOrder);
+				OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded();
 			}
 		}
 
@@ -2032,7 +2035,7 @@ namespace Vodovoz
 
 		protected void OpenDeliveriesClosedMessageDialogAndHideUnavailablePaymentTypesIfNeeded()
         {
-			if (Entity.Client != null && Entity.Client.IsDeliveriesClosed)
+			if (Entity?.Client != null && Entity.Client.IsDeliveriesClosed)
 			{
 				string message = "Стоп отгрузки!!!" + Environment.NewLine + "Комментарий от фин.отдела: " + Entity.Client?.CloseDeliveryComment;
 				MessageDialogHelper.RunInfoDialog(message);
