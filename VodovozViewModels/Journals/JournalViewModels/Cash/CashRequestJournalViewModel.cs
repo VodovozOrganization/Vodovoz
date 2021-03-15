@@ -140,6 +140,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                     .Select(c => c.State).WithAlias(() => resultAlias.State)
                     .Select(c => c.DocumentType).WithAlias(() => resultAlias.DocumentType) 
                     .Select(authorProjection).WithAlias(() => resultAlias.Author)
+                    .Select(accauntableProjection).WithAlias(() => resultAlias.AccountablePerson)
                     .SelectSubQuery(cashReuestSumSubquery).WithAlias(() => resultAlias.Sum)
                     .Select(c => c.Basis).WithAlias(() => resultAlias.Basis)
                 ).TransformUsing(Transformers.AliasToBean<CashRequestJournalNode>())
