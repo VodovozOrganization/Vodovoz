@@ -381,7 +381,7 @@ namespace Vodovoz.Representations
 				.Left.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
 				.Left.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias)
-				.Select(sumProj).UnderlyingCriteria.SetTimeout(60).UniqueResult<int>();
+				.Select(sumProj).UnderlyingCriteria.SetTimeout(180).UniqueResult<int>();
 			return queryResult;
 		};
 
