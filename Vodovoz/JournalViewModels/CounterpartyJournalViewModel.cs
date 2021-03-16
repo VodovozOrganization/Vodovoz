@@ -118,8 +118,6 @@ namespace Vodovoz.JournalViewModels
 
 			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(c => c.IsForRetail == FilterViewModel.IsForRetail);
-
 				if (FilterViewModel.SalesChannels.Any(x => x.Selected))
 				{
 					query.Left.JoinAlias(c => c.SalesChannels, () => salesChannelAlias);
