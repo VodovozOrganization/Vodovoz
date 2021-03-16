@@ -1939,7 +1939,7 @@ public partial class MainWindow : Gtk.Window
     protected void OnActionRetailCounterpartyJournalActivated(object sender, EventArgs e)
     {
         CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel() { IsForRetail = true };
-        var counterpartyJournal = new CounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+        var counterpartyJournal = new RetailCounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 
         tdiMain.OpenTab(
             () => counterpartyJournal
@@ -1960,7 +1960,7 @@ public partial class MainWindow : Gtk.Window
                 nomenclatureRepository, UserSingletonRepository.GetInstance());
 
         tdiMain.OpenTab(
-            () => new OrderJournalViewModel(
+            () => new RetailOrderJournalViewModel(
                     new OrderJournalFilterViewModel() { IsForRetail = true },
                     UnitOfWorkFactory.GetDefaultFactory,
                     ServicesConfig.CommonServices,
