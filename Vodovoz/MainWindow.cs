@@ -464,7 +464,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
     {
-        CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel();
+        CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel() { IsForRetail = false };
         var counterpartyJournal = new CounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 
         tdiMain.AddTab(counterpartyJournal);
