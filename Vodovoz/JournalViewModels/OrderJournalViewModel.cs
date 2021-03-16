@@ -28,6 +28,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
+using QS.Tdi;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -81,6 +82,73 @@ namespace Vodovoz.JournalViewModels
 				typeof(OrderWithoutShipmentForAdvancePaymentItem),
 				typeof(OrderItem)
 			);
+		}
+
+        protected override void CreateNodeActions()
+        {
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateCustomeditAction();
+			CreateDefaultDeleteAction();
+		}
+
+		private void CreateCustomeditAction()
+        {
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<OrderJournalNode>();
+					if (selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					OrderJournalNode selectedNode = selectedNodes.First();
+					if (!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanUpdate;
+				},
+				(selected) => selected.All(x => (x as OrderJournalNode).Sensitive),
+				(selected) => {
+					if(!selected.All(x => (x as OrderJournalNode).Sensitive))
+                    {
+						return;
+                    }
+					var selectedNodes = selected.OfType<OrderJournalNode>();
+					if (selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					OrderJournalNode selectedNode = selectedNodes.First();
+					if (!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if (foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if (SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
+		}
+
+		private void HideJournal(ITdiTabParent parenTab)
+		{
+			if (TabParent is ITdiSliderTab slider)
+			{
+				slider.IsHideJournal = true;
+			}
 		}
 
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
