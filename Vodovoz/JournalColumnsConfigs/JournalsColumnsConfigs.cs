@@ -973,6 +973,49 @@ namespace Vodovoz.JournalColumnsConfigs
                     .AddColumn("")
                     .Finish()
             );
+
+			//RetailOrderJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RetailOrderJournalViewModel>(
+				() => FluentColumnsConfig<RetailOrderJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Дата").AddTextRenderer(node => node.Date != null ? ((DateTime)node.Date).ToString("d") : String.Empty)
+					.AddColumn("Автор").AddTextRenderer(node => node.Author)
+					.AddColumn("Время").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
+					.AddColumn("Статус").AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
+					.AddColumn("Тип").AddTextRenderer(node => node.ViewType)
+						.WrapMode(WrapMode.WordChar)
+						.WrapWidth(100)
+					.AddColumn("Бутыли").AddTextRenderer(node => $"{node.BottleAmount:N0}")
+					.AddColumn("Кол-во с/о").AddTextRenderer(node => $"{node.SanitisationAmount:N0}")
+					.AddColumn("Клиент").AddTextRenderer(node => node.Counterparty)
+					.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
+					.AddColumn("Статус оплаты").AddTextRenderer(x =>
+						(x.OrderPaymentStatus != OrderPaymentStatus.None) ? x.OrderPaymentStatus.GetEnumTitle() : "")
+					.AddColumn("Район доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DistrictName)
+					.AddColumn("Адрес").AddTextRenderer(node => node.Address)
+					.AddColumn("Изменил").AddTextRenderer(node => node.LastEditor)
+					.AddColumn("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : string.Empty)
+					.AddColumn("Номер звонка").AddTextRenderer(node => node.DriverCallId.ToString())
+					.AddColumn("OnLine заказ №").AddTextRenderer(node => node.OnLineNumber)
+					.AddColumn("Номер заказа интернет-магазина").AddTextRenderer(node => node.EShopNumber)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
+			//RetailCounterpartyJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RetailCounterpartyJournalViewModel>(
+				() => FluentColumnsConfig<RetailCounterpartyJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
+					.AddColumn("Вн.номер").AddTextRenderer(x => x.InternalId.ToString())
+					.AddColumn("Тег").AddTextRenderer(x => x.Tags, useMarkup: true)
+					.AddColumn("Контрагент").AddTextRenderer(node => node.Name).WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Телефоны").AddTextRenderer(x => x.Phones)
+					.AddColumn("ИНН").AddTextRenderer(x => x.INN)
+					.AddColumn("Договора").AddTextRenderer(x => x.Contracts)
+					.AddColumn("Точки доставки").AddTextRenderer(x => x.Addresses)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
 		}
 	}
 }

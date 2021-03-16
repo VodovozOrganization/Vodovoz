@@ -1,9 +1,10 @@
-﻿using QS.Project.Journal;
+﻿using System;
+using QS.Project.Journal;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.JournalNodes
 {
-	public class CounterpartyJournalNode : JournalEntityNodeBase<Counterparty>
+	public class RetailCounterpartyJournalNode : JournalEntityNodeBase<Counterparty>
 	{
 		public override string Title => Name;
 
@@ -25,18 +26,13 @@ namespace Vodovoz.JournalNodes
 
 		public string PhonesDigits { get; set; }
 
-		public bool Sensitive { get; set; }
-
 		public string RowColor {
 			get {
-				if(IsArhive || !Sensitive)
-                {
+				if(IsArhive)
 					return "grey";
-				}
-                else
-                {
+				else
 					return "black";
-				}
+
 			}
 		}
 	}
