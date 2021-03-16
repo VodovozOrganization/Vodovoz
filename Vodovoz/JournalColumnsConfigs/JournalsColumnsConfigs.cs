@@ -989,6 +989,21 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
+
+			//RetailCounterpartyJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RetailCounterpartyJournalViewModel>(
+				() => FluentColumnsConfig<RetailCounterpartyJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
+					.AddColumn("Вн.номер").AddTextRenderer(x => x.InternalId.ToString())
+					.AddColumn("Тег").AddTextRenderer(x => x.Tags, useMarkup: true)
+					.AddColumn("Контрагент").AddTextRenderer(node => node.Name).WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Телефоны").AddTextRenderer(x => x.Phones)
+					.AddColumn("ИНН").AddTextRenderer(x => x.INN)
+					.AddColumn("Договора").AddTextRenderer(x => x.Contracts)
+					.AddColumn("Точки доставки").AddTextRenderer(x => x.Addresses)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
 		}
 	}
 }
