@@ -12,14 +12,20 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
+using QS.Tdi;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class CounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel>
 	{
+		private bool userHaveAccessToRetail = false;
+
 		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал контрагентов";
+
+			userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
+
 			UpdateOnChanges(
 				typeof(Counterparty),
 				typeof(CounterpartyContract),
@@ -27,6 +33,73 @@ namespace Vodovoz.JournalViewModels
 				typeof(Tag),
 				typeof(DeliveryPoint)
 			);
+		}
+
+        protected override void CreateNodeActions()
+        {
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateCustomeditAction();
+			CreateDefaultDeleteAction();
+		}
+
+		private void CreateCustomeditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<CounterpartyJournalNode>();
+					if (selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					CounterpartyJournalNode selectedNode = selectedNodes.First();
+					if (!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanUpdate;
+				},
+				(selected) => selected.All(x => (x as CounterpartyJournalNode).Sensitive),
+				(selected) => {
+					if (!selected.All(x => (x as CounterpartyJournalNode).Sensitive))
+					{
+						return;
+					}
+					var selectedNodes = selected.OfType<CounterpartyJournalNode>();
+					if (selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					CounterpartyJournalNode selectedNode = selectedNodes.First();
+					if (!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if (foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if (SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
+		}
+
+		private void HideJournal(ITdiTabParent parenTab)
+		{
+			if (TabParent is ITdiSliderTab slider)
+			{
+				slider.IsHideJournal = true;
+			}
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {
@@ -134,7 +207,17 @@ namespace Vodovoz.JournalViewModels
 					   NHibernateUtil.String,
 					   Projections.Property(() => phoneAlias.Number),
 					   Projections.Constant("\n"))
-					   ).WithAlias(() => resultAlias.Phones)			   
+					   ).WithAlias(() => resultAlias.Phones)
+					.Select(
+						Projections.Conditional(
+							Restrictions.Or(
+								Restrictions.Eq(Projections.Constant(true), userHaveAccessToRetail),
+								Restrictions.Not(Restrictions.Eq(Projections.Property(() => counterpartyAlias.IsForRetail), true))
+								),
+							Projections.Constant(true),
+							Projections.Constant(false)
+						)).WithAlias(() => resultAlias.Sensitive
+					)
 					.SelectSubQuery(addressSubquery).WithAlias(() => resultAlias.Addresses)
 					.SelectSubQuery(tagsSubquery).WithAlias(() => resultAlias.Tags)
 				)
