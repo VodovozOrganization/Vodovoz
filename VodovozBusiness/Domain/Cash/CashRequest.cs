@@ -13,7 +13,6 @@ using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Cash
 {
-    
     [Appellative (Gender = GrammaticalGender.Feminine,
         NominativePlural = "заявки на выдачу средств",
         Nominative = "заявка на выдачу средств")]
@@ -115,7 +114,6 @@ namespace Vodovoz.Domain.Cash
             return allSumsWasGiven;
         }
 
-
         #region Свойства
 
         public virtual string Title => $"Заявка на выдачу ДС №{Id} от {Date:d}";
@@ -126,7 +124,15 @@ namespace Vodovoz.Domain.Cash
             get => state;
             set => SetField(ref state, value);
         }
-        
+
+        private bool possibilityNotToReconcilePayments;
+        [Display(Name = "Возможность не пересогласовывать выплаты")]
+        public virtual bool PossibilityNotToReconcilePayments
+        {
+            get => possibilityNotToReconcilePayments;
+            set => SetField(ref possibilityNotToReconcilePayments, value);
+        }
+
         private DocumentTypes documentType;
         [Display(Name = "Тип документа")]
         public virtual DocumentTypes DocumentType {
@@ -246,10 +252,14 @@ namespace Vodovoz.Domain.Cash
         }
 
         public class CashRequestStateStringType : EnumStringType
-        { public CashRequestStateStringType() : base(typeof(States)) { } }
+        { 
+            public CashRequestStateStringType() : base(typeof(States)) { } 
+        }
         
         public class CashRequestDocTypeStringType : EnumStringType
-        { public CashRequestDocTypeStringType() : base(typeof(DocumentTypes)) { } }
+        {
+            public CashRequestDocTypeStringType() : base(typeof(DocumentTypes)) { } 
+        }
         
         public virtual int Id { get; }
         
@@ -317,7 +327,6 @@ namespace Vodovoz.Domain.Cash
             
         }
         #endregion IValidatableObject implementation
-
 
         #region SumItems
 

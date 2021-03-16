@@ -94,7 +94,7 @@ namespace Vodovoz.Dialogs.Cash
 
 		private global::Gtk.Label labelcomboOrganization;
 
-		private global::Gtk.Label labelConfirmAbilityToNotReconfirmPayments;
+		private global::Gtk.Label labelPossibilityNotToReconcilePayments;
 
 		private global::Gtk.Label labelExplanation;
 
@@ -112,7 +112,7 @@ namespace Vodovoz.Dialogs.Cash
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry SubdivisionEntityviewmodelentry;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckConfirmAbilityToNotReconfirmPayments;
+		private global::Gamma.GtkWidgets.yCheckButton ycheckPossibilityNotToReconcilePayments;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckHaveReceipt;
 
@@ -581,12 +581,12 @@ namespace Vodovoz.Dialogs.Cash
 			w45.XOptions = ((global::Gtk.AttachOptions)(4));
 			w45.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelConfirmAbilityToNotReconfirmPayments = new global::Gtk.Label();
-			this.labelConfirmAbilityToNotReconfirmPayments.Name = "labelConfirmAbilityToNotReconfirmPayments";
-			this.labelConfirmAbilityToNotReconfirmPayments.Xalign = 0F;
-			this.labelConfirmAbilityToNotReconfirmPayments.LabelProp = global::Mono.Unix.Catalog.GetString("Утвердить воз-ть не пересогласовывать оплаты:");
-			this.table1.Add(this.labelConfirmAbilityToNotReconfirmPayments);
-			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1[this.labelConfirmAbilityToNotReconfirmPayments]));
+			this.labelPossibilityNotToReconcilePayments = new global::Gtk.Label();
+			this.labelPossibilityNotToReconcilePayments.Name = "labelPossibilityNotToReconcilePayments";
+			this.labelPossibilityNotToReconcilePayments.Xalign = 0F;
+			this.labelPossibilityNotToReconcilePayments.LabelProp = global::Mono.Unix.Catalog.GetString("Утвердить воз-ть не пересогласовывать оплаты:");
+			this.table1.Add(this.labelPossibilityNotToReconcilePayments);
+			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1[this.labelPossibilityNotToReconcilePayments]));
 			w46.TopAttach = ((uint)(9));
 			w46.BottomAttach = ((uint)(10));
 			w46.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -689,14 +689,14 @@ namespace Vodovoz.Dialogs.Cash
 			w54.XOptions = ((global::Gtk.AttachOptions)(4));
 			w54.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ycheckConfirmAbilityToNotReconfirmPayments = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckConfirmAbilityToNotReconfirmPayments.CanFocus = true;
-			this.ycheckConfirmAbilityToNotReconfirmPayments.Name = "ycheckConfirmAbilityToNotReconfirmPayments";
-			this.ycheckConfirmAbilityToNotReconfirmPayments.Label = "";
-			this.ycheckConfirmAbilityToNotReconfirmPayments.DrawIndicator = true;
-			this.ycheckConfirmAbilityToNotReconfirmPayments.UseUnderline = true;
-			this.table1.Add(this.ycheckConfirmAbilityToNotReconfirmPayments);
-			global::Gtk.Table.TableChild w55 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckConfirmAbilityToNotReconfirmPayments]));
+			this.ycheckPossibilityNotToReconcilePayments = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckPossibilityNotToReconcilePayments.CanFocus = true;
+			this.ycheckPossibilityNotToReconcilePayments.Name = "ycheckPossibilityNotToReconcilePayments";
+			this.ycheckPossibilityNotToReconcilePayments.Label = "";
+			this.ycheckPossibilityNotToReconcilePayments.DrawIndicator = true;
+			this.ycheckPossibilityNotToReconcilePayments.UseUnderline = true;
+			this.table1.Add(this.ycheckPossibilityNotToReconcilePayments);
+			global::Gtk.Table.TableChild w55 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckPossibilityNotToReconcilePayments]));
 			w55.TopAttach = ((uint)(9));
 			w55.BottomAttach = ((uint)(10));
 			w55.LeftAttach = ((uint)(1));

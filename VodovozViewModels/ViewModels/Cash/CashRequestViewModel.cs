@@ -20,7 +20,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
 using VodovozInfrastructure.Interfaces;
 using CashRepository = Vodovoz.EntityRepositories.Cash.CashRepository;
 
@@ -136,6 +135,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             SetPropertyChangeRelation(e => e.State, () => CanConveyForResults);
             SetPropertyChangeRelation(e => e.State, () => CanReturnToRenegotiation);
             SetPropertyChangeRelation(e => e.State, () => CanCancel);
+            SetPropertyChangeRelation(e => e.State, () => CanConfirmPossibilityNotToReconcilePayments);
         }
 
         #region Commands
@@ -250,6 +250,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 OnPropertyChanged(() => CanApprove);
                 OnPropertyChanged(() => CanConveyForResults);
                 OnPropertyChanged(() => CanCancel);
+                OnPropertyChanged(() => CanConfirmPossibilityNotToReconcilePayments);
             }
         }
 
@@ -286,6 +287,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool VisibleOnlyForFinancer => UserRole == UserRole.Financier;
         public bool VisibleOnlyForStatusUpperThanCreated => Entity.State != CashRequest.States.New;
         public bool ExpenseCategoryVisibility => UserRole == UserRole.Cashier || UserRole == UserRole.Financier;
+        public bool CanConfirmPossibilityNotToReconcilePayments => Entity.ObservableSums.Count > 1 && Entity.State == CashRequest.States.Submited && UserRole == UserRole.Coordinator;
 
         #endregion Visibility
 
@@ -459,12 +461,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         
         #endregion
 
-
         public void RememberRole(Object role)
         {
             savedUserRole = (UserRole)role;
         }
     }
+
     public enum UserRole
     {
         [Display(Name = "Заявитель")]
