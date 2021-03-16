@@ -7,15 +7,15 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.JournalNodes
 {
-	public class OrderJournalNode<TEntity> : OrderJournalNode
+	public class RetailOrderJournalNode<TEntity> : RetailOrderJournalNode
 		where TEntity : class, IDomainObject
 	{
-		public OrderJournalNode() : base(typeof(TEntity)) { }
+		public RetailOrderJournalNode() : base(typeof(TEntity)) { }
 	}
 
-	public class OrderJournalNode : JournalEntityNodeBase
+	public class RetailOrderJournalNode : JournalEntityNodeBase
 	{
-		public OrderJournalNode(Type entityType) : base(entityType)
+		public RetailOrderJournalNode(Type entityType) : base(entityType)
 		{
 			if (entityType != typeof(Order))
 				StatusEnum = OrderStatus.Closed;
@@ -80,13 +80,11 @@ namespace Vodovoz.JournalNodes
 		public string OnLineNumber => OnlineOrder?.ToString() ?? string.Empty;
 
 		public int? EShopOrder { get; set; }
-		public string EShopNumber => EShopOrder?.ToString() ?? string.Empty;
-
-		public bool Sensitive { get; set; }
+		public string EShopNumber=> EShopOrder?.ToString() ?? string.Empty;
 
 		public string RowColor {
 			get {
-				if(StatusEnum == OrderStatus.Canceled || StatusEnum == OrderStatus.DeliveryCanceled || !Sensitive)
+				if(StatusEnum == OrderStatus.Canceled || StatusEnum == OrderStatus.DeliveryCanceled)
 					return "grey";
 				if(StatusEnum == OrderStatus.Closed)
 					return "green";
