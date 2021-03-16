@@ -288,6 +288,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool VisibleOnlyForStatusUpperThanCreated => Entity.State != CashRequest.States.New;
         public bool ExpenseCategoryVisibility => UserRole == UserRole.Cashier || UserRole == UserRole.Financier;
         public bool CanConfirmPossibilityNotToReconcilePayments => Entity.ObservableSums.Count > 1 && Entity.State == CashRequest.States.Submited && UserRole == UserRole.Coordinator;
+        public bool CanGivePartially => UserRole == UserRole.Cashier;
 
         #endregion Visibility
 
