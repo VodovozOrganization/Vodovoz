@@ -656,7 +656,7 @@ namespace Vodovoz.JournalViewModels
 					"Перейти в маршрутный лист",
 					selectedItems => selectedItems.Any(
 						x => AccessRouteListKeeping((x as OrderJournalNode).Id)) && IsOrder(selectedItems),
-					selectedItems => true,
+					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						var addresses = UoW.Session.QueryOver<RouteListItem>()
@@ -680,7 +680,7 @@ namespace Vodovoz.JournalViewModels
 					"Перейти в недовоз",
 					(selectedItems) => selectedItems.Any(
 						o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, (o as OrderJournalNode).Id).Any()) && IsOrder(selectedItems),
-					selectedItems => true,
+					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
@@ -701,7 +701,7 @@ namespace Vodovoz.JournalViewModels
 					"Открыть диалог закрытия",
 					(selectedItems) => selectedItems.Any(
 						x => AccessToRouteListClosing((x as OrderJournalNode).Id)) && IsOrder(selectedItems),
-					selectedItems => true,
+					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						var routeListIds = selectedNodes.Select(x => x.Id).ToArray();
@@ -724,7 +724,7 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Открыть на Yandex картах(координаты)",
 					IsOrder,
-					selectedItems => true,
+					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						foreach(var sel in selectedNodes) {
@@ -748,7 +748,7 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Открыть на Yandex картах(адрес)",
 					IsOrder,
-					selectedItems => true,
+					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						foreach(var sel in selectedNodes) {
@@ -772,7 +772,7 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Открыть на карте OSM",
 					IsOrder,
-					selectedItems => true,
+					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						foreach(var sel in selectedNodes) {
@@ -790,7 +790,7 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Повторить заказ",
 					IsOrder,
-					selectedItems => true,
+					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
