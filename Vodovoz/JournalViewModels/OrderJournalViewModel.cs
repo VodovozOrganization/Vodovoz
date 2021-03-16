@@ -89,11 +89,11 @@ namespace Vodovoz.JournalViewModels
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
 			CreateDefaultAddActions();
-			CreateCustomeditAction();
+			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
 		}
 
-		private void CreateCustomeditAction()
+		private void CreateCustomEditAction()
         {
 			var editAction = new JournalAction("Изменить",
 				(selected) => {

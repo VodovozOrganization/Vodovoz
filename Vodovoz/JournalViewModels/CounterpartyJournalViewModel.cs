@@ -13,6 +13,7 @@ using Vodovoz.JournalNodes;
 using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
 using QS.Tdi;
+using QS.Navigation;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -38,13 +39,13 @@ namespace Vodovoz.JournalViewModels
         protected override void CreateNodeActions()
         {
 			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
+			CreateCustomSelectAction();
 			CreateDefaultAddActions();
-			CreateCustomeditAction();
+			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
 		}
 
-		private void CreateCustomeditAction()
+		private void CreateCustomEditAction()
 		{
 			var editAction = new JournalAction("Изменить",
 				(selected) => {
@@ -92,6 +93,20 @@ namespace Vodovoz.JournalViewModels
 				RowActivatedAction = editAction;
 			}
 			NodeActionsList.Add(editAction);
+		}
+
+		protected virtual void CreateCustomSelectAction()
+		{
+			var selectAction = new JournalAction("Выбрать",
+				(selected) => selected.Any() && selected.All(x => (x as CounterpartyJournalNode).Sensitive),
+				(selected) => SelectionMode != JournalSelectionMode.None,
+				(selected) => { if (selected.All(x => (x as CounterpartyJournalNode).Sensitive)) { OnItemsSelected(selected); } }
+			);
+			if (SelectionMode == JournalSelectionMode.Single || SelectionMode == JournalSelectionMode.Multiple)
+			{
+				RowActivatedAction = selectAction;
+			}
+			NodeActionsList.Add(selectAction);
 		}
 
 		private void HideJournal(ITdiTabParent parenTab)
