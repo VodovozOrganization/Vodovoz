@@ -27,7 +27,6 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class DistrictsSetView : TabViewBase<DistrictsSetViewModel>
 	{
-
         private readonly GMapOverlay bordersOverlay = new GMapOverlay("district_borders");
         private readonly GMapOverlay newBordersPreviewOverlay = new GMapOverlay("district_preview_borders");
         private readonly GMapOverlay verticeOverlay = new GMapOverlay("district_vertice");
