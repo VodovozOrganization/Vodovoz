@@ -166,7 +166,7 @@ namespace Vodovoz.Dialogs.Cash
 
 			ycheckPossibilityNotToReconcilePayments.Binding.AddBinding(ViewModel.Entity, e => e.PossibilityNotToReconcilePayments, w => w.Active).InitializeFromSource();
 			ycheckPossibilityNotToReconcilePayments.Binding.AddBinding(ViewModel, vm => vm.CanConfirmPossibilityNotToReconcilePayments, w => w.Visible).InitializeFromSource();
-			labelPossibilityNotToReconcilePayments.Visible = ViewModel.CanConfirmPossibilityNotToReconcilePayments; // TODO: Заменить label на ylabel
+			ylabelPossibilityNotToReconcilePayments.Binding.AddBinding(ViewModel, vm => vm.CanConfirmPossibilityNotToReconcilePayments, w => w.Visible).InitializeFromSource();
 
 			hboxGivePartially.Visible = ViewModel.CanGivePartially;
 
