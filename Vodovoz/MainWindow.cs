@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Autofac;
 using Gtk;
@@ -96,7 +95,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organization;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -714,6 +714,23 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnPropertiesActionActivated(object sender, EventArgs e)
     {
+        var employeeSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory
+                <Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
+
+        var filter = new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default };
+
+        var SubdivisionAutocompleteSelectorFactory =
+            new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
+            {
+                return new SubdivisionsJournalViewModel(
+                    filter,
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices,
+                    employeeSelectorFactory
+                );
+            });
+            
         tdiMain.OpenTab(
             () =>
             {
@@ -722,7 +739,8 @@ public partial class MainWindow : Gtk.Window
                     UnitOfWorkFactory.GetDefaultFactory,
                     ServicesConfig.CommonServices,
                     VodovozGtkServicesConfig.EmployeeService,
-                    SubdivisionParametersProvider.Instance
+                    SubdivisionParametersProvider.Instance,
+                    SubdivisionAutocompleteSelectorFactory
                 );
             }
         );

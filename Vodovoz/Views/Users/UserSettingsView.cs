@@ -1,22 +1,13 @@
 ﻿using System.Linq;
-using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
-using QS.Services;
 using QS.Views.GtkUI;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.FilterViewModels.Organization;
-using Vodovoz.Journals.JournalViewModels.Organization;
-using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Users;
 
 namespace Vodovoz.Views.Users
 {
-	[System.ComponentModel.ToolboxItem(true)]
+    [System.ComponentModel.ToolboxItem(true)]
 	public partial class UserSettingsView : TabViewBase<UserSettingsViewModel>
 	{
 		public UserSettingsView(UserSettingsViewModel viewModel) : base(viewModel) {
@@ -67,28 +58,8 @@ namespace Vodovoz.Views.Users
 
                 };
 
-                #region SubdivisionEntityviewmodelentry
-                //Это создается тут, а не в ViewModel потому что EmployeesJournalViewModel и EmployeeFilterViewModel нет в ViewModels
-
-                var employeeSelectorFactory =
-                new DefaultEntityAutocompleteSelectorFactory
-                <Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
-
-                var filter = new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default };
-
-                yentrySubdivision.SetEntityAutocompleteSelectorFactory(
-                    new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () => new SubdivisionsJournalViewModel(
-                        filter,
-                        UnitOfWorkFactory.GetDefaultFactory,
-                        ServicesConfig.CommonServices,
-                        employeeSelectorFactory
-                        )
-                    )
-                );
-
+                yentrySubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionAutocompleteSelectorFactory);
                 yentrySubdivision.Binding.AddBinding(ViewModel.Entity, s => s.DefaultSubdivision, w => w.Subject).InitializeFromSource();
-
-                #endregion
             }
         }
 	}

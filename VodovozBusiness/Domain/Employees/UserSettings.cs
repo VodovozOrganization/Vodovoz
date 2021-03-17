@@ -124,7 +124,7 @@ namespace Vodovoz.Domain.Employees
         public virtual bool UseEmployeeSubdivision
         {
             get => useEmployeeSubdivision;
-            set => SetField(ref useEmployeeSubdivision, value);
+            set => SetField(ref useEmployeeSubdivision, value, () => UseEmployeeSubdivision);
         }
 
 
@@ -139,7 +139,7 @@ namespace Vodovoz.Domain.Employees
             get { return defaultSubdivision; }
             set
             {
-                SetField(ref defaultSubdivision, value);
+                SetField(ref defaultSubdivision, value, () => DefaultSubdivision);
             }
         }
 
@@ -154,7 +154,7 @@ namespace Vodovoz.Domain.Employees
             get { return defaultComplaintStatus; }
             set
             {
-                SetField(ref defaultComplaintStatus, value);
+                SetField(ref defaultComplaintStatus, value, () => DefaultComplaintStatus);
             }
         }
 
