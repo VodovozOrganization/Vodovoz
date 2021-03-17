@@ -75,28 +75,28 @@
             <Width>41.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>110.7pt</Width>
+            <Width>80.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.4pt</Width>
+            <Width>51.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>46.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>88.8pt</Width>
+            <Width>65.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>125.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.2pt</Width>
+            <Width>61.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>70.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>72.9pt</Width>
+            <Width>140.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -569,7 +569,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="payments">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	MAX(date(payments.payment_date)) as payment_date,
@@ -613,7 +613,7 @@ ORDER BY payment_date DESC, orderdate DESC, orders.id DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
