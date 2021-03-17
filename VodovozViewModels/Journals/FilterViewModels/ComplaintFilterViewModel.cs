@@ -32,7 +32,7 @@ namespace Vodovoz.FilterViewModels
 				x => x.Subdivision,
 				x => x.FilterDateType,
 				x => x.ComplaintKind,
-				x => x.ComplaintCurrentUserSubdivisionStatus
+				x => x.ComplaintDiscussionStatus
 			);
 		}
 
@@ -68,7 +68,7 @@ namespace Vodovoz.FilterViewModels
 				x => x.Subdivision,
 				x => x.FilterDateType,
 				x => x.ComplaintKind,
-				x => x.ComplaintCurrentUserSubdivisionStatus
+				x => x.ComplaintDiscussionStatus
 			);
 		}
 
@@ -102,11 +102,11 @@ namespace Vodovoz.FilterViewModels
 			set => SetField(ref complaintStatus, value);
 		}
 
-		private ComplaintStatuses? complaintCurrentUserSubdivisionStatus;
-		public virtual ComplaintStatuses? ComplaintCurrentUserSubdivisionStatus
+		private ComplaintStatuses? complaintDiscussionStatus;
+		public virtual ComplaintStatuses? ComplaintDiscussionStatus
 		{
-			get => complaintCurrentUserSubdivisionStatus;
-			set => SetField(ref complaintCurrentUserSubdivisionStatus, value);
+			get => complaintDiscussionStatus;
+			set => SetField(ref complaintDiscussionStatus, value);
 		}
 
 		private Subdivision currentUserSubdivision;
@@ -127,8 +127,6 @@ namespace Vodovoz.FilterViewModels
 			set {
 				if(value?.Id == SubdivisionService?.GetOkkId())
 					ComplaintStatus = ComplaintStatuses.Checking;
-				else if(value?.Id != null)
-					ComplaintStatus = ComplaintStatuses.InProcess;
 
 				SetField(ref subdivision, value);
 			}
