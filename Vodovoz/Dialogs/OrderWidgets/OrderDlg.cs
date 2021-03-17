@@ -234,7 +234,9 @@ namespace Vodovoz
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
 			IsForRetail = Entity.Client.IsForRetail;
+			CheckForStopDelivery();
 		}
+
 		public OrderDlg(int id)
 		{
 			this.Build();
@@ -264,6 +266,7 @@ namespace Vodovoz
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				FillOrderItems(copiedOrder);
+				CheckForStopDelivery();
 			}
 		}
 
@@ -311,6 +314,7 @@ namespace Vodovoz
 			Entity.CopyEquipmentFrom(templateOrder);
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
+			CheckForStopDelivery();
 		}
 		
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
@@ -327,6 +331,7 @@ namespace Vodovoz
 			Entity.CopyEquipmentFrom(templateOrder);
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
+			CheckForStopDelivery();
 		}
 
 		public void ConfigureDlg()
@@ -2020,7 +2025,18 @@ namespace Vodovoz
 		protected void OnEntityVMEntryClientChangedByUser(object sender, EventArgs e)
 		{
 			chkContractCloser.Active = false;
-			if(Entity.Client != null && Entity.Client.IsDeliveriesClosed) {
+			CheckForStopDelivery();
+
+			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
+
+			//Проверяем возможность добавления Акции "Бутыль"
+			ControlsActionBottleAccessibility();
+		}
+
+		protected void CheckForStopDelivery()
+        {
+			if (Entity?.Client != null && Entity.Client.IsDeliveriesClosed)
+			{
 				string message = "Стоп отгрузки!!!" + Environment.NewLine + "Комментарий от фин.отдела: " + Entity.Client?.CloseDeliveryComment;
 				MessageDialogHelper.RunInfoDialog(message);
 				Enum[] hideEnums = {
@@ -2031,11 +2047,6 @@ namespace Vodovoz
 				};
 				enumPaymentType.AddEnumToHideList(hideEnums);
 			}
-			
-			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
-
-			//Проверяем возможность добавления Акции "Бутыль"
-			ControlsActionBottleAccessibility();
 		}
 
 		protected void OnButtonCancelOrderClicked(object sender, EventArgs e) {
@@ -2418,7 +2429,6 @@ namespace Vodovoz
 			checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
 			//pickerDeliveryDate.Sensitive = val; // оно повторно устанавливается в ChangeOrderEditable(val) -> SetPadInfoSensitive(val)
 			dataSumDifferenceReason.Sensitive = val;
-			treeItems.Sensitive = val;
 			ycheckContactlessDelivery.Sensitive = val;
 			ycheckPaymentBySms.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
@@ -2438,7 +2448,7 @@ namespace Vodovoz
 		void ChangeOrderEditable(bool val)
 		{
 			SetPadInfoSensitive(val);
-			vboxGoods.Sensitive = val;
+			ChangeGoodsTabSensitive(val);
 			buttonAddExistingDocument.Sensitive = val;
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
@@ -2448,6 +2458,18 @@ namespace Vodovoz
 					rlStatus = OrderSingletonRepository.GetInstance().GetAllRLForOrder(uow, Entity).FirstOrDefault()?.Status;
 				tblDriverControl.Sensitive = rlStatus.HasValue && !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
 			}
+		}
+
+		private void ChangeGoodsTabSensitive(bool sensitive)
+        {
+			treeItems.Sensitive = sensitive;
+			hbox12.Sensitive = sensitive;
+			hbox10.Sensitive = sensitive;
+			hboxReturnTareReason.Sensitive = sensitive;
+			orderEquipmentItemsView.Sensitive = sensitive;
+			hbox11.Sensitive = sensitive;
+			depositrefunditemsview.Sensitive = sensitive;
+			table2.Sensitive = sensitive;
 		}
 
 		void SetPadInfoSensitive(bool value)

@@ -91,7 +91,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 			WageParameterItemViewModel = GetWageParameterItemViewModel(entity.WageParameterItem);
 			WageParameterItemType = entity.WageParameterItem.WageParameterItemType;
 			DriverWithCompanyCarWageParameterItemViewModel =
-				GetWageParameterItemViewModel(entity.DriverWithOurCarsWageParameterItem);
+				GetWageParameterItemViewModel(entity.WageParameterItemForOurCars);
 		}
 
 

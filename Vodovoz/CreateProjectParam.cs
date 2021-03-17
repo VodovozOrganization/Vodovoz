@@ -152,6 +152,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
 using Vodovoz.ViewModels.ViewModels.Retail;
 using Vodovoz.Views.Retail;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz

@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Employees;
@@ -24,7 +25,9 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
 
         public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
         {
-            return new EmployeePostsJournalViewModel(unitOfWorkFactory, commonServices);
+            var journal = new EmployeePostsJournalViewModel(unitOfWorkFactory, commonServices);
+            journal.SelectionMode = JournalSelectionMode.Single;
+            return journal;
         }
 
         public IEntitySelector CreateSelector(bool multipleSelect = false)

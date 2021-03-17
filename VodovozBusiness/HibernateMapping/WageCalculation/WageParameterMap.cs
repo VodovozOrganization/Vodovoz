@@ -25,7 +25,7 @@ namespace Vodovoz.HibernateMapping.WageCalculation
 			DiscriminatorValue(nameof(WageParameterTypes.ForEmployee));
 			References(x => x.Employee).Column("employee_id");
 			References(x => x.WageParameterItem).Column("wage_parameter_item_id").Cascade.All();
-			References(x => x.DriverWithOurCarsWageParameterItem).Column("driver_with_our_cars_wage_parameter_item_id").Cascade.All();
+			References(x => x.WageParameterItemForOurCars).Column("driver_with_our_cars_wage_parameter_item_id").Cascade.All();
 		}
 	}
 }

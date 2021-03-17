@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Autofac;
 using Gtk;
@@ -101,6 +100,8 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organization;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -719,13 +720,33 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnPropertiesActionActivated(object sender, EventArgs e)
     {
+        var employeeSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory
+                <Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
+
+        var filter = new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default };
+
+        var SubdivisionAutocompleteSelectorFactory =
+            new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
+            {
+                return new SubdivisionsJournalViewModel(
+                    filter,
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices,
+                    employeeSelectorFactory
+                );
+            });
+            
         tdiMain.OpenTab(
             () =>
             {
                 return new UserSettingsViewModel(
                     EntityUoWBuilder.ForOpen(CurrentUserSettings.Settings.Id),
                     UnitOfWorkFactory.GetDefaultFactory,
-                    ServicesConfig.CommonServices
+                    ServicesConfig.CommonServices,
+                    VodovozGtkServicesConfig.EmployeeService,
+                    SubdivisionParametersProvider.Instance,
+                    SubdivisionAutocompleteSelectorFactory
                 );
             }
         );
@@ -1881,7 +1902,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
-            () => new QSReport.ReportViewDlg(new OrderChangesReport())
+            () => new QSReport.ReportViewDlg(new OrderChangesReport(new ReportDefaultsProvider(ParametersProvider.Instance)))
         );
     }
 
@@ -1963,7 +1984,7 @@ public partial class MainWindow : Gtk.Window
     protected void OnActionRetailCounterpartyJournalActivated(object sender, EventArgs e)
     {
         CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel() { IsForRetail = true };
-        var counterpartyJournal = new CounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+        var counterpartyJournal = new RetailCounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 
         tdiMain.OpenTab(
             () => counterpartyJournal
@@ -1984,7 +2005,7 @@ public partial class MainWindow : Gtk.Window
                 nomenclatureRepository, UserSingletonRepository.GetInstance());
 
         tdiMain.OpenTab(
-            () => new OrderJournalViewModel(
+            () => new RetailOrderJournalViewModel(
                     new OrderJournalFilterViewModel() { IsForRetail = true },
                     UnitOfWorkFactory.GetDefaultFactory,
                     ServicesConfig.CommonServices,

@@ -137,9 +137,12 @@ namespace Vodovoz
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 			yentryrefRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			Entity.PropertyChanged += (sender, e) => { if(e.PropertyName == nameof(Entity.Warehouse)) OnWarehouseChanged();};
+			Entity.PropertyChanged += (sender, e) => {
+                if (e.PropertyName == nameof(Entity.Warehouse)) OnWarehouseChanged();
+                if (e.PropertyName == nameof(Entity.RouteList)) UpdateWidgetsVisible();
+            };
 
-			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
+            lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
 			spnTareToReturn.Binding.AddBinding(Entity, e => e.TareToReturn, w => w.ValueAsInt).InitializeFromSource();
 
 			defectiveitemsreceptionview1.Warehouse = returnsreceptionview.Warehouse = Entity.Warehouse;
