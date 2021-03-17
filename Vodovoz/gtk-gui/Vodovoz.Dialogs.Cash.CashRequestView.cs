@@ -76,7 +76,7 @@ namespace Vodovoz.Dialogs.Cash
 
 		private global::Gtk.HBox hboxGivePartially;
 
-		private global::Gtk.Label labelGivePartially;
+		private global::Gamma.GtkWidgets.yButton ybtnGiveSummPartially;
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinGivePartially;
 
@@ -473,11 +473,13 @@ namespace Vodovoz.Dialogs.Cash
 			this.hboxGivePartially.Name = "hboxGivePartially";
 			this.hboxGivePartially.Spacing = 6;
 			// Container child hboxGivePartially.Gtk.Box+BoxChild
-			this.labelGivePartially = new global::Gtk.Label();
-			this.labelGivePartially.Name = "labelGivePartially";
-			this.labelGivePartially.LabelProp = global::Mono.Unix.Catalog.GetString("Выдать частично:");
-			this.hboxGivePartially.Add(this.labelGivePartially);
-			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hboxGivePartially[this.labelGivePartially]));
+			this.ybtnGiveSummPartially = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnGiveSummPartially.CanFocus = true;
+			this.ybtnGiveSummPartially.Name = "ybtnGiveSummPartially";
+			this.ybtnGiveSummPartially.UseUnderline = true;
+			this.ybtnGiveSummPartially.Label = global::Mono.Unix.Catalog.GetString("Выдать частично");
+			this.hboxGivePartially.Add(this.ybtnGiveSummPartially);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hboxGivePartially[this.ybtnGiveSummPartially]));
 			w36.Position = 0;
 			w36.Expand = false;
 			w36.Fill = false;
