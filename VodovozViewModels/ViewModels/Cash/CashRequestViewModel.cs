@@ -241,7 +241,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 return;
             }
 
-            var cashRequestSumItem = sumItem ?? Entity.ObservableSums.FirstOrDefault(x => !x.ObservableExpenses.Any()); // TODO: частичная тоже; 
+            var cashRequestSumItem = sumItem ?? Entity.ObservableSums.FirstOrDefault(x => !x.ObservableExpenses.Any());
+
+            if (cashRequestSumItem == null)
+            {
+                return;
+            }
 
             var summToGive = sumToGive ?? cashRequestSumItem.Sum - cashRequestSumItem.ObservableExpenses.Sum(x => x.Money);
 
