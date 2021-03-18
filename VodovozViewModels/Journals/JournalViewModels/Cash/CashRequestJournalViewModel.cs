@@ -91,17 +91,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 }
             }
 
-            //Если чел не финансист/согласователь/кассир то показываем ему только его заявки
             var userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-            if (!ServicesConfig.CommonServices.PermissionService
-                    .ValidateUserPresetPermission("role_financier_cash_request", userId)  
-                && !ServicesConfig.CommonServices.PermissionService
-                    .ValidateUserPresetPermission("role_coordinator_cash_request", userId)  
-                && !ServicesConfig.CommonServices.PermissionService
-                    .ValidateUserPresetPermission("role_сashier", userId))
-            {
-                var currentEmployeeId = employeeRepository.GetEmployeesForUser(uow, userId).First().Id;
-                result.Where(() => cashRequestAlias.Author.Id == currentEmployeeId);
+            var currentEmployee = employeeRepository.GetEmployeesForUser(uow, userId).First();
+            var currentEmployeeId = currentEmployee.Id;
+
+            if (ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests")){
+                result.Where(() => cashRequestAlias.Subdivision == currentEmployee.Subdivision);
+            } else {
+                //Если чел не финансист/согласователь/кассир то показываем ему только его заявки
+                if (!ServicesConfig.CommonServices.PermissionService
+                        .ValidateUserPresetPermission("role_financier_cash_request", userId)
+                    && !ServicesConfig.CommonServices.PermissionService
+                        .ValidateUserPresetPermission("role_coordinator_cash_request", userId)
+                    && !ServicesConfig.CommonServices.PermissionService
+                        .ValidateUserPresetPermission("role_сashier", userId)
+                   )
+                {
+                    result.Where(() => cashRequestAlias.Author.Id == currentEmployeeId);
+                }
             }
 
             var authorProjection = Projections.SqlFunction(
