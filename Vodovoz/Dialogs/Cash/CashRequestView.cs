@@ -256,7 +256,7 @@ namespace Vodovoz.Dialogs.Cash
 					.XAlign(0.5f)
 				.AddColumn("Выдано")
 					.HeaderAlignment(0.5f)
-					.AddToggleRenderer(n => n.ObservableExpenses.Any()).Editing(false)
+					.AddToggleRenderer(n => n.ObservableExpenses != null && n.ObservableExpenses.Any()).Editing(false)
 				.Finish();
 			
 			ytreeviewSums.ItemsDataSource = ViewModel.Entity.ObservableSums;
