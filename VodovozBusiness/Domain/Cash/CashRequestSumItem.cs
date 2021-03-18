@@ -47,7 +47,7 @@ namespace Vodovoz.Domain.Cash
         private IList<Expense> expenses;
         [Display(Name = "Расходные ордера")]
         public virtual IList<Expense> Expenses {
-            get => expenses;
+            get => expenses ?? (expenses = new List<Expense>());
             set => SetField(ref expenses, value);
         }
 
