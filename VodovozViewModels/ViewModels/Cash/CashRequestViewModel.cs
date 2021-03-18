@@ -222,7 +222,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     }
                     //находим первую невыданную сумму и создаем на нее expense
                     var sum = Entity.ObservableSums.First(x => !x.ObservableExpenses.Any());
-                    CreateNewExpenseForItem(sum);
+                    CreateNewExpenseForItem(sum, sum.Sum);
                     Entity.ChangeState(CashRequest.States.Closed);
                     AfterSaveCommand.Execute();
                 }
@@ -349,7 +349,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             .ValidateUserPresetPermission(roleName, userId);
         
         
-        private void CreateNewExpenseForItem(CashRequestSumItem sumItem)
+        private void CreateNewExpenseForItem(CashRequestSumItem sumItem, decimal sum)
         {
             sumItem?.CreateNewExpense(
                 UoW, 
@@ -358,7 +358,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 Entity.ExpenseCategory,
                 Entity.Basis,
                 Entity.Organization,
-                sumItem.Sum
+                sum
             );
             if (sumItem != null)
                 SumsGiven.Add(sumItem);
