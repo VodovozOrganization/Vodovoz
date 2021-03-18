@@ -246,6 +246,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             }
             var summToGive = sumToGive ?? cashRequestSumItem.Sum - cashRequestSumItem.Expenses.Sum(x => x.Money);
 
+            if(sumToGive <= 0)
+            {
+                return;
+            }
+
             CreateNewExpenseForItem(cashRequestSumItem, summToGive);
             Entity.ChangeState(CashRequest.States.Closed);
             AfterSaveCommand.Execute();
@@ -406,7 +411,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 builder.Append("Подотчетное лицо\tСумма\n");
                 foreach (CashRequestSumItem sum in SumsGiven)
                 {
-                    builder.Append(sum.AccountableEmployee.Name + "\t" + sum.Sum + "\n");
+                    builder.Append(sum.AccountableEmployee.Name + "\t" + sum.Expenses.Last().Money + "\n");
                 }
                 messageText = builder.ToString();
                 return true;

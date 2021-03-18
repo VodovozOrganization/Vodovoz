@@ -81,9 +81,8 @@ namespace Vodovoz.Domain.Cash
                     }
                     break;
                 case States.Closed:
-                    bool allSumsWasGiven = CheckIsAllSumsClosed();
                     //Если к нам пришло Close значит хотя бы одну закрыли, поэтому не нужно проверять что незакрытых нет совсем
-                    State = CheckIsAllSumsClosed() ? newState : States.PartiallyClosed;
+                    State = Sums.All(x => x.Sum == x.Expenses.Sum(e => e.Money)) ? newState : States.PartiallyClosed;
                     break;
                 
                 case States.PartiallyClosed:
@@ -92,26 +91,6 @@ namespace Vodovoz.Domain.Cash
                 default:
                     throw new NotImplementedException($"Не реализовано изменение статуса для {newState}");
             }
-        }
-        
-        public virtual bool CheckIsAllSumsClosed()
-        {
-            if (Sums.Count == 1 && Sums.First() != null)
-            {
-                return true;
-            }
-
-            bool allSumsWasGiven = true;
-            foreach (var sum in Sums)
-            {
-                if (sum.Sum > sum.ObservableExpenses.Sum(x => x.Money))
-                {
-                    allSumsWasGiven = false;
-                    break;
-                }
-            }
-
-            return allSumsWasGiven;
         }
 
         #region Свойства
