@@ -65,16 +65,6 @@ namespace Vodovoz.Domain.Cash
             set => SetField(ref accountableEmployee, value);
         }
 
-        /// <summary>
-        /// Создание расходного ордера
-        /// </summary>
-        /// <param name="unitOfWork"></param>
-        /// <param name="casher">Кассир</param>
-        /// <param name="subdivision">Подразделение</param>
-        /// <param name="expenseCategory"></param>
-        /// <param name="basis">Основание</param>
-        /// <param name="organization">Организация</param>
-        /// <param name="money">Сумма</param>
         public virtual void CreateNewExpense(
             IUnitOfWork unitOfWork,
             Employee casher,
