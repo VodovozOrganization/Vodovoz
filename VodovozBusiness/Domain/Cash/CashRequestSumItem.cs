@@ -65,12 +65,6 @@ namespace Vodovoz.Domain.Cash
             set => SetField(ref accountableEmployee, value);
         }
 
-        public virtual void CreateExpenseCashOrganizationDistributionDoc()
-        {
-           
-            
-        }
-
         /// <summary>
         /// Создание расходного ордера
         /// </summary>
@@ -106,7 +100,6 @@ namespace Vodovoz.Domain.Cash
             ObservableExpenses.Add(newExpense);
             unitOfWork.Save(newExpense);
             
-            //CreateExpenseCashOrganizationDistributionDoc
             var distributor = new ExpenseCashOrganisationDistributor();
             distributor.DistributeCashForExpense(unitOfWork, newExpense, false);
         }

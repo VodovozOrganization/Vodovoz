@@ -211,18 +211,24 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         ));
             
         private DelegateCommand<CashRequestSumItem> giveSumCommand;
-        public DelegateCommand<CashRequestSumItem> GiveSumCommand => giveSumCommand ?? (giveSumCommand = new DelegateCommand<CashRequestSumItem>(
-            (CashRequestSumItem sumItem) => { giveSum(sumItem); },
-            (CashRequestSumItem sumItem) => true
+        public DelegateCommand<CashRequestSumItem> GiveSumCommand => 
+            giveSumCommand ?? (giveSumCommand = new DelegateCommand<CashRequestSumItem>(
+                (CashRequestSumItem sumItem) => GiveSum(sumItem),
+                (CashRequestSumItem sumItem) => Entity.PossibilityNotToReconcilePayments
+                                             || sumItem.Sum > sumItem.Expenses.Sum(e => e.Money)
+                                             || Entity.ObservableSums.All(x => !x.Expenses.Any() || x.Sum == x.Expenses.Sum(e => e.Money))
         ));
 
         private DelegateCommand<(CashRequestSumItem, decimal)> giveSumPartiallyCommand;
-        public DelegateCommand<(CashRequestSumItem, decimal)> GiveSumPartiallyCommand => giveSumPartiallyCommand ?? (giveSumPartiallyCommand = new DelegateCommand<(CashRequestSumItem, decimal)>(
-            ((CashRequestSumItem, decimal) parameters) => { giveSum(parameters.Item1, parameters.Item2); },
-            ((CashRequestSumItem, decimal) parameters) => true
+        public DelegateCommand<(CashRequestSumItem, decimal)> GiveSumPartiallyCommand => 
+            giveSumPartiallyCommand ?? (giveSumPartiallyCommand = new DelegateCommand<(CashRequestSumItem, decimal)>(
+                ((CashRequestSumItem, decimal) parameters) => GiveSum(parameters.Item1, parameters.Item2),
+                ((CashRequestSumItem, decimal) parameters) => Entity.PossibilityNotToReconcilePayments
+                                                           || parameters.Item1.Sum > parameters.Item1.Expenses.Sum(e => e.Money)
+                                                           || Entity.ObservableSums.All(x => !x.Expenses.Any() || x.Sum == x.Expenses.Sum(e => e.Money))
         ));
 
-        private void giveSum(CashRequestSumItem sumItem, decimal? sumToGive = null) 
+        private void GiveSum(CashRequestSumItem sumItem, decimal? sumToGive = null) 
         {
             if (!Entity.Sums.Any())
             {
@@ -235,16 +241,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 return;
             }
 
-            CashRequestSumItem cashRequestSumItem;
-            if (Entity.PossibilityNotToReconcilePayments)
-            {
-                cashRequestSumItem = sumItem;
-            }
-            else
-            {
-                cashRequestSumItem = Entity.ObservableSums.First(x => !x.ObservableExpenses.Any());
-            }
-            var summToGive = sumToGive ?? cashRequestSumItem.Sum - cashRequestSumItem.Expenses.Sum(x => x.Money);
+            var cashRequestSumItem = sumItem ?? Entity.ObservableSums.FirstOrDefault(x => !x.ObservableExpenses.Any()); // TODO: частичная тоже; 
+
+            var summToGive = sumToGive ?? cashRequestSumItem.Sum - cashRequestSumItem.ObservableExpenses.Sum(x => x.Money);
 
             if(sumToGive <= 0)
             {
@@ -267,7 +266,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 return userRole; 
             }
             set {
-                SetField(ref userRole, value, () => UserRole);
+                SetField(ref userRole, value);
                 OnPropertyChanged(() => CanEditOnlyCoordinator);
                 OnPropertyChanged(() => CanEditOnlyinStateNAGandRoldFinancier);
                 OnPropertyChanged(() => ExpenseCategorySensitive);
@@ -411,7 +410,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 builder.Append("Подотчетное лицо\tСумма\n");
                 foreach (CashRequestSumItem sum in SumsGiven)
                 {
-                    builder.Append(sum.AccountableEmployee.Name + "\t" + sum.Expenses.Last().Money + "\n");
+                    builder.Append(sum.AccountableEmployee.Name + "\t" + sum.ObservableExpenses.Last().Money + "\n");
                 }
                 messageText = builder.ToString();
                 return true;

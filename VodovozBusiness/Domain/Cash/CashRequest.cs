@@ -81,8 +81,7 @@ namespace Vodovoz.Domain.Cash
                     }
                     break;
                 case States.Closed:
-                    //Если к нам пришло Close значит хотя бы одну закрыли, поэтому не нужно проверять что незакрытых нет совсем
-                    State = Sums.All(x => x.Sum == x.Expenses.Sum(e => e.Money)) ? newState : States.PartiallyClosed;
+                    State = Sums.All(x => x.Sum == x.ObservableExpenses.Sum(e => e.Money)) ? newState : States.PartiallyClosed;
                     break;
                 
                 case States.PartiallyClosed:

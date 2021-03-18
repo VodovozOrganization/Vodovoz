@@ -263,6 +263,16 @@ namespace Vodovoz.Dialogs.Cash
 				.AddColumn("Выдано")
 					.HeaderAlignment(0.5f)
 					.AddToggleRenderer(n => n.ObservableExpenses != null && n.ObservableExpenses.Any()).Editing(false)
+				.RowCells().AddSetter<CellRenderer>((c,n) => c.Sensitive = 
+					n.Sum > n.Expenses.Sum(e => e.Money)
+					&& (ViewModel.CanConfirmPossibilityNotToReconcilePayments 
+						|| n.Expenses.Any()
+						|| ViewModel.Entity.ObservableSums.All(
+							x => !x.Expenses.Any() 
+							  || x.Sum == x.Expenses.Sum(e => e.Money)
+							)
+						)
+					)
 				.Finish();
 			
 			ytreeviewSums.ItemsDataSource = ViewModel.Entity.ObservableSums;
@@ -285,7 +295,7 @@ namespace Vodovoz.Dialogs.Cash
 				ybtnDeleteSumm.Sensitive = isSensetive;
 				//Редактировать можно только невыданные
 				ybtnEditSum.Visible = ViewModel.SelectedItem != null && !ViewModel.SelectedItem.ObservableExpenses.Any();
-				yspinGivePartially.SetRange(0, (double)(ViewModel.SelectedItem.Sum - ViewModel.SelectedItem?.Expenses.Sum(x => x.Money) ?? 0));
+				yspinGivePartially.SetRange(0, (double)(ViewModel.SelectedItem.Sum - ViewModel.SelectedItem?.ObservableExpenses.Sum(x => x.Money) ?? 0));
 			}
 		}
 	}
