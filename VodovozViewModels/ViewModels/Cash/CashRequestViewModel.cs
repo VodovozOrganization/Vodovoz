@@ -136,6 +136,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             SetPropertyChangeRelation(e => e.State, () => CanReturnToRenegotiation);
             SetPropertyChangeRelation(e => e.State, () => CanCancel);
             SetPropertyChangeRelation(e => e.State, () => CanConfirmPossibilityNotToReconcilePayments);
+            SetPropertyChangeRelation(e => e.State, () => CanGivePartially);
         }
 
         #region Commands
@@ -282,6 +283,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 OnPropertyChanged(() => CanConveyForResults);
                 OnPropertyChanged(() => CanCancel);
                 OnPropertyChanged(() => CanConfirmPossibilityNotToReconcilePayments);
+                OnPropertyChanged(() => CanGivePartially);
             }
         }
 
