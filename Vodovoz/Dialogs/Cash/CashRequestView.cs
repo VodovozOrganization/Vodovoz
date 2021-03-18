@@ -146,7 +146,7 @@ namespace Vodovoz.Dialogs.Cash
 			
 			ybtnGiveSumm.Clicked += (sender, args) => ViewModel.GiveSumCommand.Execute();
 			ybtnGiveSumm.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
-			ybtnGiveSumm.Sensitive = ViewModel.Entity.ObservableSums.Any(x => x.Expense == null);
+			ybtnGiveSumm.Sensitive = ViewModel.Entity.ObservableSums.Any(x => x.ObservableExpenses == null || !x.ObservableExpenses.Any());
 			
 			ybtnAddSumm.Clicked += (sender, args) => ViewModel.AddSumCommand.Execute();
 			ybtnEditSum.Clicked += (sender, args) => ViewModel.EditSumCommand.Execute();
@@ -256,7 +256,7 @@ namespace Vodovoz.Dialogs.Cash
 					.XAlign(0.5f)
 				.AddColumn("Выдано")
 					.HeaderAlignment(0.5f)
-					.AddToggleRenderer(n => n.Expense != null).Editing(false)
+					.AddToggleRenderer(n => n.ObservableExpenses.Any()).Editing(false)
 				.Finish();
 			
 			ytreeviewSums.ItemsDataSource = ViewModel.Entity.ObservableSums;
@@ -278,7 +278,7 @@ namespace Vodovoz.Dialogs.Cash
 				ViewModel.SelectedItem = ytreeviewSums.GetSelectedObject<CashRequestSumItem>();
 				ybtnDeleteSumm.Sensitive = isSensetive;
 				//Редактировать можно только невыданные
-				ybtnEditSum.Visible = ViewModel.SelectedItem != null && ViewModel.SelectedItem.Expense == null;
+				ybtnEditSum.Visible = ViewModel.SelectedItem != null && !ViewModel.SelectedItem.ObservableExpenses.Any();
 			}
 		}
 	}

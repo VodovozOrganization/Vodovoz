@@ -104,7 +104,7 @@ namespace Vodovoz.Domain.Cash
             bool allSumsWasGiven = true;
             foreach (var sum in Sums)
             {
-                if (sum.Expense == null)
+                if (sum.Sum > sum.ObservableExpenses.Sum(x => x.Money))
                 {
                     allSumsWasGiven = false;
                     break;

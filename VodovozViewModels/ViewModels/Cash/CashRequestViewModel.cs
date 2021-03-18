@@ -221,7 +221,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                         return;
                     }
                     //находим первую невыданную сумму и создаем на нее expense
-                    var sum = Entity.ObservableSums.First(x => x.Expense == null);
+                    var sum = Entity.ObservableSums.First(x => !x.ObservableExpenses.Any());
                     CreateNewExpenseForItem(sum);
                     Entity.ChangeState(CashRequest.States.Closed);
                     AfterSaveCommand.Execute();
@@ -277,7 +277,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
         public bool CanEditSumVisible => UserRole == UserRole.RequestCreator || UserRole == UserRole.Coordinator;
         //редактировать можно только не выданные
-        public bool CanEditSumSensitive => SelectedItem != null && SelectedItem.Expense == null;
+        public bool CanEditSumSensitive => SelectedItem != null && !SelectedItem.ObservableExpenses.Any();
 
 
         #endregion Editability
@@ -357,7 +357,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 Entity.Subdivision,
                 Entity.ExpenseCategory,
                 Entity.Basis,
-                Entity.Organization
+                Entity.Organization,
+                sumItem.Sum
             );
             if (sumItem != null)
                 SumsGiven.Add(sumItem);

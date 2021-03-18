@@ -17,8 +17,10 @@ namespace Vodovoz.HibernateMapping
 
             //Refs
             References(x => x.AccountableEmployee).Column("accountable_employee_id");
-            References(x => x.Expense).Column("expense_id");
+            //References(x => x.Expense).Column("expense_id");
             References(x => x.CashRequest).Column("cash_request_id");
+
+            HasMany(x => x.Expenses).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("cash_request_sum_item_id");
         }
     }
 }
