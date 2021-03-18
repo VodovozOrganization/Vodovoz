@@ -210,24 +210,46 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             }, () => true
         ));
             
-        private DelegateCommand giveSumCommand;
-        public DelegateCommand GiveSumCommand => giveSumCommand ?? (giveSumCommand = new DelegateCommand(
-            () => {
-                if (Entity.Sums.Count != 0) 
-                {
-                    if (Entity.ExpenseCategory == null)
-                    {
-                        CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"У данной заявки не заполнена статья расхода");
-                        return;
-                    }
-                    //находим первую невыданную сумму и создаем на нее expense
-                    var sum = Entity.ObservableSums.First(x => !x.ObservableExpenses.Any());
-                    CreateNewExpenseForItem(sum, sum.Sum);
-                    Entity.ChangeState(CashRequest.States.Closed);
-                    AfterSaveCommand.Execute();
-                }
-            }, () => true
+        private DelegateCommand<CashRequestSumItem> giveSumCommand;
+        public DelegateCommand<CashRequestSumItem> GiveSumCommand => giveSumCommand ?? (giveSumCommand = new DelegateCommand<CashRequestSumItem>(
+            (CashRequestSumItem sumItem) => { giveSum(sumItem); },
+            (CashRequestSumItem sumItem) => true
         ));
+
+        private DelegateCommand<(CashRequestSumItem, decimal)> giveSumPartiallyCommand;
+        public DelegateCommand<(CashRequestSumItem, decimal)> GiveSumPartiallyCommand => giveSumPartiallyCommand ?? (giveSumPartiallyCommand = new DelegateCommand<(CashRequestSumItem, decimal)>(
+            ((CashRequestSumItem, decimal) parameters) => { giveSum(parameters.Item1, parameters.Item2); },
+            ((CashRequestSumItem, decimal) parameters) => true
+        ));
+
+        private void giveSum(CashRequestSumItem sumItem, decimal? sumToGive = null) 
+        {
+            if (!Entity.Sums.Any())
+            {
+                return;
+            }
+
+            if (Entity.ExpenseCategory == null)
+            {
+                CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"У данной заявки не заполнена статья расхода");
+                return;
+            }
+
+            CashRequestSumItem cashRequestSumItem;
+            if (Entity.PossibilityNotToReconcilePayments)
+            {
+                cashRequestSumItem = sumItem;
+            }
+            else
+            {
+                cashRequestSumItem = Entity.ObservableSums.First(x => !x.ObservableExpenses.Any());
+            }
+            var summToGive = sumToGive ?? cashRequestSumItem.Sum - cashRequestSumItem.Expenses.Sum(x => x.Money);
+
+            CreateNewExpenseForItem(cashRequestSumItem, summToGive);
+            Entity.ChangeState(CashRequest.States.Closed);
+            AfterSaveCommand.Execute();
+        }
 
         #endregion Commands
 
