@@ -1,7 +1,6 @@
 using QSReport;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using FluentNHibernate.Conventions;
@@ -284,7 +283,7 @@ namespace Vodovoz.Additions.Accounting
                 return;
             }
 
-            wayBillDocument.Date = DateTime.Now;
+            wayBillDocument.Date = generationDate.Date;
             wayBillDocument.CarModel = car.Model;
             wayBillDocument.CarRegistrationNumber = car.RegistrationNumber;
             wayBillDocument.DriverFIO = employee.FullName;
