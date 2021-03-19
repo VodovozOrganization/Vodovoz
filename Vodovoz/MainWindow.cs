@@ -216,9 +216,9 @@ public partial class MainWindow : Gtk.Window
             ActionReportsDrivers.Visible =
             ActionReportService.Visible =
             ActionBookkeepping.Visible =
-            Action61.Visible = // Касса
-            Action73.Visible =
-            Action70.Visible = !userIsSalesRepresentative;// Производство
+            ActionCashMenubar.Visible = // Касса
+            ActionRetailMenubar.Visible =
+            ActionProduction.Visible = !userIsSalesRepresentative;// Производство
 
         // Отчеты в Продажи
 
