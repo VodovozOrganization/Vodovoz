@@ -9,6 +9,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
@@ -125,33 +126,5 @@ namespace Vodovoz.ReportsParameters.Production
 		{
 			return new DateTime(date.Year,date.Month, DateTime.DaysInMonth(date.Year,date.Month));
 		}
-	}
-	
-	enum Month
-	{
-		[Display ( Name = "Сентябрь")]
-		September = 9,
-		[Display ( Name = "Октябрь")]
-		October = 10,
-		[Display ( Name = "Ноябрь")]
-		November = 11,
-		[Display ( Name = "Декабрь")]
-		December = 12,
-		[Display ( Name = "Январь")]
-		January = 1,
-		[Display ( Name = "Февраль")]
-		February = 2,
-		[Display ( Name = "Март")]
-		March = 3,
-		[Display ( Name = "Апрель")]
-		April = 4,
-		[Display ( Name = "Май")]
-		May = 5,
-		[Display ( Name = "Июнь")]
-		June = 6,
-		[Display ( Name = "Июль")]
-		July = 7,
-		[Display ( Name = "Август")]
-		August = 8
 	}
 }
