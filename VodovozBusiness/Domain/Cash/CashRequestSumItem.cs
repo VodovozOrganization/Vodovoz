@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
@@ -43,11 +44,18 @@ namespace Vodovoz.Domain.Cash
             set => SetField(ref date, value);
         }
 
-        private Expense expense;
-        [Display(Name = "Расход")]
-        public virtual Expense Expense {
-            get => expense;
-            set => SetField(ref expense, value);
+        private IList<Expense> expenses;
+        [Display(Name = "Расходные ордера")]
+        public virtual IList<Expense> Expenses {
+            get => expenses ?? (expenses = new List<Expense>());
+            set => SetField(ref expenses, value);
+        }
+
+        private GenericObservableList<Expense> observableExpenses;
+
+        public virtual GenericObservableList<Expense> ObservableExpenses
+        {
+            get { return observableExpenses ?? (observableExpenses = new GenericObservableList<Expense>(Expenses)); }
         }
 
         private Employee accountableEmployee;
@@ -57,18 +65,14 @@ namespace Vodovoz.Domain.Cash
             set => SetField(ref accountableEmployee, value);
         }
 
-        public virtual void CreateExpenseCashOrganizationDistributionDoc()
-        {
-           
-            
-        }
         public virtual void CreateNewExpense(
             IUnitOfWork unitOfWork,
             Employee casher,
             Subdivision subdivision,
             ExpenseCategory expenseCategory,
             string basis,
-            Organization organization)
+            Organization organization,
+            decimal money)
         {
             Expense newExpense =
             new Expense{
@@ -77,15 +81,15 @@ namespace Vodovoz.Domain.Cash
                 Employee = accountableEmployee,
                 TypeOperation = ExpenseType.Advance,
                 ExpenseCategory = expenseCategory,
-                Money = Sum,
+                Money = money,
                 Description = basis ?? "",
                 Organisation = organization,
-                RelatedToSubdivision = subdivision
+                RelatedToSubdivision = subdivision,
+                CashRequestSumItem = this
             };
-            this.Expense = newExpense;
+            ObservableExpenses.Add(newExpense);
             unitOfWork.Save(newExpense);
             
-            //CreateExpenseCashOrganizationDistributionDoc
             var distributor = new ExpenseCashOrganisationDistributor();
             distributor.DistributeCashForExpense(unitOfWork, newExpense, false);
         }

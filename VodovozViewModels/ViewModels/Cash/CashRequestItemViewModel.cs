@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -41,7 +42,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 } else {
                     return (
                         Entity.CashRequest.State == CashRequest.States.New &&
-                        Entity.Expense == null &&
+                        !Entity.ObservableExpenses.Any() &&
                         (UserRole == UserRole.RequestCreator
                          || UserRole == UserRole.Coordinator)
                         ||
