@@ -136,7 +136,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             SetPropertyChangeRelation(e => e.State, () => CanReturnToRenegotiation);
             SetPropertyChangeRelation(e => e.State, () => CanCancel);
             SetPropertyChangeRelation(e => e.State, () => CanConfirmPossibilityNotToReconcilePayments);
-            SetPropertyChangeRelation(e => e.State, () => CanGivePartially);
         }
 
         #region Commands
@@ -215,19 +214,27 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand<CashRequestSumItem> GiveSumCommand => 
             giveSumCommand ?? (giveSumCommand = new DelegateCommand<CashRequestSumItem>(
                 (CashRequestSumItem sumItem) => GiveSum(sumItem),
-                (CashRequestSumItem sumItem) => Entity.PossibilityNotToReconcilePayments
-                                             || sumItem.Sum > sumItem.Expenses.Sum(e => e.Money)
-                                             || Entity.ObservableSums.All(x => !x.Expenses.Any() || x.Sum == x.Expenses.Sum(e => e.Money))
+                CanExecuteGive
         ));
 
         private DelegateCommand<(CashRequestSumItem, decimal)> giveSumPartiallyCommand;
         public DelegateCommand<(CashRequestSumItem, decimal)> GiveSumPartiallyCommand => 
             giveSumPartiallyCommand ?? (giveSumPartiallyCommand = new DelegateCommand<(CashRequestSumItem, decimal)>(
                 ((CashRequestSumItem CashRequestSumItem, decimal Sum) parameters) => GiveSum(parameters.CashRequestSumItem, parameters.Sum),
-                ((CashRequestSumItem CashRequestSumItem, decimal Sum) parameters) => Entity.PossibilityNotToReconcilePayments
-                                                                                  || parameters.CashRequestSumItem.Sum > parameters.CashRequestSumItem.Expenses.Sum(e => e.Money)
-                                                                                  || Entity.ObservableSums.All(x => !x.Expenses.Any() || x.Sum == x.Expenses.Sum(e => e.Money))
+                CanExecuteGive
         ));
+
+        private bool CanExecuteGive((CashRequestSumItem CashRequestSumItem, decimal Sum) parameters)
+        {
+            return CanExecuteGive(parameters.CashRequestSumItem);
+        }
+
+        private bool CanExecuteGive(CashRequestSumItem sumItem)
+        {
+            return Entity.PossibilityNotToReconcilePayments
+                || sumItem.Sum > sumItem.Expenses.Sum(e => e.Money)
+                || Entity.ObservableSums.All(x => !x.Expenses.Any() || x.Sum == x.Expenses.Sum(e => e.Money));
+        }
 
         private void GiveSum(CashRequestSumItem sumItem, decimal? sumToGive = null) 
         {
@@ -283,7 +290,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 OnPropertyChanged(() => CanConveyForResults);
                 OnPropertyChanged(() => CanCancel);
                 OnPropertyChanged(() => CanConfirmPossibilityNotToReconcilePayments);
-                OnPropertyChanged(() => CanGivePartially);
             }
         }
 
@@ -321,8 +327,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool VisibleOnlyForStatusUpperThanCreated => Entity.State != CashRequest.States.New;
         public bool ExpenseCategoryVisibility => UserRole == UserRole.Cashier || UserRole == UserRole.Financier;
         public bool CanConfirmPossibilityNotToReconcilePayments => Entity.ObservableSums.Count > 1 && Entity.State == CashRequest.States.Submited && UserRole == UserRole.Coordinator;
-        public bool CanGivePartially => UserRole == UserRole.Cashier;
-
         #endregion Visibility
 
         #region Permissions
@@ -332,6 +336,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanDeleteItems => CanEdit && SelectedItem != null;
         
         public bool CanGiveSum => UserRole == UserRole.Cashier && (Entity.State == CashRequest.States.GivenForTake || Entity.State == CashRequest.States.PartiallyClosed);
+
         public bool CanDeleteSum => uowBuilder.IsNewEntity;
         //Подтвердить
         public bool CanAccept =>
