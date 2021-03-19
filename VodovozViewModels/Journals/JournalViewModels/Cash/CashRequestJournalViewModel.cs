@@ -8,7 +8,6 @@ using QS.Deletion;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Services;
 using QS.Project.Services.Interactive;
 using QS.Services;
 using Vodovoz.Domain.Cash;
@@ -91,19 +90,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 }
             }
 
-            var userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
+            var userId = commonServices.UserService.CurrentUserId;
             var currentEmployee = employeeRepository.GetEmployeesForUser(uow, userId).First();
             var currentEmployeeId = currentEmployee.Id;
 
-            if (ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests")){
+            if (commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests")){
                 result.Where(() => cashRequestAlias.Subdivision == currentEmployee.Subdivision);
             } else {
-                //Если чел не финансист/согласователь/кассир то показываем ему только его заявки
-                if (!ServicesConfig.CommonServices.PermissionService
+                if (!commonServices.PermissionService
                         .ValidateUserPresetPermission("role_financier_cash_request", userId)
-                    && !ServicesConfig.CommonServices.PermissionService
+                    && !commonServices.PermissionService
                         .ValidateUserPresetPermission("role_coordinator_cash_request", userId)
-                    && !ServicesConfig.CommonServices.PermissionService
+                    && !commonServices.PermissionService
                         .ValidateUserPresetPermission("role_сashier", userId)
                    )
                 {
