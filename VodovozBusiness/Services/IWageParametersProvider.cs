@@ -8,5 +8,6 @@ namespace Vodovoz.Services
 		decimal GetFixedWageForNewLargusDrivers();
 		
 		DateTime DontRecalculateWagesForRouteListsBefore { get; }
+		int GetSuburbWageDistrictId { get; }
 	}
 }

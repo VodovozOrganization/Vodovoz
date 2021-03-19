@@ -42,10 +42,10 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref restrictedCarTypesOfUse, value);
 		}
 
-		public bool CanChangeIsArchive { get; private set; }
-		public bool CanChangeVisitingMasters { get; private set; }
-		public bool CanChangeRaskat { get; private set; }
-		public bool CanChangeRestrictedCarTypesOfUse { get; private set; }
+		public bool CanChangeIsArchive { get; set; }
+		public bool CanChangeVisitingMasters { get; set; }
+		public bool CanChangeRaskat { get; set; }
+		public bool CanChangeRestrictedCarTypesOfUse { get; set; }
 
 		public void SetFilterSensitivity(bool isSensitive)
 		{

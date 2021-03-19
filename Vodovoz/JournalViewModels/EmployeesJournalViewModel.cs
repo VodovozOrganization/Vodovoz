@@ -82,6 +82,7 @@ namespace Vodovoz.JournalViewModels
 			);
 
 			query.Where(GetSearchCriterion(
+				() => employeeAlias.Id,
 				() => employeeProjection
 			));
 

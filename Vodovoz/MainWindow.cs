@@ -27,6 +27,7 @@ using QSSupportLib;
 using Vodovoz;
 using Vodovoz.CommonEnums;
 using Vodovoz.Core;
+using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
@@ -153,8 +154,6 @@ public partial class MainWindow : Gtk.Window
         ActionAddOrder.Sensitive = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
         ActionExportImportNomenclatureCatalog.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
         ActionDistricts.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
-
-        ActionCarsExploitationReport.Visible = false;
 
         //Читаем настройки пользователя
         switch (CurrentUserSettings.Settings.ToolbarStyle)
@@ -2029,6 +2028,7 @@ public partial class MainWindow : Gtk.Window
                             new[] { CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.DriverCar })
                     };
                     filter.SetFilterSensitivity(false);
+                    filter.CanChangeRaskat = true;
                     return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
                         ServicesConfig.CommonServices);
                 }
@@ -2036,8 +2036,11 @@ public partial class MainWindow : Gtk.Window
 
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<CarsExploitationReport>(),
-            () => new QSReport.ReportViewDlg(new CarsExploitationReport(UnitOfWorkFactory.GetDefaultFactory,
-                carEntityAutocompleteSelectorFactory))
+            () => new QSReport.ReportViewDlg(new CarsExploitationReport(
+                UnitOfWorkFactory.GetDefaultFactory,
+                carEntityAutocompleteSelectorFactory,
+                new BaseParametersProvider(),
+                ServicesConfig.InteractiveService))
         );
     }
 
