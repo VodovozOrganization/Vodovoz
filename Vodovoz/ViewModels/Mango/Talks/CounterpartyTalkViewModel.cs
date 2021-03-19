@@ -46,7 +46,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		public CounterpartyTalkViewModel(
 			INavigationManager navigation,
 			ITdiCompatibilityNavigation tdinavigation,
-			IInteractiveQuestion interactive,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			RouteListRepository routedListRepository,
             IInteractiveService interactiveService,
@@ -55,9 +54,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			this.NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(navigation));
 
-			this.interactive = interactive;
 			this.routedListRepository = routedListRepository;
-            this.interactiveService = interactiveService;
+            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
             UoW = unitOfWorkFactory.CreateWithoutRoot();
 
 			if(ActiveCall.CounterpartyIds.Any())
@@ -124,7 +122,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
 			Counterparty client = UoW.GetById<Counterparty>(counterpartyNode.Id);
 			if(!CounterpartyOrdersModels.Any(c => c.Client.Id == client.Id)) {
-				if(interactive.Question($"Добавить телефон к контрагенту {client.Name} ?", "Телефон контрагента")) {
+				if(interactiveService.Question($"Добавить телефон к контрагенту {client.Name} ?", "Телефон контрагента")) {
 					client.Phones.Add(ActiveCall.Phone);
 					UoW.Save<Counterparty>(client);
 					UoW.Commit();
