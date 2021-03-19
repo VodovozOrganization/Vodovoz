@@ -16,7 +16,9 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.GtkUI;
 using QS.Project.Services.Interactive;
+using QS.Services;
 using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Tools;
@@ -96,6 +98,11 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ReportsParameters.Retail;
+using Vodovoz.Domain.Retail;
+using Vodovoz.Journals.FilterViewModels.Employees;
+using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 
@@ -210,8 +217,9 @@ public partial class MainWindow : Gtk.Window
             ActionReportsDrivers.Visible =
             ActionReportService.Visible =
             ActionBookkeepping.Visible =
-            Action61.Visible = // Касса
-            Action70.Visible = !userIsSalesRepresentative; // Производство
+            ActionCashMenubar.Visible = // Касса
+            ActionRetailMenubar.Visible =
+            ActionProduction.Visible = !userIsSalesRepresentative;// Производство
 
         // Отчеты в Продажи
 
@@ -940,6 +948,26 @@ public partial class MainWindow : Gtk.Window
             QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.DeliveriesLateReport>(),
             () => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.DeliveriesLateReport())
         );
+    }
+
+    protected void OnActionQualityRetailReport(object sender, EventArgs e)
+    {
+        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, RetailCounterpartyJournalViewModel,
+                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        IEntityAutocompleteSelectorFactory employeeSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel,
+                EmployeeFilterViewModel>(ServicesConfig.CommonServices);
+
+        IEntityAutocompleteSelectorFactory salesChannelselectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<SalesChannel, SalesChannelJournalViewModel,
+                SalesChannelJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
+            () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory, 
+                employeeSelectorFactory, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
     }
 
     protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenDriverRoutesListRegisterReport();
@@ -2055,5 +2083,21 @@ public partial class MainWindow : Gtk.Window
                 ServicesConfig.CommonServices
             )
         );
+    }
+
+    protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
+    {
+        IEntityAutocompleteSelectorFactory districtSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<District, DistrictJournalViewModel,
+                DistrictJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        IEntityAutocompleteSelectorFactory salesChannelselectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<SalesChannel, SalesChannelJournalViewModel,
+                SalesChannelJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
+            () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory, 
+                UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
     }
 }
