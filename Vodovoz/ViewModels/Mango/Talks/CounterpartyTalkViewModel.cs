@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -138,7 +137,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		{
             if (currentCounterparty.IsForRetail)
             {
-                MessageDialogHelper.RunWarningDialog("Заказ поступает от контрагента дистрибуции");
+                ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Заказ поступает от контрагента дистрибуции");
             }
             var model = CounterpartyOrdersModels.Find(m => m.Client.Id == currentCounterparty.Id);
 			IPage page = tdiNavigation.OpenTdiTab<OrderDlg, Counterparty>(null, currentCounterparty);
