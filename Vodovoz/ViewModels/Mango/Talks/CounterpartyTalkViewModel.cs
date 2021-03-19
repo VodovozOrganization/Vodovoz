@@ -7,6 +7,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Services;
 using QSReport;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
@@ -34,7 +35,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private readonly IInteractiveQuestion interactive;
 		private readonly RouteListRepository routedListRepository;
-		private IUnitOfWork UoW;
+        private readonly IInteractiveService interactiveService;
+        private IUnitOfWork UoW;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels { get; private set; } = new List<CounterpartyOrderViewModel>();
 
@@ -47,14 +49,16 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			IInteractiveQuestion interactive,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			RouteListRepository routedListRepository,
-			MangoManager manager) : base(navigation, manager)
+            IInteractiveService interactiveService,
+            MangoManager manager) : base(navigation, manager)
 		{
 			this.NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(navigation));
 
 			this.interactive = interactive;
 			this.routedListRepository = routedListRepository;
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+            this.interactiveService = interactiveService;
+            UoW = unitOfWorkFactory.CreateWithoutRoot();
 
 			if(ActiveCall.CounterpartyIds.Any())
 			{
@@ -137,7 +141,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		{
             if (currentCounterparty.IsForRetail)
             {
-                ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Заказ поступает от контрагента дистрибуции");
+                interactiveService.ShowMessage(ImportanceLevel.Warning, "Заказ поступает от контрагента дистрибуции");
             }
             var model = CounterpartyOrdersModels.Find(m => m.Client.Id == currentCounterparty.Id);
 			IPage page = tdiNavigation.OpenTdiTab<OrderDlg, Counterparty>(null, currentCounterparty);
