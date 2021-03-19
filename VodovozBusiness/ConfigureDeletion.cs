@@ -1042,9 +1042,6 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<CashRequestSumItem>()
 				.AddDeleteDependence<Expense>(x => x.CashRequestSumItem);
 
-			//.AddDeleteCascadeDependence<Expense>(x => x.Expenses);
-
-
 			#endregion
 
 			#region Топливо
