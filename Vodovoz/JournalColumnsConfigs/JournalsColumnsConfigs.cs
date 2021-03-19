@@ -496,6 +496,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Модель").AddTextRenderer(x => x.Model).WrapWidth(300).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Гос. номер").AddTextRenderer(x => x.RegistrationNumber)
 					.AddColumn("Водитель").AddTextRenderer(x => x.DriverName)
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
 

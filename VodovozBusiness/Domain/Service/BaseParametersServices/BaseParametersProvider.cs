@@ -229,6 +229,22 @@ namespace Vodovoz.Core.DataService
 			}
 		}
 
+		public int GetSuburbWageDistrictId {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("suburb_wage_district_id")) {
+					throw new InvalidProgramException(
+						"В параметрах базы не указан код зарплатного района Пригород (suburb_wage_district_id).");
+				}
+				string idString = ParametersProvider.Instance.GetParameterValue("suburb_wage_district_id");
+
+				if(!int.TryParse(idString, out int id)) {
+					throw new InvalidProgramException(
+						"В параметрах базы неверно указан код зарплатного района Пригород (suburb_wage_district_id)");
+				}
+				return id;
+			}
+		}
+
 		#endregion IWageParametersProvider implementation
 
 		#region ISmsNotificationServiceSettings implementation

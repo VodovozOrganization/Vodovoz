@@ -46,7 +46,9 @@ namespace Vodovoz.JournalViewModels
 						query.Where(() => driverAlias.VisitingMaster);
 						break;
 					case AllYesNo.No:
-						query.Where(() => !driverAlias.VisitingMaster);
+						query.Where(Restrictions.Disjunction()
+							.Add(Restrictions.IsNull(Projections.Property(() => driverAlias.Id)))
+							.Add(() => !driverAlias.VisitingMaster));
 						break;
 				}
 				
@@ -85,6 +87,7 @@ namespace Vodovoz.JournalViewModels
 			.Select(c => c.Id).WithAlias(() => carJournalNodeAlias.Id)
 			.Select(c => c.Model).WithAlias(() => carJournalNodeAlias.Model)
 			.Select(c => c.RegistrationNumber).WithAlias(() => carJournalNodeAlias.RegistrationNumber)
+			.Select(c => c.IsArchive).WithAlias(() => carJournalNodeAlias.IsArchive)
 			.Select(Projections.SqlFunction(
 					   new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?2, ?1, ?3)"),
 					   NHibernateUtil.String,
