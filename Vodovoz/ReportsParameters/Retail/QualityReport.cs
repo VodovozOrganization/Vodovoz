@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
+using QS.Services;
 using QSReport;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -16,18 +18,20 @@ namespace Vodovoz.ReportsParameters.Retail
         public QualityReport(IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
             IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
             IEntityAutocompleteSelectorFactory employeeSelectorFactory,
-            IUnitOfWorkFactory unitOfWorkFactory)
+            IUnitOfWorkFactory unitOfWorkFactory,
+            IInteractiveService interactiveService)
         {
             this.Build();
             UoW = unitOfWorkFactory.CreateWithoutRoot();
-            Configure(counterpartySelectorFactory, salesChannelSelectorFactory, employeeSelectorFactory);
+            Configure(counterpartySelectorFactory, salesChannelSelectorFactory, employeeSelectorFactory, interactiveService);
         }
 
         private void Configure(IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
             IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-            IEntityAutocompleteSelectorFactory employeeSelectorFactory)
+            IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+            IInteractiveService interactiveService)
         {
-            buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
+            buttonCreateReport.Clicked += (sender, e) => OnUpdate(interactiveService,true);
             yEntityCounterParty.SetEntityAutocompleteSelectorFactory(counterpartySelectorFactory);
             yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
             yEntityMainContact.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
@@ -38,8 +42,8 @@ namespace Vodovoz.ReportsParameters.Retail
             var parameters = new Dictionary<string, object> {
                 { "create_date", ydateperiodpickerCreate.StartDateOrNull },
                 { "end_date", ydateperiodpickerCreate.EndDateOrNull },
-                { "shipping_date", ydateperiodpickerShippind.StartDateOrNull },
-                { "shipping_end_date", ydateperiodpickerShippind.EndDateOrNull },
+                { "shipping_date", ydateperiodpickerShipping.StartDateOrNull },
+                { "shipping_end_date", ydateperiodpickerShipping.EndDateOrNull },
                 { "counterparty_id", ((Counterparty)yEntityCounterParty.Subject)?.Id ?? 0 },
                 { "sales_channel_id", ((SalesChannel)yEntitySalesChannel.Subject)?.Id ?? 0},
                 { "main_contact_id", ((Employee)yEntityMainContact.Subject)?.Id ?? 0}
@@ -56,24 +60,24 @@ namespace Vodovoz.ReportsParameters.Retail
 
         public event EventHandler<LoadReportEventArgs> LoadReport;
 
-        void OnUpdate(bool hide = false)
+        void OnUpdate(IInteractiveService interactiveService, bool hide = false)
         {
-            if (Validate())
+            if (Validate(interactiveService))
             {
                 LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
             }
         }
 
-        bool Validate()
+        bool Validate(IInteractiveService interactiveService)
         {
             string errorString = string.Empty;
             if (!(ydateperiodpickerCreate.StartDateOrNull.HasValue &&
                 ydateperiodpickerCreate.EndDateOrNull.HasValue &&
-                ydateperiodpickerShippind.StartDateOrNull.HasValue &&
-                ydateperiodpickerShippind.EndDateOrNull.HasValue))
+                ydateperiodpickerShipping.StartDateOrNull.HasValue &&
+                ydateperiodpickerShipping.EndDateOrNull.HasValue))
             {
                 errorString = "Не выбраны периоды";
-                MessageDialogHelper.RunErrorDialog(errorString);
+                interactiveService.ShowMessage(ImportanceLevel.Error, errorString);
                 return false;
             }
 

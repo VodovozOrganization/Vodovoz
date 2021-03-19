@@ -651,7 +651,7 @@
 		WHEN orders.payment_type = 'Terminal' THEN 'Терминал'
 		WHEN orders.payment_type = 'BeveragesWorld' THEN 'Мир напитков'
 		
-		ELSE ''
+		ELSE 'Неизвестная форма оплаты'
 	END AS payment_type,
 	date(orders.delivery_date) AS delivery_date,
 	CASE

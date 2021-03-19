@@ -16,7 +16,9 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.GtkUI;
 using QS.Project.Services.Interactive;
+using QS.Services;
 using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Tools;
@@ -963,9 +965,12 @@ public partial class MainWindow : Gtk.Window
             new DefaultEntityAutocompleteSelectorFactory<SalesChannel, SalesChannelJournalViewModel,
                 SalesChannelJournalFilterViewModel>(ServicesConfig.CommonServices);
 
+        IInteractiveService interactiveService = new GtkInteractiveService();
+        
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
-            () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory, employeeSelectorFactory, UnitOfWorkFactory.GetDefaultFactory)));
+            () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory, 
+                employeeSelectorFactory, UnitOfWorkFactory.GetDefaultFactory, interactiveService)));
     }
 
     protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenDriverRoutesListRegisterReport();
@@ -2089,8 +2094,11 @@ public partial class MainWindow : Gtk.Window
             new DefaultEntityAutocompleteSelectorFactory<SalesChannel, SalesChannelJournalViewModel,
                 SalesChannelJournalFilterViewModel>(ServicesConfig.CommonServices);
 
+        IInteractiveService interactiveService = new GtkInteractiveService();
+        
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
-            () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory, UnitOfWorkFactory.GetDefaultFactory)));
+            () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory, 
+                UnitOfWorkFactory.GetDefaultFactory, interactiveService)));
     }
 }

@@ -16,7 +16,7 @@ namespace Vodovoz.ReportsParameters.Retail
 
 		private global::Gtk.Label labelShipping;
 
-		private global::Gamma.Widgets.yDatePeriodPicker ydateperiodpickerShippind;
+		private global::Gamma.Widgets.yDatePeriodPicker ydateperiodpickerShipping;
 
 		private global::Gtk.HBox hbox5;
 
@@ -91,13 +91,13 @@ namespace Vodovoz.ReportsParameters.Retail
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.ydateperiodpickerShippind = new global::Gamma.Widgets.yDatePeriodPicker();
-			this.ydateperiodpickerShippind.Events = ((global::Gdk.EventMask)(256));
-			this.ydateperiodpickerShippind.Name = "ydateperiodpickerShippind";
-			this.ydateperiodpickerShippind.StartDate = new global::System.DateTime(0);
-			this.ydateperiodpickerShippind.EndDate = new global::System.DateTime(0);
-			this.hbox3.Add(this.ydateperiodpickerShippind);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ydateperiodpickerShippind]));
+			this.ydateperiodpickerShipping = new global::Gamma.Widgets.yDatePeriodPicker();
+			this.ydateperiodpickerShipping.Events = ((global::Gdk.EventMask)(256));
+			this.ydateperiodpickerShipping.Name = "ydateperiodpickerShippind";
+			this.ydateperiodpickerShipping.StartDate = new global::System.DateTime(0);
+			this.ydateperiodpickerShipping.EndDate = new global::System.DateTime(0);
+			this.hbox3.Add(this.ydateperiodpickerShipping);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ydateperiodpickerShipping]));
 			w5.Position = 1;
 			this.vbox2.Add(this.hbox3);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox3]));
