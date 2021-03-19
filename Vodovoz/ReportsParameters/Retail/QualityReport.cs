@@ -15,10 +15,11 @@ namespace Vodovoz.ReportsParameters.Retail
     {
         public QualityReport(IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
             IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-            IEntityAutocompleteSelectorFactory employeeSelectorFactory)
+            IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+            IUnitOfWorkFactory unitOfWorkFactory)
         {
             this.Build();
-            UoW = UnitOfWorkFactory.CreateWithoutRoot();
+            UoW = unitOfWorkFactory.CreateWithoutRoot();
             Configure(counterpartySelectorFactory, salesChannelSelectorFactory, employeeSelectorFactory);
         }
 
@@ -26,7 +27,7 @@ namespace Vodovoz.ReportsParameters.Retail
             IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
             IEntityAutocompleteSelectorFactory employeeSelectorFactory)
         {
-            buttonCreateReport.Clicked += (sender, e) => Validate();
+            buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
             yEntityCounterParty.SetEntityAutocompleteSelectorFactory(counterpartySelectorFactory);
             yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
             yEntityMainContact.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
@@ -55,9 +56,15 @@ namespace Vodovoz.ReportsParameters.Retail
 
         public event EventHandler<LoadReportEventArgs> LoadReport;
 
-        void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+        void OnUpdate(bool hide = false)
+        {
+            if (Validate())
+            {
+                LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+            }
+        }
 
-        void Validate()
+        bool Validate()
         {
             string errorString = string.Empty;
             if (!(ydateperiodpickerCreate.StartDateOrNull.HasValue &&
@@ -67,9 +74,10 @@ namespace Vodovoz.ReportsParameters.Retail
             {
                 errorString = "Не выбраны периоды";
                 MessageDialogHelper.RunErrorDialog(errorString);
-                return;
+                return false;
             }
-            OnUpdate(true);
+
+            return true;
         }
     }
 }

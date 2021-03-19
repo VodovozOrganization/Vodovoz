@@ -15,10 +15,10 @@ namespace Vodovoz.ReportsParameters.Retail
     public partial class CounterpartyReport : SingleUoWWidgetBase, IParametersWidget
     {
         public CounterpartyReport(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-            IEntityAutocompleteSelectorFactory districtSelectorFactory)
+            IEntityAutocompleteSelectorFactory districtSelectorFactory, IUnitOfWorkFactory unitOfWorkFactory)
         {
             this.Build();
-            UoW = UnitOfWorkFactory.CreateWithoutRoot();
+            UoW = unitOfWorkFactory.CreateWithoutRoot();
             ConfigureView(salesChannelSelectorFactory, districtSelectorFactory);
         }
 
@@ -29,7 +29,7 @@ namespace Vodovoz.ReportsParameters.Retail
         private void ConfigureView(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
             IEntityAutocompleteSelectorFactory districtSelectorFactory)
         {
-            buttonCreateReport.Clicked += (sender, e) => Validate();
+            buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
             yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
             yEntityDistrict.SetEntityAutocompleteSelectorFactory(districtSelectorFactory);
             yenumPaymentType.ItemsEnum = typeof(PaymentType);
@@ -52,20 +52,26 @@ namespace Vodovoz.ReportsParameters.Retail
             };
         }
 
-        void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+        void OnUpdate(bool hide = false)
+        {
+            if (Validate())
+            {
+                LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+            }
+        }
 
-        void Validate()
+        bool Validate()
         {
             string errorString = string.Empty;
             if (!(ydateperiodpickerCreate.StartDateOrNull.HasValue &&
-                ydateperiodpickerCreate.EndDateOrNull.HasValue)
-                && yenumPaymentType.DefaultFirst)
+                ydateperiodpickerCreate.EndDateOrNull.HasValue))
             {
                 errorString = "Не выбран период";
                 MessageDialogHelper.RunErrorDialog(errorString);
-                return;
+                return false;
             }
-            OnUpdate(true);
+
+            return true;
         }
     }
 }

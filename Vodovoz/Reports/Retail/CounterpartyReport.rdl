@@ -473,7 +473,7 @@
 		WHEN counterparty.payment_method = 'Terminal' THEN 'Терминал'
 		WHEN counterparty.payment_method = 'BeveragesWorld' THEN 'Мир напитков'
 		
-		ELSE ''
+		ELSE 'Неизвестная форма оплаты'
 	END AS payment_type
 FROM counterparty
 LEFT JOIN delivery_points ON delivery_points.counterparty_id = counterparty.id

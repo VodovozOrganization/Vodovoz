@@ -965,7 +965,7 @@ public partial class MainWindow : Gtk.Window
 
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
-            () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory, employeeSelectorFactory)));
+            () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory, employeeSelectorFactory, UnitOfWorkFactory.GetDefaultFactory)));
     }
 
     protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenDriverRoutesListRegisterReport();
@@ -2091,6 +2091,6 @@ public partial class MainWindow : Gtk.Window
 
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
-            () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory)));
+            () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory, UnitOfWorkFactory.GetDefaultFactory)));
     }
 }
