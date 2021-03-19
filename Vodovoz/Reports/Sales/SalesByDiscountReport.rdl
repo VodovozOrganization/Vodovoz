@@ -46,16 +46,16 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>65.1pt</Width>
+            <Width>53.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>73.6pt</Width>
+            <Width>109.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.2pt</Width>
+            <Width>38.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.6pt</Width>
+            <Width>49.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>41.4pt</Width>
@@ -70,7 +70,7 @@
             <Width>87.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.7pt</Width>
+            <Width>37.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>88.0pt</Width>
@@ -85,7 +85,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>23.0pt</Height>
+              <Height>50.5pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -100,6 +100,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -117,6 +118,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -134,6 +136,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -151,6 +154,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -168,6 +172,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -185,6 +190,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -202,6 +208,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -219,6 +226,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -236,6 +244,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -253,6 +262,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -270,6 +280,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -287,6 +298,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -325,11 +337,12 @@
                             <BorderWidth />
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <PaddingRight>10pt</PaddingRight>
-                            <PaddingTop>10pt</PaddingTop>
-                            <PaddingBottom>10pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
                             <Format>dd/MM/yyyy</Format>
+                            <FontSize >8pt</FontSize>
                           </Style>
                           <CanShrink>true</CanShrink>
                         </Textbox>
@@ -352,10 +365,11 @@
                             <BorderWidth />
                             <TextAlign>Left</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <PaddingRight>10pt</PaddingRight>
-                            <PaddingTop>10pt</PaddingTop>
-                            <PaddingBottom>10pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
+                            <FontSize >8pt</FontSize>
                           </Style>
                           <CanShrink>true</CanShrink>
                         </Textbox>
@@ -378,10 +392,11 @@
                             <BorderWidth />
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <PaddingRight>10pt</PaddingRight>
-                            <PaddingTop>10pt</PaddingTop>
-                            <PaddingBottom>10pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
+                            <FontSize >8pt</FontSize>
                           </Style>
                           <CanShrink>true</CanShrink>
                         </Textbox>
@@ -404,11 +419,11 @@
                             <BorderWidth />
                             <TextAlign>Left</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize>10pt</FontSize>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <PaddingRight>10pt</PaddingRight>
-                            <PaddingTop>10pt</PaddingTop>
-                            <PaddingBottom>10pt</PaddingBottom>
+                            <FontSize>8pt</FontSize>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
                           </Style>
                           <CanShrink>true</CanShrink>
                         </Textbox>
@@ -431,11 +446,11 @@
                             <BorderWidth />
                             <TextAlign>Left</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize>10pt</FontSize>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <PaddingRight>10pt</PaddingRight>
-                            <PaddingTop>10pt</PaddingTop>
-                            <PaddingBottom>10pt</PaddingBottom>
+                            <FontSize>8pt</FontSize>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -456,11 +471,11 @@
                             <BorderWidth />
                             <TextAlign>Left</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize>10pt</FontSize>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <PaddingRight>10pt</PaddingRight>
-                            <PaddingTop>10pt</PaddingTop>
-                            <PaddingBottom>10pt</PaddingBottom>
+                            <FontSize>8pt</FontSize>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -481,11 +496,11 @@
                             <BorderWidth />
                             <TextAlign>Left</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize>10pt</FontSize>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <PaddingRight>10pt</PaddingRight>
-                            <PaddingTop>10pt</PaddingTop>
-                            <PaddingBottom>10pt</PaddingBottom>
+                            <FontSize>8pt</FontSize>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -506,11 +521,11 @@
                             <BorderWidth />
                             <TextAlign>Left</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize>10pt</FontSize>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <PaddingRight>10pt</PaddingRight>
-                            <PaddingTop>10pt</PaddingTop>
-                            <PaddingBottom>10pt</PaddingBottom>
+                            <FontSize>8pt</FontSize>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -531,11 +546,12 @@
                             <BorderWidth />
                             <TextAlign>Left</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize>10pt</FontSize>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <PaddingRight>10pt</PaddingRight>
-                            <PaddingTop>10pt</PaddingTop>
-                            <PaddingBottom>10pt</PaddingBottom>
+                            <FontSize>8pt</FontSize>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
+                            <Format >= 'N' + {digits}</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -557,10 +573,11 @@
                             <BorderWidth />
                             <TextAlign>Left</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <PaddingRight>10pt</PaddingRight>
-                            <PaddingTop>10pt</PaddingTop>
-                            <PaddingBottom>10pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
+                            <FontSize >8pt</FontSize>
                           </Style>
                           <CanShrink>true</CanShrink>
                         </Textbox>
@@ -583,10 +600,11 @@
                             <BorderWidth />
                             <TextAlign>Left</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <PaddingRight>10pt</PaddingRight>
-                            <PaddingTop>10pt</PaddingTop>
-                            <PaddingBottom>10pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
+                            <FontSize >8pt</FontSize>
                           </Style>
                           <CanShrink>true</CanShrink>
                         </Textbox>
@@ -608,10 +626,11 @@
                             <BorderWidth />
                             <TextAlign>Left</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <PaddingRight>10pt</PaddingRight>
-                            <PaddingTop>10pt</PaddingTop>
-                            <PaddingBottom>10pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
+                            <FontSize >8pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -622,7 +641,7 @@
             </Header>
           </TableGroup>
         </TableGroups>
-        <Left>5.2pt</Left>
+        <Left>3.6pt</Left>
         <Top>32.5pt</Top>
         <Footer>
           <TableRows>
