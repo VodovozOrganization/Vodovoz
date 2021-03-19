@@ -952,7 +952,7 @@ public partial class MainWindow : Gtk.Window
     protected void OnActionQualityRetailReport(object sender, EventArgs e)
     {
         IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, RetailCounterpartyJournalViewModel,
                 CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
         IEntityAutocompleteSelectorFactory employeeSelectorFactory =

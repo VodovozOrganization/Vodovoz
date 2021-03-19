@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QSReport;
@@ -17,6 +18,7 @@ namespace Vodovoz.ReportsParameters.Retail
             IEntityAutocompleteSelectorFactory districtSelectorFactory)
         {
             this.Build();
+            UoW = UnitOfWorkFactory.CreateWithoutRoot();
             ConfigureView(salesChannelSelectorFactory, districtSelectorFactory);
         }
 
@@ -39,7 +41,7 @@ namespace Vodovoz.ReportsParameters.Retail
                 { "create_date", ydateperiodpickerCreate.StartDateOrNull },
                 { "sales_channel_id", (yEntitySalesChannel.Subject as SalesChannel)?.Id ?? 0},
                 { "district", (yEntityDistrict.Subject as District)?.Id ?? 0 },
-                { "payment_type", ((int)yenumPaymentType.SelectedItemOrNull)}
+                { "payment_type", (yenumPaymentType.SelectedItemOrNull)}
             };
 
             return new ReportInfo
@@ -54,8 +56,8 @@ namespace Vodovoz.ReportsParameters.Retail
         void Validate()
         {
             string errorString = string.Empty;
-            if (!ydateperiodpickerCreate.StartDateOrNull.HasValue &&
-                !ydateperiodpickerCreate.EndDateOrNull.HasValue)
+            if (!(ydateperiodpickerCreate.StartDateOrNull.HasValue &&
+                ydateperiodpickerCreate.EndDateOrNull.HasValue))
             {
                 errorString = "Не выбран ни один из фильтров дат";
                 MessageDialogHelper.RunErrorDialog(errorString);
