@@ -16,13 +16,16 @@ namespace Vodovoz.ReportsParameters.Retail
     [System.ComponentModel.ToolboxItem(true)]
     public partial class CounterpartyReport : SingleUoWWidgetBase, IParametersWidget
     {
+        private readonly IInteractiveService interactiveService;
+        
         public CounterpartyReport(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
             IEntityAutocompleteSelectorFactory districtSelectorFactory, IUnitOfWorkFactory unitOfWorkFactory,
             IInteractiveService interactiveService)
         {
             this.Build();
+            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
             UoW = unitOfWorkFactory.CreateWithoutRoot();
-            ConfigureView(salesChannelSelectorFactory, districtSelectorFactory, interactiveService);
+            ConfigureView(salesChannelSelectorFactory, districtSelectorFactory);
         }
 
         public string Title => $"Отчет по контрагентам розницы";
@@ -30,10 +33,9 @@ namespace Vodovoz.ReportsParameters.Retail
         public event EventHandler<LoadReportEventArgs> LoadReport;
 
         private void ConfigureView(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-            IEntityAutocompleteSelectorFactory districtSelectorFactory,
-            IInteractiveService interactiveService)
+            IEntityAutocompleteSelectorFactory districtSelectorFactory)
         {
-            buttonCreateReport.Clicked += (sender, e) => OnUpdate(interactiveService, true);
+            buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
             yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
             yEntityDistrict.SetEntityAutocompleteSelectorFactory(districtSelectorFactory);
             yenumPaymentType.ItemsEnum = typeof(PaymentType);
@@ -56,15 +58,15 @@ namespace Vodovoz.ReportsParameters.Retail
             };
         }
 
-        void OnUpdate(IInteractiveService interactiveService, bool hide = false)
+        void OnUpdate(bool hide = false)
         {
-            if (Validate(interactiveService))
+            if (Validate())
             {
                 LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
             }
         }
 
-        bool Validate(IInteractiveService interactiveService)
+        bool Validate()
         {
             string errorString = string.Empty;
             if (!(ydateperiodpickerCreate.StartDateOrNull.HasValue &&

@@ -93,7 +93,7 @@ namespace Vodovoz.ReportsParameters.Retail
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.ydateperiodpickerShipping = new global::Gamma.Widgets.yDatePeriodPicker();
 			this.ydateperiodpickerShipping.Events = ((global::Gdk.EventMask)(256));
-			this.ydateperiodpickerShipping.Name = "ydateperiodpickerShippind";
+			this.ydateperiodpickerShipping.Name = "ydateperiodpickerShipping";
 			this.ydateperiodpickerShipping.StartDate = new global::System.DateTime(0);
 			this.ydateperiodpickerShipping.EndDate = new global::System.DateTime(0);
 			this.hbox3.Add(this.ydateperiodpickerShipping);

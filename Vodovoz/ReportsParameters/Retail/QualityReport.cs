@@ -15,23 +15,25 @@ namespace Vodovoz.ReportsParameters.Retail
 {
     public partial class QualityReport : SingleUoWWidgetBase, IParametersWidget
     {
+        private readonly IInteractiveService interactiveService;
+        
         public QualityReport(IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
             IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
             IEntityAutocompleteSelectorFactory employeeSelectorFactory,
             IUnitOfWorkFactory unitOfWorkFactory,
             IInteractiveService interactiveService)
         {
+            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
             this.Build();
             UoW = unitOfWorkFactory.CreateWithoutRoot();
-            Configure(counterpartySelectorFactory, salesChannelSelectorFactory, employeeSelectorFactory, interactiveService);
+            Configure(counterpartySelectorFactory, salesChannelSelectorFactory, employeeSelectorFactory);
         }
 
         private void Configure(IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
             IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-            IEntityAutocompleteSelectorFactory employeeSelectorFactory,
-            IInteractiveService interactiveService)
+            IEntityAutocompleteSelectorFactory employeeSelectorFactory)
         {
-            buttonCreateReport.Clicked += (sender, e) => OnUpdate(interactiveService,true);
+            buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
             yEntityCounterParty.SetEntityAutocompleteSelectorFactory(counterpartySelectorFactory);
             yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
             yEntityMainContact.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
@@ -60,15 +62,15 @@ namespace Vodovoz.ReportsParameters.Retail
 
         public event EventHandler<LoadReportEventArgs> LoadReport;
 
-        void OnUpdate(IInteractiveService interactiveService, bool hide = false)
+        void OnUpdate(bool hide = false)
         {
-            if (Validate(interactiveService))
+            if (Validate())
             {
                 LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
             }
         }
 
-        bool Validate(IInteractiveService interactiveService)
+        bool Validate()
         {
             string errorString = string.Empty;
             if (!(ydateperiodpickerCreate.StartDateOrNull.HasValue &&
