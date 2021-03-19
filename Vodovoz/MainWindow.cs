@@ -965,12 +965,10 @@ public partial class MainWindow : Gtk.Window
             new DefaultEntityAutocompleteSelectorFactory<SalesChannel, SalesChannelJournalViewModel,
                 SalesChannelJournalFilterViewModel>(ServicesConfig.CommonServices);
 
-        IInteractiveService interactiveService = new GtkInteractiveService();
-        
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
             () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory, 
-                employeeSelectorFactory, UnitOfWorkFactory.GetDefaultFactory, interactiveService)));
+                employeeSelectorFactory, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
     }
 
     protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenDriverRoutesListRegisterReport();
@@ -2094,11 +2092,9 @@ public partial class MainWindow : Gtk.Window
             new DefaultEntityAutocompleteSelectorFactory<SalesChannel, SalesChannelJournalViewModel,
                 SalesChannelJournalFilterViewModel>(ServicesConfig.CommonServices);
 
-        IInteractiveService interactiveService = new GtkInteractiveService();
-        
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
             () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory, 
-                UnitOfWorkFactory.GetDefaultFactory, interactiveService)));
+                UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
     }
 }
