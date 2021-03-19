@@ -162,5 +162,15 @@ namespace Vodovoz.ViewModels.Complaints
 				() => CanSelectDeliveryPoint
 			);
 		}
+		
+		public bool HasСounterpartyDuplicateToday()
+		{
+			return UoW.Session.QueryOver<Complaint>()
+				.Where(i =>
+					i.Counterparty.Id == Entity.Counterparty.Id)
+				.And(i =>
+					i.CreationDate >= DateTime.Now.AddDays(-1))
+				.RowCount() > 0;
+		}
 	}
 }
