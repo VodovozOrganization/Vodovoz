@@ -263,16 +263,7 @@ namespace Vodovoz.Dialogs.Cash
 				.AddColumn("Выдано")
 					.HeaderAlignment(0.5f)
 					.AddToggleRenderer(n => n.ObservableExpenses != null && n.ObservableExpenses.Any()).Editing(false)
-				.RowCells().AddSetter<CellRenderer>((c,n) => c.Sensitive = 
-					n.Sum > n.Expenses.Sum(e => e.Money)
-					&& (ViewModel.CanConfirmPossibilityNotToReconcilePayments 
-						|| n.Expenses.Any()
-						|| ViewModel.Entity.ObservableSums.All(
-							x => !x.Expenses.Any() 
-							  || x.Sum == x.Expenses.Sum(e => e.Money)
-							)
-						)
-					)
+				.RowCells().AddSetter<CellRenderer>((c,n) => c.Sensitive = ViewModel.CanExecuteGive(n))
 				.Finish();
 			
 			ytreeviewSums.ItemsDataSource = ViewModel.Entity.ObservableSums;

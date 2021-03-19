@@ -221,19 +221,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand<(CashRequestSumItem, decimal)> GiveSumPartiallyCommand => 
             giveSumPartiallyCommand ?? (giveSumPartiallyCommand = new DelegateCommand<(CashRequestSumItem, decimal)>(
                 ((CashRequestSumItem CashRequestSumItem, decimal Sum) parameters) => GiveSum(parameters.CashRequestSumItem, parameters.Sum),
-                CanExecuteGive
+                ((CashRequestSumItem CashRequestSumItem, decimal Sum) parameters) => CanExecuteGive(parameters.CashRequestSumItem)
         ));
 
-        private bool CanExecuteGive((CashRequestSumItem CashRequestSumItem, decimal Sum) parameters)
+        public bool CanExecuteGive(CashRequestSumItem sumItem)
         {
-            return CanExecuteGive(parameters.CashRequestSumItem);
-        }
-
-        private bool CanExecuteGive(CashRequestSumItem sumItem)
-        {
-            return Entity.PossibilityNotToReconcilePayments
-                || sumItem.Sum > sumItem.Expenses.Sum(e => e.Money)
-                || Entity.ObservableSums.All(x => !x.Expenses.Any() || x.Sum == x.Expenses.Sum(e => e.Money));
+            return sumItem.Sum > sumItem.Expenses.Sum(e => e.Money)
+                && (Entity.PossibilityNotToReconcilePayments
+                    || sumItem.Expenses.Any()
+                    || Entity.ObservableSums.All(x => !x.Expenses.Any() || x.Sum == x.Expenses.Sum(e => e.Money))
+                    );
         }
 
         private void GiveSum(CashRequestSumItem sumItem, decimal? sumToGive = null) 
