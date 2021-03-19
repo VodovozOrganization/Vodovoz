@@ -33,6 +33,7 @@ namespace Vodovoz.ReportsParameters.Retail
             yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
             yEntityDistrict.SetEntityAutocompleteSelectorFactory(districtSelectorFactory);
             yenumPaymentType.ItemsEnum = typeof(PaymentType);
+            yenumPaymentType.SelectedItem = PaymentType.cash;
         }
 
         private ReportInfo GetReportInfo()
@@ -57,9 +58,10 @@ namespace Vodovoz.ReportsParameters.Retail
         {
             string errorString = string.Empty;
             if (!(ydateperiodpickerCreate.StartDateOrNull.HasValue &&
-                ydateperiodpickerCreate.EndDateOrNull.HasValue))
+                ydateperiodpickerCreate.EndDateOrNull.HasValue)
+                && yenumPaymentType.DefaultFirst)
             {
-                errorString = "Не выбран ни один из фильтров дат";
+                errorString = "Не выбран период";
                 MessageDialogHelper.RunErrorDialog(errorString);
                 return;
             }

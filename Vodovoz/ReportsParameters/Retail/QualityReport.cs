@@ -65,7 +65,7 @@ namespace Vodovoz.ReportsParameters.Retail
                 ydateperiodpickerShippind.StartDateOrNull.HasValue &&
                 ydateperiodpickerShippind.EndDateOrNull.HasValue))
             {
-                errorString = "Не выбран ни один из фильтров дат";
+                errorString = "Не выбраны периоды";
                 MessageDialogHelper.RunErrorDialog(errorString);
                 return;
             }
