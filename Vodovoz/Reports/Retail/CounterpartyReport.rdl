@@ -459,7 +459,7 @@
 	counterparty.id AS counter_id,
     	counterparty.name AS name,
    	counterparty.full_name AS full_name,
-    	counterparty.address AS address,
+    	IFNULL(counterparty.jur_address, IFNULL(counterparty.address, 'Нет адреса')) AS address,
 	districts.district_name AS district,
 	(employees.last_name + employees.name + employees.patronymic) as employee_full_name,
 	date(orders.create_date) AS first_order,
