@@ -82,9 +82,6 @@ true,
             <Width>39.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.0pt</Width>
-          </TableColumn>
-          <TableColumn>
             <Width>45.0pt</Width>
           </TableColumn>
           <TableColumn>
@@ -236,23 +233,6 @@ true,
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox50" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>=Fields!amount_unloaded_empty.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
@@ -492,22 +472,6 @@ true,
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                      <Value>=Sum(Fields!amount_unloaded_empty.Value)</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>=Sum(Fields!total_fines.Value)</Value>
                       <Style>
@@ -731,21 +695,6 @@ true,
                     </TableCell>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                          </Style>
-                          <Value>=Sum(Fields!amount_unloaded_empty.Value)</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
                         <Textbox Name="Textbox51" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                           <Style>
                             <BorderStyle>
@@ -893,7 +842,7 @@ true,
                           </Visibility>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>12</ColSpan>
+                      <ColSpan>11</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -926,7 +875,7 @@ true,
                           <Value>={status_for_grouping}</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>14</ColSpan>
+                      <ColSpan>13</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -1060,24 +1009,6 @@ true,
                       <ReportItems>
                         <Textbox Name="Textbox46" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                           <Value>Фактич. кол-во пуст. бут. касса</Value>
-                          <Style>
-                            <TextAlign>Center</TextAlign>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <FontWeight>Bold</FontWeight>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontSize>8pt</FontSize>
-                            <VerticalAlign>Middle</VerticalAlign>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox49" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                          <Value>Фактич. кол-во пуст. бут. склад</Value>
                           <Style>
                             <TextAlign>Center</TextAlign>
                             <BorderStyle>
