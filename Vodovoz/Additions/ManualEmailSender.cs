@@ -69,7 +69,7 @@ namespace Vodovoz.Additions
 					ReportInfo ri = billDocument.GetReportInfo();
 
 				   var billTemplate = billDocument.GetEmailTemplate();
-					Email email = new Email {
+					OrderEmail email = new OrderEmail {
 						Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title),
 						Text = billTemplate.Text,
 						HtmlText = billTemplate.TextHtml,

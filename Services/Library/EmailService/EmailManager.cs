@@ -27,7 +27,7 @@ namespace EmailService
 		static string userId = null;
 		static string userSecretKey = null;
 		static CancellationTokenSource cancellationToken = new CancellationTokenSource();
-		static BlockingCollection<Email> emailsQueue = new BlockingCollection<Email>();
+		static BlockingCollection<OrderEmail> emailsQueue = new BlockingCollection<OrderEmail>();
 		static BlockingCollection<MailjetEvent> unsavedEventsQueue = new BlockingCollection<MailjetEvent>();
 		static bool IsInitialized => !(string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(userSecretKey));
 		static int workerTasksCreatedCounter = 0;
@@ -89,7 +89,7 @@ namespace EmailService
 			});
 		}
 
-		public static Tuple<bool, string> AddEmail(Email email)
+		public static Tuple<bool, string> AddEmail(OrderEmail email)
 		{
 			Thread.CurrentThread.Name = "AddNewEmail";
 			logger.Debug("Thread {0} Id {1}: Получено новое письмо на отправку", Thread.CurrentThread.Name, Thread.CurrentThread.ManagedThreadId);
@@ -122,7 +122,7 @@ namespace EmailService
 			}
 		}
 
-		static void AddEmailToSend(Email email)
+		static void AddEmailToSend(OrderEmail email)
 		{
 			if(!emailRepository.CanSendByTimeout(email.Recipient.EmailAddress, email.Order, email.OrderDocumentType)) {
 				logger.Error("{0} Попытка отправить почту до истечения минимального времени до повторной отправки", GetThreadInfo());
@@ -179,7 +179,7 @@ namespace EmailService
 		{
 			Thread.CurrentThread.Name = "EmailSendWorker";
 			while(true) {
-				Email email = null;
+				OrderEmail email = null;
 
 				email = emailsQueue.Take();
 				logger.Debug("{0} Отправка письма из очереди", GetThreadInfo());
@@ -376,7 +376,7 @@ namespace EmailService
 			return errorResult;
 		}
 
-		private static MailjetRequest CreateMailjetRequest(Email email)
+		private static MailjetRequest CreateMailjetRequest(OrderEmail email)
 		{
 			MailjetRequest request = new MailjetRequest {
 				Resource = Send.Resource
@@ -426,7 +426,7 @@ namespace EmailService
 			return request;
 		}
 
-		public static async Task<bool> SendEmail(Email email)
+		public static async Task<bool> SendEmail(OrderEmail email)
         {
 			try
 			{

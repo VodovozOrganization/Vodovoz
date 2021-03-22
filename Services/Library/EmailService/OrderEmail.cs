@@ -7,7 +7,7 @@ using Vodovoz.Domain.Orders.Documents;
 namespace EmailService
 {
 	[DataContract]
-	public class Email
+	public class OrderEmail
 	{
 		[DataMember]
 		public string Title { get; set; }

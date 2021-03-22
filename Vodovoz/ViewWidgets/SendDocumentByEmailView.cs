@@ -118,7 +118,7 @@ namespace Vodovoz.ViewWidgets
 				return;
 			}
 
-			Email email = CreateDocumentEmail("", "vodovoz-spb.ru", document);
+			OrderEmail email = CreateDocumentEmail("", "vodovoz-spb.ru", document);
 			if(email == null) {
 				MessageDialogHelper.RunErrorDialog("Для данного типа документа не реализовано формирование письма");
 				return;
@@ -146,7 +146,7 @@ namespace Vodovoz.ViewWidgets
 			UpdateEmails();
 		}
 
-		private Email CreateDocumentEmail(string clientName, string organizationName, OrderDocument document)
+		private OrderEmail CreateDocumentEmail(string clientName, string organizationName, OrderDocument document)
 		{
 			if(document.Type == OrderDocumentType.Bill) {
 				var billDocument = document as BillDocument;
@@ -156,7 +156,7 @@ namespace Vodovoz.ViewWidgets
 				billDocument.HideSignature = wasHideSignature;
 				            
 				EmailTemplate template = billDocument.GetEmailTemplate();
-				Email email = new Email();
+				OrderEmail email = new OrderEmail();
 				email.Title = string.Format("{0} {1}", template.Title, billDocument.Title);
 				email.Text = template.Text;
 				email.HtmlText = template.TextHtml;
