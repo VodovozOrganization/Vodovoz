@@ -73,7 +73,7 @@ namespace Vodovoz.Views.Complaints
 
 			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
 
-			buttonSave.Clicked += (sender, e) => { CheckAndSave(); };
+			buttonSave.Clicked += (sender, e) => { ViewModel.CheckAndSave(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
 		}
 
@@ -90,14 +90,5 @@ namespace Vodovoz.Views.Complaints
 			spLstAddress.SelectedItem = SpecialComboState.Not;
 			spLstAddress.ItemsList = null;
 		}
-
-        private void CheckAndSave()
-        {
-            if (!ViewModel.HasСounterpartyDuplicateToday() ||
-                MessageDialogHelper.RunQuestionDialog("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"))
-            {
-                ViewModel.SaveAndClose();
-            }
-        }
     }
 }
