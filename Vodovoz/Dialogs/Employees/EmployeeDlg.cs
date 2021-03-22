@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EmailService;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
@@ -66,7 +67,8 @@ namespace Vodovoz
 				new PasswordGenerator(),
 				new MySQLUserRepository(
 					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-					new GtkInteractiveService()));
+					new GtkInteractiveService()),
+				EmailServiceSetting.GetEmailService());
 			
 
 			TabName = "Новый сотрудник";
@@ -84,7 +86,8 @@ namespace Vodovoz
 				new PasswordGenerator(),
 				new MySQLUserRepository(
 					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-					new GtkInteractiveService()));
+					new GtkInteractiveService()),
+				EmailServiceSetting.GetEmailService());
 
 			ConfigureDlg();
 		}
@@ -104,7 +107,8 @@ namespace Vodovoz
 				new PasswordGenerator(),
 				new MySQLUserRepository(
 					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-					new GtkInteractiveService()));
+					new GtkInteractiveService()),
+				EmailServiceSetting.GetEmailService());
 			
 			ConfigureDlg();
 		}
