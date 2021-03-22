@@ -156,8 +156,6 @@ namespace Vodovoz.Dialogs
 
 		public override void Destroy()
 		{
-			CommentAdded = null;
-			DlgSaved = null;
 			UoW?.Dispose();
 			base.Destroy();
 		}
