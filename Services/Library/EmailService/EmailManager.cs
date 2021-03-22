@@ -426,6 +426,52 @@ namespace EmailService
 			return request;
 		}
 
+		public static async Task<bool> SendEmail(Email email)
+        {
+			try
+			{
+				MailjetClient client = new MailjetClient(userId, userSecretKey)
+				{
+					Version = ApiVersion.V3_1,
+				};
+
+				var request = CreateMailjetRequest(email);
+
+				MailjetResponse response = null;
+
+				try
+				{
+					logger.Debug("{0} Отправка запроса на сервер Mailjet", GetThreadInfo());
+					response = await client.PostAsync(request);
+				}
+				catch (Exception ex)
+				{
+					logger.Error("{1} Не удалось отправить письмо: \n{0}", ex, GetThreadInfo());
+					return false;
+				}
+
+				MailjetMessage[] messages = response.GetData().ToObject<MailjetMessage[]>();
+
+				logger.Debug("{1} Получен ответ: Code {0}", response.StatusCode, GetThreadInfo());
+
+				if (response.IsSuccessStatusCode)
+				{
+					logger.Debug(response.GetData());
+					return true;
+				}
+				else
+				{
+					logger.Debug(response.GetData());
+					logger.Debug("{1} ErrorMessage: {0}\n", response.GetErrorMessage(), GetThreadInfo());
+				}
+			}
+			catch (Exception ex)
+			{
+				logger.Error(ex, "При обработке ответа на отправку письма возникла ошибка.\n");
+			}
+			return false;
+		}
+
 		private static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
 		{
 			DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
