@@ -9,6 +9,6 @@ namespace EmailService
 	{
 		[WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest)]
 		[OperationContract]
-		Tuple<bool, string> SendEmail(Email mail);
+		Tuple<bool, string> SendOrderEmail(Email mail);
 	}
 }

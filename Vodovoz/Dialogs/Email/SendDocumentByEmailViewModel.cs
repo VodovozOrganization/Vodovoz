@@ -268,7 +268,7 @@ namespace Vodovoz.Dialogs.Email
 			if(service == null) {
 				return;
 			}
-			var result = service.SendEmail(email);
+			var result = service.SendOrderEmail(email);
 
 			switch (Document.Type)
 			{

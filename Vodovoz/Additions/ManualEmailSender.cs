@@ -88,7 +88,7 @@ namespace Vodovoz.Additions
 					email.AuthorId = sendedEmail.Author.Id;
 					email.ManualSending = sendedEmail.ManualSending ?? false;
 				
-					service.SendEmail(email);
+					service.SendOrderEmail(email);
 				}
 			}
 		}

@@ -2673,7 +2673,7 @@ namespace Vodovoz
 			if(service == null) {
 				return;
 			}
-			var result = service.SendEmail(email);
+			var result = service.SendOrderEmail(email);
 
 			//Если произошла ошибка и письмо не отправлено
 			string resultMessage = "";
