@@ -158,6 +158,8 @@ namespace Vodovoz
 
 			entryAddressCurrent.Binding.AddBinding(Entity, e => e.AddressCurrent, w => w.Text).InitializeFromSource();
 			entryAddressRegistration.Binding.AddBinding(Entity, e => e.AddressRegistration, w => w.Text).InitializeFromSource();
+            yentryEmailAddress.Binding.AddBinding(Entity, e => e.Email, w => w.Text).InitializeFromSource();
+
 			entryInn.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
             comboSkillLevel.ItemsList = Entity.GetSkillLevels();
             comboSkillLevel.Binding.AddBinding(Entity, e => e.SkillLevel, w => w.ActiveText, new Gamma.Binding.Converters.NumbersToStringConverter()).InitializeFromSource();
