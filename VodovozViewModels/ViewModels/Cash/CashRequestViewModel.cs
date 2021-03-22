@@ -226,7 +226,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
         public bool CanExecuteGive(CashRequestSumItem sumItem)
         {
-            return sumItem.Sum > sumItem.Expenses.Sum(e => e.Money)
+            return sumItem != null
+                && sumItem.Sum > sumItem.Expenses.Sum(e => e.Money)
                 && (Entity.PossibilityNotToReconcilePayments
                     || sumItem.Expenses.Any()
                     || Entity.ObservableSums.All(x => !x.Expenses.Any() || x.Sum == x.Expenses.Sum(e => e.Money))
