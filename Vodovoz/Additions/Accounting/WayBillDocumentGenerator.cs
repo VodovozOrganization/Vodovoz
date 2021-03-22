@@ -308,6 +308,11 @@ namespace Vodovoz.Additions.Accounting
             wayBillDocument.Organization = orders.First().Contract.Organization;
             wayBillDocument.PrepareTemplate(uow);
 
+            if (wayBillDocument.DocumentTemplate == null)
+            {
+                throw new Exception($"Не обнаружен шаблон Путевого листа для организации: {wayBillDocument.Organization.Name}");
+            }
+
             (wayBillDocument.DocumentTemplate.DocParser as WayBillDocumentParser).RootObject = wayBillDocument;
 
             WayBillSelectableDocuments.Add(new SelectablePrintDocument(wayBillDocument));
