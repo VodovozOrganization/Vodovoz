@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -68,6 +68,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Email.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EmailService.cs" />
     <Compile Include="IEmailService.cs" />
@@ -77,15 +78,13 @@
     <Compile Include="Mailjet\MailjetEvent.cs" />
     <Compile Include="Mailjet\MailjetMessage.cs" />
     <Compile Include="Mailjet\MailjetMessageInfo.cs" />
-    <Compile Include="Email.cs" />
+    <Compile Include="OrderEmail.cs" />
     <Compile Include="EmailAttachment.cs" />
     <Compile Include="EmailContact.cs" />
     <Compile Include="EmailManager.cs" />
     <Compile Include="IEmailServiceWeb.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Mailjet\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Report\QS.Report.csproj">
       <Project>{d30a23bf-c5dc-4a1b-95fc-9c2038d46e8e}</Project>

@@ -13,6 +13,6 @@ namespace EmailService
 
 		[WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest)]
 		[OperationContract]
-		bool SendEmail(OrderEmail mail);
+		bool SendEmail(Email mail);
     }
 }

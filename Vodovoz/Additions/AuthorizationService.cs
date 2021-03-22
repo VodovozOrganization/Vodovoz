@@ -45,7 +45,7 @@ namespace Vodovoz.Additions
 
             string messageText = $"Логин: {login}\nПароль: {password}";
 
-            var email = new OrderEmail()
+            var email = new Email()
             {
                 Title = "Учетные данные для входа в программу Доставка Воды",
                 Text = messageText,

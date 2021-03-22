@@ -202,7 +202,7 @@ namespace EmailService
 					};
 					try {
 						//формируем письмо в формате mailjet для отправки
-						var request = CreateMailjetRequest(email);
+						var request = CreateOrderMailjetRequest(email);
 						MailjetResponse response = null;
 						try {
 							logger.Debug("{0} Отправка запроса на сервер Mailjet", GetThreadInfo());
@@ -376,7 +376,7 @@ namespace EmailService
 			return errorResult;
 		}
 
-		private static MailjetRequest CreateMailjetRequest(OrderEmail email)
+		private static MailjetRequest CreateOrderMailjetRequest(OrderEmail email)
 		{
 			MailjetRequest request = new MailjetRequest {
 				Resource = Send.Resource
@@ -426,7 +426,61 @@ namespace EmailService
 			return request;
 		}
 
-		public static async Task<bool> SendEmail(OrderEmail email)
+
+		private static MailjetRequest CreateMailjetRequest(Email email)
+		{
+			MailjetRequest request = new MailjetRequest
+			{
+				Resource = Send.Resource
+			};
+			var attachments = new JArray();
+			foreach (var item in email.AttachmentsBinary)
+			{
+				attachments.Add(new JObject{
+					{"ContentType", "application/octet-stream"},
+					{"Filename", item.Key},
+					{"Base64Content", item.Value}
+				});
+			}
+			var inlinedAttachments = new JArray();
+			foreach (var item in email.InlinedAttachments)
+			{
+				inlinedAttachments.Add(new JObject{
+					{"ContentID", item.Key},
+					{"ContentType", item.Value.ContentType},
+					{"Filename", item.Value.FileName},
+					{"Base64Content", item.Value.Base64String}
+				});
+			}
+			var message = new JObject {
+				{"From", new JObject {
+						{"Email", email.Sender.EmailAddress},
+						{"Name", email.Sender.Title}
+					}
+				},
+				{"To", new JArray {
+						new JObject {
+							{"Email", email.Recipient.EmailAddress},
+							{"Name", email.Recipient.Title}
+						}
+					}
+				},
+				{"Subject", email.Title},
+				{"TextPart", email.Text},
+				{"HTMLPart", email.HtmlText},
+				{"CustomID", email.StoredEmailId.ToString()},
+				{"Attachments", attachments},
+				{"InlinedAttachments", inlinedAttachments},
+				{"TrackOpens", "account_default"},
+				{"TrackClicks", "account_default"}
+			};
+
+			request.Property(Send.Messages, new JArray { message });
+
+			return request;
+		}
+
+		public static async Task<bool> SendEmail(Email email)
         {
 			try
 			{

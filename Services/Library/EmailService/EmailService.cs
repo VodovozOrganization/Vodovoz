@@ -29,7 +29,7 @@ namespace EmailService
 			return EmailManager.AddEmail(mail);
 		}
 		
-		public bool SendEmail(OrderEmail mail)
+		public bool SendEmail(Email mail)
 		{
 			return EmailManager.SendEmail(mail).Result;
 		}
