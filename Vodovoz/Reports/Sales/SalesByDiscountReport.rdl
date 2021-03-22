@@ -527,6 +527,8 @@
                             <PaddingTop>5pt</PaddingTop>
                             <PaddingBottom>5pt</PaddingBottom>
                           </Style>
+                          <CanGrow >true</CanGrow>
+                          <CanShrink >true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -632,6 +634,8 @@
                             <PaddingBottom>5pt</PaddingBottom>
                             <FontSize >8pt</FontSize>
                           </Style>
+                          <CanGrow >true</CanGrow>
+                          <CanShrink >true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
