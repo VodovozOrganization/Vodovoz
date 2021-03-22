@@ -38,7 +38,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			return new RouteListWageCalculationService(actualWageParameter, source);
 		}
 
-		public void ActualizeWageParameter(IUnitOfWork uow, Employee employee)
+		private void ActualizeWageParameter(IUnitOfWork uow, Employee employee)
 		{
 			//Проверка на то, что сотрудник имеет только один стартовый расчет зарплаты
 			if(employee.WageParameters.Count != 1) return;
