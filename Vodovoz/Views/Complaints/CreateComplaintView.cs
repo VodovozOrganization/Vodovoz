@@ -1,5 +1,6 @@
 ﻿using System;
 using Gamma.Widgets;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -72,7 +73,7 @@ namespace Vodovoz.Views.Complaints
 
 			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
 
-			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
+			buttonSave.Clicked += (sender, e) => { ViewModel.CheckAndSave(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
 		}
 
@@ -89,5 +90,5 @@ namespace Vodovoz.Views.Complaints
 			spLstAddress.SelectedItem = SpecialComboState.Not;
 			spLstAddress.ItemsList = null;
 		}
-	}
+    }
 }

@@ -162,5 +162,24 @@ namespace Vodovoz.ViewModels.Complaints
 				() => CanSelectDeliveryPoint
 			);
 		}
-	}
+		
+        public void CheckAndSave()
+        {
+            if (!HasСounterpartyDuplicateToday() ||
+                CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"))
+            {
+                SaveAndClose();
+            }
+        }
+
+        private bool HasСounterpartyDuplicateToday()
+        {
+            return UoW.Session.QueryOver<Complaint>()
+                .Where(i =>
+                    i.Counterparty.Id == Entity.Counterparty.Id)
+                .And(i =>
+                    i.CreationDate >= DateTime.Now.AddDays(-1))
+                .RowCount() > 0;
+        }
+    }
 }
