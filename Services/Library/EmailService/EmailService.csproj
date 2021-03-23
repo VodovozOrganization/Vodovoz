@@ -84,6 +84,9 @@
     <Compile Include="EmailManager.cs" />
     <Compile Include="IEmailServiceWeb.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Mailjet\" />
+  </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Report\QS.Report.csproj">
