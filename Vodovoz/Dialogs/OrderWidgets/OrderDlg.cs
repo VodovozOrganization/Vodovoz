@@ -2648,7 +2648,7 @@ namespace Vodovoz
 			billDocument.HideSignature = wasHideSignature;
 
 			var billTemplate = billDocument.GetEmailTemplate();
-			EmailService.Email email = new EmailService.Email {
+			EmailService.OrderEmail email = new EmailService.OrderEmail {
 				Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title),
 				Text = billTemplate.Text,
 				HtmlText = billTemplate.TextHtml,
@@ -2673,7 +2673,7 @@ namespace Vodovoz
 			if(service == null) {
 				return;
 			}
-			var result = service.SendEmail(email);
+			var result = service.SendOrderEmail(email);
 
 			//Если произошла ошибка и письмо не отправлено
 			string resultMessage = "";

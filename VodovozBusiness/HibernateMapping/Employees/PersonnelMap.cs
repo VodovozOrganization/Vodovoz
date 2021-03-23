@@ -40,6 +40,7 @@ namespace Vodovoz.HibernateMapping.Employees
 			{
 				DiscriminatorValue(EmployeeType.Employee.ToString());
 				Map(x => x.InnerPhone)        .Column("inner_phone");
+                Map(x => x.Email)             .Column("email_address");
 				Map(x => x.Category)          .Column("category").CustomType<EmployeeCategoryStringType>();
 				Map(x => x.Status)            .Column("status").CustomType<EmployeeStatusStringType>();
 				Map(x => x.AndroidLogin)      .Column("android_login");
