@@ -434,24 +434,32 @@ namespace EmailService
 				Resource = Send.Resource
 			};
 			var attachments = new JArray();
-			foreach (var item in email.AttachmentsBinary)
-			{
-				attachments.Add(new JObject{
-					{"ContentType", "application/octet-stream"},
-					{"Filename", item.Key},
-					{"Base64Content", item.Value}
-				});
+			if(email.AttachmentsBinary != null)
+            {
+				foreach (var item in email.AttachmentsBinary)
+				{
+					attachments.Add(new JObject{
+						{"ContentType", "application/octet-stream"},
+						{"Filename", item.Key},
+						{"Base64Content", item.Value}
+					});
+				}
 			}
+			
 			var inlinedAttachments = new JArray();
-			foreach (var item in email.InlinedAttachments)
-			{
-				inlinedAttachments.Add(new JObject{
-					{"ContentID", item.Key},
-					{"ContentType", item.Value.ContentType},
-					{"Filename", item.Value.FileName},
-					{"Base64Content", item.Value.Base64String}
-				});
+			if (email.InlinedAttachments != null)
+            {
+				foreach (var item in email.InlinedAttachments)
+				{
+					inlinedAttachments.Add(new JObject{
+						{"ContentID", item.Key},
+						{"ContentType", item.Value.ContentType},
+						{"Filename", item.Value.FileName},
+						{"Base64Content", item.Value.Base64String}
+					});
+				}
 			}
+
 			var message = new JObject {
 				{"From", new JObject {
 						{"Email", email.Sender.EmailAddress},

@@ -22,7 +22,7 @@ namespace Vodovoz.Additions
             this.passwordGenerator = passwordGenerator ?? throw new ArgumentNullException(nameof(passwordGenerator));
             this.mySQLUserRepository =
                 mySQLUserRepository ?? throw new ArgumentNullException(nameof(mySQLUserRepository));
-            this.emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+            this.emailService = emailService;
         }
 
         private readonly IPasswordGenerator passwordGenerator;
@@ -34,6 +34,11 @@ namespace Vodovoz.Additions
 
         public bool ResetPassword(Employee employee, string password)
         {
+            if (emailService == null)
+            {
+                return false;
+            }
+
             #region Смена пароля в БД
 
             string login = employee.User.Login;
