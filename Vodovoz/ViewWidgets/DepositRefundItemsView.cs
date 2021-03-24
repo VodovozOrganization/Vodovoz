@@ -10,7 +10,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repositories;
-using Vodovoz.Tools;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -20,6 +19,17 @@ namespace Vodovoz.ViewWidgets
 		public IUnitOfWork UoW { get; set; }
 
 		public Order Order { get; set; }
+
+		/// <summary>
+		/// Перезапись встроенного свойства Sensitive
+		/// Sensitive теперь работает только с таблицей
+		/// К сожалению Gtk обходит этот параметр, если выставлять Sensitive какому-либо элементу управления выше по дереву
+		/// </summary>
+		public new bool Sensitive
+		{
+			get => treeDepositRefundItems.Sensitive && hboxDeposit.Sensitive;
+			set => treeDepositRefundItems.Sensitive = hboxDeposit.Sensitive = value;
+		}
 
 		public DepositRefundItemsView() => this.Build();
 

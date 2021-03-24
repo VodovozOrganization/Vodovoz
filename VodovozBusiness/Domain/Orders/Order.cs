@@ -1025,7 +1025,13 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В точке доставки необходимо указать координаты.",
 				new[] { this.GetPropertyName(o => o.DeliveryPoint) });
 			}
-			if(Client == null)
+
+            if(DriverCallId != null && string.IsNullOrWhiteSpace(CommentManager)){
+                yield return new ValidationResult("Необходимо заполнить комментарий водителя.",
+                    new[] { this.GetPropertyName(o => o.CommentManager) });
+            }
+
+            if (Client == null)
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
@@ -1950,8 +1956,15 @@ namespace Vodovoz.Domain.Orders
 			if(Id > 0)
 				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
 
-			foreach(OrderItem orderItem in order.OrderItems) {
+			INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider();
+			var deliveryId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
 
+			foreach (OrderItem orderItem in order.OrderItems) {
+				if (orderItem.Nomenclature.Id == deliveryId)
+                {
+					continue;
+                }
+				
 				decimal discMoney;
 				if(orderItem.DiscountMoney == 0) {
 					if(orderItem.OriginalDiscountMoney == null)

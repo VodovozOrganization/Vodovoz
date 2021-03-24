@@ -1,7 +1,6 @@
 using QSReport;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using FluentNHibernate.Conventions;
@@ -58,7 +57,6 @@ namespace Vodovoz.Additions.Accounting
         }
 
         IUnitOfWork uow;
-        RouteList currentRouteList;
 
         #region Events
 
@@ -118,7 +116,14 @@ namespace Vodovoz.Additions.Accounting
         
         public void PrintSelected(SelectablePrintDocument document = null)
         {
-            if(!cancelPrinting) {
+            if (Environment.OSVersion.Platform != PlatformID.MacOSX && Environment.OSVersion.Platform != PlatformID.Unix)
+            {
+                var settingsOperaation = new PrintOperation();
+                settingsOperaation.Run(PrintOperationAction.PrintDialog, null);
+                PrinterSettings = settingsOperaation.PrintSettings;
+            }
+
+            if (!cancelPrinting) {
                 MultiDocPrinter.PrinterSettings = PrinterSettings;
                 if(document == null)
                     MultiDocPrinter.PrintSelectedDocuments();
@@ -278,7 +283,7 @@ namespace Vodovoz.Additions.Accounting
                 return;
             }
 
-            wayBillDocument.Date = DateTime.Now;
+            wayBillDocument.Date = generationDate.Date;
             wayBillDocument.CarModel = car.Model;
             wayBillDocument.CarRegistrationNumber = car.RegistrationNumber;
             wayBillDocument.DriverFIO = employee.FullName;
@@ -302,6 +307,11 @@ namespace Vodovoz.Additions.Accounting
 
             wayBillDocument.Organization = orders.First().Contract.Organization;
             wayBillDocument.PrepareTemplate(uow);
+
+            if (wayBillDocument.DocumentTemplate == null)
+            {
+                throw new Exception($"Не обнаружен шаблон Путевого листа для организации: {wayBillDocument.Organization.Name}");
+            }
 
             (wayBillDocument.DocumentTemplate.DocParser as WayBillDocumentParser).RootObject = wayBillDocument;
 

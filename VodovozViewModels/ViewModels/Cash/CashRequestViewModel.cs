@@ -20,7 +20,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
 using VodovozInfrastructure.Interfaces;
 using CashRepository = Vodovoz.EntityRepositories.Cash.CashRepository;
 
@@ -136,6 +135,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             SetPropertyChangeRelation(e => e.State, () => CanConveyForResults);
             SetPropertyChangeRelation(e => e.State, () => CanReturnToRenegotiation);
             SetPropertyChangeRelation(e => e.State, () => CanCancel);
+            SetPropertyChangeRelation(e => e.State, () => CanConfirmPossibilityNotToReconcilePayments);
         }
 
         #region Commands
@@ -210,24 +210,61 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             }, () => true
         ));
             
-        private DelegateCommand giveSumCommand;
-        public DelegateCommand GiveSumCommand => giveSumCommand ?? (giveSumCommand = new DelegateCommand(
-            () => {
-                if (Entity.Sums.Count != 0) 
-                {
-                    if (Entity.ExpenseCategory == null)
-                    {
-                        CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"У данной заявки не заполнена статья расхода");
-                        return;
-                    }
-                    //находим первую невыданную сумму и создаем на нее expense
-                    var sum = Entity.ObservableSums.First(x => x.Expense == null);
-                    CreateNewExpenseForItem(sum);
-                    Entity.ChangeState(CashRequest.States.Closed);
-                    AfterSaveCommand.Execute();
-                }
-            }, () => true
+        private DelegateCommand<CashRequestSumItem> giveSumCommand;
+        public DelegateCommand<CashRequestSumItem> GiveSumCommand => 
+            giveSumCommand ?? (giveSumCommand = new DelegateCommand<CashRequestSumItem>(
+                (CashRequestSumItem sumItem) => GiveSum(sumItem),
+                CanExecuteGive
         ));
+
+        private DelegateCommand<(CashRequestSumItem, decimal)> giveSumPartiallyCommand;
+        public DelegateCommand<(CashRequestSumItem, decimal)> GiveSumPartiallyCommand => 
+            giveSumPartiallyCommand ?? (giveSumPartiallyCommand = new DelegateCommand<(CashRequestSumItem, decimal)>(
+                ((CashRequestSumItem CashRequestSumItem, decimal Sum) parameters) => GiveSum(parameters.CashRequestSumItem, parameters.Sum),
+                ((CashRequestSumItem CashRequestSumItem, decimal Sum) parameters) => CanExecuteGive(parameters.CashRequestSumItem)
+        ));
+
+        public bool CanExecuteGive(CashRequestSumItem sumItem)
+        {
+            return sumItem != null
+                && sumItem.Sum > sumItem.Expenses.Sum(e => e.Money)
+                && (Entity.PossibilityNotToReconcilePayments
+                    || sumItem.Expenses.Any()
+                    || Entity.ObservableSums.All(x => !x.Expenses.Any() || x.Sum == x.Expenses.Sum(e => e.Money))
+                    );
+        }
+
+        private void GiveSum(CashRequestSumItem sumItem, decimal? sumToGive = null) 
+        {
+            if (!Entity.Sums.Any())
+            {
+                return;
+            }
+
+            if (Entity.ExpenseCategory == null)
+            {
+                CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"У данной заявки не заполнена статья расхода");
+                return;
+            }
+
+            var cashRequestSumItem = sumItem ?? Entity.ObservableSums.FirstOrDefault(x => !x.ObservableExpenses.Any());
+
+            if (cashRequestSumItem == null)
+            {
+                return;
+            }
+
+            var summToGive = sumToGive ?? cashRequestSumItem.Sum - cashRequestSumItem.ObservableExpenses.Sum(x => x.Money);
+
+            if(sumToGive <= 0)
+            {
+                return;
+            }
+
+            CreateNewExpenseForItem(cashRequestSumItem, summToGive);
+            Entity.ChangeState(CashRequest.States.Closed);
+            AfterSaveCommand.Execute();
+        }
 
         #endregion Commands
 
@@ -240,7 +277,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 return userRole; 
             }
             set {
-                SetField(ref userRole, value, () => UserRole);
+                SetField(ref userRole, value);
                 OnPropertyChanged(() => CanEditOnlyCoordinator);
                 OnPropertyChanged(() => CanEditOnlyinStateNAGandRoldFinancier);
                 OnPropertyChanged(() => ExpenseCategorySensitive);
@@ -250,6 +287,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 OnPropertyChanged(() => CanApprove);
                 OnPropertyChanged(() => CanConveyForResults);
                 OnPropertyChanged(() => CanCancel);
+                OnPropertyChanged(() => CanConfirmPossibilityNotToReconcilePayments);
             }
         }
 
@@ -276,7 +314,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
         public bool CanEditSumVisible => UserRole == UserRole.RequestCreator || UserRole == UserRole.Coordinator;
         //редактировать можно только не выданные
-        public bool CanEditSumSensitive => SelectedItem != null && SelectedItem.Expense == null;
+        public bool CanEditSumSensitive => SelectedItem != null && !SelectedItem.ObservableExpenses.Any();
 
 
         #endregion Editability
@@ -286,7 +324,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool VisibleOnlyForFinancer => UserRole == UserRole.Financier;
         public bool VisibleOnlyForStatusUpperThanCreated => Entity.State != CashRequest.States.New;
         public bool ExpenseCategoryVisibility => UserRole == UserRole.Cashier || UserRole == UserRole.Financier;
-
+        public bool CanConfirmPossibilityNotToReconcilePayments => Entity.ObservableSums.Count > 1 && Entity.State == CashRequest.States.Submited && UserRole == UserRole.Coordinator;
         #endregion Visibility
 
         #region Permissions
@@ -296,6 +334,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanDeleteItems => CanEdit && SelectedItem != null;
         
         public bool CanGiveSum => UserRole == UserRole.Cashier && (Entity.State == CashRequest.States.GivenForTake || Entity.State == CashRequest.States.PartiallyClosed);
+
         public bool CanDeleteSum => uowBuilder.IsNewEntity;
         //Подтвердить
         public bool CanAccept =>
@@ -346,7 +385,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             .ValidateUserPresetPermission(roleName, userId);
         
         
-        private void CreateNewExpenseForItem(CashRequestSumItem sumItem)
+        private void CreateNewExpenseForItem(CashRequestSumItem sumItem, decimal sum)
         {
             sumItem?.CreateNewExpense(
                 UoW, 
@@ -354,7 +393,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 Entity.Subdivision,
                 Entity.ExpenseCategory,
                 Entity.Basis,
-                Entity.Organization
+                Entity.Organization,
+                sum
             );
             if (sumItem != null)
                 SumsGiven.Add(sumItem);
@@ -380,7 +420,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 builder.Append("Подотчетное лицо\tСумма\n");
                 foreach (CashRequestSumItem sum in SumsGiven)
                 {
-                    builder.Append(sum.AccountableEmployee.Name + "\t" + sum.Sum + "\n");
+                    builder.Append(sum.AccountableEmployee.Name + "\t" + sum.ObservableExpenses.Last().Money + "\n");
                 }
                 messageText = builder.ToString();
                 return true;
@@ -459,12 +499,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         
         #endregion
 
-
         public void RememberRole(Object role)
         {
             savedUserRole = (UserRole)role;
         }
     }
+
     public enum UserRole
     {
         [Display(Name = "Заявитель")]

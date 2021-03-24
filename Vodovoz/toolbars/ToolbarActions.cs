@@ -622,7 +622,8 @@ public partial class MainWindow : Window
 				EmployeeSingletonRepository.GetInstance(),
 				new BaseParametersProvider(),
 				ServicesConfig.CommonServices.UserService,
-				SingletonErrorReporter.Instance));
+				SingletonErrorReporter.Instance),
+                new OrderPaymentSettings());
 		
 		tdiMain.AddTab(selfDeliveriesJournal);
 	}

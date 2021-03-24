@@ -18,7 +18,9 @@ namespace Vodovoz.Parameters
 
         public int Folder1cForOnlineStoreNomenclatures => parametersProvider.GetIntValue("folder_1c_for_online_store_nomenclatures");
 
-        public int MeasurementUnitForOnlineStoreNomenclatures => parametersProvider.GetIntValue("measurement_unit_for_online_store_nomenclatures");
+		public int PaidDeliveryNomenclatureId => parametersProvider.GetIntValue("paid_delivery_nomenclature_id");
+
+		public int MeasurementUnitForOnlineStoreNomenclatures => parametersProvider.GetIntValue("measurement_unit_for_online_store_nomenclatures");
 
         public int RootProductGroupForOnlineStoreNomenclatures => parametersProvider.GetIntValue("root_product_group_for_online_store_nomenclatures");
 

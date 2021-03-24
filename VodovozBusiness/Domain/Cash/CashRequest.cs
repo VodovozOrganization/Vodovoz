@@ -13,7 +13,6 @@ using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Cash
 {
-    
     [Appellative (Gender = GrammaticalGender.Feminine,
         NominativePlural = "заявки на выдачу средств",
         Nominative = "заявка на выдачу средств")]
@@ -82,9 +81,7 @@ namespace Vodovoz.Domain.Cash
                     }
                     break;
                 case States.Closed:
-                    bool allSumsWasGiven = CheckIsAllSumsClosed();
-                    //Если к нам пришло Close значит хотя бы одну закрыли, поэтому не нужно проверять что незакрытых нет совсем
-                    State = CheckIsAllSumsClosed() ? newState : States.PartiallyClosed;
+                    State = Sums.All(x => x.Sum == x.ObservableExpenses.Sum(e => e.Money)) ? newState : States.PartiallyClosed;
                     break;
                 
                 case States.PartiallyClosed:
@@ -94,27 +91,6 @@ namespace Vodovoz.Domain.Cash
                     throw new NotImplementedException($"Не реализовано изменение статуса для {newState}");
             }
         }
-        
-        public virtual bool CheckIsAllSumsClosed()
-        {
-            if (Sums.Count == 1 && Sums.First() != null)
-            {
-                return true;
-            }
-
-            bool allSumsWasGiven = true;
-            foreach (var sum in Sums)
-            {
-                if (sum.Expense == null)
-                {
-                    allSumsWasGiven = false;
-                    break;
-                }
-            }
-
-            return allSumsWasGiven;
-        }
-
 
         #region Свойства
 
@@ -126,7 +102,15 @@ namespace Vodovoz.Domain.Cash
             get => state;
             set => SetField(ref state, value);
         }
-        
+
+        private bool possibilityNotToReconcilePayments;
+        [Display(Name = "Возможность не пересогласовывать выплаты")]
+        public virtual bool PossibilityNotToReconcilePayments
+        {
+            get => possibilityNotToReconcilePayments;
+            set => SetField(ref possibilityNotToReconcilePayments, value);
+        }
+
         private DocumentTypes documentType;
         [Display(Name = "Тип документа")]
         public virtual DocumentTypes DocumentType {
@@ -246,10 +230,14 @@ namespace Vodovoz.Domain.Cash
         }
 
         public class CashRequestStateStringType : EnumStringType
-        { public CashRequestStateStringType() : base(typeof(States)) { } }
+        { 
+            public CashRequestStateStringType() : base(typeof(States)) { } 
+        }
         
         public class CashRequestDocTypeStringType : EnumStringType
-        { public CashRequestDocTypeStringType() : base(typeof(DocumentTypes)) { } }
+        {
+            public CashRequestDocTypeStringType() : base(typeof(DocumentTypes)) { } 
+        }
         
         public virtual int Id { get; }
         
@@ -317,7 +305,6 @@ namespace Vodovoz.Domain.Cash
             
         }
         #endregion IValidatableObject implementation
-
 
         #region SumItems
 
