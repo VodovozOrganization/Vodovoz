@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using QS.Navigation;
+﻿using QS.Navigation;
 using QS.Views.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Domain.Orders;
@@ -30,11 +29,14 @@ namespace Vodovoz.Views.Cash
 				new IntToStringConverter()).InitializeFromSource();
 			
 			comboPaymentFrom.SetRenderTextFunc<PaymentFrom>(x => x.Name);
-			comboPaymentFrom.Binding.AddBinding(ViewModel.Entity,
-				vm => vm.PaymentByCardFrom,
-				w => w.SelectedItem).InitializeFromSource();
-			
-			comboPaymentFrom.ItemsList = ViewModel.UoW.GetAll<PaymentFrom>();
-		}
+
+            comboPaymentFrom.Binding.AddBinding(ViewModel,
+                vm => vm.ItemsList, w => w.ItemsList)
+                .InitializeFromSource();
+
+            comboPaymentFrom.Binding.AddBinding(ViewModel,
+				vm => vm.PaymentByCardFrom, w => w.SelectedItem)
+                .InitializeFromSource();
+        }
 	}
 }

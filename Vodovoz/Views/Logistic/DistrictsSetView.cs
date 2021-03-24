@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Drawing;
+using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gdk;
@@ -26,24 +27,25 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class DistrictsSetView : TabViewBase<DistrictsSetViewModel>
 	{
-		public DistrictsSetView(DistrictsSetViewModel viewModel) : base(viewModel)
+        private readonly GMapOverlay bordersOverlay = new GMapOverlay("district_borders");
+        private readonly GMapOverlay newBordersPreviewOverlay = new GMapOverlay("district_preview_borders");
+        private readonly GMapOverlay verticeOverlay = new GMapOverlay("district_vertice");
+        private readonly Pen selectedDistrictBorderPen = new Pen(System.Drawing.Color.Red, 2);
+
+        private const string acceptBeforeColumnTag = "Прием до";
+
+        public DistrictsSetView(DistrictsSetViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			Configure();
-		}
+		}	
 		
-		private readonly GMapOverlay bordersOverlay = new GMapOverlay("district_borders");
-		private readonly GMapOverlay newBordersPreviewOverlay = new GMapOverlay("district_preview_borders");
-		private readonly GMapOverlay verticeOverlay = new GMapOverlay("district_vertice");
-
-		private const string acceptBeforeColumnTag = "Прием до";
-
 		private void Configure()
 		{
 			#region TreeViews
 
-			var colorRed = new Color(255, 0, 0);
-			var colorWhite = new Color(255, 255, 255);
+			var colorRed = new Gdk.Color(255, 0, 0);
+			var colorWhite = new Gdk.Color(255, 255, 255);
 
 			ytreeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<District>()
 				.AddColumn("Код")
@@ -326,6 +328,7 @@ namespace Vodovoz.Views.Logistic
 			gmapWidget.Overlays.Add(newBordersPreviewOverlay);
 			gmapWidget.Overlays.Add(verticeOverlay);
 			RefreshBorders();
+
 			gmapWidget.ButtonPressEvent += (o, args) => {
 				if(args.Event.Button == 1 && ViewModel.IsCreatingNewBorder) {
 					ViewModel.AddNewVertexCommand.Execute(gmapWidget.FromLocalToLatLng((int) args.Event.X, (int) args.Event.Y));
@@ -386,12 +389,11 @@ namespace Vodovoz.Views.Logistic
 							break;
 						case nameof(ViewModel.SelectedDistrictBorderVertices):
 							verticeOverlay.Clear();
-							if(ViewModel.SelectedDistrictBorderVertices != null) {
-								foreach (PointLatLng vertex in ViewModel.SelectedDistrictBorderVertices) {
-									GMapMarker point = new GMarkerGoogle(vertex, GMarkerGoogleType.blue);
-									verticeOverlay.Markers.Add(point);
-								}
-							}
+							if(ViewModel.SelectedDistrictBorderVertices != null){
+                                GMapPolygon polygon = new GMapPolygon(ViewModel.SelectedDistrictBorderVertices.ToList(), "polygon");
+                                polygon.Stroke = selectedDistrictBorderPen;
+                                verticeOverlay.Polygons.Add(polygon);
+                            }
 							break;
 						case nameof(ViewModel.NewBorderVertices):
 							verticeOverlay.Clear();

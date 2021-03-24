@@ -13,8 +13,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			this.wageParameter = wageParameter ?? throw new ArgumentNullException(nameof(wageParameter));
 			this.source = source ?? throw new ArgumentNullException(nameof(source));
 
-			if(source.DriverOfOurCar && wageParameter.DriverWithOurCarsWageParameterItem != null) {
-				SetWageCalculationService(wageParameter.DriverWithOurCarsWageParameterItem);
+			if(source.DriverOfOurCar && wageParameter.WageParameterItemForOurCars != null) {
+				SetWageCalculationService(wageParameter.WageParameterItemForOurCars);
 			}
 			else {
 				SetWageCalculationService(wageParameter.WageParameterItem);

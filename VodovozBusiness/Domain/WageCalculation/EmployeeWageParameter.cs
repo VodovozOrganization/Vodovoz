@@ -35,21 +35,19 @@ namespace Vodovoz.Domain.WageCalculation
 			set => SetField(ref wageParameterItem, value);
 		}
 
-		private WageParameterItem driverWithOurCarsWageParameterItem;
-		public virtual WageParameterItem DriverWithOurCarsWageParameterItem {
-			get => driverWithOurCarsWageParameterItem;
-			set => SetField(ref driverWithOurCarsWageParameterItem, value);
+		private WageParameterItem wageParameterItemForOurCars;
+		public virtual WageParameterItem WageParameterItemForOurCars {
+			get => wageParameterItemForOurCars;
+			set => SetField(ref wageParameterItemForOurCars, value);
 		}
 		
 		public virtual void CreateWageParameterItems(WageParameterItemTypes wageParameterItemType)
 		{
-			DriverWithOurCarsWageParameterItem = null;
-
 			WageParameterItem = CreateWageParameterItem(wageParameterItemType);
 
 			var typesWithoutOurCarsItems = new WageParameterItemTypes[] { WageParameterItemTypes.Manual, WageParameterItemTypes.OldRates, WageParameterItemTypes.SalesPlan };
-			if(Employee.Category == EmployeeCategory.driver && !typesWithoutOurCarsItems.Contains(wageParameterItemType)) {
-				DriverWithOurCarsWageParameterItem = CreateWageParameterItem(wageParameterItemType);
+			if(!typesWithoutOurCarsItems.Contains(wageParameterItemType)) {
+				WageParameterItemForOurCars = CreateWageParameterItem(wageParameterItemType);
 			}
 		}
 

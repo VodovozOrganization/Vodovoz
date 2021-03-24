@@ -140,7 +140,24 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref phones, value, () => Phones); }
 		}
 
-		Nationality nationality;
+        EmployeePost post;
+
+        [Display(Name = "Должность")]
+        public virtual EmployeePost Post
+        {
+            get => post;
+            set => SetField(ref post, value);
+        }
+
+        int? skilllevel;
+        [Display(Name = "Уровень квалификации")]
+        public virtual int? SkillLevel
+        {
+            get => skilllevel;
+            set => SetField(ref skilllevel, value);
+        }
+
+        Nationality nationality;
 
 		[Display(Name = "Национальность")]
 		public virtual Nationality Nationality {
@@ -204,9 +221,11 @@ namespace Vodovoz.Domain.Employees
 			return mainDocuments;
 		}
 
-		#region IValidatableObject implementation
+        public virtual List<int> GetSkillLevels() => new List<int> { 0, 1, 2, 3, 4, 5 };
 
-		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        #region IValidatableObject implementation
+
+        public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(String.IsNullOrEmpty(LastName))
 				yield return new ValidationResult("Фамилия должна быть заполнена", new[] { "LastName" });
@@ -307,7 +326,9 @@ namespace Vodovoz.Domain.Employees
 		string AddressCurrent { get; set; }
 		string INN { get; set; }
 		IList<Phone> Phones { get; set; }
-		IList<EmployeeDocument> Documents { get; set; }
+        EmployeePost Post { get; set; }
+        int? SkillLevel { get; set; }
+        IList<EmployeeDocument> Documents { get; set; }
 		Nationality Nationality { get; set; }
 		bool IsRussianCitizen { get; set; }
 		Citizenship Citizenship { get; set; }

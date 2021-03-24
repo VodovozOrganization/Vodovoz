@@ -42,7 +42,9 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.HBox hbox2;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		private global::Gtk.ScrolledWindow scrolledwindow1;
+
+		private global::Gtk.VBox vbox2;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeDriverDistrictPriorities;
 
@@ -218,24 +220,32 @@ namespace Vodovoz.Views.Logistic
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.WidthRequest = 400;
-			this.GtkScrolledWindow.HeightRequest = 600;
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.scrolledwindow1 = new global::Gtk.ScrolledWindow();
+			this.scrolledwindow1.CanFocus = true;
+			this.scrolledwindow1.Name = "scrolledwindow1";
+			this.scrolledwindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrolledwindow1.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w19 = new global::Gtk.Viewport();
+			w19.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport.Gtk.Container+ContainerChild
+			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.ytreeDriverDistrictPriorities = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeDriverDistrictPriorities.CanFocus = true;
 			this.ytreeDriverDistrictPriorities.Name = "ytreeDriverDistrictPriorities";
-			this.GtkScrolledWindow.Add(this.ytreeDriverDistrictPriorities);
-			this.hbox2.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.GtkScrolledWindow]));
+			this.vbox2.Add(this.ytreeDriverDistrictPriorities);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ytreeDriverDistrictPriorities]));
 			w20.Position = 0;
-			w20.Expand = false;
+			w19.Add(this.vbox2);
+			this.scrolledwindow1.Add(w19);
+			this.hbox2.Add(this.scrolledwindow1);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.scrolledwindow1]));
+			w23.Position = 0;
 			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-			w21.Position = 2;
-			w21.Expand = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w24.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
@@ -246,38 +256,38 @@ namespace Vodovoz.Views.Logistic
 			this.ybuttonAddDistricts.Name = "ybuttonAddDistricts";
 			this.ybuttonAddDistricts.UseUnderline = true;
 			this.ybuttonAddDistricts.Label = global::Mono.Unix.Catalog.GetString("Добавить районы");
-			global::Gtk.Image w22 = new global::Gtk.Image();
-			w22.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.ybuttonAddDistricts.Image = w22;
+			global::Gtk.Image w25 = new global::Gtk.Image();
+			w25.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.ybuttonAddDistricts.Image = w25;
 			this.hbox1.Add(this.ybuttonAddDistricts);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ybuttonAddDistricts]));
-			w23.Position = 0;
-			w23.Expand = false;
-			w23.Fill = false;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ybuttonAddDistricts]));
+			w26.Position = 0;
+			w26.Expand = false;
+			w26.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ybuttonDeleteDistricts = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonDeleteDistricts.CanFocus = true;
 			this.ybuttonDeleteDistricts.Name = "ybuttonDeleteDistricts";
 			this.ybuttonDeleteDistricts.UseUnderline = true;
 			this.ybuttonDeleteDistricts.Label = global::Mono.Unix.Catalog.GetString("Удалить районы");
-			global::Gtk.Image w24 = new global::Gtk.Image();
-			w24.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
-			this.ybuttonDeleteDistricts.Image = w24;
+			global::Gtk.Image w27 = new global::Gtk.Image();
+			w27.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.ybuttonDeleteDistricts.Image = w27;
 			this.hbox1.Add(this.ybuttonDeleteDistricts);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ybuttonDeleteDistricts]));
-			w25.Position = 1;
-			w25.Expand = false;
-			w25.Fill = false;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ybuttonDeleteDistricts]));
+			w28.Position = 1;
+			w28.Expand = false;
+			w28.Fill = false;
 			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w26.Position = 3;
-			w26.Expand = false;
-			w26.Fill = false;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w29.Position = 3;
+			w29.Expand = false;
+			w29.Fill = false;
 			this.hbox3.Add(this.vbox1);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox1]));
-			w27.Position = 1;
-			w27.Expand = false;
-			w27.Fill = false;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox1]));
+			w30.Position = 1;
+			w30.Expand = false;
+			w30.Fill = false;
 			this.Add(this.hbox3);
 			if ((this.Child != null))
 			{

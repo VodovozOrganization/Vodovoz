@@ -12,7 +12,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gamma.GtkWidgets.yTreeView treeEquipment;
 
-		private global::Gtk.HBox hbox17;
+		private global::Gtk.HBox hboxButtons;
 
 		private global::Gtk.Button buttonAddEquipmentToClient;
 
@@ -52,10 +52,10 @@ namespace Vodovoz.ViewWidgets
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
 			w3.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox17 = new global::Gtk.HBox();
-			this.hbox17.Name = "hbox17";
-			this.hbox17.Spacing = 6;
-			// Container child hbox17.Gtk.Box+BoxChild
+			this.hboxButtons = new global::Gtk.HBox();
+			this.hboxButtons.Name = "hboxButtons";
+			this.hboxButtons.Spacing = 6;
+			// Container child hboxButtons.Gtk.Box+BoxChild
 			this.buttonAddEquipmentToClient = new global::Gtk.Button();
 			this.buttonAddEquipmentToClient.CanFocus = true;
 			this.buttonAddEquipmentToClient.Name = "buttonAddEquipmentToClient";
@@ -64,12 +64,12 @@ namespace Vodovoz.ViewWidgets
 			global::Gtk.Image w4 = new global::Gtk.Image();
 			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.buttonAddEquipmentToClient.Image = w4;
-			this.hbox17.Add(this.buttonAddEquipmentToClient);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.buttonAddEquipmentToClient]));
+			this.hboxButtons.Add(this.buttonAddEquipmentToClient);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonAddEquipmentToClient]));
 			w5.Position = 0;
 			w5.Expand = false;
 			w5.Fill = false;
-			// Container child hbox17.Gtk.Box+BoxChild
+			// Container child hboxButtons.Gtk.Box+BoxChild
 			this.buttonAddEquipmentFromClient = new global::Gtk.Button();
 			this.buttonAddEquipmentFromClient.CanFocus = true;
 			this.buttonAddEquipmentFromClient.Name = "buttonAddEquipmentFromClient";
@@ -78,12 +78,12 @@ namespace Vodovoz.ViewWidgets
 			global::Gtk.Image w6 = new global::Gtk.Image();
 			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.buttonAddEquipmentFromClient.Image = w6;
-			this.hbox17.Add(this.buttonAddEquipmentFromClient);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.buttonAddEquipmentFromClient]));
+			this.hboxButtons.Add(this.buttonAddEquipmentFromClient);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonAddEquipmentFromClient]));
 			w7.Position = 1;
 			w7.Expand = false;
 			w7.Fill = false;
-			// Container child hbox17.Gtk.Box+BoxChild
+			// Container child hboxButtons.Gtk.Box+BoxChild
 			this.buttonDeleteEquipment = new global::Gtk.Button();
 			this.buttonDeleteEquipment.CanFocus = true;
 			this.buttonDeleteEquipment.Name = "buttonDeleteEquipment";
@@ -92,13 +92,13 @@ namespace Vodovoz.ViewWidgets
 			global::Gtk.Image w8 = new global::Gtk.Image();
 			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
 			this.buttonDeleteEquipment.Image = w8;
-			this.hbox17.Add(this.buttonDeleteEquipment);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.buttonDeleteEquipment]));
+			this.hboxButtons.Add(this.buttonDeleteEquipment);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonDeleteEquipment]));
 			w9.Position = 2;
 			w9.Expand = false;
 			w9.Fill = false;
-			this.vbox2.Add(this.hbox17);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox17]));
+			this.vbox2.Add(this.hboxButtons);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxButtons]));
 			w10.Position = 2;
 			w10.Expand = false;
 			this.Add(this.vbox2);

@@ -134,6 +134,9 @@ namespace Vodovoz.Domain.Orders
 					InteractiveService.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
 					return;
 				}
+				if (value != null && (client != null || Id == 0)) {
+					IsForRetail = value.IsForRetail;
+				}
 				var oldClient = client;
 				if(SetField(ref client, value, () => Client)) {
 					if(Client == null || (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id))) {
@@ -144,10 +147,6 @@ namespace Vodovoz.Domain.Orders
                     if(oldClient != null) {
 						UpdateContract();
                     }
-					if (value != null)
-					{
-						IsForRetail = value.IsForRetail;
-					}
 				}
 			}
 		}
@@ -1026,7 +1025,13 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В точке доставки необходимо указать координаты.",
 				new[] { this.GetPropertyName(o => o.DeliveryPoint) });
 			}
-			if(Client == null)
+
+            if(DriverCallId != null && string.IsNullOrWhiteSpace(CommentManager)){
+                yield return new ValidationResult("Необходимо заполнить комментарий водителя.",
+                    new[] { this.GetPropertyName(o => o.CommentManager) });
+            }
+
+            if (Client == null)
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
@@ -1951,8 +1956,15 @@ namespace Vodovoz.Domain.Orders
 			if(Id > 0)
 				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
 
-			foreach(OrderItem orderItem in order.OrderItems) {
+			INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider();
+			var deliveryId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
 
+			foreach (OrderItem orderItem in order.OrderItems) {
+				if (orderItem.Nomenclature.Id == deliveryId)
+                {
+					continue;
+                }
+				
 				decimal discMoney;
 				if(orderItem.DiscountMoney == 0) {
 					if(orderItem.OriginalDiscountMoney == null)

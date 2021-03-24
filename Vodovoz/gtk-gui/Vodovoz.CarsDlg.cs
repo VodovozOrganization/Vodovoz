@@ -324,7 +324,7 @@ namespace Vodovoz
 			this.comboDriverCarKind.AddIfNotExist = false;
 			this.comboDriverCarKind.DefaultFirst = false;
 			this.comboDriverCarKind.ShowSpecialStateAll = false;
-			this.comboDriverCarKind.ShowSpecialStateNot = false;
+			this.comboDriverCarKind.ShowSpecialStateNot = true;
 			this.tableCarData.Add(this.comboDriverCarKind);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.comboDriverCarKind]));
 			w12.TopAttach = ((uint)(5));

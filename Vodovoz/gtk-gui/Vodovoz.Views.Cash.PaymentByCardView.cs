@@ -18,7 +18,7 @@ namespace Vodovoz.Views.Cash
 
 		private global::QS.Widgets.ValidatedEntry entryOnlineOrder;
 
-		private global::Gamma.Widgets.yListComboBox comboPaymentFrom;
+		private global::Gamma.Widgets.ySpecComboBox comboPaymentFrom;
 
 		protected virtual void Build()
 		{
@@ -86,10 +86,12 @@ namespace Vodovoz.Views.Cash
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.comboPaymentFrom = new global::Gamma.Widgets.yListComboBox();
+			this.comboPaymentFrom = new global::Gamma.Widgets.ySpecComboBox();
 			this.comboPaymentFrom.Name = "comboPaymentFrom";
-			this.comboPaymentFrom.AddIfNotExist = true;
-			this.comboPaymentFrom.DefaultFirst = true;
+			this.comboPaymentFrom.AddIfNotExist = false;
+			this.comboPaymentFrom.DefaultFirst = false;
+			this.comboPaymentFrom.ShowSpecialStateAll = false;
+			this.comboPaymentFrom.ShowSpecialStateNot = false;
 			this.hbox1.Add(this.comboPaymentFrom);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.comboPaymentFrom]));
 			w6.Position = 2;
