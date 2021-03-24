@@ -177,7 +177,15 @@ namespace Vodovoz.Domain.Cash
 			get => organisation;
 			set => SetField(ref organisation, value);
 		}
-		
+
+		private CashRequestSumItem cashRequestSumItem;
+		[Display(Name = "Сумма заявки на выдачу ДС")]
+		public virtual CashRequestSumItem CashRequestSumItem
+		{
+			get { return cashRequestSumItem; }
+			set { SetField(ref cashRequestSumItem, value); }
+		}
+
 		#endregion
 
 		#region Вычисляемые

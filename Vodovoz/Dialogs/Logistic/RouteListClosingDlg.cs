@@ -306,8 +306,8 @@ namespace Vodovoz
 				referenceForwarder.Sensitive = false;
 				entityviewmodelentryCar.Sensitive = false;
 				datePickerDate.Sensitive = false;
-
-				vboxHidenPanel.Sensitive = false;
+				hbox11.Sensitive = false;
+				routelistdiscrepancyview.Sensitive = false;
 				hbxStatistics1.Sensitive = false;
 				hbxStatistics2.Sensitive = false;
 				enummenuRLActions.Sensitive = false;

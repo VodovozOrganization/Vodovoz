@@ -85,10 +85,10 @@ namespace Vodovoz.Dialogs
 			if(UndeliveredOrder.Id > 0) {//если недовоз новый, то не можем оставлять комментарии
 				IUnitOfWork UoWForComments = UnitOfWorkFactory.CreateWithoutRoot();
 				unOrderCmntView.Configure(UoWForComments, UndeliveredOrder, CommentedFields.Reason);
-				unOrderCmntView.CommentAdded += (sender, e) => CommentAdded(sender, e);
-				this.Destroyed += (sender, e) => {
-					if(UoWForComments != null)
-						UoWForComments.Dispose();
+				unOrderCmntView.CommentAdded += (sender, e) => CommentAdded?.Invoke(sender, e);
+				this.Destroyed += (sender, e) =>
+				{
+					UoWForComments?.Dispose();
 				};
 			}
 		}
@@ -140,13 +140,18 @@ namespace Vodovoz.Dialogs
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
 			Save();
-			if(DlgSaved != null)
-				DlgSaved(this, new UndeliveryOnOrderCloseEventArgs(UndeliveredOrder));
+			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(UndeliveredOrder));
 		}
 
 		protected void OnButtonCancelClicked(object sender, EventArgs e)
 		{
 			this.OnCloseTab(true);
+		}
+		
+		public void UnsubscribeAll()
+		{
+			CommentAdded = null;
+			DlgSaved = null;
 		}
 
 		public override void Destroy()

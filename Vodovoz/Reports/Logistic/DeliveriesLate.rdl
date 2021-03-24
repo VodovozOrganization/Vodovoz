@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id,
@@ -75,7 +75,7 @@ HAVING delay &gt; 0;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -708,12 +708,21 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                   </TableCells>
                 </TableRow>
               </TableRows>
+              <RepeatOnNewPage >false</RepeatOnNewPage>
             </Footer>
             <Grouping Name="driver_idGroup">
               <GroupExpressions>
-                <GroupExpression>=Fields!driver_id.Value</GroupExpression>
+                <GroupExpression >=Fields!driver_id.Value</GroupExpression>
               </GroupExpressions>
+              <PageBreakAtStart >false</PageBreakAtStart>
+              <PageBreakAtEnd >false</PageBreakAtEnd>
             </Grouping>
+            <Sorting >
+              <SortBy>
+                <SortExpression>=Iif({?is_driver_sort}, {driver_name}, null)</SortExpression>
+                <Direction>Ascending</Direction>
+              </SortBy>
+            </Sorting>
           </TableGroup>
         </TableGroups>
         <Details>
@@ -1211,6 +1220,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
       </Table>
     </ReportItems>
     <Height>148.2pt</Height>
+    <Columns >1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -1242,7 +1252,9 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <DataElementName >Report</DataElementName>
+  <DataElementStyle >AttributeNormal</DataElementStyle>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1263,6 +1275,14 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
           <Value>2017-02-25</Value>
         </Values>
       </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_driver_sort">
+      <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

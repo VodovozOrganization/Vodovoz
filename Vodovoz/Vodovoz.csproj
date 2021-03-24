@@ -1582,6 +1582,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Retail.SalesChannelView.cs" />
     <Compile Include="Views\Client\CounterpartyFilesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyFilesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeePostView.cs" />
+    <Compile Include="Views\Employees\EmployeePostView.cs" />
+    <Compile Include="ReportsParameters\Retail\QualityReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.QualityReport.cs" />
+    <Compile Include="ReportsParameters\Retail\CounterpartyReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.CounterpartyReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1882,6 +1888,8 @@
     <Folder Include="Views\Security\" />
     <Folder Include="JournalViewers\Retail\" />
     <Folder Include="Views\Retail\" />
+    <Folder Include="ReportsParameters\Retail\" />
+    <Folder Include="Reports\Retail\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2427,6 +2435,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Orders\EShopSalesReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Retail\QualityReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Retail\CounterpartyReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

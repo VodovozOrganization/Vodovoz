@@ -29,6 +29,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -295,8 +296,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			//SubdivisionsJournalViewModel
-			TreeViewColumnsConfigFactory.Register<FinesJournalViewModel>(
+            TreeViewColumnsConfigFactory.Register<EmployeePostsJournalViewModel>(
+                () => FluentColumnsConfig<EmployeePostJournalNode>.Create()
+                    .AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Название").AddTextRenderer(node => node.EmployeePostName)
+                    .Finish()
+            );
+
+            //SubdivisionsJournalViewModel
+            TreeViewColumnsConfigFactory.Register<FinesJournalViewModel>(
 				() => FluentColumnsConfig<FineJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
 					.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
@@ -749,6 +757,10 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Автор")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n =>  n.Author )
+						.XAlign(0.5f)
+					.AddColumn("Подотчетное лицо")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.AccountablePerson)
 						.XAlign(0.5f)
 					.AddColumn("Сумма")
 						.HeaderAlignment(0.5f)

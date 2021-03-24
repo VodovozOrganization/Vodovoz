@@ -6,12 +6,10 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
-using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalFilters;
-using Vodovoz.Tools;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ViewWidgets
@@ -28,6 +26,17 @@ namespace Vodovoz.ViewWidgets
 		public OrderEquipmentItemsView()
 		{
 			this.Build();
+		}
+
+		/// <summary>
+		/// Перезапись встроенного свойства Sensitive
+		/// Sensitive теперь работает только с таблицей
+		/// К сожалению Gtk обходит этот параметр, если выставлять Sensitive какому-либо элементу управления выше по дереву
+		/// </summary>
+		public new bool Sensitive
+		{
+			get => treeEquipment.Sensitive && hboxButtons.Sensitive;
+			set => treeEquipment.Sensitive = hboxButtons.Sensitive = value;
 		}
 
 		/// <summary>
@@ -60,8 +69,7 @@ namespace Vodovoz.ViewWidgets
 		{
 			Order.ObservableOrderEquipments.ElementAdded -= Order_ObservableOrderEquipments_ElementAdded;
 		}
-
-
+		
 		private void SetColumnConfigForOrderDlg()
 		{
 			var colorBlack = new Gdk.Color(0, 0, 0);
@@ -180,8 +188,6 @@ namespace Vodovoz.ViewWidgets
 					})
 					.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
-				//.AddColumn("Забрано у клиента")
-				//.AddToggleRenderer(node => node.IsDelivered).Editing(false)
 				.AddColumn("Причина незабора").AddTextRenderer(x => x.ConfirmedComment)
 				.AddSetter((cell, node) => cell.Editable = node.Direction == Domain.Orders.Direction.PickUp)
 				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
@@ -304,7 +310,7 @@ namespace Vodovoz.ViewWidgets
 		private void EditGoodsCountCellOnAdd(yTreeView treeView)
 		{
 			int index = treeView.Model.IterNChildren() - 1;
-			Gtk.TreePath path;
+			TreePath path;
 
 			treeView.Model.IterNthChild(out TreeIter iter, index);
 			path = treeView.Model.GetPath(iter);
