@@ -386,7 +386,7 @@ namespace Vodovoz.Domain.Orders
 
 		public decimal CurrentCount => ActualCount ?? Count;
 
-		public virtual decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);//FIXME Count -- CurrentCount
+		public virtual decimal Sum => Math.Round(Price * CurrentCount - DiscountMoney, 2);
 
 		public virtual decimal ActualSum => Math.Round(Price * CurrentCount - DiscountMoney, 2);
 

@@ -26,11 +26,11 @@ FROM(
 		bmo.delivered AS full_btls,
 		o.bottles_by_stock_actual_count AS empty_btls,
 		SUM(
-			IF(
+			ROUND(IF(
 				oi.discount_by_stock &gt; 0,
 				IFNULL(oi.actual_count, count) * oi.price,
 				IFNULL(oi.actual_count, count) * oi.price - oi.discount_money
-			)
+			), 2)
 		) AS sum_wo_stock,
 		MAX(discount_by_stock) AS discount_by_stock
 	FROM orders o
