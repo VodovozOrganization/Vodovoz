@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Dialogs.Logistic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using NPOI.SS.Formula.Functions;
+using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -32,6 +37,9 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using QS.Project.Domain;
 using QS.DomainModel.NotifyChange;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 namespace Vodovoz.ViewModel
@@ -340,29 +348,105 @@ namespace Vodovoz.ViewModel
 
 						using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot()) {
 							var routeLists = uowLocal.Session.QueryOver<RouteList>()
-							.Where(x => x.Id.IsIn(routeListIds))
-							.List();
+								.Where(x => x.Id.IsIn(routeListIds))
+								.List();
 
-							routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) => {
-								if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
-									MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
-									isSlaveTabActive = true;
+							StringBuilder stockMessage = new StringBuilder();
+							bool needShowMessage = false;
+
+							foreach (var routeList in routeLists)
+							{
+								int warehouseId = 0;
+								if (routeList.ClosingSubdivision.Id == 17) //касса Софийская
+									warehouseId = 1; //склад Софийская
+								if (routeList.ClosingSubdivision.Id == 25) //касса Парнас
+									warehouseId = 22; //склад Парнас
+
+								if (warehouseId > 0)
+								{
+									var wareHouse = uowLocal.Session.QueryOver<Warehouse>()
+										.Where(x => x.Id == warehouseId)
+										.SingleOrDefault();
+									
+									foreach (var address in routeList.Addresses)
+									{
+										foreach (var orderItem in address.Order.OrderItems)
+										{
+											if (orderItem.Nomenclature.ProductGroup != null && orderItem.Nomenclature.ProductGroup.IsOnlineStore)
+											{
+												var stockBalances = GetStockBalanceByNomenclatureId(uowLocal.Session, orderItem.Nomenclature.Id);
+
+												var warehouseBalance = stockBalances.SingleOrDefault(sb => sb.WarehouseId == warehouseId);
+
+												if (warehouseBalance == null || warehouseBalance.Amount < orderItem.Count)
+												{
+													if (string.IsNullOrEmpty(stockMessage.ToString()))
+													{
+														stockMessage.Append($"В наличии на складе {wareHouse.Name} нет следующих товаров:");
+														needShowMessage = true;
+													}
+
+													stockMessage.Append(Environment.NewLine);
+													stockMessage.Append($"Заказ {address.Order.Id}: " +
+													                    $"{orderItem.Nomenclature.Name} {orderItem.Count} {orderItem.Nomenclature.Unit.Name}");
+
+													var otherStockBalances = stockBalances.
+														Where(sb => sb.Amount >= orderItem.Count).ToList();
+
+													if (otherStockBalances.Count > 0)
+													{
+														stockMessage.Append(" (нужное количество есть на других складах:");
+														for (int i = 0; i < otherStockBalances.Count(); i++)
+														{
+															stockMessage.Append(
+																$" {otherStockBalances[i].WarehouseName} {otherStockBalances[i].Amount}" +
+																$" {orderItem.Nomenclature.Unit.Name}");
+
+															if (i < otherStockBalances.Count - 1)
+																stockMessage.Append(", ");
+															else
+																stockMessage.Append(") ");
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+
+							if (needShowMessage)
+								stockMessage.Append($"{Environment.NewLine}Всё равно отправить МЛ на погрузку?");
+
+							if (!needShowMessage || (needShowMessage && ServicesConfig.CommonServices.InteractiveService.Question(stockMessage.ToString())))
+							{
+								routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach(
+									(routeList) =>
+									{
+										if (TDIMain.MainNotebook.FindTab(
+											DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
+										{
+											MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
+											isSlaveTabActive = true;
+											return;
+										}
+
+										foreach (var address in routeList.Addresses)
+										{
+											if (address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
+												address.Order.ChangeStatusAndCreateTasks(
+													Domain.Orders.OrderStatus.OnLoading, callTaskWorker);
+										}
+
+										routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, callTaskWorker);
+										uowLocal.Save(routeList);
+									});
+
+								if (isSlaveTabActive)
 									return;
-								}
 
-								foreach(var address in routeList.Addresses) {
-									if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
-										address.Order.ChangeStatusAndCreateTasks(Domain.Orders.OrderStatus.OnLoading, callTaskWorker);
-								}
-
-								routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, callTaskWorker);
-								uowLocal.Save(routeList);
-							});
-
-							if(isSlaveTabActive)
-								return;
-
-							uowLocal.Commit();
+								uowLocal.Commit();
+							}
 						}
 					},
 					(selectedItems) => selectedItems.Any((x) => (x as RouteListsVMNode).StatusEnum == RouteListStatus.Confirmed)
@@ -521,6 +605,61 @@ namespace Vodovoz.ViewModel
 			}
 		}
 
+		private IList<StockBalanceNode> GetStockBalanceByNomenclatureId(ISession session, int nomenclatureId)
+		{
+			WarehouseMovementOperation warehouseOperationAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			Warehouse incomeWarehouseAlias = null;
+			Warehouse writeoffWarehouseAlias = null;
+			MeasurementUnits measurementUnitsAlias = null;
+			StockBalanceNode stockBalanceNodeAlias = null;
+
+			return session.QueryOver<WarehouseMovementOperation>(() => warehouseOperationAlias)
+				.Left.JoinAlias(() => warehouseOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.Unit, () => measurementUnitsAlias)
+				.Left.JoinAlias(() => warehouseOperationAlias.IncomingWarehouse, () => incomeWarehouseAlias)
+				.Left.JoinAlias(() => warehouseOperationAlias.WriteoffWarehouse, () => writeoffWarehouseAlias)
+				.Where(() => nomenclatureAlias.Id == nomenclatureId)
+				.SelectList(list => list
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => stockBalanceNodeAlias.NomenclatureId)
+					.Select(
+						Projections.GroupProperty(
+							Projections.Conditional(
+								Restrictions.Where(() => warehouseOperationAlias.IncomingWarehouse == null), 
+								Projections.Property(() => writeoffWarehouseAlias.Id),
+								Projections.Property(() => incomeWarehouseAlias.Id)
+							))
+					).WithAlias(() => stockBalanceNodeAlias.WarehouseId)
+					.Select(
+						Projections.GroupProperty(
+							Projections.Conditional(
+								Restrictions.Where(() => warehouseOperationAlias.IncomingWarehouse == null), 
+								Projections.Property(() => writeoffWarehouseAlias.Name),
+								Projections.Property(() => incomeWarehouseAlias.Name)
+								))
+							).WithAlias(() => stockBalanceNodeAlias.WarehouseName)
+						.Select(
+							Projections.Sum(
+								Projections.Conditional(
+									Restrictions.Where(() => warehouseOperationAlias.IncomingWarehouse == null), 
+									Projections.SqlFunction(
+										new VarArgsSQLFunction("(", "*", ")"), 
+										NHibernateUtil.Decimal,
+										Projections.Property(() => warehouseOperationAlias.Amount),
+										Projections.Constant(-1)),
+									Projections.Property(() => warehouseOperationAlias.Amount)))
+						).WithAlias(() => stockBalanceNodeAlias.Amount)
+				).TransformUsing(Transformers.AliasToBean<StockBalanceNode>()).List<StockBalanceNode>();
+		}
+
+		private class StockBalanceNode
+		{
+			public int NomenclatureId;
+			public int WarehouseId;
+			public string WarehouseName;
+			public decimal Amount;
+		}
+		
 		public new void Dispose()
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
