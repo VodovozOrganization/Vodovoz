@@ -257,9 +257,12 @@ namespace Vodovoz
 		{
 			if(NeedCopy) {
 				Entity.Client = UoW.GetById<Counterparty>(copiedOrder.Client.Id);
-				Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(copiedOrder.DeliveryPoint.Id);
-				Entity.PaymentType = Entity.Client.PaymentMethod;
 
+				if (copiedOrder.DeliveryPoint != null) {
+					Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(copiedOrder.DeliveryPoint.Id);
+				}
+				
+				Entity.PaymentType = Entity.Client.PaymentMethod;
 				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
