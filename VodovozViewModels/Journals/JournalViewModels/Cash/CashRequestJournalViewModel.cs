@@ -94,19 +94,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             var currentEmployee = employeeRepository.GetEmployeesForUser(uow, userId).First();
             var currentEmployeeId = currentEmployee.Id;
 
-            if (commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests")){
-                result.Where(() => cashRequestAlias.Subdivision == currentEmployee.Subdivision);
-            } else {
+            if (!commonServices.UserService.GetCurrentUser(UoW).IsAdmin)
+            {
                 if (!commonServices.PermissionService
                         .ValidateUserPresetPermission("role_financier_cash_request", userId)
                     && !commonServices.PermissionService
                         .ValidateUserPresetPermission("role_coordinator_cash_request", userId)
                     && !commonServices.PermissionService
                         .ValidateUserPresetPermission("role_сashier", userId)
-                   )
+                    )
                 {
-                    result.Where(() => cashRequestAlias.Author.Id == currentEmployeeId);
+                    if (commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests"))
+                    {
+                        result.Where(() => cashRequestAlias.Subdivision == currentEmployee.Subdivision);
+                    }
+                    else
+                    {
+                        result.Where(() => cashRequestAlias.Author.Id == currentEmployeeId);
+                    }
                 }
+
             }
 
             var authorProjection = Projections.SqlFunction(
