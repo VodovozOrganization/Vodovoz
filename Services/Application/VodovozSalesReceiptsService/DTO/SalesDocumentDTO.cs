@@ -28,7 +28,7 @@ namespace VodovozSalesReceiptsService.DTO
 				);
 			}
 			MoneyPositions = new List<MoneyPositionDTO> {
-				new MoneyPositionDTO(order, Math.Round(order.OrderItems.Sum(i => i.Price * i.Count - i.DiscountMoney), 2))
+				new MoneyPositionDTO(order, order.OrderItems.Sum(i => Math.Round(i.Price * i.Count - i.DiscountMoney, 2)))
 			};
 		}
 
