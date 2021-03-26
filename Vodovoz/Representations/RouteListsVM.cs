@@ -36,6 +36,7 @@ using QS.DomainModel.NotifyChange;
 using QSSupportLib;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModel
 {
@@ -349,20 +350,15 @@ namespace Vodovoz.ViewModel
 							bool needShowMessage = false;
 							var warehouseRepository = new WarehouseRepository();
 							List<LackStockNode> messageStockList = new List<LackStockNode>();
-							
-							string paramId;
-							int kassaSofiiskayaId = MainSupport.BaseParameters.All.TryGetValue("касса_софийская",  out paramId) ? int.Parse(paramId):0;
-							int kassaParnasId = MainSupport.BaseParameters.All.TryGetValue("касса_парнас", out paramId) ? int.Parse(paramId):0;
-							int skladSofiiskayaId = MainSupport.BaseParameters.All.TryGetValue("склад_софийская", out  paramId) ? int.Parse(paramId):0;
-							int skladParnasId = MainSupport.BaseParameters.All.TryGetValue("склад_парнас", out  paramId) ? int.Parse(paramId):0;
 
 							foreach (var routeList in routeLists)
 							{
+								var routeListParametersProvider = new RouteListParametersProvider(ParametersProvider.Instance);
 								int warehouseId = 0;
-								if (routeList.ClosingSubdivision.Id == kassaSofiiskayaId)
-									warehouseId = skladSofiiskayaId;
-								if (routeList.ClosingSubdivision.Id == kassaParnasId)
-									warehouseId = skladParnasId;
+								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.СashierSofiiskayaId)
+									warehouseId = routeListParametersProvider.WarehouseSofiiskayaId;
+								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.СashierParnasId)
+									warehouseId = routeListParametersProvider.WarehouseParnasId;
 
 								if (warehouseId > 0)
 								{
@@ -380,12 +376,8 @@ namespace Vodovoz.ViewModel
 										(o, w) => new LackStockNode() {NomenclatureId = o.Nomenclature.Id, OrderId = o.Order.Id,
 											NomenclatureName = o.Nomenclature.Name, Count = o.Count, Stock= w.Stock, Measure = o.Nomenclature.Unit.Name })
 										.Where(w=> w.Stock < w.Count);
-									
-									lackWarehouseStocks.ToList().ForEach(lackStockWarehouse =>
-									{
-										if (!messageStockList.Any(messageItem => lackStockWarehouse.NomenclatureId == messageItem.NomenclatureId))
-											messageStockList.Add(lackStockWarehouse);
-									});
+
+									messageStockList.AddRange(lackWarehouseStocks);
 								}
 							}
 
