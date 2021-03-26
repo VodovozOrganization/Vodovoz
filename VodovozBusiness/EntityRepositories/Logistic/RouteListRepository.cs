@@ -118,18 +118,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 						Amount = list.Sum(x => x.Amount)
 					}
 				).ToList();
-
-				//.GroupBy(
-				//	x => x.NomenclatureName,
-				//	x => x,
-				//	(key, value) => new GoodsInRouteListResultWithSpecialRequirements()
-				//	{
-				//		NomenclatureName = key,
-				//		NomenclatureId = value.FirstOrDefault().NomenclatureId,
-				//		OwnType = value.FirstOrDefault().OwnType,
-				//		ExpireDatePercent = value.FirstOrDefault().ExpireDatePercent,
-				//		Amount = value.Sum(x => x.Amount)
-				//	}).ToList();
 		}
 
 		public IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(
