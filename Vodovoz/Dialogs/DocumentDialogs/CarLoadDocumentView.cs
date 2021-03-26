@@ -6,6 +6,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Converters;
@@ -21,6 +22,7 @@ namespace Vodovoz
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<CarLoadDocumentItem>()
 				.AddColumn("Номенклатура").AddTextRenderer(x => (x.ExpireDatePercent != null) ? x.Nomenclature.Name + " >" + x.ExpireDatePercent + "% срока годности" : x.Nomenclature.Name)
+				.AddColumn("Принадлежность").AddEnumRenderer(x => x.OwnType, true, new Enum[] { OwnTypes.None })
 				.AddColumn("С/Н оборудования").AddTextRenderer(x => x.Equipment != null ? x.Equipment.Serial : String.Empty)
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInStock))
 				.AddColumn("В маршрутнике").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInRouteList))
