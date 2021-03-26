@@ -459,7 +459,7 @@
 	counterparty.id AS counter_id,
     	counterparty.name AS name,
    	counterparty.full_name AS full_name,
-    	counterparty.address AS address,
+    	delivery_points.compiled_address AS address,
 	districts.district_name AS district,
 	(employees.last_name + employees.name + employees.patronymic) as employee_full_name,
 	date(orders.create_date) AS first_order,
@@ -477,7 +477,7 @@
 	END AS payment_type
 FROM counterparty
 LEFT JOIN delivery_points ON delivery_points.counterparty_id = counterparty.id
-LEFT JOIN districts ON districts.id = delivery_points.id
+LEFT JOIN districts ON districts.id = delivery_points.district_id
 LEFT JOIN sales_channel_to_counterparty ON  sales_channel_to_counterparty.counterparty_id = counterparty.id
 LEFT JOIN sales_channels ON sales_channels.id = sales_channel_to_counterparty.sales_channel_id
 LEFT JOIN orders ON orders.id = counterparty.first_order_id
@@ -486,7 +486,7 @@ LEFT JOIN employees ON employees.id = counterparty.close_delivery_employee_id
 	counterparty.is_for_retail = 1
 	AND (IF(@create_date IS NULL OR @create_date = '', 'empty', orders.create_date &gt;= @create_date))
 	AND (@sales_channel_id = 0 OR sales_channels.id = @sales_channel_id)
-	AND (@district = 0 OR districts.id = @district)
+	AND (@district = 0 OR delivery_points.district_id = @district)
 	AND (@payment_type = counterparty.payment_method)
 GROUP BY counterparty.id
 ORDER BY first_order DESC</CommandText>
