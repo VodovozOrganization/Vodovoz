@@ -355,9 +355,9 @@ namespace Vodovoz.ViewModel
 							{
 								var routeListParametersProvider = new RouteListParametersProvider(ParametersProvider.Instance);
 								int warehouseId = 0;
-								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.СashierSofiiskayaId)
+								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.CashSubdivisionSofiiskayaId)
 									warehouseId = routeListParametersProvider.WarehouseSofiiskayaId;
-								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.СashierParnasId)
+								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.CashSubdivisionParnasId)
 									warehouseId = routeListParametersProvider.WarehouseParnasId;
 
 								if (warehouseId > 0)
