@@ -12,8 +12,8 @@ namespace Vodovoz.Parameters
             this.parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }
         
-        public int CashSubdivisionSofiiskayaId => parametersProvider.GetIntValue("cashier_sofiiskaya_id");
-        public int CashSubdivisionParnasId => parametersProvider.GetIntValue("cashier_parnas_id");
+        public int CashSubdivisionSofiiskayaId => parametersProvider.GetIntValue("cashsubdivision_sofiiskaya_id");
+        public int CashSubdivisionParnasId => parametersProvider.GetIntValue("cashsubdivision_parnas_id");
         public int WarehouseSofiiskayaId => parametersProvider.GetIntValue("warehouse_sofiiskaya_id");
         public int WarehouseParnasId => parametersProvider.GetIntValue("warehouse_parnas_id");
     }
