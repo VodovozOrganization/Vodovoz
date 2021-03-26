@@ -254,15 +254,23 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 return;
             }
 
-            var summToGive = sumToGive ?? cashRequestSumItem.Sum - cashRequestSumItem.ObservableExpenses.Sum(x => x.Money);
+            var alreadyGiven = cashRequestSumItem.ObservableExpenses.Sum(x => x.Money);
 
-            if(sumToGive <= 0)
+            var decimalSumToGive = sumToGive ?? cashRequestSumItem.Sum - alreadyGiven;
+
+            if (decimalSumToGive <= 0)
             {
                 return;
             }
 
-            CreateNewExpenseForItem(cashRequestSumItem, summToGive);
-            Entity.ChangeState(CashRequest.States.Closed);
+            CreateNewExpenseForItem(cashRequestSumItem, decimalSumToGive);
+            if(!Entity.PossibilityNotToReconcilePayments && (alreadyGiven + decimalSumToGive) == cashRequestSumItem.Sum)
+            {
+                Entity.ChangeState(CashRequest.States.OnClarification);
+            } else
+            {
+                Entity.ChangeState(CashRequest.States.Closed);
+            }
             AfterSaveCommand.Execute();
         }
 
