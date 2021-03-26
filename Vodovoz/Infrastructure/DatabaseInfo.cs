@@ -1,4 +1,4 @@
-﻿using QS.Project.VersionControl;
+﻿using QS.Project.Versioning;
 
 namespace Vodovoz.Infrastructure
 {

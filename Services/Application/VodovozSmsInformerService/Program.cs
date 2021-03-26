@@ -9,7 +9,6 @@ using MySql.Data.MySqlClient;
 using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
-using QSSupportLib;
 using SmsRuSendService;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.SmsNotifications;
@@ -105,7 +104,6 @@ namespace VodovozSmsInformerService
 					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
 				});
 
-				MainSupport.LoadBaseParameters();
 				QS.HistoryLog.HistoryMain.Enable();
 
 				ISmsNotificationRepository smsNotificationRepository = new SmsNotificationRepository();

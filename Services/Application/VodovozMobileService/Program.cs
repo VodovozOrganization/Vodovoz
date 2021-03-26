@@ -7,7 +7,6 @@ using MySql.Data.MySqlClient;
 using Nini.Config;
 using QS.Project.DB;
 using QSProjectsLib;
-using QSSupportLib;
 
 namespace VodovozMobileService
 {
@@ -66,8 +65,6 @@ namespace VodovozMobileService
 						System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase)),
 						System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap))
 				});
-
-				MainSupport.LoadBaseParameters();
 			}
 			catch(Exception ex) {
 				logger.Fatal(ex, "Ошибка в настройке подключения к БД.");

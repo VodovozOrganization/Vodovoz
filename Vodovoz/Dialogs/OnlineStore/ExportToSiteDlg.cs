@@ -5,7 +5,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSProjectsLib;
-using QSSupportLib;
 using Vodovoz.Parameters;
 using Vodovoz.Tools.CommerceML;
 
@@ -70,22 +69,22 @@ namespace Vodovoz.Dialogs.OnlineStore
 
 		protected void OnEntrySitePathFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			MainSupport.BaseParameters.UpdateParameter(QSMain.ConnectionDB, Export.OnlineStoreUrlParameterName, entrySitePath.Text);
+			ParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStoreUrlParameterName, entrySitePath.Text);
 		}
 
 		protected void OnEntryUserFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			MainSupport.BaseParameters.UpdateParameter(QSMain.ConnectionDB, Export.OnlineStoreLoginParameterName, entryUser.Text);
+			ParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStoreLoginParameterName, entryUser.Text);
 		}
 
 		protected void OnEntryPasswordFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			MainSupport.BaseParameters.UpdateParameter(QSMain.ConnectionDB, Export.OnlineStorePasswordParameterName, entryPassword.Text);
+			ParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStorePasswordParameterName, entryPassword.Text);
 		}
 
 		protected void OnComboExportModeChangedByUser(object sender, EventArgs e)
 		{
-			MainSupport.BaseParameters.UpdateParameter(QSMain.ConnectionDB, Export.OnlineStoreExportMode, comboExportMode.SelectedItem.ToString());
+			ParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStoreExportMode,  comboExportMode.SelectedItem.ToString());
 		}
 
 		protected void OnButtonExportToSiteClicked(object sender, EventArgs e)

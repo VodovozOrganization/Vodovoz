@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Linq;
-using Gtk;
 using MySql.Data.MySqlClient;
-using NHibernate.Hql.Ast.ANTLR.Tree;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.ErrorReporting;
 using QS.Project.DB;
 using QS.Project.Domain;
-using QS.Project.VersionControl;
+using QS.Project.Versioning;
 using QS.Services;
-using QSProjectsLib;
 
 namespace Vodovoz
 {

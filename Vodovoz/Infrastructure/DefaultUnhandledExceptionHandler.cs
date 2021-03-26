@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using Gtk;
-using QS.Dialog;
 using QS.Project.Domain;
-using QS.Project.VersionControl;
-using QS.ErrorReporting;
+using QS.Project.Versioning;
 using Vodovoz.Views;
 using Vodovoz.Tools;
 using QS.Services;
