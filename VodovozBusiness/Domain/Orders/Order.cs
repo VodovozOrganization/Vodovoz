@@ -1208,7 +1208,7 @@ namespace Vodovoz.Domain.Orders
 					sum += item.ActualSum;
 
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems)
-					sum -= dep.Total;
+					sum -= Math.Round(dep.Deposit * dep.Count, 2);
 
 				return sum;
 			}
