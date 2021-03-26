@@ -256,15 +256,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
             var alreadyGiven = cashRequestSumItem.ObservableExpenses.Sum(x => x.Money);
 
-            var summToGive = sumToGive ?? cashRequestSumItem.Sum - alreadyGiven;
+            var decimalSumToGive = sumToGive ?? cashRequestSumItem.Sum - alreadyGiven;
 
-            if (sumToGive <= 0)
+            if (decimalSumToGive <= 0)
             {
                 return;
             }
 
-            CreateNewExpenseForItem(cashRequestSumItem, summToGive);
-            if(!Entity.PossibilityNotToReconcilePayments && (alreadyGiven + sumToGive) == cashRequestSumItem.Sum)
+            CreateNewExpenseForItem(cashRequestSumItem, decimalSumToGive);
+            if(!Entity.PossibilityNotToReconcilePayments && (alreadyGiven + decimalSumToGive) == cashRequestSumItem.Sum)
             {
                 Entity.ChangeState(CashRequest.States.OnClarification);
             } else
