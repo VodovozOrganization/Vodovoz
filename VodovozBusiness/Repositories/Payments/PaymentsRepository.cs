@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Operations;
 using NHibernate.Criterion;
+using NHibernate.Transform;
 using Vodovoz.Services;
 using Vodovoz.Domain.Organizations;
 
@@ -12,27 +12,19 @@ namespace Vodovoz.Repositories.Payments
 {
 	public static class PaymentsRepository
 	{
-		public static Dictionary<int, decimal> GetAllPaymentsFromTinkoff(IUnitOfWork uow)
+		public static IList<PaymentByCardOnlineNode> GetPaymentsByTwoMonths(IUnitOfWork uow, DateTime date)
 		{
-			var paymentsList = uow.Session.QueryOver<PaymentByCardOnline>()
-					  .SelectList(list => list
-								  .Select(p => p.PaymentNr)
-								  .Select(p => p.PaymentRUR)
-								 ).List<object[]>();
-
-			return paymentsList.ToDictionary(r => (int)r[0], r => (decimal)r[1]);
-		}
-		
-		public static Dictionary<int, decimal> GetPaymentsByOneMonth(IUnitOfWork uow, DateTime date)
-		{
-			var paymentsList = uow.Session.QueryOver<PaymentByCardOnline>()
+			PaymentByCardOnlineNode resultAlias = null;
+			
+			return uow.Session.QueryOver<PaymentByCardOnline>()
 				.Where(x => x.DateAndTime >= date.AddMonths(-1))
+				.And(x => x.DateAndTime <= date.AddMonths(+1))
 				.SelectList(list => list
-					.Select(p => p.PaymentNr)
-					.Select(p => p.PaymentRUR)
-				).List<object[]>();
-
-			return paymentsList.ToDictionary(r => (int)r[0], r => (decimal)r[1]);
+					.Select(p => p.PaymentNr).WithAlias(() => resultAlias.Number)
+					.Select(p => p.DateAndTime).WithAlias(() => resultAlias.Date)
+					.Select(p => p.PaymentRUR).WithAlias(() => resultAlias.Sum))
+				.TransformUsing(Transformers.AliasToBean<PaymentByCardOnlineNode>())
+				.List<PaymentByCardOnlineNode>();
 		}
 
 		public static IEnumerable<string> GetAllShopsFromTinkoff(IUnitOfWork uow)
@@ -99,5 +91,12 @@ namespace Vodovoz.Repositories.Payments
 
 			return distributedPayments;
 		}
+	}
+
+	public class PaymentByCardOnlineNode
+	{
+		public int Number { get; set; }
+		public decimal Sum { get; set; }
+		public DateTime Date { get; set; }
 	}
 }
