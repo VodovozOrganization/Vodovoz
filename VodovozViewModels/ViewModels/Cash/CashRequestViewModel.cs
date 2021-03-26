@@ -264,7 +264,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             }
 
             CreateNewExpenseForItem(cashRequestSumItem, decimalSumToGive);
-            if(!Entity.PossibilityNotToReconcilePayments && (alreadyGiven + decimalSumToGive) == cashRequestSumItem.Sum)
+            if(!Entity.PossibilityNotToReconcilePayments 
+                && alreadyGiven > 0
+                && (alreadyGiven + decimalSumToGive) == cashRequestSumItem.Sum
+                && Entity.ObservableSums.Count(x => x.Expenses.Sum(e => e.Money) != x.Sum) > 0)
             {
                 Entity.ChangeState(CashRequest.States.OnClarification);
             } else
