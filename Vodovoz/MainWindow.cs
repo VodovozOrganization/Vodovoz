@@ -303,7 +303,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnAboutActionActivated(object sender, EventArgs e)
     {
-        var aboutViewModel = new AboutViewModel(new ApplicationVersionInfo());
+        var aboutViewModel = new AboutViewModel(applicationInfo);
         var aboutView = new AboutView(aboutViewModel);
         aboutView.ShowAll();
         aboutView.Run();
