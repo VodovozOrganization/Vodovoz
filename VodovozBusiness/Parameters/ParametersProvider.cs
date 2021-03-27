@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Persister.Entity;
 using NLog;
 using QS.DomainModel.UoW;
@@ -150,17 +151,17 @@ namespace Vodovoz.Parameters
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				var bpPersister = (AbstractEntityPersister)uow.Session.SessionFactory.GetClassMetadata(typeof(BaseParameter));
 				var tableName = bpPersister.TableName;
-				var nameColumnName = bpPersister.GetPropertyTableName(nameof(BaseParameter.Name));
-				var strValueColumnName = bpPersister.GetPropertyTableName(nameof(BaseParameter.StrValue));
+				var nameColumnName = bpPersister.GetPropertyColumnNames(nameof(BaseParameter.Name)).First();
+				var strValueColumnName = bpPersister.GetPropertyColumnNames(nameof(BaseParameter.StrValue)).First();
 				
 				string sql;
 				if(isInsert) {
-					sql = $"INSERT INTO {tableName} ({nameColumnName}, {strValueColumnName}) VALUES ({name}, {value})";
-					logger.Debug($"Добавляем новый параметр базы {name}={value}");
+					sql = $"INSERT INTO {tableName} ({nameColumnName}, {strValueColumnName}) VALUES ('{name}', '{value}')";
+					logger.Debug($"Добавляем новый параметр базы {name}='{value}'");
 				}
 				else {
-					sql = $"UPDATE {tableName} SET {strValueColumnName} = {value} WHERE {nameColumnName} = {name}";
-					logger.Debug($"Изменяем параметр базы {name}={value}");
+					sql = $"UPDATE {tableName} SET {strValueColumnName} = '{value}' WHERE {nameColumnName} = '{name}'";
+					logger.Debug($"Изменяем параметр базы {name}='{value}'");
 				}
 				uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
 			}

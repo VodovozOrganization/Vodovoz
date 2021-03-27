@@ -46,8 +46,8 @@ namespace Vodovoz
 
 			#region Первоначальная настройка обработки ошибок
 			SingletonErrorReporter.Initialize(ReportWorker.GetReportService(), applicationInfo, new LogService(), null, false, null);
-			var errorMessageModelFactory = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, null, null);
-			var exceptionHandler = new DefaultUnhandledExceptionHandler(errorMessageModelFactory, applicationInfo);
+			var errorMessageModelFactoryWithoutUserService = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, null, null);
+			var exceptionHandler = new DefaultUnhandledExceptionHandler(errorMessageModelFactoryWithoutUserService, applicationInfo);
 
 			exceptionHandler.SubscribeToUnhandledExceptions();
 			exceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;
@@ -98,9 +98,9 @@ namespace Vodovoz
 				baseParameters.GetRowCountForErrorLog()
 			);
 
-			var errorMessageModelFactory2 = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, ServicesConfig.UserService, UnitOfWorkFactory.GetDefaultFactory);
+			var errorMessageModelFactoryWithUserService = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, ServicesConfig.UserService, UnitOfWorkFactory.GetDefaultFactory);
 			exceptionHandler.InteractiveService = ServicesConfig.InteractiveService;
-			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactory2;
+			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactoryWithUserService;
 			//Настройка обычных обработчиков ошибок.
 			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
 			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
