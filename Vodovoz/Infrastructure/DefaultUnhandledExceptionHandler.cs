@@ -45,7 +45,6 @@ namespace Vodovoz.Infrastructure
 
 		public Thread GuiThread { get; set; }
 		public IApplicationInfo ApplicationInfo { get; set; }
-		public IDataBaseInfo DataBaseInfo { get; set; }
 		public IInteractiveService InteractiveService { get; set; }
 		public IErrorMessageModelFactory ErrorMessageModelFactory { get; set; }
 		public UserBase User { get; set; }
