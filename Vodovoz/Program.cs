@@ -146,7 +146,7 @@ namespace Vodovoz
 									   Message);
 				md.Run();
 				md.Destroy();
-				UsersDialog usersDlg = new UsersDialog();
+				UsersDialog usersDlg = new UsersDialog(ServicesConfig.InteractiveService);
 				usersDlg.Show();
 				usersDlg.Run();
 				usersDlg.Destroy();
