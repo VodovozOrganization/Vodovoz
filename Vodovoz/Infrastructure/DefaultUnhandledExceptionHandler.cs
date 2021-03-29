@@ -83,8 +83,14 @@ namespace Vodovoz.Infrastructure
 		{
 			if(InteractiveService != null) {
 				foreach(var handler in CustomErrorHandlers) {
-					if(handler(exception, ApplicationInfo, User, InteractiveService))
-						return;
+					try {
+						if(handler(exception, ApplicationInfo, User, InteractiveService)) {
+							return;
+						}
+					}
+					catch(Exception ex) {
+						logger.Error(ex, "Ошибка в CustomErrorHandler");
+					}
 				}
 			}
 			if(errorMessageViewModel != null) {
