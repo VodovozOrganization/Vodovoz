@@ -13,7 +13,6 @@ using MySql.Data.MySqlClient;
 using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
-using QSSupportLib;
 using Vodovoz.Core.DataService;
 
 namespace VodovozEmailService
@@ -88,8 +87,7 @@ namespace VodovozEmailService
 					System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
 				});
-
-				MainSupport.LoadBaseParameters();
+				
 				QS.HistoryLog.HistoryMain.Enable();
 
 				EmailInstanceProvider emailInstanceProvider = new EmailInstanceProvider(new BaseParametersProvider());

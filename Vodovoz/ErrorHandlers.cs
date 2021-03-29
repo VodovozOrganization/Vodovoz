@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Linq;
-using Gtk;
 using MySql.Data.MySqlClient;
-using NHibernate.Hql.Ast.ANTLR.Tree;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.ErrorReporting;
 using QS.Project.DB;
 using QS.Project.Domain;
-using QS.Project.VersionControl;
+using QS.Project.Versioning;
 using QS.Services;
-using QSProjectsLib;
 
 namespace Vodovoz
 {
 	public static class ErrorHandlers
 	{
-		public static bool NHibernateStaleObjectStateExceptionException(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
+		public static bool NHibernateStaleObjectStateExceptionHandler(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
 		{
 			var staleObjectStateException = ExceptionHelper.FindExceptionTypeInInner<NHibernate.StaleObjectStateException>(exception);
 			if(staleObjectStateException != null) {
@@ -25,7 +22,7 @@ namespace Vodovoz
 
 				string message;
 
-				switch(objectName.Gender) {
+				switch(objectName?.Gender) {
 					case GrammaticalGender.Feminine:
 						message = "Сохраняемая <b>{0}</b> c номером <b>{1}</b> была кем то изменена.";
 						break;
@@ -45,7 +42,7 @@ namespace Vodovoz
 			return false;
 		}
 
-		public static bool MySqlExceptionConnectionTimeout(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
+		public static bool MySqlExceptionConnectionTimeoutHandler(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
 		{
 			var mysqlEx = ExceptionHelper.FindExceptionTypeInInner<MySqlException>(exception);
 			var exceptions = new[] { 1159, 1161 };
@@ -56,7 +53,7 @@ namespace Vodovoz
 			return false;
 		}
 		
-		public static bool MySqlExceptionAuth(Exception exception, IApplicationInfo application, UserBase user, IInteractiveService interactiveMessage)
+		public static bool MySqlExceptionAuthHandler(Exception exception, IApplicationInfo application, UserBase user, IInteractiveService interactiveMessage)
 		{
 			var mysqlEx = ExceptionHelper.FindExceptionTypeInInner<MySqlException>(exception);
 			

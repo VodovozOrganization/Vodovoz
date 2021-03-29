@@ -49,7 +49,7 @@ node('Vodovoz') {
 	stage('QSProjects') {
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
-			branches: [[name: '*/release/1.3.1']],
+			branches: [[name: '*/master']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
 				[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
