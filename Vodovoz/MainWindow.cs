@@ -1375,7 +1375,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionUsersActivated(object sender, EventArgs e)
     {
-        UsersDialog usersDlg = new UsersDialog();
+        UsersDialog usersDlg = new UsersDialog(ServicesConfig.InteractiveService);
         usersDlg.Show();
         usersDlg.Run();
         usersDlg.Destroy();
