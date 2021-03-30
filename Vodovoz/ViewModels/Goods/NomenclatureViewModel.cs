@@ -139,7 +139,7 @@ namespace Vodovoz.ViewModels.Goods
 				return "";
 			}
 
-			var employee = employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
+			var employee = employeeService.GetEmployeeForUser(UoW, Entity.CreatedBy.Id);
 
 			if(employee == null) {
 				return Entity.CreatedBy.Name;
