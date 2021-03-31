@@ -1641,16 +1641,22 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual NomenclatureFixedPrice GetFixedPriceOrNull(Nomenclature nomenclature)
 		{
-			if (Contract == null) {
-				return null;
+			IList<NomenclatureFixedPrice> fixedPrices;
+			
+			if(deliveryPoint == null)
+			{
+				if (Contract == null)
+					return null;
+				
+				fixedPrices = Contract.Counterparty.NomenclatureFixedPrices;
 			}
-			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
-
-			IList<NomenclatureFixedPrice> fixedPrices = Contract.Counterparty.NomenclatureFixedPrices;
-			if(deliveryPoint != null) {
+			else
+			{
 				fixedPrices = deliveryPoint.NomenclatureFixedPrices;
 			}
 			
+			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
+
 			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && influentialNomenclature == null)) {
 				return fixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id);
 			}
