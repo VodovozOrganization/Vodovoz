@@ -1141,7 +1141,12 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(validationContext.Items.ContainsKey("NewStatus")) {
+            bool cashOrderClose = false;
+            if (validationContext.Items.ContainsKey("cash_order_close"))
+            {
+                cashOrderClose = (bool)validationContext.Items["cash_order_close"];
+            }
+            if (validationContext.Items.ContainsKey("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
 				switch(newStatus) {
 					case RouteListStatus.New:
@@ -1157,7 +1162,8 @@ namespace Vodovoz.Domain.Logistic
 										address.Order,
 										null,
 										new Dictionary<object, object> {
-											{ "NewStatus", OrderStatus.Closed },
+											{ "NewStatus", OrderStatus.Closed},
+                                            { "cash_order_close", cashOrderClose},
 											{ "AddressStatus", address.Status}
 										}
 									)

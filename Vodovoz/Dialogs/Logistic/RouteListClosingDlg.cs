@@ -759,6 +759,7 @@ namespace Vodovoz
 
 			var validationContext = new Dictionary<object, object> {
 				{ "NewStatus", RouteListStatus.MileageCheck},
+                { "cash_order_close", true},
 				{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
 			};
 			var valid = new QSValidator<RouteList>(UoWGeneric.Root, validationContext);
