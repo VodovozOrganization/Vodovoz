@@ -110,7 +110,7 @@ namespace Vodovoz.Views.Logistic
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryShortName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryShortName.WidthRequest = 450;
-			this.yentryShortName.Sensitive = false;
+			this.yentryShortName.Sensitive = true;
 			this.yentryShortName.CanFocus = true;
 			this.yentryShortName.Name = "yentryShortName";
 			this.yentryShortName.IsEditable = true;

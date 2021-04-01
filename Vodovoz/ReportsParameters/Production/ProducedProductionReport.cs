@@ -33,9 +33,9 @@ namespace Vodovoz.ReportsParameters.Production
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			yenumcomboboxMonths.ItemsEnum = typeof(Month);
 			yenumcomboboxMonths.SelectedItem = (Month)(DateTime.Now.AddMonths(-1).Month);
-
-            ylistcomboboxYear.ItemsList = Enumerable.Range(DateTime.Now.AddYears(-10).Year, DateTime.Now.AddYears(10).Year).ToList();
-            ylistcomboboxYear.SelectedItem = DateTime.Now.Year;
+			
+            ylistcomboboxYear.ItemsList = Enumerable.Range(DateTime.Now.AddYears(-10).Year, 21).Reverse();
+            ylistcomboboxYear.SelectedItem = DateTime.Today.Year;
 
             ycomboboxProduction.SetRenderTextFunc<Warehouse>(x => x.Name);
 			ycomboboxProduction.ItemsList = UoW.Session.QueryOver<Warehouse>().Where(x => x.TypeOfUse == WarehouseUsing.Production).List();
