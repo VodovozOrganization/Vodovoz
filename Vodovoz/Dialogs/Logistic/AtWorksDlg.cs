@@ -103,7 +103,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 			this.defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDaySchedule.GetDefaultDeliveryDayScheduleId());
-		}
+            SetButtonsSensetive();
+        }
 		
 		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		
@@ -211,7 +212,8 @@ namespace Vodovoz.Dialogs.Logistic
 			var list = selectDrivers.Items;
 			selectDrivers.OnEntitySelectedResult += SelectDrivers_OnEntitySelectedResult;
 			TabParent.AddSlaveTab(this, selectDrivers);
-		}
+            SetButtonsSensetive();
+        }
 
 		
 		protected void OnButtonRemoveDriverClicked(object sender, EventArgs e)
@@ -241,7 +243,20 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 		}
 
-		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
+        protected void OnButtonClearDriverScreenClicked(object sender, EventArgs e)
+        {
+            if (MessageDialogHelper.RunQuestionWithTitleDialog("ВНИМАНИЕ!!!",
+                $"Список работающих и снятых водителей на дату: { ydateAtWorks.Date.ToShortDateString()} будет отчищен\n\n" +
+                "Вы действительно хотито продолжить?"))
+            {
+                DriversAtDay.ToList().ForEach(x => UoW.Delete(x));
+                observableDriversAtDay.Clear();
+                SetButtonsSensetive();
+            }
+        }
+
+
+        protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
 			var selectDriverCar = new OrmReference(
 				UoW,
@@ -392,7 +407,8 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			FillDialogAtDay();
 			OnTabNameChanged();
-		}
+            SetButtonsSensetive();
+        }
 
 		void SelectDrivers_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
@@ -446,11 +462,18 @@ namespace Vodovoz.Dialogs.Logistic
 			ForwardersAtDay = forwardersAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 		}
 
-		#endregion
-		
-		#region Fuctions
+        #endregion
 
-		private void ChangeButtonAddRemove(bool needRemove)
+        #region Fuctions
+        private void SetButtonsSensetive()
+        {
+            if (ydateAtWorks.Date.Date < DateTime.Now.Date || driversAtDay.Count < 1)
+                buttonClearDriverScreen.Sensitive = false;
+                else buttonClearDriverScreen.Sensitive = true;
+        }
+
+
+        private void ChangeButtonAddRemove(bool needRemove)
 		{
 			if (!canReturnDriver)
 			{
@@ -546,7 +569,8 @@ namespace Vodovoz.Dialogs.Logistic
 			logger.Info("Ок");
 
 			CheckAndCorrectDistrictPriorities();
-		}
+            SetButtonsSensetive();
+        }
 
 		//Если дата диалога >= даты активации набора районов и есть хотя бы один район у водителя, который не принадлежит активному набору районов
 		private void CheckAndCorrectDistrictPriorities() {
@@ -592,5 +616,6 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			Forwarder
 		}
-	}
+               
+    }
 }
