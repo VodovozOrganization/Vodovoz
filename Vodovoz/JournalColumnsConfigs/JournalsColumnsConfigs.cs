@@ -77,6 +77,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				() => FluentColumnsConfig<DriverCarKindNode>.Create()
 					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Сокр. название").AddTextRenderer(node => node.ShortName)
 					.Finish()
 			);
 			
