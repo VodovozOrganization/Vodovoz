@@ -11,7 +11,7 @@ namespace Vodovoz.ViewModels.Logistic
         public DriverCarKindViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) 
             : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
-            
+            TabName = Entity?.Id == 0 ? "Новый вид наёмного автомобиля" : Entity?.Name;
         }
     }
 }
