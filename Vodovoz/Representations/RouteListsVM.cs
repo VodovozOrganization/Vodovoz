@@ -377,6 +377,18 @@ namespace Vodovoz.ViewModel
 										.Where(w=> w.Stock < w.Count);
 
 									messageStockList.AddRange(lackWarehouseStocks);
+
+									var notExistInWarehouseNomenclatures = onlineOrders
+										.Where(o => !warehouseStocks.Any(w => w.NomenclatureId == o.Nomenclature.Id))
+										.Select(o => new LackStockNode()
+										{
+											OrderId = o.Order.Id,
+											NomenclatureName = o.Nomenclature.Name,
+											Count = o.Count,
+											Measure = o.Nomenclature.Unit.Name
+										});
+
+									messageStockList.AddRange(notExistInWarehouseNomenclatures);
 								}
 							}
 
@@ -585,8 +597,8 @@ namespace Vodovoz.ViewModel
 		
 		private class LackStockNode
 		{
-			public int OrderId;
 			public int NomenclatureId;
+			public int OrderId;
 			public string NomenclatureName;
 			public decimal Count;
 			public decimal Stock;
