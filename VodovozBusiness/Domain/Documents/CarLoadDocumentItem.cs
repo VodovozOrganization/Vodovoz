@@ -4,6 +4,7 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
@@ -60,6 +61,15 @@ namespace Vodovoz.Domain.Documents
 				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Equipment != equipment)
 					WarehouseMovementOperation.Equipment = equipment;
 			}
+		}
+
+		OwnTypes ownType;
+
+		[Display(Name = "Принадлежность")]
+		public virtual OwnTypes OwnType
+		{
+			get => ownType;
+			set => SetField(ref ownType, value, () => OwnType);
 		}
 
 		decimal amount;
