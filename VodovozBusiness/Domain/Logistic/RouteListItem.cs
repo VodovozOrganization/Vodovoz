@@ -804,9 +804,9 @@ namespace Vodovoz.Domain.Logistic
 		EnRoute,
 		[Display(Name = "Выполнен")]
 		Completed,
-		[Display(Name = "Отмена клиентом")]
+		[Display(Name = "Доставка отменена")]
 		Canceled,
-		[Display(Name = "Опоздали")]
+		[Display(Name = "Недовоз")]
 		Overdue,
 		[Display(Name = "Передан")]
 		Transfered
