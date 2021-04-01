@@ -728,8 +728,8 @@
     (
         SELECT MIN(hce.datetime)
         FROM history_changed_entities hce 
-	INNER JOIN history_changes hc
-		ON hce.id = hc.chaged_entity_id
+                INNER JOIN history_changes hc
+                        ON hce.id = hc.chaged_entity_id
         WHERE hce.entity_class = 'Order'
         AND hce.operation = 'Change'
         AND hc.type = 'Changed'
