@@ -19,25 +19,28 @@ namespace Vodovoz.Domain.Payments
 
 		public PaymentByCardOnline() { }
 
-		public PaymentByCardOnline(string[] data, bool fromTinkoff)
+		public PaymentByCardOnline(string[] data)
 		{
-			if (fromTinkoff) {
-				CreateInstanceFromTinkoff(data);
-			}
-			else {
-				CreateInstanceFromYookassa(data);
-			}
-		} 
+			CreateInstanceFromTinkoff(data);
+		}
+
+		public PaymentByCardOnline(string[] data, PaymentByCardOnlineFrom paymentFrom)
+		{
+			CreateInstanceFromYookassa(data, paymentFrom);
+		}
 
 		/// <summary>
 		/// Создать объект из массива строк
 		/// </summary>
 		/// <param name="data">Поля объекта</param>
+		/// <param name="paymentFrom">Откуда оплата</param>
 		void CreateInstanceFromTinkoff(string[] data)
 		{
 			//Для разбора дат и сумм.
 			var culture = CultureInfo.CreateSpecificCulture("ru-RU");
 			culture.NumberFormat.NumberDecimalSeparator = ".";
+
+			PaymentByCardFrom = PaymentByCardOnlineFrom.FromTinkoff;
 
 			if(!int.TryParse(data[0], out paymentNr))
 				paymentNr = 0;
@@ -67,17 +70,19 @@ namespace Vodovoz.Domain.Payments
 			Phone = data[7];
 		}
 		
-		void CreateInstanceFromYookassa(string[] data)
+		void CreateInstanceFromYookassa(string[] data, PaymentByCardOnlineFrom paymentFrom)
 		{
 			var culture = CultureInfo.CreateSpecificCulture("ru-RU");
 			culture.NumberFormat.NumberDecimalSeparator = ".";
+
+			PaymentByCardFrom = paymentFrom;
 			
 			if(!decimal.TryParse(data[1].Trim(), NumberStyles.AllowDecimalPoint, culture.NumberFormat, out paymentRUR))
 				paymentRUR = 0m;
 			
 			DateAndTime = ParseDate(data[4].Trim());
 
-			if(!int.TryParse(GetNumberFromDescription(data[6]), out paymentNr))
+			if(!int.TryParse(GetNumberFromDescription(data[6], paymentFrom), out paymentNr))
 				paymentNr = 0;
 
 			PaymentStatus = PaymentStatus.CONFIRMED;
@@ -103,7 +108,7 @@ namespace Vodovoz.Domain.Payments
 				return result;
 			}
 
-			throw new FormatException("Не правильный формат выгрузки");
+			throw new FormatException("Неправильный формат выгрузки");
 		}
 
 		#endregion
@@ -116,49 +121,56 @@ namespace Vodovoz.Domain.Payments
 		[Display(Name = "Статус оплаты")]
 		public virtual PaymentStatus PaymentStatus {
 			get => paymentStatus;
-			set => SetField(ref paymentStatus, value, () => PaymentStatus);
+			set => SetField(ref paymentStatus, value);
 		}
 
 		DateTime dateAndTime;
 		[Display(Name = "Дата и время операции")]
 		public virtual DateTime DateAndTime {
 			get => dateAndTime;
-			set => SetField(ref dateAndTime, value, () => DateAndTime);
+			set => SetField(ref dateAndTime, value);
 		}
 
 		int paymentNr;
 		[Display(Name = "Номер операции")]
 		public virtual int PaymentNr {
 			get => paymentNr;
-			set => SetField(ref paymentNr, value, () => PaymentNr);
+			set => SetField(ref paymentNr, value);
 		}
 
 		decimal paymentRUR;
 		[Display(Name = "Сумма операции")]
 		public virtual decimal PaymentRUR {
 			get => paymentRUR;
-			set => SetField(ref paymentRUR, value, () => PaymentRUR);
+			set => SetField(ref paymentRUR, value);
 		}
 
 		string email = string.Empty;
 		[Display(Name = "Адрес электронной почты")]
 		public virtual string Email {
 			get => email;
-			set => SetField(ref email, value, () => Email);
+			set => SetField(ref email, value);
 		}
 
 		string phone = string.Empty;
 		[Display(Name = "Номер телефона")]
 		public virtual string Phone {
 			get => phone;
-			set => SetField(ref phone, value, () => Phone);
+			set => SetField(ref phone, value);
 		}
 
 		string shop = string.Empty;
 		[Display(Name = "Магазин")]
 		public virtual string Shop {
 			get => shop;
-			set => SetField(ref shop, value, () => Shop);
+			set => SetField(ref shop, value);
+		}
+		
+		PaymentByCardOnlineFrom paymentByCardFrom;
+		[Display(Name = "Откуда оплата")]
+		public virtual PaymentByCardOnlineFrom PaymentByCardFrom {
+			get => paymentByCardFrom;
+			set => SetField(ref paymentByCardFrom, value);
 		}
 
 		#endregion
@@ -173,23 +185,18 @@ namespace Vodovoz.Domain.Payments
 		public virtual bool IsDuplicate { get; set; }
 		public virtual string Color { get; set; }
 		
-		private string GetNumberFromDescription(string description)
+		private string GetNumberFromDescription(string description, PaymentByCardOnlineFrom paymentFrom)
 		{
-			string pattern = @"(\s|№|-)([0-9]{1,})";
-
-			var matches = Regex.Matches(description, pattern);
-			string[] str = new string[matches.Count];
-
-			for(int i = 0; i < matches.Count; i++) {
-				str[i] = matches[i].Groups[2].Value;
-			}
+			var pattern = paymentFrom == PaymentByCardOnlineFrom.FromEShop ? @"№([0-9]{1,})" : @"[\s|-]([0-9]{1,})";
 			
-			return str.LastOrDefault();
+			var matches = Regex.Matches(description, pattern);
+
+			return matches[matches.Count - 1].Groups[1].Value;
 		}
 
 		private string GetEmailFromDescription(string description)
 		{
-			string pattern = @"[a-zA-Z]+[\.a-zA-Z0-9_-]*[a-zA-Z0-9]+@[a-zA-Z]+\.[a-zA-Z]+";
+			string pattern = @"[0-9a-zA-Z]+[\.a-zA-Z0-9_-]*[a-zA-Z0-9]+@[a-zA-Z]+\.[a-zA-Z]+";
 
 			var matches = Regex.Matches(description, pattern);
 
@@ -251,5 +258,13 @@ namespace Vodovoz.Domain.Payments
 		REJECTED = 16,
 		[Display(Name = "Отсутствует в ДВ")]
 		Unacceptable = 1024,
+	}
+
+	public enum PaymentByCardOnlineFrom
+	{
+		FromVodovozWebSite,
+		FromEShop,
+		FromSMS,
+		FromTinkoff
 	}
 }

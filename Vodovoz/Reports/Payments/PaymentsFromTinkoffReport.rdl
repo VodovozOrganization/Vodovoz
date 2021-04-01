@@ -1174,16 +1174,45 @@
     #o.delivery_date &gt; '2018-10-03' AS is_future_order
 FROM
     orders o
+    LEFT JOIN
+    (
+        Select
+            o_online.id as order_id,
+            p_online.*
+        From orders o_online
+        JOIN payments_by_card_online p_online on p_online.number = o_online.online_order
+            AND p_online.date_and_time &gt; DATE_ADD(o_online.create_date, INTERVAL -10 DAY)
+            AND p_online.date_and_time &lt; DATE_ADD(o_online.create_date, INTERVAL 10 DAY)
+            AND p_online.payment_by_card_from IN ('FromVodovozWebSite', 'FromTinkoff')
+
+        UNION
+
+        Select
+            o_e_shop.id as order_id,
+            p_e_shop.*
+        From orders o_e_shop
+        JOIN payments_by_card_online p_e_shop on p_e_shop.number = o_e_shop.e_shop_order
+            AND p_e_shop.date_and_time &gt; DATE_ADD(o_e_shop.create_date, INTERVAL -10 DAY)
+            AND p_e_shop.date_and_time &lt; DATE_ADD(o_e_shop.create_date, INTERVAL 10 DAY)
+            AND p_e_shop.payment_by_card_from = 'FromEShop'
+
+        UNION
+
+        Select
+            o_sms.id as order_id,
+            p_sms.*
+        From orders o_sms
+        JOIN payments_by_card_online p_sms on p_sms.number = o_sms.id
+            AND p_sms.date_and_time &gt; DATE_ADD(o_sms.create_date, INTERVAL -10 DAY)
+            AND p_sms.date_and_time &lt; DATE_ADD(o_sms.create_date, INTERVAL 10 DAY)
+            AND p_sms.payment_by_card_from = 'FromSMS'
+    ) as p on p.order_id = o.id
         LEFT JOIN
     counterparty c ON c.id = o.client_id
         LEFT JOIN
     delivery_points dp ON dp.id = o.delivery_point_id
         LEFT JOIN
     employees author ON author.id = o.author_employee_id
-        LEFT JOIN
-    payments_by_card_online p ON p.number = o.online_order 
-			AND p.date_and_time &gt; DATE_ADD(o.create_date, INTERVAL -7 DAY)
-			AND p.date_and_time &lt; DATE_ADD(o.create_date, INTERVAL 7 DAY)
         LEFT JOIN
     (
         SELECT
@@ -1195,12 +1224,12 @@ FROM
             i.order_id
     ) o_sum ON o_sum.id = o.id
 WHERE
-        payment_type = 'ByCard' AND	online_order IS NOT NULL
-  AND o.delivery_date &gt;= @startDate
-  AND o.delivery_date &lt;= @endDate
-  AND (@shop = 'ALL' OR p.shop = @shop OR p.shop IS NULL)
-ORDER BY
-    /*underpayment ASC, */order_satus_numbered DESC
+    o.payment_type = 'ByCard' 
+    AND o.online_order IS NOT NULL
+    AND o.delivery_date &gt;= @startDate
+    AND o.delivery_date &lt;= @endDate
+    AND (@shop = 'ALL' OR p.shop = @shop OR p.shop IS NULL)
+ORDER BY order_satus_numbered DESC
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -1282,18 +1311,46 @@ ORDER BY
       </Fields>
     </DataSet>
     <DataSet Name="PaymentsWithoutOrders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT *
 FROM payments_by_card_online
-WHERE number NOT IN(
-    SELECT online_order
-    FROM orders
-    WHERE online_order IS NOT NULL AND delivery_date &gt;= @startDate
-) AND date_and_time &gt;= @startDate
-  AND date_and_time &lt;= @endDate
-  AND (@shop = 'ALL' OR shop = @shop OR shop IS NULL)
+WHERE 
+(
+    (   
+        number NOT IN(
+            SELECT online_order
+            FROM orders
+            WHERE online_order IS NOT NULL 
+                AND delivery_date BETWEEN @startDate AND @endDate
+        )
+        AND payment_by_card_from IN ('FromVodovozWebSite', 'FromTinkoff')
+    )
+    OR
+    (
+        number NOT IN(
+            SELECT id
+            FROM orders
+            WHERE online_order IS NOT NULL
+                AND delivery_date BETWEEN @startDate AND @endDate
+        )
+        AND payment_by_card_from = 'FromSMS'
+    )
+    OR
+    (
+        number NOT IN(
+            SELECT e_shop_order
+            FROM orders
+            WHERE online_order IS NOT NULL
+                AND delivery_date BETWEEN @startDate AND @endDate
+        )
+        AND payment_by_card_from = 'FromEShop'
+    )
+)
+AND date_and_time &gt;= @startDate
+AND date_and_time &lt;= @endDate
+AND (@shop = 'ALL' OR shop = @shop OR shop IS NULL)
 ORDER BY date_and_time DESC
 ;</CommandText>
         <QueryParameters>
@@ -1308,7 +1365,7 @@ ORDER BY date_and_time DESC
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>

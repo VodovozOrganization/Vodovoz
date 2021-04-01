@@ -233,7 +233,7 @@ namespace VodovozBusinessTests.Domain.Payments
 		public void PaymentFromTinkoff_CreatingOfNewInstanceUseingCtorWithStringParameter_SuccessfullCreation(string[] parameter, PaymentByCardOnline result)
 		{
 			// arrange and act
-			PaymentByCardOnline testPayment = new PaymentByCardOnline(parameter, true);
+			PaymentByCardOnline testPayment = new PaymentByCardOnline(parameter);
 
 			// assert
 			Assert.That(testPayment.PaymentStatus, Is.EqualTo(result.PaymentStatus));
