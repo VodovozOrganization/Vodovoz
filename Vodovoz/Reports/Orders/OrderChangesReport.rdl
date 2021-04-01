@@ -535,7 +535,7 @@
                   <ReportItems>
                     <Textbox Name="Textbox21">
                       <Value>= Format(Convert.ToDateTime({delivery_date}), "dd.MM.yyyy") + ' ' + Iif(Fields!time_delivered.IsMissing, '', 
-Format(Convert.ToDateTime({time_delivered}), "HH:mm"))</Value>
+Format(Convert.ToDateTime({time_delivered}), "HH:mm:ss"))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
