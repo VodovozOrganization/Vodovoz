@@ -1,5 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.HibernateMapping
 {
@@ -13,6 +14,7 @@ namespace Vodovoz.HibernateMapping
 
             Map(x => x.Amount).Column("amount");
             Map(x => x.ExpireDatePercent).Column("item_expiration_date_percent");
+            Map(x => x.OwnType).Column("own_type").CustomType<OwnTypesStringType>();
 
             References(x => x.Nomenclature).Column("nomenclature_id");
             References(x => x.Equipment).Column("equipment_id");
