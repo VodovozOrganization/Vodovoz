@@ -484,11 +484,10 @@ LEFT JOIN orders ON orders.id = counterparty.first_order_id
 LEFT JOIN employees ON employees.id = counterparty.close_delivery_employee_id
 	WHERE
 	counterparty.is_for_retail = 1
-	AND (IF(@create_date IS NULL OR @create_date = '', 'empty', orders.create_date &gt;= @create_date))
+	AND (orders.create_date >= @create_date)
 	AND (@sales_channel_id = 0 OR sales_channels.id = @sales_channel_id)
 	AND (@district = 0 OR delivery_points.district_id = @district)
-	AND (@payment_type = counterparty.payment_method)
-GROUP BY counterparty.id
+	AND (counterparty.payment_method = @payment_type)
 ORDER BY first_order DESC</CommandText>
         <QueryParameters>
           <QueryParameter Name="create_date">
