@@ -1325,7 +1325,7 @@ WHERE
             WHERE online_order IS NOT NULL 
                 AND delivery_date BETWEEN @startDate AND @endDate
         )
-        AND payment_by_card_from IN ('FromVodovozWebSite', 'FromTinkoff')
+        AND payment_by_card_from != 'FromSMS'
     )
     OR
     (
@@ -1336,16 +1336,6 @@ WHERE
                 AND delivery_date BETWEEN @startDate AND @endDate
         )
         AND payment_by_card_from = 'FromSMS'
-    )
-    OR
-    (
-        number NOT IN(
-            SELECT e_shop_order
-            FROM orders
-            WHERE online_order IS NOT NULL
-                AND delivery_date BETWEEN @startDate AND @endDate
-        )
-        AND payment_by_card_from = 'FromEShop'
     )
 )
 AND date_and_time &gt;= @startDate
