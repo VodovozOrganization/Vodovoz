@@ -34,7 +34,7 @@
       <Textbox Name="Textbox23">
         <Height>23.21pt</Height>
         <Width>801.63pt</Width>
-        <Value>В отчет попадают заказы для "Розницы" в статусе "Ожидание оплаты" и со статусом оплаты "Оплачен", "Частично оплачен"
+        <Value>В отчет попадают заказы для "Розницы" со статусом оплаты "Оплачен", "Частично оплачен"
 Сортировка: по дате заказа и по номеру заказа</Value>
         <ZIndex>1</ZIndex>
         <Left>2.40pt</Left>
@@ -63,19 +63,19 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>22.5pt</Width>
+            <Width>18.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.6pt</Width>
+            <Width>38.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>51.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>73.1pt</Width>
+            <Width>119.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>97.3pt</Width>
+            <Width>108.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>64.5pt</Width>
@@ -87,13 +87,13 @@
             <Width>64.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.8pt</Width>
+            <Width>65.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>81.9pt</Width>
+            <Width>67.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>81.0pt</Width>
+            <Width>60.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>83.2pt</Width>
@@ -549,7 +549,7 @@
         </Details>
         <Left>0.0pt</Left>
         <Top>1.3pt</Top>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -734,6 +734,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontWeight >Bolder</FontWeight>
+                        <TextAlign >Right</TextAlign>
                       </Style>
                       <Value>Итого:</Value>
                     </Textbox>
@@ -749,6 +751,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <Format>0.00</Format>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({ordersum})</Value>
                     </Textbox>
@@ -801,11 +804,20 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="quality">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     	date(orders.create_date) AS orderdate,
-    	delivery_points.entrance_type AS entrance,
+	CASE
+		WHEN delivery_points.entrance_type = 'Entrance' THEN 'Парадная'
+		WHEN delivery_points.entrance_type = 'TradeCenter' THEN 'Торговый центр'
+		WHEN delivery_points.entrance_type = 'TradeComplex' THEN 'Торговый комплекс'
+		WHEN delivery_points.entrance_type = 'BusinessCenter' THEN 'Бизнес центр'
+		WHEN delivery_points.entrance_type = 'School' THEN 'Школа'
+		WHEN delivery_points.entrance_type = 'Hostel' THEN 'Общежитие'
+
+		ELSE 'Неизвестный тип входа'
+	END AS entrance,
     	orders.id AS order_id,
 	delivery_points.street_district AS district,
 	counterparty.full_name AS client,
@@ -873,7 +885,7 @@ ORDER BY orderdate DESC, orders.id DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>

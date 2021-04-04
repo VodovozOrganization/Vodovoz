@@ -66,28 +66,28 @@
             <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>82.6pt</Width>
+            <Width>79.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.4pt</Width>
+            <Width>121.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>146.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.5pt</Width>
+            <Width>86.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.4pt</Width>
+            <Width>84.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>84.4pt</Width>
+            <Width>71.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>92.7pt</Width>
+            <Width>77.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>125.8pt</Width>
+            <Width>113.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -453,7 +453,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="counterparty">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	counterparty.id AS counter_id,
@@ -504,7 +504,7 @@ ORDER BY first_order DESC</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="counter_id">
           <DataField>counter_id</DataField>
           <TypeName>System.Int32</TypeName>
