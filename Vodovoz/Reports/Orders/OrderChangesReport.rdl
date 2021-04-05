@@ -534,7 +534,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>= Format({datetime_shipped}, "dd.MM.yyyy HH:mm:ss")</Value>
+                      <Value>= Format(Convert.ToDateTime({delivery_date}), "dd.MM.yyyy") + ' ' + Iif(Fields!time_delivered.IsMissing, '', 
+Format(Convert.ToDateTime({time_delivered}), "HH:mm:ss"))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -726,17 +727,31 @@
     n2.name as nomenclature_name,
     CONCAT(c2.full_name, IF(c2.person_type = 'legal', CONCAT(' ИНН ', c2.inn), '')) as counterparty,
     (
-        SELECT MIN(hce.datetime)
-        FROM history_changed_entities hce 
-                INNER JOIN history_changes hc
-                        ON hce.id = hc.chaged_entity_id
+        SELECT hc.new_value
+        FROM history_changed_entities hce
+                 LEFT JOIN history_changes hc
+                           ON hc.chaged_entity_id = hce.id
+                               AND hc.field_name = 'DeliveryDate'
         WHERE hce.entity_class = 'Order'
-        AND hce.operation = 'Change'
-        AND hc.type = 'Changed'
-        AND hce.entity_id = source.order_id
-        AND hc.field_name = 'OrderStatus'
-        AND hc.new_value = 'Shipped'
-    ) AS datetime_shipped,
+          AND hce.entity_id = source.order_id
+		  AND hce.operation IN ('Create', 'Change')
+		  AND hc.new_value IS NOT NULL
+		ORDER BY hc.new_value 
+        LIMIT 1
+    ) AS delivery_date,
+    (
+        SELECT hc.new_value
+        FROM history_changed_entities hce
+                 LEFT JOIN history_changes hc
+                           ON hc.chaged_entity_id = hce.id
+                               AND hc.field_name = 'TimeDelivered'
+        WHERE hce.entity_class = 'Order'
+          AND hce.entity_id = source.order_id
+		  AND hce.operation IN ('Create', 'Change')
+		  AND hc.new_value IS NOT NULL
+		ORDER BY hc.new_value 
+        LIMIT 1
+    ) AS time_delivered,
     source.change_time,
     IF(source.operation = 'Delete', n2.official_name, source.old_value) as old_value,
     IF(source.operation = 'Create', n2.official_name, source.new_value) as new_value,
@@ -1034,16 +1049,12 @@ FROM
           <DataField>summary</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="nomenclature_name">
-          <DataField>nomenclature_name</DataField>
-          <TypeName>System.String</TypeName>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+          <TypeName>System.DateTime</TypeName>
         </Field>
-        <Field Name="counterparty">
-          <DataField>counterparty</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="datetime_shipped">
-          <DataField>datetime_shipped</DataField>
+        <Field Name="time_delivered">
+          <DataField>time_delivered</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="change_time">
@@ -1064,6 +1075,14 @@ FROM
         </Field>
         <Field Name="driver_fio">
           <DataField>driver_fio</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="counterparty">
+          <DataField>counterparty</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="nomenclature_name">
+          <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
