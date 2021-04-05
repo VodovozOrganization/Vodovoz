@@ -98,7 +98,9 @@ namespace Vodovoz.ViewModels
 					while(!line.StartsWith(tags[3]))
 					{
 						if (line.StartsWith(tags[2]) && 
-						    organizations.Find(x=>x.Name == doc.PayerName && x.Name == doc.RecipientName) is null)
+						    organizations.Find(x=>x.FullName == doc.PayerName && x.FullName == doc.RecipientName) is null)
+						    //organizations.Find(x=>x.FullName == doc.PayerName) is null &&
+						    //organizations.Find(x=>x.FullName == doc.RecipientName) is null)
 							TransferDocuments.Add(doc);
 						
 						if(line.StartsWith(tags[1])) 
