@@ -535,7 +535,7 @@
                   <ReportItems>
                     <Textbox Name="Textbox21">
                       <Value>= Format(Convert.ToDateTime({delivery_date}), "dd.MM.yyyy") + ' ' + Iif(Fields!time_delivered.IsMissing, '', 
-Format(Convert.ToDateTime({time_delivered}), "HH:mm:ss"))</Value>
+Format(Convert.ToDateTime({time_delivered}), "HH:mm"))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -734,9 +734,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm:ss"))</Value>
                                AND hc.field_name = 'DeliveryDate'
         WHERE hce.entity_class = 'Order'
           AND hce.entity_id = source.order_id
-		  AND hce.operation IN ('Create', 'Change')
-		  AND hc.new_value IS NOT NULL
-		ORDER BY hc.new_value 
+          AND hce.operation = 'Create'
         LIMIT 1
     ) AS delivery_date,
     (
@@ -747,9 +745,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm:ss"))</Value>
                                AND hc.field_name = 'TimeDelivered'
         WHERE hce.entity_class = 'Order'
           AND hce.entity_id = source.order_id
-		  AND hce.operation IN ('Create', 'Change')
-		  AND hc.new_value IS NOT NULL
-		ORDER BY hc.new_value 
+          AND hce.operation = 'Create'
         LIMIT 1
     ) AS time_delivered,
     source.change_time,
