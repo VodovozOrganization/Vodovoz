@@ -103,7 +103,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 			this.defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDaySchedule.GetDefaultDeliveryDayScheduleId());
-            SetButtonsSensetive();
+            SetButtonClearDriverScreenSensetive();
         }
 		
 		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -212,7 +212,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var list = selectDrivers.Items;
 			selectDrivers.OnEntitySelectedResult += SelectDrivers_OnEntitySelectedResult;
 			TabParent.AddSlaveTab(this, selectDrivers);
-            SetButtonsSensetive();
+            SetButtonClearDriverScreenSensetive();
         }
 
 		
@@ -247,11 +247,11 @@ namespace Vodovoz.Dialogs.Logistic
         {
             if (MessageDialogHelper.RunQuestionWithTitleDialog("ВНИМАНИЕ!!!",
                 $"Список работающих и снятых водителей на дату: { ydateAtWorks.Date.ToShortDateString()} будет отчищен\n\n" +
-                "Вы действительно хотито продолжить?"))
+                "Вы действительно хотите продолжить?"))
             {
                 DriversAtDay.ToList().ForEach(x => UoW.Delete(x));
                 observableDriversAtDay.Clear();
-                SetButtonsSensetive();
+                SetButtonClearDriverScreenSensetive();
             }
         }
 
@@ -407,7 +407,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			FillDialogAtDay();
 			OnTabNameChanged();
-            SetButtonsSensetive();
+            SetButtonClearDriverScreenSensetive();
         }
 
 		void SelectDrivers_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
@@ -465,11 +465,16 @@ namespace Vodovoz.Dialogs.Logistic
         #endregion
 
         #region Fuctions
-        private void SetButtonsSensetive()
+        private void SetButtonClearDriverScreenSensetive()
         {
-            if (ydateAtWorks.Date.Date < DateTime.Now.Date || driversAtDay.Count < 1)
+            if (ydateAtWorks.Date < DateTime.Now.Date || !driversAtDay.Any())
+            {
                 buttonClearDriverScreen.Sensitive = false;
-                else buttonClearDriverScreen.Sensitive = true;
+            }
+            else
+            {
+                buttonClearDriverScreen.Sensitive = true;
+            }
         }
 
 
@@ -569,7 +574,7 @@ namespace Vodovoz.Dialogs.Logistic
 			logger.Info("Ок");
 
 			CheckAndCorrectDistrictPriorities();
-            SetButtonsSensetive();
+            SetButtonClearDriverScreenSensetive();
         }
 
 		//Если дата диалога >= даты активации набора районов и есть хотя бы один район у водителя, который не принадлежит активному набору районов
