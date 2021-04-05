@@ -133,7 +133,7 @@ namespace Vodovoz.ViewModels
 			IsNotAutoMatchingMode = false;
 			progress = 0;
 			UpdateProgress?.Invoke("Начинаем работу...", progress);
-			Parser = new TransferDocumentsFromBankParser(docPath);
+			Parser = new TransferDocumentsFromBankParser(docPath, organisations.ToList());
 			Parser.Parse();
 
 			UpdateProgress?.Invoke("Сопоставляем полученные платежи...", progress);
