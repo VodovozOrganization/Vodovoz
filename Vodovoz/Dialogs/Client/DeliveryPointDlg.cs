@@ -374,11 +374,9 @@ namespace Vodovoz
 				cityBeforeChange = entryCity.City;
 				streetBeforeChange = entryStreet.Street;
 				buildingBeforeChange = entryBuilding.House;
-
-				if(!Entity.ManualCoordinates || (Entity.ManualCoordinates && MessageDialogHelper.RunQuestionDialog("Координаты были установлены вручную, заменить их на коордитаты адреса?"))) {
-					WriteCoordinates(latitude, longitude);
-					Entity.ManualCoordinates = false;
-				}
+				
+				WriteCoordinates(latitude, longitude);
+				Entity.ManualCoordinates = false;
 
 				if(entryBuilding.OsmHouse != null && !String.IsNullOrWhiteSpace(entryBuilding.OsmHouse.Name)) {
 					labelHouseName.Visible = true;
