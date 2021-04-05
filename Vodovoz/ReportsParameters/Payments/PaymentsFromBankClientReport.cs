@@ -45,7 +45,7 @@ namespace Vodovoz.ReportsParameters.Payments
 			var parameters = new Dictionary<string, object>();
 
 			parameters.Add("counterparty_id", ((Counterparty)entryCounterparty.Subject)?.Id ?? 0);
-			parameters.Add("sort_date", checkSortDate.Active);
+			parameters.Add("sort_date", checkSortDate.Active ? 1 : 0);
 			if(checkAllSubdivisions.Active) {
 				reportName = "Payments.PaymentsFromBankClientAllSubdivisionsReport";
 			} else {
