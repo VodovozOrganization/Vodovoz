@@ -58,6 +58,14 @@ namespace Vodovoz.Views.Users
 
 		private global::Gtk.Label GtkLabel10;
 
+		private global::Gtk.Frame frame2;
+
+		private global::Gtk.Alignment GtkAlignment7;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryCounterparty;
+
+		private global::Gtk.Label GtkLabel11;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -306,14 +314,41 @@ namespace Vodovoz.Views.Users
 			w24.Position = 1;
 			w24.Expand = false;
 			w24.Fill = false;
+			// Container child vbox7.Gtk.Box+BoxChild
+			this.frame2 = new global::Gtk.Frame();
+			this.frame2.Name = "frame2";
+			this.frame2.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child frame2.Gtk.Container+ContainerChild
+			this.GtkAlignment7 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment7.Name = "GtkAlignment7";
+			this.GtkAlignment7.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment7.Gtk.Container+ContainerChild
+			this.entryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryCounterparty.Events = ((global::Gdk.EventMask)(256));
+			this.entryCounterparty.Name = "entryCounterparty";
+			this.entryCounterparty.CanEditReference = false;
+			this.GtkAlignment7.Add(this.entryCounterparty);
+			this.frame2.Add(this.GtkAlignment7);
+			this.GtkLabel11 = new global::Gtk.Label();
+			this.GtkLabel11.Name = "GtkLabel11";
+			this.GtkLabel11.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Фильтр в отчете по оплатам</b>");
+			this.GtkLabel11.UseMarkup = true;
+			this.frame2.LabelWidget = this.GtkLabel11;
+			this.vbox7.Add(this.frame2);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.frame2]));
+			w27.Position = 2;
+			w27.Expand = false;
+			w27.Fill = false;
 			this.hbox6.Add(this.vbox7);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.vbox7]));
-			w25.Position = 1;
-			w25.Expand = false;
-			w25.Fill = false;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.vbox7]));
+			w28.Position = 1;
+			w28.Expand = false;
+			w28.Fill = false;
 			this.vbox4.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox6]));
-			w26.Position = 1;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox6]));
+			w29.Position = 1;
+			w29.Expand = false;
+			w29.Fill = false;
 			this.Add(this.vbox4);
 			if ((this.Child != null))
 			{

@@ -746,7 +746,10 @@ public partial class MainWindow : Gtk.Window
                     employeeSelectorFactory
                 );
             });
-            
+
+        var CounterpartyAutocompleteSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
         tdiMain.OpenTab(
             () =>
             {
@@ -756,7 +759,8 @@ public partial class MainWindow : Gtk.Window
                     ServicesConfig.CommonServices,
                     VodovozGtkServicesConfig.EmployeeService,
                     SubdivisionParametersProvider.Instance,
-                    SubdivisionAutocompleteSelectorFactory
+                    SubdivisionAutocompleteSelectorFactory,
+                    CounterpartyAutocompleteSelectorFactory
                 );
             }
         );
@@ -1749,9 +1753,12 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionPaymentsReportActivated(object sender, EventArgs e)
     {
+        var CounterpartyAutocompleteSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
-            () => new QSReport.ReportViewDlg(new PaymentsFromBankClientReport())
+            () => new QSReport.ReportViewDlg(new PaymentsFromBankClientReport(CounterpartyAutocompleteSelectorFactory))
         );
     }
 

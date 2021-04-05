@@ -2,20 +2,23 @@
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QSReport;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ReportsParameters.Payments
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class PaymentsFromBankClientReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public PaymentsFromBankClientReport()
+		public PaymentsFromBankClientReport(IEntityAutocompleteSelectorFactory counterpartySelectorFactory)
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			btnCreateReport.Clicked += (sender, e) => Validate();
 			yentryRefSubdivision.SubjectType = typeof(Subdivision);
+            entryCounterparty.SetEntityAutocompleteSelectorFactory(counterpartySelectorFactory);
 		}
 
 		#region IParametersWidget implementation
@@ -36,6 +39,8 @@ namespace Vodovoz.ReportsParameters.Payments
 			} else {
 				reportName = "Payments.PaymentsFromBankClientBySubdivisionReport";
 				parameters.Add("subdivision_id", ((Subdivision)yentryRefSubdivision.Subject).Id);
+                parameters.Add("counterparty_id", ((Counterparty)entryCounterparty.Subject)?.Id ?? 0);
+                parameters.Add("sort_date", checkSortDate.Active);
 			}
 
 			parameters.Add("date", DateTime.Today);
