@@ -401,7 +401,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						commonServices,
 						nomenclatureSelectorFactory,
 						nomenclatureRepository,
-						userRepository
+						userRepository,
+                        filePickerService
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -433,7 +434,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						employeeService,
 						subdivisionRepository,
 						commonServices,
-						employeeSelectorFactory
+						employeeSelectorFactory,
+                        filePickerService
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
