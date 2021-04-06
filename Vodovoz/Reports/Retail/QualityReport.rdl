@@ -659,7 +659,7 @@
 		WHEN orders.order_payment_status = 'PartiallyPaid' THEN 'Частично оплачен'
 	ELSE 'Неизвестная форма оплаты'
 	END AS order_payment_status,
-    IFNULL(SUM(o_items.price * IFNULL(o_items.actual_count, o_items.count) - o_items.discount_money), 0) AS ordersum,
+    IFNULL(SUM(ROUND(o_items.price * IFNULL(o_items.actual_count, o_items.count) - o_items.discount_money, 2)), 0) AS ordersum,
 	CONCAT(employees.last_name, ' ', LEFT(employees.name, 1), '.', LEFT(employees.patronymic, 1), '.') AS author
 FROM orders
 

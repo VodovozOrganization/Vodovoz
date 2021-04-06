@@ -257,9 +257,12 @@ namespace Vodovoz
 		{
 			if(NeedCopy) {
 				Entity.Client = UoW.GetById<Counterparty>(copiedOrder.Client.Id);
-				Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(copiedOrder.DeliveryPoint.Id);
-				Entity.PaymentType = Entity.Client.PaymentMethod;
 
+				if (copiedOrder.DeliveryPoint != null) {
+					Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(copiedOrder.DeliveryPoint.Id);
+				}
+				
+				Entity.PaymentType = Entity.Client.PaymentMethod;
 				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
@@ -389,11 +392,11 @@ namespace Vodovoz
 			Entity.ObservableOrderEquipments.ElementRemoved += ObservableOrderEquipmentsOnElementRemoved;
 
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
-			enumSignatureType.Binding.AddBinding(Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource();
-            if (!Entity.IsForRetail)
+			if (!Entity.IsForRetail)
             {
 				enumSignatureType.AddEnumToHideList(new object[] { OrderSignatureType.SignatureTranscript });
-			}
+            }
+			enumSignatureType.Binding.AddBinding(Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource();
 
 			labelCreationDateValue.Binding.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
 
@@ -2648,7 +2651,7 @@ namespace Vodovoz
 			billDocument.HideSignature = wasHideSignature;
 
 			var billTemplate = billDocument.GetEmailTemplate();
-			EmailService.Email email = new EmailService.Email {
+			EmailService.OrderEmail email = new EmailService.OrderEmail {
 				Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title),
 				Text = billTemplate.Text,
 				HtmlText = billTemplate.TextHtml,
@@ -2673,7 +2676,7 @@ namespace Vodovoz
 			if(service == null) {
 				return;
 			}
-			var result = service.SendEmail(email);
+			var result = service.SendOrderEmail(email);
 
 			//Если произошла ошибка и письмо не отправлено
 			string resultMessage = "";

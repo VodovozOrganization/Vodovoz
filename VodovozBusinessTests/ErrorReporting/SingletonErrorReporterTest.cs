@@ -2,8 +2,7 @@
 using NSubstitute;
 using NUnit.Framework;
 using QS.ErrorReporting;
-using QS.Project.VersionControl;
-using Vodovoz.Services;
+using QS.Project.Versioning;
 using Vodovoz.Tools;
 
 namespace VodovozBusinessTests.ErrorReporting

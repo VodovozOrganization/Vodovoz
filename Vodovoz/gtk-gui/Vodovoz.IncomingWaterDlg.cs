@@ -32,11 +32,11 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReference referenceDstWarehouse;
 
-		private global::Gamma.Widgets.yEntryReference referenceProduct;
-
 		private global::Gamma.Widgets.yEntryReference referenceSrcWarehouse;
 
 		private global::Gamma.GtkWidgets.ySpinButton spinAmount;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry yentryProduct;
 
 		protected virtual void Build()
 		{
@@ -187,29 +187,17 @@ namespace Vodovoz
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.referenceProduct = new global::Gamma.Widgets.yEntryReference();
-			this.referenceProduct.Events = ((global::Gdk.EventMask)(256));
-			this.referenceProduct.Name = "referenceProduct";
-			this.tableWater.Add(this.referenceProduct);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableWater[this.referenceProduct]));
-			w15.TopAttach = ((uint)(1));
-			w15.BottomAttach = ((uint)(2));
-			w15.LeftAttach = ((uint)(1));
-			w15.RightAttach = ((uint)(2));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableWater.Gtk.Table+TableChild
 			this.referenceSrcWarehouse = new global::Gamma.Widgets.yEntryReference();
 			this.referenceSrcWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.referenceSrcWarehouse.Name = "referenceSrcWarehouse";
 			this.tableWater.Add(this.referenceSrcWarehouse);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableWater[this.referenceSrcWarehouse]));
-			w16.TopAttach = ((uint)(4));
-			w16.BottomAttach = ((uint)(5));
-			w16.LeftAttach = ((uint)(1));
-			w16.RightAttach = ((uint)(2));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableWater[this.referenceSrcWarehouse]));
+			w15.TopAttach = ((uint)(4));
+			w15.BottomAttach = ((uint)(5));
+			w15.LeftAttach = ((uint)(1));
+			w15.RightAttach = ((uint)(2));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
 			this.spinAmount = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000D, 1D);
 			this.spinAmount.CanFocus = true;
@@ -221,9 +209,22 @@ namespace Vodovoz
 			this.spinAmount.ValueAsDecimal = 0m;
 			this.spinAmount.ValueAsInt = 0;
 			this.tableWater.Add(this.spinAmount);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableWater[this.spinAmount]));
-			w17.TopAttach = ((uint)(2));
-			w17.BottomAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableWater[this.spinAmount]));
+			w16.TopAttach = ((uint)(2));
+			w16.BottomAttach = ((uint)(3));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableWater.Gtk.Table+TableChild
+			this.yentryProduct = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.yentryProduct.Events = ((global::Gdk.EventMask)(256));
+			this.yentryProduct.Name = "yentryProduct";
+			this.yentryProduct.CanEditReference = false;
+			this.tableWater.Add(this.yentryProduct);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableWater[this.yentryProduct]));
+			w17.TopAttach = ((uint)(1));
+			w17.BottomAttach = ((uint)(2));
 			w17.LeftAttach = ((uint)(1));
 			w17.RightAttach = ((uint)(2));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));

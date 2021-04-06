@@ -316,9 +316,17 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref organisationForSalary, value);
 		}
 
-		#endregion
+        private string email;
+        [Display(Name = "Электронная почта пользователя")]
+        public virtual string Email
+        {
+            get => email;
+            set => SetField(ref email, value);
+        }
 
-		public Employee()
+        #endregion
+
+        public Employee()
 		{
 			Name = String.Empty;
 			LastName = String.Empty;
@@ -390,7 +398,7 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			if(!String.IsNullOrEmpty(LoginForNewUser) && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users")) {
-			yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
+				yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { this.GetPropertyName(x => x.LoginForNewUser) });
 			}
 			if(Status == EmployeeStatus.IsFired && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_fire_employees")) {
@@ -446,16 +454,15 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			wageParameter.Employee = this;
-			wageParameter.StartDate = startDate.AddTicks(1);
+			wageParameter.StartDate = startDate;
 			WageParameter oldWageParameter = ObservableWageParameters.FirstOrDefault(x => x.EndDate == null);
 			if(oldWageParameter != null) {
 				if(oldWageParameter.StartDate > startDate) {
 					throw new InvalidOperationException("Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата");
 				}
-				oldWageParameter.EndDate = startDate;
+				oldWageParameter.EndDate = startDate.AddMilliseconds(-1);
 			}
 			ObservableWageParameters.Add(wageParameter);
-			return;
 		}
 
 
@@ -479,23 +486,19 @@ namespace Vodovoz.Domain.Employees
 				throw new ArgumentNullException(nameof(interactiveService));
 			}
 
-
 			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW);
 			if(defaultLevel == null) {
 				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников\"!\"", "Невозможно создать расчет зарплаты");
 				return;
 			}
 
-			var ourCar = DriverOf == CarTypeOfUse.CompanyGAZelle || DriverOf == CarTypeOfUse.CompanyLargus;
-			var defaultLevelForOurCar = wageRepository.DefaultLevelForNewEmployees(UoW, ourCar);
+			var defaultLevelForOurCar = wageRepository.DefaultLevelForNewEmployeesOnOurCars(UoW);
 			if(defaultLevelForOurCar == null) {
 				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для наших авто)\"!\"", "Невозможно создать расчет зарплаты");
 				return;
 			}
 
-			if(Id != 0) {
-				return;
-			}
+			if(Id != 0) return;
 
 			ObservableWageParameters.Clear();
 			switch(Category) {
@@ -556,7 +559,6 @@ namespace Vodovoz.Domain.Employees
 						DateTime.Today);
 					break;
 			}
-			return;
 		}
 
 		public virtual string GetPhoneForSmsNotification()

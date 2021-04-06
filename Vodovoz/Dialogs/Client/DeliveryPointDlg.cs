@@ -190,6 +190,7 @@ namespace Vodovoz
 					return;
 				}
 				entryBuilding.Street = new OsmStreet(-1, entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
+				entryBuilding.House = string.Empty;
 			};
 
 			entryBuilding.FocusOutEvent += EntryBuilding_FocusOutEvent;
@@ -367,8 +368,6 @@ namespace Vodovoz
 
 				entryBuilding.GetCoordinates(out decimal? longitude, out decimal? latitude);
 
-				if(longitude == null || latitude == null)
-					return;
 				if(!addressChanged)
 					return;
 
