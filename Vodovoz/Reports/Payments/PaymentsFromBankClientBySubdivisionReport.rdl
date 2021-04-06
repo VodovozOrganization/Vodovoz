@@ -608,7 +608,7 @@ WHERE
 	AND employees.subdivision_id  = @subdivision_id
 	AND (orders.client_id = @counterparty_id OR @counterparty_id = 0)
 GROUP BY orders.id
-ORDER BY IF (@sort_date = 1, orderdate, 0) desc, IF(@sort_date = 1, 0, payment_date) desc, IF(@sort_date = 1, 0, orderdate) desc, IF(@sort_date = 1, 0, orders.id) desc;</CommandText>
+ORDER BY IF (@sort_date, orderdate, 0) desc, IF(@sort_date, 0, payment_date) desc, IF(@sort_date, 0, orderdate) desc, IF(@sort_date, 0, orders.id) desc;</CommandText>
         <QueryParameters>
           <QueryParameter Name="subdivision_id">
             <Value>=Parameters!subdivision_id</Value>
@@ -699,7 +699,7 @@ ORDER BY IF (@sort_date = 1, orderdate, 0) desc, IF(@sort_date = 1, 0, payment_d
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="sort_date">
-      <DataType>Integer</DataType>
+      <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
