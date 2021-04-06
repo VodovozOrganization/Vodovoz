@@ -25,6 +25,7 @@ using Vodovoz.EntityRepositories.Documents;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Tools;
+using System.Linq;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -61,6 +62,7 @@ namespace Vodovoz.Dialogs.Cash
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
 			Entity.Casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+            Entity.IncomeCategory = CategoryRepository.SelfDeliveryIncomeCategories(UoW).FirstOrDefault();
 			if(Entity.Casher == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
 				FailInitialize = true;
