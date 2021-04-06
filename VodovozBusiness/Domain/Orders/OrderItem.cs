@@ -463,7 +463,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculatePrice()
 		{
-			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed)
+			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || order.GetFixedPriceOrNull(Nomenclature) != null)
 				return;
 
 			Price = GetPriceByTotalCount();
