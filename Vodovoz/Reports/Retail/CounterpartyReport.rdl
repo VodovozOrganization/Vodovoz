@@ -63,7 +63,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>22.5pt</Width>
+            <Width>26.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>79.5pt</Width>
@@ -81,13 +81,13 @@
             <Width>84.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.7pt</Width>
+            <Width>60.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>77.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>113.9pt</Width>
+            <Width>100.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -461,7 +461,7 @@
    	counterparty.full_name AS full_name,
     	delivery_points.compiled_address AS address,
 	districts.district_name AS district,
-	(employees.last_name + employees.name + employees.patronymic) as employee_full_name,
+	CONCAT(employees.last_name, ' ', LEFT(employees.name, 1), '.', LEFT(employees.patronymic, 1), '.') AS employee_full_name,
 	date(orders.create_date) AS first_order,
 	sales_channels.name AS channel_name,
 	CASE
@@ -481,7 +481,7 @@ LEFT JOIN districts ON districts.id = delivery_points.district_id
 LEFT JOIN sales_channel_to_counterparty ON  sales_channel_to_counterparty.counterparty_id = counterparty.id
 LEFT JOIN sales_channels ON sales_channels.id = sales_channel_to_counterparty.sales_channel_id
 LEFT JOIN orders ON orders.id = counterparty.first_order_id
-LEFT JOIN employees ON employees.id = counterparty.close_delivery_employee_id
+LEFT JOIN employees ON employees.id = orders.author_employee_id
 	WHERE
 	counterparty.is_for_retail = 1
 	AND (orders.create_date >= @create_date)

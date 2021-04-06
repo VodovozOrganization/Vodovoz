@@ -63,7 +63,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>18.5pt</Width>
+            <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>38.4pt</Width>
@@ -87,16 +87,16 @@
             <Width>64.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65.4pt</Width>
+            <Width>55.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>67.7pt</Width>
+            <Width>57.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>60.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>83.2pt</Width>
+            <Width>70.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
