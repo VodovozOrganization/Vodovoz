@@ -736,7 +736,7 @@ public partial class MainWindow : Gtk.Window
 
         var filter = new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default };
 
-        var SubdivisionAutocompleteSelectorFactory =
+        var subdivisionAutocompleteSelectorFactory =
             new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
             {
                 return new SubdivisionsJournalViewModel(
@@ -747,7 +747,7 @@ public partial class MainWindow : Gtk.Window
                 );
             });
 
-        var CounterpartyAutocompleteSelectorFactory =
+        var counterpartyAutocompleteSelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
         tdiMain.OpenTab(
@@ -1753,7 +1753,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionPaymentsReportActivated(object sender, EventArgs e)
     {
-        var CounterpartyAutocompleteSelectorFactory =
+        var counterpartyAutocompleteSelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
         
