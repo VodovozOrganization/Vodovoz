@@ -5,7 +5,6 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Additions.Store;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Employees;
@@ -28,6 +27,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using Vodovoz.Domain.Employees;
 using QS.Tdi;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Parameters;
 
 namespace Vodovoz

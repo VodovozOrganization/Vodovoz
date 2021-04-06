@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.Permissions;
-using Vodovoz.Domain.Permissions;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Domain.Store;
-using Vodovoz.Infrastructure.Permissions;
 
 namespace Vodovoz.Core
 {

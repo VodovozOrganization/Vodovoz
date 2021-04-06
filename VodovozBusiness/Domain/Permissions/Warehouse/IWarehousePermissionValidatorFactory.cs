@@ -1,6 +1,4 @@
-﻿using System;
-using QS.DomainModel.Entity;
-namespace Vodovoz.Infrastructure.Permissions
+﻿namespace Vodovoz.Domain.Permissions.Warehouse
 {
 	public interface IWarehousePermissionValidatorFactory
 	{

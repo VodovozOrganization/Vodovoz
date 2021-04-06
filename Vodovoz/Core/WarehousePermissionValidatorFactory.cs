@@ -1,9 +1,8 @@
 ﻿using QS.DomainModel.UoW;
 using QS.Permissions;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Permissions;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Domain.Store;
-using Vodovoz.Infrastructure.Permissions;
 namespace Vodovoz.Core
 {
 	public class WarehousePermissionValidatorFactory : IWarehousePermissionValidatorFactory

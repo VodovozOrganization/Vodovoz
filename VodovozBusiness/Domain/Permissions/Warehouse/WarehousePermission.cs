@@ -3,35 +3,18 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Store;
 
-namespace Vodovoz.Domain.Permissions
+namespace Vodovoz.Domain.Permissions.Warehouse
 {
-    public class WarehousePermission : PropertyChangedBase, IDomainObject
+    public abstract class WarehousePermission : PropertyChangedBase
     {
-        public virtual int Id { get; set; }
-        
-        private TypePermissions typePermissions;
+	    private TypePermissions typePermissions;
         [Display(Name = "Чьи права")]
         public virtual TypePermissions TypePermissions {
             get => typePermissions;
             set => SetField(ref typePermissions, value);
         }
         
-        private User user;
-        [Display(Name = "Пользователь")]
-        public virtual User User {
-            get => user;
-            set => SetField(ref user, value);
-        }
-        
-        private Subdivision subdivision;
-        [Display(Name = "Подразделение")]
-        public virtual Subdivision Subdivision {
-            get => subdivision;
-            set => SetField(ref subdivision, value);
-        }
-
         private WarehousePermissions warehousePermissionType;
 		[Display(Name = "Права склада")]
         public virtual WarehousePermissions WarehousePermissionType
@@ -40,9 +23,9 @@ namespace Vodovoz.Domain.Permissions
 	        set => SetField(ref warehousePermissionType, value);
         }
 
-        private Warehouse warehouse;
+        private Store.Warehouse warehouse;
         [Display(Name = "Склад")]
-        public virtual Warehouse Warehouse
+        public virtual Store.Warehouse Warehouse
         {
 	        get => warehouse;
 	        set => SetField(ref warehouse, value);

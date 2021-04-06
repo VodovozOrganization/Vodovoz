@@ -1,5 +1,5 @@
 ﻿using System;
-using Vodovoz.Infrastructure.Permissions;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Infrastructure.Services;
 namespace Vodovoz.Services.Permissions
 {

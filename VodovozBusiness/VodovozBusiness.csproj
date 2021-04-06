@@ -103,10 +103,12 @@
     <Compile Include="Domain\Orders\ReturnTareReasonCategory.cs" />
     <Compile Include="Domain\Organizations\Organization.cs" />
     <Compile Include="Domain\Payments\PaymentsFromYookassaParser.cs" />
-    <Compile Include="Domain\Permissions\IWarehousePermissionValidator.cs" />
-    <Compile Include="Domain\Permissions\IWarehousePermissionValidatorFactory.cs" />
-    <Compile Include="Domain\Permissions\WarehousePermission.cs" />
-    <Compile Include="Domain\Permissions\WarehousePermissionValidator.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\IWarehousePermissionValidator.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\IWarehousePermissionValidatorFactory.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\SubdivisionWarehouse.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\UserWarehousePermission.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\WarehousePermission.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\WarehousePermissionValidator.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposalStatus.cs" />
     <Compile Include="Domain\Retail\SalesChannel.cs" />

@@ -4,8 +4,7 @@ using NHibernate.Criterion;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Core;
-using Vodovoz.Domain.Permissions;
-using Vodovoz.Infrastructure.Permissions;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Additions.Store

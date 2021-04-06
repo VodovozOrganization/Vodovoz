@@ -7,7 +7,6 @@ using QS.DomainModel.UoW;
 using QS.EntityRepositories;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
@@ -20,7 +19,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Permissions;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Tools;
 
 namespace Vodovoz

@@ -5,7 +5,6 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Additions.Store;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.PermissionExtensions;
@@ -22,7 +21,7 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
 using Gamma.GtkWidgets;
 using QSProjectsLib;
-using Vodovoz.Domain.Permissions;
+using Vodovoz.Domain.Permissions.Warehouse;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
