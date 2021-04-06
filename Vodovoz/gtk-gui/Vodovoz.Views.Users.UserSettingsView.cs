@@ -334,7 +334,7 @@ namespace Vodovoz.Views.Users
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Фильтр в отчете по оплатам");
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Фильтр по контрагентам в отчете по оплатам");
 			this.vbox2.Add(this.label2);
 			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.label2]));
 			w25.Position = 0;
