@@ -808,20 +808,11 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     	date(orders.create_date) AS orderdate,
-	CASE
-		WHEN delivery_points.entrance_type = 'Entrance' THEN 'Парадная'
-		WHEN delivery_points.entrance_type = 'TradeCenter' THEN 'Торговый центр'
-		WHEN delivery_points.entrance_type = 'TradeComplex' THEN 'Торговый комплекс'
-		WHEN delivery_points.entrance_type = 'BusinessCenter' THEN 'Бизнес центр'
-		WHEN delivery_points.entrance_type = 'School' THEN 'Школа'
-		WHEN delivery_points.entrance_type = 'Hostel' THEN 'Общежитие'
-
-		ELSE 'Неизвестный тип входа'
-	END AS entrance,
+	delivery_point_categories.name AS entrance,
     	orders.id AS order_id,
-	delivery_points.street_district AS district,
+	districts.district_name AS district,
 	counterparty.full_name AS client,
-	counterparty.address AS address,
+	delivery_points.compiled_address AS address,
 	sales_channels.name AS channel_name,
 	CASE
 		WHEN orders.payment_type = 'cash' THEN 'Наличная'
@@ -845,14 +836,15 @@
 	GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.name, employees.patronymic) AS author
 FROM orders
 
+LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+LEFT JOIN districts ON districts.id = delivery_points.district_id
 LEFT JOIN sales_channel_to_counterparty ON  sales_channel_to_counterparty.counterparty_id = orders.client_id
 LEFT JOIN sales_channels ON sales_channels.id = sales_channel_to_counterparty.sales_channel_id
-LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN delivery_points_responsible_persons ON delivery_points_responsible_persons.delivery_point_id = delivery_points.id
 LEFT JOIN employees ON employees.id = delivery_points_responsible_persons.employee_id
 LEFT JOIN order_items o_items ON o_items.order_id = orders.id
-
+LEFT JOIN counterparty ON counterparty.id = orders.client_id
+LEFT JOIN delivery_point_categories ON delivery_point_categories.id = delivery_points.delivery_point_category_id
 WHERE
 	orders.is_for_retail = 1
 	AND orders.create_date BETWEEN @create_date AND @end_date
