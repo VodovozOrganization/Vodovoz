@@ -63,7 +63,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref ownType, value, () => OwnType);
 		}
 
-
 		Nomenclature nomenclature;
 
 		[Display(Name = "Номенклатура оборудования")]

@@ -1010,9 +1010,14 @@ namespace Vodovoz.Domain.Orders
 						new[] { this.GetPropertyName(o => o.IsContractCloser) }
 					);
 				}
-			}
+			}           
 
-			if(ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
+            if (validationContext.Items.ContainsKey("cash_order_close"))
+                if ((bool)validationContext.Items["cash_order_close"])
+                    if (PaymentType == PaymentType.Terminal && OnlineOrder == null)
+                        yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
+
+            if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
@@ -1208,7 +1213,7 @@ namespace Vodovoz.Domain.Orders
 					sum += item.ActualSum;
 
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems)
-					sum -= dep.Deposit * dep.Count;
+					sum -= Math.Round(dep.Deposit * dep.Count, 2);
 
 				return sum;
 			}
@@ -1220,7 +1225,7 @@ namespace Vodovoz.Domain.Orders
 								.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount.Value * i.Price);
 
 		public virtual decimal? ActualGoodsTotalSum =>
-			OrderItems.Sum(item => item.Price * item.ActualCount - item.DiscountMoney);
+			OrderItems.Sum(item => Decimal.Round(item.Price * item.ActualCount - item.DiscountMoney ?? 0, 2));
 
 		public virtual bool CanBeMovedFromClosedToAcepted => 
 			new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
@@ -1636,16 +1641,22 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual NomenclatureFixedPrice GetFixedPriceOrNull(Nomenclature nomenclature)
 		{
-			if (Contract == null) {
-				return null;
+			IList<NomenclatureFixedPrice> fixedPrices;
+			
+			if(deliveryPoint == null)
+			{
+				if (Contract == null)
+					return null;
+				
+				fixedPrices = Contract.Counterparty.NomenclatureFixedPrices;
 			}
-			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
-
-			IList<NomenclatureFixedPrice> fixedPrices = Contract.Counterparty.NomenclatureFixedPrices;
-			if(deliveryPoint != null) {
+			else
+			{
 				fixedPrices = deliveryPoint.NomenclatureFixedPrices;
 			}
 			
+			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
+
 			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && influentialNomenclature == null)) {
 				return fixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id);
 			}

@@ -72,8 +72,6 @@ namespace Vodovoz.ViewModels.WageCalculation
 				if(changeWageParameterCommand == null) {
 					changeWageParameterCommand = new DelegateCommand(
 						() => {
-							var uowBuilder = EntityUoWBuilder.ForCreate();
-							var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
 							var newEmployeeWageParameterViewModel = new EmployeeWageParameterViewModel(UoW, Entity, CommonServices);
 							newEmployeeWageParameterViewModel.OnWageParameterCreated += (sender, wageParameter) => {
 								Entity.ChangeWageParameter(wageParameter, StartDate.Value);

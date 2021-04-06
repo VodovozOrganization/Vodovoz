@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
@@ -18,17 +19,20 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEmployeeService employeeService;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+        private readonly IFilePickerService filePickerService;
 
-		public CreateInnerComplaintViewModel(
+        public CreateInnerComplaintViewModel(
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
-			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+            IFilePickerService filePickerService
+            ) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+            this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+            this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			Entity.ComplaintType = ComplaintType.Inner;
@@ -72,7 +76,20 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		protected override void BeforeValidation()
+        private ComplaintFilesViewModel filesViewModel;
+        public ComplaintFilesViewModel FilesViewModel
+        {
+            get
+            {
+                if (filesViewModel == null)
+                {
+                    filesViewModel = new ComplaintFilesViewModel(Entity, UoW, filePickerService, CommonServices);
+                }
+                return filesViewModel;
+            }
+        }
+
+        protected override void BeforeValidation()
 		{
 			if(UoW.IsNew) {
 				Entity.CreatedBy = CurrentEmployee;

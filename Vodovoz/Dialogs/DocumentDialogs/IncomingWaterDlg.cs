@@ -14,6 +14,15 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
+using Vodovoz.Domain.Client;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.JournalSelector;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -57,15 +66,13 @@ namespace Vodovoz
 			}
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.IncomingWaterEdit, Entity.IncomingWarehouse, Entity.WriteOffWarehouse);
-			buttonFill.Sensitive = referenceProduct.IsEditable = spinAmount.Sensitive
+			buttonFill.Sensitive = yentryProduct.IsEditable = spinAmount.Sensitive
 				= referenceSrcWarehouse.IsEditable = referenceDstWarehouse.IsEditable = editing;
 			incomingwatermaterialview1.Sensitive = editing;
 
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 			spinAmount.Binding.AddBinding(Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource();
 
-			referenceProduct.SubjectType = typeof(Nomenclature);
-			referenceProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
 			referenceSrcWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.IncomingWaterEdit);
 			referenceSrcWarehouse.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();
 			referenceDstWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.IncomingWaterEdit);
@@ -77,7 +84,7 @@ namespace Vodovoz
 			Entity.CanEdit = permmissionValidator.Validate(typeof(IncomingWater), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				spinAmount.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				referenceProduct.Sensitive = false;
+				yentryProduct.Sensitive = false;
 				referenceDstWarehouse.Sensitive = false;
 				referenceSrcWarehouse.Sensitive = false;
 				buttonFill.Sensitive = false;
@@ -86,6 +93,25 @@ namespace Vodovoz
 			} else {
 				Entity.CanEdit = true;
 			}
+
+			var nomenclatureFilter = new NomenclatureFilterViewModel() { HidenByDefault = true };
+			var nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
+
+			var counterpartySelectorFactory =
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+					ServicesConfig.CommonServices);
+			
+			var nomenclatureAutoCompleteSelectorFactory =
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+					ServicesConfig.CommonServices,
+					nomenclatureFilter,
+					counterpartySelectorFactory,
+					nomenclatureRepository,
+					UserSingletonRepository.GetInstance()
+				);
+			
+			yentryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureAutoCompleteSelectorFactory);
+			yentryProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
 		}
 
 		public override bool Save ()
