@@ -63,7 +63,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>26.5pt</Width>
+            <Width>36.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>79.5pt</Width>
@@ -87,7 +87,7 @@
             <Width>77.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>100.9pt</Width>
+            <Width>85.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -98,7 +98,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>№</Value>
+                      <Value>№ заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -487,7 +487,7 @@ LEFT JOIN employees ON employees.id = orders.author_employee_id
 	AND (orders.create_date >= @create_date)
 	AND (@sales_channel_id = 0 OR sales_channels.id = @sales_channel_id)
 	AND (@district = 0 OR delivery_points.district_id = @district)
-	AND (counterparty.payment_method = @payment_type)
+	AND (IF(@all_types, 1, counterparty.payment_method = @payment_type))
 ORDER BY first_order DESC</CommandText>
         <QueryParameters>
           <QueryParameter Name="create_date">
@@ -501,6 +501,9 @@ ORDER BY first_order DESC</CommandText>
           </QueryParameter>
           <QueryParameter Name="payment_type">
             <Value>=Parameters!payment_type</Value>
+          </QueryParameter>
+          <QueryParameter Name="all_types">
+            <Value>=Parameters!all_types</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -580,6 +583,13 @@ ORDER BY first_order DESC</CommandText>
       <Prompt />
     </ReportParameter>
     <ReportParameter Name="payment_type">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="all_types">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

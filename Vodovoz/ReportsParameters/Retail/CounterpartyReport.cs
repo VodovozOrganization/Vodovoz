@@ -48,10 +48,10 @@ namespace Vodovoz.ReportsParameters.Retail
                 { "create_date", ydateperiodpickerCreate.StartDateOrNull },
                 { "sales_channel_id", (yEntitySalesChannel.Subject as SalesChannel)?.Id ?? 0},
                 { "district", (yEntityDistrict.Subject as District)?.Id ?? 0 },
-                { "payment_type", (yenumPaymentType.SelectedItemOrNull)}
+                { "payment_type", (yenumPaymentType.SelectedItemOrNull)},
+                { "all_types", (ycheckpaymentform.Active) ? 1 : 0}
             };
-
-            return new ReportInfo
+                return new ReportInfo
             {
                 Identifier = "Retail.CounterpartyReport",
                 Parameters = parameters
@@ -71,12 +71,12 @@ namespace Vodovoz.ReportsParameters.Retail
             string errorString = string.Empty;
             if (!(ydateperiodpickerCreate.StartDateOrNull.HasValue &&
                 ydateperiodpickerCreate.EndDateOrNull.HasValue))
+                errorString += "Не выбран период";
+            if (!string.IsNullOrWhiteSpace(errorString))
             {
-                errorString = "Не выбран период";
                 interactiveService.ShowMessage(ImportanceLevel.Error, errorString);
                 return false;
             }
-
             return true;
         }
     }

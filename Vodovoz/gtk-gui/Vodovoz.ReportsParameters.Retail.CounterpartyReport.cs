@@ -30,6 +30,8 @@ namespace Vodovoz.ReportsParameters.Retail
 
 		private global::Gamma.Widgets.yEnumComboBox yenumPaymentType;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckpaymentform;
+
 		private global::Gtk.Button buttonCreateReport;
 
 		protected virtual void Build()
@@ -154,16 +156,28 @@ namespace Vodovoz.ReportsParameters.Retail
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.ycheckpaymentform = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckpaymentform.CanFocus = true;
+			this.ycheckpaymentform.Name = "ycheckpaymentform";
+			this.ycheckpaymentform.Label = global::Mono.Unix.Catalog.GetString("Все формы оплаты");
+			this.ycheckpaymentform.DrawIndicator = true;
+			this.ycheckpaymentform.UseUnderline = true;
+			this.vbox2.Add(this.ycheckpaymentform);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ycheckpaymentform]));
+			w13.Position = 4;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox2.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateReport]));
-			w13.Position = 5;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateReport]));
+			w14.Position = 6;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
