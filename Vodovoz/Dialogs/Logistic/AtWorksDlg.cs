@@ -246,7 +246,7 @@ namespace Vodovoz.Dialogs.Logistic
         protected void OnButtonClearDriverScreenClicked(object sender, EventArgs e)
         {
             if (MessageDialogHelper.RunQuestionWithTitleDialog("ВНИМАНИЕ!!!",
-                $"Список работающих и снятых водителей на дату: { ydateAtWorks.Date.ToShortDateString()} будет отчищен\n\n" +
+                $"Список работающих и снятых водителей на дату: { ydateAtWorks.Date.ToShortDateString()} будет очищен\n\n" +
                 "Вы действительно хотите продолжить?"))
             {
                 DriversAtDay.ToList().ForEach(x => UoW.Delete(x));
