@@ -480,8 +480,9 @@ LEFT JOIN delivery_points ON delivery_points.counterparty_id = counterparty.id
 LEFT JOIN districts ON districts.id = delivery_points.district_id
 LEFT JOIN sales_channel_to_counterparty ON  sales_channel_to_counterparty.counterparty_id = counterparty.id
 LEFT JOIN sales_channels ON sales_channels.id = sales_channel_to_counterparty.sales_channel_id
+LEFT JOIN delivery_points_responsible_persons ON delivery_points_responsible_persons.delivery_point_id = delivery_points.id
+LEFT JOIN employees ON employees.id = delivery_points_responsible_persons.employee_id
 LEFT JOIN orders ON orders.id = counterparty.first_order_id
-LEFT JOIN employees ON employees.id = orders.author_employee_id
 	WHERE
 	counterparty.is_for_retail = 1
 	AND (orders.create_date >= @create_date)

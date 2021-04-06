@@ -34,7 +34,7 @@
       <Textbox Name="Textbox23">
         <Height>23.21pt</Height>
         <Width>801.63pt</Width>
-        <Value>В отчет попадают заказы для "Розницы" со статусом оплаты "Оплачен", "Частично оплачен"
+        <Value>В отчет попадают заказы для "Розницы"
 Сортировка: по дате заказа и по номеру заказа</Value>
         <ZIndex>1</ZIndex>
         <Left>2.40pt</Left>
@@ -838,22 +838,23 @@
 	CASE
 		WHEN orders.order_payment_status = 'Paid' THEN 'Оплачен'
 		WHEN orders.order_payment_status = 'PartiallyPaid' THEN 'Частично оплачен'
+		WHEN orders.order_payment_status = 'UnPaid' THEN 'Неоплачен'
 	ELSE 'Неизвестная форма оплаты'
 	END AS order_payment_status,
     IFNULL(SUM(o_items.price * IFNULL(o_items.actual_count, o_items.count) - o_items.discount_money), 0) AS ordersum,
-	CONCAT(employees.last_name, ' ', LEFT(employees.name, 1), '.', LEFT(employees.patronymic, 1), '.') AS author
+	GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.name, employees.patronymic) AS author
 FROM orders
 
 LEFT JOIN sales_channel_to_counterparty ON  sales_channel_to_counterparty.counterparty_id = orders.client_id
 LEFT JOIN sales_channels ON sales_channels.id = sales_channel_to_counterparty.sales_channel_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
 LEFT JOIN counterparty ON counterparty.id = orders.client_id
-LEFT JOIN employees ON employees.id = orders.author_employee_id
+LEFT JOIN delivery_points_responsible_persons ON delivery_points_responsible_persons.delivery_point_id = delivery_points.id
+LEFT JOIN employees ON employees.id = delivery_points_responsible_persons.employee_id
 LEFT JOIN order_items o_items ON o_items.order_id = orders.id
 
 WHERE
 	orders.is_for_retail = 1
-	AND order_payment_status IN ('Paid', 'PartiallyPaid')
 	AND orders.create_date BETWEEN @create_date AND @end_date
 	AND orders.delivery_date BETWEEN @shipping_date AND @shipping_end_date
 	AND (@sales_channel_id = 0 OR sales_channels.id = @sales_channel_id)
