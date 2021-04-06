@@ -49,7 +49,7 @@ namespace Vodovoz.ReportsParameters.Retail
                 { "sales_channel_id", (yEntitySalesChannel.Subject as SalesChannel)?.Id ?? 0},
                 { "district", (yEntityDistrict.Subject as District)?.Id ?? 0 },
                 { "payment_type", (yenumPaymentType.SelectedItemOrNull)},
-                { "all_types", (ycheckpaymentform.Active) ? 1 : 0}
+                { "all_types", (ycheckpaymentform.Active)}
             };
                 return new ReportInfo
             {
