@@ -759,8 +759,8 @@ public partial class MainWindow : Gtk.Window
                     ServicesConfig.CommonServices,
                     VodovozGtkServicesConfig.EmployeeService,
                     SubdivisionParametersProvider.Instance,
-                    SubdivisionAutocompleteSelectorFactory,
-                    CounterpartyAutocompleteSelectorFactory
+                    subdivisionAutocompleteSelectorFactory,
+                    counterpartyAutocompleteSelectorFactory
                 );
             }
         );
@@ -1760,7 +1760,7 @@ public partial class MainWindow : Gtk.Window
         var userRepository = UserSingletonRepository.GetInstance();
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
-            () => new QSReport.ReportViewDlg(new PaymentsFromBankClientReport(CounterpartyAutocompleteSelectorFactory, userRepository, ServicesConfig.CommonServices))
+            () => new QSReport.ReportViewDlg(new PaymentsFromBankClientReport(counterpartyAutocompleteSelectorFactory, userRepository, ServicesConfig.CommonServices))
         );
     }
 
