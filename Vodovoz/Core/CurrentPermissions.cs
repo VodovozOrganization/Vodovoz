@@ -3,6 +3,7 @@ using QSOrmProject.Permissions;
 using QSProjectsLib;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Core

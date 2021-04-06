@@ -20,6 +20,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.Tools;
 
 namespace Vodovoz

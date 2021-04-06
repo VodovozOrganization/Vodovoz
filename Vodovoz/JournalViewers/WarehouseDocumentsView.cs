@@ -19,6 +19,7 @@ using Vodovoz.Services.Permissions;
 using QS.Project.Services;
 using Vodovoz.PermissionExtensions;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.EntityRepositories.Store;

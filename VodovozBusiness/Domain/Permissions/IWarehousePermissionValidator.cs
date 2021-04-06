@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
 namespace Vodovoz.Infrastructure.Permissions
 {

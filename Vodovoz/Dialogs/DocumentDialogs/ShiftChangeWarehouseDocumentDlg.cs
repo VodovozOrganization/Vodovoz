@@ -22,6 +22,7 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
 using Gamma.GtkWidgets;
 using QSProjectsLib;
+using Vodovoz.Domain.Permissions;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {

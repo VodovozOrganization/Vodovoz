@@ -228,10 +228,6 @@
     <Compile Include="ViewModels\Warehouses\IncomingInvoiceViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\MovementDocumentViewModel.cs" />
     <Compile Include="Infrastructure\Services\IWarehousePermissionService.cs" />
-    <Compile Include="Infrastructure\Permissions\IWarehousePermissionValidator.cs" />
-    <Compile Include="Infrastructure\Permissions\WarehousePermissions.cs" />
-    <Compile Include="Infrastructure\Permissions\WarehousePermissionValidator.cs" />
-    <Compile Include="Infrastructure\Permissions\IWarehousePermissionValidatorFactory.cs" />
     <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
     <Compile Include="TempAdapters\INomenclatureSelectorFactory.cs" />
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
@@ -304,6 +300,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />
+    <Folder Include="Infrastructure\Permissions" />
     <Folder Include="ViewModels\" />
     <Folder Include="ViewModels\Complaints\" />
     <Folder Include="ViewModels\Employees\" />

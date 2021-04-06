@@ -129,6 +129,7 @@ using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 using Vodovoz.Views.Mango.Talks;
