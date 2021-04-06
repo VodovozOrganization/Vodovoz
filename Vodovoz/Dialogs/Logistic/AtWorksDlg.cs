@@ -103,7 +103,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 			this.defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDaySchedule.GetDefaultDeliveryDayScheduleId());
-            SetButtonClearDriverScreenSensetive();
+            SetButtonClearDriverScreenSensitive();
         }
 		
 		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -212,7 +212,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var list = selectDrivers.Items;
 			selectDrivers.OnEntitySelectedResult += SelectDrivers_OnEntitySelectedResult;
 			TabParent.AddSlaveTab(this, selectDrivers);
-            SetButtonClearDriverScreenSensetive();
+            SetButtonClearDriverScreenSensitive();
         }
 
 		
@@ -251,7 +251,7 @@ namespace Vodovoz.Dialogs.Logistic
             {
                 DriversAtDay.ToList().ForEach(x => UoW.Delete(x));
                 observableDriversAtDay.Clear();
-                SetButtonClearDriverScreenSensetive();
+                SetButtonClearDriverScreenSensitive();
             }
         }
 
@@ -407,7 +407,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			FillDialogAtDay();
 			OnTabNameChanged();
-            SetButtonClearDriverScreenSensetive();
+            SetButtonClearDriverScreenSensitive();
         }
 
 		void SelectDrivers_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
@@ -465,7 +465,7 @@ namespace Vodovoz.Dialogs.Logistic
         #endregion
 
         #region Fuctions
-        private void SetButtonClearDriverScreenSensetive()
+        private void SetButtonClearDriverScreenSensitive()
         {
             if (ydateAtWorks.Date < DateTime.Now.Date || !driversAtDay.Any())
             {
@@ -574,7 +574,7 @@ namespace Vodovoz.Dialogs.Logistic
 			logger.Info("Ок");
 
 			CheckAndCorrectDistrictPriorities();
-            SetButtonClearDriverScreenSensetive();
+            SetButtonClearDriverScreenSensitive();
         }
 
 		//Если дата диалога >= даты активации набора районов и есть хотя бы один район у водителя, который не принадлежит активному набору районов
