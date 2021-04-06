@@ -77,9 +77,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             
             if(FilterViewModel != null) {
                 if(FilterViewModel.StartDate.HasValue)
-                    result.Where(() => cashRequestAlias.Date >= FilterViewModel.StartDate.Value);
+                    result.Where(() => cashRequestAlias.Date >= FilterViewModel.StartDate.Value.Date);
                 if(FilterViewModel.EndDate.HasValue)
-                    result.Where(() => cashRequestAlias.Date < FilterViewModel.EndDate.Value);
+                    result.Where(() => cashRequestAlias.Date < FilterViewModel.EndDate.Value.Date.AddDays(1));
                 if(FilterViewModel.Author != null)
                     result.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
                 if (FilterViewModel.AccountableEmployee != null)
