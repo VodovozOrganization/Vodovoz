@@ -461,7 +461,7 @@
    	counterparty.full_name AS full_name,
     	delivery_points.compiled_address AS address,
 	districts.district_name AS district,
-	CONCAT(employees.last_name, ' ', LEFT(employees.name, 1), '.', LEFT(employees.patronymic, 1), '.') AS employee_full_name,
+	GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.name, employees.patronymic) AS employee_full_name,
 	date(orders.create_date) AS first_order,
 	sales_channels.name AS channel_name,
 	CASE
