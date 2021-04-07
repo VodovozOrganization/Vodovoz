@@ -20,13 +20,13 @@ namespace Vodovoz.ViewModels.Logistic
             DriverWorkScheduleSet entity,
             IUnitOfWork uow,
             ICommonServices commonServices,
-            IDefaultDeliveryDaySchedule defaultDeliveryDaySchedule,
+            IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
             IEmployeeRepository employeeRepository,
             INavigationManager navigation = null) 
             : base(commonServices.InteractiveService, navigation)
         {
-            if(defaultDeliveryDaySchedule == null) {
-                throw new ArgumentNullException(nameof(defaultDeliveryDaySchedule));
+            if(defaultDeliveryDayScheduleSettings == null) {
+                throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
             }
             this.uow = uow ?? throw new ArgumentNullException(nameof(uow));
             this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.Logistic
 
             DeliveryDaySchedules = new List<DeliveryDaySchedule>(uow.GetAll<DeliveryDaySchedule>());
 
-            FillObservableDriverWorkSchedules(defaultDeliveryDaySchedule);
+            FillObservableDriverWorkSchedules(defaultDeliveryDayScheduleSettings);
             UpdateTabName();
             
             Entity.PropertyChanged += (sender, args) => {
@@ -111,9 +111,9 @@ namespace Vodovoz.ViewModels.Logistic
 
         #region Приватные методы
 
-        private void FillObservableDriverWorkSchedules(IDefaultDeliveryDaySchedule defaultDeliveryDaySchedule)
+        private void FillObservableDriverWorkSchedules(IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings)
         {
-            var defaultDaySchedule = uow.GetById<DeliveryDaySchedule>(defaultDeliveryDaySchedule.GetDefaultDeliveryDayScheduleId());
+            var defaultDaySchedule = uow.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
 
             ObservableDriverWorkSchedules = new GenericObservableList<DriverWorkScheduleNode> {
                 new DriverWorkScheduleNode { WeekDay = WeekDayName.Monday, DaySchedule = defaultDaySchedule },

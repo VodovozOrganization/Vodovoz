@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly ICommonServices commonServices;
 		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
 		private readonly int closingDocumentDeliveryScheduleId;
-		
+
 		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
@@ -64,10 +64,10 @@ namespace Vodovoz.ViewModels.Logistic
 			ICarRepository carRepository,
 			INavigationManager navigationManager,
 			IUserRepository userRepository,
-			IDefaultDeliveryDaySchedule defaultDeliveryDaySchedule
+			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings
 		) : base(commonServices.InteractiveService, navigationManager)
 		{
-			if(defaultDeliveryDaySchedule == null) throw new ArgumentNullException(nameof(defaultDeliveryDaySchedule));
+			if(defaultDeliveryDayScheduleSettings == null) throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -110,7 +110,7 @@ namespace Vodovoz.ViewModels.Logistic
 					foundGeoGroup.Selected = true;
 			}
 			Optimizer = new RouteOptimizer(commonServices.InteractiveService);
-			this.defaultDeliveryDaySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDaySchedule.GetDefaultDeliveryDayScheduleId());
+			defaultDeliveryDaySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
 
 			CreateCommands();
 			LoadAddressesTypesDefaults();
