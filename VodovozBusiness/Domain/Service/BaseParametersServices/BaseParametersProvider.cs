@@ -14,7 +14,7 @@ namespace Vodovoz.Core.DataService
 		ICommonParametersProvider, 
 		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
-		IDefaultDeliveryDaySchedule,
+		IDefaultDeliveryDayScheduleSettings,
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
 		IEmailServiceSettings,
