@@ -286,6 +286,7 @@ true,
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -293,7 +294,7 @@ true,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
-                      <Value>=Fields!bottles_to_return.Value - Fields!bottles_returned.Value</Value>
+                      <Value>=Fields!amount_unloaded_empty.Value - Fields!bottles_returned.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -534,6 +535,7 @@ true,
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -541,7 +543,7 @@ true,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>=Sum(Fields!bottles_to_return.Value) - Sum(Fields!bottles_returned.Value)</Value>
+                      <Value>=Sum(Fields!amount_unloaded_empty.Value) - Sum(Fields!bottles_returned.Value)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -770,6 +772,7 @@ true,
                             <BorderColor />
                             <BorderWidth />
                             <TextAlign>Center</TextAlign>
+                            <Format >0</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -777,7 +780,7 @@ true,
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox40">
-                          <Value>=Sum(Fields!bottles_to_return.Value) - Sum(Fields!bottles_returned.Value)</Value>
+                          <Value>=Sum(Fields!amount_unloaded_empty.Value) - Sum(Fields!bottles_returned.Value)</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
