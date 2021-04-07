@@ -62,7 +62,7 @@ namespace Vodovoz.Dialogs.Cash
 			).InitializeFromSource();
 
 			buttonAccept.Clicked += (sender, args) => ViewModel.AcceptCommand.Execute();
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel);};
+			buttonCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
 
 			#region Visibility
 
