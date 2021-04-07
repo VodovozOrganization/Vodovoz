@@ -1407,10 +1407,12 @@ namespace Vodovoz
 
 		void DoneServiceSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			ServiceClaim selected = (e.Subject as ServiceClaim);
-			var contract = counterpartyContractRepository.GetCounterpartyContract( UoWGeneric, Entity);
-			selected.FinalOrder = Entity;
-			Entity.ObservableFinalOrderService.Add(selected);
+			if(!(e.Subject is ServiceClaim selectedServiceClaim)) {
+				return;
+			}
+			var serviceClaim = UoW.GetById<ServiceClaim>(selectedServiceClaim.Id);
+			serviceClaim.FinalOrder = Entity;
+			Entity.ObservableFinalOrderService.Add(serviceClaim);
 			//TODO Add service nomenclature with price.
 		}
 
@@ -1873,7 +1875,7 @@ namespace Vodovoz
 			};
 			SelectDialog.ObjectSelected += (s, ea) => {
 				if(ea.Subject != null) {
-					Entity.Comment = (ea.Subject as CommentTemplate).Comment;
+					Entity.Comment = (ea.Subject as CommentTemplate)?.Comment ?? "";
 				}
 			};
 			TabParent.AddSlaveTab(this, SelectDialog);
@@ -2802,7 +2804,11 @@ namespace Vodovoz
 				selectDialog.CustomTabName("Оборудование для аренды");
 				selectDialog.ObjectSelected += (sender, e) => {
 					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					AddPaidRent(rentType, paidRentPackage, selectedNode.Nomenclature);
+					if(selectedNode == null) {
+						return;
+					}
+					var nomenclature = UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
+					AddPaidRent(rentType, paidRentPackage, nomenclature);
 				};
 				TabParent.AddSlaveTab(this, selectDialog);
 			}
@@ -2846,10 +2852,10 @@ namespace Vodovoz
 				Mode = OrmReferenceMode.Select
 			};
 			ormReference.ObjectSelected += (sender, e) => {
-				FreeRentPackage rentPackage = e.Subject as FreeRentPackage;
-				if (rentPackage == null) {
+				if (!(e.Subject is FreeRentPackage selectedRentPackage)) {
 					return;
 				}
+				var rentPackage = UoW.GetById<FreeRentPackage>(selectedRentPackage.Id);
 				SelectEquipmentForFreeRentPackage(rentPackage);
 			};
 			TabParent.AddTab(ormReference, this);
@@ -2873,7 +2879,11 @@ namespace Vodovoz
 				selectDialog.CustomTabName("Оборудование для аренды");
 				selectDialog.ObjectSelected += (sender, e) => {
 					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					AddFreeRent(freeRentPackage, selectedNode.Nomenclature);
+					if(selectedNode == null) {
+						return;
+					}
+					var nomenclature = UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
+					AddFreeRent(freeRentPackage, nomenclature);
 				};
 				TabParent.AddSlaveTab(this, selectDialog);
 			}
