@@ -8,7 +8,7 @@ namespace Vodovoz.Dialogs.Cash
 
 		private global::Gtk.HBox hbox2;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gtk.Button buttonAccept;
 
 		private global::Gtk.Button buttonCancel;
 
@@ -45,16 +45,16 @@ namespace Vodovoz.Dialogs.Cash
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
-			this.buttonSave.CanFocus = true;
-			this.buttonSave.Name = "buttonSave";
-			this.buttonSave.UseUnderline = true;
-			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.buttonAccept = new global::Gtk.Button();
+			this.buttonAccept.CanFocus = true;
+			this.buttonAccept.Name = "buttonAccept";
+			this.buttonAccept.UseUnderline = true;
+			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString("Подтвердить");
 			global::Gtk.Image w1 = new global::Gtk.Image();
-			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
-			this.buttonSave.Image = w1;
-			this.hbox2.Add(this.buttonSave);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonSave]));
+			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonAccept.Image = w1;
+			this.hbox2.Add(this.buttonAccept);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonAccept]));
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
