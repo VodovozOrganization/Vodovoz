@@ -148,11 +148,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     UoW,
                     CommonServices.InteractiveService,
                     NavigationManager,
-                    UserRole,
-                    CurrentEmployee
+                    UserRole
                 );
 
-                cashRequestItemViewModel.Entity = new CashRequestSumItem();
+                cashRequestItemViewModel.Entity = new CashRequestSumItem() { AccountableEmployee = CurrentEmployee };
 
                 cashRequestItemViewModel.EntityAccepted += (sender, args) =>
                 {
@@ -177,8 +176,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     UoW,
                     CommonServices.InteractiveService,
                     NavigationManager,
-                    UserRole,
-                    CurrentEmployee
+                    UserRole
                 );
 
                 cashRequestItemViewModel.Entity = SelectedItem;

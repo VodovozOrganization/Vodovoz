@@ -23,20 +23,20 @@ namespace Vodovoz.Dialogs.Cash
 		private void Configure()
 		{
 			ydateDate.Binding.AddBinding(
-				ViewModel.Entity, 
+				ViewModel, 
 				e => e.Date,
 				w => w.Date
 			).InitializeFromSource();
 			ydateDate.Date = DateTime.Now;
 
 			yentryComment.Binding.AddBinding(
-				ViewModel.Entity,
+				ViewModel,
 				e => e.Comment, 
 				w => w.Text
 			).InitializeFromSource();
 		
 			yspinsum.Binding.AddBinding(
-				ViewModel.Entity, 
+				ViewModel, 
 				e => e.Sum, 
 				w => w.ValueAsDecimal
 			).InitializeFromSource();
@@ -56,7 +56,7 @@ namespace Vodovoz.Dialogs.Cash
 			);
 			
 			AccountableEntityviewmodelentry3.Binding.AddBinding(
-				ViewModel.Entity,
+				ViewModel,
 				s => s.AccountableEmployee,
 				w => w.Subject
 			).InitializeFromSource();

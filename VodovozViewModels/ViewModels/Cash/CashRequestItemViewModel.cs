@@ -23,25 +23,58 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             get => entity;
             set {
                 SetField(ref entity, value);
-                if (value.AccountableEmployee == null)
-                {
-                    entity.AccountableEmployee = accountableEmployee;
-                }
+                AccountableEmployee = value.AccountableEmployee;
+                Date = value.Date;
+                Sum = value.Sum;
+                Comment = value.Comment;
             }
         }
+
         private Employee accountableEmployee;
+        public Employee AccountableEmployee
+        { 
+            get => accountableEmployee; 
+            set {
+                SetField(ref accountableEmployee, value);
+            }
+        }
+
+        private DateTime date;
+        public DateTime Date { 
+            get => date;
+            set
+            {
+                SetField(ref date, value);
+            }
+        }
+
+        private decimal sum;
+        public decimal Sum { 
+            get => sum;
+            set
+            {
+                SetField(ref sum, value);
+            }
+        }
+
+        private string comment;
+        public string Comment {
+            get => comment;
+            set
+            {
+                SetField(ref comment, value);
+            }
+        }
 
         public CashRequestItemViewModel(
             IUnitOfWork uow,
             IInteractiveService interactiveService, 
             INavigationManager navigation,
-            UserRole userRole,
-            Employee currentEmployee) 
+            UserRole userRole) 
             : base(interactiveService, navigation)
         {
             this.UoW = uow;
             this.UserRole = userRole;
-            accountableEmployee = currentEmployee;
         }
 
         public EventHandler EntityAccepted;
@@ -74,6 +107,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         private DelegateCommand acceptCommand;
         public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
             () => {
+                Entity.Date = Date;
+                Entity.AccountableEmployee = accountableEmployee;
+                Entity.Date = Date;
+                Entity.Comment = Comment;
                 Close(false, CloseSource.Self);
                 EntityAccepted?.Invoke(this, new CashRequestSumItemAcceptedEventArgs(Entity));
             },
@@ -83,10 +120,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         private DelegateCommand cancelCommand;
         public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
             () => {
-                if(Entity.Id != 0)
-                {
-                    UoW.Session.Refresh(Entity);
-                }
                 Close(false, CloseSource.Cancel);
             },
             () => true
