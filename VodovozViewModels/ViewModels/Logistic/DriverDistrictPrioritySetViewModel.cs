@@ -25,13 +25,13 @@ namespace Vodovoz.ViewModels.Logistic
             IUnitOfWork uow,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IDefaultDeliveryDaySchedule defaultDeliveryDaySchedule,
+            IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
             IEmployeeRepository employeeRepository,
             INavigationManager navigation = null) 
             : base(commonServices.InteractiveService, navigation)
         {
-            if(defaultDeliveryDaySchedule == null) {
-                throw new ArgumentNullException(nameof(defaultDeliveryDaySchedule));
+            if(defaultDeliveryDayScheduleSettings == null) {
+                throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
             }
             this.uow = uow ?? throw new ArgumentNullException(nameof(uow));
             this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));

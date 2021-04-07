@@ -28,10 +28,10 @@ namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
-		public AtWorksDlg(IDefaultDeliveryDaySchedule defaultDeliveryDaySchedule)
+		public AtWorksDlg(IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings)
 		{
-			if(defaultDeliveryDaySchedule == null) 
-				throw new ArgumentNullException(nameof(defaultDeliveryDaySchedule));
+			if(defaultDeliveryDayScheduleSettings == null) 
+				throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			
 			this.Build();
 
@@ -102,8 +102,8 @@ namespace Vodovoz.Dialogs.Logistic
 			canReturnDriver = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_return_driver_to_work", currentUserId);
 
 			this.defaultDeliveryDaySchedule =
-				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDaySchedule.GetDefaultDeliveryDayScheduleId());
-            SetButtonClearDriverScreenSensitive();
+				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
+			SetButtonClearDriverScreenSensitive();
         }
 		
 		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
