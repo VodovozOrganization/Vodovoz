@@ -1,6 +1,6 @@
 ﻿namespace Vodovoz.Services
 {
-	public interface IDefaultDeliveryDaySchedule
+	public interface IDefaultDeliveryDayScheduleSettings
 	{
 		int GetDefaultDeliveryDayScheduleId();
 	}
