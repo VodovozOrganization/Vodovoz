@@ -2775,11 +2775,11 @@ namespace Vodovoz
 				Mode = OrmReferenceMode.Select
 			};
 			ormReference.ObjectSelected += (sender, e) => {
-				PaidRentPackage rentPackage = e.Subject as PaidRentPackage;
-				if (rentPackage == null) {
+				if (!(e.Subject is PaidRentPackage selectedRentPackage)) {
 					return;
 				}
-				SelectEquipmentForPaidRentPackage(rentType, rentPackage);
+				var paidRentPackage = UoW.GetById<PaidRentPackage>(selectedRentPackage.Id);
+				SelectEquipmentForPaidRentPackage(rentType, paidRentPackage);
 			};
 			TabParent.AddTab(ormReference, this);
 		}
