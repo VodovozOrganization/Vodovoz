@@ -20,7 +20,6 @@ namespace Vodovoz.Dialogs.Cash
 			this.Configure();
 		}
 
-
 		private void Configure()
 		{
 			ydateDate.Binding.AddBinding(
@@ -61,14 +60,12 @@ namespace Vodovoz.Dialogs.Cash
 				s => s.AccountableEmployee,
 				w => w.Subject
 			).InitializeFromSource();
-			
 
-			buttonSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
+			buttonSave.Clicked += (sender, args) => ViewModel.AcceptCommand.Execute();
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel);};
-			
-			
+
 			#region Visibility
-			
+
 			yspinsum.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
 			label1.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
 			

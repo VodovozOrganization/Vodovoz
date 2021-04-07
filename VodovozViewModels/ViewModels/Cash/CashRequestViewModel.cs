@@ -153,16 +153,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 );
                 
                 TabParent.AddSlaveTab(
-                    this,cashRequestItemViewModel
+                    this, cashRequestItemViewModel
                 );
                 
-                cashRequestItemViewModel.EntitySaved += (sender, args) =>
+                cashRequestItemViewModel.EntityAccepted += (sender, args) =>
                 {
-                    if (args.Entity is CashRequestSumItem item)
+                    if (args is CashRequestSumItemAcceptedEventArgs acceptedArgs)
                     {
-                        Entity.AddItem(item);
-                        item.CashRequest = Entity;
-                        UoW.Save(item);
+                        Entity.AddItem(acceptedArgs.AcceptedEntity);
+                        acceptedArgs.AcceptedEntity.CashRequest = Entity;
                     }
                 };
             }, () => true

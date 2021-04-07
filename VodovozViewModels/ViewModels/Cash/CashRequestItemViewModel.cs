@@ -1,15 +1,13 @@
-using System;
-using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -29,7 +27,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             this.UserRole = userRole;
             Entity.AccountableEmployee = currentEmployee;
         }
-        
+
+        public EventHandler EntityAccepted;
+
         //Создана - только для невыданных сумм - Заявитель, Согласователь
         //Согласована - Согласователь
         public bool CanEditOnlyinStateNRC_OrRoleCoordinator
@@ -54,17 +54,25 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
         #region Commands
 
-        private DelegateCommand saveCommand;
-        public DelegateCommand SaveCommand => saveCommand ?? (saveCommand = new DelegateCommand(
+        private DelegateCommand acceptCommand;
+        public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
             () => {
-                SaveAndClose();
-
-            }, () => true
+                Close(false, CloseSource.Self);
+                EntityAccepted?.Invoke(this, new CashRequestSumItemAcceptedEventArgs(Entity));
+            },
+            () => true
         ));
 
         #endregion Commands
-        
-        
-        
+    }
+
+    public class CashRequestSumItemAcceptedEventArgs : EventArgs
+    {
+        public CashRequestSumItemAcceptedEventArgs(CashRequestSumItem cashRequestSumItem)
+        {
+            AcceptedEntity = cashRequestSumItem;
+        }
+
+        public CashRequestSumItem AcceptedEntity { get; private set; }
     }
 }
