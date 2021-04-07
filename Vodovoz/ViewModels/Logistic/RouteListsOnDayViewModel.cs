@@ -31,7 +31,6 @@ using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Core.DataService;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.JournalViewModels;
@@ -110,8 +109,12 @@ namespace Vodovoz.ViewModels.Logistic
 					foundGeoGroup.Selected = true;
 			}
 			Optimizer = new RouteOptimizer(commonServices.InteractiveService);
-			defaultDeliveryDaySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
 
+			defaultDeliveryDaySchedule =
+				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
+			//Необходимо сразу проинициализировать, т.к вызывается Session.Clear() в методе InitializeData()
+			NHibernateUtil.Initialize(defaultDeliveryDaySchedule.Shifts);
+			
 			CreateCommands();
 			LoadAddressesTypesDefaults();
 		}
@@ -1084,6 +1087,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public void InitializeData()
 		{
+			//Эта штука выключает LazyLoading у всех сущностей в сессии. Наверное с этим надо что-то делать
 			UoW.Session.Clear();
 			if(OrdersOnDay == null) {
 				OrdersOnDay = new List<Order>();
