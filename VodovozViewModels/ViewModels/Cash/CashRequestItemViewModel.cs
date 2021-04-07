@@ -34,36 +34,25 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public Employee AccountableEmployee
         { 
             get => accountableEmployee; 
-            set {
-                SetField(ref accountableEmployee, value);
-            }
+            set => SetField(ref accountableEmployee, value);
         }
 
         private DateTime date;
         public DateTime Date { 
             get => date;
-            set
-            {
-                SetField(ref date, value);
-            }
+            set => SetField(ref date, value);
         }
 
         private decimal sum;
         public decimal Sum { 
             get => sum;
-            set
-            {
-                SetField(ref sum, value);
-            }
+            set => SetField(ref sum, value);
         }
 
         private string comment;
         public string Comment {
             get => comment;
-            set
-            {
-                SetField(ref comment, value);
-            }
+            set => SetField(ref comment, value);
         }
 
         public CashRequestItemViewModel(
