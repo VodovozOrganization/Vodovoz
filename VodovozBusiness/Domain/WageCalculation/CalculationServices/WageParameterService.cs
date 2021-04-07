@@ -31,36 +31,38 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 				return new WageCalculationServiceForOldRouteLists(source);
 			}
 
-			ActualizeWageParameter(uow, source.RouteListId, employee, source.DriverOfOurCar);
+			ActualizeWageParameter(uow, employee);
 			
 			EmployeeWageParameter actualWageParameter = employee.GetActualWageParameter(source.RouteListDate);
 
 			return new RouteListWageCalculationService(actualWageParameter, source);
 		}
 
-		private void ActualizeWageParameter(IUnitOfWork uow, int currentRouteListId, Employee employee, bool ourCar)
+		private void ActualizeWageParameter(IUnitOfWork uow, Employee employee)
 		{
 			//Проверка на то, что сотрудник имеет только один стартовый расчет зарплаты
-			if(employee.WageParameters.Count != 1) {
-				return;
-			}
+			if(employee.WageParameters.Count != 1) return;
+			
 			var startedWageParameter = employee.WageParameters.FirstOrDefault();
-			if(startedWageParameter == null || !startedWageParameter.IsStartedWageParameter) {
-				return;
-			}
+			
+			if(startedWageParameter == null || !startedWageParameter.IsStartedWageParameter) return;
 
 			IEnumerable<DateTime> workedDays = wageCalculationRepository.GetDaysWorkedWithRouteLists(uow, employee).OrderBy(x => x);
 			int daysWorkedNeeded = wageParametersProvider.GetDaysWorkedForMinRatesLevel();
-			if(workedDays.Count() < daysWorkedNeeded || daysWorkedNeeded < 1) {
-				return;
-			}
+			
+			if(workedDays.Count() < daysWorkedNeeded || daysWorkedNeeded < 1) return;
+			
 			DateTime wageChangeDate = workedDays.ToArray()[daysWorkedNeeded-1].AddDays(1);
 
 			var ratesLevelWageParameter = new EmployeeWageParameter {
 				WageParameterItem = new RatesLevelWageParameterItem {
-					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployees(uow, ourCar)
+					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployees(uow)
+				},
+				WageParameterItemForOurCars = new RatesLevelWageParameterItem {
+					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployeesOnOurCars(uow)
 				}
 			};
+			
 			employee.ChangeWageParameter(
 				ratesLevelWageParameter,
 				wageChangeDate

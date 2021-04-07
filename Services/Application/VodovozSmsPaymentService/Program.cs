@@ -13,9 +13,7 @@ using Nini.Config;
 using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
-using QSSupportLib;
 using SmsPaymentService;
-using Vodovoz.Core.DataService;
 using Vodovoz.Parameters;
 
 namespace VodovozSmsPaymentService
@@ -97,7 +95,6 @@ namespace VodovozSmsPaymentService
 						System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
 					});
 
-				MainSupport.LoadBaseParameters();
 				QS.HistoryLog.HistoryMain.Enable();
 
 				ChannelFactory<IAndroidDriverService> channelFactory = new ChannelFactory<IAndroidDriverService>(

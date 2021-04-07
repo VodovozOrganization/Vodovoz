@@ -4,17 +4,15 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
-using System.ServiceModel.Web;
 using System.Threading;
 using EmailService;
+using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
-using Nini.Config;
 using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
-using QSSupportLib;
 using Vodovoz.Core.DataService;
 
 namespace VodovozEmailService
@@ -43,30 +41,34 @@ namespace VodovozEmailService
 			AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
 			try {
-				IniConfigSource confFile = new IniConfigSource(configFile);
-				confFile.Reload();
-				IConfig serviceConfig = confFile.Configs["Service"];
-				serviceHostName = serviceConfig.GetString("service_host_name");
-				servicePort = serviceConfig.GetString("service_port");
-				serviceWebPort = serviceConfig.GetString("service_web_port");
+				var builder = new ConfigurationBuilder()
+					.AddIniFile(configFile, optional: false);
 
-				IConfig mysqlConfig = confFile.Configs["Mysql"];
-				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
-				mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
-				mysqlUser = mysqlConfig.GetString("mysql_user");
-				mysqlPassword = mysqlConfig.GetString("mysql_password");
-				mysqlDatabase = mysqlConfig.GetString("mysql_database");
+				var configuration = builder.Build();
+
+				var serviceSection = configuration.GetSection("Service");
+
+				serviceHostName = serviceSection["service_host_name"];
+				servicePort = serviceSection["service_port"];
+				serviceWebPort = serviceSection["service_web_port"];
+
+				var mysqlSection = configuration.GetSection("Mysql");
+				mysqlServerHostName = mysqlSection["mysql_server_host_name"];
+				mysqlServerPort = mysqlSection["mysql_server_port"];
+				mysqlUser = mysqlSection["mysql_user"];
+				mysqlPassword = mysqlSection["mysql_password"];
+				mysqlDatabase = mysqlSection["mysql_database"];
 			}
-			catch(Exception ex) {
+			catch (Exception ex) {
 				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
 				return;
 			}
 
-			logger.Info(String.Format("Запуск службы отправки электронной почты"));
+			logger.Info("Запуск службы отправки электронной почты");
 			try {
 				var conStrBuilder = new MySqlConnectionStringBuilder();
 				conStrBuilder.Server = mysqlServerHostName;
-				conStrBuilder.Port = UInt32.Parse(mysqlServerPort);
+				conStrBuilder.Port = uint.Parse(mysqlServerPort);
 				conStrBuilder.Database = mysqlDatabase;
 				conStrBuilder.UserID = mysqlUser;
 				conStrBuilder.Password = mysqlPassword;
@@ -81,12 +83,11 @@ namespace VodovozEmailService
 					new System.Reflection.Assembly[] {
 					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
-					System.Reflection.Assembly.GetAssembly (typeof(EmailService.Email)),
+					System.Reflection.Assembly.GetAssembly (typeof(EmailService.OrderEmail)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
 				});
-
-				MainSupport.LoadBaseParameters();
+				
 				QS.HistoryLog.HistoryMain.Enable();
 
 				EmailInstanceProvider emailInstanceProvider = new EmailInstanceProvider(new BaseParametersProvider());
@@ -125,11 +126,19 @@ namespace VodovozEmailService
 
 				logger.Info("Server started.");
 
-				UnixSignal[] signals = {
-					new UnixSignal (Signum.SIGINT),
-					new UnixSignal (Signum.SIGHUP),
-					new UnixSignal (Signum.SIGTERM)};
-				UnixSignal.WaitAny(signals);
+				if (Environment.OSVersion.Platform == PlatformID.Unix)
+				{
+					UnixSignal[] signals = {
+						new UnixSignal (Signum.SIGINT),
+						new UnixSignal (Signum.SIGHUP),
+						new UnixSignal (Signum.SIGTERM)
+					};
+					UnixSignal.WaitAny(signals);
+				}
+				else
+				{
+					Console.ReadLine();
+				}
 			}
 			catch(Exception e) {
 				logger.Fatal(e);

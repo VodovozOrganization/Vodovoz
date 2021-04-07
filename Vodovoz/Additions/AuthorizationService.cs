@@ -1,4 +1,5 @@
 using System;
+using EmailService;
 using InstantSmsService;
 using NLog;
 using QS.Dialog.GtkUI;
@@ -6,6 +7,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Repositories;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Additions
@@ -13,62 +15,57 @@ namespace Vodovoz.Additions
     public class AuthorizationService : IAuthorizationService
     {
         public AuthorizationService(IPasswordGenerator passwordGenerator,
-            MySQLUserRepository mySQLUserRepository)
+            MySQLUserRepository mySQLUserRepository,
+            IEmailService emailService)
         {
+            
             this.passwordGenerator = passwordGenerator ?? throw new ArgumentNullException(nameof(passwordGenerator));
             this.mySQLUserRepository =
                 mySQLUserRepository ?? throw new ArgumentNullException(nameof(mySQLUserRepository));
+            this.emailService = emailService;
         }
 
         private readonly IPasswordGenerator passwordGenerator;
         private readonly MySQLUserRepository mySQLUserRepository;
+        private readonly IEmailService emailService;
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        
-        public ResultMessage ResetPassword(Employee employee, string password)
-        {
-            #region Инициализация
 
-            IInstantSmsService service = InstantSmsServiceSetting.GetInstantSmsService();
-            if (service == null)
+        private const int passwordLength = 5;
+
+        public bool ResetPassword(Employee employee, string password)
+        {
+            if (emailService == null)
             {
-                return new ResultMessage {ErrorDescription = "Сервис отправки Sms не работает, обратитесь в РПО."};
+                return false;
             }
 
-            #endregion
-
-            #region МеняемПароль
+            #region Смена пароля в БД
 
             string login = employee.User.Login;
             mySQLUserRepository.ChangePassword(login, password);
 
             #endregion
 
-            #region ОтправляемSMS
-            
-            string phone = CreatePhoneAndLogin(employee);
+            #region Отправка почты
+
             string messageText = $"Логин: {login}\nПароль: {password}";
-            var smsNotification = new InstantSmsMessage
+
+            var email = new Email()
             {
-	            MessageText = messageText,
-	            MobilePhone = phone,
-	            ExpiredTime = DateTime.Now.AddMinutes(10)
+                Title = "Учетные данные для входа в программу Доставка Воды",
+                Text = messageText,
+                HtmlText = messageText,
+                Recipient = new EmailContact("", employee.Email),
+                Sender = new EmailContact("vodovoz-spb.ru", ParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
             };
-            return  service.SendSms(smsNotification);
+
+            return emailService.SendEmail(email);
+
             #endregion
         }
 
-        public ResultMessage ResetPasswordToGenerated(Employee employee, int passwordLength) 
+        public bool ResetPasswordToGenerated(Employee employee) 
 	        => ResetPassword(employee, passwordGenerator.GeneratePassword(passwordLength));
-
-        private string CreatePhoneAndLogin(Employee employee)
-        {
-            string stringPhoneNumber = employee.GetPhoneForSmsNotification();
-            if (stringPhoneNumber == null)
-            {
-                throw new ApplicationException($"У сотрудника {employee.Name} не найден телефон для отправки Sms");
-            }
-            return $"+7{stringPhoneNumber}";
-        }
 
         public bool TryToSaveUser(Employee employee, IUnitOfWork uow)
         {

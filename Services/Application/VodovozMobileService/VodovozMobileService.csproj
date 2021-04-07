@@ -194,10 +194,6 @@
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QSSupportLib\QSSupportLib.csproj">
-      <Project>{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}</Project>
-      <Name>QSSupportLib</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

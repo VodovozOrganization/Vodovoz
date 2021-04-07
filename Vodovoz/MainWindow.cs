@@ -5,6 +5,9 @@ using Autofac;
 using Gtk;
 using NLog;
 using QS.Banks.Domain;
+using QS.BaseParameters;
+using QS.BaseParameters.ViewModels;
+using QS.BaseParameters.Views;
 using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -16,16 +19,16 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using QS.Project.Services.GtkUI;
 using QS.Project.Services.Interactive;
-using QS.Services;
+using QS.Project.Versioning;
+using QS.Project.ViewModels;
+using QS.Project.Views;
 using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Tools;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
-using QSSupportLib;
 using Vodovoz;
 using Vodovoz.CommonEnums;
 using Vodovoz.Core;
@@ -98,10 +101,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.Domain.Retail;
-using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
@@ -109,23 +110,24 @@ using Vodovoz.Journals.JournalViewModels.Organization;
 public partial class MainWindow : Gtk.Window
 {
     private static Logger logger = LogManager.GetCurrentClassLogger();
-    uint LastUiId;
-
+    private uint lastUiId;
+    private readonly ILifetimeScope autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
+    private readonly IApplicationInfo applicationInfo;
+    
     public TdiNotebook TdiMain => tdiMain;
-
-    private ILifetimeScope AutofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
-    public TdiNavigationManager NavigationManager;
-    public MangoManager MangoManager;
-
+    public readonly TdiNavigationManager NavigationManager;
+    public readonly MangoManager MangoManager;
+    
     public MainWindow() : base(Gtk.WindowType.Toplevel)
     {
         Build();
         PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
-        this.BuildToolbarActions();
+        applicationInfo = new ApplicationVersionInfo();
+        BuildToolbarActions();
         tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
         TDIMain.MainNotebook = tdiMain;
-        this.KeyReleaseEvent += TDIMain.TDIHandleKeyReleaseEvent;
-        this.Title = MainSupport.GetTitle();
+        KeyReleaseEvent += TDIMain.TDIHandleKeyReleaseEvent;
+        Title = $"{applicationInfo.ProductTitle} v{applicationInfo.Version} от {applicationInfo.BuildDate:dd.MM.yyyy HH:mm}";
         //Настраиваем модули
         ActionUsers.Sensitive = QSMain.User.Admin;
         ActionAdministration.Sensitive = QSMain.User.Admin;
@@ -192,8 +194,8 @@ public partial class MainWindow : Gtk.Window
                 break;
         }
 
-        NavigationManager = AutofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-        MangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
+        NavigationManager = autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
+        MangoManager = autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
         MangoManager.Connect();
 
         BanksUpdater.CheckBanksUpdate(false);
@@ -276,7 +278,7 @@ public partial class MainWindow : Gtk.Window
         if (tdiMain.CloseAllTabs())
         {
             a.RetVal = false;
-            AutofacScope.Dispose();
+            autofacScope.Dispose();
             Application.Quit();
         }
         else
@@ -289,7 +291,7 @@ public partial class MainWindow : Gtk.Window
     {
         if (tdiMain.CloseAllTabs())
         {
-            AutofacScope.Dispose();
+            autofacScope.Dispose();
             Application.Quit();
         }
     }
@@ -301,7 +303,11 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnAboutActionActivated(object sender, EventArgs e)
     {
-        QSMain.RunAboutDialog();
+        var aboutViewModel = new AboutViewModel(applicationInfo);
+        var aboutView = new AboutView(aboutViewModel);
+        aboutView.ShowAll();
+        aboutView.Run();
+        aboutView.Destroy();
     }
 
     protected void OnActionOrdersToggled(object sender, EventArgs e)
@@ -312,12 +318,12 @@ public partial class MainWindow : Gtk.Window
 
     private void SwitchToUI(string uiResource)
     {
-        if (LastUiId > 0)
+        if (lastUiId > 0)
         {
-            this.UIManager.RemoveUi(LastUiId);
-            LastUiId = 0;
+            this.UIManager.RemoveUi(lastUiId);
+            lastUiId = 0;
         }
-        LastUiId = this.UIManager.AddUiFromResource(uiResource);
+        lastUiId = this.UIManager.AddUiFromResource(uiResource);
         this.UIManager.EnsureUpdate();
     }
 
@@ -573,10 +579,13 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionParametersActivated(object sender, EventArgs e)
     {
-        var config = new ApplicationConfigDialog();
-        config.ShowAll();
-        config.Run();
-        config.Destroy();
+        var baseParametersViewModel = new BaseParametersViewModel(
+            NavigationManager,
+            new ParametersService(QS.Project.DB.Connection.ConnectionDB));
+        var baseParametersView = new BaseParametersView(baseParametersViewModel);
+        baseParametersView.ShowAll();
+        baseParametersView.Run();
+        baseParametersView.Destroy();
     }
 
     protected void OnAction14Activated(object sender, EventArgs e)

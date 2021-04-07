@@ -441,8 +441,8 @@
 	counterparty.full_name AS client,
 	IF(orders.self_delivery, 'Самовывоз', delivery_points.compiled_address) AS address,
 	orders.online_order,
-	IF(SUM(IFNULL(actual_count, 0) * price - discount_money)&gt;0, SUM(IFNULL(actual_count, 0) * price - discount_money), 0) AS actual_sum,
-	IF(SUM(count * price - discount_money)&gt;0, SUM(count * price - discount_money), 0) AS sum,
+	IF(SUM(ROUND(IFNULL(actual_count, 0) * price - discount_money, 2))&gt;0, SUM(ROUND(IFNULL(actual_count, 0) * price - discount_money, 2)), 0) AS actual_sum,
+	IF(SUM(ROUND(count * price - discount_money, 2))&gt;0, SUM(ROUND(count * price - discount_money, 2)), 0) AS sum,
 	CASE
 		WHEN orders.order_status = 'NewOrder' THEN 'Новый'
 		WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'

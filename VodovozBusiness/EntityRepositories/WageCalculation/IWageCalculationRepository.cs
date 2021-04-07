@@ -11,7 +11,8 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 		IEnumerable<SalesPlan> AllSalesPlans(IUnitOfWork uow, bool hideArchive = true);
 		IEnumerable<WageDistrict> AllWageDistricts(IUnitOfWork uow, bool hideArchive = true);
 		IEnumerable<WageDistrictLevelRates> AllLevelRates(IUnitOfWork uow, bool hideArchive = true);
-		WageDistrictLevelRates DefaultLevelForNewEmployees(IUnitOfWork uow, bool forOurCars = false);
+		WageDistrictLevelRates DefaultLevelForNewEmployees(IUnitOfWork uow);
+		WageDistrictLevelRates DefaultLevelForNewEmployeesOnOurCars(IUnitOfWork uow);
 		IEnumerable<DateTime> GetDaysWorkedWithRouteLists(IUnitOfWork uow, Employee employee);
 	}
 }
