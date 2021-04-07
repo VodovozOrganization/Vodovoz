@@ -1014,7 +1014,7 @@ namespace Vodovoz.Domain.Orders
 
             if (validationContext.Items.ContainsKey("cash_order_close"))
                 if ((bool)validationContext.Items["cash_order_close"])
-                    if (PaymentType == PaymentType.Terminal && OnlineOrder == null)
+                    if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus))
                         yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
 
             if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
