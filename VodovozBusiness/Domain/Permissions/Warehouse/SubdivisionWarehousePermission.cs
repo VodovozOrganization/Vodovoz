@@ -3,7 +3,7 @@ using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Permissions.Warehouse
 {
-    public class SubdivisionWarehouse: PropertyChangedBase, IDomainObject
+    public class SubdivisionWarehousePermission: WarehousePermission, IDomainObject
     {
         public virtual int Id { get; set; }
         

@@ -4,7 +4,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Permissions.Warehouse
 {
-    public class UserWarehousePermission : PropertyChangedBase, IDomainObject
+    public class UserWarehousePermission : WarehousePermission, IDomainObject
     {
         public virtual int Id { get; set; }
         

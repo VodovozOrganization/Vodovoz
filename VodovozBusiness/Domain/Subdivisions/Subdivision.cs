@@ -9,6 +9,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Domain;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.HumanResources;
 
@@ -107,6 +108,13 @@ namespace Vodovoz
 			set => SetField(ref subdivisionType, value, () => SubdivisionType);
 		}
 
+		private IList<SubdivisionWarehousePermission> subdivisionWarehousePermissions = new List<SubdivisionWarehousePermission>();
+		[Display(Name = "Права для подразделения")]
+		public virtual IList<SubdivisionWarehousePermission> SubdivisionWarehousePermissions
+		{
+			get => subdivisionWarehousePermissions;
+			set => SetField(ref subdivisionWarehousePermissions, value);
+		}
 		#endregion
 
 		#region Геттеры и методы
