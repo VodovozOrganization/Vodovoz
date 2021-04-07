@@ -3813,18 +3813,8 @@ namespace Vodovoz.Domain.Orders
 
 		protected internal virtual void ObservableOrderItems_ListContentChanged(object sender, EventArgs e)
 		{
-			UpdateOrderItemCountDigitsForInt(sender as IList<OrderItem>);
 			OnPropertyChanged(nameof(TotalSum));
 			UpdateDocuments();
-		}
-		
-		void UpdateOrderItemCountDigitsForInt(IList<OrderItem> orderItems)
-		{
-			foreach (var orderItem in orderItems)
-			{
-				if(orderItem.Nomenclature.Unit?.Digits == 0 && orderItem.Count % 1 != 0)
-					orderItem.Count = Math.Truncate(orderItem.Count);
-			}
 		}
 
 		#endregion

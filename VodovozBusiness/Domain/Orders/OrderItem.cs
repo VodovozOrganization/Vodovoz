@@ -90,6 +90,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Count {
 			get => count;
 			set {
+				if(Nomenclature?.Unit.Digits == 0 && value % 1 != 0)
+					value = Math.Truncate(value);
 				if(SetField(ref count, value)) {
 					Order?.RecalculateItemsPrice();
 					RecalculateDiscount();
