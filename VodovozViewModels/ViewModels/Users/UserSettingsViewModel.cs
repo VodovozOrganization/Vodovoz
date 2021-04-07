@@ -16,14 +16,16 @@ namespace Vodovoz.ViewModels.Users
         private readonly IEmployeeService employeeService;
         private readonly ISubdivisionService subdivisionService;
         public EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel> SubdivisionAutocompleteSelectorFactory { get; }
+        public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
         public UserSettingsViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-            IEmployeeService employeeService, ISubdivisionService subdivisionService, EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel> subdivisionAutocompleteSelectorFactory)
+            IEmployeeService employeeService, ISubdivisionService subdivisionService, EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel> subdivisionAutocompleteSelectorFactory, IEntityAutocompleteSelectorFactory counterpartySelectorFactory)
             : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
             this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService)); ;
             this.subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
             SubdivisionAutocompleteSelectorFactory = subdivisionAutocompleteSelectorFactory;
+            CounterpartyAutocompleteSelectorFactory = counterpartySelectorFactory;
         }
 
         public bool IsUserFromOkk => subdivisionService.GetOkkId() == employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId)?.Subdivision?.Id;

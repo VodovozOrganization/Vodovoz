@@ -253,8 +253,8 @@ namespace Vodovoz.Dialogs.Cash
 					.XAlign(0.5f)
 				.AddColumn("Подотчетное лицо")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => PersonHelper.PersonNameWithInitials(
-						n.AccountableEmployee.LastName, n.AccountableEmployee.Name, n.AccountableEmployee.Patronymic))
+					.AddTextRenderer(n => n.AccountableEmployee != null ? PersonHelper.PersonNameWithInitials(
+						n.AccountableEmployee.LastName, n.AccountableEmployee.Name, n.AccountableEmployee.Patronymic) : "")
 					.XAlign(0.5f)
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
