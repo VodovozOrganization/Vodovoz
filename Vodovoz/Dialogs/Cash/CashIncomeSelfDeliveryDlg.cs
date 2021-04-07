@@ -38,7 +38,7 @@ namespace Vodovoz.Dialogs.Cash
 		private readonly bool canEditRectroactively;
 		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
 			new SelfDeliveryCashOrganisationDistributor(new SelfDeliveryCashDistributionDocumentRepository());
-        private List<IncomeCategory> IncomeCategoryList = new List<IncomeCategory>();
+        private List<IncomeCategory> incomeCategoryList = new List<IncomeCategory>();
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
 			get {
@@ -62,8 +62,10 @@ namespace Vodovoz.Dialogs.Cash
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
 			Entity.Casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-            IncomeCategoryList.AddRange(CategoryRepository.SelfDeliveryIncomeCategories(UoW));
-            Entity.IncomeCategory = IncomeCategoryList.FirstOrDefault();
+            incomeCategoryList.AddRange(CategoryRepository.SelfDeliveryIncomeCategories(UoW));
+            if (Entity.Id == 0){
+                Entity.IncomeCategory = incomeCategoryList.FirstOrDefault();
+            }
 			if(Entity.Casher == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
 				FailInitialize = true;
@@ -169,7 +171,7 @@ namespace Vodovoz.Dialogs.Cash
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<IncomeCategory>(
 				s => comboCategory.ItemsList = CategoryRepository.SelfDeliveryIncomeCategories(UoW)
 			);
-            comboCategory.ItemsList = IncomeCategoryList;
+            comboCategory.ItemsList = incomeCategoryList;
 			comboCategory.Binding.AddBinding(Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource();
 
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();
