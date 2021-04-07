@@ -145,26 +145,26 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             () =>
             {
                 var cashRequestItemViewModel = new CashRequestItemViewModel(
-                    EntityUoWBuilder.ForCreateInChildUoW(UoW),
-                    unitOfWorkFactory,
-                    CommonServices,
-                    UserRole,
-                    CurrentEmployee
+                    UoW,
+                    CommonServices.InteractiveService,
+                    NavigationManager,
+                    UserRole
                 );
-                
-                TabParent.AddSlaveTab(
-                    this,cashRequestItemViewModel
-                );
-                
-                cashRequestItemViewModel.EntitySaved += (sender, args) =>
+
+                cashRequestItemViewModel.Entity = new CashRequestSumItem() { AccountableEmployee = CurrentEmployee };
+
+                cashRequestItemViewModel.EntityAccepted += (sender, args) =>
                 {
-                    if (args.Entity is CashRequestSumItem item)
+                    if (args is CashRequestSumItemAcceptedEventArgs acceptedArgs)
                     {
-                        Entity.AddItem(item);
-                        item.CashRequest = Entity;
-                        UoW.Save(item);
+                        Entity.AddItem(acceptedArgs.AcceptedEntity);
+                        acceptedArgs.AcceptedEntity.CashRequest = Entity;
                     }
                 };
+
+                TabParent.AddSlaveTab(
+                    this, cashRequestItemViewModel
+                );
             }, () => true
         ));
         
@@ -173,13 +173,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             () =>
             {
                 var cashRequestItemViewModel = new CashRequestItemViewModel(
-                    EntityUoWBuilder.ForOpenInChildUoW(SelectedItem.Id, UoW),
-                    unitOfWorkFactory,
-                    CommonServices,
-                    UserRole,
-                    CurrentEmployee
+                    UoW,
+                    CommonServices.InteractiveService,
+                    NavigationManager,
+                    UserRole
                 );
-                
+
+                cashRequestItemViewModel.Entity = SelectedItem;
+
                 TabParent.AddSlaveTab(
                     this,
                     cashRequestItemViewModel);
@@ -306,7 +307,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool IsNewEntity { get; private set; }
         public bool IsAdminPanelVisible { get; set; }
 
-        public CashRequestSumItem SelectedItem { get; set; }
+        CashRequestSumItem selectedItem;
+        public CashRequestSumItem SelectedItem 
+        { 
+            get => selectedItem;
+            set
+            {
+                SetField(ref selectedItem, value);
+                OnPropertyChanged(() => CanEditSumSensitive);
+            }
+        }
         
         #region Editability
 
