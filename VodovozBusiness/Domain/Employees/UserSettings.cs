@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -141,6 +142,17 @@ namespace Vodovoz.Domain.Employees
             {
                 SetField(ref defaultSubdivision, value, () => DefaultSubdivision);
             }
+        }
+
+        /// <summary>
+        /// Для установки дефолтного контрагента в отчете по оплатам
+        /// </summary>
+        private Counterparty defaultCounterparty;
+        [Display(Name = "Контрагент")]
+        public virtual Counterparty DefaultCounterparty
+        {
+            get => defaultCounterparty;
+            set => SetField(ref defaultCounterparty, value);
         }
 
         /// <summary>

@@ -605,11 +605,18 @@ LEFT JOIN payments_from_bank_client payments ON payments.id = p_items.payment_id
 WHERE
 	orders.order_status = 'WaitForPayment'
 	AND order_payment_status IN ('Paid', 'PartiallyPaid')
+	AND (orders.client_id = @counterparty_id OR @counterparty_id = 0)
 GROUP BY orders.id
-ORDER BY payment_date DESC, orderdate DESC, orders.id DESC;</CommandText>
+ORDER BY IF (@sort_date, orderdate, 0) desc, IF(@sort_date, 0, payment_date) desc, IF(@sort_date, 0, orderdate) desc, IF(@sort_date, 0, orders.id) desc;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
+          </QueryParameter>
+          <QueryParameter Name="sort_date">
+            <Value>=Parameters!sort_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_id">
+            <Value>=Parameters!counterparty_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -681,6 +688,20 @@ ORDER BY payment_date DESC, orderdate DESC, orders.id DESC;</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="sort_date">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="counterparty_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
