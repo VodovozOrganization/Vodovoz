@@ -191,7 +191,7 @@ namespace Vodovoz.Views.Complaints
 			// Container child tableFields.Gtk.Table+TableChild
 			this.labelComplaintKind = new global::Gtk.Label();
 			this.labelComplaintKind.Name = "labelComplaintKind";
-			this.labelComplaintKind.LabelProp = global::Mono.Unix.Catalog.GetString("Вид рекламацииы:");
+			this.labelComplaintKind.LabelProp = global::Mono.Unix.Catalog.GetString("Вид рекламации:");
 			this.tableFields.Add(this.labelComplaintKind);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableFields[this.labelComplaintKind]));
 			w13.TopAttach = ((uint)(6));
