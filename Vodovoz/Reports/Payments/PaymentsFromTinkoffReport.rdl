@@ -1315,7 +1315,7 @@ ORDER BY order_satus_numbered DESC
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT *
-FROM payments_by_card_online
+FROM payments_by_card_online pbco
 WHERE 
 (
     (   
@@ -1323,9 +1323,9 @@ WHERE
             SELECT online_order
             FROM orders
             WHERE online_order IS NOT NULL 
-                AND delivery_date BETWEEN @startDate AND @endDate
+                AND delivery_date &gt;= @startDate
         )
-        AND payment_by_card_from != 'FromSMS'
+        AND payment_by_card_from IN ('FromVodovozWebSite', 'FromTinkoff')
     )
     OR
     (
@@ -1333,15 +1333,26 @@ WHERE
             SELECT id
             FROM orders
             WHERE online_order IS NOT NULL
-                AND delivery_date BETWEEN @startDate AND @endDate
+                AND delivery_date &gt;= @startDate
         )
         AND payment_by_card_from = 'FromSMS'
     )
+    OR
+    (
+        NOT EXISTS(
+            SELECT e_shop_order
+            FROM orders o
+            WHERE online_order IS NOT NULL
+                AND delivery_date &gt;= @startDate
+                AND o.e_shop_order = pbco.number
+        )
+        AND payment_by_card_from = 'FromEShop'
+    )
 )
-AND date_and_time &gt;= @startDate
-AND date_and_time &lt;= @endDate
-AND (@shop = 'ALL' OR shop = @shop OR shop IS NULL)
-ORDER BY date_and_time DESC
+AND pbco.date_and_time &gt;= @startDate
+AND pbco.date_and_time &lt;= @endDate
+AND (@shop = 'ALL' OR pbco.shop = @shop OR pbco.shop IS NULL)
+ORDER BY pbco.date_and_time DESC
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
