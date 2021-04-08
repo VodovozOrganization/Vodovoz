@@ -55,6 +55,12 @@ namespace Vodovoz.Additions
 
         public bool TryToSaveUser(Employee employee, IUnitOfWork uow)
         {
+            if (string.IsNullOrWhiteSpace(employee.Email))
+            {
+                MessageDialogHelper.RunQuestionDialog("Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
+                return false;
+            }
+
             const string emailSendErrorMessage = "Ошибка при отправке E-Mail";
 
             var user = new User {
@@ -62,6 +68,7 @@ namespace Vodovoz.Additions
             	Name = employee.FullName,
             	NeedPasswordChange = true
             };
+
             bool cont = MessageDialogHelper.RunQuestionDialog($"При сохранении работника будет создан \nпользователь с логином {user.Login} \nи на " +
             	$"указанный E-Mail {employee.Email}\nбудет отправлено письмо с временным паролем\n\t\t\tПродолжить?");
             if(!cont)
