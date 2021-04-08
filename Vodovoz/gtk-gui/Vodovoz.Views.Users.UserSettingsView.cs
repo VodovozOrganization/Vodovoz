@@ -344,7 +344,7 @@ namespace Vodovoz.Views.Users
 			this.entryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entryCounterparty.Name = "entryCounterparty";
-			this.entryCounterparty.CanEditReference = false;
+			this.entryCounterparty.CanEditReference = true;
 			this.vbox2.Add(this.entryCounterparty);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.entryCounterparty]));
 			w26.Position = 1;
