@@ -59,7 +59,7 @@ namespace Vodovoz
 			
 			if (mysqlEx != null && mysqlEx.Message.Contains("Authentication to host"))
 			{
-				interactiveMessage.ShowMessage(ImportanceLevel.Info, "Пароль вашего аккаунта был сброшен, смс придет в течении 15 минут, для продолжения работы перезайдите в программу");
+				interactiveMessage.ShowMessage(ImportanceLevel.Info, "Пароль вашего аккаунта был сброшен, E-Mail придет в течении 15 минут, для продолжения работы перезайдите в программу");
 				return true;
 			}
 			return false;
