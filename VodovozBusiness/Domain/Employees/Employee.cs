@@ -412,7 +412,7 @@ namespace Vodovoz.Domain.Employees
 				if(exist == null)
 					yield return new ValidationResult($"Для создания пользователя должен быть правильно указан мобильный телефон",
 							new[] { nameof(LoginForNewUser) });
-				if (!String.IsNullOrEmpty(Email)) {
+				if (String.IsNullOrEmpty(Email)) {
 					yield return new ValidationResult($"Для создания пользователя должен быть правильно указан e-mail адрес",
 							new[] { nameof(Email) });
 				}
