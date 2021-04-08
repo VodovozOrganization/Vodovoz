@@ -115,8 +115,10 @@ namespace Vodovoz.Reports
 
 			ytreeSortPriority.ItemsDataSource = SortType;
 
-			SortType.Add(new SelectableSortTypeNode(Reports.SortType.Type));
-			SortType.Add(new SelectableSortTypeNode(Reports.SortType.GroupOfGoods));
+			foreach (SortType enumItem in Enum.GetValues(typeof(SortType)))
+            {
+				SortType.Add(new SelectableSortTypeNode(enumItem));
+			}
 		}
 
 		#region IParametersWidget implementation
@@ -187,7 +189,9 @@ namespace Vodovoz.Reports
 		[Display(Name = "Тип")]
 		Type,
 		[Display(Name = "Группа товаров")]
-		GroupOfGoods
+		GroupOfGoods,
+		[Display(Name = "По алфавиту")]
+		Alphabet,
 	}
 
 	public class SelectableSortTypeNode
