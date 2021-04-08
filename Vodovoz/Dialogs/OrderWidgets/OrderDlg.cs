@@ -2438,8 +2438,7 @@ namespace Vodovoz
 			ycheckPaymentBySms.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
-            checkPayAfterLoad.Sensitive = ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin == true 
-                                    || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_payment_after_load") && checkSelfDelivery.Active && val;
+			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
 			buttonAddForSale.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
