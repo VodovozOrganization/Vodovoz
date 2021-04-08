@@ -10,6 +10,7 @@ using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
+using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -119,11 +120,35 @@ namespace Vodovoz.Reports
             {
 				SortType.Add(new SelectableSortTypeNode(enumItem));
 			}
+
+            yentryrefWarehouse.Changed += YentryrefWarehouse_Changed;
 		}
 
-		#region IParametersWidget implementation
+        private void YentryrefWarehouse_Changed(object sender, EventArgs e)
+        {
+			var sortTypeNodes = SortType.Where(x => x.SortType == Reports.SortType.GroupOfGoods);
 
-		public string Title => "Складские движения";
+			if ((sender as EntryReference).Subject == null)
+            {
+				if (sortTypeNodes.Any())
+                {
+					foreach(var node in sortTypeNodes)
+                    {
+						SortType.Remove(node);
+                    }
+				}
+			} else
+            {
+				if (!sortTypeNodes.Any())
+                {
+					SortType.Add(new SelectableSortTypeNode(Reports.SortType.GroupOfGoods));
+				}
+			}
+        }
+
+        #region IParametersWidget implementation
+
+        public string Title => "Складские движения";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
