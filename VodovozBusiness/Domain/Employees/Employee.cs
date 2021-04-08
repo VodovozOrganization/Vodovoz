@@ -411,7 +411,12 @@ namespace Vodovoz.Domain.Employees
 					yield return new ValidationResult($"Для создания пользователя должен быть правильно указан мобильный телефон",
 							new[] { this.GetPropertyName(x => x.LoginForNewUser) });
 			}
-			if(Category == EmployeeCategory.driver && DriverOf == null) {
+			if (!String.IsNullOrEmpty(Email))
+			{
+				yield return new ValidationResult($"Для создания пользователя должен быть правильно указан e-mail адрес",
+						new[] { this.GetPropertyName(x => x.Email) });
+			}
+			if (Category == EmployeeCategory.driver && DriverOf == null) {
 				yield return new ValidationResult($"Обязательно должно быть выбрано поле 'Управляет а\\м'",
 					new[] { this.GetPropertyName(x => x.DriverOf) });
 			}
