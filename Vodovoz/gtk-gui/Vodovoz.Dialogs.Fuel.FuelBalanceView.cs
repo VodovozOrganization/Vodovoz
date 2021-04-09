@@ -24,7 +24,6 @@ namespace Vodovoz.Dialogs.Fuel
 			this.Name = "Vodovoz.Dialogs.Fuel.FuelBalanceView";
 			// Container child Vodovoz.Dialogs.Fuel.FuelBalanceView.Gtk.Container+ContainerChild
 			this.vboxFuelsBalances = new global::Gtk.VBox();
-			this.vboxFuelsBalances.WidthRequest = 0;
 			this.vboxFuelsBalances.Name = "vboxFuelsBalances";
 			this.vboxFuelsBalances.Spacing = 6;
 			// Container child vboxFuelsBalances.Gtk.Box+BoxChild
