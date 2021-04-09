@@ -101,7 +101,7 @@ namespace Vodovoz.Reports
 			// Container child table1.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Сортировка:");
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Сортировка ↑↓ :");
 			this.table1.Add(this.label3);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.label3]));
 			w7.TopAttach = ((uint)(5));

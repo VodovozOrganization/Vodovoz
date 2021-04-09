@@ -108,8 +108,8 @@ namespace Vodovoz.Reports
 			filterWidget.Show();
 
 			ytreeSortPriority.ColumnsConfig = FluentColumnsConfig<SelectableSortTypeNode>.Create()
-				.AddColumn("Имя").AddEnumRenderer(x => x.SortType, true)
-				.AddColumn("").AddToggleRenderer(x => x.Selected, false)
+				.AddColumn("").AddToggleRenderer(x => x.Selected)
+				.AddColumn("Имя").AddEnumRenderer(x => x.SortType)
 				.Finish();
 
 			ytreeSortPriority.HeadersVisible = false;
@@ -139,6 +139,7 @@ namespace Vodovoz.Reports
 				}
 				return;
 			}
+
 			if (!sortTypeNodes.Any())
 			{
 				SortType.Add(new SelectableSortTypeNode(Reports.SortType.GroupOfGoods));
