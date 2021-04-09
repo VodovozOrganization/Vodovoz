@@ -165,7 +165,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.label5 = new global::Gtk.Label();
 			this.label5.Name = "label5";
-			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Расхождение км:");
+			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Расхождение км ≥");
 			this.hbox8.Add(this.label5);
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.label5]));
 			w13.Position = 0;
