@@ -29,5 +29,8 @@ namespace Vodovoz.ViewModels.Users
         }
 
         public bool IsUserFromOkk => subdivisionService.GetOkkId() == employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId)?.Subdivision?.Id;
+
+        public bool IsUserFromDistribution => subdivisionService.GetIdDistribution() == employeeService
+            .GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId)?.Subdivision?.Id;
     }
 }

@@ -47,5 +47,13 @@ namespace Vodovoz.Domain.Service.BaseParametersServices
 
 			return result;
 		}
+
+		public int GetIdDistribution()
+		{
+			if(!ParametersProvider.Instance.ContainsParameter("IdDistribution")) {
+				throw new InvalidProgramException("В параметрах базы не настроен параметр : IdDistribution");
+			}
+			return int.Parse(ParametersProvider.Instance.GetParameterValue("IdDistribution"));
+		}
 	}
 }
