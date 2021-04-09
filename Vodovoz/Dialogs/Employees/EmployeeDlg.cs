@@ -695,7 +695,7 @@ namespace Vodovoz
 			UoWGeneric.Save(Entity);
 
 			#region Попытка сохранить логин для нового юзера
-			if(!String.IsNullOrEmpty(Entity.LoginForNewUser) && InstantSmsServiceSetting.SendingAllowed)
+			if(!String.IsNullOrEmpty(Entity.LoginForNewUser) && EmailServiceSetting.SendingAllowed)
 			{
 				if (!authorizationService.TryToSaveUser(Entity, UoWGeneric))
 				{
