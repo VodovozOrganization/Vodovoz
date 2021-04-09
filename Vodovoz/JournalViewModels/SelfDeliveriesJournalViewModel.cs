@@ -250,7 +250,8 @@ namespace Vodovoz.Representations
 					"Оплата по карте",
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
-						return selectedNodes.Count() == 1 && selectedNodes.First().PaymentTypeEnum == PaymentType.cash;
+                        var selectedNode = selectedNodes.First();
+                        return selectedNodes.Count() == 1 && selectedNode.PaymentTypeEnum == PaymentType.cash && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
 					selectedItems => true,
 					selectedItems => {
