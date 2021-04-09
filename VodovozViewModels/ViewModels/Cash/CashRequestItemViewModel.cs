@@ -98,7 +98,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             () => {
                 Entity.Date = Date;
                 Entity.AccountableEmployee = accountableEmployee;
-                Entity.Date = Date;
+                Entity.Sum = Sum;
                 Entity.Comment = Comment;
                 Close(false, CloseSource.Self);
                 EntityAccepted?.Invoke(this, new CashRequestSumItemAcceptedEventArgs(Entity));
