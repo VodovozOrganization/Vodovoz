@@ -90,7 +90,7 @@ namespace Vodovoz.ReportsParameters.Retail
 			this.yEntitySalesChannel = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.yEntitySalesChannel.Events = ((global::Gdk.EventMask)(256));
 			this.yEntitySalesChannel.Name = "yEntitySalesChannel";
-			this.yEntitySalesChannel.CanEditReference = false;
+			this.yEntitySalesChannel.CanEditReference = true;
 			this.hbox3.Add(this.yEntitySalesChannel);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yEntitySalesChannel]));
 			w5.Position = 1;
@@ -116,7 +116,7 @@ namespace Vodovoz.ReportsParameters.Retail
 			this.yEntityDistrict = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.yEntityDistrict.Events = ((global::Gdk.EventMask)(256));
 			this.yEntityDistrict.Name = "yEntityDistrict";
-			this.yEntityDistrict.CanEditReference = false;
+			this.yEntityDistrict.CanEditReference = true;
 			this.hbox5.Add(this.yEntityDistrict);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.yEntityDistrict]));
 			w8.Position = 1;

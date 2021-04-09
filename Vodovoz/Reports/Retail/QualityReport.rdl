@@ -19,7 +19,7 @@
       <Textbox Name="Textbox20">
         <Height>23.34pt</Height>
         <Width>581.25pt</Width>
-        <Value>= "Качественный отчет по рознице с " + (Format(Convert.ToDateTime({?create_date}), "dd.MM.yyyy")) + " по " + (Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
+        <Value>= "Качественный отчет по рознице с " + (Format(Convert.ToDateTime(IIF({?create_date} = '', {?shipping_start_date}, {?create_date})), "dd.MM.yyyy")) + " по " + (Format(Convert.ToDateTime(IIF({?end_date} = '', {?shipping_end_date}, {?end_date})), "dd.MM.yyyy"))</Value>
         <ZIndex>1</ZIndex>
         <Left>102.30pt</Left>
         <Top>5.60pt</Top>
@@ -734,8 +734,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontWeight >Bolder</FontWeight>
-                        <TextAlign >Right</TextAlign>
+                        <FontWeight>Bolder</FontWeight>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                       <Value>Итого:</Value>
                     </Textbox>
@@ -751,7 +751,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <Format>0.00</Format>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({ordersum})</Value>
                     </Textbox>
@@ -804,7 +804,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="quality">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     	date(orders.create_date) AS orderdate,
@@ -836,19 +836,26 @@
 	GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.name, employees.patronymic) AS author
 FROM orders
 
-LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+LEFT JOIN counterparty ON counterparty.id = orders.client_id
+LEFT JOIN delivery_points ON delivery_points.counterparty_id = counterparty.id
 LEFT JOIN districts ON districts.id = delivery_points.district_id
 LEFT JOIN sales_channel_to_counterparty ON  sales_channel_to_counterparty.counterparty_id = orders.client_id
 LEFT JOIN sales_channels ON sales_channels.id = sales_channel_to_counterparty.sales_channel_id
-LEFT JOIN delivery_points_responsible_persons ON delivery_points_responsible_persons.delivery_point_id = delivery_points.id
-LEFT JOIN employees ON employees.id = delivery_points_responsible_persons.employee_id
+LEFT JOIN (select delivery_points_responsible_persons.id, 
+                  delivery_points_responsible_persons.employee_id, 
+                  delivery_points_responsible_persons.delivery_point_id 
+          from delivery_points_responsible_persons 
+          limit 1) as points ON points.delivery_point_id = delivery_points.id
+LEFT JOIN employees ON employees.id = points.employee_id
 LEFT JOIN order_items o_items ON o_items.order_id = orders.id
-LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN delivery_point_categories ON delivery_point_categories.id = delivery_points.delivery_point_category_id
 WHERE
 	orders.is_for_retail = 1
-	AND orders.create_date BETWEEN @create_date AND @end_date
-	AND orders.delivery_date BETWEEN @shipping_date AND @shipping_end_date
+	AND (orders.order_status = 'Closed')
+    AND (@create_date = '' OR orders.create_date &gt;= @create_date)
+    AND (@end_date = '' OR orders.create_date &lt;= @end_date)
+    AND (@shipping_start_date = '' OR orders.delivery_date &gt;= @shipping_start_date)
+    AND (@shipping_end_date = '' OR orders.delivery_date &lt;= @shipping_end_date)
 	AND (@sales_channel_id = 0 OR sales_channels.id = @sales_channel_id)
 	AND (@counterparty_id = 0 OR orders.client_id = @counterparty_id)
 	AND (@main_contact_id = 0 OR employees.id = @main_contact_id)
@@ -864,8 +871,8 @@ ORDER BY orderdate DESC, orders.id DESC;</CommandText>
           <QueryParameter Name="shipping_end_date">
             <Value>=Parameters!shipping_end_date</Value>
           </QueryParameter>
-          <QueryParameter Name="shipping_date">
-            <Value>=Parameters!shipping_date</Value>
+          <QueryParameter Name="shipping_start_date">
+            <Value>=Parameters!shipping_start_date</Value>
           </QueryParameter>
           <QueryParameter Name="counterparty_id">
             <Value>=Parameters!counterparty_id</Value>
@@ -878,7 +885,7 @@ ORDER BY orderdate DESC, orders.id DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -942,8 +949,40 @@ ORDER BY orderdate DESC, orders.id DESC;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="create_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="shipping_end_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="shipping_start_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="counterparty_id">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -951,47 +990,21 @@ ORDER BY orderdate DESC, orders.id DESC;</CommandText>
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="end_date">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt />
-    </ReportParameter>
-    <ReportParameter Name="shipping_end_date">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt />
-    </ReportParameter>
-    <ReportParameter Name="shipping_date">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt />
-    </ReportParameter>
-    <ReportParameter Name="counterparty_id">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt />
-    </ReportParameter>
     <ReportParameter Name="sales_channel_id">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="main_contact_id">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

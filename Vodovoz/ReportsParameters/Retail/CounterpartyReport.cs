@@ -46,6 +46,7 @@ namespace Vodovoz.ReportsParameters.Retail
         {
                 var parameters = new Dictionary<string, object> {
                 { "create_date", ydateperiodpickerCreate.StartDateOrNull },
+                { "end_date", ydateperiodpickerCreate.EndDateOrNull?.AddDays(1).AddSeconds(-1) },
                 { "sales_channel_id", (yEntitySalesChannel.Subject as SalesChannel)?.Id ?? 0},
                 { "district", (yEntityDistrict.Subject as District)?.Id ?? 0 },
                 { "payment_type", (yenumPaymentType.SelectedItemOrNull)},
@@ -60,24 +61,7 @@ namespace Vodovoz.ReportsParameters.Retail
 
         void OnUpdate(bool hide = false)
         {
-            if (Validate())
-            {
-                LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-            }
-        }
-
-        bool Validate()
-        {
-            string errorString = string.Empty;
-            if (!(ydateperiodpickerCreate.StartDateOrNull.HasValue &&
-                ydateperiodpickerCreate.EndDateOrNull.HasValue))
-                errorString += "Не выбран период";
-            if (!string.IsNullOrWhiteSpace(errorString))
-            {
-                interactiveService.ShowMessage(ImportanceLevel.Error, errorString);
-                return false;
-            }
-            return true;
+            LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
         }
     }
 }
