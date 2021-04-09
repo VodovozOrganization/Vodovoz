@@ -184,7 +184,7 @@ namespace Vodovoz.Reports
 				{ "endDate", dateperiodpicker1.EndDateOrNull.Value },
 				{ "warehouse_id", warehouse?.Id ?? -1 },
 				{ "creationDate", DateTime.Now },
-				{ "sortBy", string.Join(", ", SortType.Where(x => x.Selected).Select(x => Enum.GetName(typeof(SortType), x.SortType))) }
+				{ "sortType", string.Join(", ", SortType.Where(x => x.Selected).Select(x => Enum.GetName(typeof(SortType), x.SortType))) }
 			};
 
 			foreach (var item in filter.GetParameters()) {
