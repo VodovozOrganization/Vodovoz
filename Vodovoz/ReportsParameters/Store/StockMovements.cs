@@ -122,30 +122,30 @@ namespace Vodovoz.Reports
 				SortType.Add(new SelectableSortTypeNode(enumItem));
 			}
 
-            yentryrefWarehouse.Changed += YentryrefWarehouse_Changed;
+			RefreshAvailableSortTypes();
+
+			yentryrefWarehouse.Changed += YentryrefWarehouse_Changed;
 		}
 
-        private void YentryrefWarehouse_Changed(object sender, EventArgs e)
+		private void RefreshAvailableSortTypes()
         {
 			var sortTypeNodes = SortType.Where(x => x.SortType == Reports.SortType.GroupOfGoods);
 
-			if ((sender as EntryReference).Subject == null)
-            {
+			if (yentryrefWarehouse.Subject == null)
+			{
 				if (sortTypeNodes.Any())
-                {
-					foreach(var node in sortTypeNodes)
-                    {
-						SortType.Remove(node);
-                    }
+				{
+					SortType.Remove(sortTypeNodes.First());
 				}
-			} else
-            {
-				if (!sortTypeNodes.Any())
-                {
-					SortType.Add(new SelectableSortTypeNode(Reports.SortType.GroupOfGoods));
-				}
+				return;
 			}
-        }
+			if (!sortTypeNodes.Any())
+			{
+				SortType.Add(new SelectableSortTypeNode(Reports.SortType.GroupOfGoods));
+			}
+		}
+
+		private void YentryrefWarehouse_Changed(object sender, EventArgs e) => RefreshAvailableSortTypes();
 
         #region IParametersWidget implementation
 

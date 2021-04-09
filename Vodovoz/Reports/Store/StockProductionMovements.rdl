@@ -238,8 +238,8 @@ ORDER BY
           <QueryParameter Name="product_group_exclude">
             <Value>=Parameters!product_group_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="sortTypes">
-            <Value>=Parameters!sortTypes</Value>
+          <QueryParameter Name="sortType">
+            <Value>=Parameters!sortType</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1277,7 +1277,7 @@ ORDER BY
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1373,12 +1373,13 @@ ORDER BY
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="sortTypes">
+    <ReportParameter Name="sortType">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
