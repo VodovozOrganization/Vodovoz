@@ -112,6 +112,7 @@ namespace Vodovoz.Reports
 				.AddColumn("").AddToggleRenderer(x => x.Selected, false)
 				.Finish();
 
+			ytreeSortPriority.HeadersVisible = false;
 			ytreeSortPriority.Reorderable = true;
 
 			ytreeSortPriority.ItemsDataSource = SortType;
