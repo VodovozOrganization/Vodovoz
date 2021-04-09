@@ -36,7 +36,7 @@ namespace Vodovoz.Views.Users
             yenumcomboStatus.ItemsEnum = typeof(ComplaintStatuses);
             yenumcomboStatus.Binding.AddBinding(ViewModel.Entity, e => e.DefaultComplaintStatus, w => w.SelectedItemOrNull).InitializeFromSource();
 
-            frame2.Visible = ViewModel.IsUserFromOkk;
+            frame2.Visible = ViewModel.IsUserFromRetail;
             entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
             entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.DefaultCounterparty, w => w.Subject).InitializeFromSource();
 
