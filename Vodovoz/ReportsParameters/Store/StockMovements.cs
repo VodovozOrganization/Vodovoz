@@ -24,7 +24,7 @@ namespace Vodovoz.Reports
 	{
 		SelectableParametersReportFilter filter;
 
-		public GenericObservableList<SelectableSortTypeNode> SortType { get; set; } = new GenericObservableList<SelectableSortTypeNode>();
+		private GenericObservableList<SelectableSortTypeNode> selectableSortTypeNodes = new GenericObservableList<SelectableSortTypeNode>();
 
 		public StockMovements()
 		{
@@ -115,11 +115,11 @@ namespace Vodovoz.Reports
 			ytreeSortPriority.HeadersVisible = false;
 			ytreeSortPriority.Reorderable = true;
 
-			ytreeSortPriority.ItemsDataSource = SortType;
+			ytreeSortPriority.ItemsDataSource = selectableSortTypeNodes;
 
 			foreach (SortType enumItem in Enum.GetValues(typeof(SortType)))
             {
-				SortType.Add(new SelectableSortTypeNode(enumItem));
+				selectableSortTypeNodes.Add(new SelectableSortTypeNode(enumItem));
 			}
 
 			RefreshAvailableSortTypes();
@@ -129,20 +129,20 @@ namespace Vodovoz.Reports
 
 		private void RefreshAvailableSortTypes()
         {
-			var sortTypeNodes = SortType.Where(x => x.SortType == Reports.SortType.GroupOfGoods);
+			var sortTypeNodes = selectableSortTypeNodes.Where(x => x.SortType == Reports.SortType.GroupOfGoods);
 
 			if (yentryrefWarehouse.Subject == null)
 			{
 				if (sortTypeNodes.Any())
 				{
-					SortType.Remove(sortTypeNodes.First());
+					selectableSortTypeNodes.Remove(sortTypeNodes.First());
 				}
 				return;
 			}
 
 			if (!sortTypeNodes.Any())
 			{
-				SortType.Add(new SelectableSortTypeNode(Reports.SortType.GroupOfGoods));
+				selectableSortTypeNodes.Add(new SelectableSortTypeNode(Reports.SortType.GroupOfGoods));
 			}
 		}
 
@@ -185,7 +185,7 @@ namespace Vodovoz.Reports
 				{ "endDate", dateperiodpicker1.EndDateOrNull.Value },
 				{ "warehouse_id", warehouse?.Id ?? -1 },
 				{ "creationDate", DateTime.Now },
-				{ "sortType", string.Join(", ", SortType.Where(x => x.Selected).Select(x => Enum.GetName(typeof(SortType), x.SortType))) }
+				{ "sortType", string.Join(", ", selectableSortTypeNodes.Where(x => x.Selected).Select(x => x.SortType.ToString())) }
 			};
 
 			foreach (var item in filter.GetParameters()) {
