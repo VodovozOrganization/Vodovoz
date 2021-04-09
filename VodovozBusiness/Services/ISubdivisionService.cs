@@ -14,6 +14,6 @@
 		/// <returns>Id подразделения 'Веселый Водовоз'</returns>
 		int GetParentVodovozSubdivisionId();
 
-		int GetIdDistribution();
+		int GetRetailSubdivisionId();
 	}
 }

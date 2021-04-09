@@ -48,12 +48,12 @@ namespace Vodovoz.Domain.Service.BaseParametersServices
 			return result;
 		}
 
-		public int GetIdDistribution()
+		public int GetRetailSubdivisionId()
 		{
-			if(!ParametersProvider.Instance.ContainsParameter("IdDistribution")) {
+			if(!ParametersProvider.Instance.ContainsParameter("Retail_subdivision_id")) {
 				throw new InvalidProgramException("В параметрах базы не настроен параметр : IdDistribution");
 			}
-			return int.Parse(ParametersProvider.Instance.GetParameterValue("IdDistribution"));
+			return int.Parse(ParametersProvider.Instance.GetParameterValue("Retail_subdivision_id"));
 		}
 	}
 }
