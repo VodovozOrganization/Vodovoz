@@ -481,10 +481,7 @@ LEFT JOIN delivery_points ON delivery_points.counterparty_id = counterparty.id
 LEFT JOIN districts ON districts.id = delivery_points.district_id
 LEFT JOIN sales_channel_to_counterparty ON sales_channel_to_counterparty.counterparty_id = counterparty.id
 LEFT JOIN sales_channels ON sales_channels.id = sales_channel_to_counterparty.sales_channel_id
-LEFT JOIN ( select  delivery_points_responsible_persons.id,
-                    delivery_points_responsible_persons.employee_id,
-                    delivery_points_responsible_persons.delivery_point_id
-            FROM delivery_points_responsible_persons limit 1) as points ON points.delivery_point_id = delivery_points.id
+LEFT JOIN delivery_points_responsible_persons points ON points.delivery_point_id = delivery_points.id
 LEFT JOIN employees ON employees.id = points.employee_id
 LEFT JOIN orders ON orders.id = counterparty.first_order_id
     WHERE
@@ -496,6 +493,7 @@ LEFT JOIN orders ON orders.id = counterparty.first_order_id
     AND (@sales_channel_id = 0 OR sales_channels.id = @sales_channel_id)
     AND (@district = 0 OR delivery_points.district_id = @district)
     AND (IF(@all_types, 1, counterparty.payment_method = @payment_type))
+GROUP BY delivery_points.compiled_address
 ORDER BY counter_id, first_order DESC, orders.create_date DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="create_date">
