@@ -75,10 +75,10 @@
             <Width>146.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.1pt</Width>
+            <Width>80.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>84.3pt</Width>
+            <Width>79.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>60.7pt</Width>
@@ -98,7 +98,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>№ контрагента</Value>
+                      <Value>№</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
