@@ -116,7 +116,7 @@ namespace Vodovoz.ReportsParameters.Retail
 			this.yEntityDistrict = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.yEntityDistrict.Events = ((global::Gdk.EventMask)(256));
 			this.yEntityDistrict.Name = "yEntityDistrict";
-			this.yEntityDistrict.CanEditReference = true;
+			this.yEntityDistrict.CanEditReference = false;
 			this.hbox5.Add(this.yEntityDistrict);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.yEntityDistrict]));
 			w8.Position = 1;

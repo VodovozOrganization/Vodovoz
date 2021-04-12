@@ -807,9 +807,9 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    	date(orders.create_date) AS orderdate,
+    date(orders.create_date) AS orderdate,
 	delivery_point_categories.name AS entrance,
-    	orders.id AS order_id,
+    orders.id AS order_id,
 	districts.district_name AS district,
 	counterparty.full_name AS client,
 	delivery_points.compiled_address AS address,
@@ -825,14 +825,14 @@
 		
 		ELSE 'Неизвестная форма оплаты'
 	END AS payment_type,
-	date(orders.delivery_date) AS delivery_date,
+    if(orders.order_status in ('Shipped','Closed'), date(orders.delivery_date), '') AS delivery_date,
 	CASE
 		WHEN orders.order_payment_status = 'Paid' THEN 'Оплачен'
 		WHEN orders.order_payment_status = 'PartiallyPaid' THEN 'Частично оплачен'
 		WHEN orders.order_payment_status = 'UnPaid' THEN 'Неоплачен'
 	ELSE 'Неизвестная форма оплаты'
 	END AS order_payment_status,
-    IFNULL(SUM(ROUND(o_items.price * IFNULL(o_items.actual_count, o_items.count) - o_items.discount_money, 2)), 0) AS ordersum,
+    ROUND(o_items.price * IFNULL(o_items.actual_count, o_items.count) - o_items.discount_money, 2) AS ordersum,
 	GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.name, employees.patronymic) AS author
 FROM orders
 
@@ -847,7 +847,7 @@ LEFT JOIN order_items o_items ON o_items.order_id = orders.id
 LEFT JOIN delivery_point_categories ON delivery_point_categories.id = delivery_points.delivery_point_category_id
 WHERE
 	orders.is_for_retail = 1
-	AND (orders.order_status = 'Closed')
+    AND orders.order_status not in ('Canceled', 'NewOrder')
     AND (@create_date = '' OR orders.create_date &gt;= @create_date)
     AND (@end_date = '' OR orders.create_date &lt;= @end_date)
     AND (@shipping_start_date = '' OR orders.delivery_date &gt;= @shipping_start_date)
@@ -855,7 +855,7 @@ WHERE
 	AND (@sales_channel_id = 0 OR sales_channels.id = @sales_channel_id)
 	AND (@counterparty_id = 0 OR orders.client_id = @counterparty_id)
 	AND (@main_contact_id = 0 OR employees.id = @main_contact_id)
-GROUP BY orders.id, delivery_points.compiled_address
+GROUP BY orders.id
 ORDER BY orderdate DESC, orders.id DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="create_date">
