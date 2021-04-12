@@ -64,7 +64,8 @@ namespace Vodovoz.Domain.Logistic
 
 		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository();
 		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
-
+		private readonly ICashRepository cashRepository = new EntityRepositories.Cash.CashRepository(); 
+		
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -527,6 +528,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual int TotalFullBottlesToClient => Addresses.Sum(a => a.GetFullBottlesToDeliverCount());
 
 		public virtual bool NeedToLoad => Addresses.Any(address => address.NeedToLoad);
+
+		public virtual bool HasMoneyDiscrepancy => Total != cashRepository.CurrentRouteListCash(UoW, Id);
 
 		#endregion
 
@@ -1469,7 +1472,7 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 
-			if(WasAcceptedByCashier && IsConsistentWithUnloadDocument()) {
+			if(WasAcceptedByCashier && IsConsistentWithUnloadDocument() && !HasMoneyDiscrepancy) {
 				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
 			}
 			else {
