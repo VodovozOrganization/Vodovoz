@@ -17,8 +17,6 @@ namespace Vodovoz.ViewModels.Users
     {
         private readonly IEmployeeService employeeService;
         private readonly ISubdivisionService subdivisionService;
-        private int? subdivisionId;
-        private string rulesName = "user_have_access_to_retail";
         
         public EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel> SubdivisionAutocompleteSelectorFactory { get; }
         public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
@@ -31,14 +29,10 @@ namespace Vodovoz.ViewModels.Users
             this.subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
             SubdivisionAutocompleteSelectorFactory = subdivisionAutocompleteSelectorFactory;
             CounterpartyAutocompleteSelectorFactory = counterpartySelectorFactory;
-            subdivisionId = this.employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId)?.Subdivision?.Id;
         }
 
-        public bool IsUserFromOkk => subdivisionService.GetOkkId() == subdivisionId;
+        public bool IsUserFromOkk => subdivisionService.GetOkkId() == employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId)?.Subdivision?.Id;
 
-        public bool IsUserFromRetail => UoW.Session.QueryOver<HierarchicalPresetUserPermission>().Where(x =>
-                        x.User.Id == Entity.User.Id && x.PermissionName == rulesName && x.Value).List().Count > 0 || 
-                   UoW.Session.QueryOver<HierarchicalPresetSubdivisionPermission>().Where(x =>
-                        x.Subdivision.Id == subdivisionId && x.PermissionName == rulesName && x.Value).List().Count > 0;
+        public bool IsUserFromRetail => CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
     }
 }
