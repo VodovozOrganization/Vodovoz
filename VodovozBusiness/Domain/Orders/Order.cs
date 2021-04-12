@@ -1524,22 +1524,22 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature, bool isChangeOrder = false, int? cnt = null)
+		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature, bool isChangeOrder = false, int? count = null)
 		{
 			var acceptableCategories = Nomenclature.GetCategoriesForSale();
 			if(!acceptableCategories.Contains(nomenclature.Category)) {
 				return;
 			}
 
-			var count = (nomenclature.Category == NomenclatureCategory.service
+			var resultCount = (nomenclature.Category == NomenclatureCategory.service
 						 || nomenclature.Category == NomenclatureCategory.deposit) && !isChangeOrder ? 1 : 0;
 
-			if(cnt.HasValue)
-				count = cnt.Value;
+			if(count.HasValue)
+				resultCount = count.Value;
 
 			var newItem = new OrderItem {
 				Order = this,
-				Count = count,
+				Count = resultCount,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)

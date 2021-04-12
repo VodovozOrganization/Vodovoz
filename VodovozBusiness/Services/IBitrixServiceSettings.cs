@@ -1,6 +1,12 @@
 namespace Vodovoz.Services {
-    public interface IBitrixServiceSettings {
+    public interface IBitrixServiceSettings 
+    {
         int MaxStatusesInQueueForWorkingService { get; }
+        
         int EmployeeForOrderCreate { get; }
+        
+        int ActiveOnlineStoreId { get; }
+        
+        string OsrmServiceURL { get; }
     }
 }

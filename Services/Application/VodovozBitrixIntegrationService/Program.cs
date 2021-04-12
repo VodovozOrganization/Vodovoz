@@ -16,7 +16,9 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Common;
 using Vodovoz.Models;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Services;
 
@@ -160,8 +162,10 @@ namespace VodovozBitrixIntegrationService
 		{
 			try
 			{
-				IBitrixServiceSettings baseParameters = new BaseParametersProvider();
-				var bitrixInstanceProvider = new BitrixInstanceProvider(baseParameters);
+				IBitrixServiceSettings bitrixServiceSettings = new BitrixServiceSettings(ParametersProvider.Instance);
+				var bitrixInstanceProvider = new BitrixInstanceProvider(bitrixServiceSettings);
+
+				IMeasurementUnitsRepository measurementUnitsRepository = new MeasurementUnitsRepository();
 				
 				var bitrixHost = new BitrixServiceHost(bitrixInstanceProvider);
 
@@ -181,9 +185,6 @@ namespace VodovozBitrixIntegrationService
 
 
 				BitrixManager.SetToken(token);
-	//ТЕСТ текущих функций
-				logger.Info($"{address}");
-				logger.Info($"{webAddress}");
 
 				var uow = UnitOfWorkFactory.CreateWithoutRoot();
 				var matcher = new Matcher();
@@ -193,15 +194,14 @@ namespace VodovozBitrixIntegrationService
 				var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
 				var counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 				
-					var cor = new CoR(
-						baseParameters, 
+					var cor = new DealProcessor(
 						bitrixApi,
 						matcher,
 						counterpartyContractRepository,
-						counterpartyContractFactory
+						counterpartyContractFactory,
+						measurementUnitsRepository,
+						bitrixServiceSettings
 					);
-					
-					// await cor.Process(158740); //138768 //150772 // 158740 тестовый
 					
 					var dealCollector = new DealCollector(bitrixApi, new DealFromBitrixRepository());
 					var mainCycle = new MainCycle(uow, dealCollector, cor);

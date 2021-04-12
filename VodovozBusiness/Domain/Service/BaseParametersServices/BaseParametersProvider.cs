@@ -7,7 +7,6 @@ using Vodovoz.Services;
 namespace Vodovoz.Core.DataService
 {
 	public class BaseParametersProvider : 
-		IBitrixServiceSettings,
 		IStandartNomenclatures, 
 		IImageProvider, 
 		IStandartDiscountsService, 
@@ -304,38 +303,6 @@ namespace Vodovoz.Core.DataService
 
 		#endregion IEmailServiceSettings implementation
 		
-		#region IBitrixServiceSettings implementation
-		public int MaxStatusesInQueueForWorkingService {
-			get {
-				if(!ParametersProvider.Instance.ContainsParameter("MaxStatusesInQueueForWorkingService")) {
-					throw new InvalidProgramException("В параметрах базы не заполнено максимальное количество писем в очереди на отправку для рабочей службы (MaxEmailsInQueueForWorkingService).");
-				}
-				string value = ParametersProvider.Instance.GetParameterValue("MaxStatusesInQueueForWorkingService");
-		
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
-					throw new InvalidProgramException("В параметрах базы неверно заполнено максимальное количество статусов в очереди на для обновления в Bitrix для рабочей службы (MaxStatusesInQueueForWorkingService)");
-				}
-		
-				return result;
-			}
-		}
-		
-		public int EmployeeForOrderCreate {
-			get {
-				if(!ParametersProvider.Instance.ContainsParameter("сотрудник_по_умолчанию_для_службы_Bitrix")) {
-					throw new InvalidProgramException("В параметрах базы не заполнен 'сотрудник_по_умолчанию_для_службы_Bitrix'");
-				}
-				string value = ParametersProvider.Instance.GetParameterValue("сотрудник_по_умолчанию_для_службы_Bitrix");
-		
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
-					throw new InvalidProgramException("В параметрах базы неверно заполнен 'сотрудник_по_умолчанию_для_службы_Bitrix'");
-				}
-		
-				return result;
-			}
-		}
-		#endregion
-
 		#region IContactsParameters
 
 		public int MinSavePhoneLength {

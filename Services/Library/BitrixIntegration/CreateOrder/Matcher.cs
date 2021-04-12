@@ -268,18 +268,12 @@ namespace BitrixIntegration {
 
         public bool MatchNomenclatureByName(IUnitOfWork uow, string productName, out Nomenclature outNomenclature)
         {
-            //Сопоставление номенклатуры
-            //ИСПРАВИТЬ ПРОВЕРКУ SINGLEORDEFAULT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            Nomenclature nomenclature = NomenclatureRepository.GetNomenclatureByName(uow, productName);
-            if (nomenclature != null){
-                logger.Info($"Номенклатура {nomenclature.ShortName} сопоставлена по названию {productName}");
-                outNomenclature = nomenclature;
-                return true;
+            outNomenclature = NomenclatureRepository.GetNomenclatureByName(uow, productName);
+            if (outNomenclature == null){
+                logger.Warn($"Номенклатура не найдена по названию {productName}");
+                return false;
             }
-            logger.Warn($"Номенклатура не найдена по названию {productName}");
-
-            outNomenclature = null;
-            return false;
+            return true;
         }
 
         /// <summary>

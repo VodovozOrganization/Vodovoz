@@ -101,7 +101,7 @@ namespace BitrixIntegration {
 
         private void FillNomenclatureFromProduct(Nomenclature nomenclature, Product product)
         {
-            if(!productGroups.TryGetValue(product.CategoryObj.valueId, out ProductGroup productGroup)) {
+            if(!productGroups.TryGetValue(product.CategoryObj.ValueId, out ProductGroup productGroup)) {
                 productGroup = unknownProductGroup;
             }
             

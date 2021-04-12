@@ -7,8 +7,6 @@ namespace BitrixApi.REST
 {
     public interface IBitrixRestApi
     {
-       
-        
         //crm.deal.get
         Task<Deal> GetDealAsync(uint id);
 

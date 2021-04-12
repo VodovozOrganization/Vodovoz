@@ -4,7 +4,7 @@ using Vodovoz.Domain.Common;
 
 namespace Vodovoz.EntityRepositories.Common
 {
-    interface IMeasurementUnitsRepository
+    public interface IMeasurementUnitsRepository
     {
         IList<MeasurementUnit> GetActiveUnits(IUnitOfWork uow);
         MeasurementUnit GetDefaultGoodsUnit(IUnitOfWork uow);

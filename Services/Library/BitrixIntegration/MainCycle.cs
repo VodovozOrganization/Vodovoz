@@ -9,14 +9,14 @@ namespace BitrixIntegration {
         private readonly IUnitOfWork uow;
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly DealCollector dealCollector;
-        private readonly CoR cor;
+        private readonly DealProcessor dealProcessor;
         private const int MINDEALWAITSEC = 60;
 
-        public MainCycle(IUnitOfWork _uow, DealCollector _dealCollector, CoR _cor)
+        public MainCycle(IUnitOfWork _uow, DealCollector _dealCollector, DealProcessor dealProcessor)
         {
             uow = _uow ?? throw new ArgumentNullException(nameof(_uow));
             dealCollector = _dealCollector ?? throw new ArgumentNullException(nameof(_dealCollector));
-            cor = _cor ?? throw new ArgumentNullException(nameof(_cor));
+            this.dealProcessor = dealProcessor ?? throw new ArgumentNullException(nameof(dealProcessor));
         }
         public async Task RunProcessCycle()
         {
@@ -44,7 +44,7 @@ namespace BitrixIntegration {
                         var dealsList = await dealCollector.CollectDeals(uow, date, true);
                         foreach (var deal in dealsList){
                             try{
-                                var order = await cor.Process(deal);
+                                var order = await dealProcessor.Process(deal);
                                 await dealCollector.SendSuccessDealFromBitrixToDB(uow, deal.Id, order);
 
                             }
@@ -66,7 +66,7 @@ namespace BitrixIntegration {
                         var dealsList = await dealCollector.CollectDeals(uow, date, true);
                         foreach (var deal in dealsList){
                             try{
-                                var order = await cor.Process(deal);
+                                var order = await dealProcessor.Process(deal);
                                 await dealCollector.SendSuccessDealFromBitrixToDB(uow, deal.Id, order);
 
                             }
@@ -89,7 +89,7 @@ namespace BitrixIntegration {
                         var dealsList = await dealCollector.CollectDeals(uow, date, false);
                         foreach (var deal in dealsList){
                             try{
-                                var order = await cor.Process(deal);
+                                var order = await dealProcessor.Process(deal);
                                 await dealCollector.SendSuccessDealFromBitrixToDB(uow, deal.Id, order);
                             }
                             catch (Exception e){

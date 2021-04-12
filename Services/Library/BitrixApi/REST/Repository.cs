@@ -105,7 +105,7 @@ namespace BitrixApi.REST
         {
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.product.get.json?id={id}";
-            var msg = client.GetStringAsync(requestUri);
+            var productDataTask = client.GetStringAsync(requestUri);
             await semaphoreSlim.WaitAsync();
 
             ProductRequest request = null;
@@ -113,7 +113,8 @@ namespace BitrixApi.REST
                 logger.Info("Ждем Product");
 
                 Thread.Sleep(1000);
-                request = JsonConvert.DeserializeObject<ProductRequest>(await msg);
+                var productData = await productDataTask;
+                request = JsonConvert.DeserializeObject<ProductRequest>(productData);
                 logger.Info("Подождали Product");
 
             }

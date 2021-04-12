@@ -53,13 +53,18 @@ namespace BitrixApi.DTO
         [JsonProperty("UF_CRM_5DADB4A25AFE5")]  public string HouseAndBuilding { get; set; }
         // Может быть Null or empty
         [JsonProperty("UF_CRM_1596187803")]  public string Promocode { get; set; }
+        
         //624 - Курьерская, 626 - Самовывоз
         [JsonProperty("UF_CRM_1573799954786")]  public string DeliveryType { get; set; }
+        
         //158 - Курьеру наличными, 160 - Картой на сайте, 162 - На расчетный счет, 1108 - Курьеру по смс, 1162 - Курьеру по терминалу
         [JsonProperty("UF_CRM_5DA85CF9B48E1")]  public string PaymentMethod { get; set; }
-        [JsonProperty("UF_CRM_1596187445")]  public string City { get; set; } // Санкт-Петербург
-        [JsonProperty("UF_CRM_5DA85CFA35DAD")]  public string RoomType { get; set; } //Парадная/Торговый комплекс/Торговый центр...
-        [JsonProperty("UF_CRM_5DA85CFA297D5")]  public string Entrance { get; set; } //Парадная/Название БЦ
+        [JsonProperty("UF_CRM_1596187445")]  public string City { get; set; }
+        //Парадная/Торговый комплекс/Торговый центр...
+        [JsonProperty("UF_CRM_5DA85CFA35DAD")]  public string RoomType { get; set; } 
+        
+        //Парадная/Название БЦ
+        [JsonProperty("UF_CRM_5DA85CFA297D5")]  public string Entrance { get; set; } 
         [JsonProperty("UF_CRM_1575544790252")]  public string Floor { get; set; }
         [JsonProperty("UF_CRM_5DA85CFA0C838")] public string EntranceType { get; set; }
         [JsonProperty("UF_CRM_5DA9BBA03A12A")] public uint DeliverySchedule { get; set; }

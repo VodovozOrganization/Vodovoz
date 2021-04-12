@@ -625,6 +625,8 @@ namespace Vodovoz.Domain.Goods
 		
 		public override string ToString() => $"id ={Id} Name = {Name}";
 
+		public virtual bool IsOnlineStoreNomenclature => OnlineStore != null;
+
 		#endregion
 
 		#region Методы
@@ -653,13 +655,15 @@ namespace Vodovoz.Domain.Goods
 			return price;
 		}
 
-		public virtual void SetPrice(decimal price, int count)
+		public virtual void UpdatePrice(decimal price, int minCount)
 		{
-			this.NomenclaturePrice.Add(new NomenclaturePrice {
-				MinCount = count,
-				Nomenclature = this,
-				Price = price
-			});
+			var nomenclaturePrice =  NomenclaturePrice.FirstOrDefault(x => x.MinCount == minCount);
+			if(nomenclaturePrice == null) {
+				nomenclaturePrice = new NomenclaturePrice();
+				nomenclaturePrice.Nomenclature = this;
+			}
+			nomenclaturePrice.MinCount = minCount;
+			nomenclaturePrice.Price = price;
 		}
 
 		/// <summary>

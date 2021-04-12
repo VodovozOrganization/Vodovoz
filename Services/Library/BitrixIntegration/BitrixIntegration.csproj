@@ -113,7 +113,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="CreateOrder\BitrixNomenclatureFactory.cs" />
-        <Compile Include="CreateOrder\CoR.cs" />
+        <Compile Include="CreateOrder\DealProcessor.cs" />
         <Compile Include="CreateOrder\ICoR.cs" />
         <Compile Include="CreateOrder\Matcher.cs" />
         <Compile Include="CreateOrder\ProductImporter.cs" />

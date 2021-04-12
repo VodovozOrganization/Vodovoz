@@ -25,15 +25,17 @@ namespace BitrixApi.DTO
         [JsonProperty("VAT_INCLUDED")] public string VAT_INCLUDED { get; set; } 
         [JsonProperty("MEASURE")] public int MEASURE { get; set; }
         [JsonProperty("PROPERTY_174")] public ProductCategory CategoryObj { get; set; }
-        [JsonProperty("PROPERTY_176")] public ProductIsOur IsOurObj { get; set; }
+        [JsonProperty("PROPERTY_176")] public ProductIsOur IsOurProduct { get; set; }
+        [JsonProperty("PROPERTY_178")] public int ErpNomenclatureId { get; set; }
+        [JsonProperty("PROPERTY_180")] public int ErpPromosetId { get; set; }
     }
 
     public class ProductCategory {
-        [JsonProperty("valueId")] public string valueId { get; set; }
+        [JsonProperty("valueId")] public string ValueId { get; set; }
         [JsonProperty("value")] public string IsOurProduct { get; set; }
     }
     public class ProductIsOur {
-        [JsonProperty("valueId")] public string valueId { get; set; }
+        [JsonProperty("valueId")] public string ValueId { get; set; }
         [JsonProperty("value")] public string IsOurProduct { get; set; }
     }
 }
