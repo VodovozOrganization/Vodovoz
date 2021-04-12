@@ -1,12 +1,10 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QS.EntityRepositories;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.Services;
