@@ -63,7 +63,8 @@ namespace Vodovoz.JournalViewModels
 					if(config.PermissionResult.CanDelete) {
 						DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
 					}
-				}
+				},
+				"Delete"
 			);
 			NodeActionsList.Add(deleteAction);
 		}

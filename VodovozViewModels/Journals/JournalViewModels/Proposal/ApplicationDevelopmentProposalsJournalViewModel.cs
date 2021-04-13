@@ -110,7 +110,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Proposal
 							slider.IsHideJournal = true;
 						}
 					}
-				});
+				},
+				"Insert");
 			NodeActionsList.Add(addAction);
 		}
 		protected override void CreatePopupActions()
