@@ -1586,6 +1586,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.QualityReport.cs" />
     <Compile Include="ReportsParameters\Retail\CounterpartyReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.CounterpartyReport.cs" />
+    <Compile Include="Views\Permissions\WarehousePermissionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Permissions.WarehousePermissionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1884,6 +1886,7 @@
     <Folder Include="Views\Retail\" />
     <Folder Include="ReportsParameters\Retail\" />
     <Folder Include="Reports\Retail\" />
+    <Folder Include="Views\Permissions\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

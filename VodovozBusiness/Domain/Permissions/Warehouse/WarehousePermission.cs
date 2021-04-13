@@ -1,11 +1,18 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Permissions.Warehouse
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "Права на склад",
+		Nominative = "Право на склад")]
+	[EntityPermission]
+	[HistoryTrace]
     public abstract class WarehousePermission : PropertyChangedBase, IDomainObject
     {
 	    public virtual int Id { get; set; }
@@ -60,8 +67,8 @@ namespace Vodovoz.Domain.Permissions.Warehouse
     
     public enum TypePermissions
     {
-        user,
-        subdivision
+        User,
+        Subdivision
     }
     
     public enum WarehousePermissions

@@ -203,6 +203,11 @@
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpenerForRouteListViewAndOrderView.cs" />
+    <Compile Include="ViewModels\PermissionNode\PermissionTypeAllNodeViewModel.cs" />
+    <Compile Include="ViewModels\PermissionNode\WarehouseAllNodeViewModel.cs" />
+    <Compile Include="ViewModels\PermissionNode\WarehousePermissionAllNodeViewModelBase.cs" />
+    <Compile Include="ViewModels\PermissionNode\WarehousePermissionNodeViewModel.cs" />
+    <Compile Include="ViewModels\Permissions\WarehousePermissionsViewModel.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
