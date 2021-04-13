@@ -106,6 +106,7 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
+using System.Runtime.InteropServices;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -127,7 +128,7 @@ public partial class MainWindow : Gtk.Window
         tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
         TDIMain.MainNotebook = tdiMain;
 
-        bool isWindows = System.IO.Path.DirectorySeparatorChar == '\\';
+        bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         if (isWindows)
             KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
 
