@@ -837,7 +837,7 @@
 FROM orders
 
 LEFT JOIN counterparty ON counterparty.id = orders.client_id
-LEFT JOIN delivery_points ON delivery_points.counterparty_id = counterparty.id
+LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
 LEFT JOIN districts ON districts.id = delivery_points.district_id
 LEFT JOIN sales_channel_to_counterparty ON  sales_channel_to_counterparty.counterparty_id = orders.client_id
 LEFT JOIN sales_channels ON sales_channels.id = sales_channel_to_counterparty.sales_channel_id
