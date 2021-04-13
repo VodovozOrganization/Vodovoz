@@ -1750,17 +1750,16 @@ WHERE order_deposit_items.deposit_type = 'Bottles'
             SELECT
                 order_items.order_id AS order_id,
                 IF(
-                        IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
+                        nomenclature.online_store_id IS NOT NULL,
                         -1, nomenclature_id) AS nomenclature_id,
                 IF(
-                        IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
+                        nomenclature.online_store_id IS NOT NULL,
                         CONCAT('Заказ ИМ ', order_items.order_id), IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
                 IF(
-                        IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
+                        nomenclature.online_store_id IS NOT NULL,
                         1, cast(SUM(IFNULL(order_items.actual_count, 0)) as DECIMAL)) AS cnt
             FROM order_items
                      LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-                     LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id
                      JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
             WHERE (nomenclature.category = 'equipment' OR nomenclature.category = 'additional') AND nomenclature.hide = 0
               AND route_list_addresses.route_list_id = @route_list_id
