@@ -811,7 +811,7 @@
 	delivery_point_categories.name AS entrance,
     orders.id AS order_id,
 	districts.district_name AS district,
-	counterparty.full_name AS client,
+	counterparty.name AS client,
 	delivery_points.compiled_address AS address,
 	sales_channels.name AS channel_name,
 	CASE
