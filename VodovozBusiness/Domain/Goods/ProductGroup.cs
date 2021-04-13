@@ -66,12 +66,6 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref onlineStoreGuid, value);
 		}
 
-		private bool isOnlineStore;
-		[Display(Name = "Группа товаров интернет магазина?")]
-		public virtual bool IsOnlineStore {
-			get => isOnlineStore;
-			set => SetField(ref isOnlineStore, value);
-		}
 		
 		private OnlineStore onlineStore;
 		[Display(Name = "Интернет-магазин")]
@@ -121,13 +115,6 @@ namespace Vodovoz.Domain.Goods
 			IsArchive = value;
 			foreach (var child in Childs)
 				child.SetIsArchiveRecursively(value);
-		}
-
-		public virtual void SetIsOnlineStoreRecursively(bool value)
-		{
-			IsOnlineStore = value;
-			foreach (var child in Childs) 
-				child.SetIsOnlineStoreRecursively(value);
 		}
 		
 		public virtual void CreateGuidIfNotExist(IUnitOfWork uow)
