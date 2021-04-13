@@ -126,7 +126,11 @@ public partial class MainWindow : Gtk.Window
         BuildToolbarActions();
         tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
         TDIMain.MainNotebook = tdiMain;
-        KeyReleaseEvent += TDIMain.TDIHandleKeyReleaseEvent;
+
+        bool isWindows = System.IO.Path.DirectorySeparatorChar == '\\';
+        if (isWindows)
+            KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
+
         Title = $"{applicationInfo.ProductTitle} v{applicationInfo.Version} от {applicationInfo.BuildDate:dd.MM.yyyy HH:mm}";
         //Настраиваем модули
         ActionUsers.Sensitive = QSMain.User.Admin;

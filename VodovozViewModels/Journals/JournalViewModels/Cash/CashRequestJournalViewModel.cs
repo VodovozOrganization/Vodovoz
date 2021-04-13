@@ -208,7 +208,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                     if(config.PermissionResult.CanDelete) {
                         DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
                     }
-                }
+                },
+               "Delete"
             );
             NodeActionsList.Add(deleteAction);
         }
