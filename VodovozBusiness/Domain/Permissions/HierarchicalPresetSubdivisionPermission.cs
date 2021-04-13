@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Permissions
 {
+	[HistoryTrace]
 	public class HierarchicalPresetSubdivisionPermission : HierarchicalPresetPermissionBase
 	{
 		public override PresetPermissionType PresetPermissionType => PresetPermissionType.subdivision;
