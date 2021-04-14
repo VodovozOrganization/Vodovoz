@@ -21,6 +21,6 @@ namespace Vodovoz.Domain.Permissions
 			set => SetField(ref subdivision, value, () => Subdivision);
 		}
 
-		public override string ToString() => $"Предуст. право [{PermissionName}] для подразделения [{Subdivision.Name}]";
+		public override string ToString() => $"Предуст. право [{PermissionName}] для подразделения [{Subdivision?.Name}]";
 	}
 }
