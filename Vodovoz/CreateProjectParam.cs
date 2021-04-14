@@ -129,6 +129,7 @@ using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Retail;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 using Vodovoz.Views.Mango.Talks;
@@ -455,6 +456,12 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
+			OrmMain.AddObjectDescription<SalesChannel>()
+				.DefaultTableView()
+				.SearchColumn("Код", x => x.Id.ToString())
+				.SearchColumn("Название", x => x.Name)
+				.End();
+
 
 			#endregion
 
