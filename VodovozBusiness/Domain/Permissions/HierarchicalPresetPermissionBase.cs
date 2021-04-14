@@ -40,7 +40,9 @@ namespace Vodovoz.Domain.Permissions
 
 	public enum PresetPermissionType
 	{
+		[Display(Name = "Для пользователя")]
 		user,
+		[Display(Name = "Для подразделения")]
 		subdivision
 	}
 
