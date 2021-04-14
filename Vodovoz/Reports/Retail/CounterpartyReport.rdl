@@ -485,7 +485,7 @@ LEFT JOIN delivery_points_responsible_persons points ON points.delivery_point_id
 LEFT JOIN employees ON employees.id = points.employee_id
 LEFT JOIN orders ON orders.client_id = counterparty.id
     WHERE
-    counterparty.is_for_retail = 1
+    counterparty.is_for_retail
     AND (@create_date = '' OR orders.create_date &gt;= @create_date)
     AND (@end_date = '' OR orders.create_date &lt;= @end_date)
     AND (orders.order_status = 'Closed')

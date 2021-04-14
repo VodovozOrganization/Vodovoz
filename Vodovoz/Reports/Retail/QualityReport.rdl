@@ -846,7 +846,7 @@ LEFT JOIN employees ON employees.id = points.employee_id
 LEFT JOIN order_items o_items ON o_items.order_id = orders.id
 LEFT JOIN delivery_point_categories ON delivery_point_categories.id = delivery_points.delivery_point_category_id
 WHERE
-	orders.is_for_retail = 1
+	orders.is_for_retail
     AND if(@shipping_start_date != '', orders.order_status in ('Shipped', 'Closed'), orders.order_status not in ('Canceled', 'NewOrder', 'NotDelivered','DeliveryCanceled'))
     AND (@create_date = '' OR orders.create_date &gt;= @create_date)
     AND (@end_date = '' OR orders.create_date &lt;= @end_date)
