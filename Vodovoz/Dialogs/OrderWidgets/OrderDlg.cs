@@ -701,6 +701,9 @@ namespace Vodovoz
 			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
 			treeItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderItem>()
+				.AddColumn("№")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(node => Entity.OrderItems.IndexOf(node) + 1)
 				.AddColumn("Номенклатура")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
