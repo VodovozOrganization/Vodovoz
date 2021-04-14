@@ -36,12 +36,10 @@ FROM
     nomenclature ON order_items.nomenclature_id = nomenclature.id
         LEFT JOIN
     measurement_units ON measurement_units.id = nomenclature.unit_id
-        LEFT JOIN
-    nomenclature_groups ng ON ng.id = nomenclature.group_id
 WHERE
         route_list_addresses.route_list_id = @id
   AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
-  AND IF(nomenclature.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
+  AND nomenclature.online_store_id IS NULL
 GROUP BY nomenclature.id
 ORDER BY clmn_for_sorting;</CommandText>
         <QueryParameters>
@@ -159,11 +157,10 @@ FROM
 	order_items oi
 LEFT JOIN nomenclature n ON n.id = oi.nomenclature_id
 LEFT JOIN route_list_addresses rla ON rla.order_id = oi.order_id
-LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
 WHERE
 	rla.route_list_id = @id
 	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
-	AND IF(n.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
+	AND n.online_store_id IS NULL
 GROUP BY n.id
 #Equipment
 UNION ALL
@@ -181,10 +178,9 @@ FROM
 	order_equipment oe
 LEFT JOIN nomenclature n ON n.id = oe.nomenclature_id
 LEFT JOIN route_list_addresses rla ON rla.order_id = oe.order_id
-LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
 WHERE
 	rla.route_list_id = @id
-	AND IF(n.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
+	AND n.online_store_id IS NULL
 	AND oe.direction = 'Deliver'
 	AND (rla.was_transfered = true AND rla.need_to_reload = true OR rla.was_transfered = false)
 GROUP BY oe.own_type, n.id
@@ -237,10 +233,9 @@ FROM(
           AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
     ) AS eq
 LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
-LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
 LEFT JOIN orders o on eq.order_id = o.id
 WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
-  AND IF(n.group_id IS NOT NULL, ng.is_online_store, FALSE)
+  AND n.online_store_id IS NOT NULL
 GROUP BY order_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">

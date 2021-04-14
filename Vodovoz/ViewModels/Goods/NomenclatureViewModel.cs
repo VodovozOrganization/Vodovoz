@@ -92,8 +92,8 @@ namespace Vodovoz.ViewModels.Goods
 			!(Entity.Category == NomenclatureCategory.service || Entity.Category == NomenclatureCategory.deposit);
 		
 		public bool IsEshopNomenclature => Entity?.ProductGroup?.ExportToOnlineStore ?? false;
-		
-		public bool IsOnlineStoreProductGroup => Entity?.ProductGroup?.IsOnlineStore ?? false;
+
+		public bool IsOnlineStoreNomenclature => Entity?.OnlineStore != null;
 
 		public bool SensitivityRadioPriceButton => Entity.DependsOnNomenclature == null;
 
@@ -119,8 +119,7 @@ namespace Vodovoz.ViewModels.Goods
 			
 			SetPropertyChangeRelation(
 				e => e.ProductGroup,
-				() => IsEshopNomenclature,
-				() => IsOnlineStoreProductGroup
+				() => IsEshopNomenclature
 			);
 
 			SetPropertyChangeRelation(
