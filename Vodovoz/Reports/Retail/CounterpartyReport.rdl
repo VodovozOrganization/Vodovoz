@@ -491,7 +491,7 @@ LEFT JOIN orders ON orders.client_id = counterparty.id
     AND (orders.order_status = 'Closed')
     AND (@sales_channel_id = 0 OR sales_channels.id = @sales_channel_id)
     AND (@district = 0 OR delivery_points.district_id = @district)
-    AND (IF(@all_types, 1, counterparty.payment_method = @payment_type))
+    AND (IF(@all_types, true, counterparty.payment_method = @payment_type))
 GROUP BY delivery_points.compiled_address, counterparty.full_name
 ORDER BY counter_id, first_order DESC, orders.create_date DESC;</CommandText>
         <QueryParameters>
