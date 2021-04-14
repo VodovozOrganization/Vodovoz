@@ -10,6 +10,6 @@ namespace Vodovoz.Domain.Permissions
 	[HistoryTrace]
 	public class EntitySubdivisionOnlyPermission : EntitySubdivisionPermission
 	{
-		public override string ToString() => $"Право на документ [{TypeOfEntity.CustomName}] для подразделения [{Subdivision.Name}]";
+		public override string ToString() => $"Право на документ [{TypeOfEntity?.CustomName}] для подразделения [{Subdivision?.Name}]";
 	}
 }

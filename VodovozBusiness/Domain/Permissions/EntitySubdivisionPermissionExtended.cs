@@ -24,6 +24,6 @@ namespace Vodovoz.Domain.Permissions
 			set => SetField(ref subdivision, value);
 		}
 
-		public override string ToString() => $"Особое право на документ [{TypeOfEntity.CustomName}] для подразделения [{Subdivision.Name}]";
+		public override string ToString() => $"Особое право на документ [{TypeOfEntity?.CustomName}] для подразделения [{Subdivision?.Name}]";
 	}
 }
