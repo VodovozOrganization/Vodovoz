@@ -119,8 +119,7 @@ namespace Vodovoz.ViewModels.Goods
 			
 			SetPropertyChangeRelation(
 				e => e.ProductGroup,
-				() => IsEshopNomenclature,
-				() => IsOnlineStoreNomenclature
+				() => IsEshopNomenclature
 			);
 
 			SetPropertyChangeRelation(
