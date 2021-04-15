@@ -48,8 +48,11 @@
           <TableColumn>
             <Width>53.0pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>53.0pt</Width>
+          </TableColumn>
           <TableColumn>
-            <Width>109.4pt</Width>
+            <Width>97.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>38.9pt</Width>
@@ -73,13 +76,13 @@
             <Width>37.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>88.0pt</Width>
+            <Width>80.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>91.8pt</Width>
+            <Width>73.6pt</Width>
           </TableColumn>
-          <TableColumn >
-            <Width>91.8pt</Width>
+          <TableColumn>
+            <Width>79.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -100,7 +103,25 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Дата доставки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -118,7 +139,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -136,7 +157,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -154,7 +175,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -172,7 +193,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -190,7 +211,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -208,7 +229,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -226,7 +247,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -244,7 +265,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -262,7 +283,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -280,12 +301,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
                       <Value>Комментарий</Value>
@@ -298,7 +319,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -342,9 +363,35 @@
                             <PaddingTop>5pt</PaddingTop>
                             <PaddingBottom>5pt</PaddingBottom>
                             <Format>dd/MM/yyyy</Format>
-                            <FontSize >8pt</FontSize>
+                            <FontSize>8pt</FontSize>
                           </Style>
                           <CanShrink>true</CanShrink>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox19">
+                          <Value>={delivery_date}</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Left>Solid</Left>
+                              <Right>Solid</Right>
+                              <Top>Solid</Top>
+                              <Bottom>Solid</Bottom>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                            <PaddingTop>5pt</PaddingTop>
+                            <PaddingBottom>5pt</PaddingBottom>
+                            <Format>dd/MM/yyyy</Format>
+                            <FontSize>8pt</FontSize>
+                          </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -369,7 +416,7 @@
                             <PaddingRight>5pt</PaddingRight>
                             <PaddingTop>5pt</PaddingTop>
                             <PaddingBottom>5pt</PaddingBottom>
-                            <FontSize >8pt</FontSize>
+                            <FontSize>8pt</FontSize>
                           </Style>
                           <CanShrink>true</CanShrink>
                         </Textbox>
@@ -396,7 +443,7 @@
                             <PaddingRight>5pt</PaddingRight>
                             <PaddingTop>5pt</PaddingTop>
                             <PaddingBottom>5pt</PaddingBottom>
-                            <FontSize >8pt</FontSize>
+                            <FontSize>8pt</FontSize>
                           </Style>
                           <CanShrink>true</CanShrink>
                         </Textbox>
@@ -430,7 +477,7 @@
                       </ReportItems>
                       <ColSpan>1</ColSpan>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox50">
                           <Value>=Fields!discount.Value</Value>
@@ -455,7 +502,7 @@
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox49">
                           <Value>={discount_money}</Value>
@@ -480,7 +527,7 @@
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox48">
                           <Value>={discount_name}</Value>
@@ -505,7 +552,7 @@
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox47">
                           <Value>=Fields!nomenclature_name.Value</Value>
@@ -527,12 +574,12 @@
                             <PaddingTop>5pt</PaddingTop>
                             <PaddingBottom>5pt</PaddingBottom>
                           </Style>
-                          <CanGrow >true</CanGrow>
-                          <CanShrink >true</CanShrink>
+                          <CanGrow>true</CanGrow>
+                          <CanShrink>true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox46">
                           <Value>=Fields!count.Value</Value>
@@ -553,7 +600,7 @@
                             <PaddingRight>5pt</PaddingRight>
                             <PaddingTop>5pt</PaddingTop>
                             <PaddingBottom>5pt</PaddingBottom>
-                            <Format >= 'N' + {digits}</Format>
+                            <Format>= 'N' + {digits}</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -579,7 +626,7 @@
                             <PaddingRight>5pt</PaddingRight>
                             <PaddingTop>5pt</PaddingTop>
                             <PaddingBottom>5pt</PaddingBottom>
-                            <FontSize >8pt</FontSize>
+                            <FontSize>8pt</FontSize>
                           </Style>
                           <CanShrink>true</CanShrink>
                         </Textbox>
@@ -606,13 +653,13 @@
                             <PaddingRight>5pt</PaddingRight>
                             <PaddingTop>5pt</PaddingTop>
                             <PaddingBottom>5pt</PaddingBottom>
-                            <FontSize >8pt</FontSize>
+                            <FontSize>8pt</FontSize>
                           </Style>
                           <CanShrink>true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox45">
                           <Value>=Fields!comment.Value</Value>
@@ -632,10 +679,10 @@
                             <PaddingRight>5pt</PaddingRight>
                             <PaddingTop>5pt</PaddingTop>
                             <PaddingBottom>5pt</PaddingBottom>
-                            <FontSize >8pt</FontSize>
+                            <FontSize>8pt</FontSize>
                           </Style>
-                          <CanGrow >true</CanGrow>
-                          <CanShrink >true</CanShrink>
+                          <CanGrow>true</CanGrow>
+                          <CanShrink>true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -673,6 +720,27 @@
                       </Value>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>7pt</PaddingLeft>
+                        <PaddingRight>7pt</PaddingRight>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -916,7 +984,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
                       <Value>
@@ -977,6 +1045,7 @@
         <CommandText>SELECT
     orders.id AS order_id,
     orders.create_date,
+    orders.delivery_date,
     counterparty.name,
     ROUND(SUM(order_items.price * IFNULL(order_items.actual_count, order_items.count)), 2) AS SumWithoutDiscount,
     order_items.discount,
@@ -1008,9 +1077,9 @@ WHERE
   AND
     (@EndDate = '' OR
      (
-             (@DateType = 'CreationDate' AND orders.create_date &lt;= @EndDate)
+             (@DateType = 'CreationDate' AND orders.create_date &lt; DATE_ADD(@EndDate, INTERVAL 1 DAY))
              OR
-             (@DateType = 'DeliveryDate' AND orders.delivery_date &lt;= @EndDate)
+             (@DateType = 'DeliveryDate' AND orders.delivery_date &lt; DATE_ADD(@EndDate, INTERVAL 1 DAY))
          )
         )
   AND (
@@ -1042,7 +1111,7 @@ GROUP BY
       <Fields>
         <Field Name="create_date">
           <DataField>create_date</DataField>
-          <TypeName>System.String</TypeName>
+          <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="name">
           <DataField>name</DataField>
@@ -1087,6 +1156,10 @@ GROUP BY
         <Field Name="digits">
           <DataField>digits</DataField>
           <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+          <TypeName>System.DateTime</TypeName>
         </Field>
       </Fields>
     </DataSet>
