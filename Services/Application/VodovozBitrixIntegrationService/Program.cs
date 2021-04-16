@@ -13,7 +13,6 @@ using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSProjectsLib;
-using QSSupportLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Common;
@@ -117,7 +116,6 @@ namespace VodovozBitrixIntegrationService
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase))
 					});
 
-				MainSupport.LoadBaseParameters();
 				QS.HistoryLog.HistoryMain.Enable();
 			}
 			catch (Exception ex)
