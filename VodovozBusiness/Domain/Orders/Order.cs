@@ -562,6 +562,15 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isForRetail, value, () => IsForRetail);
 		}
 
+        private bool isSelfDeliveryPaid;
+
+        [Display(Name = "Самовывоз оплачен")]
+        public virtual bool IsSelfDeliveryPaid
+        {
+            get => isSelfDeliveryPaid;
+            set => SetField(ref isSelfDeliveryPaid, value);
+        }
+
 		private int bottlesByStockCount;
 		[Display(Name = "Количество бутылей по акции")]
 		public virtual int BottlesByStockCount {
