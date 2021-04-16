@@ -26,8 +26,8 @@ namespace BitrixApi.DTO
         [JsonProperty("MEASURE")] public int MEASURE { get; set; }
         [JsonProperty("PROPERTY_174")] public ProductCategory CategoryObj { get; set; }
         [JsonProperty("PROPERTY_176")] public ProductIsOur IsOurProduct { get; set; }
-        [JsonProperty("PROPERTY_178")] public int ErpNomenclatureId { get; set; }
-        [JsonProperty("PROPERTY_180")] public int ErpPromosetId { get; set; }
+        [JsonProperty("PROPERTY_178")] public NomenclatureInfo NomenclatureInfo { get; set; }
+        [JsonProperty("PROPERTY_180")] public PromosetInfo PromosetInfo { get; set; }
     }
 
     public class ProductCategory {
@@ -37,5 +37,15 @@ namespace BitrixApi.DTO
     public class ProductIsOur {
         [JsonProperty("valueId")] public string ValueId { get; set; }
         [JsonProperty("value")] public string IsOurProduct { get; set; }
+    }
+    
+    public class NomenclatureInfo {
+        [JsonProperty("valueId")] public string ValueId { get; set; }
+        [JsonProperty("value")] public int NomenclatureId { get; set; }
+    }
+    
+    public class PromosetInfo {
+        [JsonProperty("valueId")] public string ValueId { get; set; }
+        [JsonProperty("value")] public int PromosetId { get; set; }
     }
 }

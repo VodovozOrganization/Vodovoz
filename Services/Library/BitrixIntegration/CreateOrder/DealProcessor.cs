@@ -382,7 +382,7 @@ namespace BitrixIntegration {
         {
 	        Nomenclature nomenclature = GetNomenclatureForOurProduct(uow, product);
 	        if(nomenclature == null) {
-		        throw new InvalidOperationException($"Не найдена номенклатура для добавления нашего товара из битрикса. Id номенклатуры в битриксе {product.ErpNomenclatureId}");
+		        throw new InvalidOperationException($"Не найдена номенклатура для добавления нашего товара из битрикса. Id номенклатуры в битриксе {product.NomenclatureInfo?.NomenclatureId}");
 	        }
 	        decimal discount = Math.Abs(nomenclature.GetPrice(1) - dealProductItem.Price);
 	        order.AddNomenclature(nomenclature, dealProductItem.Count, discount, true);
@@ -390,17 +390,17 @@ namespace BitrixIntegration {
         
         private Nomenclature GetNomenclatureForOurProduct(IUnitOfWork uow, Product product)
         {
-	        if(product.ErpNomenclatureId == 0) {
+	        if(product.NomenclatureInfo == null) {
 		        throw new InvalidOperationException($"Попытка загрузить номенклатуру для не соответствующего продукта " +
-		                                            $"(Для продукта {product.Id} ({product.Name}) не заполнено поле {nameof(product.ErpNomenclatureId)})");
+		                                            $"(Для продукта {product.Id} ({product.Name}) не заполнено поле {nameof(product.NomenclatureInfo)})");
 	        }
 	        
-	        Nomenclature nomenclature = uow.GetById<Nomenclature>(product.ErpNomenclatureId);
+	        Nomenclature nomenclature = uow.GetById<Nomenclature>(product.NomenclatureInfo.NomenclatureId);
 	        if(nomenclature == null) {
-		        logger.Info($"Для нашего продукта {product.Id} ({product.Name}) не удалось найти номенклатуру по {nameof(product.ErpNomenclatureId)}");
+		        logger.Info($"Для нашего продукта {product.Id} ({product.Name}) не удалось найти номенклатуру по {nameof(product.NomenclatureInfo.NomenclatureId)}");
 	        }
 	        else {
-		        logger.Info($"Для нашего продукта {product.Id} ({product.Name}) найдена номенклатура по {nameof(product.ErpNomenclatureId)} {nomenclature.Id} ({nomenclature.Name})");
+		        logger.Info($"Для нашего продукта {product.Id} ({product.Name}) найдена номенклатура по {nameof(product.NomenclatureInfo.NomenclatureId)} {nomenclature.Id} ({nomenclature.Name})");
 	        }
 	        return nomenclature;
         }
@@ -527,7 +527,7 @@ namespace BitrixIntegration {
 
         private bool IsOurProduct(Product product)
         {
-	        return product?.ErpNomenclatureId > 0;
+	        return product?.NomenclatureInfo?.NomenclatureId > 0;
         }
     }
 }
