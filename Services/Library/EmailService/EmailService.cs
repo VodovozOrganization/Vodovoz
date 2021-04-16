@@ -24,9 +24,14 @@ namespace EmailService
 			WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.OK;
 		}
 
-		public Tuple<bool, string> SendEmail(Email mail)
+        public Tuple<bool, string> SendOrderEmail(OrderEmail mail)
 		{
 			return EmailManager.AddEmail(mail);
+		}
+		
+		public bool SendEmail(Email mail)
+		{
+			return EmailManager.SendEmail(mail).Result;
 		}
 
 		public bool ServiceStatus()

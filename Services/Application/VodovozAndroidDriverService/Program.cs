@@ -7,7 +7,6 @@ using Nini.Config;
 using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
-using QSSupportLib;
 using Vodovoz.Core.DataService;
 
 namespace VodovozAndroidDriverService
@@ -71,7 +70,6 @@ namespace VodovozAndroidDriverService
 						System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
 				});
 
-				MainSupport.LoadBaseParameters();
 				QS.HistoryLog.HistoryMain.Enable();
 			}
 			catch(Exception ex) {

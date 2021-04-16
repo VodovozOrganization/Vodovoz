@@ -72,10 +72,6 @@
         <Project>{a6c1914f-7732-49f5-baba-8bbba521faab}</Project>
         <Name>QSProjectsLib</Name>
       </ProjectReference>
-      <ProjectReference Include="..\..\..\..\QSProjects\QSSupportLib\QSSupportLib.csproj">
-        <Project>{9df71899-3ce4-48f4-b3c3-0b21b15037b1}</Project>
-        <Name>QSSupportLib</Name>
-      </ProjectReference>
       <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj">
         <Project>{022dd59d-0eee-420f-9750-eb275772f56a}</Project>
         <Name>VodovozBusiness</Name>

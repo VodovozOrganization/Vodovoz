@@ -35,18 +35,21 @@
         <Height>23.21pt</Height>
         <Width>801.63pt</Width>
         <Value>В отчет попадают заказы в статусе "Ожидание оплаты" и со статусом оплаты "Оплачен", "Частично оплачен"
-Сортировка: по автору, затем по дате оплаты, потом по дате счета и наконец по номеру заказа</Value>
+Сортировка: по дате оплаты, затем по дате счета и наконец по номеру заказа</Value>
         <ZIndex>1</ZIndex>
         <Left>2.40pt</Left>
         <Top>33.34pt</Top>
         <Style>
           <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>69.5pt</Height>
+    <Height>103.5pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>payments</DataSetName>
@@ -63,34 +66,37 @@
             <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.8pt</Width>
+            <Width>43.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.8pt</Width>
+            <Width>41.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>41.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>143.9pt</Width>
+            <Width>74.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.4pt</Width>
+            <Width>50.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.3pt</Width>
+            <Width>47.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>88.8pt</Width>
+            <Width>66.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>161.8pt</Width>
+            <Width>125.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.2pt</Width>
+            <Width>46.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.2pt</Width>
+            <Width>70.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>174.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -221,7 +227,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>Распределенная сумма на заказ</Value>
+                      <Value>Распред. сумма на заказ</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -288,6 +294,23 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Комментарий</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -296,7 +319,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>13.6pt</Height>
+              <Height>27.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -499,6 +522,23 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>={comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -529,11 +569,12 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="payments">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	MAX(date(payments.payment_date)) as payment_date,
     date(orders.create_date) as orderdate,
+   orders.comment as comment,
     orders.id AS order_id,
 	counterparty.full_name AS client,
 	CASE
@@ -542,7 +583,7 @@
 	ELSE ''
 	END AS order_payment_status,
     IFNULL(deposit.dep, 0) as deposit,
-    IFNULL(SUM(o_items.price * IFNULL(o_items.actual_count, o_items.count) - o_items.discount_money), 0) AS ordersum,
+    IFNULL(SUM(ROUND(o_items.price * IFNULL(o_items.actual_count, o_items.count) - o_items.discount_money, 2)), 0) AS ordersum,
 	CONCAT(employees.last_name, ' ', LEFT(employees.name, 1), '.', LEFT(employees.patronymic, 1), '.') AS author,
     IFNULL(p_items.total, 0) as allocatedsum,
     CONCAT_WS('\n', payments.payment_purpose) as payment_purpose
@@ -564,15 +605,22 @@ LEFT JOIN payments_from_bank_client payments ON payments.id = p_items.payment_id
 WHERE
 	orders.order_status = 'WaitForPayment'
 	AND order_payment_status IN ('Paid', 'PartiallyPaid')
+	AND (orders.client_id = @counterparty_id OR @counterparty_id = 0)
 GROUP BY orders.id
-ORDER BY author, payment_date DESC, orderdate DESC, orders.id DESC;</CommandText>
+ORDER BY IF (@sort_date, orderdate, 0) desc, IF(@sort_date, 0, payment_date) desc, IF(@sort_date, 0, orderdate) desc, IF(@sort_date, 0, orders.id) desc;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
           </QueryParameter>
+          <QueryParameter Name="sort_date">
+            <Value>=Parameters!sort_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_id">
+            <Value>=Parameters!counterparty_id</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -613,6 +661,10 @@ ORDER BY author, payment_date DESC, orderdate DESC, orders.id DESC;</CommandText
           <DataField>payment_purpose</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -636,6 +688,20 @@ ORDER BY author, payment_date DESC, orderdate DESC, orders.id DESC;</CommandText
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="sort_date">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="counterparty_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

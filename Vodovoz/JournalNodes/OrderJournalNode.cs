@@ -4,7 +4,6 @@ using QS.Project.Journal;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.JournalNodes
 {
@@ -81,11 +80,13 @@ namespace Vodovoz.JournalNodes
 		public string OnLineNumber => OnlineOrder?.ToString() ?? string.Empty;
 
 		public int? EShopOrder { get; set; }
-		public string EShopNumber=> EShopOrder?.ToString() ?? string.Empty;
+		public string EShopNumber => EShopOrder?.ToString() ?? string.Empty;
+
+		public bool Sensitive { get; set; }
 
 		public string RowColor {
 			get {
-				if(StatusEnum == OrderStatus.Canceled || StatusEnum == OrderStatus.DeliveryCanceled)
+				if(StatusEnum == OrderStatus.Canceled || StatusEnum == OrderStatus.DeliveryCanceled || !Sensitive)
 					return "grey";
 				if(StatusEnum == OrderStatus.Closed)
 					return "green";

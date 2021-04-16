@@ -38,7 +38,37 @@ namespace Vodovoz.Views.Users
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonChainStore;
 
-		private global::Gtk.Label GtkLabel2;
+		private global::Gtk.Label GtkLabel5;
+
+		private global::Gtk.Frame complaintsFrame;
+
+		private global::Gtk.Alignment GtkAlignment3;
+
+		private global::Gtk.VBox vbox9;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonUse;
+
+		private global::Gtk.Label label5;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry yentrySubdivision;
+
+		private global::Gamma.GtkWidgets.yLabel labelStatus;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboStatus;
+
+		private global::Gtk.Label GtkLabel10;
+
+		private global::Gtk.Frame frame2;
+
+		private global::Gtk.Alignment GtkAlignment7;
+
+		private global::Gtk.VBox vbox2;
+
+		private global::Gtk.Label label2;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryCounterparty;
+
+		private global::Gtk.Label GtkLabel14;
 
 		protected virtual void Build()
 		{
@@ -200,24 +230,148 @@ namespace Vodovoz.Views.Users
 			w13.Fill = false;
 			this.GtkAlignment2.Add(this.vbox8);
 			this.frame1.Add(this.GtkAlignment2);
-			this.GtkLabel2 = new global::Gtk.Label();
-			this.GtkLabel2.Name = "GtkLabel2";
-			this.GtkLabel2.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Фильтр в журнале МЛ</b>");
-			this.GtkLabel2.UseMarkup = true;
-			this.frame1.LabelWidget = this.GtkLabel2;
+			this.GtkLabel5 = new global::Gtk.Label();
+			this.GtkLabel5.Name = "GtkLabel5";
+			this.GtkLabel5.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Фильтр в журнале МЛ</b>");
+			this.GtkLabel5.UseMarkup = true;
+			this.frame1.LabelWidget = this.GtkLabel5;
 			this.vbox7.Add(this.frame1);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.frame1]));
 			w16.Position = 0;
 			w16.Expand = false;
 			w16.Fill = false;
-			this.hbox6.Add(this.vbox7);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.vbox7]));
-			w17.Position = 1;
+			// Container child vbox7.Gtk.Box+BoxChild
+			this.complaintsFrame = new global::Gtk.Frame();
+			this.complaintsFrame.Name = "complaintsFrame";
+			this.complaintsFrame.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child complaintsFrame.Gtk.Container+ContainerChild
+			this.GtkAlignment3 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment3.Name = "GtkAlignment3";
+			this.GtkAlignment3.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment3.Gtk.Container+ContainerChild
+			this.vbox9 = new global::Gtk.VBox();
+			this.vbox9.Name = "vbox9";
+			this.vbox9.Spacing = 6;
+			// Container child vbox9.Gtk.Box+BoxChild
+			this.ycheckbuttonUse = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonUse.CanFocus = true;
+			this.ycheckbuttonUse.Name = "ycheckbuttonUse";
+			this.ycheckbuttonUse.Label = global::Mono.Unix.Catalog.GetString("Подразделение сотрудника по умолчанию");
+			this.ycheckbuttonUse.DrawIndicator = true;
+			this.ycheckbuttonUse.UseUnderline = true;
+			this.vbox9.Add(this.ycheckbuttonUse);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.ycheckbuttonUse]));
+			w17.Position = 0;
 			w17.Expand = false;
 			w17.Fill = false;
-			this.vbox4.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox6]));
+			// Container child vbox9.Gtk.Box+BoxChild
+			this.label5 = new global::Gtk.Label();
+			this.label5.Name = "label5";
+			this.label5.Xalign = 1F;
+			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение:");
+			this.vbox9.Add(this.label5);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.label5]));
 			w18.Position = 1;
+			w18.Expand = false;
+			w18.Fill = false;
+			// Container child vbox9.Gtk.Box+BoxChild
+			this.yentrySubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.yentrySubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.yentrySubdivision.Name = "yentrySubdivision";
+			this.yentrySubdivision.CanEditReference = false;
+			this.vbox9.Add(this.yentrySubdivision);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.yentrySubdivision]));
+			w19.Position = 2;
+			w19.Expand = false;
+			w19.Fill = false;
+			// Container child vbox9.Gtk.Box+BoxChild
+			this.labelStatus = new global::Gamma.GtkWidgets.yLabel();
+			this.labelStatus.Name = "labelStatus";
+			this.labelStatus.Xalign = 1F;
+			this.labelStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статуc по умолчанию:");
+			this.vbox9.Add(this.labelStatus);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.labelStatus]));
+			w20.Position = 3;
+			w20.Expand = false;
+			w20.Fill = false;
+			// Container child vbox9.Gtk.Box+BoxChild
+			this.yenumcomboStatus = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboStatus.Name = "yenumcomboStatus";
+			this.yenumcomboStatus.ShowSpecialStateAll = false;
+			this.yenumcomboStatus.ShowSpecialStateNot = false;
+			this.yenumcomboStatus.UseShortTitle = false;
+			this.yenumcomboStatus.DefaultFirst = false;
+			this.vbox9.Add(this.yenumcomboStatus);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.yenumcomboStatus]));
+			w21.Position = 4;
+			w21.Expand = false;
+			w21.Fill = false;
+			this.GtkAlignment3.Add(this.vbox9);
+			this.complaintsFrame.Add(this.GtkAlignment3);
+			this.GtkLabel10 = new global::Gtk.Label();
+			this.GtkLabel10.Name = "GtkLabel10";
+			this.GtkLabel10.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Рекламации</b>");
+			this.GtkLabel10.UseMarkup = true;
+			this.complaintsFrame.LabelWidget = this.GtkLabel10;
+			this.vbox7.Add(this.complaintsFrame);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.complaintsFrame]));
+			w24.Position = 1;
+			w24.Expand = false;
+			w24.Fill = false;
+			// Container child vbox7.Gtk.Box+BoxChild
+			this.frame2 = new global::Gtk.Frame();
+			this.frame2.Name = "frame2";
+			this.frame2.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child frame2.Gtk.Container+ContainerChild
+			this.GtkAlignment7 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment7.Name = "GtkAlignment7";
+			this.GtkAlignment7.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment7.Gtk.Container+ContainerChild
+			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.label2 = new global::Gtk.Label();
+			this.label2.Name = "label2";
+			this.label2.Xalign = 1F;
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Фильтр по контрагентам в отчете по оплатам");
+			this.vbox2.Add(this.label2);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.label2]));
+			w25.Position = 0;
+			w25.Expand = false;
+			w25.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.entryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryCounterparty.Events = ((global::Gdk.EventMask)(256));
+			this.entryCounterparty.Name = "entryCounterparty";
+			this.entryCounterparty.CanEditReference = true;
+			this.vbox2.Add(this.entryCounterparty);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.entryCounterparty]));
+			w26.Position = 1;
+			w26.Expand = false;
+			w26.Fill = false;
+			this.GtkAlignment7.Add(this.vbox2);
+			this.frame2.Add(this.GtkAlignment7);
+			this.GtkLabel14 = new global::Gtk.Label();
+			this.GtkLabel14.Name = "GtkLabel14";
+			this.GtkLabel14.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройка для розницы</b>");
+			this.GtkLabel14.UseMarkup = true;
+			this.frame2.LabelWidget = this.GtkLabel14;
+			this.vbox7.Add(this.frame2);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.frame2]));
+			w29.Position = 2;
+			w29.Expand = false;
+			w29.Fill = false;
+			this.hbox6.Add(this.vbox7);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.vbox7]));
+			w30.Position = 1;
+			w30.Expand = false;
+			w30.Fill = false;
+			this.vbox4.Add(this.hbox6);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox6]));
+			w31.Position = 1;
+			w31.Expand = false;
+			w31.Fill = false;
 			this.Add(this.vbox4);
 			if ((this.Child != null))
 			{

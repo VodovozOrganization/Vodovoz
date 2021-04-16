@@ -45,11 +45,6 @@ namespace OnlineStoreImportService
                 .Where(x => x.OnlineStore.Id == onlineStoreId)
                 .Where(Restrictions.IsNotNull(Projections.Property<ProductGroup>(x => x.OnlineStoreExternalId)))
                 .List();
-             foreach (var productGroup in tempProductGroups)
-             {
-                 if (!productGroup.IsOnlineStore)
-                     productGroup.IsOnlineStore = true;
-             }
             
              productGroups = tempProductGroups.ToDictionary(x => x.OnlineStoreExternalId);;
         }
@@ -99,8 +94,6 @@ namespace OnlineStoreImportService
         {
             productGroup.Name = name;
             productGroup.Parent = parent;
-            if (!productGroup.IsOnlineStore)
-                productGroup.IsOnlineStore = true;
 
             uow.Save(productGroup);
         }
@@ -112,7 +105,6 @@ namespace OnlineStoreImportService
             newProductGroup.OnlineStore = onlineStore;
             newProductGroup.OnlineStoreExternalId = id;
             newProductGroup.Parent = parent;
-            newProductGroup.IsOnlineStore = true;
             productGroups.Add(id, newProductGroup);
             
             uow.Save(newProductGroup);

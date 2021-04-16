@@ -32,7 +32,7 @@ namespace Vodovoz.FilterViewModels
 				x => x.Subdivision,
 				x => x.FilterDateType,
 				x => x.ComplaintKind,
-				x => x.ComplaintCurrentUserSubdivisionStatus
+				x => x.ComplaintDiscussionStatus
 			);
 		}
 
@@ -47,10 +47,9 @@ namespace Vodovoz.FilterViewModels
 				new ComplaintGuiltyItem(),
 				commonServices,
 				subdivisionRepository,
-				employeeSelectorFactory
-			) {
-				UoW = UoW
-			};
+				employeeSelectorFactory,
+				UoW
+			);
 
 			GuiltyItemVM.Entity.OnGuiltyTypeChange = () => {
 				if (GuiltyItemVM.Entity.GuiltyType != ComplaintGuiltyTypes.Employee)
@@ -69,7 +68,7 @@ namespace Vodovoz.FilterViewModels
 				x => x.Subdivision,
 				x => x.FilterDateType,
 				x => x.ComplaintKind,
-				x => x.ComplaintCurrentUserSubdivisionStatus
+				x => x.ComplaintDiscussionStatus
 			);
 		}
 
@@ -103,14 +102,18 @@ namespace Vodovoz.FilterViewModels
 			set => SetField(ref complaintStatus, value);
 		}
 
-		private ComplaintStatuses? complaintCurrentUserSubdivisionStatus;
-		public virtual ComplaintStatuses? ComplaintCurrentUserSubdivisionStatus
+		private ComplaintStatuses? complaintDiscussionStatus;
+		public virtual ComplaintStatuses? ComplaintDiscussionStatus
 		{
-			get => complaintCurrentUserSubdivisionStatus;
-			set => SetField(ref complaintCurrentUserSubdivisionStatus, value);
+			get => complaintDiscussionStatus;
+			set => SetField(ref complaintDiscussionStatus, value);
 		}
 
-		public Subdivision CurrentUserSubdivision => EmployeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
+		private Subdivision currentUserSubdivision;
+		public virtual Subdivision CurrentUserSubdivision {
+			get => currentUserSubdivision;
+			set => SetField(ref currentUserSubdivision, value);
+		}
 
 		private Employee employee;
 		public virtual Employee Employee {
@@ -124,8 +127,6 @@ namespace Vodovoz.FilterViewModels
 			set {
 				if(value?.Id == SubdivisionService?.GetOkkId())
 					ComplaintStatus = ComplaintStatuses.Checking;
-				else if(value?.Id != null)
-					ComplaintStatus = ComplaintStatuses.InProcess;
 
 				SetField(ref subdivision, value);
 			}

@@ -2,6 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
@@ -114,11 +116,64 @@ namespace Vodovoz.Domain.Employees
 		}
 
 
+        /// <summary>
+        /// Использовать отдел сотрудника
+        /// </summary>
+
+        private bool useEmployeeSubdivision;
+        [Display(Name = "Использовать отдел сотрудника")]
+        public virtual bool UseEmployeeSubdivision
+        {
+            get => useEmployeeSubdivision;
+            set => SetField(ref useEmployeeSubdivision, value, () => UseEmployeeSubdivision);
+        }
 
 
-		#endregion
+        /// <summary>
+        /// Для установки фильтра подразделений
+        /// </summary>
+        private Subdivision defaultSubdivision;
 
-		public UserSettings ()
+        [Display(Name = "Подразделение")]
+        public virtual Subdivision DefaultSubdivision
+        {
+            get { return defaultSubdivision; }
+            set
+            {
+                SetField(ref defaultSubdivision, value, () => DefaultSubdivision);
+            }
+        }
+
+        /// <summary>
+        /// Для установки дефолтного контрагента в отчете по оплатам
+        /// </summary>
+        private Counterparty defaultCounterparty;
+        [Display(Name = "Контрагент")]
+        public virtual Counterparty DefaultCounterparty
+        {
+            get => defaultCounterparty;
+            set => SetField(ref defaultCounterparty, value);
+        }
+
+        /// <summary>
+        /// Статус рекламации
+        /// </summary>
+        private ComplaintStatuses? defaultComplaintStatus;
+
+        [Display(Name = "Статус рекламации")]
+        public virtual ComplaintStatuses? DefaultComplaintStatus
+        {
+            get { return defaultComplaintStatus; }
+            set
+            {
+                SetField(ref defaultComplaintStatus, value, () => DefaultComplaintStatus);
+            }
+        }
+
+
+        #endregion
+
+        public UserSettings ()
 		{
 		}
 

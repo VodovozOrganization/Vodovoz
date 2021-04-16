@@ -36,7 +36,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yEntry dataentryModel;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry dataentryreferenceDriver;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDriver;
 
 		private global::Gamma.GtkWidgets.yEntry dataentryRegNumber;
 
@@ -324,7 +324,7 @@ namespace Vodovoz
 			this.comboDriverCarKind.AddIfNotExist = false;
 			this.comboDriverCarKind.DefaultFirst = false;
 			this.comboDriverCarKind.ShowSpecialStateAll = false;
-			this.comboDriverCarKind.ShowSpecialStateNot = false;
+			this.comboDriverCarKind.ShowSpecialStateNot = true;
 			this.tableCarData.Add(this.comboDriverCarKind);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.comboDriverCarKind]));
 			w12.TopAttach = ((uint)(5));
@@ -374,11 +374,12 @@ namespace Vodovoz
 			w15.RightAttach = ((uint)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
-			this.dataentryreferenceDriver = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.dataentryreferenceDriver.Events = ((global::Gdk.EventMask)(256));
-			this.dataentryreferenceDriver.Name = "dataentryreferenceDriver";
-			this.tableCarData.Add(this.dataentryreferenceDriver);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.dataentryreferenceDriver]));
+			this.entryDriver = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryDriver.Events = ((global::Gdk.EventMask)(256));
+			this.entryDriver.Name = "entryDriver";
+			this.entryDriver.CanEditReference = true;
+			this.tableCarData.Add(this.entryDriver);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.entryDriver]));
 			w16.TopAttach = ((uint)(5));
 			w16.BottomAttach = ((uint)(6));
 			w16.LeftAttach = ((uint)(1));
@@ -1201,7 +1202,6 @@ namespace Vodovoz
 			this.radiobuttonMain.Toggled += new global::System.EventHandler(this.OnRadiobuttonMainToggled);
 			this.radioBtnGeographicGroups.Toggled += new global::System.EventHandler(this.OnRadioBtnGeographicGroupsToggled);
 			this.radiobuttonFiles.Toggled += new global::System.EventHandler(this.OnRadiobuttonFilesToggled);
-			this.dataentryreferenceDriver.Changed += new global::System.EventHandler(this.OnDataentryreferenceDriverChanged);
 			this.comboTypeOfUse.ChangedByUser += new global::System.EventHandler(this.OnComboTypeOfUseChangedByUser);
 			this.btnAddGeographicGroup.Clicked += new global::System.EventHandler(this.OnBtnAddGeographicGroupClicked);
 			this.btnRemoveGeographicGroup.Clicked += new global::System.EventHandler(this.OnBtnRemoveGeographicGroupClicked);

@@ -197,15 +197,20 @@ namespace Vodovoz.Domain.Documents
             {
                 var tempTemplate = Repository.Client.DocTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.WayBill, Organization);
 
-                var newTemplate = new DocTemplate() // Клонирование шаблона, необходимо, если будете печатать несколько одинаковых ODT
+                DocTemplate newTemplate = null;
+
+                if (tempTemplate != null)
                 {
-                    Id = tempTemplate.Id,
-                    Name = tempTemplate.Name,
-                    Organization = tempTemplate.Organization,
-                    ContractType = tempTemplate.ContractType,
-                    TempalteFile = tempTemplate.TempalteFile,
-                    TemplateType = tempTemplate.TemplateType
-                };
+                    newTemplate = new DocTemplate() // Клонирование шаблона, необходимо, если будете печатать несколько одинаковых ODT
+                    {
+                        Id = tempTemplate.Id,
+                        Name = tempTemplate.Name,
+                        Organization = tempTemplate.Organization,
+                        ContractType = tempTemplate.ContractType,
+                        TempalteFile = tempTemplate.TempalteFile,
+                        TemplateType = tempTemplate.TemplateType
+                    };
+                }
                 
                 DocumentTemplate = newTemplate;
             }

@@ -190,6 +190,7 @@ namespace Vodovoz
 					return;
 				}
 				entryBuilding.Street = new OsmStreet(-1, entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
+				entryBuilding.House = string.Empty;
 			};
 
 			entryBuilding.FocusOutEvent += EntryBuilding_FocusOutEvent;
@@ -244,22 +245,31 @@ namespace Vodovoz
 			Entity.PropertyChanged += Entity_PropertyChanged;
 			UpdateAddressOnMap();
 
-			ySpinLimitMin.ValueAsInt = int.MinValue;
-			ySpinLimitMax.ValueAsInt = int.MaxValue;
+			if (Entity.Counterparty.IsForRetail)
+			{
+				ySpinLimitMin.ValueAsInt = int.MinValue;
+				ySpinLimitMax.ValueAsInt = int.MaxValue;
 
-			var userCanEditOrdersLimits = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_edit_orders_limits");
+				var userCanEditOrdersLimits = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_edit_orders_limits");
 
-			ySpinLimitMin.Sensitive = userCanEditOrdersLimits;
-			ySpinLimitMax.Sensitive = userCanEditOrdersLimits;
+				ySpinLimitMin.Sensitive = userCanEditOrdersLimits;
+				ySpinLimitMax.Sensitive = userCanEditOrdersLimits;
 
-			ySpinLimitMin.Binding.AddBinding(Entity, e => e.MinimalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
-			ySpinLimitMax.Binding.AddBinding(Entity, e => e.MaximalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
+				ySpinLimitMin.Binding.AddBinding(Entity, e => e.MinimalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
+				ySpinLimitMax.Binding.AddBinding(Entity, e => e.MaximalOrderSumLimit, w => w.ValueAsInt).InitializeFromSource();
 
-			deliverypointresponsiblepersonsview1.UoW = UoW;
-			if (Entity.ResponsiblePersons == null)
-				Entity.ResponsiblePersons = new List<DeliveryPointResponsiblePerson>();
-            deliverypointresponsiblepersonsview1.DeliveryPoint = Entity;
-            deliverypointresponsiblepersonsview1.ResponsiblePersons = Entity.ResponsiblePersons;
+				deliverypointresponsiblepersonsview1.UoW = UoW;
+				if (Entity.ResponsiblePersons == null)
+					Entity.ResponsiblePersons = new List<DeliveryPointResponsiblePerson>();
+				deliverypointresponsiblepersonsview1.DeliveryPoint = Entity;
+				deliverypointresponsiblepersonsview1.ResponsiblePersons = Entity.ResponsiblePersons;
+			} else
+            {
+				label5.Visible = false; // Порог
+				hbox14.Visible = false;
+				deliverypointresponsiblepersonsview1.Visible = false;
+				label17.Visible = false; // Ответственные лица
+            }
 		}
 
 		void MapWidget_MotionNotifyEvent(object o, Gtk.MotionNotifyEventArgs args)
@@ -358,19 +368,15 @@ namespace Vodovoz
 
 				entryBuilding.GetCoordinates(out decimal? longitude, out decimal? latitude);
 
-				if(longitude == null || latitude == null)
-					return;
 				if(!addressChanged)
 					return;
 
 				cityBeforeChange = entryCity.City;
 				streetBeforeChange = entryStreet.Street;
 				buildingBeforeChange = entryBuilding.House;
-
-				if(!Entity.ManualCoordinates || (Entity.ManualCoordinates && MessageDialogHelper.RunQuestionDialog("Координаты были установлены вручную, заменить их на коордитаты адреса?"))) {
-					WriteCoordinates(latitude, longitude);
-					Entity.ManualCoordinates = false;
-				}
+				
+				WriteCoordinates(latitude, longitude);
+				Entity.ManualCoordinates = false;
 
 				if(entryBuilding.OsmHouse != null && !String.IsNullOrWhiteSpace(entryBuilding.OsmHouse.Name)) {
 					labelHouseName.Visible = true;
@@ -478,7 +484,7 @@ namespace Vodovoz
 		
 		public void OpenFixedPrices()
 		{
-			notebook1.CurrentPage = 3;
+			notebook1.CurrentPage = 2;
 		}
 
 		protected void OnButtonInsertFromBufferClicked(object sender, EventArgs e)

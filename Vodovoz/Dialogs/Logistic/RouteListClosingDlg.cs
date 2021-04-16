@@ -306,8 +306,8 @@ namespace Vodovoz
 				referenceForwarder.Sensitive = false;
 				entityviewmodelentryCar.Sensitive = false;
 				datePickerDate.Sensitive = false;
-
-				vboxHidenPanel.Sensitive = false;
+				hbox11.Sensitive = false;
+				routelistdiscrepancyview.Sensitive = false;
 				hbxStatistics1.Sensitive = false;
 				hbxStatistics2.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
@@ -759,6 +759,7 @@ namespace Vodovoz
 
 			var validationContext = new Dictionary<object, object> {
 				{ "NewStatus", RouteListStatus.MileageCheck},
+                { "cash_order_close", true},
 				{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
 			};
 			var valid = new QSValidator<RouteList>(UoWGeneric.Root, validationContext);

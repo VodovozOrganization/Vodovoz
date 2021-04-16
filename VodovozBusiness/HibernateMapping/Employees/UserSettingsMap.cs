@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 
@@ -19,8 +20,12 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.LogisticDeliveryOrders).Column("logistic_delivery_orders");
 			Map(x => x.LogisticServiceOrders).Column("logistic_service_orders");
 			Map(x => x.LogisticChainStoreOrders).Column("logistic_chainstore_orders");
-			References(x => x.User).Column("user_id");
+            Map(x => x.UseEmployeeSubdivision).Column("use_employee_subdivision");
+            Map(x => x.DefaultComplaintStatus).Column("default_complaint_status").CustomType<ComplaintStatusesStringType>();
+            References(x => x.User).Column("user_id");
 			References(x => x.DefaultWarehouse).Column("default_warehouse_id");
-		}
+            References(x => x.DefaultSubdivision).Column("default_subdivision_id");
+            References(x => x.DefaultCounterparty).Column("default_counterparty_id");
+        }
 	}
 }

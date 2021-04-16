@@ -4,6 +4,7 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
@@ -21,14 +22,14 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual CarLoadDocument Document {
 			get { return document; }
-			set { SetField (ref document, value, () => Document); }
+			set { SetField (ref document, value); }
 		}
 
 		WarehouseMovementOperation warehouseMovementOperation;
 
 		public virtual WarehouseMovementOperation WarehouseMovementOperation { 
 			get { return warehouseMovementOperation; }
-			set { SetField (ref warehouseMovementOperation, value, () => WarehouseMovementOperation); }
+			set { SetField (ref warehouseMovementOperation, value); }
 		}
 
 		EmployeeNomenclatureMovementOperation employeeNomenclatureMovementOperation;
@@ -43,7 +44,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
 			set {
-				SetField (ref nomenclature, value, () => Nomenclature);
+				SetField (ref nomenclature, value);
 
 				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Nomenclature != nomenclature)
 					WarehouseMovementOperation.Nomenclature = nomenclature;
@@ -56,10 +57,19 @@ namespace Vodovoz.Domain.Documents
 		public virtual Equipment Equipment {
 			get { return equipment; }
 			set {
-				SetField (ref equipment, value, () => Equipment);
+				SetField (ref equipment, value);
 				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Equipment != equipment)
 					WarehouseMovementOperation.Equipment = equipment;
 			}
+		}
+
+		OwnTypes ownType;
+
+		[Display(Name = "Принадлежность")]
+		public virtual OwnTypes OwnType
+		{
+			get => ownType;
+			set => SetField(ref ownType, value);
 		}
 
 		decimal amount;
@@ -67,7 +77,7 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Количество")]
 		public virtual decimal Amount {
 			get => amount;
-			set => SetField (ref amount, value, () => Amount);
+			set => SetField (ref amount, value);
 		}
 
 		decimal? expireDatePercent;
@@ -75,7 +85,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual decimal? ExpireDatePercent {
 			get => expireDatePercent; 
 			set {
-				SetField(ref expireDatePercent, value, () => ExpireDatePercent);
+				SetField(ref expireDatePercent, value);
 			} 
 		}
 
@@ -89,7 +99,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual decimal AmountInStock {
 			get { return amountInStock; }
 			set {
-				SetField (ref amountInStock, value, () => AmountInStock);
+				SetField (ref amountInStock, value);
 			}
 		}
 
@@ -99,7 +109,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual decimal AmountInRouteList {
 			get { return amountInRouteList; }
 			set {
-				SetField (ref amountInRouteList, value, () => AmountInRouteList);
+				SetField (ref amountInRouteList, value);
 			}
 		}
 
@@ -109,7 +119,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual decimal AmountLoaded {
 			get { return amountLoaded; }
 			set {
-				SetField (ref amountLoaded, value, () => AmountLoaded);
+				SetField (ref amountLoaded, value);
 			}
 		}
 			

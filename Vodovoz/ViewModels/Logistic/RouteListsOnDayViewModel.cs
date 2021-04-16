@@ -31,7 +31,6 @@ using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Core.DataService;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.JournalViewModels;
@@ -49,11 +48,13 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IUserRepository userRepository;
 		private readonly ICommonServices commonServices;
 		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
-		
+		private readonly int closingDocumentDeliveryScheduleId;
+
 		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
 			ICommonServices commonServices,
+			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener,
 			IRouteListRepository routeListRepository,
 			ISubdivisionRepository subdivisionRepository,
@@ -62,10 +63,10 @@ namespace Vodovoz.ViewModels.Logistic
 			ICarRepository carRepository,
 			INavigationManager navigationManager,
 			IUserRepository userRepository,
-			IDefaultDeliveryDaySchedule defaultDeliveryDaySchedule
+			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings
 		) : base(commonServices.InteractiveService, navigationManager)
 		{
-			if(defaultDeliveryDaySchedule == null) throw new ArgumentNullException(nameof(defaultDeliveryDaySchedule));
+			if(defaultDeliveryDayScheduleSettings == null) throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -74,7 +75,10 @@ namespace Vodovoz.ViewModels.Logistic
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-
+			
+			closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
+				throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
+			
 			CreateUoW();
 
 			Employee currentEmployee = VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
@@ -105,8 +109,12 @@ namespace Vodovoz.ViewModels.Logistic
 					foundGeoGroup.Selected = true;
 			}
 			Optimizer = new RouteOptimizer(commonServices.InteractiveService);
-			this.defaultDeliveryDaySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDaySchedule.GetDefaultDeliveryDayScheduleId());
 
+			defaultDeliveryDaySchedule =
+				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
+			//Необходимо сразу проинициализировать, т.к вызывается Session.Clear() в методе InitializeData()
+			NHibernateUtil.Initialize(defaultDeliveryDaySchedule.Shifts);
+			
 			CreateCommands();
 			LoadAddressesTypesDefaults();
 		}
@@ -1079,6 +1087,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public void InitializeData()
 		{
+			//Эта штука выключает LazyLoading у всех сущностей в сессии. Наверное с этим надо что-то делать
 			UoW.Session.Clear();
 			if(OrdersOnDay == null) {
 				OrdersOnDay = new List<Order>();
@@ -1094,10 +1103,12 @@ namespace Vodovoz.ViewModels.Logistic
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 
 			if(AddressTypes.Any(x => x.Selected)) {
-				var query = QueryOver.Of<Order>().Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
-													.Where(o => o.DeliverySchedule != null)
-													.Where(x => x.DeliveryPoint != null)
-													;
+				var query = QueryOver.Of<Order>()
+					.Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
+					.Where(o => o.DeliverySchedule != null)
+					.Where(x => x.DeliveryPoint != null)
+					.And(x => x.DeliverySchedule.Id != closingDocumentDeliveryScheduleId);
+				
 				if(!ShowCompleted)
 					query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
 				else

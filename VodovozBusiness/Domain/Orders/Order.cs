@@ -35,7 +35,6 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Client;
-using Vodovoz.Repository.Client;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
@@ -125,7 +124,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref acceptedOrderEmployee, value);
 		}
 
-
 		Counterparty client;
 		[Display(Name = "Клиент")]
 		public virtual Counterparty Client {
@@ -133,7 +131,7 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == client)
 					return;
-				if(orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
+				if (orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
 					OnPropertyChanged(nameof(Client));
@@ -142,6 +140,9 @@ namespace Vodovoz.Domain.Orders
 
 					InteractiveService.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
 					return;
+				}
+				if (value != null && (client != null || Id == 0)) {
+					IsForRetail = value.IsForRetail;
 				}
 				var oldClient = client;
 				if(SetField(ref client, value, () => Client)) {
@@ -560,6 +561,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isBottleStock, value, () => IsBottleStock);
 		}
 
+		private bool isForRetail;
+		[Display(Name = "Для розницы")]
+		public virtual bool IsForRetail
+		{
+			get => isForRetail;
+			set => SetField(ref isForRetail, value, () => IsForRetail);
+		}
+
 		private int bottlesByStockCount;
 		[Display(Name = "Количество бутылей по акции")]
 		public virtual int BottlesByStockCount {
@@ -851,6 +860,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			var order = new Order {
 				client = service.Counterparty,
+				IsForRetail = service.Counterparty.IsForRetail,
 				DeliveryPoint = service.DeliveryPoint,
 				DeliveryDate = service.ServiceStartDate,
 				PaymentType = service.Payment,
@@ -1007,9 +1017,14 @@ namespace Vodovoz.Domain.Orders
 						new[] { this.GetPropertyName(o => o.IsContractCloser) }
 					);
 				}
-			}
+			}           
 
-			if(ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
+            if (validationContext.Items.ContainsKey("cash_order_close"))
+                if ((bool)validationContext.Items["cash_order_close"])
+                    if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus))
+                        yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
+
+            if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
@@ -1022,7 +1037,13 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В точке доставки необходимо указать координаты.",
 				new[] { this.GetPropertyName(o => o.DeliveryPoint) });
 			}
-			if(Client == null)
+
+            if(DriverCallId != null && string.IsNullOrWhiteSpace(CommentManager)){
+                yield return new ValidationResult("Необходимо заполнить комментарий водителя.",
+                    new[] { this.GetPropertyName(o => o.CommentManager) });
+            }
+
+            if (Client == null)
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
@@ -1199,7 +1220,7 @@ namespace Vodovoz.Domain.Orders
 					sum += item.ActualSum;
 
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems)
-					sum -= dep.Deposit * dep.Count;
+					sum -= Math.Round(dep.Deposit * dep.Count, 2);
 
 				return sum;
 			}
@@ -1211,7 +1232,7 @@ namespace Vodovoz.Domain.Orders
 								.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount.Value * i.Price);
 
 		public virtual decimal? ActualGoodsTotalSum =>
-			OrderItems.Sum(item => item.Price * item.ActualCount - item.DiscountMoney);
+			OrderItems.Sum(item => Decimal.Round(item.Price * item.ActualCount - item.DiscountMoney ?? 0, 2));
 
 		public virtual bool CanBeMovedFromClosedToAcepted => 
 			new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
@@ -1627,16 +1648,22 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual NomenclatureFixedPrice GetFixedPriceOrNull(Nomenclature nomenclature)
 		{
-			if (Contract == null) {
-				return null;
+			IList<NomenclatureFixedPrice> fixedPrices;
+			
+			if(deliveryPoint == null)
+			{
+				if (Contract == null)
+					return null;
+				
+				fixedPrices = Contract.Counterparty.NomenclatureFixedPrices;
 			}
-			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
-
-			IList<NomenclatureFixedPrice> fixedPrices = Contract.Counterparty.NomenclatureFixedPrices;
-			if(deliveryPoint != null) {
+			else
+			{
 				fixedPrices = deliveryPoint.NomenclatureFixedPrices;
 			}
 			
+			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
+
 			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && influentialNomenclature == null)) {
 				return fixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id);
 			}
@@ -1950,8 +1977,15 @@ namespace Vodovoz.Domain.Orders
 			if(Id > 0)
 				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
 
-			foreach(OrderItem orderItem in order.OrderItems) {
+			INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider();
+			var deliveryId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
 
+			foreach (OrderItem orderItem in order.OrderItems) {
+				if (orderItem.Nomenclature.Id == deliveryId)
+                {
+					continue;
+                }
+				
 				decimal discMoney;
 				if(orderItem.DiscountMoney == 0) {
 					if(orderItem.OriginalDiscountMoney == null)

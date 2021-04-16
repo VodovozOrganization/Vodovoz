@@ -38,14 +38,19 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 			return hideArchive ? baseQuery.Where(d => !d.IsArchive).List() : baseQuery.List();
 		}
 
-		public WageDistrictLevelRates DefaultLevelForNewEmployees(IUnitOfWork uow, bool forOurCars = false)
+		public WageDistrictLevelRates DefaultLevelForNewEmployees(IUnitOfWork uow)
 		{
-			var query = uow.Session.QueryOver<WageDistrictLevelRates>();
-			if(forOurCars) {
-				query.Where(x => x.IsDefaultLevelForOurCars);
-			} else {
-				query.Where(x => x.IsDefaultLevel);
-			}
+			var query = uow.Session.QueryOver<WageDistrictLevelRates>()
+				.Where(x => x.IsDefaultLevel);
+			
+			return query.Take(1).SingleOrDefault();
+		}
+		
+		public WageDistrictLevelRates DefaultLevelForNewEmployeesOnOurCars(IUnitOfWork uow)
+		{
+			var query = uow.Session.QueryOver<WageDistrictLevelRates>()
+				.Where(x => x.IsDefaultLevelForOurCars);
+			
 			return query.Take(1).SingleOrDefault();
 		}
 

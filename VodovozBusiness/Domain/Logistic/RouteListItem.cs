@@ -625,9 +625,10 @@ namespace Vodovoz.Domain.Logistic
 					item.OriginalDiscountReason = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReason : null;
 				}
 				item.ActualCount = 0m;
-			}
-			foreach(var equip in Order.OrderEquipments)
-				equip.ActualCount = 0;
+                BottlesReturned = 0;
+            }
+            foreach (var equip in Order.OrderEquipments)
+                equip.ActualCount = 0;
 
 			foreach(var deposit in Order.OrderDepositItems)
 				deposit.ActualCount = 0;
@@ -803,9 +804,9 @@ namespace Vodovoz.Domain.Logistic
 		EnRoute,
 		[Display(Name = "Выполнен")]
 		Completed,
-		[Display(Name = "Отмена клиентом")]
+		[Display(Name = "Доставка отменена")]
 		Canceled,
-		[Display(Name = "Опоздали")]
+		[Display(Name = "Недовоз")]
 		Overdue,
 		[Display(Name = "Передан")]
 		Transfered

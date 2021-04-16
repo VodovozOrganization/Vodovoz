@@ -16,6 +16,9 @@ namespace Vodovoz.Views.Logistic
         {
             yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
+            yentryShortName.MaxLength = 10;
+            yentryShortName.Binding.AddBinding(ViewModel.Entity, e => e.ShortName, w => w.Text).InitializeFromSource();
+
             buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
             buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
         }

@@ -7,6 +7,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Services;
 using QSReport;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
@@ -34,7 +35,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private readonly IInteractiveQuestion interactive;
 		private readonly RouteListRepository routedListRepository;
-		private IUnitOfWork UoW;
+        private readonly IInteractiveService interactiveService;
+        private IUnitOfWork UoW;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels { get; private set; } = new List<CounterpartyOrderViewModel>();
 
@@ -44,17 +46,17 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		public CounterpartyTalkViewModel(
 			INavigationManager navigation,
 			ITdiCompatibilityNavigation tdinavigation,
-			IInteractiveQuestion interactive,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			RouteListRepository routedListRepository,
-			MangoManager manager) : base(navigation, manager)
+            IInteractiveService interactiveService,
+            MangoManager manager) : base(navigation, manager)
 		{
 			this.NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(navigation));
 
-			this.interactive = interactive;
 			this.routedListRepository = routedListRepository;
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+            UoW = unitOfWorkFactory.CreateWithoutRoot();
 
 			if(ActiveCall.CounterpartyIds.Any())
 			{
@@ -120,7 +122,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
 			Counterparty client = UoW.GetById<Counterparty>(counterpartyNode.Id);
 			if(!CounterpartyOrdersModels.Any(c => c.Client.Id == client.Id)) {
-				if(interactive.Question($"Добавить телефон к контрагенту {client.Name} ?", "Телефон контрагента")) {
+				if(interactiveService.Question($"Добавить телефон к контрагенту {client.Name} ?", "Телефон контрагента")) {
 					client.Phones.Add(ActiveCall.Phone);
 					UoW.Save<Counterparty>(client);
 					UoW.Commit();
@@ -135,7 +137,11 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void NewOrderCommand()
 		{
-			var model = CounterpartyOrdersModels.Find(m => m.Client.Id == currentCounterparty.Id);
+            if (currentCounterparty.IsForRetail)
+            {
+                interactiveService.ShowMessage(ImportanceLevel.Warning, "Заказ поступает от контрагента дистрибуции");
+            }
+            var model = CounterpartyOrdersModels.Find(m => m.Client.Id == currentCounterparty.Id);
 			IPage page = tdiNavigation.OpenTdiTab<OrderDlg, Counterparty>(null, currentCounterparty);
 			page.PageClosed += (sender, e) => { model.RefreshOrders(); };
 		}

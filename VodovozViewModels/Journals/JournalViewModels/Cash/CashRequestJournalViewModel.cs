@@ -8,7 +8,6 @@ using QS.Deletion;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Services;
 using QS.Project.Services.Interactive;
 using QS.Services;
 using Vodovoz.Domain.Cash;
@@ -78,9 +77,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             
             if(FilterViewModel != null) {
                 if(FilterViewModel.StartDate.HasValue)
-                    result.Where(() => cashRequestAlias.Date >= FilterViewModel.StartDate.Value);
+                    result.Where(() => cashRequestAlias.Date >= FilterViewModel.StartDate.Value.Date);
                 if(FilterViewModel.EndDate.HasValue)
-                    result.Where(() => cashRequestAlias.Date < FilterViewModel.EndDate.Value);
+                    result.Where(() => cashRequestAlias.Date < FilterViewModel.EndDate.Value.Date.AddDays(1));
                 if(FilterViewModel.Author != null)
                     result.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
                 if (FilterViewModel.AccountableEmployee != null)
@@ -91,17 +90,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 }
             }
 
-            //Если чел не финансист/согласователь/кассир то показываем ему только его заявки
-            var userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-            if (!ServicesConfig.CommonServices.PermissionService
-                    .ValidateUserPresetPermission("role_financier_cash_request", userId)  
-                && !ServicesConfig.CommonServices.PermissionService
-                    .ValidateUserPresetPermission("role_coordinator_cash_request", userId)  
-                && !ServicesConfig.CommonServices.PermissionService
-                    .ValidateUserPresetPermission("role_сashier", userId))
+            var userId = commonServices.UserService.CurrentUserId;
+            var currentEmployee = employeeRepository.GetEmployeesForUser(uow, userId).First();
+            var currentEmployeeId = currentEmployee.Id;
+
+            if (!commonServices.UserService.GetCurrentUser(UoW).IsAdmin)
             {
-                var currentEmployeeId = employeeRepository.GetEmployeesForUser(uow, userId).First().Id;
-                result.Where(() => cashRequestAlias.Author.Id == currentEmployeeId);
+                if (!commonServices.PermissionService
+                        .ValidateUserPresetPermission("role_financier_cash_request", userId)
+                    && !commonServices.PermissionService
+                        .ValidateUserPresetPermission("role_coordinator_cash_request", userId)
+                    && !commonServices.PermissionService
+                        .ValidateUserPresetPermission("role_сashier", userId)
+                    )
+                {
+                    if (commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests"))
+                    {
+                        result.Where(() => cashRequestAlias.Subdivision == currentEmployee.Subdivision);
+                    }
+                    else
+                    {
+                        result.Where(() => cashRequestAlias.Author.Id == currentEmployeeId);
+                    }
+                }
+
             }
 
             var authorProjection = Projections.SqlFunction(
@@ -140,6 +152,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                     .Select(c => c.State).WithAlias(() => resultAlias.State)
                     .Select(c => c.DocumentType).WithAlias(() => resultAlias.DocumentType) 
                     .Select(authorProjection).WithAlias(() => resultAlias.Author)
+                    .Select(accauntableProjection).WithAlias(() => resultAlias.AccountablePerson)
                     .SelectSubQuery(cashReuestSumSubquery).WithAlias(() => resultAlias.Sum)
                     .Select(c => c.Basis).WithAlias(() => resultAlias.Basis)
                 ).TransformUsing(Transformers.AliasToBean<CashRequestJournalNode>())
@@ -195,7 +208,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                     if(config.PermissionResult.CanDelete) {
                         DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
                     }
-                }
+                },
+               "Delete"
             );
             NodeActionsList.Add(deleteAction);
         }

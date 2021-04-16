@@ -586,7 +586,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			var orderSumRestriction = Restrictions.Gt(orderSumProjection, 0);
 
 			var alwaysSendOrdersRestriction = Restrictions.Disjunction()
-				.Add(() => productGroupAlias.IsOnlineStore)
+				.Add(() => productGroupAlias.OnlineStore != null)
 				.Add(() => counterpartyAlias.AlwaysSendReceitps)
 				.Add(() => orderAlias.SelfDelivery)
 				.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType),

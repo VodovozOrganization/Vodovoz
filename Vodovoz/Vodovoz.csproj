@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -383,6 +383,7 @@
     <EmbeddedResource Include="icons\phone\make-call-32.png" />
     <EmbeddedResource Include="icons\phone\make-call-16.png" />
     <EmbeddedResource Include="icons\buttons\user22.png" />
+    <EmbeddedResource Include="icons\toolbar\retail.png" />
     <EmbeddedResource Include="toolbars\retail.xml">
       <LogicalName>retail.xml</LogicalName>
     </EmbeddedResource>
@@ -394,17 +395,22 @@
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Commons\FileChooser.cs" />
+    <Compile Include="Commons\HotkeyHandler.cs" />
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.OrderChangesReport.cs" />
+    <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
+    <Compile Include="JournalNodes\RetailOrderJournalNode.cs" />
     <Compile Include="JournalNodes\WaterJournalNode.cs" />
+    <Compile Include="JournalViewModels\RetailCounterpartyJournalViewModel.cs" />
     <Compile Include="JournalViewModels\OrderForRouteListJournalViewModel.cs" />
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringValuableConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
     <Compile Include="JournalNodes\ReturnTareReasonCategoriesJournalNode.cs" />
+    <Compile Include="JournalViewModels\RetailOrderJournalViewModel.cs" />
     <Compile Include="JournalViewModels\ReturnTareReasonCategoriesJournalViewModel.cs" />
     <Compile Include="JournalViewModels\WaterJournalViewModel.cs" />
     <Compile Include="MainWindow.cs" />
@@ -904,7 +910,6 @@
     <Compile Include="Representations\PremiumVM.cs" />
     <Compile Include="JournalFilters\PremiumFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.PremiumFilter.cs" />
-    <Compile Include="Additions\EntityChangedExceptionHelper.cs" />
     <Compile Include="ReportsParameters\EmployeesPremiums.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.EmployeesPremiums.cs" />
     <Compile Include="ReportsParameters\OrderStatisticByWeekReport.cs" />
@@ -1336,7 +1341,6 @@
     <Compile Include="JournalViewModels\DeliveryPointJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\DeliveryPointJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView.cs" />
-    <Compile Include="Infrastructure\ApplicationInfo.cs" />
     <Compile Include="Infrastructure\DatabaseInfo.cs" />
     <Compile Include="Infrastructure\DefaultUnhandledExceptionHandler.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ErrorMessageView.cs" />
@@ -1577,6 +1581,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Retail.SalesChannelView.cs" />
     <Compile Include="Views\Client\CounterpartyFilesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyFilesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeePostView.cs" />
+    <Compile Include="Views\Employees\EmployeePostView.cs" />
+    <Compile Include="ReportsParameters\Retail\QualityReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.QualityReport.cs" />
+    <Compile Include="ReportsParameters\Retail\CounterpartyReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.CounterpartyReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1595,10 +1605,6 @@
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
       <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
       <Name>QSProjectsLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSSupportLib\QSSupportLib.csproj">
-      <Project>{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}</Project>
-      <Name>QSSupportLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSWidgetLib\QSWidgetLib.csproj">
       <Project>{5A2BB01E-E124-432E-8099-D1343D3897B9}</Project>
@@ -1877,6 +1883,8 @@
     <Folder Include="Views\Security\" />
     <Folder Include="JournalViewers\Retail\" />
     <Folder Include="Views\Retail\" />
+    <Folder Include="ReportsParameters\Retail\" />
+    <Folder Include="Reports\Retail\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2422,6 +2430,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Orders\EShopSalesReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Retail\QualityReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Retail\CounterpartyReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

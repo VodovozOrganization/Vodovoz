@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using EmailService;
 using InstantSmsService;
 using NHibernate;
 using NHibernate.Criterion;
@@ -16,7 +17,6 @@ using QS.Project.Services.GtkUI;
 using QS.Services;
 using Vodovoz.Additions;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
@@ -43,7 +43,8 @@ namespace Vodovoz.JournalViewModels
 				new PasswordGenerator(),
 				new MySQLUserRepository(
 					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-					new GtkInteractiveService()));
+					new GtkInteractiveService()),
+				EmailServiceSetting.GetEmailService());
 
 			UpdateOnChanges(typeof(Employee));
 		}
@@ -82,6 +83,7 @@ namespace Vodovoz.JournalViewModels
 			);
 
 			query.Where(GetSearchCriterion(
+				() => employeeAlias.Id,
 				() => employeeProjection
 			));
 
@@ -105,12 +107,16 @@ namespace Vodovoz.JournalViewModels
 
 		private void ResetPasswordForEmployee(Employee employee)
 		{
-			var result = authorizationService.ResetPasswordToGenerated(employee, 5);
-			if (result.MessageStatus == SmsMessageStatus.Ok)
+            if (string.IsNullOrWhiteSpace(employee.Email))
+            {
+				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
+				return;
+            }
+			if (authorizationService.ResetPasswordToGenerated(employee))
 			{
-				MessageDialogHelper.RunInfoDialog("Sms с паролем отправлена успешно");
+				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Email с паролем отправлена успешно");
 			} else {
-				MessageDialogHelper.RunErrorDialog(result.ErrorDescription, "Ошибка при отправке Sms");
+				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Ошибка при отправке Email");
 			}
 		}
 

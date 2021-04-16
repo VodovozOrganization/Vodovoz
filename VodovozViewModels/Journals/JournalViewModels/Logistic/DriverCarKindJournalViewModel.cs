@@ -39,11 +39,13 @@ namespace Vodovoz.Journals.JournalViewModels
 
             query.Where(GetSearchCriterion(
                 () => driverCarKindAlias.Id,
-                () => driverCarKindAlias.Name
+                () => driverCarKindAlias.Name,
+                () => driverCarKindAlias.ShortName
             ));
 
             var result = query.SelectList(list => list
                     .Select(c => c.Id).WithAlias(() => resultNode.Id)
+                    .Select(c => c.ShortName).WithAlias(() => resultNode.ShortName)
                     .Select(c => c.Name).WithAlias(() => resultNode.Name))
                 .TransformUsing(Transformers.AliasToBean<DriverCarKindNode>());
 

@@ -252,6 +252,11 @@ namespace Vodovoz.JournalViewers
 			);
 			dlg.CommentAdded += (s, ea) => Refresh();
 			dlg.DlgSaved += dlg_DlgSaved;
+			
+			TabClosed += (o, args) =>
+			{
+				dlg.UnsubscribeAll();
+			};
 		}
 
 		void dlg_DlgSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
@@ -261,7 +266,6 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			//yTreeViewUndeliveries.GetSelectedObjects().ForEach(id => OrmMain.DeleteObject(typeof(UndeliveredOrder), id));
 		}
 
 		protected void OnYTreeViewUndeliveriesRowActivated(object o, RowActivatedArgs args)
@@ -275,21 +279,6 @@ namespace Vodovoz.JournalViewers
 			if(selectedObj == null)
 				return;
 
-			//кусок старой реализации, когда по даблклику вычислялось кликнутое поле
-			/*CommentedFields field = CommentedFields.None;
-			string valueOfField = String.Empty;
-
-			foreach(var cell in args.Column.Cells.OfType<NodeCellRendererText<UndeliveredOrdersVMNode>>().Where(c => c.DataPropertyInfo != null)) {
-				if(Enum.TryParse<CommentedFields>(cell.DataPropertyName, out field)) {
-					valueOfField = selectedObj.GetPropertyValue(cell.DataPropertyName).ToString();
-					break;
-				}
-				field = CommentedFields.None;
-			}
-
-			if(field == CommentedFields.None)
-				return;*/
-
 			var dlg = new UndeliveredOrderDlg(selectedObj.Id);
 			dlg.CommentAdded += (sender, e) => Refresh();
 			dlg.DlgSaved += dlg_DlgSaved;
@@ -298,11 +287,11 @@ namespace Vodovoz.JournalViewers
 				() => dlg,
 				this
 			);
-
-			/*TabParent.AddTab(dlg, this, true);
-			if(TabParent is TdiSliderTab) {
-				((TdiSliderTab)TabParent).IsHideJournal = true;
-			}*/
+			
+			TabClosed += (obj, eArgs) =>
+			{
+				dlg.UnsubscribeAll();
+			};
 		}
 
 		protected void OnBtnPrintClicked(object sender, EventArgs e)

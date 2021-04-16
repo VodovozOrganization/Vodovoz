@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using NHibernate.Persister.Entity;
+using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 
@@ -7,6 +10,7 @@ namespace Vodovoz.Parameters
 {
 	public class ParametersProvider
 	{
+		private readonly Logger logger = LogManager.GetCurrentClassLogger();
 		public static ParametersProvider Instance { get; private set; }
 
 		static ParametersProvider()
@@ -130,6 +134,39 @@ namespace Vodovoz.Parameters
 			}
 
 			return value;
+		}
+		
+		public void CreateOrUpdateParameter(string name, string value)
+		{
+			bool isInsert = false;
+			if(parameters.TryGetValue(name, out string oldValue))
+			{
+				if(oldValue == value) {
+					return;
+				}
+			}
+			else {
+				isInsert = true;
+			}
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				var bpPersister = (AbstractEntityPersister)uow.Session.SessionFactory.GetClassMetadata(typeof(BaseParameter));
+				var tableName = bpPersister.TableName;
+				var nameColumnName = bpPersister.GetPropertyColumnNames(nameof(BaseParameter.Name)).First();
+				var strValueColumnName = bpPersister.GetPropertyColumnNames(nameof(BaseParameter.StrValue)).First();
+				
+				string sql;
+				if(isInsert) {
+					sql = $"INSERT INTO {tableName} ({nameColumnName}, {strValueColumnName}) VALUES ('{name}', '{value}')";
+					logger.Debug($"Добавляем новый параметр базы {name}='{value}'");
+				}
+				else {
+					sql = $"UPDATE {tableName} SET {strValueColumnName} = '{value}' WHERE {nameColumnName} = '{name}'";
+					logger.Debug($"Изменяем параметр базы {name}='{value}'");
+				}
+				uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
+			}
+
+			logger.Debug ("Ок");
 		}
 	}
 }

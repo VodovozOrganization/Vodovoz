@@ -303,7 +303,7 @@ namespace Vodovoz.Views.Logistic
 
         internal void RemoveEmpty()
         {
-            ResponsiblePersonsList.Where(
+            ResponsiblePersonsList?.Where(
                 p => p.Phone?.Length == 0 
                   || p.DeliveryPoint == null 
                   || p.DeliveryPointResponsiblePersonType == null 

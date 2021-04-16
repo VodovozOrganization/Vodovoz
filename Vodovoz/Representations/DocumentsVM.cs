@@ -13,6 +13,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Goods;
 using Gtk;
 using Gdk;
 
@@ -46,6 +47,8 @@ namespace Vodovoz.ViewModel
 			Warehouse warehouseAlias = null;
 			Warehouse secondWarehouseAlias = null;
 			MovementWagon wagonAlias = null;
+
+             Nomenclature productAlias = null;
 
 			CarLoadDocument loadCarAlias = null;
 			CarUnloadDocument unloadCarAlias = null;
@@ -111,9 +114,10 @@ namespace Vodovoz.ViewModel
 					waterQuery.Where (o => o.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
 
 				var waterList = waterQuery
-				.JoinQueryOver (() => waterAlias.WriteOffWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinQueryOver (() => waterAlias.IncomingWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => waterAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => waterAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+                    .Left.JoinAlias(() => waterAlias.Product, () => productAlias)
 				.SelectList (list => list
 					.Select (() => waterAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => waterAlias.TimeStamp).WithAlias (() => resultAlias.Date)
@@ -123,6 +127,7 @@ namespace Vodovoz.ViewModel
 					               Projections.Constant ("Не указан", NHibernateUtil.String),
 					               Projections.Property (() => warehouseAlias.Name)))
 					.WithAlias (() => resultAlias.Warehouse)
+                    .Select(() => productAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select (() => waterAlias.Amount).WithAlias (() => resultAlias.Amount)
 						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
 						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
@@ -524,8 +529,10 @@ namespace Vodovoz.ViewModel
 	{
 		[UseForSearch]
 		public int Id { get; set; }
+        
+        public string ProductName { get; set; }
 
-		public DocumentType DocTypeEnum { get; set; }
+        public DocumentType DocTypeEnum { get; set; }
 
 		public string DocTypeString => DocTypeEnum.GetEnumTitle();
 
@@ -542,7 +549,7 @@ namespace Vodovoz.ViewModel
 					case DocumentType.IncomingInvoice:
 						return string.Format("Поставщик: {0}; Склад поступления: {1};", Counterparty, Warehouse);
 					case DocumentType.IncomingWater:
-						return string.Format("Количество: {0}; Склад поступления: {1};", Amount, Warehouse);
+                        return string.Format("Количество: {0}; Склад поступления: {1}; Продукт производства: {2}", Amount, Warehouse, ProductName);
 					case DocumentType.MovementDocument:
 						string carInfo = string.IsNullOrEmpty(CarNumber) ? null : $", Фура: {CarNumber}";
 						return $"{Warehouse} -> {SecondWarehouse}{carInfo}";

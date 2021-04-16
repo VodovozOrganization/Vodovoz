@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Client;
@@ -20,8 +21,9 @@ namespace Vodovoz.ViewModels.Complaints
 	public class CreateComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
 		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+        private readonly IFilePickerService filePickerService;
 
-		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+        public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		public IEmployeeService EmployeeService { get; }
 		public INomenclatureRepository NomenclatureRepository { get; }
@@ -38,10 +40,12 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-			string phone = null
+            IFilePickerService filePickerService,
+            string phone = null
 			) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+            this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+            this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -66,7 +70,8 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-			string phone = null) : this(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,nomenclatureSelectorFactory,nomenclatureRepository,userRepository,phone)
+            IFilePickerService filePickerService,
+            string phone = null) : this(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,nomenclatureSelectorFactory,nomenclatureRepository,userRepository,filePickerService,phone)
 		{
 			Counterparty _client = UoW.GetById<Counterparty>(client.Id);
 			Entity.Counterparty = _client;
@@ -84,7 +89,8 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-			string phone = null) : this(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,nomenclatureSelectorFactory,nomenclatureRepository,userRepository,phone)
+            IFilePickerService filePickerService,
+            string phone = null) : this(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,nomenclatureSelectorFactory,nomenclatureRepository,userRepository,filePickerService,phone)
 		{
 			Order _order = UoW.GetById<Order>(order.Id);
 			Entity.Order = _order;
@@ -102,8 +108,21 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		//так как диалог только для создания рекламации
-		public bool CanEdit => PermissionResult.CanCreate;
+        private ComplaintFilesViewModel filesViewModel;
+        public ComplaintFilesViewModel FilesViewModel
+        {
+            get
+            {
+                if (filesViewModel == null)
+                {
+                    filesViewModel = new ComplaintFilesViewModel(Entity, UoW, filePickerService, CommonServices);
+                }
+                return filesViewModel;
+            }
+        }
+
+        //так как диалог только для создания рекламации
+        public bool CanEdit => PermissionResult.CanCreate;
 
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 
@@ -162,5 +181,25 @@ namespace Vodovoz.ViewModels.Complaints
 				() => CanSelectDeliveryPoint
 			);
 		}
-	}
+		
+        public void CheckAndSave()
+        {
+            if (!HasСounterpartyDuplicateToday() ||
+                CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"))
+            {
+                SaveAndClose();
+            }
+        }
+
+        private bool HasСounterpartyDuplicateToday()
+        {
+	        if(Entity.Counterparty == null) {
+		        return false;
+	        }
+	        return UoW.Session.QueryOver<Complaint>()
+		        .Where(i => i.Counterparty.Id == Entity.Counterparty.Id)
+		        .And(i => i.CreationDate >= DateTime.Now.AddDays(-1))
+		        .RowCount() > 0;
+        }
+    }
 }

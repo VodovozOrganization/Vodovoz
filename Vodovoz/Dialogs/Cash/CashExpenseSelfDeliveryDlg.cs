@@ -25,6 +25,7 @@ using QS.Project.Services;
 using Vodovoz.EntityRepositories.Documents;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Tools;
+using System.Linq;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -35,7 +36,7 @@ namespace Vodovoz.Dialogs.Cash
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
-		
+        private List<ExpenseCategory> expenseCategoryList = new List<ExpenseCategory>();
 		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
 			new SelfDeliveryCashOrganisationDistributor(new SelfDeliveryCashDistributionDocumentRepository());
 		
@@ -62,6 +63,10 @@ namespace Vodovoz.Dialogs.Cash
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Expense>();
 			Entity.Casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+            expenseCategoryList.AddRange(CategoryRepository.ExpenseSelfDeliveryCategories(UoW));
+            if (Entity.Id == 0){
+                Entity.ExpenseCategory = expenseCategoryList.FirstOrDefault();
+            }
 			if(Entity.Casher == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
 				FailInitialize = true;
@@ -160,7 +165,7 @@ namespace Vodovoz.Dialogs.Cash
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<ExpenseCategory>(
 				s => comboExpense.ItemsList = CategoryRepository.ExpenseSelfDeliveryCategories(UoW)
 			);
-			comboExpense.ItemsList = CategoryRepository.ExpenseSelfDeliveryCategories(UoW);
+			comboExpense.ItemsList = expenseCategoryList;
 			comboExpense.Binding.AddBinding(Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource();
 
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();

@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     IF (scldi.item_expiration_date_percent IS NOT NULL
@@ -40,12 +40,10 @@ LEFT JOIN
 LEFT JOIN
     measurement_units ON measurement_units.id = nomenclature.unit_id
 LEFT JOIN
-    nomenclature_groups ng ON ng.id = nomenclature.group_id
-LEFT JOIN
     route_list_addresses ON route_list_addresses.route_list_id = scld.route_list_id
 WHERE scld.id = @id
   AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
-  AND IF(nomenclature.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
+  AND nomenclature.online_store_id IS NULL
 GROUP BY nomenclature
 ORDER BY clmn_for_sorting;</CommandText>
         <QueryParameters>
@@ -54,7 +52,7 @@ ORDER BY clmn_for_sorting;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -161,14 +159,11 @@ LIMIT 1
     <DataSet Name="Equipment">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>#OrderItem
-SELECT 
+        <CommandText>SELECT 
 	scldi.amount as count,
-	rla.order_id,
 	mu.digits,
-	oe.id,
-	IF(oe.id IS NOT NULL,
-		CASE oe.own_type
+	IF(scldi.own_type IS NOT NULL,
+		CASE scldi.own_type
 			WHEN 'None'  THEN n.official_name
 			WHEN 'Client'THEN CONCAT(n.official_name, ' (Клиент)')
 			WHEN 'Duty'	 THEN CONCAT(n.official_name, ' (Дежурный)')
@@ -181,21 +176,18 @@ LEFT JOIN
     store_car_load_documents scld ON scld.id = scldi.car_load_document_id 
 LEFT JOIN nomenclature n ON n.id = scldi.nomenclature_id
 LEFT JOIN measurement_units mu ON mu.id = n.unit_id
-LEFT JOIN route_list_addresses rla ON rla.route_list_id = scld.route_list_id
-LEFT JOIN orders ON rla.order_id = orders.id 
-LEFT JOIN order_equipment oe ON oe.order_id = orders.id AND oe.nomenclature_id = scldi.nomenclature_id
 WHERE
-	scld.id = @id
+	scldi.car_load_document_id = @id
 	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle', 'CashEquipment')
 	AND n.online_store_external_id IS NULL
-GROUP BY n.id</CommandText>
+GROUP BY n.id, scldi.own_type </CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
             <Value>={?id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="official_name">
           <DataField>official_name</DataField>
           <TypeName>System.String</TypeName>
@@ -203,10 +195,6 @@ GROUP BY n.id</CommandText>
         <Field Name="count">
           <DataField>count</DataField>
           <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="order_id">
-          <DataField>order_id</DataField>
-          <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="digits">
           <DataField>digits</DataField>
@@ -220,12 +208,11 @@ GROUP BY n.id</CommandText>
         <CommandText>SELECT o2.e_shop_order FROM store_car_load_documents scld 
 INNER JOIN store_car_load_document_items scldi ON scldi.car_load_document_id = scld.id 
 INNER JOIN nomenclature n ON scldi.nomenclature_id = n.id
-INNER JOIN nomenclature_groups ng ON ng.id = n.group_id
 INNER JOIN route_list_addresses rla ON rla.route_list_id = scld.route_list_id 
 INNER JOIN orders o2 ON o2.id = rla.order_id 
 INNER JOIN order_items oi ON o2.id = oi.order_id AND oi.nomenclature_id = scldi.nomenclature_id
 WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
-  AND IF(n.group_id IS NOT NULL, ng.is_online_store, FALSE)
+  AND n.online_store_id IS NOT NULL
   AND scld.id = @id
   AND o2.e_shop_order IS NOT NULL
 GROUP BY o2.e_shop_order;</CommandText>

@@ -29,7 +29,10 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.CashTransferDocument).Column("cash_transfer_document_id").Cascade.All();
 			References(x => x.Organisation).Column("organisation_id");
 
-			HasMany(x => x.AdvanceCloseItems).Cascade.AllDeleteOrphan ().Inverse ().LazyLoad ().KeyColumn ("expense_id");
+			References(x => x.CashRequestSumItem).Column("cash_request_sum_item_id");
+
+			HasMany(x => x.AdvanceCloseItems).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("expense_id");
+
 		}
 	}
 }

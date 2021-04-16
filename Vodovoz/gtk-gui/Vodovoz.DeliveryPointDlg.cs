@@ -1215,6 +1215,7 @@ namespace Vodovoz
 			this.Hide();
 			this.radioInformation.Toggled += new global::System.EventHandler(this.OnRadoiInformationToggled);
 			this.radioComments.Toggled += new global::System.EventHandler(this.OnRadioCommentsToggled);
+			this.radioFixedPrices.Clicked += new global::System.EventHandler(this.OnRadioFixedPricesToggled);
 			this.buttonInsertFromBuffer.Clicked += new global::System.EventHandler(this.OnButtonInsertFromBufferClicked);
 			this.buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked += new global::System.EventHandler(this.OnButtonApplyLimitsToAllDeliveryPointsOfCounterpartyClicked);
 		}

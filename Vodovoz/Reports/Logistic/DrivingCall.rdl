@@ -27,11 +27,11 @@
      ,TRIM(cli.full_name) AS client
      ,s.name as subdivision_name
      ,SUM(
-        IF(
+        ROUND(IF(
                     oi.discount_by_stock &gt; 0,
                     IFNULL(oi.actual_count, oi.count) * oi.price,
                     IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money
-            )
+            ), 2)
     ) AS orderSum
      ,CONCAT(author.last_name, ' ', author.name, ' ', author.patronymic) AS AuthorFIO
      ,orders.id as orderId
@@ -46,7 +46,7 @@ FROM orders
 WHERE driver_call_type &lt;&gt; 'NoCall'
   AND (@startDate = '' or delivery_date &gt;= @startDate)
   AND (@endDate = '' or delivery_date &lt;= @endDate)
-GROUP BY oi.id</CommandText>
+GROUP BY orders.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>={?startDate}</Value>

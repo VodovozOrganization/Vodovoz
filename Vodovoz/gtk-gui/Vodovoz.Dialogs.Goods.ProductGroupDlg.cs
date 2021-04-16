@@ -30,8 +30,6 @@ namespace Vodovoz.Dialogs.Goods
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckArchived;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonOnlineStore;
-
 		private global::Gamma.GtkWidgets.yCheckButton ycheckExportToOnlineStore;
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
@@ -182,21 +180,6 @@ namespace Vodovoz.Dialogs.Goods
 			w12.RightAttach = ((uint)(2));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ycheckbuttonOnlineStore = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonOnlineStore.CanFocus = true;
-			this.ycheckbuttonOnlineStore.Name = "ycheckbuttonOnlineStore";
-			this.ycheckbuttonOnlineStore.Label = global::Mono.Unix.Catalog.GetString("Интернет магазин");
-			this.ycheckbuttonOnlineStore.DrawIndicator = true;
-			this.ycheckbuttonOnlineStore.UseUnderline = true;
-			this.table1.Add(this.ycheckbuttonOnlineStore);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonOnlineStore]));
-			w13.TopAttach = ((uint)(3));
-			w13.BottomAttach = ((uint)(4));
-			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ycheckExportToOnlineStore = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckExportToOnlineStore.CanFocus = true;

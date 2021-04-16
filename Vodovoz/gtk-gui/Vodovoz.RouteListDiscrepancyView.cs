@@ -10,7 +10,7 @@ namespace Vodovoz
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeview2;
+		private global::Gamma.GtkWidgets.yTreeView ytreeRouteListDiscrepancyItemsView;
 
 		private global::Gtk.Label LabelDiscrepancy;
 
@@ -34,10 +34,10 @@ namespace Vodovoz
 			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeview2 = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeview2.CanFocus = true;
-			this.ytreeview2.Name = "ytreeview2";
-			this.GtkScrolledWindow.Add(this.ytreeview2);
+			this.ytreeRouteListDiscrepancyItemsView = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeRouteListDiscrepancyItemsView.CanFocus = true;
+			this.ytreeRouteListDiscrepancyItemsView.Name = "ytreeRouteListDiscrepancyItemsView";
+			this.GtkScrolledWindow.Add(this.ytreeRouteListDiscrepancyItemsView);
 			this.GtkAlignment.Add(this.GtkScrolledWindow);
 			this.frame1.Add(this.GtkAlignment);
 			this.LabelDiscrepancy = new global::Gtk.Label();

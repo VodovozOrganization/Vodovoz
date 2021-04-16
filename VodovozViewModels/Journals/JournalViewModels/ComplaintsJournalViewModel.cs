@@ -105,15 +105,31 @@ namespace Vodovoz.Journals.JournalViewModels
 			FilterViewModel.SubdivisionService = subdivisionService;
 			FilterViewModel.EmployeeService = employeeService;
 
-			var currentEmployeeSubdivision = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
-			if(currentEmployeeSubdivision != null) {
-				if(FilterViewModel.SubdivisionService.GetOkkId() != currentEmployeeSubdivision.Id)
-					FilterViewModel.Subdivision = currentEmployeeSubdivision;
-				else
-					FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
-			}
+            var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
+            var defaultSubdivision = currentUserSettings.DefaultSubdivision;
+            var currentEmployeeSubdivision = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
 
-			UpdateOnChanges(
+            FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
+
+            if (FilterViewModel.SubdivisionService.GetOkkId() == currentEmployeeSubdivision.Id)
+            {
+                FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
+            }
+            else
+            {
+                if (currentUserSettings.UseEmployeeSubdivision)
+                {
+                    FilterViewModel.Subdivision = currentEmployeeSubdivision;
+                }
+                else
+                {
+                    FilterViewModel.Subdivision = defaultSubdivision;
+                }
+
+                FilterViewModel.ComplaintStatus = currentUserSettings.DefaultComplaintStatus;
+            }
+
+            UpdateOnChanges(
 				typeof(Complaint),
 				typeof(ComplaintGuiltyItem),
 				typeof(ComplaintResult),
@@ -171,20 +187,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				NHibernateUtil.String,
 				Projections.SubQuery(workInSubdivisionsSubQuery),
 				Projections.Constant(", "));
-
-			var okkProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1)"),
-				NHibernateUtil.String,
-				Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => discussionAlias.Status), ComplaintStatuses.Checking),
-					Projections.Constant("ОКК"),
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.String, "NULLIF(1,1)"),
-						NHibernateUtil.String
-					)
-				)
-			);
-
+                
 			string okkSubdivision = uow.GetById<Subdivision>(subdivisionService.GetOkkId()).ShortName ?? "?";
 
 			var workInSubdivisionsProjection = Projections.SqlFunction(
@@ -313,10 +316,10 @@ namespace Vodovoz.Journals.JournalViewModels
 					query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
 
 				if (FilterViewModel.CurrentUserSubdivision != null 
-					&& FilterViewModel.ComplaintCurrentUserSubdivisionStatus != null)
+					&& FilterViewModel.ComplaintDiscussionStatus != null)
                 {
 					query = query.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.CurrentUserSubdivision.Id)
-						.And(() => discussionAlias.Status == FilterViewModel.ComplaintCurrentUserSubdivisionStatus);
+						.And(() => discussionAlias.Status == FilterViewModel.ComplaintDiscussionStatus);
 				}
 
 				if (FilterViewModel.GuiltyItemVM?.Entity?.GuiltyType != null) {
@@ -398,7 +401,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						commonServices,
 						nomenclatureSelectorFactory,
 						nomenclatureRepository,
-						userRepository
+						userRepository,
+                        filePickerService
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -430,7 +434,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						employeeService,
 						subdivisionRepository,
 						commonServices,
-						employeeSelectorFactory
+						employeeSelectorFactory,
+                        filePickerService
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
