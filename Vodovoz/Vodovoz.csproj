@@ -1990,6 +1990,9 @@
     <None Include="Reports\Logistic\CarsExploitationReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\Logistic\DriversToDistrictsAssignmentReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Reports\Orders\OrderChangesReport.rdl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
