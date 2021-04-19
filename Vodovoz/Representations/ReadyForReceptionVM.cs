@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Permissions;
 
 namespace Vodovoz.ViewModel
 {
@@ -18,20 +22,25 @@ namespace Vodovoz.ViewModel
 	{
 		public ReadyForReceptionVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
 
-		public ReadyForReceptionVM(IUnitOfWork uow) : base(typeof(RouteList), typeof(Vodovoz.Domain.Orders.Order))
+		public ReadyForReceptionVM(IUnitOfWork uow) : base(typeof(RouteList), typeof(Domain.Orders.Order))
 		{
 			this.UoW = uow;
-		}
+            var warehousesList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.WarehouseView);
+            Filter = new WarehouseJournalFilterViewModel
+            {
+                Warehouses = warehousesList,
+                WarehousesAmount = warehousesList.Count(),
+                RestrictWarehouse = CurrentUserSettings.Settings.DefaultWarehouse ?? null
+            };
+        }
 
-		public ReadyForReceptionFilter Filter {
-			get => RepresentationFilter as ReadyForReceptionFilter;
-			set => RepresentationFilter = value as IRepresentationFilter;
-		}
-		#region implemented abstract members of RepresentationModelBase
+        public WarehouseJournalFilterViewModel Filter { get; }
 
-		public override void UpdateNodes()
+        #region implemented abstract members of RepresentationModelBase
+
+        public override void UpdateNodes()
 		{
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Equipment equipmentAlias = null;

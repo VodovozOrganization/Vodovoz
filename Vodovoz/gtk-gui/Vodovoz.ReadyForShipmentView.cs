@@ -8,7 +8,9 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Vodovoz.ReadyForShipmentFilter readyforshipmentfilter1;
+		private global::Gtk.HBox hbox3;
+
+		private global::Gtk.Label label1;
 
 		private global::Gtk.Button buttonRefresh;
 
@@ -37,14 +39,22 @@ namespace Vodovoz
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.readyforshipmentfilter1 = new global::Vodovoz.ReadyForShipmentFilter();
-			this.readyforshipmentfilter1.Events = ((global::Gdk.EventMask)(256));
-			this.readyforshipmentfilter1.Name = "readyforshipmentfilter1";
-			this.hbox1.Add(this.readyforshipmentfilter1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.readyforshipmentfilter1]));
+			this.hbox3 = new global::Gtk.HBox();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.label1 = new global::Gtk.Label();
+			this.label1.Name = "label1";
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Склад:");
+			this.hbox3.Add(this.label1);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label1]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
+			this.hbox1.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hbox3]));
+			w2.Position = 0;
+			w2.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.buttonRefresh = new global::Gtk.Button();
 			this.buttonRefresh.CanFocus = true;
@@ -52,24 +62,24 @@ namespace Vodovoz
 			this.buttonRefresh.UseUnderline = true;
 			this.buttonRefresh.Label = global::Mono.Unix.Catalog.GetString("Обновить");
 			this.hbox1.Add(this.buttonRefresh);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonRefresh]));
-			w2.PackType = ((global::Gtk.PackType)(1));
-			w2.Position = 2;
-			w2.Expand = false;
-			w2.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w3.Position = 0;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonRefresh]));
+			w3.Position = 1;
 			w3.Expand = false;
+			w3.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.searchentity2 = new global::QSWidgetLib.SearchEntity();
 			this.searchentity2.Events = ((global::Gdk.EventMask)(256));
 			this.searchentity2.Name = "searchentity2";
 			this.vbox1.Add(this.searchentity2);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchentity2]));
-			w4.Position = 1;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchentity2]));
+			w5.Position = 1;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -80,8 +90,8 @@ namespace Vodovoz
 			this.tableReadyForShipment.Name = "tableReadyForShipment";
 			this.GtkScrolledWindow.Add(this.tableReadyForShipment);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w6.Position = 2;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w7.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
@@ -93,19 +103,19 @@ namespace Vodovoz
 			this.buttonOpen.Name = "buttonOpen";
 			this.buttonOpen.UseUnderline = true;
 			this.buttonOpen.Label = global::Mono.Unix.Catalog.GetString("Погрузить машину");
-			global::Gtk.Image w7 = new global::Gtk.Image();
-			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-ok", global::Gtk.IconSize.Menu);
-			this.buttonOpen.Image = w7;
+			global::Gtk.Image w8 = new global::Gtk.Image();
+			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-ok", global::Gtk.IconSize.Menu);
+			this.buttonOpen.Image = w8;
 			this.hbox4.Add(this.buttonOpen);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonOpen]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
-			this.vbox1.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
-			w9.Position = 3;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonOpen]));
+			w9.Position = 0;
 			w9.Expand = false;
 			w9.Fill = false;
+			this.vbox1.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
+			w10.Position = 3;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
