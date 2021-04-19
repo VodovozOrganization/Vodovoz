@@ -35,28 +35,28 @@
 	END AS status,
 	reg_number,
 	CONCAT_WS(' ',
-			employees.last_name,
-			IF(employees.name = '',
-				NULL,
-				employees.name),
-			IF(employees.patronymic = '',
-				NULL,
-				employees.patronymic)) AS driver_name,
-			(SELECT GROUP_CONCAT(d2.district_name ORDER BY d2.id SEPARATOR ', ')
-			 FROM districts d2 
-			 LEFT JOIN driver_district_priorities ddp ON ddp.district_id = d2.id
-			 LEFT JOIN driver_district_priority_sets ddps ON ddps.id = ddp.driver_district_priority_set_id
-			 WHERE ddps.driver_id = route_lists.driver_id
-			   AND ddps.date_activated &lt; route_lists.date
-			   AND IFNULL(ddps.date_deactivated &gt; route_lists.date, TRUE)
-			) AS planned_district,
-			(SELECT GROUP_CONCAT(DISTINCT d.district_name ORDER BY d.id SEPARATOR ', ')
-			 FROM districts d
-			 LEFT JOIN delivery_points dp ON dp.district_id = d.id
-			 LEFT JOIN orders o ON o.delivery_point_id = dp.id
-			 LEFT JOIN route_list_addresses rla2 ON rla2.order_id = o.id
-			 WHERE rla2.route_list_id = route_lists.id
-			) AS actual_district
+		employees.last_name,
+		IF(employees.name = '',
+			NULL,
+			employees.name),
+		IF(employees.patronymic = '',
+			NULL,
+			employees.patronymic)) AS driver_name,
+	COALESCE((SELECT GROUP_CONCAT(d2.district_name ORDER BY d2.id SEPARATOR ', ')
+	 FROM districts d2 
+	 LEFT JOIN driver_district_priorities ddp ON ddp.district_id = d2.id
+	 LEFT JOIN driver_district_priority_sets ddps ON ddps.id = ddp.driver_district_priority_set_id
+	 WHERE ddps.driver_id = route_lists.driver_id
+	   AND ddps.date_activated &lt; route_lists.date
+	   AND IFNULL(ddps.date_deactivated &gt; route_lists.date, TRUE)
+	),'') AS planned_district,
+	(SELECT GROUP_CONCAT(DISTINCT d.district_name ORDER BY d.id SEPARATOR ', ')
+	 FROM districts d
+	 LEFT JOIN delivery_points dp ON dp.district_id = d.id
+	 LEFT JOIN orders o ON o.delivery_point_id = dp.id
+	 LEFT JOIN route_list_addresses rla2 ON rla2.order_id = o.id
+	 WHERE rla2.route_list_id = route_lists.id
+	) AS actual_district
 FROM
 	route_lists
 		LEFT JOIN
@@ -73,13 +73,17 @@ WHERE
 	(route_lists.date BETWEEN @start_date AND @end_date)
 		AND ((cars.type_of_use = 'CompanyLargus' OR cars.type_of_use = 'CompanyGAZelle') OR cars.is_raskat = 1)
 GROUP BY route_lists.id
-ORDER BY driver_name;</CommandText>
+HAVING NOT @only_different_districts OR actual_district &lt;&gt; planned_district
+ORDER BY driver_name</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="only_different_districts">
+            <Value>=Parameters!only_different_districts</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -172,7 +176,7 @@ ORDER BY driver_name;</CommandText>
           <TableColumn>
             <Width>64.3pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>64.3pt</Width>
           </TableColumn>
           <TableColumn>
@@ -184,7 +188,7 @@ ORDER BY driver_name;</CommandText>
           <TableColumn>
             <Width>95.3pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>112.4pt</Width>
           </TableColumn>
         </TableColumns>
@@ -229,7 +233,7 @@ ORDER BY driver_name;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
                       <Value>Дата</Value>
@@ -301,7 +305,7 @@ ORDER BY driver_name;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
                       <Value>Фактические районы</Value>
@@ -364,7 +368,7 @@ ORDER BY driver_name;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
                       <Value>={route_list_date}</Value>
@@ -438,7 +442,7 @@ ORDER BY driver_name;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
                       <Value>={actual_district}</Value>
@@ -563,6 +567,13 @@ ORDER BY driver_name;</CommandText>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="only_different_districts">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
