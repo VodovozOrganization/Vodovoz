@@ -2493,7 +2493,7 @@
     <DataSet Name="Income">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>75</Timeout>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
     route_lists.id AS number,
     route_lists.date,
