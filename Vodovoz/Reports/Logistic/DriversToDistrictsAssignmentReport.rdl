@@ -104,17 +104,9 @@ ORDER BY driver_name</CommandText>
           <DataField>driver_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="address_count">
-          <DataField>address_count</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
         <Field Name="status">
           <DataField>status</DataField>
           <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="not_delivered">
-          <DataField>not_delivered</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
         <Field Name="type_of_use">
           <DataField>type_of_use</DataField>
