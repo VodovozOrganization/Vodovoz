@@ -11,7 +11,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	CASE cars.type_of_use
@@ -87,7 +87,7 @@ ORDER BY driver_name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -373,6 +373,7 @@ ORDER BY driver_name</CommandText>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >dd.MM.yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -409,6 +410,8 @@ ORDER BY driver_name</CommandText>
                         <TextAlign>Center</TextAlign>
                         <Format>d</Format>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -422,12 +425,14 @@ ORDER BY driver_name</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
+                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingTop >5pt</PaddingTop>
                       </Style>
                       <DataElementName>formula1</DataElementName>
                       <CanGrow>true</CanGrow>
@@ -442,13 +447,16 @@ ORDER BY driver_name</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
