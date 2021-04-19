@@ -1586,6 +1586,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.QualityReport.cs" />
     <Compile Include="ReportsParameters\Retail\CounterpartyReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.CounterpartyReport.cs" />
+    <Compile Include="ReportsParameters\DriversToDistrictsAssignmentReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.DriversToDistrictsAssignmentReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
