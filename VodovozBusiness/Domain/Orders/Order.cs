@@ -1012,10 +1012,12 @@ namespace Vodovoz.Domain.Orders
 				}
 			}           
 
-            if (validationContext.Items.ContainsKey("cash_order_close"))
+            if (validationContext.Items.ContainsKey("cash_order_close") )
                 if ((bool)validationContext.Items["cash_order_close"])
-                    if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus))
-                        yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
+                    if(!validationContext.Items.ContainsKey("AddressStatus") ||
+                       (validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] != RouteListItemStatus.Transfered))
+                        if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) )
+                            yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
 
             if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
