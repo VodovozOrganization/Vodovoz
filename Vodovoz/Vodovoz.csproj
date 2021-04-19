@@ -536,7 +536,6 @@
     <Compile Include="gtk-gui\Vodovoz.RouteListCreateDlg.cs" />
     <Compile Include="Representations\ReadyForShipmentVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimsView.cs" />
     <Compile Include="JournalViewers\WarehouseDocumentsView.cs" />
@@ -549,7 +548,6 @@
     <Compile Include="JournalFilters\StockDocumentsFilter.cs" />
     <Compile Include="JournalFilters\OrdersFilter.cs" />
     <Compile Include="JournalFilters\CounterpartyFilter.cs" />
-    <Compile Include="JournalFilters\ReadyForShipmentFilter.cs" />
     <Compile Include="JournalFilters\ServiceClaimFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.CashDocumentsFilter.cs" />
@@ -596,8 +594,6 @@
     <Compile Include="JournalViewers\ReadyForReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForReceptionView.cs" />
     <Compile Include="Representations\ReadyForReceptionVM.cs" />
-    <Compile Include="JournalFilters\ReadyForReceptionFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReadyForReceptionFilter.cs" />
     <Compile Include="Dialogs\Store\WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDlg.cs" />
     <Compile Include="Representations\NomenclatureForSaleVM.cs" />
@@ -1587,6 +1583,11 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.QualityReport.cs" />
     <Compile Include="ReportsParameters\Retail\CounterpartyReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.CounterpartyReport.cs" />
+    <Compile Include="TempAdapters\WarehouseSelectorFactory.cs" />
+    <Compile Include="Filters\ViewModels\WarehouseJournalFilterViewModel.cs" />
+    <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
+    <Compile Include="Filters\GtkViews\WarehouseFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
