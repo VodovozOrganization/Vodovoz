@@ -57,8 +57,13 @@ namespace Vodovoz.ViewModels.Cash
 
         protected override void BeforeSave(){
             Entity.ChangePaymentTypeToByCard(callTaskWorker);
+
             if (!Entity.PayAfterShipment){
                 Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService, callTaskWorker);
+            }
+
+            if (Entity.SelfDelivery){
+                Entity.IsSelfDeliveryPaid = true;
             }
         }
     }

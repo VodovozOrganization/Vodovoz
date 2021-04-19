@@ -92,22 +92,24 @@ namespace Vodovoz.Domain
                 && Order.SelfDelivery
                 && Order.OrderStatus == OrderStatus.WaitForPayment
                 && Order.PayAfterShipment)
-                {
-                    Order.TryCloseSelfDeliveryOrder(
-                        uow,
-                        new BaseParametersProvider(),
-                        new RouteListItemRepository(),
-                        new SelfDeliveryRepository(),
-                        new CashRepository());
-                }
+            {
+                Order.TryCloseSelfDeliveryOrder(
+                    uow,
+                    new BaseParametersProvider(),
+                    new RouteListItemRepository(),
+                    new SelfDeliveryRepository(),
+                    new CashRepository());
+                Order.IsSelfDeliveryPaid = true;
+            }
 
-                if (Order.PaymentType == PaymentType.cash
-                    && Order.SelfDelivery
-                    && Order.OrderStatus == OrderStatus.WaitForPayment
-                    && !Order.PayAfterShipment)
-                {
-                    Order.ChangeStatus(OrderStatus.OnLoading);
-                }
+            if (Order.PaymentType == PaymentType.cash
+                && Order.SelfDelivery
+                && Order.OrderStatus == OrderStatus.WaitForPayment
+                && !Order.PayAfterShipment)
+            {
+                Order.ChangeStatus(OrderStatus.OnLoading);
+                Order.IsSelfDeliveryPaid = true;
+            }
             
             PaidDate = datePaid;
             Order.OnlineOrder = ExternalId;
