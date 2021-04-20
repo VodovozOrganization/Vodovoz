@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Gamma.ColumnConfig;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -8,6 +7,7 @@ using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Store;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewers;
 
 namespace Vodovoz.JournalViewModels
@@ -17,7 +17,7 @@ namespace Vodovoz.JournalViewModels
         public WarehouseJournalViewModel(WarehouseJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) 
         : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
-            TabName = "Выбор склада";
+            TabName = "Журнал складов";
             UpdateOnChanges(
                 typeof(Warehouse)
             );
@@ -34,18 +34,19 @@ namespace Vodovoz.JournalViewModels
             Warehouse warehouseAlias = null;
             WarehouseJournalNode warehouseNodeAlias = null;
             var query = uow.Session.QueryOver<Warehouse>(() => warehouseAlias)
-            .WhereRestrictionOn(w => w.Id).IsIn(FilterViewModel.Warehouses.Select(wl => wl.Id).ToList());
+                .WhereRestrictionOn(w => w.Id).IsIn(FilterViewModel.Warehouses.Select(wl => wl.Id).ToList());
 
             query.Where(GetSearchCriterion(
                 () => warehouseAlias.Id,
                 () => warehouseAlias.Name
             ));
-            var result = query.SelectList(list => list
-            .Select(w => w.Id).WithAlias(()=> warehouseNodeAlias.Id)
-            .Select(w => w.Name).WithAlias(() => warehouseNodeAlias.Name)
-            ).WhereNot(w => w.IsArchive)
-            .OrderBy(w => w.Name).Asc
-            .TransformUsing(Transformers.AliasToBean<WarehouseJournalNode>());
+            var result = query
+                .SelectList(list => list
+                    .Select(w => w.Id).WithAlias(()=> warehouseNodeAlias.Id)
+                    .Select(w => w.Name).WithAlias(() => warehouseNodeAlias.Name)
+                )
+                .OrderBy(w => w.Name).Asc
+                .TransformUsing(Transformers.AliasToBean<WarehouseJournalNode>());
             return result;
         };
 
@@ -54,12 +55,5 @@ namespace Vodovoz.JournalViewModels
 
         protected override Func<WarehouseJournalNode, WarehousesView> OpenDialogFunction => (node) =>
             throw new NotSupportedException("Не поддерживается редактирование склада в текущем журнале");
-    }
-
-    public class WarehouseJournalNode : JournalEntityNodeBase<Warehouse>
-    {
-        public override string Title => $"{Name}";
-
-        public string Name { get; set; }
     }
 }

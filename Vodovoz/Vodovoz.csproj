@@ -1588,6 +1588,7 @@
     <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\WarehouseFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseFilterView.cs" />
+    <Compile Include="JournalNodes\WarehouseJournalNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
