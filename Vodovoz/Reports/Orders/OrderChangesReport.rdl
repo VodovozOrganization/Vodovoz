@@ -713,7 +713,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm"))</Value>
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS</DataSourceName>
-        <Timeout>300</Timeout>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     source.comment_manager,
     sp.paid_date,

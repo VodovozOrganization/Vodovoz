@@ -1,17 +1,39 @@
-﻿using QS.DomainModel.UoW;
+using System.Linq;
+using QS.Dialog;
+using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Store;
+using Vodovoz.Infrastructure.Permissions;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ReadyForShipmentFilter : RepresentationFilterBase<ReadyForShipmentFilter>
+	public partial class ReadyForShipmentFilter : RepresentationFilterBase<ReadyForShipmentFilter>, ISingleUoWDialog
 	{
-		protected override void ConfigureWithUow()
+        public Warehouse RestrictWarehouse { get; set; }
+
+        protected override void ConfigureWithUow()
 		{
-			yspeccomboWarehouse.ItemsList = Repository.Store.WarehouseRepository.GetActiveWarehouse(UoW);
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
-				yspeccomboWarehouse.SelectedItem = CurrentUserSettings.Settings.DefaultWarehouse;
+            var warehousesList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, new[] { WarehousePermissions.WarehouseView })
+                                    .OrderBy(w => w.Name).ToList();
+            if (warehousesList.Count > 5)
+            {
+                entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
+                entryWarehouses.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory());
+
+                entryWarehouses.Visible = true;
+                yspeccomboWarehouse.Visible = false;
+            }
+            else
+            {
+                yspeccomboWarehouse.ItemsList = warehousesList;
+                yspeccomboWarehouse.SelectedItem = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
+
+                entryWarehouses.Visible = false;
+                yspeccomboWarehouse.Visible = true;
+            }
 		}
 
 		public ReadyForShipmentFilter(IUnitOfWork uow) : this()
@@ -29,18 +51,17 @@ namespace Vodovoz
 			OnRefiltered();
 		}
 
-		public Warehouse RestrictWarehouse {
-			get { return yspeccomboWarehouse.SelectedItem as Warehouse; }
-			set {
-				yspeccomboWarehouse.SelectedItem = value;
-				yspeccomboWarehouse.Sensitive = false;
-			}
-		}
-
 		protected void OnYspeccomboWarehouseItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			UpdateCreteria();
+            RestrictWarehouse = e.SelectedItem as Warehouse;
+            UpdateCreteria();
 		}
-	}
+
+        protected void OnEntryWarehousesChangedByUser(object sender, System.EventArgs e)
+        {
+            RestrictWarehouse = entryWarehouses.Subject as Warehouse;
+            UpdateCreteria();
+        }
+    }
 }
 

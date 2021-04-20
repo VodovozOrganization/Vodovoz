@@ -26,6 +26,7 @@ using QS.Project.Views;
 using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Tools;
+using QS.Validation;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
@@ -107,6 +108,7 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Order;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -114,13 +116,15 @@ public partial class MainWindow : Gtk.Window
     private uint lastUiId;
     private readonly ILifetimeScope autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
     private readonly IApplicationInfo applicationInfo;
-    
+    private readonly IPasswordValidator passwordValidator;
+
     public TdiNotebook TdiMain => tdiMain;
     public readonly TdiNavigationManager NavigationManager;
     public readonly MangoManager MangoManager;
-    
-    public MainWindow() : base(Gtk.WindowType.Toplevel)
+
+    public MainWindow(IPasswordValidator passwordValidator) : base(Gtk.WindowType.Toplevel)
     {
+        this.passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
         Build();
         PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
         applicationInfo = new ApplicationVersionInfo();
@@ -303,7 +307,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnDialogAuthenticationActionActivated(object sender, EventArgs e)
     {
-        QSMain.User.ChangeUserPassword(this);
+        QSMain.User.ChangeUserPassword(this, passwordValidator);
     }
 
     protected void OnAboutActionActivated(object sender, EventArgs e)
@@ -2108,6 +2112,12 @@ public partial class MainWindow : Gtk.Window
         );
     }
 
+    protected void OnActionRecalculateDriverWagesActivated(object sender, EventArgs e)
+    {
+        var dlg = new RecalculateDriverWageDlg();
+        tdiMain.AddTab(dlg);
+	}
+
     protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
     {
         IEntityAutocompleteSelectorFactory districtSelectorFactory =
@@ -2122,5 +2132,32 @@ public partial class MainWindow : Gtk.Window
             QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
             () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory, 
                 UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
+    }
+
+    protected void OnDriversToDistrictsAssignmentReportActionActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<DriversToDistrictsAssignmentReport>(),
+            () => new QSReport.ReportViewDlg(new DriversToDistrictsAssignmentReport())
+        );
+    }
+    protected void OnActionNomenclaturePlanActivated(object sender, EventArgs e)
+    {
+        NomenclatureFilterViewModel nomenclatureFilterViewModel = new NomenclatureFilterViewModel();
+
+        tdiMain.OpenTab(() => new NomenclaturesPlanJournalViewModel(
+                    new NomenclaturePlanFilterViewModel(nomenclatureFilterViewModel) { HidenByDefault = true },
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices)
+        );
+    }
+
+    protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<NomenclaturePlanReport>(),
+            () => new QSReport.ReportViewDlg(new NomenclaturePlanReport())
+        );
+    
     }
 }

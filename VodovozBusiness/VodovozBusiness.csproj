@@ -20,7 +20,8 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType></DebugType>
+    <DebugType>
+    </DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
@@ -101,6 +102,7 @@
     <Compile Include="Domain\Orders\Documents\PrintableOrderDocument.cs" />
     <Compile Include="Domain\Orders\ReturnTareReason.cs" />
     <Compile Include="Domain\Orders\ReturnTareReasonCategory.cs" />
+    <Compile Include="Domain\Orders\SelectedNomenclaturePlan.cs" />
     <Compile Include="Domain\Organizations\Organization.cs" />
     <Compile Include="Domain\Payments\PaymentsFromYookassaParser.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
@@ -163,6 +165,7 @@
     <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
+    <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
@@ -189,6 +192,7 @@
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
+    <Compile Include="Parameters\NomenclaturePlanParametersProvider.cs" />
     <Compile Include="Parameters\OrderParametersProvider.cs" />
     <Compile Include="Parameters\OrganizationParametersProvider.cs" />
     <Compile Include="Parameters\ReportDefaultsProvider.cs" />
@@ -448,6 +452,7 @@
     <Compile Include="Services\ICashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
+    <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />
     <Compile Include="Services\IOrderParametersProvider.cs" />
     <Compile Include="Services\IOrganizationParametersProvider.cs" />
     <Compile Include="Services\IRouteListParametersProvider.cs" />
@@ -602,6 +607,7 @@
     <Compile Include="HibernateMapping\Cash\Transfer\CashTransferOperationMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\IncomeCashTransferedItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\ExpenseCashTransferedItemMap.cs" />
+    <Compile Include="Tools\Validation\PasswordValidationSettingsFactory.cs" />
     <Compile Include="ViewModelBased\ViewModelBase.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />
     <Compile Include="ViewModelBased\ViewModelGeneric.cs" />
@@ -910,91 +916,7 @@
     <Compile Include="Parameters\OrderPaymentSettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Folder Include="Domain\" />
-    <Folder Include="HibernateMapping\" />
-    <Folder Include="Repositories\" />
-    <Folder Include="DocTemplates\" />
-    <Folder Include="Attributes\" />
-    <Folder Include="Domain\Chat\" />
-    <Folder Include="HibernateMapping\Chat\" />
-    <Folder Include="Repositories\Chats\" />
-    <Folder Include="Repositories\Client\" />
-    <Folder Include="Tools\" />
-    <Folder Include="Tools\Logistic\" />
-    <Folder Include="Repositories\Sale\" />
-    <Folder Include="Domain\Sale\" />
-    <Folder Include="HibernateMapping\Sale\" />
-    <Folder Include="Tools\CommerceML\" />
-    <Folder Include="Tools\CommerceML\Nodes\" />
-    <Folder Include="Domain\StoredEmails\" />
-    <Folder Include="HibernateMapping\StoredEmails\" />
-    <Folder Include="Resources\" />
-    <Folder Include="Tools\AdditionalAgreements\" />
-    <Folder Include="Tools\Orders\" />
-    <Folder Include="Domain\Payments\" />
-    <Folder Include="HibernateMapping\Payments\" />
-    <Folder Include="Repositories\Payments\" />
-    <Folder Include="Repositories\HumanResourses\" />
-    <Folder Include="Domain\Permissions\" />
-    <Folder Include="HibernateMapping\Permissions\" />
-    <Folder Include="Repositories\Permissions\" />
-    <Folder Include="Repositories\Orders\" />
-    <Folder Include="Domain\StoredResources\" />
-    <Folder Include="Domain\Cash\CashTransfer\" />
-    <Folder Include="HibernateMapping\Cash\Transfer\" />
-    <Folder Include="ViewModelBased\" />
-    <Folder Include="Filters\" />
-    <Folder Include="Domain\Fuel\" />
-    <Folder Include="Services\" />
-    <Folder Include="HibernateMapping\Fuel\" />
-    <Folder Include="EntityRepositories\" />
-    <Folder Include="EntityRepositories\Subdivisions\" />
-    <Folder Include="EntityRepositories\Fuel\" />
-    <Folder Include="EntityRepositories\Operations\" />
-    <Folder Include="EntityRepositories\Goods\" />
-    <Folder Include="EntityRepositories\Logistic\" />
-    <Folder Include="EntityRepositories\Store\" />
-    <Folder Include="EntityRepositories\Cash\" />
-    <Folder Include="Domain\Complaints\" />
-    <Folder Include="HibernateMapping\Complaints\" />
-    <Folder Include="EntityRepositories\Complaints\" />
-    <Folder Include="EntityRepositories\Employee\" />
-    <Folder Include="Domain\Suppliers\" />
-    <Folder Include="HibernateMapping\Suppliers\" />
-    <Folder Include="EntityRepositories\Suppliers\" />
-    <Folder Include="EntityRepositories\CallTasks\" />
-    <Folder Include="Tools\CallTasks\" />
-    <Folder Include="EntityRepositories\Orders\" />
-    <Folder Include="Domain\Subdivisions\" />
-    <Folder Include="HibernateMapping\Subdivisions\" />
-    <Folder Include="HibernateMapping\WageCalculation\" />
-    <Folder Include="Domain\WageCalculation\" />
-    <Folder Include="EntityRepositories\WageCalculation\" />
-    <Folder Include="PermissionExtensions\" />
-    <Folder Include="Domain\WageCalculation\CalculationServices\" />
-    <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
-    <Folder Include="Domain\Sms\" />
-    <Folder Include="HibernateMapping\Sms\" />
-    <Folder Include="Domain\WageCalculation\AdvancedWageParameter\" />
-    <Folder Include="HibernateMapping\WageCalculation\AdvancedWageParameters\" />
-    <Folder Include="Parameters\" />
-    <Folder Include="EntityRepositories\SmsNotifications\" />
-    <Folder Include="Domain\Service\BaseParametersServices\" />
-    <Folder Include="Domain\Contacts\" />
-    <Folder Include="HibernateMapping\Contacts\" />
-    <Folder Include="EntityRepositories\Contacts\" />
-    <Folder Include="EntityRepositories\Permissions\" />
-    <Folder Include="EntityRepositories\Delivery\" />
-    <Folder Include="Tools\ErrorReporting\" />
-    <Folder Include="HibernateMapping\Comments\" />
-    <Folder Include="Domain\Comments\" />
-    <Folder Include="Domain\BusinessTasks\" />
-    <Folder Include="HibernateMapping\BusinessTasks\" />
-    <Folder Include="Domain\Orders\OrdersWithoutShipment\" />
-    <Folder Include="Models\" />
-    <Folder Include="Journal\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
       <Project>{c97e91f4-b310-44e2-9b6c-96775395722d}</Project>
@@ -1061,39 +983,39 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
-    <PackageReference Include="BouncyCastle" Version="1.8.6.1" />
-    <PackageReference Include="CommonServiceLocator" Version="2.0.5" />
+    <PackageReference Include="BouncyCastle" Version="1.8.9" />
+    <PackageReference Include="CommonServiceLocator" Version="2.0.6" />
     <PackageReference Include="DataAnnotationsExtensions" Version="5.0.1.27" />
-    <PackageReference Include="FluentNHibernate" Version="3.0.1" />
+    <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
-    <PackageReference Include="Google.Protobuf" Version="3.13.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.15.8" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
-    <PackageReference Include="MySql.Data" Version="8.0.19" />
-    <PackageReference Include="NetTopologySuite" Version="1.15.3" />
+    <PackageReference Include="MySql.Data" Version="8.0.24" />
+    <PackageReference Include="NetTopologySuite" Version="2.2.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.IO" Version="1.14.0.1" />
-    <PackageReference Include="NHibernate" Version="5.3.4" />
-    <PackageReference Include="NHibernate.Spatial" Version="5.3.0" />
-    <PackageReference Include="NHibernate.Spatial.MySQL" Version="5.3.0" />
-    <PackageReference Include="NLog" Version="4.7.5" />
+    <PackageReference Include="NHibernate" Version="5.3.8" />
+    <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
+    <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
+    <PackageReference Include="NLog" Version="4.7.9" />
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="RestSharp" Version="106.11.7" />
-    <PackageReference Include="SSH.NET" Version="2016.1.0" />
+    <PackageReference Include="SSH.NET" Version="2020.0.1" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
     <PackageReference Include="Dapper">
-      <Version>2.0.35</Version>
+      <Version>2.0.78</Version>
     </PackageReference>
   </ItemGroup>
 </Project>

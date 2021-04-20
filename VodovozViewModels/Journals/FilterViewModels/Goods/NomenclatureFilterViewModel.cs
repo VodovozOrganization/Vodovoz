@@ -138,5 +138,7 @@ namespace Vodovoz.FilterViewModels.Goods
 				return false;
 			}
 		}
-	}
+
+        public void RefreshFilter() => OnPropertyChanged(nameof(RestrictCategory));
+    }
 }

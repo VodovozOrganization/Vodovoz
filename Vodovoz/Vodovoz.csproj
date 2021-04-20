@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -400,10 +400,12 @@
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.OrderChangesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.NomenclaturePlanView.cs" />
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
     <Compile Include="JournalNodes\RetailOrderJournalNode.cs" />
     <Compile Include="JournalNodes\WaterJournalNode.cs" />
+    <Compile Include="JournalViewModels\NomenclaturesPlanJournalViewModel.cs" />
     <Compile Include="JournalViewModels\RetailCounterpartyJournalViewModel.cs" />
     <Compile Include="JournalViewModels\OrderForRouteListJournalViewModel.cs" />
     <Compile Include="gtk-gui\generated.cs" />
@@ -495,8 +497,10 @@
     <Compile Include="ViewModels\Accounting\WayBillGeneratorViewModel.cs" />
     <Compile Include="ViewModels\Cash\PaymentByCardViewModel.cs" />
     <Compile Include="JournalViewModels\RouteListWorkingJournalViewModel.cs" />
+    <Compile Include="ViewModels\Orders\NomenclaturePlanViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonCategoryViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
+    <Compile Include="Views\Orders\NomenclaturePlanView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointView.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
@@ -1581,12 +1585,24 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Retail.SalesChannelView.cs" />
     <Compile Include="Views\Client\CounterpartyFilesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyFilesView.cs" />
+    <Compile Include="ServiceDialogs\RecalculateDriverWageDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.RecalculateDriverWageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeePostView.cs" />
     <Compile Include="Views\Employees\EmployeePostView.cs" />
     <Compile Include="ReportsParameters\Retail\QualityReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.QualityReport.cs" />
     <Compile Include="ReportsParameters\Retail\CounterpartyReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.CounterpartyReport.cs" />
+    <Compile Include="ReportsParameters\DriversToDistrictsAssignmentReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.DriversToDistrictsAssignmentReport.cs" />
+    <Compile Include="TempAdapters\WarehouseSelectorFactory.cs" />
+    <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
+    <Compile Include="Views\Warehouse\WarehouseView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.WarehouseView.cs" />
+    <Compile Include="Filters\GtkViews\NomenclaturePlanFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclaturePlanFilterView.cs" />
+    <Compile Include="ReportsParameters\Orders\NomenclaturePlanReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.NomenclaturePlanReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1987,6 +2003,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\CarsExploitationReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\DriversToDistrictsAssignmentReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Orders\OrderChangesReport.rdl">
@@ -2446,36 +2465,36 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
-    <PackageReference Include="BouncyCastle" Version="1.8.6.1" />
-    <PackageReference Include="DiffPlex" Version="1.6.3" />
-    <PackageReference Include="FluentNHibernate" Version="3.0.1" />
+    <PackageReference Include="BouncyCastle" Version="1.8.9" />
+    <PackageReference Include="DiffPlex" Version="1.7.0" />
+    <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
-    <PackageReference Include="Google.Protobuf" Version="3.13.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.15.8" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
-    <PackageReference Include="MySql.Data" Version="8.0.19" />
-    <PackageReference Include="NetTopologySuite" Version="1.15.3" />
+    <PackageReference Include="MySql.Data" Version="8.0.24" />
+    <PackageReference Include="NetTopologySuite" Version="2.2.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
-    <PackageReference Include="NHibernate" Version="5.3.4" />
-    <PackageReference Include="NHibernate.Spatial" Version="5.3.0" />
-    <PackageReference Include="NHibernate.Spatial.MySQL" Version="5.3.0" />
-    <PackageReference Include="NLog" Version="4.7.5" />
+    <PackageReference Include="NHibernate" Version="5.3.8" />
+    <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
+    <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
+    <PackageReference Include="NLog" Version="4.7.9" />
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
-    <PackageReference Include="SSH.NET" Version="2016.1.0" />
+    <PackageReference Include="SSH.NET" Version="2020.0.1" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageReference Include="Autofac">
-      <Version>5.2.0</Version>
+      <Version>6.2.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
