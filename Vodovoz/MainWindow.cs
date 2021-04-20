@@ -2123,4 +2123,12 @@ public partial class MainWindow : Gtk.Window
             () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory, 
                 UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
     }
+
+    protected void OnDriversToDistrictsAssignmentReportActionActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<DriversToDistrictsAssignmentReport>(),
+            () => new QSReport.ReportViewDlg(new DriversToDistrictsAssignmentReport())
+        );
+    }
 }
