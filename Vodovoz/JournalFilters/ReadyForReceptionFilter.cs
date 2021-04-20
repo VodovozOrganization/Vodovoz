@@ -1,19 +1,41 @@
 ﻿using System;
+using System.Linq;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Store;
+using Vodovoz.Infrastructure.Permissions;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ReadyForReceptionFilter : RepresentationFilterBase<ReadyForReceptionFilter>
+	public partial class ReadyForReceptionFilter : RepresentationFilterBase<ReadyForReceptionFilter>, ISingleUoWDialog
 	{
-		protected override void ConfigureWithUow()
+        public Warehouse RestrictWarehouse { get; set; }
+
+        protected override void ConfigureWithUow()
 		{
-			yspeccomboWarehouse.ItemsList = Repository.Store.WarehouseRepository.GetActiveWarehouse(UoW);
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
-				yspeccomboWarehouse.SelectedItem = CurrentUserSettings.Settings.DefaultWarehouse;
-		}
+            var warehousesList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, new[] { WarehousePermissions.WarehouseView })
+                                    .OrderBy(w => w.Name).ToList();
+            if (warehousesList.Count > 5)
+            {
+                entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
+                entryWarehouses.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory());
+
+                entryWarehouses.Visible = true;
+                comboWarehouses.Visible = false;
+            }
+            else
+            {
+                comboWarehouses.ItemsList = warehousesList;
+                comboWarehouses.SelectedItem = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
+
+                entryWarehouses.Visible = false;
+                comboWarehouses.Visible = true;
+            }
+        }
 
 		public ReadyForReceptionFilter(IUnitOfWork uow) : this()
 		{
@@ -28,14 +50,7 @@ namespace Vodovoz
 		{
 			OnRefiltered();
 		}
-
-		public Warehouse RestrictWarehouse {
-			get { return yspeccomboWarehouse.SelectedItem as Warehouse; }
-			set {
-				yspeccomboWarehouse.SelectedItem = value;
-				yspeccomboWarehouse.Sensitive = false;
-			}
-		}
+	
 
 		[System.ComponentModel.Browsable(false)]
 		public bool RestrictWithoutUnload {
@@ -46,15 +61,22 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnYspeccomboWarehouseItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
-		{
-			UpdateCreteria();
-		}
-
 		protected void OnCheckWithoutUnloadToggled(object sender, EventArgs e)
 		{
 			UpdateCreteria();
 		}
-	}
+
+        protected void OnEntryWarehousesChangedByUser(object sender, EventArgs e)
+        {
+            RestrictWarehouse = entryWarehouses.Subject as Warehouse;
+            UpdateCreteria();
+        }
+
+        protected void OnComboWarehousesItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+        {
+            RestrictWarehouse = e.SelectedItem as Warehouse;
+            UpdateCreteria();
+        }
+    }
 }
 

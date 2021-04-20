@@ -53,10 +53,43 @@ namespace Vodovoz.Domain.Orders
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
 
+		#region Листовка Водовоза
+
+		private int vodovozLeafletId;
+		private int VodovozLeafletId
+		{
+			get
+			{
+				if (vodovozLeafletId == default(int)) {
+					vodovozLeafletId = new NomenclatureParametersProvider().VodovozLeafletId;
+				}
+
+				return vodovozLeafletId;
+			}
+		}
+
+		#endregion
+
+		#region Платная доставка
+
+		private int paidDeliveryNomenclatureId;
+		private int PaidDeliveryNomenclatureId
+		{
+			get
+			{
+				if (paidDeliveryNomenclatureId == default(int)) {
+					paidDeliveryNomenclatureId = new NomenclatureParametersProvider().PaidDeliveryNomenclatureId;
+				}
+
+				return paidDeliveryNomenclatureId;
+			}
+		}
+
+		#endregion
+		
 		public virtual IInteractiveQuestion TaskCreationQuestion { get; set; }
 
 		#region Cвойства
@@ -1491,8 +1524,8 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			Contract = counterpartyContract;
-			foreach(var orderItem in OrderItems.ToList()) {
-				orderItem.CalculateVATType();
+			for (int i = 0; i < OrderItems.Count; i++) {
+				OrderItems[i].CalculateVATType();
 			}
 			UpdateContractDocument();
 			UpdateDocuments();
@@ -1638,6 +1671,27 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(oi);
 		}
 
+		public virtual void AddVodovozLeafletNomenclature(Nomenclature leaflet)
+		{
+			if (ObservableOrderEquipments.Any(x => x.Nomenclature.Id == VodovozLeafletId)) {
+				return;
+			}
+			
+			ObservableOrderEquipments.Add(
+				new OrderEquipment {
+					Order = this,
+					Direction = Direction.Deliver,
+					Count = 1,
+					Equipment = null,
+					OrderItem = null,
+					Reason = Reason.Sale,
+					Confirmed = true,
+					Nomenclature = leaflet
+				}
+			);
+			UpdateDocuments();
+		} 
+
 		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
 		{
 			var fixedPrice = GetFixedPriceOrNull(nomenclature);
@@ -1740,15 +1794,14 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CalculateDeliveryPrice()
 		{
-			int paidDeliveryNomenclatureId = int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"));
-			OrderItem deliveryPriceItem = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == paidDeliveryNomenclatureId);
+			OrderItem deliveryPriceItem = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
 
 			#region перенести всё это в OrderStateKey
 			bool IsDeliveryForFree = SelfDelivery
 												  || IsService
 												  || DeliveryPoint.AlwaysFreeDelivery
 												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
-												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != paidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
+												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
 
 			if(IsDeliveryForFree) {
 				if(deliveryPriceItem != null)
@@ -1766,13 +1819,13 @@ namespace Vodovoz.Domain.Orders
 			if(price != 0) {
 				if(deliveryPriceItem == null) {
 					deliveryPriceItem = new OrderItem {
-						Nomenclature = UoW.GetById<Nomenclature>(paidDeliveryNomenclatureId),
+						Nomenclature = UoW.GetById<Nomenclature>(PaidDeliveryNomenclatureId),
 						Order = this
 					};
 					deliveryPriceItem.Price = price;
 					deliveryPriceItem.Count = 1;
 
-					var delivery = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == paidDeliveryNomenclatureId);
+					var delivery = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
 
 					if (delivery == null) {
 						AddOrderItem(deliveryPriceItem);
@@ -1803,6 +1856,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(orderItem.Nomenclature.Category != NomenclatureCategory.additional)
 				return;
+			
 			var newItem = new OrderItem {
 				Order = this,
 				Count = orderItem.Count,
@@ -1976,14 +2030,11 @@ namespace Vodovoz.Domain.Orders
 			if(Id > 0)
 				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
 
-			INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider();
-			var deliveryId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
+			foreach(OrderItem orderItem in order.OrderItems) {
 
-			foreach (OrderItem orderItem in order.OrderItems) {
-				if (orderItem.Nomenclature.Id == deliveryId)
-                {
+				if (orderItem.Nomenclature.Id == PaidDeliveryNomenclatureId) {
 					continue;
-                }
+				}
 				
 				decimal discMoney;
 				if(orderItem.DiscountMoney == 0) {
@@ -2047,6 +2098,11 @@ namespace Vodovoz.Domain.Orders
 				throw new InvalidOperationException("Копирование списка оборудования из другого заказа недопустимо, если этот заказ не новый.");
 
 			foreach(OrderEquipment orderEquipment in order.OrderEquipments) {
+				
+				if (orderEquipment.Nomenclature.Id == VodovozLeafletId) {
+					continue;
+				}
+				
 				ObservableOrderEquipments.Add(
 					new OrderEquipment {
 						Order = this,
@@ -2388,6 +2444,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RemoveEquipment(OrderEquipment item)
 		{
+			if (item.Nomenclature != null && item.Nomenclature.Id == VodovozLeafletId) return;
+			
 			ObservableOrderEquipments.Remove(item);
 			UpdateDocuments();
 			UpdateRentsCount();
@@ -3030,10 +3088,12 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus != OrderStatus.OnLoading)
 				return false;
 
+			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
+
 			switch(PaymentType) {
 				case PaymentType.cash:
 				case PaymentType.BeveragesWorld:
-					ChangeStatusAndCreateTasks(IsSelfDeliveryPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
+					ChangeStatusAndCreateTasks(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
 					break;
 				case PaymentType.cashless:
 				case PaymentType.ByCard:

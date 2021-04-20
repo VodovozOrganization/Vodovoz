@@ -105,11 +105,19 @@ namespace Vodovoz.Tools.Orders
 			//для документов
 			this.DefaultDocumentType = Order.DocumentType ?? Order.Client.DefaultDocumentType;
 			this.IsDocTypeTORG12 = DefaultDocumentType.HasValue && DefaultDocumentType == Domain.Client.DefaultDocumentType.torg12;
-			this.HasOrderEquipment = Order.ObservableOrderEquipments.Any();
-			
+
+			if (!Order.ObservableOrderEquipments.Any() ||
+			    (Order.ObservableOrderEquipments.Count == 1 && Order.ObservableOrderEquipments.All(x =>
+				    x.Nomenclature.Id == new NomenclatureParametersProvider().VodovozLeafletId))) {
+				HasOrderEquipment = false;
+			}
+			else {
+				HasOrderEquipment = true;
+			}
+
 			if(!Order.ObservableOrderItems.Any() || 
 			   (Order.ObservableOrderItems.Count == 1 && Order.ObservableOrderItems.Any(x => 
-				x.Nomenclature.Id == int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))))) 
+				   x.Nomenclature.Id == int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))))) 
 			{
 				HasOrderItems = false;
 			}

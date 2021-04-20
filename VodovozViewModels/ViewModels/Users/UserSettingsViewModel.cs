@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;

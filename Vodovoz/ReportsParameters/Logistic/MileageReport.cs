@@ -2,19 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using QS.Dialog;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Widgets;
-using QS.Widgets.GtkUI;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModel;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
@@ -68,6 +65,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			parameters.Add("start_date", dateperiodpicker.StartDateOrNull);
 			parameters.Add("end_date", dateperiodpicker.EndDateOrNull);
 			parameters.Add("our_cars_only", ycheckbutton1.Active);
+            parameters.Add("any_status", checkAnyStatus.Active);
 			parameters.Add("car_id", (entityviewmodelentryCar.Subject as Car)?.Id ?? 0);
 			parameters.Add("employee_id", (entityviewmodelentryEmployee.Subject as Employee)?.Id ?? 0);
 			

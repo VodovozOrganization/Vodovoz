@@ -40,11 +40,11 @@
       <Textbox Name="Textbox4">
         <Height>48.12pt</Height>
         <Width>239.42pt</Width>
-        <Value>В отчет попадают МЛ, которые:
-- находятся в статусе: закрыт
-- попадают в выбранный период
+        <Value>="В отчет попадают МЛ, которые:\r\n"
++ Iif({?any_status}, "- находятся в любом статусе, кроме 'Новый'", "- находятся в статусе: закрыт") +
+"\r\n- попадают в выбранный период
 - имеют расхождение км &gt; или = указанной
-- принадлежат компании (стоит галочка)</Value>
+- принадлежат компании (стоит галочка)"</Value>
         <ZIndex>1</ZIndex>
         <Left>0.8pt</Left>
         <Top>34.9pt</Top>
@@ -95,6 +95,12 @@
           </TableColumn>
           <TableColumn>
             <Width>160.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50pt</Width>
+            <Visibility>
+              <Hidden>=Iif({?any_status}, false, true)</Hidden>
+            </Visibility>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -229,6 +235,24 @@
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>Комментарий к километражу</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Статус</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -382,11 +406,32 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingTop>=Len({mileage_comment}) / 6 + "pt"</PaddingTop>
+                        <PaddingBottom>=Len({mileage_comment}) / 6 + "pt"</PaddingBottom>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>=Fields!status.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >7pt</FontSize>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -549,6 +594,25 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -578,7 +642,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id,
@@ -590,7 +654,17 @@
              2) AS tracked_distance,
     route_lists.actual_distance,
     route_lists.confirmed_distance,
-    route_lists.mileage_comment
+    route_lists.mileage_comment,
+    CASE route_lists.status
+        WHEN 'New' THEN 'Новый'
+        WHEN 'Confirmed' THEN 'Подтверждён'
+        WHEN 'InLoading' THEN 'На погрузке'
+        WHEN 'EnRoute' THEN 'В пути'
+        WHEN 'OnClosing' THEN 'Сдаётся'
+        WHEN 'Delivered' THEN 'Доставлен'
+        WHEN 'MileageCheck' THEN 'Проверка КМ'
+        WHEN 'Closed' THEN 'Закрыт'
+    END AS status
 FROM
     route_lists
         LEFT JOIN
@@ -602,7 +676,7 @@ FROM
         LEFT JOIN
     cars ON cars.id = route_lists.car_id
 WHERE
-        route_lists.status = 'Closed'
+      (@any_status = 0 AND route_lists.status = 'Closed' OR @any_status = 1 AND route_lists.status != 'New')
   AND (cars.type_of_use IS NULL OR cars.type_of_use &lt;&gt; 'CompanyTruck')
   AND drivers.visiting_master = FALSE
   AND (@start_date = - 1 OR route_lists.`date` &gt;= @start_date)
@@ -632,9 +706,12 @@ ORDER BY route_lists.id
           <QueryParameter Name="difference_km">
             <Value>={?difference_km}</Value>
           </QueryParameter>
+          <QueryParameter Name="any_status">
+            <Value>={?any_status}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -669,6 +746,10 @@ ORDER BY route_lists.id
         </Field>
         <Field Name="mileage_comment">
           <DataField>mileage_comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="status">
+          <DataField>status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -754,6 +835,19 @@ ORDER BY route_lists.id
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="any_status">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>false</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
