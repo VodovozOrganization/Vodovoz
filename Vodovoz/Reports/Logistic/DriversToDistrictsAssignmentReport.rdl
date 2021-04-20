@@ -373,7 +373,7 @@ ORDER BY driver_name</CommandText>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >dd.MM.yyyy</Format>
+                        <Format>dd.MM.yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -404,14 +404,13 @@ ORDER BY driver_name</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <Format>d</Format>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingTop>=Len({driver_name}) / 6 + "pt"</PaddingTop>
+                        <PaddingBottom>=Len({driver_name}) / 6 + "pt"</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -430,9 +429,8 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0.00</Format>
-                        <PaddingBottom >5pt</PaddingBottom>
-                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom>=Len({planned_district}) / 6 + "pt"</PaddingBottom>
+                        <PaddingTop>=Len({planned_district}) / 6 + "pt"</PaddingTop>
                       </Style>
                       <DataElementName>formula1</DataElementName>
                       <CanGrow>true</CanGrow>
@@ -452,11 +450,10 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0.00</Format>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingTop>=Len({actual_district}) / 6 + "pt"</PaddingTop>
+                        <PaddingBottom>=Len({actual_district}) / 6 + "pt"</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
