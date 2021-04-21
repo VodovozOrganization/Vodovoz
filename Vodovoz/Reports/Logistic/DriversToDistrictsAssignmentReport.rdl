@@ -28,6 +28,7 @@
         WHEN 'Confirmed' THEN 'Подтверждён'
 		WHEN 'InLoading' THEN 'На погрузке'
 		WHEN 'EnRoute' THEN 'В пути'
+		WHEN 'Delivered' THEN 'Доставлен'
 		WHEN 'OnClosing' THEN 'Сдаётся'
 		WHEN 'NotDelivered' THEN 'Не сдан'
 		WHEN 'MileageCheck' THEN 'Проверка километража'
@@ -47,8 +48,8 @@
 	 LEFT JOIN driver_district_priorities ddp ON ddp.district_id = d2.id
 	 LEFT JOIN driver_district_priority_sets ddps ON ddps.id = ddp.driver_district_priority_set_id
 	 WHERE ddps.driver_id = route_lists.driver_id
-	   AND ddps.date_activated &lt; route_lists.date
-	   AND IFNULL(ddps.date_deactivated &gt; route_lists.date, TRUE)
+	   AND ddps.date_activated &lt;= route_lists.date
+	   AND IF(ddps.date_deactivated IS NULL, TRUE, DATE_ADD(ddps.date_deactivated, INTERVAL 1 DAY ) &gt; route_lists.date)
 	),'') AS planned_district,
 	(SELECT GROUP_CONCAT(DISTINCT d.district_name ORDER BY d.id SEPARATOR ', ')
 	 FROM districts d
@@ -166,7 +167,7 @@ ORDER BY driver_name</CommandText>
             <Width>34.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.3pt</Width>
+            <Width>66.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>64.3pt</Width>
@@ -175,7 +176,7 @@ ORDER BY driver_name</CommandText>
             <Width>67.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>123.1pt</Width>
+            <Width>119.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>95.3pt</Width>
@@ -357,6 +358,7 @@ ORDER BY driver_name</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
