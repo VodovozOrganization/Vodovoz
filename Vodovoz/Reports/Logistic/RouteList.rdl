@@ -1297,9 +1297,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox90">
-                      <Value>
-                        <!--table_cell_total_without_stock-->
-                      </Value>
+                      <Value><!--table_cell_total_without_stock--></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
