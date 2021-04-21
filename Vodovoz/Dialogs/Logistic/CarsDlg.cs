@@ -112,13 +112,14 @@ namespace Vodovoz
 				}
 			};
 
-			checkIsRaskat.Toggled += (s, e) => { 
-				if (!carRepository.IsInAnyRouteList(UoW, Entity)) {
+			checkIsRaskat.Toggled += (s, e) => {
+				if(Entity.Id == 0 || !carRepository.IsInAnyRouteList(UoW, Entity)) {
 					Entity.IsRaskat = checkIsRaskat.Active;
-				} else if (checkIsRaskat.Active != Entity.IsRaskat) {
+				}
+				else if(checkIsRaskat.Active != Entity.IsRaskat) {
 					checkIsRaskat.Active = Entity.IsRaskat;
 					MessageDialogHelper.RunWarningDialog("На данном автомобиле есть МЛ, смена типа невозможна");
-                }
+				}
 			};
 
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
