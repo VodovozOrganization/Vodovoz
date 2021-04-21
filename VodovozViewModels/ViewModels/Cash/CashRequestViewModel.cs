@@ -384,7 +384,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
             if (roles.Count == 0 || ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin)
             {
-                if (Entity.Author == null || Entity.Author.Id == CurrentEmployee.Id)
+                if (Entity.Author?.Id == CurrentEmployee.Id)
                     roles.Add(UserRole.RequestCreator);
                 else 
                     throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
