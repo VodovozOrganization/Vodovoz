@@ -1,7 +1,7 @@
 ﻿using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Threading.Tasks;
-using BitrixApi.DTO.DataContractJsonSerializer;
+//using BitrixApi.DTO.DataContractJsonSerializer;
 using Newtonsoft.Json.Linq;
 
 namespace BitrixIntegration.ServiceInterfaces

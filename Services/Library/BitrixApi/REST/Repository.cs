@@ -187,24 +187,14 @@ namespace BitrixApi.REST
          
             logger.Info($"В период между {date1} и {date2} получено {listOfIds.Count} сделок в статусе завести в ДВ" +
                         "\nДесериализация в DTO...");
-            
-            // listOfIds.Add(163722);
-            // listOfIds.Add(169056); тут нет цены 
-            
-            // listOfIds.Add(168902); // нет времени доставки
             return listOfIds;
         }
 
         public async Task<bool> SendWONBitrixStatus(uint bitrixId)
         {
             return true; //TODO test
-            // bitrixId = 163726; //TODO gavr убрать
             
-            /*
-             * Можешь поставить кулдаун в 10 секунд?
-             * У нас есть ошибка жоская, скорее всего она вызвана тем, что операторы слишком быстро стадии переключают и скрипты срабатывать не успевают)
-             * Я блять не знаю как это работает, кроме того, что работает оно через задницу)
-             */
+            //Задержка в 10сек, это необходимо из-за битрикса, он не успевает обработать какие-то скрипты
             Thread.Sleep(10000);
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.deal.update.json?id={bitrixId}&FIELDS[STAGE_ID]=WON";
@@ -275,7 +265,7 @@ namespace BitrixApi.REST
             var customFieldsList = await GetAllCustomFieldsFromDeal();
             foreach (var customField in customFieldsList.Take(5)) //TODO gavr убрать take 5
             {
-                map[customField.ShitName] = await GetCustomFieldDeal(customField.ID);
+                map[customField.FieldName] = await GetCustomFieldDeal(customField.Id);
                 Thread.Sleep(1000);
             }
             return map;
@@ -288,7 +278,7 @@ namespace BitrixApi.REST
             {
                 builder.Append(shitToRusName.Key);
                 builder.Append(":");
-                builder.Append(shitToRusName.Value.Russian.Name);
+                builder.Append(shitToRusName.Value.RussianName.Name);
                 builder.Append('\n');
             }
             builder.Append('\n');

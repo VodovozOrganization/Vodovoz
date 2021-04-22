@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ServiceModel.Web;
-using BitrixApi.DTO.DataContractJsonSerializer;
+//using BitrixApi.DTO.DataContractJsonSerializer;
 using BitrixIntegration.ServiceInterfaces;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;

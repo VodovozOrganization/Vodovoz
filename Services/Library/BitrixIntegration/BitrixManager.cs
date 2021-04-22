@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using BitrixApi.DTO.DataContractJsonSerializer;
+//using BitrixApi.DTO.DataContractJsonSerializer;
 using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
@@ -71,7 +71,7 @@ namespace BitrixIntegration
 		{
 			return dealsQueue.Count;
 		}
-
+/*
 		public static void AddEvent(BitrixPostResponse bitrixEvent)
 		{
 			logger.Info("Получен евент");
@@ -79,7 +79,7 @@ namespace BitrixIntegration
 				Thread.CurrentThread.Name = "AddEventWork";
 				ProcessEvent(bitrixEvent);
 			});
-		}
+		}*/
 
 		public static Tuple<bool, string> sendOrderStatusToBitrix(OrderStatus status, Order order)
 		{
@@ -168,7 +168,7 @@ namespace BitrixIntegration
 			throw new NotImplementedException();
 			
 		}
-
+/*
 		static async void ProcessEvent(BitrixPostResponse bitrixEvent)
 		{
 			
@@ -182,7 +182,7 @@ namespace BitrixIntegration
 			}
 			
 	
-		}
+		}*/
 
 		static void TryResaveEvent(Deal unsavedEvent)
 		{
