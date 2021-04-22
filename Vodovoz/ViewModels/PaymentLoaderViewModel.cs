@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using NHibernate.Util;
 using QS.DomainModel.UoW;
 using QS.ViewModels;
 using QS.Services;
@@ -133,7 +134,8 @@ namespace Vodovoz.ViewModels
 			IsNotAutoMatchingMode = false;
 			progress = 0;
 			UpdateProgress?.Invoke("Начинаем работу...", progress);
-			Parser = new TransferDocumentsFromBankParser(docPath);
+			var vodovozOrgs = UoW.GetAll<Domain.Organizations.Organization>();
+			Parser = new TransferDocumentsFromBankParser(docPath, vodovozOrgs.ToList());
 			Parser.Parse();
 
 			UpdateProgress?.Invoke("Сопоставляем полученные платежи...", progress);

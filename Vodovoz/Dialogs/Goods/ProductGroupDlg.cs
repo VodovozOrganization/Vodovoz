@@ -43,12 +43,6 @@ namespace Vodovoz.Dialogs.Goods
 
 			ycheckExportToOnlineStore.Binding.AddBinding(Entity, e => e.ExportToOnlineStore, w => w.Active).InitializeFromSource();
 			
-			ycheckbuttonOnlineStore.Binding.AddBinding(Entity, e => e.IsOnlineStore, w => w.Active).InitializeFromSource();
-			ycheckbuttonOnlineStore.Toggled += (sender, args) => {
-				Entity.FetchChilds(UoW);
-				Entity.SetIsOnlineStoreRecursively(ycheckbuttonOnlineStore.Active);
-			};
-			
 			ycheckArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			ycheckArchived.Toggled += (sender, args) => {
 				Entity.FetchChilds(UoW);

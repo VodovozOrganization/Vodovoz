@@ -562,6 +562,15 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isForRetail, value, () => IsForRetail);
 		}
 
+        private bool isSelfDeliveryPaid;
+
+        [Display(Name = "Самовывоз оплачен")]
+        public virtual bool IsSelfDeliveryPaid
+        {
+            get => isSelfDeliveryPaid;
+            set => SetField(ref isSelfDeliveryPaid, value);
+        }
+
 		private int bottlesByStockCount;
 		[Display(Name = "Количество бутылей по акции")]
 		public virtual int BottlesByStockCount {
@@ -2694,6 +2703,8 @@ namespace Vodovoz.Domain.Orders
 			if((incomeCash - expenseCash) != OrderCashSum)
 				return;
 
+			IsSelfDeliveryPaid = true;
+
 			bool isFullyLoad = IsFullyShippedSelfDeliveryOrder(UoW, new SelfDeliveryRepository());
 
 			if(OrderStatus == OrderStatus.WaitForPayment) {
@@ -3019,12 +3030,10 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus != OrderStatus.OnLoading)
 				return false;
 
-			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
-
 			switch(PaymentType) {
 				case PaymentType.cash:
 				case PaymentType.BeveragesWorld:
-					ChangeStatusAndCreateTasks(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
+					ChangeStatusAndCreateTasks(IsSelfDeliveryPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
 					break;
 				case PaymentType.cashless:
 				case PaymentType.ByCard:

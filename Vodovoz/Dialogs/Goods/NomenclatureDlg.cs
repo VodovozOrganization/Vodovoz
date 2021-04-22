@@ -210,7 +210,7 @@ namespace Vodovoz
 			labelStorageCell.Visible = isEshopNomenclature;
 			yspinbuttonPurchasePrice.Visible = isEshopNomenclature;
 			labelPurchasePrice.Visible = isEshopNomenclature;
-			ylblOnlineStore.Visible = ylblOnlineStoreStr.Visible = Entity?.ProductGroup?.IsOnlineStore ?? false;
+			ylblOnlineStore.Visible = ylblOnlineStoreStr.Visible = Entity?.OnlineStore != null;
 		}
 
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

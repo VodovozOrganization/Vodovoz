@@ -107,6 +107,7 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
+using System.Runtime.InteropServices;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -129,7 +130,11 @@ public partial class MainWindow : Gtk.Window
         BuildToolbarActions();
         tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
         TDIMain.MainNotebook = tdiMain;
-        KeyReleaseEvent += TDIMain.TDIHandleKeyReleaseEvent;
+
+        bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        if (isWindows)
+            KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
+
         Title = $"{applicationInfo.ProductTitle} v{applicationInfo.Version} от {applicationInfo.BuildDate:dd.MM.yyyy HH:mm}";
         //Настраиваем модули
         ActionUsers.Sensitive = QSMain.User.Admin;
@@ -739,7 +744,7 @@ public partial class MainWindow : Gtk.Window
 
         var filter = new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default };
 
-        var SubdivisionAutocompleteSelectorFactory =
+        var subdivisionAutocompleteSelectorFactory =
             new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
             {
                 return new SubdivisionsJournalViewModel(
@@ -749,7 +754,10 @@ public partial class MainWindow : Gtk.Window
                     employeeSelectorFactory
                 );
             });
-            
+
+        var counterpartyAutocompleteSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
         tdiMain.OpenTab(
             () =>
             {
@@ -759,7 +767,8 @@ public partial class MainWindow : Gtk.Window
                     ServicesConfig.CommonServices,
                     VodovozGtkServicesConfig.EmployeeService,
                     SubdivisionParametersProvider.Instance,
-                    SubdivisionAutocompleteSelectorFactory
+                    subdivisionAutocompleteSelectorFactory,
+                    counterpartyAutocompleteSelectorFactory
                 );
             }
         );
@@ -1752,9 +1761,14 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionPaymentsReportActivated(object sender, EventArgs e)
     {
+        var counterpartyAutocompleteSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+        
+        var userRepository = UserSingletonRepository.GetInstance();
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
-            () => new QSReport.ReportViewDlg(new PaymentsFromBankClientReport())
+            () => new QSReport.ReportViewDlg(new PaymentsFromBankClientReport(counterpartyAutocompleteSelectorFactory, userRepository, ServicesConfig.CommonServices))
         );
     }
 

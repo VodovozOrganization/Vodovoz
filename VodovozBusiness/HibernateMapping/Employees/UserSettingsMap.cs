@@ -25,6 +25,7 @@ namespace Vodovoz.HibernateMapping
             References(x => x.User).Column("user_id");
 			References(x => x.DefaultWarehouse).Column("default_warehouse_id");
             References(x => x.DefaultSubdivision).Column("default_subdivision_id");
+            References(x => x.DefaultCounterparty).Column("default_counterparty_id");
         }
 	}
 }

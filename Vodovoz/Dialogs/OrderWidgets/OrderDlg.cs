@@ -701,6 +701,9 @@ namespace Vodovoz
 			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
 			treeItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderItem>()
+				.AddColumn("№")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(node => Entity.OrderItems.IndexOf(node) + 1)
 				.AddColumn("Номенклатура")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
@@ -1572,12 +1575,11 @@ namespace Vodovoz
 				MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
 				return;
 			}
-			if(nomenclature.ProductGroup != null)
-				if(nomenclature.ProductGroup.IsOnlineStore && !ServicesConfig.CommonServices.CurrentPermissionService
-					.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {
-					MessageDialogHelper.RunWarningDialog("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
-					return;
-				}
+			if(nomenclature.OnlineStore != null && !ServicesConfig.CommonServices.CurrentPermissionService
+				.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {
+				MessageDialogHelper.RunWarningDialog("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
+				return;
+			}
 			
 			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
 		}
@@ -2438,8 +2440,8 @@ namespace Vodovoz
 			ycheckPaymentBySms.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
-			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
-			buttonAddForSale.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
+			checkPayAfterLoad.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_payment_after_load") && checkSelfDelivery.Active && val;
+            buttonAddForSale.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer") && val && !Entity.SelfDelivery;

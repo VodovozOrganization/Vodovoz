@@ -20,24 +20,23 @@ namespace Vodovoz.Dialogs.Cash
 			this.Configure();
 		}
 
-
 		private void Configure()
 		{
 			ydateDate.Binding.AddBinding(
-				ViewModel.Entity, 
+				ViewModel, 
 				e => e.Date,
 				w => w.Date
 			).InitializeFromSource();
 			ydateDate.Date = DateTime.Now;
 
 			yentryComment.Binding.AddBinding(
-				ViewModel.Entity,
+				ViewModel,
 				e => e.Comment, 
 				w => w.Text
 			).InitializeFromSource();
 		
 			yspinsum.Binding.AddBinding(
-				ViewModel.Entity, 
+				ViewModel, 
 				e => e.Sum, 
 				w => w.ValueAsDecimal
 			).InitializeFromSource();
@@ -57,18 +56,16 @@ namespace Vodovoz.Dialogs.Cash
 			);
 			
 			AccountableEntityviewmodelentry3.Binding.AddBinding(
-				ViewModel.Entity,
+				ViewModel,
 				s => s.AccountableEmployee,
 				w => w.Subject
 			).InitializeFromSource();
-			
 
-			buttonSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel);};
-			
-			
+			buttonAccept.Clicked += (sender, args) => ViewModel.AcceptCommand.Execute();
+			buttonCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
+
 			#region Visibility
-			
+
 			yspinsum.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
 			label1.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
 			

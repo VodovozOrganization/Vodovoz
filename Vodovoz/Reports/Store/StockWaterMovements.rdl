@@ -144,7 +144,13 @@ FROM
 		 OR (0 IN (@product_group_include) AND 0 IN (@product_group_exclude))
 	)
 HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 0 OR warehouse_4 &lt;&gt; 0 OR wagons &lt;&gt; 0 
-    ORDER BY nomenclature.category, nomenclature.name</CommandText>
+    ORDER BY
+	CASE WHEN @sortType = 'Type, Alphabet'                   THEN nomenclature.category END,
+		CASE WHEN @sortType = 'Type, Alphabet'               THEN nomenclature.name END,
+	CASE WHEN @sortType = 'Type'                             THEN nomenclature.category END,
+	CASE WHEN @sortType = 'Alphabet, Type'                   THEN nomenclature.name END,
+		CASE WHEN @sortType = 'Alphabet, Type'               THEN nomenclature.category END,
+	CASE WHEN @sortType = 'Alphabet' OR @sortType = ''       THEN nomenclature.name END, nomenclature.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="endDate">
             <Value>=Parameters!endDate</Value>
@@ -181,6 +187,9 @@ HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 
           </QueryParameter>
           <QueryParameter Name="product_group_exclude">
             <Value>=Parameters!product_group_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="sortType">
+            <Value>=Parameters!sortType</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -713,7 +722,7 @@ HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="endDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -827,13 +836,22 @@ HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="product_group_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="sortType">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>
   </ReportParameters>

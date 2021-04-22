@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -395,6 +395,7 @@
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Commons\FileChooser.cs" />
+    <Compile Include="Commons\HotkeyHandler.cs" />
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
