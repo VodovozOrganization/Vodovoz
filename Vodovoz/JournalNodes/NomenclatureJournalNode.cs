@@ -20,6 +20,9 @@ namespace Vodovoz.JournalNodes
 		public bool IsEquipmentWithSerial { get; set; }
 		public string OnlineStoreExternalId { get; set; }
 
+		public int PlanDay { get; set; }
+		public int PlanMonth { get; set; }
+
 		public bool CalculateQtyOnStock { get; set; } = true;
 		public string InStockText => UsedStock ? Format(InStock) : string.Empty;
 		public string ReservedText => UsedStock && Reserved.HasValue ? Format(Reserved.Value) : string.Empty;

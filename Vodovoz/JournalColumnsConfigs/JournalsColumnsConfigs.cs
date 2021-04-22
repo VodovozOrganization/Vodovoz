@@ -1028,6 +1028,24 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
+
+            //NomenclaturesPlanJournalViewModel
+            TreeViewColumnsConfigFactory.Register<NomenclaturesPlanJournalViewModel>(
+                () => FluentColumnsConfig<NomenclatureJournalNode>.Create()
+                    .AddColumn("Код")
+                        .AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Номенклатура")
+                        .SetDataProperty(node => node.Name)
+                    .AddColumn("Категория")
+                        .SetDataProperty(node => node.Category.GetEnumTitle())
+                    .AddColumn("Код в ИМ")
+                        .AddTextRenderer(node => node.OnlineStoreExternalId)
+                    .AddColumn("План день")
+                        .AddTextRenderer(node => node.PlanDay.ToString())
+                    .AddColumn("План месяц")
+                        .AddTextRenderer(node => node.PlanMonth.ToString())
+                    .Finish()
+            );
 		}
 	}
 }

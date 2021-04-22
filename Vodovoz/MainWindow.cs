@@ -108,6 +108,7 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Order;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2139,5 +2140,24 @@ public partial class MainWindow : Gtk.Window
             QSReport.ReportViewDlg.GenerateHashName<DriversToDistrictsAssignmentReport>(),
             () => new QSReport.ReportViewDlg(new DriversToDistrictsAssignmentReport())
         );
+    }
+    protected void OnActionNomenclaturePlanActivated(object sender, EventArgs e)
+    {
+        NomenclatureFilterViewModel nomenclatureFilterViewModel = new NomenclatureFilterViewModel();
+
+        tdiMain.OpenTab(() => new NomenclaturesPlanJournalViewModel(
+                    new NomenclaturePlanFilterViewModel(nomenclatureFilterViewModel) { HidenByDefault = true },
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices)
+        );
+    }
+
+    protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<NomenclaturePlanReport>(),
+            () => new QSReport.ReportViewDlg(new NomenclaturePlanReport())
+        );
+    
     }
 }
