@@ -290,6 +290,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<DeliveryPointResponsiblePersonTypeJournalFilterViewModel, DeliveryPointResponsiblePersonTypeJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<SalesChannelJournalFilterViewModel, SalesChannelJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<EmployeePostViewModel, EmployeePostView>()
+                .RegisterWidgetForWidgetViewModel<WarehouseViewModel, WarehouseView>()
                 ;
 
             DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

@@ -1589,6 +1589,10 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.CounterpartyReport.cs" />
     <Compile Include="ReportsParameters\DriversToDistrictsAssignmentReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.DriversToDistrictsAssignmentReport.cs" />
+    <Compile Include="TempAdapters\WarehouseSelectorFactory.cs" />
+    <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
+    <Compile Include="Views\Warehouse\WarehouseView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.WarehouseView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
