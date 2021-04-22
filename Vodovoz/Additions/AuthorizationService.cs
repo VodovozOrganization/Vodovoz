@@ -27,7 +27,7 @@ namespace Vodovoz.Additions
         private readonly IEmailService emailService;
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        private const int passwordLength = 5;
+        private const int passwordLength = 8;
 
         public bool ResetPassword(Employee employee, string password)
         {
