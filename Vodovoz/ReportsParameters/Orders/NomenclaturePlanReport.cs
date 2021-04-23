@@ -12,7 +12,7 @@ namespace Vodovoz.ReportsParameters.Orders
             this.Build();
         }
 
-        public string Title => throw new NotImplementedException();
+        public string Title => "Отчёт по мотивации КЦ";
 
         public event EventHandler<LoadReportEventArgs> LoadReport;
     }

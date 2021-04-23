@@ -471,6 +471,10 @@ public partial class MainWindow
 
 	private global::Gtk.Action DriversToDistrictsAssignmentReportAction;
 
+	private global::Gtk.Action ActionNomenclaturePlan;
+
+	private global::Gtk.Action ActionNomenclaturePlanReport;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -1221,6 +1225,12 @@ public partial class MainWindow
 		this.DriversToDistrictsAssignmentReportAction = new global::Gtk.Action("DriversToDistrictsAssignmentReportAction", global::Mono.Unix.Catalog.GetString("Отчет по распределению водителей на районы"), null, null);
 		this.DriversToDistrictsAssignmentReportAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по распределению водителей на районы");
 		w1.Add(this.DriversToDistrictsAssignmentReportAction, null);
+		this.ActionNomenclaturePlan = new global::Gtk.Action("ActionNomenclaturePlan", global::Mono.Unix.Catalog.GetString("План продаж для КЦ"), null, null);
+		this.ActionNomenclaturePlan.ShortLabel = global::Mono.Unix.Catalog.GetString("План продаж для КЦ");
+		w1.Add(this.ActionNomenclaturePlan, null);
+		this.ActionNomenclaturePlanReport = new global::Gtk.Action("ActionNomenclaturePlanReport", global::Mono.Unix.Catalog.GetString("Отчет по мотивации КЦ"), null, null);
+		this.ActionNomenclaturePlanReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по мотивации КЦ");
+		w1.Add(this.ActionNomenclaturePlanReport, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -1705,6 +1715,8 @@ public partial class MainWindow
 		this.ActionQualityRetailReport.Activated += new global::System.EventHandler(this.OnActionQualityRetailReport);
 		this.ActionCounterpartyRetailReport.Activated += new global::System.EventHandler(this.OnActionCounterpartyRetailReport);
 		this.DriversToDistrictsAssignmentReportAction.Activated += new global::System.EventHandler(this.OnDriversToDistrictsAssignmentReportActionActivated);
+		this.ActionNomenclaturePlan.Activated += new global::System.EventHandler(this.OnActionNomenclaturePlanActivated);
+		this.ActionNomenclaturePlanReport.Activated += new global::System.EventHandler(this.OnActionNomenclaturePlanReportActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
