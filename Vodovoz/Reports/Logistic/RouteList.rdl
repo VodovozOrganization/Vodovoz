@@ -878,19 +878,15 @@
                       <Value>={Address} + Iif({Reloaded}, "*", "") + Iif({NeedNewBottles}, "(Н)", "")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
+                        <PaddingTop>=Len({Address}) / 7 + "pt"</PaddingTop>
+                        <PaddingBottom>=Len({Address}) / 7 + "pt"</PaddingBottom>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
-                        <FontWeight>=Iif(
-    {has_comment_for_driver} = true,
-    'Bold',
-    'Normal'
-)
-
-</FontWeight>
+                        <FontWeight>=Iif({has_comment_for_driver} = true,'Bold','Normal')</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontStyle>='Normal'</FontStyle>
