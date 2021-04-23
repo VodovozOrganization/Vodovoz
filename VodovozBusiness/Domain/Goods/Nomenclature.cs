@@ -632,6 +632,8 @@ namespace Vodovoz.Domain.Goods
 			Category == NomenclatureCategory.water
 			&& TareVolume.HasValue
 			&& TareVolume.Value == Goods.TareVolume.Vol19L;
+
+        public virtual SelectedNomenclaturePlan SelectedNomenclaturePlan { get; set; }
 		
 		public override string ToString() => $"id ={Id} Name = {Name}";
 
