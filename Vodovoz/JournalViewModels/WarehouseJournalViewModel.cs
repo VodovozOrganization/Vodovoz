@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
 using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
-using Vodovoz.Additions.Store;
+using Vodovoz.Core;
 using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -43,19 +44,23 @@ namespace Vodovoz.JournalViewModels
         protected override Func<IUnitOfWork, IQueryOver<Warehouse>> ItemsSourceQueryFunction => (uow) => {
             Warehouse warehouseAlias = null;
             WarehouseJournalNode warehouseNodeAlias = null;
-            var query = uow.Session.QueryOver<Warehouse>(() => warehouseAlias)
-                .WhereRestrictionOn(w => w.Id)
-                .IsIn(StoreDocumentHelper.GetRestrictedWarehousesList(UoW, warehousePermissions)
-                .Select(wl => wl.Id).ToList());
+
+            var query = uow.Session.QueryOver<Warehouse>(() => warehouseAlias).WhereNot(w => w.IsArchive);
+            var disjunction = new Disjunction();
+
+            foreach (var p in warehousePermissions)
+            {
+                disjunction.Add<Warehouse>(w => w.Id.IsIn(CurrentPermissions.Warehouse.Allowed(p).Select(x => x.Id).ToArray()));
+            }
+            query.Where(disjunction);
 
             query.Where(GetSearchCriterion(
                 () => warehouseAlias.Id,
                 () => warehouseAlias.Name
             ));
             var result = query.SelectList(list => list
-                .Select(w => w.Id).WithAlias(() => warehouseNodeAlias.Id)
-                .Select(w => w.Name).WithAlias(() => warehouseNodeAlias.Name)
-                )
+                    .Select(w => w.Id).WithAlias(() => warehouseNodeAlias.Id)
+                    .Select(w => w.Name).WithAlias(() => warehouseNodeAlias.Name))
                 .OrderBy(w => w.Name).Asc
                 .TransformUsing(Transformers.AliasToBean<WarehouseJournalNode>());
             return result;

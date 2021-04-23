@@ -5,7 +5,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 {
     public class WarehouseJournalNode : JournalEntityNodeBase<Warehouse>
     {
-        public override string Title => $"{Name}";
+        public override string Title => Name;
         public string Name { get; set; }
     }
 }
