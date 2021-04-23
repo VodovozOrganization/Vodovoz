@@ -45,13 +45,14 @@ namespace Vodovoz
 			w2.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.entryWarehouses = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryWarehouses.WidthRequest = 300;
+			this.entryWarehouses.WidthRequest = 350;
 			this.entryWarehouses.Events = ((global::Gdk.EventMask)(256));
 			this.entryWarehouses.Name = "entryWarehouses";
 			this.entryWarehouses.CanEditReference = false;
 			this.hbox3.Add(this.entryWarehouses);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entryWarehouses]));
 			w3.Position = 2;
+			w3.Expand = false;
 			this.Add(this.hbox3);
 			if ((this.Child != null))
 			{
