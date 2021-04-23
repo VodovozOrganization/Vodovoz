@@ -40,15 +40,15 @@ namespace Vodovoz.ReportsParameters.Orders
 
 		private global::Gtk.Table table4;
 
-		private global::QS.Views.Control.EntityEntry entityentryProductGroup2;
-
-		private global::Gamma.Widgets.yEnumComboBox enumType;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityentryProductGroup;
 
 		private global::Gtk.Label label6;
 
 		private global::Gtk.Label label7;
 
-		private global::Gtk.HBox hbox5;
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxNomenclatureCategory;
+
+		private global::Gtk.HBox hbox6;
 
 		private global::QSWidgetLib.SearchEntity searchentityNomenclature;
 
@@ -96,7 +96,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
 		private global::Gtk.VBox vbox8;
 
-		private global::QS.Views.Control.EntityEntry entityentrySubdivision;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityentrySubdivision;
 
 		private global::QSWidgetLib.SearchEntity searchentityEmployee;
 
@@ -254,11 +254,12 @@ namespace Vodovoz.ReportsParameters.Orders
 			this.table4.RowSpacing = ((uint)(6));
 			this.table4.ColumnSpacing = ((uint)(6));
 			// Container child table4.Gtk.Table+TableChild
-			this.entityentryProductGroup2 = new global::QS.Views.Control.EntityEntry();
-			this.entityentryProductGroup2.Events = ((global::Gdk.EventMask)(256));
-			this.entityentryProductGroup2.Name = "entityentryProductGroup2";
-			this.table4.Add(this.entityentryProductGroup2);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table4[this.entityentryProductGroup2]));
+			this.entityentryProductGroup = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityentryProductGroup.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryProductGroup.Name = "entityentryProductGroup";
+			this.entityentryProductGroup.CanEditReference = false;
+			this.table4.Add(this.entityentryProductGroup);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table4[this.entityentryProductGroup]));
 			w13.TopAttach = ((uint)(1));
 			w13.BottomAttach = ((uint)(2));
 			w13.LeftAttach = ((uint)(1));
@@ -266,36 +267,36 @@ namespace Vodovoz.ReportsParameters.Orders
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
-			this.enumType = new global::Gamma.Widgets.yEnumComboBox();
-			this.enumType.Name = "enumType";
-			this.enumType.ShowSpecialStateAll = false;
-			this.enumType.ShowSpecialStateNot = false;
-			this.enumType.UseShortTitle = false;
-			this.enumType.DefaultFirst = true;
-			this.table4.Add(this.enumType);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table4[this.enumType]));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(2));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table4.Gtk.Table+TableChild
 			this.label6 = new global::Gtk.Label();
 			this.label6.Name = "label6";
 			this.label6.Xalign = 0F;
 			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("Тип:");
 			this.table4.Add(this.label6);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table4[this.label6]));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table4[this.label6]));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
 			this.label7 = new global::Gtk.Label();
 			this.label7.Name = "label7";
 			this.label7.Xalign = 0F;
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString("Группа:");
 			this.table4.Add(this.label7);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table4[this.label7]));
-			w16.TopAttach = ((uint)(1));
-			w16.BottomAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table4[this.label7]));
+			w15.TopAttach = ((uint)(1));
+			w15.BottomAttach = ((uint)(2));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table4.Gtk.Table+TableChild
+			this.yenumcomboboxNomenclatureCategory = new global::Gamma.Widgets.yEnumComboBox();
+            this.yenumcomboboxNomenclatureCategory.Name = "yenumcomboboxNomenclatureCategory";
+			this.yenumcomboboxNomenclatureCategory.ShowSpecialStateAll = false;
+			this.yenumcomboboxNomenclatureCategory.ShowSpecialStateNot = false;
+			this.yenumcomboboxNomenclatureCategory.UseShortTitle = false;
+			this.yenumcomboboxNomenclatureCategory.DefaultFirst = false;
+			this.table4.Add(this.yenumcomboboxNomenclatureCategory);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table4[this.yenumcomboboxNomenclatureCategory]));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox15.Add(this.table4);
@@ -314,18 +315,18 @@ namespace Vodovoz.ReportsParameters.Orders
 			w19.Expand = false;
 			w19.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox5 = new global::Gtk.HBox();
-			this.hbox5.Name = "hbox5";
-			this.hbox5.Spacing = 6;
-			// Container child hbox5.Gtk.Box+BoxChild
+			this.hbox6 = new global::Gtk.HBox();
+			this.hbox6.Name = "hbox6";
+			this.hbox6.Spacing = 6;
+			// Container child hbox6.Gtk.Box+BoxChild
 			this.searchentityNomenclature = new global::QSWidgetLib.SearchEntity();
 			this.searchentityNomenclature.Events = ((global::Gdk.EventMask)(256));
 			this.searchentityNomenclature.Name = "searchentityNomenclature";
-			this.hbox5.Add(this.searchentityNomenclature);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.searchentityNomenclature]));
+			this.hbox6.Add(this.searchentityNomenclature);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.searchentityNomenclature]));
 			w20.Position = 0;
-			this.vbox1.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
+			this.vbox1.Add(this.hbox6);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox6]));
 			w21.Position = 3;
 			w21.Expand = false;
 			w21.Fill = false;
@@ -528,9 +529,10 @@ namespace Vodovoz.ReportsParameters.Orders
 			this.vbox8.Name = "vbox8";
 			this.vbox8.Spacing = 6;
 			// Container child vbox8.Gtk.Box+BoxChild
-			this.entityentrySubdivision = new global::QS.Views.Control.EntityEntry();
+			this.entityentrySubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityentrySubdivision.Events = ((global::Gdk.EventMask)(256));
 			this.entityentrySubdivision.Name = "entityentrySubdivision";
+			this.entityentrySubdivision.CanEditReference = false;
 			this.vbox8.Add(this.entityentrySubdivision);
 			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.entityentrySubdivision]));
 			w46.Position = 0;
