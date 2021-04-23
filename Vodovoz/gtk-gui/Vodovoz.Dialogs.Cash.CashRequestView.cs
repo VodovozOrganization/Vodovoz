@@ -165,8 +165,8 @@ namespace Vodovoz.Dialogs.Cash
 			w5.Position = 2;
 			w5.Expand = false;
 			w5.Fill = false;
-            // Container child hboxDialogButtons.Gtk.Box+BoxChild
-            this.comboRoleChooser = new Gamma.Widgets.yListComboBox();
+			// Container child hboxDialogButtons.Gtk.Box+BoxChild
+			this.comboRoleChooser = new global::Gamma.Widgets.yListComboBox();
 			this.comboRoleChooser.Name = "comboRoleChooser";
 			this.comboRoleChooser.AddIfNotExist = false;
 			this.comboRoleChooser.DefaultFirst = false;

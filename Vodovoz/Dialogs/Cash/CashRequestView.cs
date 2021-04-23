@@ -186,18 +186,14 @@ namespace Vodovoz.Dialogs.Cash
 
             #region Visibility
 
-            labelBalansOrganizations.Visible = ViewModel.VisibleOnlyForFinancer;
-            ylabelBalansOrganizations.Visible = ViewModel.VisibleOnlyForFinancer;
-            labelBalansOrganizations.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible);
-            ylabelBalansOrganizations.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible);
+            labelBalansOrganizations.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
+            ylabelBalansOrganizations.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
 
-            labelcomboOrganization.Visible = ViewModel.VisibleOnlyForFinancer;
-            speccomboOrganization.Visible = ViewModel.VisibleOnlyForFinancer;
-            labelcomboOrganization.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible);
-            speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible);
+            labelcomboOrganization.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
+            speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
 
-            labelCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible);
-            ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible);
+            labelCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible).InitializeFromSource();
+            ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible).InitializeFromSource();
 
             yentryReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
             labelReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
