@@ -3030,10 +3030,12 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus != OrderStatus.OnLoading)
 				return false;
 
+			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
+
 			switch(PaymentType) {
 				case PaymentType.cash:
 				case PaymentType.BeveragesWorld:
-					ChangeStatusAndCreateTasks(IsSelfDeliveryPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
+					ChangeStatusAndCreateTasks(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
 					break;
 				case PaymentType.cashless:
 				case PaymentType.ByCard:
