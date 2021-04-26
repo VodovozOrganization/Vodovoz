@@ -310,7 +310,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
             if (IsRaskat && TypeOfUse != CarTypeOfUse.DriverCar)
-                yield return new ValidationResult("Раскатным может быть только автомобиль водителя", new[] { "IsRaskat", "TypeOfUse" });
+                yield return new ValidationResult("Раскатным может быть только автомобиль водителя", new[] { nameof(IsRaskat), nameof(TypeOfUse) });
         }
 
 		#endregion
