@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using GeoAPI.Geometries;
 using GMap.NET;
 using NetTopologySuite.Geometries;
 using QS.Commands;
@@ -12,7 +11,6 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 
