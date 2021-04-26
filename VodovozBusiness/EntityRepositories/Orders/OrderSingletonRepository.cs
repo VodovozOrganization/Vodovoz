@@ -28,14 +28,13 @@ namespace Vodovoz.EntityRepositories.Orders
 	{
 		private static OrderSingletonRepository instance;
 
+		[Obsolete("Необходимо избавляться от синглтонов")]
 		public static OrderSingletonRepository GetInstance()
 		{
 			if(instance == null)
 				instance = new OrderSingletonRepository();
 			return instance;
 		}
-
-		protected OrderSingletonRepository() { }
 
 		public QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
 		{
