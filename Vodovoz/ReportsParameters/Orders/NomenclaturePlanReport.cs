@@ -14,8 +14,11 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Representations;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Order;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -40,15 +43,17 @@ namespace Vodovoz.ReportsParameters.Orders
         {
             UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-            ybuttonSave.Clicked += YbuttonSave_Clicked;
-            ybuttonSave.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-                "can_save_callcenter_motivation_report_filter");
-
             dateperiodReportDate.StartDate = dateperiodReportDate.EndDate = DateTime.Today;
             enumType.ShowSpecialStateAll = true;
             enumType.ItemsEnum = typeof(NomenclatureCategory);
 
             buttonCreateReport.Clicked += OnButtonCreateReportClicked;
+            buttonNomenclaturePlan.Clicked += ButtonNomenclaturePlan_Clicked;
+            buttonHelp.Clicked += ButtonHelp_Clicked;
+
+            ybuttonSave.Clicked += YbuttonSave_Clicked;
+            ybuttonSave.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+                "can_save_callcenter_motivation_report_filter");
 
             searchentityNomenclature.TextChanged += OnSearchNomenclatureTextChanged;
             searchentityEmployee.TextChanged += OnSearchEmployeeTextChanged;
@@ -78,11 +83,11 @@ namespace Vodovoz.ReportsParameters.Orders
                 .List<SubdivisionReportNode>()
                 .OrderBy(x => x.Name);
 
-            ycmbxSubdivision.ItemsList = subdivisions;
-            ycmbxSubdivision.SetRenderTextFunc<SubdivisionReportNode>(x => x.Name);
+            ycomboboxSubdivision.ItemsList = subdivisions;
+            ycomboboxSubdivision.SetRenderTextFunc<SubdivisionReportNode>(x => x.Name);
             var nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(ParametersProvider.Instance);
-            ycmbxSubdivision.SelectedItem = subdivisions.FirstOrDefault(x => x.Id == nomenclaturePlanParametersProvider.CallCenterSubdivisionId);
-            ycmbxSubdivision.Changed += YcmbxSubdivision_Changed;
+            ycomboboxSubdivision.SelectedItem = subdivisions.FirstOrDefault(x => x.Id == nomenclaturePlanParametersProvider.CallCenterSubdivisionId);
+            ycomboboxSubdivision.Changed += YcmbxSubdivision_Changed;
 
             ytreeviewNomenclatures.ColumnsConfig = FluentColumnsConfig<NomenclatureReportNode>.Create()
                 .AddColumn("ТМЦ").AddTextRenderer(x => x.Name)
@@ -124,7 +129,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
             selectedNomenclatures = new GenericObservableList<NomenclatureReportNode>(
                nomenclatures.Where(x => savedNomenclatures
-                   .Select(s=>s.NomenclatureId).Contains(x.Id)).ToList()
+                   .Select(s => s.NomenclatureId).Contains(x.Id)).ToList()
             );
 
             ytreeviewSelectedNomenclatures.ItemsDataSource = selectedNomenclatures;
@@ -161,6 +166,20 @@ namespace Vodovoz.ReportsParameters.Orders
             ytreeviewEmployees.ItemsDataSource = employees;
 
             ytreeviewSelectedEmployees.ItemsDataSource = selectedEmployees = new GenericObservableList<EmployeeReportNode>();
+        }
+
+        private void ButtonHelp_Clicked(object sender, EventArgs e)
+        {
+            MessageDialogHelper.RunInfoDialog("Кнопками со стрелками влево/вправо, либо двойным щелчком мыши выберите ТМЦ и сотрудников для отчёта. Для настройки плана продаж нажмите на соответствующую кнопку сверху.");
+        }
+
+        private void ButtonNomenclaturePlan_Clicked(object sender, EventArgs e)
+        {
+            MainClass.MainWin.TdiMain.OpenTab(() => new NomenclaturesPlanJournalViewModel(
+                new NomenclaturePlanFilterViewModel(new NomenclatureFilterViewModel()) { HidenByDefault = true },
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices)
+            );
         }
 
         private void YcmbxSubdivision_Changed(object sender, EventArgs e)
@@ -280,13 +299,11 @@ namespace Vodovoz.ReportsParameters.Orders
         private void OnSearchNomenclatureTextChanged(object sender, EventArgs e)
         {
             RefreshNomenclatureFilter();
-            ytreeviewNomenclatures.SearchHighlightText = searchentityNomenclature.Text;
         }
 
         private void OnSearchEmployeeTextChanged(object sender, EventArgs e)
         {
             RefreshEmployeeFilter();
-            ytreeviewEmployees.SearchHighlightText = searchentityNomenclature.Text;
         }
 
         private void EnumType_Changed(object sender, EventArgs e)
@@ -302,9 +319,8 @@ namespace Vodovoz.ReportsParameters.Orders
         private void RefreshNomenclatureFilter()
         {
             NomenclatureCategory? category = (enumType.SelectedItem as NomenclatureCategory?);
-            var selectedProductGroup = (yentryProductGroup.Subject as ProductGroup);
 
-            if (selectedProductGroup != null)
+            if (yentryProductGroup.Subject is ProductGroup selectedProductGroup)
             {
                 var productGroups = GetProductGroupsRecursive(selectedProductGroup);
                 productGroupIds = productGroups.Select(x => x.Id);
@@ -326,7 +342,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private void RefreshEmployeeFilter()
         {
-            SubdivisionReportNode subdivision = (ycmbxSubdivision.SelectedItem as SubdivisionReportNode);
+            SubdivisionReportNode subdivision = (ycomboboxSubdivision.SelectedItem as SubdivisionReportNode);
 
             ytreeviewEmployees.ItemsDataSource = employees
                 .Where(x => (subdivision == null || x.SubdivisionId == subdivision.Id)
@@ -337,8 +353,11 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private void OnButtonCreateReportClicked(object sender, EventArgs e)
         {
-            var reportInfo = GetReportInfo();
-            LoadReport?.Invoke(this, new LoadReportEventArgs(reportInfo));
+            if (selectedNomenclatures.Count > 0 && selectedEmployees.Count > 0)
+            {
+                var reportInfo = GetReportInfo();
+                LoadReport?.Invoke(this, new LoadReportEventArgs(reportInfo));
+            }
         }
 
         private ReportInfo GetReportInfo()
@@ -379,7 +398,7 @@ namespace Vodovoz.ReportsParameters.Orders
             public string LastName { get; set; }
             public string Patronymic { get; set; }
             public int SubdivisionId { get; set; }
-            public string FullName => String.Format("{0} {1} {2}", LastName, Name, Patronymic);
+            public string FullName => $"{LastName} {Name} {Patronymic}";
         }
 
         public class SubdivisionReportNode
@@ -390,12 +409,13 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private List<ProductGroup> GetProductGroupsRecursive(ProductGroup parentProductGroup)
         {
-            var productGroups = new List<ProductGroup>();
-            productGroups.Add(parentProductGroup);
+            var productGroups = new List<ProductGroup> { parentProductGroup };
+
             foreach (var productGroup in parentProductGroup.Childs)
             {
                 productGroups.AddRange(GetProductGroupsRecursive(productGroup));
             }
+
             return productGroups;
         }
     }

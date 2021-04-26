@@ -633,9 +633,7 @@ namespace Vodovoz.Domain.Goods
 			&& TareVolume.HasValue
 			&& TareVolume.Value == Goods.TareVolume.Vol19L;
 
-        public virtual SelectedNomenclaturePlan SelectedNomenclaturePlan { get; set; }
-		
-		public override string ToString() => $"id ={Id} Name = {Name}";
+        public override string ToString() => $"id ={Id} Name = {Name}";
 
 		#endregion
 

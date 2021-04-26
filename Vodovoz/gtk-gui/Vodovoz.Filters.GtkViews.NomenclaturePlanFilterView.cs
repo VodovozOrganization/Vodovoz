@@ -24,7 +24,7 @@ namespace Vodovoz.Filters.GtkViews
             // Container child table2.Gtk.Table+TableChild
             this.nomenclaturesFilterView = new global::Vodovoz.Filters.GtkViews.NomenclaturesFilterView(ViewModel.NomenclatureFilterViewModel);
             this.nomenclaturesFilterView.Events = ((global::Gdk.EventMask)(256));
-			this.nomenclaturesFilterView.Name = "nomenclaturesFilterView";
+            this.nomenclaturesFilterView.Name = "nomenclaturesFilterView";
             this.table2.Add(this.nomenclaturesFilterView);
             global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table2[this.nomenclaturesFilterView]));
             w1.XOptions = ((global::Gtk.AttachOptions)(4));

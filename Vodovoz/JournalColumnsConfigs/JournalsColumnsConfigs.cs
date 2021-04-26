@@ -1031,13 +1031,13 @@ namespace Vodovoz.JournalColumnsConfigs
 
             //NomenclaturesPlanJournalViewModel
             TreeViewColumnsConfigFactory.Register<NomenclaturesPlanJournalViewModel>(
-                () => FluentColumnsConfig<NomenclatureJournalNode>.Create()
+                () => FluentColumnsConfig<NomenclaturePlanJournalNode>.Create()
                     .AddColumn("Код")
                         .AddTextRenderer(node => node.Id.ToString())
                     .AddColumn("Номенклатура")
-                        .SetDataProperty(node => node.Name)
+                        .AddTextRenderer(node => node.Name)
                     .AddColumn("Категория")
-                        .SetDataProperty(node => node.Category.GetEnumTitle())
+                        .AddTextRenderer(node => node.Category.GetEnumTitle())
                     .AddColumn("Код в ИМ")
                         .AddTextRenderer(node => node.OnlineStoreExternalId)
                     .AddColumn("План день")

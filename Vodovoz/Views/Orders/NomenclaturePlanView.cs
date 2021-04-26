@@ -18,8 +18,8 @@ namespace Vodovoz.Views.Orders
             ylabelNomenclature.LabelProp = ViewModel.Entity.Name;
             yentryPlanDay.Binding.AddBinding(ViewModel.Entity, e => e.PlanDay, w => w.Text, new IntToStringConverter()).InitializeFromSource();
             yentryPlanMonth.Binding.AddBinding(ViewModel.Entity, e => e.PlanMonth, w => w.Text, new IntToStringConverter()).InitializeFromSource();
-            
-            buttonSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
+
+            buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
             buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);	
         }
     }

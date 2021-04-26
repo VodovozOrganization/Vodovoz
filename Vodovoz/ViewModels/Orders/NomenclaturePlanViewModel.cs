@@ -13,14 +13,5 @@ namespace Vodovoz.ViewModels.Orders
             : base(uowBuilder, uowFactory, commonServices)
         {
         }
-
-        private DelegateCommand saveCommand = null;
-
-        public DelegateCommand SaveCommand =>
-            saveCommand ?? (saveCommand = new DelegateCommand(
-                    () => { Save(true); },
-                    () => true
-                )
-            );
     }
 }

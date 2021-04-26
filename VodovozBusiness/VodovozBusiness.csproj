@@ -20,8 +20,7 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>
-    </DebugType>
+    <DebugType></DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
@@ -916,7 +915,91 @@
     <Compile Include="Parameters\OrderPaymentSettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Domain\" />
+    <Folder Include="HibernateMapping\" />
+    <Folder Include="Repositories\" />
+    <Folder Include="DocTemplates\" />
+    <Folder Include="Attributes\" />
+    <Folder Include="Domain\Chat\" />
+    <Folder Include="HibernateMapping\Chat\" />
+    <Folder Include="Repositories\Chats\" />
+    <Folder Include="Repositories\Client\" />
+    <Folder Include="Tools\" />
+    <Folder Include="Tools\Logistic\" />
+    <Folder Include="Repositories\Sale\" />
+    <Folder Include="Domain\Sale\" />
+    <Folder Include="HibernateMapping\Sale\" />
+    <Folder Include="Tools\CommerceML\" />
+    <Folder Include="Tools\CommerceML\Nodes\" />
+    <Folder Include="Domain\StoredEmails\" />
+    <Folder Include="HibernateMapping\StoredEmails\" />
+    <Folder Include="Resources\" />
+    <Folder Include="Tools\AdditionalAgreements\" />
+    <Folder Include="Tools\Orders\" />
+    <Folder Include="Domain\Payments\" />
+    <Folder Include="HibernateMapping\Payments\" />
+    <Folder Include="Repositories\Payments\" />
+    <Folder Include="Repositories\HumanResourses\" />
+    <Folder Include="Domain\Permissions\" />
+    <Folder Include="HibernateMapping\Permissions\" />
+    <Folder Include="Repositories\Permissions\" />
+    <Folder Include="Repositories\Orders\" />
+    <Folder Include="Domain\StoredResources\" />
+    <Folder Include="Domain\Cash\CashTransfer\" />
+    <Folder Include="HibernateMapping\Cash\Transfer\" />
+    <Folder Include="ViewModelBased\" />
+    <Folder Include="Filters\" />
+    <Folder Include="Domain\Fuel\" />
+    <Folder Include="Services\" />
+    <Folder Include="HibernateMapping\Fuel\" />
+    <Folder Include="EntityRepositories\" />
+    <Folder Include="EntityRepositories\Subdivisions\" />
+    <Folder Include="EntityRepositories\Fuel\" />
+    <Folder Include="EntityRepositories\Operations\" />
+    <Folder Include="EntityRepositories\Goods\" />
+    <Folder Include="EntityRepositories\Logistic\" />
+    <Folder Include="EntityRepositories\Store\" />
+    <Folder Include="EntityRepositories\Cash\" />
+    <Folder Include="Domain\Complaints\" />
+    <Folder Include="HibernateMapping\Complaints\" />
+    <Folder Include="EntityRepositories\Complaints\" />
+    <Folder Include="EntityRepositories\Employee\" />
+    <Folder Include="Domain\Suppliers\" />
+    <Folder Include="HibernateMapping\Suppliers\" />
+    <Folder Include="EntityRepositories\Suppliers\" />
+    <Folder Include="EntityRepositories\CallTasks\" />
+    <Folder Include="Tools\CallTasks\" />
+    <Folder Include="EntityRepositories\Orders\" />
+    <Folder Include="Domain\Subdivisions\" />
+    <Folder Include="HibernateMapping\Subdivisions\" />
+    <Folder Include="HibernateMapping\WageCalculation\" />
+    <Folder Include="Domain\WageCalculation\" />
+    <Folder Include="EntityRepositories\WageCalculation\" />
+    <Folder Include="PermissionExtensions\" />
+    <Folder Include="Domain\WageCalculation\CalculationServices\" />
+    <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
+    <Folder Include="Domain\Sms\" />
+    <Folder Include="HibernateMapping\Sms\" />
+    <Folder Include="Domain\WageCalculation\AdvancedWageParameter\" />
+    <Folder Include="HibernateMapping\WageCalculation\AdvancedWageParameters\" />
+    <Folder Include="Parameters\" />
+    <Folder Include="EntityRepositories\SmsNotifications\" />
+    <Folder Include="Domain\Service\BaseParametersServices\" />
+    <Folder Include="Domain\Contacts\" />
+    <Folder Include="HibernateMapping\Contacts\" />
+    <Folder Include="EntityRepositories\Contacts\" />
+    <Folder Include="EntityRepositories\Permissions\" />
+    <Folder Include="EntityRepositories\Delivery\" />
+    <Folder Include="Tools\ErrorReporting\" />
+    <Folder Include="HibernateMapping\Comments\" />
+    <Folder Include="Domain\Comments\" />
+    <Folder Include="Domain\BusinessTasks\" />
+    <Folder Include="HibernateMapping\BusinessTasks\" />
+    <Folder Include="Domain\Orders\OrdersWithoutShipment\" />
+    <Folder Include="Models\" />
+    <Folder Include="Journal\" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
       <Project>{c97e91f4-b310-44e2-9b6c-96775395722d}</Project>

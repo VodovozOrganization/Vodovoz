@@ -16,7 +16,7 @@ using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz.JournalViewModels
 {
-    public class NomenclaturesPlanJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclaturePlanViewModel, NomenclatureJournalNode, NomenclaturePlanFilterViewModel>
+    public class NomenclaturesPlanJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclaturePlanViewModel, NomenclaturePlanJournalNode, NomenclaturePlanFilterViewModel>
     {
         public NomenclaturesPlanJournalViewModel(NomenclaturePlanFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -25,18 +25,16 @@ namespace Vodovoz.JournalViewModels
             UpdateOnChanges(typeof(Nomenclature));
         }
 
-        protected override List<IJournalAction> NodeActionsList { get; set; }
-
         protected override void CreateNodeActions()
         {
-            NodeActionsList = new List<IJournalAction>();
+            NodeActionsList.Clear();
             CreateDefaultEditAction();
         }
 
         protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) =>
         {
             Nomenclature nomenclatureAlias = null;
-            NomenclatureJournalNode resultAlias = null;
+            NomenclaturePlanJournalNode resultAlias = null;
 
             var itemsQuery = uow.Session.QueryOver(() => nomenclatureAlias);
 
@@ -73,17 +71,16 @@ namespace Vodovoz.JournalViewModels
                     .Select(() => nomenclatureAlias.OnlineStoreExternalId).WithAlias(() => resultAlias.OnlineStoreExternalId)
                     .Select(() => nomenclatureAlias.PlanDay).WithAlias(() => resultAlias.PlanDay)
                     .Select(() => nomenclatureAlias.PlanMonth).WithAlias(() => resultAlias.PlanMonth)
-                    .Select(() => false).WithAlias(() => resultAlias.CalculateQtyOnStock)
                 )
                 .OrderBy(x => x.Name).Asc
-                .TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>());
+                .TransformUsing(Transformers.AliasToBean<NomenclaturePlanJournalNode>());
 
             return itemsQuery;
         };
 
         protected override Func<NomenclaturePlanViewModel> CreateDialogFunction => () => throw new InvalidOperationException("Нельзя создавать номенклатуры из данного журнала");
 
-        protected override Func<NomenclatureJournalNode, NomenclaturePlanViewModel> OpenDialogFunction =>
+        protected override Func<NomenclaturePlanJournalNode, NomenclaturePlanViewModel> OpenDialogFunction =>
             node => new NomenclaturePlanViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
 
     }
