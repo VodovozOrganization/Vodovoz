@@ -179,8 +179,8 @@ namespace Vodovoz.Dialogs.Cash
             #region Editibility
 
             yentryCancelReason.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyCoordinator, w => w.Sensitive).InitializeFromSource();
-			ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNAGandRoldFinancier, w => w.Sensitive).InitializeFromSource();
-			speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNAGandRoldFinancier, w => w.Sensitive).InitializeFromSource();
+			ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.SensitiveForFinancier, w => w.Sensitive).InitializeFromSource();
+			speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.SensitiveForFinancier, w => w.Sensitive).InitializeFromSource();
 
             #endregion Editibility
 

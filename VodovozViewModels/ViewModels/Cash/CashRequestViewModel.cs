@@ -114,7 +114,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         {
             SetPropertyChangeRelation(e => e.State, () => StateName);
             SetPropertyChangeRelation(e => e.State, () => CanEditOnlyCoordinator);
-            SetPropertyChangeRelation(e => e.State, () => CanEditOnlyinStateNAGandRoldFinancier);
+            SetPropertyChangeRelation(e => e.State, () => SensitiveForFinancier);
             SetPropertyChangeRelation(e => e.State, () => ExpenseCategorySensitive);
             SetPropertyChangeRelation(e => e.State, () => CanEditSumSensitive);
             SetPropertyChangeRelation(e => e.State, () => VisibleOnlyForStatusUpperThanCreated);
@@ -280,7 +280,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             set {
                 SetField(ref userRole, value);
                 OnPropertyChanged(() => CanEditOnlyCoordinator);
-                OnPropertyChanged(() => CanEditOnlyinStateNAGandRoldFinancier);
+                OnPropertyChanged(() => SensitiveForFinancier);
                 OnPropertyChanged(() => ExpenseCategorySensitive);
                 OnPropertyChanged(() => CanEditSumVisible);
                 OnPropertyChanged(() => VisibleOnlyForFinancer);
@@ -312,7 +312,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanEditOnlyCoordinator => UserRole == UserRole.Coordinator;
 
         
-        public bool CanEditOnlyinStateNAGandRoldFinancier => (Entity.State == CashRequest.States.New ||
+        public bool SensitiveForFinancier => (Entity.State == CashRequest.States.New ||
                                                               Entity.State == CashRequest.States.Agreed ||
                                                               Entity.State == CashRequest.States.GivenForTake) &&
                                                              UserRole == UserRole.Financier;
