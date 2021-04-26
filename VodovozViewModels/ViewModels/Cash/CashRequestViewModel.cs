@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -381,14 +381,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 roles.Add(UserRole.Coordinator);
             if (checkRole("role_сashier", userId))
                 roles.Add(UserRole.Cashier);
+            if (Entity.Author == null || Entity.Author.Id == CurrentEmployee.Id)
+                roles.Add(UserRole.RequestCreator);
 
-            if (roles.Count == 0 || ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin)
-            {
-                if (Entity.Author == null || Entity.Author.Id == CurrentEmployee.Id)
-                    roles.Add(UserRole.RequestCreator);
-                else 
-                    throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
-            }
+            if (roles.Count == 0)
+                throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
             return roles;
         }
 
