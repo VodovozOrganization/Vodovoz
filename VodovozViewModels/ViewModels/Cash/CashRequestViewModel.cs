@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -30,8 +30,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public Action UpdateNodes;
         public Employee CurrentEmployee { get; }
         public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
-        public static UserRole savedUserRole { get; set; }
-        
+        public IEnumerable<UserRole> UserRoles { get; }
+
         private readonly IEntityUoWBuilder uowBuilder;
         private readonly CashRepository cashRepository;
         private readonly IUnitOfWorkFactory unitOfWorkFactory;
@@ -40,8 +40,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 
         public string StateName => Entity.State.GetEnumTitle();
-        public string UserRoleName => UserRole.GetEnumTitle();
-        private static bool dialogLoadedOnce = false;
         public CashRequestViewModel(
             IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
@@ -103,20 +101,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 TabName = $"{Entity.Title}";
 
             int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-            var isAdmin = ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
-            IsAdminPanelVisible = isAdmin;
-
-            var currentRole = getUserRole(userId);
             
-            UserRole = currentRole;
-            if (!dialogLoadedOnce)
-            {
-                savedUserRole = UserRole;
-                dialogLoadedOnce = true;
-            }
-            if (isAdmin) {
-                UserRole = savedUserRole;
-            }
+            UserRoles = getUserRoles(userId);
+            IsRoleChooserSensitive = UserRoles.Count() > 1;
+            UserRole = UserRoles.First();
+
             IsNewEntity = uowBuilder.IsNewEntity;
             ConfigureEntityChangingRelations();
         }
@@ -125,7 +114,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         {
             SetPropertyChangeRelation(e => e.State, () => StateName);
             SetPropertyChangeRelation(e => e.State, () => CanEditOnlyCoordinator);
-            SetPropertyChangeRelation(e => e.State, () => CanEditOnlyinStateNAGandRoldFinancier);
+            SetPropertyChangeRelation(e => e.State, () => SensitiveForFinancier);
             SetPropertyChangeRelation(e => e.State, () => ExpenseCategorySensitive);
             SetPropertyChangeRelation(e => e.State, () => CanEditSumSensitive);
             SetPropertyChangeRelation(e => e.State, () => VisibleOnlyForStatusUpperThanCreated);
@@ -291,7 +280,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             set {
                 SetField(ref userRole, value);
                 OnPropertyChanged(() => CanEditOnlyCoordinator);
-                OnPropertyChanged(() => CanEditOnlyinStateNAGandRoldFinancier);
+                OnPropertyChanged(() => SensitiveForFinancier);
                 OnPropertyChanged(() => ExpenseCategorySensitive);
                 OnPropertyChanged(() => CanEditSumVisible);
                 OnPropertyChanged(() => VisibleOnlyForFinancer);
@@ -305,7 +294,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 
         public bool IsNewEntity { get; private set; }
-        public bool IsAdminPanelVisible { get; set; }
+        public bool IsRoleChooserSensitive { get; set; }
 
         CashRequestSumItem selectedItem;
         public CashRequestSumItem SelectedItem 
@@ -323,7 +312,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanEditOnlyCoordinator => UserRole == UserRole.Coordinator;
 
         
-        public bool CanEditOnlyinStateNAGandRoldFinancier => (Entity.State == CashRequest.States.New ||
+        public bool SensitiveForFinancier => (Entity.State == CashRequest.States.New ||
                                                               Entity.State == CashRequest.States.Agreed ||
                                                               Entity.State == CashRequest.States.GivenForTake) &&
                                                              UserRole == UserRole.Financier;
@@ -383,23 +372,21 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
         #region Methods
 
-        private UserRole getUserRole(int userId)
+        private IEnumerable<UserRole> getUserRoles(int userId)
         {
-            
-            if (checkRole("role_financier_cash_request", userId)){
-                return UserRole.Financier;
-            } else if (checkRole("role_coordinator_cash_request", userId)){
-                return UserRole.Coordinator;
-            } else if (checkRole("role_сashier", userId)) {
-                return UserRole.Cashier;
-            } else {
-                if (Entity.Author == null){
-                    return UserRole.RequestCreator;
-                } else if (Entity.Author.Id == CurrentEmployee.Id){
-                    return UserRole.RequestCreator;
-                } else 
-                    throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
-            }
+            var roles = new List<UserRole>();
+            if (checkRole("role_financier_cash_request", userId))
+                roles.Add(UserRole.Financier);
+            if (checkRole("role_coordinator_cash_request", userId))
+                roles.Add(UserRole.Coordinator);
+            if (checkRole("role_сashier", userId))
+                roles.Add(UserRole.Cashier);
+            if (Entity.Author == null || Entity.Author.Id == CurrentEmployee.Id)
+                roles.Add(UserRole.RequestCreator);
+
+            if (roles.Count == 0)
+                throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
+            return roles;
         }
 
         public static bool checkRole(string roleName, int userId) => ServicesConfig.CommonServices.PermissionService
@@ -519,11 +506,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         ));
         
         #endregion
-
-        public void RememberRole(Object role)
-        {
-            savedUserRole = (UserRole)role;
-        }
     }
 
     public enum UserRole
