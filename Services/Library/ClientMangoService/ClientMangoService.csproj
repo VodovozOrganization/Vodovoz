@@ -62,20 +62,20 @@
     </Protobuf>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.12.3" />
-    <PackageReference Include="Grpc" Version="2.32.0" />
-    <PackageReference Include="Grpc.Core" Version="2.32.0" />
-    <PackageReference Include="Grpc.Core.Api" Version="2.32.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.31.0">
+    <PackageReference Include="Google.Protobuf" Version="3.15.8" />
+    <PackageReference Include="Grpc" Version="2.37.0" />
+    <PackageReference Include="Grpc.Core" Version="2.37.0" />
+    <PackageReference Include="Grpc.Core.Api" Version="2.37.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.37.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="NLog" Version="4.7.2" />
-    <PackageReference Include="System.Buffers" Version="4.4.0" />
-    <PackageReference Include="System.Memory" Version="4.5.3" />
-    <PackageReference Include="System.Numerics.Vectors" Version="4.4.0" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NLog" Version="4.7.9" />
+    <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
