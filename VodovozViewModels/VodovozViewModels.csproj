@@ -237,6 +237,8 @@
     <Compile Include="Journals\JournalSelectors\EmployeePostsJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeePostsJournalViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeePostViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\WarehouseJournalNode.cs" />
+    <Compile Include="ViewModels\Warehouses\WarehouseViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />

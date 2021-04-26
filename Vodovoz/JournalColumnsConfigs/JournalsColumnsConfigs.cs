@@ -44,6 +44,15 @@ namespace Vodovoz.JournalColumnsConfigs
 
 		public static void RegisterColumns()
 		{
+            //WarehouseJournalViewModel
+            TreeViewColumnsConfigFactory.Register<WarehouseJournalViewModel>(
+                () => FluentColumnsConfig<WarehouseJournalNode>.Create()
+                    .AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Название").AddTextRenderer(node => node.Name)
+                    .AddColumn("")
+                    .Finish()
+            );
+
 			//DistrictsSetJournalViewModel
 			TreeViewColumnsConfigFactory.Register<DistrictsSetJournalViewModel>(
 				() => FluentColumnsConfig<DistrictsSetJournalNode>.Create()
