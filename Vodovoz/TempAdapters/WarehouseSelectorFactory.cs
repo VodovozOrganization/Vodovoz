@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.TempAdapters
@@ -15,7 +16,8 @@ namespace Vodovoz.TempAdapters
         {
             var warehouseJournal = new WarehouseJournalViewModel(
                 UnitOfWorkFactory.GetDefaultFactory,
-                ServicesConfig.CommonServices
+                ServicesConfig.CommonServices,
+                new SubdivisionRepository()
             )
             {
                 SelectionMode = QS.Project.Journal.JournalSelectionMode.Single

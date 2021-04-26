@@ -9,6 +9,7 @@ using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Core;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Warehouses;
@@ -20,10 +21,12 @@ namespace Vodovoz.JournalViewModels
     {
         public WarehouseJournalViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
-            ICommonServices commonServices)
+            ICommonServices commonServices,
+            ISubdivisionRepository subdivisionRepository)
                 : base(unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал складов";
+            this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
             warehousePermissions = new[] { WarehousePermissions.WarehouseView };
 
             UpdateOnChanges(
@@ -31,6 +34,7 @@ namespace Vodovoz.JournalViewModels
             );
         }
 
+        private readonly ISubdivisionRepository subdivisionRepository;
         private WarehousePermissions[] warehousePermissions;
 
         protected override void CreateNodeActions()
@@ -69,13 +73,15 @@ namespace Vodovoz.JournalViewModels
         protected override Func<WarehouseViewModel> CreateDialogFunction => () => new WarehouseViewModel(
             EntityUoWBuilder.ForCreate(),
             QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-            commonServices
+            commonServices,
+            subdivisionRepository
         );
 
         protected override Func<WarehouseJournalNode, WarehouseViewModel> OpenDialogFunction => node => new WarehouseViewModel(
             EntityUoWBuilder.ForOpen(node.Id),
             QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-            commonServices
+            commonServices,
+            subdivisionRepository
         );
     }
 }
