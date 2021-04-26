@@ -179,8 +179,8 @@ namespace Vodovoz.Dialogs.Cash
             #region Editibility
 
             yentryCancelReason.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyCoordinator, w => w.Sensitive).InitializeFromSource();
-			ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategorySensitive, w => w.Sensitive).InitializeFromSource();
-			speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNAGandRoldFinancier, w => w.Sensitive).InitializeFromSource();
+			ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.SensitiveForFinancier, w => w.Sensitive).InitializeFromSource();
+			speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.SensitiveForFinancier, w => w.Sensitive).InitializeFromSource();
 
             #endregion Editibility
 
@@ -192,8 +192,8 @@ namespace Vodovoz.Dialogs.Cash
             labelcomboOrganization.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
             speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
 
-            labelCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible).InitializeFromSource();
-            ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible).InitializeFromSource();
+            labelCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
+            ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
 
             yentryReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
             labelReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;

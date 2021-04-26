@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -114,7 +114,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         {
             SetPropertyChangeRelation(e => e.State, () => StateName);
             SetPropertyChangeRelation(e => e.State, () => CanEditOnlyCoordinator);
-            SetPropertyChangeRelation(e => e.State, () => CanEditOnlyinStateNAGandRoldFinancier);
+            SetPropertyChangeRelation(e => e.State, () => SensitiveForFinancier);
             SetPropertyChangeRelation(e => e.State, () => ExpenseCategorySensitive);
             SetPropertyChangeRelation(e => e.State, () => CanEditSumSensitive);
             SetPropertyChangeRelation(e => e.State, () => VisibleOnlyForStatusUpperThanCreated);
@@ -280,7 +280,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             set {
                 SetField(ref userRole, value);
                 OnPropertyChanged(() => CanEditOnlyCoordinator);
-                OnPropertyChanged(() => CanEditOnlyinStateNAGandRoldFinancier);
+                OnPropertyChanged(() => SensitiveForFinancier);
                 OnPropertyChanged(() => ExpenseCategorySensitive);
                 OnPropertyChanged(() => CanEditSumVisible);
                 OnPropertyChanged(() => VisibleOnlyForFinancer);
@@ -312,7 +312,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanEditOnlyCoordinator => UserRole == UserRole.Coordinator;
 
         
-        public bool CanEditOnlyinStateNAGandRoldFinancier => (Entity.State == CashRequest.States.New ||
+        public bool SensitiveForFinancier => (Entity.State == CashRequest.States.New ||
                                                               Entity.State == CashRequest.States.Agreed ||
                                                               Entity.State == CashRequest.States.GivenForTake) &&
                                                              UserRole == UserRole.Financier;
@@ -381,14 +381,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 roles.Add(UserRole.Coordinator);
             if (checkRole("role_сashier", userId))
                 roles.Add(UserRole.Cashier);
+            if (Entity.Author == null || Entity.Author.Id == CurrentEmployee.Id)
+                roles.Add(UserRole.RequestCreator);
 
-            if (roles.Count == 0 || ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin)
-            {
-                if (Entity.Author == null || Entity.Author.Id == CurrentEmployee.Id)
-                    roles.Add(UserRole.RequestCreator);
-                else 
-                    throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
-            }
+            if (roles.Count == 0)
+                throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
             return roles;
         }
 
