@@ -141,8 +141,8 @@ namespace Vodovoz.Dialogs.Cash
 			ybtnConveyForResults.Clicked += (sender, args) => ViewModel.ConveyForResultsCommand.Execute();
 			//Отправить на пересогласование
 			ybtnReturnForRenegotiation.Clicked += (sender, args) => ViewModel.ReturnToRenegotiationCommand.Execute();
-			
-			ybtnGiveSumm.Clicked += (sender, args) => ViewModel.GiveSumCommand.Execute(ytreeviewSums.GetSelectedObject<CashRequestSumItem>());
+
+            ybtnGiveSumm.Clicked += (sender, args) => ViewModel.GiveSumCommand.Execute(ytreeviewSums.GetSelectedObject<CashRequestSumItem>());
 			ybtnGiveSumm.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
 			ybtnGiveSumm.Sensitive = ViewModel.Entity.ObservableSums.Any(x => x.ObservableExpenses == null || !x.ObservableExpenses.Any());
 
@@ -151,8 +151,9 @@ namespace Vodovoz.Dialogs.Cash
 				);
 			ybtnGiveSummPartially.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
 			ybtnGiveSummPartially.Sensitive = ViewModel.Entity.ObservableSums.Any(x => x.ObservableExpenses == null || !x.ObservableExpenses.Any());
+            yspinGivePartially.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
 
-			ybtnAddSumm.Clicked += (sender, args) => ViewModel.AddSumCommand.Execute();
+            ybtnAddSumm.Clicked += (sender, args) => ViewModel.AddSumCommand.Execute();
 			ybtnEditSum.Clicked += (sender, args) => ViewModel.EditSumCommand.Execute();
 			ybtnDeleteSumm.Clicked += (sender, args) => ViewModel.DeleteSumCommand.Execute();
 			ybtnEditSum.Binding.AddBinding(ViewModel, vm => vm.CanEditSumSensitive, w => w.Sensitive).InitializeFromSource();
@@ -172,14 +173,13 @@ namespace Vodovoz.Dialogs.Cash
 			ycheckPossibilityNotToReconcilePayments.Binding.AddBinding(ViewModel, vm => vm.CanConfirmPossibilityNotToReconcilePayments, w => w.Visible).InitializeFromSource();
 			ylabelPossibilityNotToReconcilePayments.Binding.AddBinding(ViewModel, vm => vm.CanConfirmPossibilityNotToReconcilePayments, w => w.Visible).InitializeFromSource();
 
-            hboxGivePartially.Visible = ViewModel.CanGiveSum;
-
             #endregion Buttons
 
             #region Editibility
 
             yentryCancelReason.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyCoordinator, w => w.Sensitive).InitializeFromSource();
-			ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.SensitiveForFinancier, w => w.Sensitive).InitializeFromSource();
+			ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategorySensitive, w => w.Sensitive).InitializeFromSource();
+    
 			speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.SensitiveForFinancier, w => w.Sensitive).InitializeFromSource();
 
             #endregion Editibility
@@ -192,8 +192,8 @@ namespace Vodovoz.Dialogs.Cash
             labelcomboOrganization.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
             speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
 
-            labelCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
-            ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
+            labelCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible).InitializeFromSource();
+            ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible).InitializeFromSource();
 
             yentryReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
             labelReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
