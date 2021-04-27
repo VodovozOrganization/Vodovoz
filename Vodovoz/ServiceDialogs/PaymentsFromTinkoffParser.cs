@@ -21,7 +21,7 @@ namespace Vodovoz.ServiceDialogs
 			                          .Skip(1)
 			                          .Select(x => x.Split(';'))
 			                          .Select(x => new PaymentByCardOnline(
-					                          x.Select(y => y.Trim('"')).ToArray(), true))
+					                          x.Select(y => y.Trim('"')).ToArray()))
 			                          .ToList();
 		}
 	}
