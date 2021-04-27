@@ -33,7 +33,6 @@ namespace Vodovoz.Domain.Payments
 		/// Создать объект из массива строк
 		/// </summary>
 		/// <param name="data">Поля объекта</param>
-		/// <param name="paymentFrom">Откуда оплата</param>
 		void CreateInstanceFromTinkoff(string[] data)
 		{
 			//Для разбора дат и сумм.
