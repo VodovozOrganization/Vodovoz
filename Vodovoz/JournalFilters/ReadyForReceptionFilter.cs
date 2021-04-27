@@ -18,7 +18,7 @@ namespace Vodovoz
         protected override void ConfigureWithUow()
 		{
             var warehousesList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, new[] { WarehousePermissions.WarehouseView })
-                                    .Select(w => w).OrderBy(w => w.Name).ToList();
+                                    .OrderBy(w => w.Name).ToList();
             if (warehousesList.Count > 5)
             {
                 entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
