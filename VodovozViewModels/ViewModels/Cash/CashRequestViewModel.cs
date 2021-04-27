@@ -289,6 +289,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 OnPropertyChanged(() => CanConveyForResults);
                 OnPropertyChanged(() => CanCancel);
                 OnPropertyChanged(() => CanConfirmPossibilityNotToReconcilePayments);
+                OnPropertyChanged(() => ExpenseCategoryVisibility);
             }
         }
 
