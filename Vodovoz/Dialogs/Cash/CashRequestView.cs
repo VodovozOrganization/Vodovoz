@@ -151,7 +151,7 @@ namespace Vodovoz.Dialogs.Cash
 				);
 			ybtnGiveSummPartially.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
 			ybtnGiveSummPartially.Sensitive = ViewModel.Entity.ObservableSums.Any(x => x.ObservableExpenses == null || !x.ObservableExpenses.Any());
-            yspinGivePartially.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible);
+            yspinGivePartially.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
 
             ybtnAddSumm.Clicked += (sender, args) => ViewModel.AddSumCommand.Execute();
 			ybtnEditSum.Clicked += (sender, args) => ViewModel.EditSumCommand.Execute();
