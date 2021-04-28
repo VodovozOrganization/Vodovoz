@@ -406,6 +406,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingTop>=Len({mileage_comment}) / 6 + "pt"</PaddingTop>
+                        <PaddingBottom>=Len({mileage_comment}) / 6 + "pt"</PaddingBottom>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
@@ -427,6 +429,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >7pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -654,12 +657,12 @@
     route_lists.mileage_comment,
     CASE route_lists.status
         WHEN 'New' THEN 'Новый'
-        WHEN 'Confirmed' THEN 'Подтвер ждён'
+        WHEN 'Confirmed' THEN 'Подтверждён'
         WHEN 'InLoading' THEN 'На погрузке'
         WHEN 'EnRoute' THEN 'В пути'
         WHEN 'OnClosing' THEN 'Сдаётся'
         WHEN 'Delivered' THEN 'Доставлен'
-        WHEN 'MileageCheck' THEN 'Проверка килом-жа'
+        WHEN 'MileageCheck' THEN 'Проверка КМ'
         WHEN 'Closed' THEN 'Закрыт'
     END AS status
 FROM
