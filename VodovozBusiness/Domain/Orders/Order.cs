@@ -562,6 +562,15 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isForRetail, value, () => IsForRetail);
 		}
 
+        private bool isSelfDeliveryPaid;
+
+        [Display(Name = "Самовывоз оплачен")]
+        public virtual bool IsSelfDeliveryPaid
+        {
+            get => isSelfDeliveryPaid;
+            set => SetField(ref isSelfDeliveryPaid, value);
+        }
+
 		private int bottlesByStockCount;
 		[Display(Name = "Количество бутылей по акции")]
 		public virtual int BottlesByStockCount {
@@ -1010,9 +1019,14 @@ namespace Vodovoz.Domain.Orders
 						new[] { this.GetPropertyName(o => o.IsContractCloser) }
 					);
 				}
-			}
+			}           
 
-			if(ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
+			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
+            if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
+                if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
+                    yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
+
+            if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
@@ -1025,7 +1039,13 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В точке доставки необходимо указать координаты.",
 				new[] { this.GetPropertyName(o => o.DeliveryPoint) });
 			}
-			if(Client == null)
+
+            if(DriverCallId != null && string.IsNullOrWhiteSpace(CommentManager)){
+                yield return new ValidationResult("Необходимо заполнить комментарий водителя.",
+                    new[] { this.GetPropertyName(o => o.CommentManager) });
+            }
+
+            if (Client == null)
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
@@ -1202,7 +1222,7 @@ namespace Vodovoz.Domain.Orders
 					sum += item.ActualSum;
 
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems)
-					sum -= dep.Deposit * dep.Count;
+					sum -= Math.Round(dep.Deposit * dep.Count, 2);
 
 				return sum;
 			}
@@ -1214,7 +1234,7 @@ namespace Vodovoz.Domain.Orders
 								.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount.Value * i.Price);
 
 		public virtual decimal? ActualGoodsTotalSum =>
-			OrderItems.Sum(item => item.Price * item.ActualCount - item.DiscountMoney);
+			OrderItems.Sum(item => Decimal.Round(item.Price * item.ActualCount - item.DiscountMoney ?? 0, 2));
 
 		public virtual bool CanBeMovedFromClosedToAcepted => 
 			new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
@@ -1630,16 +1650,22 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual NomenclatureFixedPrice GetFixedPriceOrNull(Nomenclature nomenclature)
 		{
-			if (Contract == null) {
-				return null;
+			IList<NomenclatureFixedPrice> fixedPrices;
+			
+			if(deliveryPoint == null)
+			{
+				if (Contract == null)
+					return null;
+				
+				fixedPrices = Contract.Counterparty.NomenclatureFixedPrices;
 			}
-			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
-
-			IList<NomenclatureFixedPrice> fixedPrices = Contract.Counterparty.NomenclatureFixedPrices;
-			if(deliveryPoint != null) {
+			else
+			{
 				fixedPrices = deliveryPoint.NomenclatureFixedPrices;
 			}
 			
+			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
+
 			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && influentialNomenclature == null)) {
 				return fixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id);
 			}
@@ -1950,8 +1976,15 @@ namespace Vodovoz.Domain.Orders
 			if(Id > 0)
 				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
 
-			foreach(OrderItem orderItem in order.OrderItems) {
+			INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider();
+			var deliveryId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
 
+			foreach (OrderItem orderItem in order.OrderItems) {
+				if (orderItem.Nomenclature.Id == deliveryId)
+                {
+					continue;
+                }
+				
 				decimal discMoney;
 				if(orderItem.DiscountMoney == 0) {
 					if(orderItem.OriginalDiscountMoney == null)
@@ -2670,6 +2703,8 @@ namespace Vodovoz.Domain.Orders
 			if((incomeCash - expenseCash) != OrderCashSum)
 				return;
 
+			IsSelfDeliveryPaid = true;
+
 			bool isFullyLoad = IsFullyShippedSelfDeliveryOrder(UoW, new SelfDeliveryRepository());
 
 			if(OrderStatus == OrderStatus.WaitForPayment) {
@@ -2995,12 +3030,10 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus != OrderStatus.OnLoading)
 				return false;
 
-			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
-
 			switch(PaymentType) {
 				case PaymentType.cash:
 				case PaymentType.BeveragesWorld:
-					ChangeStatusAndCreateTasks(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
+					ChangeStatusAndCreateTasks(IsSelfDeliveryPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
 					break;
 				case PaymentType.cashless:
 				case PaymentType.ByCard:

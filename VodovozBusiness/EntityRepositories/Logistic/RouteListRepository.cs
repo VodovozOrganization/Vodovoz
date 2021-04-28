@@ -103,16 +103,21 @@ namespace Vodovoz.EntityRepositories.Logistic
 			}
 
 			return result
-				.GroupBy(
-					x => x.NomenclatureName,
-					x => x,
-					(key, value) => new GoodsInRouteListResultWithSpecialRequirements()
+				.GroupBy(x => new
 					{
-						NomenclatureName = key,
-						NomenclatureId = value.FirstOrDefault().NomenclatureId,
-						ExpireDatePercent = value.FirstOrDefault().ExpireDatePercent,
-						Amount = value.Sum(x => x.Amount)
-					}).ToList();
+						x.NomenclatureId,
+						x.ExpireDatePercent,
+						x.OwnType
+					}
+				).Select(list => new GoodsInRouteListResultWithSpecialRequirements()
+					{
+						NomenclatureName = list.FirstOrDefault().NomenclatureName,
+						NomenclatureId = list.Key.NomenclatureId,
+						OwnType = list.Key.OwnType,
+						ExpireDatePercent = list.Key.ExpireDatePercent,
+						Amount = list.Sum(x => x.Amount)
+					}
+				).ToList();
 		}
 
 		public IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(
@@ -264,12 +269,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return orderEquipmentsQuery
 				.SelectList(list => list
-				   .SelectGroup(() => OrderEquipmentNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-							.Select(Projections.Sum(
-								Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => orderEquipmentAlias.Count))
-							)).WithAlias(() => resultAlias.Amount)
-							.Select(() => OrderEquipmentNomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-
+					.SelectGroup(() => OrderEquipmentNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.SelectGroup(() => orderEquipmentAlias.OwnType).WithAlias(() => resultAlias.OwnType)
+					.Select(Projections.Sum(
+						Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => orderEquipmentAlias.Count))
+					)).WithAlias(() => resultAlias.Amount)
+					.Select(() => OrderEquipmentNomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
+					.Select(() => orderEquipmentAlias.OwnType).WithAlias(() => resultAlias.OwnType)
 				)
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
 				.List<GoodsInRouteListResultWithSpecialRequirements>();
@@ -717,6 +723,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 	{
 		public int NomenclatureId { get; set; }
 		public string NomenclatureName { get; set; }
+		public OwnTypes OwnType { get; set; }
 		public decimal? ExpireDatePercent { get; set; } = null;
 		public decimal Amount { get; set; }
 	}

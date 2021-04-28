@@ -551,7 +551,7 @@
         ELSE ''
         END AS order_payment_status,
     IFNULL(deposit.dep, 0) as depositsum,
-    IFNULL(SUM(o_items.price * IFNULL(o_items.actual_count, o_items.count) - o_items.discount_money), 0) AS ordersum,
+    IFNULL(SUM(ROUND(o_items.price * IFNULL(o_items.actual_count, o_items.count) - o_items.discount_money, 2)), 0) AS ordersum,
     IF(payments.counterparty_inn != client.inn, CONCAT(payments.counterparty_name, '\n', payments.counterparty_inn),'') AS payer,
     IFNULL(p_items.total, 0) as allocatedsum,
     CONCAT_WS('\n', payments.payment_purpose) as payment_purpose,

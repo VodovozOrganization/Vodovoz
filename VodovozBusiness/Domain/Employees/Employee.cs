@@ -316,9 +316,17 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref organisationForSalary, value);
 		}
 
-		#endregion
+        private string email;
+        [Display(Name = "Электронная почта пользователя")]
+        public virtual string Email
+        {
+            get => email;
+            set => SetField(ref email, value);
+        }
 
-		public Employee()
+        #endregion
+
+        public Employee()
 		{
 			Name = String.Empty;
 			LastName = String.Empty;
@@ -351,22 +359,22 @@ namespace Vodovoz.Domain.Employees
 				Employee exist = EmployeeSingletonRepository.GetInstance().GetDriverByAndroidLogin(UoW, AndroidLogin);
 				if(exist != null && exist.Id != Id)
 					yield return new ValidationResult(string.Format("Другой водитель с логином {0} для Android уже есть в БД.", AndroidLogin),
-						new[] { this.GetPropertyName(x => x.AndroidLogin) });
+						new[] { nameof(AndroidLogin) });
 			}
 			if(!String.IsNullOrEmpty(LoginForNewUser) && User != null) {
 				yield return new ValidationResult($"Сотрудник уже привязан к пользователю",
-					new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+					new[] { nameof(LoginForNewUser) });
 			}
 			var regex = new Regex(@"^[a-zA-Z0-9].{3,25}$");
 			if(!String.IsNullOrEmpty(LoginForNewUser) && !regex.IsMatch(LoginForNewUser)) {
 				yield return new ValidationResult($"Логин пользователя должен иметь длину от 3 до 25 символов и состоять из латинских букв и цифр",
-					new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+					new[] { nameof(LoginForNewUser) });
 			}
 			if(!String.IsNullOrEmpty(LoginForNewUser)) {
 				User exist = UserSingletonRepository.GetInstance().GetUserByLogin(UoW, LoginForNewUser);
 				if(exist != null && exist.Id != Id)
 					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует в базе",
-						new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+						new[] { nameof(LoginForNewUser) });
 			}
 
 			if(!String.IsNullOrEmpty(LoginForNewUser)) {
@@ -382,30 +390,37 @@ namespace Vodovoz.Domain.Employees
 						throw;
 				}
 				if(!String.IsNullOrWhiteSpace(mes)) {
-					yield return new ValidationResult(mes, new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+					yield return new ValidationResult(mes, new[] { nameof(LoginForNewUser) });
 				} else if(userExists) {
 					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует на сервере",
-						new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+						new[] { nameof(LoginForNewUser) });
 				}
 			}
 
 			if(!String.IsNullOrEmpty(LoginForNewUser) && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users")) {
-			yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
-					new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+				yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
+					new[] { nameof(LoginForNewUser) });
 			}
+
 			if(Status == EmployeeStatus.IsFired && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_fire_employees")) {
 				yield return new ValidationResult($"Недостаточно прав для увольнения сотрудников",
-						new[] { this.GetPropertyName(x => x.Status) });
+						new[] { nameof(Status) });
 			}
+
 			if(!String.IsNullOrEmpty(LoginForNewUser)) {
 				string exist = GetPhoneForSmsNotification();
 				if(exist == null)
 					yield return new ValidationResult($"Для создания пользователя должен быть правильно указан мобильный телефон",
-							new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+							new[] { nameof(LoginForNewUser) });
+				if (String.IsNullOrEmpty(Email)) {
+					yield return new ValidationResult($"Для создания пользователя должен быть правильно указан e-mail адрес",
+							new[] { nameof(Email) });
+				}
 			}
-			if(Category == EmployeeCategory.driver && DriverOf == null) {
+
+			if (Category == EmployeeCategory.driver && DriverOf == null) {
 				yield return new ValidationResult($"Обязательно должно быть выбрано поле 'Управляет а\\м'",
-					new[] { this.GetPropertyName(x => x.DriverOf) });
+					new[] { nameof(DriverOf) });
 			}
 
 			if(validationContext.Items.ContainsKey("Reason") && validationContext.Items["Reason"] is ISubdivisionService subdivisionService) {
@@ -446,16 +461,15 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			wageParameter.Employee = this;
-			wageParameter.StartDate = startDate.AddTicks(1);
+			wageParameter.StartDate = startDate;
 			WageParameter oldWageParameter = ObservableWageParameters.FirstOrDefault(x => x.EndDate == null);
 			if(oldWageParameter != null) {
 				if(oldWageParameter.StartDate > startDate) {
 					throw new InvalidOperationException("Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата");
 				}
-				oldWageParameter.EndDate = startDate;
+				oldWageParameter.EndDate = startDate.AddMilliseconds(-1);
 			}
 			ObservableWageParameters.Add(wageParameter);
-			return;
 		}
 
 
@@ -479,23 +493,19 @@ namespace Vodovoz.Domain.Employees
 				throw new ArgumentNullException(nameof(interactiveService));
 			}
 
-
 			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW);
 			if(defaultLevel == null) {
 				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников\"!\"", "Невозможно создать расчет зарплаты");
 				return;
 			}
 
-			var ourCar = DriverOf == CarTypeOfUse.CompanyGAZelle || DriverOf == CarTypeOfUse.CompanyLargus;
-			var defaultLevelForOurCar = wageRepository.DefaultLevelForNewEmployees(UoW, ourCar);
+			var defaultLevelForOurCar = wageRepository.DefaultLevelForNewEmployeesOnOurCars(UoW);
 			if(defaultLevelForOurCar == null) {
 				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для наших авто)\"!\"", "Невозможно создать расчет зарплаты");
 				return;
 			}
 
-			if(Id != 0) {
-				return;
-			}
+			if(Id != 0) return;
 
 			ObservableWageParameters.Clear();
 			switch(Category) {
@@ -556,7 +566,6 @@ namespace Vodovoz.Domain.Employees
 						DateTime.Today);
 					break;
 			}
-			return;
 		}
 
 		public virtual string GetPhoneForSmsNotification()

@@ -25,7 +25,7 @@
     END as state,
     stored_emails.send_date,
     stored_emails.order_id,
-    SUM(order_items.count * order_items.price - order_items.discount_money) as order_sum,    
+    SUM(ROUND(order_items.count * order_items.price - order_items.discount_money, 2)) as order_sum,    
     counterparty.name as client_name,    
     CONCAT_WS(
 		' ', 

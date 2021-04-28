@@ -129,6 +129,7 @@ using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Retail;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 using Vodovoz.Views.Mango.Talks;
@@ -152,6 +153,8 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
 using Vodovoz.ViewModels.ViewModels.Retail;
 using Vodovoz.Views.Retail;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -286,6 +289,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<RegisteredRMJournalFilterViewModel, RegisteredRMJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryPointResponsiblePersonTypeJournalFilterViewModel, DeliveryPointResponsiblePersonTypeJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<SalesChannelJournalFilterViewModel, SalesChannelJournalFilterView>()
+                .RegisterWidgetForWidgetViewModel<EmployeePostViewModel, EmployeePostView>()
                 ;
 
             DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -452,6 +456,12 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
+			OrmMain.AddObjectDescription<SalesChannel>()
+				.DefaultTableView()
+				.SearchColumn("Код", x => x.Id.ToString())
+				.SearchColumn("Название", x => x.Name)
+				.End();
+
 
 			#endregion
 

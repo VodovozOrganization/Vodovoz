@@ -187,9 +187,12 @@
     <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
+    <Compile Include="Parameters\IReportDefaultsProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
     <Compile Include="Parameters\OrderParametersProvider.cs" />
     <Compile Include="Parameters\OrganizationParametersProvider.cs" />
+    <Compile Include="Parameters\ReportDefaultsProvider.cs" />
+    <Compile Include="Parameters\RouteListParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -447,6 +450,7 @@
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IOrderParametersProvider.cs" />
     <Compile Include="Services\IOrganizationParametersProvider.cs" />
+    <Compile Include="Services\IRouteListParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Tools\LoggedMySqlClientDriver.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
@@ -598,6 +602,7 @@
     <Compile Include="HibernateMapping\Cash\Transfer\CashTransferOperationMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\IncomeCashTransferedItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\ExpenseCashTransferedItemMap.cs" />
+    <Compile Include="Tools\Validation\PasswordValidationSettingsFactory.cs" />
     <Compile Include="ViewModelBased\ViewModelBase.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />
     <Compile Include="ViewModelBased\ViewModelGeneric.cs" />
@@ -856,7 +861,7 @@
     <Compile Include="Tools\ErrorReporting\IErrorMessageModelFactory.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageModelBase.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageViewModel.cs" />
-    <Compile Include="Services\IDefaultDeliveryDaySchedule.cs" />
+    <Compile Include="Services\IDefaultDeliveryDayScheduleSettings.cs" />
     <Compile Include="Domain\Payments\Payment.cs" />
     <Compile Include="Domain\Payments\CategoryProfit.cs" />
     <Compile Include="Domain\Payments\CategoryExpense.cs" />
@@ -900,6 +905,10 @@
     <Compile Include="Domain\Client\DeliveryPointResponsiblePersonType.cs" />
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointResponsiblePersonTypeMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointResponsiblePersonMap.cs" />
+    <Compile Include="Domain\Employees\EmployeePost.cs" />
+    <Compile Include="HibernateMapping\Employees\EmployeePostMap.cs" />
+    <Compile Include="Services\IOrderPaymentSettings.cs" />
+    <Compile Include="Parameters\OrderPaymentSettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

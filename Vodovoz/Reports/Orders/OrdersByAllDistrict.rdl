@@ -463,6 +463,7 @@
     <DataSet Name="Orders">
       <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
     districts.district_name AS district,
     IFNULL(order_sum.count_group, 4) as count_group_result,
@@ -484,7 +485,7 @@ FROM
         LEFT JOIN
     delivery_points ON delivery_point_id = delivery_points.id
         LEFT JOIN
-    districts ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), district_border)
+    districts ON districts.id = delivery_points.district_id
         LEFT JOIN
     route_list_addresses ON orders.id = route_list_addresses.order_id
         LEFT JOIN

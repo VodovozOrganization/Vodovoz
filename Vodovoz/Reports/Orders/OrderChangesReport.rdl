@@ -39,7 +39,7 @@
       <Textbox Name="TextboxTitle2">
         <Height>17.25pt</Height>
         <Width>816.34pt</Width>
-        <Value>='с ' + Format(Convert.ToDateTime({?date_from}), "yyyy-MM-dd") + ' по ' + Format(Convert.ToDateTime(Today()), "yyyy-MM-dd")</Value>
+        <Value>='с ' + Format(Convert.ToDateTime({?start_date}), "yyyy-MM-dd") + ' по ' + Format(Convert.ToDateTime({?end_date}), "yyyy-MM-dd")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>20.80pt</Top>
@@ -100,8 +100,8 @@
         <Width>409.15pt</Width>
         <Value>='Типы изменений: ' + {?change_types_rus}</Value>
         <ZIndex>1</ZIndex>
-        <Left>13.6pt</Left>
-        <Top>72.8pt</Top>
+        <Left>13.60pt</Left>
+        <Top>72.80pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <BorderStyle />
@@ -124,7 +124,7 @@
             <Width>24.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>108.3pt</Width>
+            <Width>99.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>81.6pt</Width>
@@ -142,13 +142,10 @@
             <Width>54.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>42.7pt</Width>
-          </TableColumn>
-          <TableColumn>
             <Width>51.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.4pt</Width>
+            <Width>104.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>59.8pt</Width>
@@ -156,7 +153,7 @@
           <TableColumn>
             <Width>63.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>75.4pt</Width>
           </TableColumn>
           <TableColumn>
@@ -189,9 +186,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox4">
-                      <Value>Организация</Value>
-                      <Style>
+                    <Textbox Name="Textbox32">
+                      <Value>Контрагент</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -301,25 +298,6 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox10">
-                      <Value>Время
-доставки</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox11">
                       <Value>Время
 изменения</Value>
@@ -339,9 +317,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox12">
-                      <Value>Операция</Value>
-                      <Style>
+                    <Textbox Name="Textbox34">
+                      <Value>Номенклатура</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -393,7 +371,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value>Водитель</Value>
@@ -453,23 +431,26 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox16">
-                      <Value>=Fields!organization_name.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                    <Textbox Name="Textbox33">
+                      <Value>={counterparty}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -487,6 +468,7 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -505,6 +487,7 @@
                         <Format>dd.MM.yyyy HH:mm</Format>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -522,6 +505,7 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -542,6 +526,7 @@
                         <Format>0.00</Format>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -549,7 +534,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>=Fields!delivery_date.Value</Value>
+                      <Value>= Format(Convert.ToDateTime({delivery_date}), "dd.MM.yyyy") + ' ' + Iif(Fields!time_delivered.IsMissing, '', 
+Format(Convert.ToDateTime({time_delivered}), "HH:mm"))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -560,24 +546,9 @@
                         <Format>dd.MM.yyyy</Format>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox22">
-                      <Value>=Fields!time_delivered.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontSize>8pt</FontSize>
-                        <TextAlign>Center</TextAlign>
-                        <Format>HH:mm</Format>
-                        <PaddingBottom>1pt</PaddingBottom>
-                        <PaddingTop>1pt</PaddingTop>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -596,23 +567,25 @@
                         <Format>dd.MM.yyyy HH:mm</Format>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox24">
-                      <Value>=Fields!operation.Value</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
+                    <Textbox Name="Textbox35">
+                      <Value>={nomenclature_name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
+                        <Format>dd.MM.yyyy HH:mm</Format>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -630,6 +603,7 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -647,13 +621,14 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
                       <Value>={driver_fio}</Value>
@@ -665,8 +640,9 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -684,6 +660,7 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -693,8 +670,22 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>96.8pt</Top>
+        <Top>108.0pt</Top>
       </Table>
+      <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.04pt</Height>
+        <Width>409.15pt</Width>
+        <Value>='Типы проблем: ' + {?issue_types_rus}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>13.6pt</Left>
+        <Top>88.8pt</Top>
+        <CanGrow>true</CanGrow>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -722,232 +713,306 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS</DataSourceName>
-        <Timeout>300</Timeout>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
-	o2.full_name as organization_name,
-	source.comment_manager,
-	sp.paid_date,
-	source.order_id,
-	(
-		SELECT
-			SUM(IFNULL(oi2.actual_count, oi2.count) * oi2.price - oi2.discount_money) as summary
-		FROM order_items oi2 
-		WHERE oi2.order_id = source.order_id
-	) as summary,
-	source.delivery_date,
-	source.time_delivered,
-	source.change_time,
-	CASE source.operation
-	    WHEN 'Create' THEN 'Добавление'
-	    WHEN 'Change' THEN 'Изменение'
-	    WHEN 'Delete' THEN 'Удаление'
-	    ELSE NULL
-	END as operation,
-	IF(source.operation = 'Delete', n2.official_name, source.old_value) as old_value,
-	IF(source.operation = 'Create', n2.official_name, source.new_value) as new_value,
-	IF(hc2.user_login = 'vodovoz_service', 'Служба', GET_PERSON_NAME_WITH_INITIALS(e2.last_name, e2.name, e2.patronymic)) as author,
-	GET_PERSON_NAME_WITH_INITIALS(driver.last_name, driver.name, driver.patronymic) as driver_fio
+    source.comment_manager,
+    sp.paid_date,
+    source.order_id,
+    (
+        SELECT
+            SUM(IFNULL(oi2.actual_count, oi2.count) * oi2.price - oi2.discount_money) as summary
+        FROM order_items oi2
+        WHERE oi2.order_id = source.order_id
+    ) as summary,
+    n2.name as nomenclature_name,
+    CONCAT(c2.full_name, IF(c2.person_type = 'legal', CONCAT(' ИНН ', c2.inn), '')) as counterparty,
+    (
+        SELECT hc.new_value
+        FROM history_changed_entities hce
+                 LEFT JOIN history_changes hc
+                           ON hc.chaged_entity_id = hce.id
+                               AND hc.field_name = 'DeliveryDate'
+        WHERE hce.entity_class = 'Order'
+          AND hce.entity_id = source.order_id
+          AND hce.operation = 'Create'
+        LIMIT 1
+    ) AS delivery_date,
+    (
+        SELECT hc.new_value
+        FROM history_changed_entities hce
+                 LEFT JOIN history_changes hc
+                           ON hc.chaged_entity_id = hce.id
+                               AND hc.field_name = 'TimeDelivered'
+        WHERE hce.entity_class = 'Order'
+          AND hce.entity_id = source.order_id
+          AND hce.operation = 'Create'
+        LIMIT 1
+    ) AS time_delivered,
+    source.change_time,
+    IF(source.operation = 'Delete', n2.official_name, source.old_value) as old_value,
+    IF(source.operation = 'Create', n2.official_name, source.new_value) as new_value,
+    IF(hc2.user_login = 'vodovoz_service', 'Служба', GET_PERSON_NAME_WITH_INITIALS(e2.last_name, e2.name, e2.patronymic)) as author,
+    GET_PERSON_NAME_WITH_INITIALS(driver.last_name, driver.name, driver.patronymic) as driver_fio
 FROM
-	(
-		SELECT
-			o.id as order_id,
-			cc.organization_id,
-			o.comment_manager,
-			o.delivery_date,
-			o.time_delivered,
-			hce.changeset_id,
-			hce.entity_class,
-			hce.entity_id,
-			hce.datetime as change_time,
-			hce.operation,
-			shipped.`datetime` as shipped_date,
-			hc.`type`,
-			'Форма оплаты' as field_name,
-			IF(hce.operation IN ('Create', 'Delete'),
-				NULL,
-				CASE hc.old_value
-				    WHEN 'cash' THEN 'Наличная'
-				    WHEN 'cashless' THEN 'Безналичная'
-				    WHEN 'barter' THEN 'Бартер'
-				    WHEN 'ByCard' THEN 'По карте'
-				    WHEN 'ContractDoc' THEN 'Контракт. док.'
-				    WHEN 'BeveragesWorld' THEN 'Мир напитков'
-				    WHEN 'Terminal' THEN 'Терминал'
-				    ELSE hc.old_value
-				END 
-			) as old_value,
-			IF(hce.operation IN ('Create', 'Delete'),
-				NULL,
-				CASE hc.new_value
-				    WHEN 'cash' THEN 'Наличная'
-				    WHEN 'cashless' THEN 'Безналичная'
-				    WHEN 'barter' THEN 'Бартер'
-				    WHEN 'ByCard' THEN 'По карте'
-				    WHEN 'ContractDoc' THEN 'Контракт. док.'
-				    WHEN 'BeveragesWorld' THEN 'Мир напитков'
-				    WHEN 'Terminal' THEN 'Терминал'
-				    ELSE hc.new_value
-				END
-			) as new_value
-		FROM 
-			history_changed_entities hce	
-			INNER JOIN orders o ON o.id = hce.entity_id
-				AND hce.entity_class = 'Order'
-				AND hce.`datetime` &gt;= @date_from
-				AND hce.operation = 'Change'
-			INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id 
-				AND cc.organization_id = @organization_id
-			INNER JOIN history_changes hc_pay_type ON hc_pay_type.chaged_entity_id = hce.id
-				AND hc_pay_type.`type` = 'Changed'
-				AND hc_pay_type.field_name = 'PaymentType'
-				AND (
-					hc_pay_type.new_value IN ('cash', 'ByCard', 'Terminal', 'cashless')
-					OR
-					hc_pay_type.old_value IN ('cash', 'ByCard', 'Terminal', 'cashless')
-				)
-			INNER JOIN (
-				SELECT
-					o_inner.id as order_id,
-					hce_inner.`datetime`,
-					hc_inner.field_name,
-					hc_inner.old_value,
-					hc_inner.new_value
-				FROM history_changed_entities hce_inner
-					INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
-						AND hce_inner.entity_class = 'Order'
-						AND hce_inner.`datetime` &gt;= @date_from
-						AND hce_inner.operation = 'Change'
-					INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id		
-						AND hc_inner.`type` = 'Changed' 
-						AND hc_inner.field_name = 'OrderStatus'
-						AND hc_inner.new_value = 'Shipped'	
-				GROUP BY hce_inner.entity_id
-			) shipped ON shipped.order_id = o.id
-			LEFT JOIN history_changes hc ON hc.chaged_entity_id = hce.id
-		WHERE 
-			hce.`datetime` &gt; shipped.`datetime`
-			AND hc.`type` = 'Changed'
-			AND hc.field_name = 'PaymentType'
-			AND FIND_IN_SET('PaymentType', @change_types) &gt; 0
-		UNION ALL
-		SELECT
-			o.id as order_id,
-			cc.organization_id,
-			o.comment_manager,
-			o.delivery_date,
-			o.time_delivered,
-			hce.changeset_id,
-			hce.entity_class,
-			hce.entity_id,
-			hce.datetime as change_time,
-			hce.operation,
-			shipped.`datetime` as shipped_date,
-			hc.`type`,
-			IF(hce.operation IN ('Create', 'Delete'), 
-				NULL,
-				CASE hc.field_name
-				    WHEN 'ActualCount' THEN 'Факт. кол-во'
-				    WHEN 'Price' THEN 'Цена'
-				    ELSE hc.field_name
-				END
-			) as field_name,
-			IF(hce.operation IN ('Create', 'Delete'),
-				NULL,
-				CASE hc.old_value
-				    WHEN 'cash' THEN 'Наличная'
-				    WHEN 'cashless' THEN 'Безналичная'
-				    WHEN 'barter' THEN 'Бартер'
-				    WHEN 'ByCard' THEN 'По карте'
-				    WHEN 'ContractDoc' THEN 'Контракт. док.'
-				    WHEN 'BeveragesWorld' THEN 'Мир напитков'
-				    WHEN 'Terminal' THEN 'Терминал'
-				    ELSE hc.old_value
-				END 
-			) as old_value,
-			IF(hce.operation IN ('Create', 'Delete'),
-				NULL,
-				CASE hc.new_value
-				    WHEN 'cash' THEN 'Наличная'
-				    WHEN 'cashless' THEN 'Безналичная'
-				    WHEN 'barter' THEN 'Бартер'
-				    WHEN 'ByCard' THEN 'По карте'
-				    WHEN 'ContractDoc' THEN 'Контракт. док.'
-				    WHEN 'BeveragesWorld' THEN 'Мир напитков'
-				    WHEN 'Terminal' THEN 'Терминал'
-				    ELSE hc.new_value
-				END
-			) as new_value		
-		FROM
-			history_changed_entities hce	
-			INNER JOIN order_items oi ON oi.id = hce.entity_id
-				AND hce.entity_class = 'OrderItem'
-				AND hce.`datetime` &gt;= @date_from
-				AND hce.operation IN ('Create','Change','Delete')		
-			INNER JOIN orders o ON o.id = oi.order_id
-			INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id 
-				AND cc.organization_id = @organization_id
-			INNER JOIN (
-				SELECT
-					o_inner.id as order_id,
-					hce_inner.`datetime`,
-					hc_inner.field_name,
-					hc_inner.old_value,
-					hc_inner.new_value
-				FROM history_changed_entities hce_inner
-					INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
-						AND hce_inner.entity_class = 'Order'
-						AND hce_inner.`datetime` &gt;= @date_from
-						AND hce_inner.operation = 'Change'
-					INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id		
-						AND hc_inner.`type` = 'Changed' 
-						AND hc_inner.field_name = 'OrderStatus'
-						AND hc_inner.new_value = 'Shipped'	
-				GROUP BY hce_inner.entity_id
-			) shipped ON shipped.order_id = o.id
-			INNER JOIN (
-				SELECT
-					o_pay_type.id as order_id,
-					hce_pay_type.`datetime`,
-					hc_pay_type.field_name,
-					hc_pay_type.old_value,
-					hc_pay_type.new_value
-				FROM history_changed_entities hce_pay_type
-					INNER JOIN orders o_pay_type ON o_pay_type.id = hce_pay_type.entity_id
-						AND hce_pay_type.entity_class = 'Order'
-						AND hce_pay_type.`datetime` &gt;= @date_from
-						AND hce_pay_type.operation = 'Change'
-					INNER JOIN history_changes hc_pay_type ON hc_pay_type.chaged_entity_id = hce_pay_type.id
-						AND hc_pay_type.`type` = 'Changed'
-						AND hc_pay_type.field_name = 'PaymentType'
-						AND (
-							hc_pay_type.new_value IN ('cash', 'ByCard', 'Terminal', 'cashless')
-							OR
-							hc_pay_type.old_value IN ('cash', 'ByCard', 'Terminal', 'cashless')
-						)
-				GROUP BY hce_pay_type.entity_id
-			) payment_type_changes ON payment_type_changes.order_id = o.id
-			LEFT JOIN history_changes hc ON hc.chaged_entity_id = hce.id
-		WHERE
-			hce.`datetime` &gt; shipped.`datetime`
-			AND ( 
-				(hc.`type` = 'Changed' AND hc.field_name IN ('Price', 'ActualCount') AND FIND_IN_SET('Price', @change_types) &gt; 0 AND FIND_IN_SET('ActualCount', @change_types) &gt; 0)
-				OR 
-				(hce.operation IN ('Create','Delete') AND hc.field_name = 'Price' AND FIND_IN_SET('OrderItemsCount', @change_types) &gt; 0)
-			)
-	) as source
-	LEFT JOIN sms_payment sp ON sp.order_id = source.order_id AND sp.payment_status = 'Paid'
-	LEFT JOIN organizations o2 ON o2.id = source.organization_id
-	LEFT JOIN history_changeset hc2 ON hc2.id = source.changeset_id
-	LEFT JOIN employees e2 ON e2.user_id = hc2.user_id
-	LEFT JOIN order_items oi3 ON oi3.id = source.entity_id AND source.entity_class = 'OrderItem'
-	LEFT JOIN nomenclature n2 ON n2.id = oi3.nomenclature_id
-	LEFT JOIN route_list_addresses rla ON source.order_id = rla.order_id 
-	LEFT JOIN route_lists rl ON rla.route_list_id = rl.id AND rla.status &lt;&gt; 'Transfered'
-	LEFT JOIN employees driver ON rl.driver_id = driver.id
+    (
+        SELECT # Выборка изменений в Форме оплаты
+               o.id as order_id,
+               cc.organization_id,
+               o.comment_manager,
+               cc.counterparty_id,
+               hce.changeset_id,
+               hce.entity_class,
+               hce.entity_id,
+               hce.datetime as change_time,
+               hce.operation,
+               shipped.datetime as shipped_date,
+               hc.type,
+               'Форма оплаты' as field_name,
+               IF(hce.operation IN ('Create', 'Delete'),
+                  NULL,
+                  CASE hc.old_value
+                      WHEN 'cash' THEN 'Наличная'
+                      WHEN 'cashless' THEN 'Безналичная'
+                      WHEN 'barter' THEN 'Бартер'
+                      WHEN 'ByCard' THEN 'По карте'
+                      WHEN 'ContractDoc' THEN 'Контракт. док.'
+                      WHEN 'BeveragesWorld' THEN 'Мир напитков'
+                      WHEN 'Terminal' THEN 'Терминал'
+                      ELSE hc.old_value
+                      END
+                   ) as old_value,
+               IF(hce.operation IN ('Create', 'Delete'),
+                  NULL,
+                  CASE hc.new_value
+                      WHEN 'cash' THEN 'Наличная'
+                      WHEN 'cashless' THEN 'Безналичная'
+                      WHEN 'barter' THEN 'Бартер'
+                      WHEN 'ByCard' THEN 'По карте'
+                      WHEN 'ContractDoc' THEN 'Контракт. док.'
+                      WHEN 'BeveragesWorld' THEN 'Мир напитков'
+                      WHEN 'Terminal' THEN 'Терминал'
+                      ELSE hc.new_value
+                      END
+                   ) as new_value
+        FROM
+            history_changed_entities hce
+                INNER JOIN orders o ON o.id = hce.entity_id
+                AND hce.entity_class = 'Order'
+                AND hce.datetime &gt;= @start_date
+                AND hce.datetime &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
+                AND hce.operation = 'Change'
+                INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id
+                AND cc.organization_id = @organization_id
+                INNER JOIN history_changes hc_pay_type ON hc_pay_type.chaged_entity_id = hce.id
+                AND hc_pay_type.type = 'Changed'
+                AND hc_pay_type.field_name = 'PaymentType'
+                AND
+                  (
+                          (
+                                  (
+                                              hc_pay_type.new_value IN ('cash', 'cashless')
+                                          OR
+                                              hc_pay_type.old_value IN ('cash', 'cashless')
+                                      )
+                                  AND FIND_IN_SET('PaymentType', @change_types) &gt; 0
+                              )
+                          OR
+                          (
+                                  (
+                                              hc_pay_type.new_value = 'Terminal'
+                                          OR hc_pay_type.old_value = 'Terminal'
+                                      )
+                                  AND FIND_IN_SET('TerminalIssues', @issue_types) &gt; 0
+                              )
+                          OR
+                          (
+                                  (
+                                              hc_pay_type.new_value = 'ByCard'
+                                          OR hc_pay_type.old_value = 'ByCard'
+                                      )
+                                  AND
+                                  (
+                                      (
+                                                  FIND_IN_SET('ManagersIssues', @issue_types) &gt; 0
+                                              AND o.payment_from_id &lt;&gt; GET_PARAMETER('sms_payment_by_card_from_id')
+                                          )
+                                      )
+                              )
+                          OR
+                          (
+                                      FIND_IN_SET('SmsIssues', @issue_types) &gt; 0
+                                  AND o.payment_from_id = GET_PARAMETER('sms_payment_by_card_from_id')
+                                  AND hc_pay_type.new_value = 'ByCard'
+                              )
+                      )
+                INNER JOIN (
+                SELECT
+                    o_inner.id as order_id,
+                    hce_inner.datetime
+                FROM history_changed_entities hce_inner
+                         INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
+                    AND hce_inner.entity_class = 'Order'
+                    AND hce_inner.operation = 'Change'
+                         INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id
+                    AND hc_inner.type = 'Changed'
+                    AND hc_inner.field_name = 'OrderStatus'
+                    AND hc_inner.new_value = 'Shipped'
+                GROUP BY hce_inner.entity_id
+            ) shipped ON shipped.order_id = o.id
+                LEFT JOIN history_changes hc ON hc.chaged_entity_id = hce.id
+        WHERE
+                hce.datetime &gt; shipped.datetime
+          AND hc.type = 'Changed'
+          AND hc.field_name = 'PaymentType'
+          AND (FIND_IN_SET('PaymentType', @change_types) &gt; 0 OR @issue_types &lt;&gt; '')
+        UNION ALL
+        SELECT # Выборка изменений в количестве или цене в строках заказов
+               o.id as order_id,
+               cc.organization_id,
+               o.comment_manager,
+               cc.counterparty_id,
+               hce.changeset_id,
+               hce.entity_class,
+               hce.entity_id,
+               hce.datetime as change_time,
+               hce.operation,
+               shipped.datetime as shipped_date,
+               hc.type,
+               IF(hce.operation IN ('Create', 'Delete'),
+                  NULL,
+                  CASE hc.field_name
+                      WHEN 'ActualCount' THEN 'Факт. кол-во'
+                      WHEN 'Price' THEN 'Цена'
+                      ELSE hc.field_name
+                      END
+                   ) as field_name,
+               IF(hce.operation IN ('Create', 'Delete'),
+                  NULL,
+                  CASE hc.old_value
+                      WHEN 'cash' THEN 'Наличная'
+                      WHEN 'cashless' THEN 'Безналичная'
+                      WHEN 'barter' THEN 'Бартер'
+                      WHEN 'ByCard' THEN 'По карте'
+                      WHEN 'ContractDoc' THEN 'Контракт. док.'
+                      WHEN 'BeveragesWorld' THEN 'Мир напитков'
+                      WHEN 'Terminal' THEN 'Терминал'
+                      ELSE hc.old_value
+                      END
+                   ) as old_value,
+               IF(hce.operation IN ('Create', 'Delete'),
+                  NULL,
+                  CASE hc.new_value
+                      WHEN 'cash' THEN 'Наличная'
+                      WHEN 'cashless' THEN 'Безналичная'
+                      WHEN 'barter' THEN 'Бартер'
+                      WHEN 'ByCard' THEN 'По карте'
+                      WHEN 'ContractDoc' THEN 'Контракт. док.'
+                      WHEN 'BeveragesWorld' THEN 'Мир напитков'
+                      WHEN 'Terminal' THEN 'Терминал'
+                      ELSE hc.new_value
+                      END
+                   ) as new_value
+        FROM
+            history_changed_entities hce
+                INNER JOIN order_items oi ON oi.id = hce.entity_id
+                AND hce.entity_class = 'OrderItem'
+                AND hce.datetime &gt;= @start_date
+                AND hce.datetime &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
+                AND hce.operation IN ('Create','Change','Delete')
+                INNER JOIN orders o ON o.id = oi.order_id
+                INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id
+                AND cc.organization_id = @organization_id
+                INNER JOIN (
+                SELECT
+                    o_inner.id as order_id,
+                    hce_inner.datetime
+                FROM history_changed_entities hce_inner
+                         INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
+                    AND hce_inner.entity_class = 'Order'
+                    AND hce_inner.operation = 'Change'
+                         INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id
+                    AND hc_inner.type = 'Changed'
+                    AND hc_inner.field_name = 'OrderStatus'
+                    AND hc_inner.new_value = 'Shipped'
+                GROUP BY hce_inner.entity_id
+            ) shipped ON shipped.order_id = o.id
+                INNER JOIN (
+                SELECT
+                    o_pay_type.id as order_id,
+                    hce_pay_type.datetime
+                FROM history_changed_entities hce_pay_type
+                         INNER JOIN orders o_pay_type ON o_pay_type.id = hce_pay_type.entity_id
+                    AND hce_pay_type.entity_class = 'Order'
+                    AND hce_pay_type.operation IN ('Create', 'Change')
+                         INNER JOIN history_changes hc_pay_type ON hc_pay_type.chaged_entity_id = hce_pay_type.id
+                    AND hc_pay_type.type IN ('Added', 'Changed')
+                    AND hc_pay_type.field_name = 'PaymentType'
+                    AND
+                       (
+                               (
+                                       (
+                                                   hc_pay_type.new_value IN ('cash', 'cashless')
+                                               OR
+                                                   hc_pay_type.old_value IN ('cash', 'cashless')
+                                           )
+                                       AND FIND_IN_SET('PaymentType', @change_types) &gt; 0
+                                   )
+                               OR
+                               (
+                                       (
+                                                   hc_pay_type.new_value = 'Terminal'
+                                               OR hc_pay_type.old_value = 'Terminal'
+                                           )
+                                       AND
+                                       FIND_IN_SET('TerminalIssues', @issue_types) &gt; 0
+                                   )
+                               OR
+                               (
+                                       (
+                                                   hc_pay_type.new_value = 'ByCard'
+                                               OR
+                                                   hc_pay_type.old_value = 'ByCard'
+                                           )
+                                       AND
+                                       (
+                                                   FIND_IN_SET('ManagersIssues', @issue_types) &gt; 0
+                                               AND
+                                                   o_pay_type.payment_from_id &lt;&gt; GET_PARAMETER('sms_payment_by_card_from_id')
+                                           )
+                                   )
+                               OR
+                               (
+                                           FIND_IN_SET('SmsIssues', @issue_types) &gt; 0
+                                       AND
+                                           o_pay_type.payment_from_id = GET_PARAMETER('sms_payment_by_card_from_id')
+                                       AND
+                                           hc_pay_type.new_value = 'ByCard'
+                                   )
+                           )
+                GROUP BY hce_pay_type.entity_id
+            ) payment_type_changes ON payment_type_changes.order_id = o.id
+                LEFT JOIN history_changes hc ON hc.chaged_entity_id = hce.id
+        WHERE
+                hce.datetime &gt; shipped.datetime
+          AND (
+                (hc.type = 'Changed' AND hc.field_name IN ('Price', 'ActualCount') AND FIND_IN_SET('Price', @change_types) &gt; 0 AND FIND_IN_SET('ActualCount', @change_types) &gt; 0)
+                OR
+                (hce.operation IN ('Create','Delete') AND hc.field_name = 'Price' AND FIND_IN_SET('OrderItemsCount', @change_types) &gt; 0)
+            )
+    ) as source
+        LEFT JOIN sms_payment sp ON sp.order_id = source.order_id AND sp.payment_status = 'Paid'
+        LEFT JOIN history_changeset hc2 ON hc2.id = source.changeset_id
+        LEFT JOIN employees e2 ON e2.user_id = hc2.user_id
+        LEFT JOIN order_items oi3 ON oi3.id = source.entity_id AND source.entity_class = 'OrderItem'
+        LEFT JOIN nomenclature n2 ON n2.id = oi3.nomenclature_id
+        LEFT JOIN route_list_addresses rla ON source.order_id = rla.order_id
+        LEFT JOIN route_lists rl ON rla.route_list_id = rl.id AND rla.status &lt;&gt; 'Transfered'
+        LEFT JOIN employees driver ON rl.driver_id = driver.id
+        LEFT JOIN counterparty c2 ON source.counterparty_id = c2.id
 ;</CommandText>
         <QueryParameters>
-          <QueryParameter Name="date_from">
-            <Value>=Format(Convert.ToDateTime({?date_from}), "yyyy-MM-dd")</Value>
+          <QueryParameter Name="start_date">
+            <Value>=Format(Convert.ToDateTime({?start_date}), "yyyy-MM-dd")</Value>
           </QueryParameter>
           <QueryParameter Name="organization_id">
             <Value>={?organization_id}</Value>
@@ -955,13 +1020,15 @@ FROM
           <QueryParameter Name="change_types">
             <Value>={?change_types}</Value>
           </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Format(Convert.ToDateTime({?end_date}), "yyyy-MM-dd")</Value>
+          </QueryParameter>
+          <QueryParameter Name="issue_types">
+            <Value>={?issue_types}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
-        <Field Name="organization_name">
-          <DataField>organization_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="comment_manager">
           <DataField>comment_manager</DataField>
           <TypeName>System.String</TypeName>
@@ -990,10 +1057,6 @@ FROM
           <DataField>change_time</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
-        <Field Name="operation">
-          <DataField>operation</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="old_value">
           <DataField>old_value</DataField>
           <TypeName>System.String</TypeName>
@@ -1008,6 +1071,14 @@ FROM
         </Field>
         <Field Name="driver_fio">
           <DataField>driver_fio</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="counterparty">
+          <DataField>counterparty</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="nomenclature_name">
+          <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1054,7 +1125,15 @@ FROM
     </DataSource>
   </DataSources>
   <ReportParameters>
-    <ReportParameter Name="date_from">
+    <ReportParameter Name="start_date">
+      <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1072,19 +1151,34 @@ FROM
     </ReportParameter>
     <ReportParameter Name="change_types">
       <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="change_types_rus">
       <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="issue_types">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="issue_types_rus">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

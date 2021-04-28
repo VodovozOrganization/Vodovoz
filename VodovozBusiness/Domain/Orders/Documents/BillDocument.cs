@@ -5,7 +5,6 @@ using System.IO;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -23,7 +22,6 @@ namespace Vodovoz.Domain.Orders.Documents
 				Identifier = "Documents.Bill",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
-					{ "organization_id", new OrganizationParametersProvider(ParametersProvider.Instance).GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
 					{ "special", false },
 					{ "special_contract_number", SpecialContractNumber},

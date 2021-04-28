@@ -16,7 +16,11 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.Label labelName;
 
+		private global::Gtk.Label labelShortName;
+
 		private global::Gamma.GtkWidgets.yEntry yentryName;
+
+		private global::Gamma.GtkWidgets.yEntry yentryShortName;
 
 		protected virtual void Build()
 		{
@@ -66,7 +70,7 @@ namespace Vodovoz.Views.Logistic
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vboxDialog.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -80,6 +84,17 @@ namespace Vodovoz.Views.Logistic
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.labelShortName = new global::Gtk.Label();
+			this.labelShortName.Name = "labelShortName";
+			this.labelShortName.Xalign = 1F;
+			this.labelShortName.LabelProp = global::Mono.Unix.Catalog.GetString("Сокращённое название:");
+			this.table1.Add(this.labelShortName);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.labelShortName]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.WidthRequest = 450;
 			this.yentryName.CanFocus = true;
@@ -87,16 +102,32 @@ namespace Vodovoz.Views.Logistic
 			this.yentryName.IsEditable = true;
 			this.yentryName.InvisibleChar = '•';
 			this.table1.Add(this.yentryName);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
-			w7.LeftAttach = ((uint)(1));
-			w7.RightAttach = ((uint)(2));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
+			w8.LeftAttach = ((uint)(1));
+			w8.RightAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yentryShortName = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryShortName.WidthRequest = 450;
+			this.yentryShortName.Sensitive = true;
+			this.yentryShortName.CanFocus = true;
+			this.yentryShortName.Name = "yentryShortName";
+			this.yentryShortName.IsEditable = true;
+			this.yentryShortName.InvisibleChar = '•';
+			this.table1.Add(this.yentryShortName);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryShortName]));
+			w9.TopAttach = ((uint)(1));
+			w9.BottomAttach = ((uint)(2));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxDialog.Add(this.table1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.table1]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.table1]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.Add(this.vboxDialog);
 			if ((this.Child != null))
 			{

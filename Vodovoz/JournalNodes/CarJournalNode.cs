@@ -10,5 +10,6 @@ namespace Vodovoz.JournalNodes
 		public string Model { get; set; }
 		public string RegistrationNumber { get; set; }
 		public string DriverName { get; set; }
+		public bool IsArchive { get; set; }
 	}
 }

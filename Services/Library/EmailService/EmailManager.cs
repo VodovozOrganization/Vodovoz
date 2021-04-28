@@ -27,7 +27,7 @@ namespace EmailService
 		static string userId = null;
 		static string userSecretKey = null;
 		static CancellationTokenSource cancellationToken = new CancellationTokenSource();
-		static BlockingCollection<Email> emailsQueue = new BlockingCollection<Email>();
+		static BlockingCollection<OrderEmail> emailsQueue = new BlockingCollection<OrderEmail>();
 		static BlockingCollection<MailjetEvent> unsavedEventsQueue = new BlockingCollection<MailjetEvent>();
 		static bool IsInitialized => !(string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(userSecretKey));
 		static int workerTasksCreatedCounter = 0;
@@ -89,7 +89,7 @@ namespace EmailService
 			});
 		}
 
-		public static Tuple<bool, string> AddEmail(Email email)
+		public static Tuple<bool, string> AddEmail(OrderEmail email)
 		{
 			Thread.CurrentThread.Name = "AddNewEmail";
 			logger.Debug("Thread {0} Id {1}: Получено новое письмо на отправку", Thread.CurrentThread.Name, Thread.CurrentThread.ManagedThreadId);
@@ -122,7 +122,7 @@ namespace EmailService
 			}
 		}
 
-		static void AddEmailToSend(Email email)
+		static void AddEmailToSend(OrderEmail email)
 		{
 			if(!emailRepository.CanSendByTimeout(email.Recipient.EmailAddress, email.Order, email.OrderDocumentType)) {
 				logger.Error("{0} Попытка отправить почту до истечения минимального времени до повторной отправки", GetThreadInfo());
@@ -179,7 +179,7 @@ namespace EmailService
 		{
 			Thread.CurrentThread.Name = "EmailSendWorker";
 			while(true) {
-				Email email = null;
+				OrderEmail email = null;
 
 				email = emailsQueue.Take();
 				logger.Debug("{0} Отправка письма из очереди", GetThreadInfo());
@@ -202,7 +202,7 @@ namespace EmailService
 					};
 					try {
 						//формируем письмо в формате mailjet для отправки
-						var request = CreateMailjetRequest(email);
+						var request = CreateOrderMailjetRequest(email);
 						MailjetResponse response = null;
 						try {
 							logger.Debug("{0} Отправка запроса на сервер Mailjet", GetThreadInfo());
@@ -376,7 +376,7 @@ namespace EmailService
 			return errorResult;
 		}
 
-		private static MailjetRequest CreateMailjetRequest(Email email)
+		private static MailjetRequest CreateOrderMailjetRequest(OrderEmail email)
 		{
 			MailjetRequest request = new MailjetRequest {
 				Resource = Send.Resource
@@ -424,6 +424,114 @@ namespace EmailService
 			request.Property(Send.Messages, new JArray { message });
 
 			return request;
+		}
+
+
+		private static MailjetRequest CreateMailjetRequest(Email email)
+		{
+			MailjetRequest request = new MailjetRequest
+			{
+				Resource = Send.Resource
+			};
+			var attachments = new JArray();
+			if(email.AttachmentsBinary != null)
+            {
+				foreach (var item in email.AttachmentsBinary)
+				{
+					attachments.Add(new JObject{
+						{"ContentType", "application/octet-stream"},
+						{"Filename", item.Key},
+						{"Base64Content", item.Value}
+					});
+				}
+			}
+			
+			var inlinedAttachments = new JArray();
+			if (email.InlinedAttachments != null)
+            {
+				foreach (var item in email.InlinedAttachments)
+				{
+					inlinedAttachments.Add(new JObject{
+						{"ContentID", item.Key},
+						{"ContentType", item.Value.ContentType},
+						{"Filename", item.Value.FileName},
+						{"Base64Content", item.Value.Base64String}
+					});
+				}
+			}
+
+			var message = new JObject {
+				{"From", new JObject {
+						{"Email", email.Sender.EmailAddress},
+						{"Name", email.Sender.Title}
+					}
+				},
+				{"To", new JArray {
+						new JObject {
+							{"Email", email.Recipient.EmailAddress},
+							{"Name", email.Recipient.Title}
+						}
+					}
+				},
+				{"Subject", email.Title},
+				{"TextPart", email.Text},
+				{"HTMLPart", email.HtmlText},
+				{"CustomID", email.StoredEmailId.ToString()},
+				{"Attachments", attachments},
+				{"InlinedAttachments", inlinedAttachments},
+				{"TrackOpens", "account_default"},
+				{"TrackClicks", "account_default"}
+			};
+
+			request.Property(Send.Messages, new JArray { message });
+
+			return request;
+		}
+
+		public static async Task<bool> SendEmail(Email email)
+        {
+			try
+			{
+				MailjetClient client = new MailjetClient(userId, userSecretKey)
+				{
+					Version = ApiVersion.V3_1,
+				};
+
+				var request = CreateMailjetRequest(email);
+
+				MailjetResponse response = null;
+
+				try
+				{
+					logger.Debug("{0} Отправка запроса на сервер Mailjet", GetThreadInfo());
+					response = await client.PostAsync(request);
+				}
+				catch (Exception ex)
+				{
+					logger.Error("{1} Не удалось отправить письмо: \n{0}", ex, GetThreadInfo());
+					return false;
+				}
+
+				MailjetMessage[] messages = response.GetData().ToObject<MailjetMessage[]>();
+
+				logger.Debug("{1} Получен ответ: Code {0}", response.StatusCode, GetThreadInfo());
+
+				if (response.IsSuccessStatusCode)
+				{
+					logger.Debug(response.GetData());
+					return true;
+				}
+				else
+				{
+					logger.Debug(response.GetData());
+					logger.Debug("{1} ErrorMessage: {0}\n", response.GetErrorMessage(), GetThreadInfo());
+				}
+			}
+			catch (Exception ex)
+			{
+				logger.Error(ex, "При обработке ответа на отправку письма возникла ошибка.\n");
+			}
+			return false;
 		}
 
 		private static DateTime UnixTimeStampToDateTime(double unixTimeStamp)

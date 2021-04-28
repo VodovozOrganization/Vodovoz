@@ -1181,12 +1181,14 @@ FROM
         LEFT JOIN
     employees author ON author.id = o.author_employee_id
         LEFT JOIN
-    payments_by_card_online p ON p.number = o.online_order
+    payments_by_card_online p ON p.number = o.online_order 
+			AND p.date_and_time &gt; DATE_ADD(o.create_date, INTERVAL -7 DAY)
+			AND p.date_and_time &lt; DATE_ADD(o.create_date, INTERVAL 7 DAY)
         LEFT JOIN
     (
         SELECT
             i.order_id AS id,
-            ROUND(SUM(price * IFNULL(actual_count, count) - discount_money), 2) AS total
+            SUM(ROUND(price * IFNULL(actual_count, count) - discount_money, 2)) AS total
         FROM
             order_items i
         GROUP BY
@@ -1353,7 +1355,7 @@ ORDER BY date_and_time DESC
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>

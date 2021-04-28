@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Data.Common;
 using System.Globalization;
 using Gtk;
 using NLog;
 using QSProjectsLib;
 using Vodovoz.Parameters;
-using Vodovoz.Additions;
 using EmailService;
 using QS.Project.Dialogs.GtkUI;
 using QS.Utilities.Text;
-using QSSupportLib;
 using QS.Widgets.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
@@ -25,12 +22,22 @@ using SmsPaymentService;
 using System.Security.Principal;
 using Vodovoz.Domain.Security;
 using System.Linq;
+using System.Reflection;
+using GMap.NET.MapProviders;
+using QS.BaseParameters;
+using QS.Dialog;
+using QS.Project.Versioning;
+using QS.Validation;
+using Vodovoz.Tools.Validation;
 
 namespace Vodovoz
 {
 	partial class MainClass
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private static IApplicationInfo applicationInfo;
+		private static IPasswordValidator passwordValidator;
+
 		public static MainWindow MainWin;
 
 		[STAThread]
@@ -39,16 +46,15 @@ namespace Vodovoz
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 			Application.Init ();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
-			var appInfo = new ApplicationInfo();
+			applicationInfo = new ApplicationVersionInfo();
 
 			#region Первоначальная настройка обработки ошибок
-			SingletonErrorReporter.Initialize(ReportWorker.GetReportService(), appInfo, new LogService(), null, false, null);
-			var errorMessageModelFactory = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, null, null);
-			var exceptionHandler = new DefaultUnhandledExceptionHandler(errorMessageModelFactory, appInfo);
+			SingletonErrorReporter.Initialize(ReportWorker.GetReportService(), applicationInfo, new LogService(), null, false, null);
+			var errorMessageModelFactoryWithoutUserService = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, null, null);
+			var exceptionHandler = new DefaultUnhandledExceptionHandler(errorMessageModelFactoryWithoutUserService, applicationInfo);
 
 			exceptionHandler.SubscribeToUnhandledExceptions();
 			exceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;
-			MainSupport.HandleStaleObjectStateException = EntityChangedExceptionHelper.ShowExceptionMessage;
 			#endregion
 
 			//FIXME Удалить после того как будет удалена зависимость от библиотеки QSProjectLib
@@ -81,44 +87,47 @@ namespace Vodovoz
 			GetPermissionsSettings();
 			//Настройка базы
 			CreateBaseConfig ();
+
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
-
-			MainSupport.LoadBaseParameters();
 			ParametersProvider.Instance.RefreshParameters();
 
 			#region Настройка обработки ошибок c параметрами из базы и сервисами
 			var baseParameters = new BaseParametersProvider();
 			SingletonErrorReporter.Initialize(
 				ReportWorker.GetReportService(),
-				appInfo,
+				applicationInfo,
 				new LogService(), 
 				LoginDialog.BaseName, 
 				LoginDialog.BaseName == baseParameters.GetDefaultBaseForErrorSend(),
 				baseParameters.GetRowCountForErrorLog()
 			);
 
-			var errorMessageModelFactory2 = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, ServicesConfig.UserService, UnitOfWorkFactory.GetDefaultFactory);
+			var errorMessageModelFactoryWithUserService = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, ServicesConfig.UserService, UnitOfWorkFactory.GetDefaultFactory);
 			exceptionHandler.InteractiveService = ServicesConfig.InteractiveService;
-			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactory2;
+			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactoryWithUserService;
 			//Настройка обычных обработчиков ошибок.
 			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
 			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
 			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
-			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.NHibernateStaleObjectStateExceptionException);
-			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionConnectionTimeout);
-			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionAuth);
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.NHibernateStaleObjectStateExceptionHandler);
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionConnectionTimeoutHandler);
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionAuthHandler);
 			
 			#endregion
 
+			passwordValidator = new PasswordValidator(
+				new PasswordValidationSettingsFactory(UnitOfWorkFactory.GetDefaultFactory).GetPasswordValidationSettings()
+			);
+
 			//Настройка карты
-			GMap.NET.MapProviders.GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
-				QSSupportLib.MainSupport.ProjectVerion.Product,
-				VersionHelper.VersionToShortString(QSSupportLib.MainSupport.ProjectVerion.Version),
-				VersionHelper.VersionToShortString(System.Reflection.Assembly.GetAssembly(typeof(GMap.NET.MapProviders.GMapProvider)).GetName().Version),
+			GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
+				applicationInfo.ProductName,
+				applicationInfo.Version.VersionToShortString(),
+				Assembly.GetAssembly(typeof(GMapProvider)).GetName().Version.VersionToShortString(),
 				Environment.OSVersion.VersionString
 			);
-			GMap.NET.MapProviders.GMapProvider.Language = GMap.NET.LanguageType.Russian;
+			GMapProvider.Language = GMap.NET.LanguageType.Russian;
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
 
 			DatePicker.CalendarFontSize = 16;
@@ -131,7 +140,11 @@ namespace Vodovoz
 			
 			PerformanceHelper.StartPointsGroup ("Главное окно");
 
-			MainSupport.TestVersion(null); //Проверяем версию базы
+			var baseVersionChecker = new CheckBaseVersion(applicationInfo, new ParametersService(QS.Project.DB.Connection.ConnectionDB));
+			if(baseVersionChecker.Check()) {
+				ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, baseVersionChecker.TextMessage, "Несовпадение версии");
+				return;
+			}
 			QSMain.CheckServer(null); // Проверяем настройки сервера
 
 			PerformanceHelper.AddTimePoint("Закончена загрузка параметров базы и проверка версии.");
@@ -146,7 +159,7 @@ namespace Vodovoz
 									   Message);
 				md.Run();
 				md.Destroy();
-				UsersDialog usersDlg = new UsersDialog();
+				UsersDialog usersDlg = new UsersDialog(ServicesConfig.InteractiveService);
 				usersDlg.Show();
 				usersDlg.Run();
 				usersDlg.Destroy();
@@ -180,7 +193,7 @@ namespace Vodovoz
 				if(!UoW.Root.NeedPasswordChange)
 					return true;
 
-				ChangePassword changePasswordWindow = new ChangePassword();
+				ChangePassword changePasswordWindow = new ChangePassword(passwordValidator);
 				changePasswordWindow.Title = "Требуется сменить пароль";
 				QSMain.ErrorDlgParrent = changePasswordWindow;
 
@@ -224,8 +237,8 @@ namespace Vodovoz
 			CreateTempDir();
 
 			//Запускаем программу
-			MainWin = new MainWindow();
-			MainWin.Title += string.Format(" (БД: {0})", loginDialogName);
+			MainWin = new MainWindow(passwordValidator);
+			MainWin.Title += $" (БД: {loginDialogName})";
 			QSMain.ErrorDlgParrent = MainWin;
 			MainWin.Show();
 		}

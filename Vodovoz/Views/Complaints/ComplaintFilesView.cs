@@ -27,14 +27,13 @@ namespace Vodovoz.Views.Complaints
 				.AddColumn("Файлы").AddTextRenderer(x => x.FileStorageId)
 				.Finish();
 			ytreeviewFiles.ItemsDataSource = ViewModel.Entity.ObservableFiles;
-			ytreeviewFiles.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 			ytreeviewFiles.ButtonReleaseEvent += KeystrokeHandler;
 			ytreeviewFiles.RowActivated += (o, args) => ViewModel.OpenItemCommand.Execute(ytreeviewFiles.GetSelectedObject<ComplaintFile>());
 		}
 
 		protected void ConfigureMenu()
 		{
-			if(ytreeviewFiles.GetSelectedObject() == null)
+			if(ytreeviewFiles.GetSelectedObject() == null || ViewModel.ReadOnly)
 				return;
 
 			var menu = new Menu();

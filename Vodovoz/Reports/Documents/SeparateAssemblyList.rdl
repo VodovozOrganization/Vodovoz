@@ -26,9 +26,8 @@
 FROM order_items
     LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
     LEFT JOIN measurement_units mu ON nomenclature.unit_id = mu.id
-    LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id
 WHERE order_items.order_id = @order_id
-  AND IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE)
+  AND nomenclature.online_store_id IS NOT NULL
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -160,9 +159,8 @@ WHERE
 FROM order_items
 LEFT JOIN orders ON orders.id = order_items.order_id
 LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id 
 WHERE orders.id = @order_id
-   AND IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE) 
+   AND nomenclature.online_store_id IS NOT NULL 
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">

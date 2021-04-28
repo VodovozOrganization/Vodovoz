@@ -14,7 +14,7 @@ namespace Vodovoz.Core.DataService
 		ICommonParametersProvider, 
 		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
-		IDefaultDeliveryDaySchedule,
+		IDefaultDeliveryDayScheduleSettings,
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
 		IEmailServiceSettings,
@@ -226,6 +226,22 @@ namespace Vodovoz.Core.DataService
 					throw new InvalidProgramException("В параметрах базы неверно заполнена дата до которой будет действовать запрет расчета зарплаты в МЛ (dont_recalculate_wages_for_route_lists_before)");
 				}
 				return date;
+			}
+		}
+
+		public int GetSuburbWageDistrictId {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("suburb_wage_district_id")) {
+					throw new InvalidProgramException(
+						"В параметрах базы не указан код зарплатного района Пригород (suburb_wage_district_id).");
+				}
+				string idString = ParametersProvider.Instance.GetParameterValue("suburb_wage_district_id");
+
+				if(!int.TryParse(idString, out int id)) {
+					throw new InvalidProgramException(
+						"В параметрах базы неверно указан код зарплатного района Пригород (suburb_wage_district_id)");
+				}
+				return id;
 			}
 		}
 
