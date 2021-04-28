@@ -36,20 +36,13 @@ namespace Vodovoz.Additions
                 return false;
             }
             string login = employee.User.Login;
-            var result = SendCredentialsToEmail(login, password, employee.Email);
-            if (result)
-            {
-                mySQLUserRepository.ChangePassword(login, password);
-                var user = new User
-                {
-                    Login = employee.User.Login,
-                    Name = employee.FullName,
-                    NeedPasswordChange = true
-                };
-                uow.Save(user);
-            }
+            mySQLUserRepository.ChangePassword(login, password);
 
-            return result;
+            var user = employee.User;
+            user.NeedPasswordChange = true;
+            uow.Save(user);
+
+            return SendCredentialsToEmail(login, password, employee.Email);
         }
 
         public bool ResetPasswordToGenerated(Employee employee, IUnitOfWork uow) 
