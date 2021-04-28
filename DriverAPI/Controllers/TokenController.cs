@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using DriverAPI.Data;
+using DriverAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -33,6 +34,7 @@ namespace DriverAPI.Controllers
         }
 
         [HttpPost]
+        [Route("/api/Authenticate")]
         public async Task<IActionResult> Post([FromBody] LoginRequestModel loginRequestModel)
         {
             if (await IsValidCredentials(loginRequestModel.username, loginRequestModel.password))
@@ -87,12 +89,5 @@ namespace DriverAPI.Controllers
 
             return output;
         }
-    }
-
-    public class LoginRequestModel
-    {
-        public string username { get; set; }
-        public string password { get; set; }
-
     }
 }
