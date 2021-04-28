@@ -4,12 +4,12 @@ namespace Vodovoz.Domain.Permissions.Warehouse
 {
     public class UserWarehousePermissionModel : WarehousePermissionModel
     {
-        public override void AddOnUpdatePermission(TypePermissions type, Store.Warehouse warehouse, bool permissionValue)
+        public override void AddOnUpdatePermission(WarehousePermissions warehousePermission, Store.Warehouse warehouse, bool? permissionValue)
         {
             throw new System.NotImplementedException();
         }
 
-        public override void DeletePermission(TypePermissions type, Store.Warehouse warehouse)
+        public override void DeletePermission(WarehousePermissions warehousePermission, Store.Warehouse warehouse)
         {
             throw new System.NotImplementedException();
         }
@@ -18,5 +18,7 @@ namespace Vodovoz.Domain.Permissions.Warehouse
         {
             throw new System.NotImplementedException();
         }
+
+        public override List<WarehousePermission> AllPermission { get; set; }
     }
 }

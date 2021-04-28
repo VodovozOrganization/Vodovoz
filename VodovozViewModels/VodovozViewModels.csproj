@@ -204,6 +204,7 @@
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpenerForRouteListViewAndOrderView.cs" />
     <Compile Include="ViewModels\PermissionNode\PermissionTypeAllNodeViewModel.cs" />
+    <Compile Include="ViewModels\PermissionNode\SelectAllNodePermissionViewModel.cs" />
     <Compile Include="ViewModels\PermissionNode\WarehouseAllNodeViewModel.cs" />
     <Compile Include="ViewModels\PermissionNode\WarehousePermissionAllNodeViewModelBase.cs" />
     <Compile Include="ViewModels\PermissionNode\WarehousePermissionNodeViewModel.cs" />

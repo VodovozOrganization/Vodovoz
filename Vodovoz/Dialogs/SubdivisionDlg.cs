@@ -14,6 +14,7 @@ using System;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.Views.Permissions;
 
 namespace Vodovoz
 {
@@ -23,6 +24,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		SubdivisionsVM subdivisionsVM;
 		PresetSubdivisionPermissionsViewModel presetPermissionVM;
+        WarehousePermissionsViewModel warehousePermissionsViewModel;
 
 		public override bool HasChanges { get => true; set { } }
 
@@ -74,7 +76,7 @@ namespace Vodovoz
 				.AddColumn("Документ").AddTextRenderer(x => x.CustomName)
 				.Finish();
 			ytreeviewDocuments.ItemsDataSource = Entity.ObservableDocumentTypes;
-
+			
 			lblWarehouses.LineWrapMode = Pango.WrapMode.Word;
 			if(Entity.Id > 0)
 				lblWarehouses.Text = Entity.GetWarehousesNames(UoW);
@@ -86,6 +88,11 @@ namespace Vodovoz
 			vboxPresetPermissions.Add(new PresetPermissionsView(presetPermissionVM));
 			vboxPresetPermissions.ShowAll();
 			vboxPresetPermissions.Visible = QSMain.User.Admin;
+
+            warehousePermissionsViewModel = new WarehousePermissionsViewModel(UoW, permissionResult, Entity);
+            vboxSubdivision.Add(new WarehousePermissionView(warehousePermissionsViewModel));
+            vboxSubdivision.ShowAll();
+            vboxSubdivision.Visible = QSMain.User.Admin;
 		}
 
 		void YSpecCmbGeographicGroup_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -108,6 +115,7 @@ namespace Vodovoz
 			UoWGeneric.Save();
 			subdivisionentitypermissionwidget.ViewModel.SavePermissions(UoW);
 			presetPermissionVM.SaveCommand.Execute();
+			warehousePermissionsViewModel.SaveWarehousePermissions();
 			UoW.Commit();
 			return true;
 		}

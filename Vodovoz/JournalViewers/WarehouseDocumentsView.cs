@@ -45,9 +45,10 @@ namespace Vodovoz
 			buttonAdd.ItemsEnum = typeof(DocumentType);
 			buttonAdd.SetVisibility(DocumentType.DeliveryDocument, false);
 
-			var allPermissions = CurrentPermissions.Warehouse.AnyEntities();
+			CurrentPermissions permissions = new CurrentPermissions();
+			var allPermissions = permissions.Warehouse;
 			foreach(DocumentType doctype in Enum.GetValues(typeof(DocumentType))) {
-				if(allPermissions.Any(x => x.GetAttributes<DocumentTypeAttribute>().Any(at => at.Type.Equals(doctype))))
+				if(allPermissions.Any(x => x.WarehousePermissionType.GetAttributes<DocumentTypeAttribute>().Any(at => at.Type.Equals(doctype))))
 					continue;
 				buttonAdd.SetSensitive(doctype, false);
 			}
@@ -64,12 +65,12 @@ namespace Vodovoz
 			buttonDelete.Sensitive = false;
 
 			bool isSelected = tableDocuments.Selection.CountSelectedRows() > 0;
-
+			var storeDocument = new StoreDocumentHelper();
 			if(isSelected) {
 				var node = tableDocuments.GetSelectedObject<DocumentVMNode>();
 				if(node.DocTypeEnum == DocumentType.ShiftChangeDocument) {
 					var doc = uow.GetById<ShiftChangeWarehouseDocument>(node.Id);
-					isSelected = isSelected && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, doc.Warehouse);
+					isSelected = isSelected && storeDocument.CanEditDocument(WarehousePermissions.ShiftChangeEdit, doc.Warehouse);
 				}
 
 				var item = tableDocuments.GetSelectedObject<DocumentVMNode>();

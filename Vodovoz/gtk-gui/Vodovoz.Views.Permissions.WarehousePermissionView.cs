@@ -4,6 +4,10 @@ namespace Vodovoz.Views.Permissions
 {
 	public partial class WarehousePermissionView
 	{
+		private global::Gtk.HBox hbox1;
+
+		private global::Gtk.ScrolledWindow scrolledwindow1;
+
 		private global::Gtk.Table tablePermissionMatrix;
 
 		protected virtual void Build()
@@ -13,11 +17,28 @@ namespace Vodovoz.Views.Permissions
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Permissions.WarehousePermissionView";
 			// Container child Vodovoz.Views.Permissions.WarehousePermissionView.Gtk.Container+ContainerChild
+			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.scrolledwindow1 = new global::Gtk.ScrolledWindow();
+			this.scrolledwindow1.CanFocus = true;
+			this.scrolledwindow1.Name = "scrolledwindow1";
+			this.scrolledwindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrolledwindow1.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w1 = new global::Gtk.Viewport();
+			w1.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport.Gtk.Container+ContainerChild
 			this.tablePermissionMatrix = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
 			this.tablePermissionMatrix.Name = "tablePermissionMatrix";
 			this.tablePermissionMatrix.RowSpacing = ((uint)(6));
 			this.tablePermissionMatrix.ColumnSpacing = ((uint)(6));
-			this.Add(this.tablePermissionMatrix);
+			w1.Add(this.tablePermissionMatrix);
+			this.scrolledwindow1.Add(w1);
+			this.hbox1.Add(this.scrolledwindow1);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.scrolledwindow1]));
+			w4.Position = 0;
+			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

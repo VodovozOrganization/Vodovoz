@@ -40,9 +40,9 @@ namespace Vodovoz.Domain.Permissions.Warehouse
 	        set => SetField(ref warehouse, value);
         }
 
-        private bool valuePermission;
+        private bool? valuePermission;
         [Display(Name = "Значение")]
-        public virtual bool ValuePermission
+        public virtual bool? ValuePermission
         {
 	        get => valuePermission;
 	        set => SetField(ref valuePermission, value);

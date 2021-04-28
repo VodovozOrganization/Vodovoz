@@ -5,8 +5,7 @@ namespace Vodovoz.Domain.Permissions
 {
 	public class EntitySubdivisionPermissionExtended : EntityPermissionExtendedBase
 	{
-		public override PermissionExtendedType PermissionExtendedType => PermissionExtendedType.Subdivision;
-
+		public override PermissionExtendedType PermissionExtendedType { get => PermissionExtendedType. Subdivision; set{} }
 		private Subdivision subdivision;
 		[Display(Name = "Подразделение")]
 		public virtual Subdivision Subdivision {

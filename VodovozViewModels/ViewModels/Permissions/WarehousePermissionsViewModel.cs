@@ -1,47 +1,100 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.ViewModels.PermissionNode;
 
 namespace Vodovoz.ViewModels.Permissions
 {
-    public delegate void PermissionChanged();
-
-    public class WarehousePermissionsViewModel : TabViewModelBase
+    public class WarehousePermissionsViewModel : UoWWidgetViewModelBase
     {
-        public IUnitOfWork UoW;
+        private IUnitOfWork UoW;
+        private IPermissionResult permissionResult;
 
-        private readonly ICommonServices commonServices;
-
-        public WarehousePermissionsViewModel(INavigationManager navigationManager, ICommonServices commonServices) :
-            base(commonServices.InteractiveService, navigationManager)
+        public WarehousePermissionsViewModel(IUnitOfWork UoW, IPermissionResult permissionResult, Subdivision subdivision)
         {
-            this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-            CreateUoW();
+            this.UoW = UoW;
+            this.permissionResult = permissionResult;
+            userWarehousePermissionModel = new UserWarehousePermissionModel();
+            SubdivisionWarehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, subdivision);
+            AllPermissionTypes = new List<PermissionTypeAllNodeViewModel>();
+            AllWarehouses = new List<WarehouseAllNodeViewModel>();
+            
+            foreach (var permissionsType in AllPermissionsTypes())
+            {
+                permissionAllNode = new PermissionTypeAllNodeViewModel(permissionsType, allNamesOfWarehouses(), subdivisionWarehousePermissionModel);
+                AllPermissionTypes.Add(permissionAllNode);
+            }
+            foreach (var warehouse in allNamesOfWarehouses())
+            {
+                warehouseAllNode = new WarehouseAllNodeViewModel(warehouse, AllPermissionsTypes(), subdivisionWarehousePermissionModel);
+                AllWarehouses.Add(warehouseAllNode);
+            }
+            
+            AllPermissions = new SelectAllNodePermissionViewModel(AllWarehouses, AllPermissionTypes){ Title = "Все"};
         }
 
-        private WarehousePermissionModel warehousePermissionModel { get; set; }
+        private SelectAllNodePermissionViewModel allPermissions;
 
-        private IEnumerable<PermissionTypeAllNodeViewModel> allWarehouses;
-        public IEnumerable<PermissionTypeAllNodeViewModel> AllWarehouses
+        public SelectAllNodePermissionViewModel AllPermissions
+        {
+            get => allPermissions;
+            set => SetField(ref allPermissions, value);
+        }
+        
+        private WarehousePermissionModel userWarehousePermissionModel { get; set; }
+
+        private WarehousePermissionModel subdivisionWarehousePermissionModel;
+
+        public WarehousePermissionModel SubdivisionWarehousePermissionModel
+        {
+            get => subdivisionWarehousePermissionModel;
+            set => SetField(ref subdivisionWarehousePermissionModel, value);
+        }
+
+        private WarehouseAllNodeViewModel warehouseAllNode;
+        private PermissionTypeAllNodeViewModel permissionAllNode;
+
+        private List<WarehouseAllNodeViewModel> allWarehouses;
+
+        public List<WarehouseAllNodeViewModel> AllWarehouses
         {
             get => allWarehouses;
             set => SetField(ref allWarehouses, value);
         }
 
-        private IEnumerable<WarehouseAllNodeViewModel> allPermissionTypes;
-        public IEnumerable<WarehouseAllNodeViewModel> AllPermissionTypes
+        private List<PermissionTypeAllNodeViewModel> allPermissionTypes;
+
+        public List<PermissionTypeAllNodeViewModel> AllPermissionTypes
         {
             get => allPermissionTypes;
             set => SetField(ref allPermissionTypes, value);
         }
 
-        public event PermissionChanged PermChanged;
+        public bool CanEdit => permissionResult.CanUpdate;
 
-        private void CreateUoW() => UoW = UnitOfWorkFactory.CreateWithoutRoot();
+        public void SaveWarehousePermissions()
+        {
+            foreach (var allWarehouse in AllWarehouses)
+            {
+                foreach (var warehouse in allWarehouse.SubNodeViewModel)
+                {
+                    if (warehouse.PermissionValue is null)
+                        SubdivisionWarehousePermissionModel.DeletePermission(warehouse.WarehousePermissions,
+                            warehouse.Warehouse);
+                    else
+                        SubdivisionWarehousePermissionModel.AddOnUpdatePermission(warehouse.WarehousePermissions,
+                            warehouse.Warehouse, warehouse.PermissionValue);
+                }
+            }
+        }
+        
+        private IEnumerable<WarehousePermissions> AllPermissionsTypes() => Enum.GetValues(typeof(WarehousePermissions)).Cast<WarehousePermissions>();
+
+        private IEnumerable<Warehouse> allNamesOfWarehouses() => UoW.Session.QueryOver<Warehouse>().List();
     }
 }

@@ -89,25 +89,28 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.CarLoadEdit);
+			var storeDocument = new StoreDocumentHelper();
+			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.CarLoadEdit);
 		}
 
 		void ConfigureDlg()
 		{
-			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.CarLoadEdit, Entity.Warehouse)) {
+			
+			var storeDocument = new StoreDocumentHelper();
+			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissions.CarLoadEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
 
 			var currentUserId = QS.Project.Services.ServicesConfig.CommonServices.UserService.CurrentUserId;
 			var hasPermitionToEditDocWithClosedRL = QS.Project.Services.ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_car_load_and_unload_docs", currentUserId);
-			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarLoadEdit, Entity.Warehouse);
+			var editing = storeDocument.CanEditDocument(WarehousePermissions.CarLoadEdit, Entity.Warehouse);
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			carloaddocumentview1.Sensitive = editing;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			ySpecCmbWarehouses.ItemsList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.CarLoadEdit);
+			ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissions.CarLoadEdit);
 			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new RouteListsFilter(UoW);

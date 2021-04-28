@@ -1,22 +1,58 @@
 using System.Collections.Generic;
+using System.Linq;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Permissions.Warehouse
 {
     public class SubdivisionWarehousePermissionModel : WarehousePermissionModel
     {
-        public override void AddOnUpdatePermission(TypePermissions type, Store.Warehouse warehouse, bool permissionValue)
+        private IUnitOfWork unitOfWork;
+        private Subdivision subdivision;
+        public SubdivisionWarehousePermissionModel(IUnitOfWork unitOfWork, Subdivision subdivision)
         {
-            throw new System.NotImplementedException();
+            this.unitOfWork = unitOfWork;
+            this.subdivision = subdivision;
+            AllPermission = GetEnumerator().ToList();
         }
 
-        public override void DeletePermission(TypePermissions type, Store.Warehouse warehouse)
+        public override void AddOnUpdatePermission(WarehousePermissions warehousePermission, Store.Warehouse warehouse, bool? permissionValue)
         {
-            throw new System.NotImplementedException();
+            var findPermission = AllPermission.SingleOrDefault(x =>
+                x.Warehouse == warehouse &&
+                x.WarehousePermissionType == warehousePermission);
+            if (findPermission is null)
+            {
+                var subdivisionWarehousePermission = new SubdivisionWarehousePermission
+                {
+                    Subdivision = subdivision,
+                    TypePermissions = TypePermissions.Subdivision,
+                    Warehouse = warehouse,
+                    ValuePermission = permissionValue,
+                    WarehousePermissionType = warehousePermission
+                };
+                unitOfWork.Save(subdivisionWarehousePermission);
+            }
+            else
+            {
+                findPermission.ValuePermission = permissionValue;
+                unitOfWork.Save(findPermission);
+            }
+        }
+
+        public override void DeletePermission(WarehousePermissions warehousePermission, Store.Warehouse warehouse)
+        {
+            var permissionForDelete = AllPermission.SingleOrDefault(x => x.Warehouse == warehouse && x.WarehousePermissionType == warehousePermission);
+            if (permissionForDelete != null)
+                unitOfWork.TryDelete(permissionForDelete);
         }
 
         public override IEnumerable<WarehousePermission> GetEnumerator()
         {
-            throw new System.NotImplementedException();
+            var query = unitOfWork.Session.QueryOver<SubdivisionWarehousePermission>().List();
+
+            return query?.Where(x => x.Subdivision.Id == subdivision.Id);
         }
+
+        public override List<WarehousePermission> AllPermission { get; set; }
     }
 }

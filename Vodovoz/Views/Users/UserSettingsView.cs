@@ -17,7 +17,8 @@ namespace Vodovoz.Views.Users
 
 		void ConfigureDlg()
 		{
-			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
+			var storeDocument = new StoreDocumentHelper();
+			yentryrefWarehouse.ItemsQuery = storeDocument.GetWarehouseQuery();
 			yentryrefWarehouse.Binding.AddBinding(ViewModel.Entity, e => e.DefaultWarehouse, w => w.Subject).InitializeFromSource();
 
 			yenumcomboDefaultCategory.ItemsEnum = typeof(NomenclatureCategory);

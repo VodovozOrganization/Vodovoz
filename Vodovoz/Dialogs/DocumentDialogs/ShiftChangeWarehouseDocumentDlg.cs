@@ -42,19 +42,22 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
+			var storeDocument = new StoreDocumentHelper();
 			if(UoW.IsNew)
-				Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.ShiftChangeCreate);
+				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.ShiftChangeCreate);
 			if(!UoW.IsNew)
-				Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.ShiftChangeEdit);
+				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.ShiftChangeEdit);
 
-			ConfigureDlg();
+			ConfigureDlg(storeDocument);
 		}
 
 		public ShiftChangeWarehouseDocumentDlg(int id)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
-			ConfigureDlg();
+			
+			var storeDocument = new StoreDocumentHelper();
+			ConfigureDlg(storeDocument);
 		}
 
 		public ShiftChangeWarehouseDocumentDlg(ShiftChangeWarehouseDocument sub) : this (sub.Id)
@@ -66,16 +69,16 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		public bool CanSave => canCreate || canEdit;
 
-		void ConfigureDlg()
+		void ConfigureDlg(StoreDocumentHelper storeDocument)
 		{
-			canEdit = !UoW.IsNew && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
+			canEdit = !UoW.IsNew && storeDocument.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
 
 			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today) {
 				var permissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
 				canEdit &= permissionValidator.Validate(typeof(ShiftChangeWarehouseDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			}
 
-			canCreate = UoW.IsNew && !StoreDocumentHelper.CheckCreateDocument(WarehousePermissions.ShiftChangeCreate, Entity.Warehouse);
+			canCreate = UoW.IsNew && !storeDocument.CheckCreateDocument(WarehousePermissions.ShiftChangeCreate, Entity.Warehouse);
 
 			if(!canCreate && UoW.IsNew){
 				FailInitialize = true;
@@ -96,9 +99,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			if(UoW.IsNew)
-				yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.ShiftChangeCreate);
+				yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissions.ShiftChangeCreate);
 			if(!UoW.IsNew)
-				yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.ShiftChangeEdit);
+				yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissions.ShiftChangeEdit);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			yentryrefWarehouse.Changed += OnWarehouseChanged;
 

@@ -32,7 +32,17 @@ namespace Vodovoz.ViewModels.Organization
 			}
 		}
 
-		public SubdivisionViewModel(
+        private WarehousePermissionsViewModel warehousePermissionsVm;
+        public WarehousePermissionsViewModel WarehousePermissionsVM
+        {
+            get => warehousePermissionsVm;
+            set
+            {
+	            SetField(ref warehousePermissionsVm, value);
+            }
+        }
+
+        public SubdivisionViewModel(
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -41,6 +51,8 @@ namespace Vodovoz.ViewModels.Organization
 		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			PresetSubdivisionPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, permissionRepository, Entity);
+			WarehousePermissionsVM =
+				new WarehousePermissionsViewModel(UoW, PermissionResult ,Entity);
 			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			ConfigureEntityChangingRelations();
 			CreateCommands();

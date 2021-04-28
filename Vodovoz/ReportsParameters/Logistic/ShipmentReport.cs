@@ -7,6 +7,7 @@ using QSReport;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Store;
 using QS.Dialog.GtkUI;
+using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
@@ -20,7 +21,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.Build();
 			uow = UnitOfWorkFactory.CreateWithoutRoot();
 			ydatepicker.Date = DateTime.Now.Date;
-			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
+			var storeDocument = new StoreDocumentHelper();
+			referenceWarehouse.ItemsQuery = storeDocument.GetWarehouseQuery();
 			ButtonSensitivity();
 		}
 

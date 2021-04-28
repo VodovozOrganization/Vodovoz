@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.Warehouses
             this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
             this.warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
             this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-            warehousePermissionValidator = warehousePermissionService.GetValidator(CommonServices.UserService.CurrentUserId);
+            warehousePermissionValidator = warehousePermissionService.GetValidator(UoW, CommonServices.UserService.CurrentUserId);
 
             canEditRectroactively = entityExtendedPermissionValidator.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
             ConfigureEntityChangingRelations();

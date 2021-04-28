@@ -154,6 +154,7 @@ using Vodovoz.Views.Retail;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.Views.Permissions;
 
 namespace Vodovoz
 {
@@ -175,7 +176,11 @@ namespace Vodovoz
 					new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access")
 			};
 
-			WarehousePermissionService.WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory();
+			WarehousePermissionService warehousePermissionService = new WarehousePermissionService
+			{
+				WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory()
+			};
+
 		}
 
 		static void ConfigureViewModelWidgetResolver()
