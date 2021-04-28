@@ -41,6 +41,7 @@ namespace Vodovoz.Additions
             var user = employee.User;
             user.NeedPasswordChange = true;
             uow.Save(user);
+            uow.Commit();
 
             return SendCredentialsToEmail(login, password, employee.Email);
         }
