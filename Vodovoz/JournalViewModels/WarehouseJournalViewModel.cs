@@ -8,9 +8,9 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Core;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Warehouses;
 
@@ -52,9 +52,10 @@ namespace Vodovoz.JournalViewModels
             var query = uow.Session.QueryOver<Warehouse>(() => warehouseAlias).WhereNot(w => w.IsArchive);
             var disjunction = new Disjunction();
 
+            var permission = new CurrentPermissions();
             foreach (var p in warehousePermissions)
             {
-                disjunction.Add<Warehouse>(w => w.Id.IsIn(CurrentPermissions.Warehouse.Allowed(p).Select(x => x.Id).ToArray()));
+                disjunction.Add<Warehouse>(w => w.Id.IsIn(permission.Warehouse.Where(x=>x.WarehousePermissionType == p).Select(x => x.Id).ToArray()));
             }
             query.Where(disjunction);
 
