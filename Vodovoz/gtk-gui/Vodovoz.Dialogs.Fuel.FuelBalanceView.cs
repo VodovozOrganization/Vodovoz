@@ -12,6 +12,8 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private global::Gamma.GtkWidgets.yLabel labelSubdivisionsFuelsBalance;
 
+		private global::Gtk.ScrolledWindow scrolledwindow1;
+
 		private global::Gtk.VBox vboxSubdivisionsBalance;
 
 		protected virtual void Build()
@@ -42,6 +44,7 @@ namespace Vodovoz.Dialogs.Fuel
 			this.vboxFuelsBalances.Add(this.vboxAllBalance);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vboxFuelsBalances[this.vboxAllBalance]));
 			w2.Position = 1;
+			w2.Expand = false;
 			// Container child vboxFuelsBalances.Gtk.Box+BoxChild
 			this.labelSubdivisionsFuelsBalance = new global::Gamma.GtkWidgets.yLabel();
 			this.labelSubdivisionsFuelsBalance.Name = "labelSubdivisionsFuelsBalance";
@@ -54,12 +57,22 @@ namespace Vodovoz.Dialogs.Fuel
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vboxFuelsBalances.Gtk.Box+BoxChild
+			this.scrolledwindow1 = new global::Gtk.ScrolledWindow();
+			this.scrolledwindow1.CanFocus = true;
+			this.scrolledwindow1.Name = "scrolledwindow1";
+			this.scrolledwindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrolledwindow1.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w4 = new global::Gtk.Viewport();
+			w4.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport.Gtk.Container+ContainerChild
 			this.vboxSubdivisionsBalance = new global::Gtk.VBox();
 			this.vboxSubdivisionsBalance.Name = "vboxSubdivisionsBalance";
 			this.vboxSubdivisionsBalance.Spacing = 6;
-			this.vboxFuelsBalances.Add(this.vboxSubdivisionsBalance);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxFuelsBalances[this.vboxSubdivisionsBalance]));
-			w4.Position = 3;
+			w4.Add(this.vboxSubdivisionsBalance);
+			this.scrolledwindow1.Add(w4);
+			this.vboxFuelsBalances.Add(this.scrolledwindow1);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxFuelsBalances[this.scrolledwindow1]));
+			w7.Position = 3;
 			this.Add(this.vboxFuelsBalances);
 			if ((this.Child != null))
 			{

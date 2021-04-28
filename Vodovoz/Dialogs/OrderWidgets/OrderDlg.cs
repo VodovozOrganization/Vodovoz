@@ -701,6 +701,9 @@ namespace Vodovoz
 			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
 			treeItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderItem>()
+				.AddColumn("№")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(node => Entity.OrderItems.IndexOf(node) + 1)
 				.AddColumn("Номенклатура")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
@@ -1407,10 +1410,12 @@ namespace Vodovoz
 
 		void DoneServiceSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			ServiceClaim selected = (e.Subject as ServiceClaim);
-			var contract = counterpartyContractRepository.GetCounterpartyContract( UoWGeneric, Entity);
-			selected.FinalOrder = Entity;
-			Entity.ObservableFinalOrderService.Add(selected);
+			if(!(e.Subject is ServiceClaim selectedServiceClaim)) {
+				return;
+			}
+			var serviceClaim = UoW.GetById<ServiceClaim>(selectedServiceClaim.Id);
+			serviceClaim.FinalOrder = Entity;
+			Entity.ObservableFinalOrderService.Add(serviceClaim);
 			//TODO Add service nomenclature with price.
 		}
 
@@ -1570,12 +1575,11 @@ namespace Vodovoz
 				MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
 				return;
 			}
-			if(nomenclature.ProductGroup != null)
-				if(nomenclature.ProductGroup.IsOnlineStore && !ServicesConfig.CommonServices.CurrentPermissionService
-					.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {
-					MessageDialogHelper.RunWarningDialog("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
-					return;
-				}
+			if(nomenclature.OnlineStore != null && !ServicesConfig.CommonServices.CurrentPermissionService
+				.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {
+				MessageDialogHelper.RunWarningDialog("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
+				return;
+			}
 			
 			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
 		}
@@ -1873,7 +1877,7 @@ namespace Vodovoz
 			};
 			SelectDialog.ObjectSelected += (s, ea) => {
 				if(ea.Subject != null) {
-					Entity.Comment = (ea.Subject as CommentTemplate).Comment;
+					Entity.Comment = (ea.Subject as CommentTemplate)?.Comment ?? "";
 				}
 			};
 			TabParent.AddSlaveTab(this, SelectDialog);
@@ -2436,8 +2440,8 @@ namespace Vodovoz
 			ycheckPaymentBySms.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
-			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
-			buttonAddForSale.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
+			checkPayAfterLoad.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_payment_after_load") && checkSelfDelivery.Active && val;
+            buttonAddForSale.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer") && val && !Entity.SelfDelivery;
@@ -2802,7 +2806,11 @@ namespace Vodovoz
 				selectDialog.CustomTabName("Оборудование для аренды");
 				selectDialog.ObjectSelected += (sender, e) => {
 					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					AddPaidRent(rentType, paidRentPackage, selectedNode.Nomenclature);
+					if(selectedNode == null) {
+						return;
+					}
+					var nomenclature = UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
+					AddPaidRent(rentType, paidRentPackage, nomenclature);
 				};
 				TabParent.AddSlaveTab(this, selectDialog);
 			}
@@ -2846,10 +2854,10 @@ namespace Vodovoz
 				Mode = OrmReferenceMode.Select
 			};
 			ormReference.ObjectSelected += (sender, e) => {
-				FreeRentPackage rentPackage = e.Subject as FreeRentPackage;
-				if (rentPackage == null) {
+				if (!(e.Subject is FreeRentPackage selectedRentPackage)) {
 					return;
 				}
+				var rentPackage = UoW.GetById<FreeRentPackage>(selectedRentPackage.Id);
 				SelectEquipmentForFreeRentPackage(rentPackage);
 			};
 			TabParent.AddTab(ormReference, this);
@@ -2873,7 +2881,11 @@ namespace Vodovoz
 				selectDialog.CustomTabName("Оборудование для аренды");
 				selectDialog.ObjectSelected += (sender, e) => {
 					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					AddFreeRent(freeRentPackage, selectedNode.Nomenclature);
+					if(selectedNode == null) {
+						return;
+					}
+					var nomenclature = UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
+					AddFreeRent(freeRentPackage, nomenclature);
 				};
 				TabParent.AddSlaveTab(this, selectDialog);
 			}

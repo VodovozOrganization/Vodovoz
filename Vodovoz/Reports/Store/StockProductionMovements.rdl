@@ -121,7 +121,95 @@ WHERE 	(
     )
 HAVING before_added - before_removed &lt;&gt; 0
     OR IFNULL(all_added, 0) &lt;&gt; 0 OR IFNULL(all_removed, 0) &lt;&gt; 0
-ORDER BY nomenclature.category, ng6.name, ng5.name, ng4.name, ng3.name, ng2.name, ng1.name, nomenclature.name;</CommandText>
+ORDER BY 
+	CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods'     THEN nomenclature.category END, 
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN nomenclature.name END,
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN ng6.name END,
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN ng5.name END,
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN ng4.name END,
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN ng3.name END,
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN ng2.name END,
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN ng1.name END,
+	CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet'     THEN nomenclature.category END, 
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN ng6.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN ng5.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN ng4.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN ng3.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN ng2.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN ng1.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN nomenclature.name END,
+	CASE WHEN @sortType = 'Type, Alphabet'                   THEN nomenclature.category END,
+		CASE WHEN @sortType = 'Type, Alphabet'               THEN nomenclature.name END,
+	CASE WHEN @sortType = 'Type, GroupOfGoods'               THEN nomenclature.category END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods'           THEN ng6.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods'           THEN ng5.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods'           THEN ng4.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods'           THEN ng3.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods'           THEN ng2.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods'           THEN ng1.name END,
+	CASE WHEN @sortType = 'Type'                             THEN nomenclature.category END,
+	CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet'     THEN ng6.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN ng5.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN ng4.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN ng3.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN ng2.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN ng1.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN nomenclature.category END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN nomenclature.name END,
+	CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type'     THEN ng6.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN ng5.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN ng4.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN ng3.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN ng2.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN ng1.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN nomenclature.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN nomenclature.category END,
+	CASE WHEN @sortType = 'GroupOfGoods, Type'               THEN ng6.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Type'           THEN ng5.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Type'           THEN ng4.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Type'           THEN ng3.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type'           THEN ng2.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Type'           THEN ng1.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type'           THEN nomenclature.category END,
+	CASE WHEN @sortType = 'GroupOfGoods, Alphabet'           THEN ng6.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet'       THEN ng5.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet'       THEN ng4.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet'       THEN ng3.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet'       THEN ng2.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet'       THEN ng1.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet'       THEN nomenclature.name END,
+	CASE WHEN @sortType = 'GroupOfGoods'                     THEN ng6.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods'                 THEN ng5.name END,
+		CASE WHEN @sortType = 'GroupOfGoods'                 THEN ng4.name END,
+		CASE WHEN @sortType = 'GroupOfGoods'                 THEN ng3.name END,
+		CASE WHEN @sortType = 'GroupOfGoods'                 THEN ng2.name END,
+		CASE WHEN @sortType = 'GroupOfGoods'                 THEN ng1.name END,
+	CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods'     THEN nomenclature.name END, 
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN nomenclature.category END,
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN ng6.name END,
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN ng5.name END,
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN ng4.name END,
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN ng3.name END,
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN ng2.name END, 
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN ng1.name END,
+	CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type'     THEN nomenclature.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN ng6.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN ng5.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN ng4.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN ng3.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN ng2.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN ng1.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN nomenclature.category END,
+	CASE WHEN @sortType = 'Alphabet, Type'                   THEN nomenclature.name END,
+		CASE WHEN @sortType = 'Alphabet, Type'               THEN nomenclature.category END,
+	CASE WHEN @sortType = 'Alphabet, GroupOfGoods'           THEN nomenclature.name END, 
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods'       THEN ng6.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods'       THEN ng5.name END, 
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods'       THEN ng4.name END, 
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods'       THEN ng3.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods'       THEN ng2.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods'       THEN ng1.name END,
+	CASE WHEN @sortType = 'Alphabet' OR @sortType = ''       THEN nomenclature.name END, nomenclature.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!startDate</Value>
@@ -149,6 +237,9 @@ ORDER BY nomenclature.category, ng6.name, ng5.name, ng4.name, ng3.name, ng2.name
           </QueryParameter>
           <QueryParameter Name="product_group_exclude">
             <Value>=Parameters!product_group_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="sortType">
+            <Value>=Parameters!sortType</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1186,7 +1277,7 @@ ORDER BY nomenclature.category, ng6.name, ng5.name, ng4.name, ng3.name, ng2.name
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1279,6 +1370,14 @@ ORDER BY nomenclature.category, ng6.name, ng5.name, ng4.name, ng3.name, ng2.name
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="sortType">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
     </ReportParameter>

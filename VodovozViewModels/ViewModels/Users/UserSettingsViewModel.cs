@@ -15,6 +15,7 @@ namespace Vodovoz.ViewModels.Users
     {
         private readonly IEmployeeService employeeService;
         private readonly ISubdivisionService subdivisionService;
+        
         public EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel> SubdivisionAutocompleteSelectorFactory { get; }
         public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
@@ -29,5 +30,7 @@ namespace Vodovoz.ViewModels.Users
         }
 
         public bool IsUserFromOkk => subdivisionService.GetOkkId() == employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId)?.Subdivision?.Id;
+
+        public bool IsUserFromRetail => CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
     }
 }

@@ -39,15 +39,17 @@ namespace Vodovoz.Representations
 
         private readonly OrderPaymentSettings orderPaymentSettings;
 
+		private readonly bool userCanChangePayTypeToByCard;
+
         public SelfDeliveriesJournalViewModel(
         OrderJournalFilterViewModel filterViewModel, 
             IUnitOfWorkFactory unitOfWorkFactory, 
-        ICommonServices commonServices, 
+			ICommonServices commonServices, 
             CallTaskWorker callTaskWorker,
             OrderPaymentSettings orderPaymentSettings) 
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+            this.callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
             this.orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
             TabName = "Журнал самовывозов";
 			SetOrder(x => x.Date, true);
@@ -55,6 +57,7 @@ namespace Vodovoz.Representations
 				typeof(VodovozOrder),
 				typeof(OrderItem)
 			);
+			userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 		}
 
 		
@@ -250,9 +253,10 @@ namespace Vodovoz.Representations
 					"Оплата по карте",
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
-						return selectedNodes.Count() == 1 && selectedNodes.First().PaymentTypeEnum == PaymentType.cash;
+                        var selectedNode = selectedNodes.First();
+                        return selectedNodes.Count() == 1 && selectedNode.PaymentTypeEnum == PaymentType.cash && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
-					selectedItems => true,
+					selectedItems => userCanChangePayTypeToByCard,
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
 						var selectedNode  = selectedNodes.FirstOrDefault();

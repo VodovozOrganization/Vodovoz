@@ -108,7 +108,6 @@ namespace Vodovoz.Views.Complaints
 			ytextviewResultText.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			complaintfilesview.ViewModel = ViewModel.FilesViewModel;
-			complaintfilesview.Sensitive = ViewModel.CanEdit;
 
 			ytextviewComplaintText.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComplaintText.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -139,6 +138,8 @@ namespace Vodovoz.Views.Complaints
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+
+			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 		}
 
 		void EntryCounterparty_Changed(object sender, System.EventArgs e)

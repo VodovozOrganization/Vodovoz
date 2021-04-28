@@ -27,6 +27,8 @@ using GMap.NET.MapProviders;
 using QS.BaseParameters;
 using QS.Dialog;
 using QS.Project.Versioning;
+using QS.Validation;
+using Vodovoz.Tools.Validation;
 
 namespace Vodovoz
 {
@@ -34,6 +36,8 @@ namespace Vodovoz
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private static IApplicationInfo applicationInfo;
+		private static IPasswordValidator passwordValidator;
+
 		public static MainWindow MainWin;
 
 		[STAThread]
@@ -83,6 +87,7 @@ namespace Vodovoz
 			GetPermissionsSettings();
 			//Настройка базы
 			CreateBaseConfig ();
+
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
 			ParametersProvider.Instance.RefreshParameters();
@@ -110,6 +115,10 @@ namespace Vodovoz
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionAuthHandler);
 			
 			#endregion
+
+			passwordValidator = new PasswordValidator(
+				new PasswordValidationSettingsFactory(UnitOfWorkFactory.GetDefaultFactory).GetPasswordValidationSettings()
+			);
 
 			//Настройка карты
 			GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
@@ -184,7 +193,7 @@ namespace Vodovoz
 				if(!UoW.Root.NeedPasswordChange)
 					return true;
 
-				ChangePassword changePasswordWindow = new ChangePassword();
+				ChangePassword changePasswordWindow = new ChangePassword(passwordValidator);
 				changePasswordWindow.Title = "Требуется сменить пароль";
 				QSMain.ErrorDlgParrent = changePasswordWindow;
 
@@ -228,7 +237,7 @@ namespace Vodovoz
 			CreateTempDir();
 
 			//Запускаем программу
-			MainWin = new MainWindow();
+			MainWin = new MainWindow(passwordValidator);
 			MainWin.Title += $" (БД: {loginDialogName})";
 			QSMain.ErrorDlgParrent = MainWin;
 			MainWin.Show();

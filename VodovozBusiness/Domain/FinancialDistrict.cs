@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using GeoAPI.Geometries;
+using NetTopologySuite.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain
 {
@@ -27,9 +26,9 @@ namespace Vodovoz.Domain
 			set => SetField(ref name, value);
 		}
 
-		private IGeometry border;
+		private Geometry border;
 		[Display(Name = "Граница")]
-		public virtual IGeometry Border {
+		public virtual Geometry Border {
 			get => border;
 			set => SetField(ref border, value);
 		}
