@@ -308,7 +308,10 @@ namespace Vodovoz.Domain.Logistic
 						"Отправьте его в архив, а затем повторите закрепление еще раз.", new[] { nameof(Car) });
 				}
 			}
-		}
+
+            if (IsRaskat && TypeOfUse != CarTypeOfUse.DriverCar)
+                yield return new ValidationResult("Раскатным может быть только автомобиль водителя", new[] { nameof(IsRaskat), nameof(TypeOfUse) });
+        }
 
 		#endregion
 	}
