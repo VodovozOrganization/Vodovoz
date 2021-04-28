@@ -1,17 +1,17 @@
 ﻿using System;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModel;
-using QS.Project.Services;
-using QS.DomainModel.UoW;
-using Vodovoz.Domain.Logistic;
-using System.Collections;
 using System.Collections.Generic;
 using NHibernate.Util;
 using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Project.Services;
+using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Core.DataService;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.ViewModel;
+using NHibernate.Criterion;
 
 namespace Vodovoz.ServiceDialogs
 {
@@ -32,7 +32,8 @@ namespace Vodovoz.ServiceDialogs
                 x => x.Status = EmployeeStatus.IsWorking
             );
             entryDriver.RepresentationModel = new EmployeesVM(filterDriver);
-            datePicker.IsEditable = true;
+            datePickerFrom.IsEditable = true;
+            datePickerTo.IsEditable = true;
 
             buttonRecalculate.Clicked += ButtonRecalculate_Clicked;
             buttonRecalculateForwarder.Clicked += ButtonRecalculateForwarder_Clicked;;
@@ -41,26 +42,36 @@ namespace Vodovoz.ServiceDialogs
         void ButtonRecalculate_Clicked(object sender, EventArgs e)
         {
             var driver = entryDriver.Subject as Employee;
-            if (driver == null) {
-                throw new ArgumentNullException("Не выбран водитель!");
-            }
-            if(datePicker.DateOrNull == null) {
-                throw new ArgumentNullException("Не выбрана дата!");
+
+            if(datePickerFrom.DateOrNull == null){
+                throw new ArgumentNullException("Не выбрана дата с!");
             }
 
-            using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+            if(datePickerTo.DateOrNull == null){
+                throw new ArgumentNullException("Не выбрана дата по!");
+            }
+
+            using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
             {
+                var dateTimeFrom = datePickerFrom.Date.Date;
+                var dateTimeTo = datePickerTo.Date.Date.AddDays(1).AddMilliseconds(-1);
+
                 RouteList routeListAlias = null;
-                var rls = uow.Session.QueryOver<RouteList>(() => routeListAlias)
-                    .Where(() => routeListAlias.Driver.Id == driver.Id)
-                    .Where(() => routeListAlias.ClosingDate >= datePicker.Date)
+                var rlsQuery = uow.Session.QueryOver<RouteList>(() => routeListAlias);
+                if(driver != null){
+                    rlsQuery.Where(() => routeListAlias.Driver.Id == driver.Id);
+                }
+                    
+                var rls = rlsQuery
+                    .Where(() => routeListAlias.ClosingDate >= dateTimeFrom)
+                    .Where(() => routeListAlias.ClosingDate <= dateTimeTo)
                     .List();
                 if (!rls.Any()) {
                     ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, "Не найдено МЛ");
                     return;
                 }
 
-                var message = $"Будут очищены расчеты ЗП в {rls.Count} найденных МЛ и пересчитаны заново с текущими параметрами расчета. Продолжить?";
+                var message = $"Будут очищены расчеты ЗП в {rls.Count} найденных МЛ (с {dateTimeFrom} по {dateTimeTo}) и пересчитаны заново с текущими параметрами расчета. Продолжить?";
                 if(ServicesConfig.InteractiveService.Question(message, "Внимание!"))
                 {
                     RecalculateDriverWages(uow, rls);
@@ -71,21 +82,33 @@ namespace Vodovoz.ServiceDialogs
         void ButtonRecalculateForwarder_Clicked(object sender, EventArgs e)
         {
             var forwarder = entryDriver.Subject as Employee;
-            if (forwarder == null)
-            {
-                throw new ArgumentNullException("Не выбран экспедитор!");
+
+            if(datePickerFrom.DateOrNull == null) {
+                throw new ArgumentNullException("Не выбрана дата с!");
             }
-            if (datePicker.DateOrNull == null)
-            {
-                throw new ArgumentNullException("Не выбрана дата!");
+
+            if(datePickerTo.DateOrNull == null){
+                throw new ArgumentNullException("Не выбрана дата по!");
             }
 
             using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
             {
+                var dateTimeFrom = datePickerFrom.Date.Date;
+                var dateTimeTo = datePickerTo.Date.Date.AddDays(1).AddMilliseconds(-1);
+
                 RouteList routeListAlias = null;
-                var rls = uow.Session.QueryOver<RouteList>(() => routeListAlias)
-                    .Where(() => routeListAlias.Forwarder.Id == forwarder.Id)
-                    .Where(() => routeListAlias.ClosingDate >= datePicker.Date)
+                var rlsQuery = uow.Session.QueryOver<RouteList>(() => routeListAlias);
+
+                if(forwarder != null) {
+                    rlsQuery.Where(() => routeListAlias.Forwarder.Id == forwarder.Id);
+                }
+                else{
+                    rlsQuery.Where(Restrictions.IsNotNull(Projections.Property(() => routeListAlias.Forwarder)));
+                }
+
+                var rls = rlsQuery
+                    .Where(() => routeListAlias.ClosingDate >= dateTimeFrom)
+                    .Where(() => routeListAlias.ClosingDate <= dateTimeTo)
                     .List();
                 
                 if (!rls.Any())
@@ -94,7 +117,7 @@ namespace Vodovoz.ServiceDialogs
                     return;
                 }
 
-                var message = $"Будут очищены расчеты ЗП в {rls.Count} найденных МЛ и пересчитаны заново с текущими параметрами расчета. Продолжить?";
+                var message = $"Будут очищены расчеты ЗП в {rls.Count} найденных МЛ (с {dateTimeFrom} по {dateTimeTo}) и пересчитаны заново с текущими параметрами расчета. Продолжить?";
                 if (ServicesConfig.InteractiveService.Question(message, "Внимание!"))
                 {
                     RecalculateForwarderWages(uow, rls);

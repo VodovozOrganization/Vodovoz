@@ -16,7 +16,11 @@ namespace Vodovoz.ServiceDialogs
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
-		private global::Gamma.Widgets.yDatePicker datePicker;
+		private global::Gamma.Widgets.yDatePicker datePickerFrom;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel3;
+
+		private global::Gamma.Widgets.yDatePicker datePickerTo;
 
 		private global::Gtk.HBox hbox5;
 
@@ -75,23 +79,45 @@ namespace Vodovoz.ServiceDialogs
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.datePicker = new global::Gamma.Widgets.yDatePicker();
-			this.datePicker.Events = ((global::Gdk.EventMask)(256));
-			this.datePicker.Name = "datePicker";
-			this.datePicker.WithTime = false;
-			this.datePicker.Date = new global::System.DateTime(0);
-			this.datePicker.IsEditable = false;
-			this.datePicker.AutoSeparation = false;
-			this.hbox4.Add(this.datePicker);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.datePicker]));
+			this.datePickerFrom = new global::Gamma.Widgets.yDatePicker();
+			this.datePickerFrom.Events = ((global::Gdk.EventMask)(256));
+			this.datePickerFrom.Name = "datePickerFrom";
+			this.datePickerFrom.WithTime = false;
+			this.datePickerFrom.Date = new global::System.DateTime(0);
+			this.datePickerFrom.IsEditable = false;
+			this.datePickerFrom.AutoSeparation = false;
+			this.hbox4.Add(this.datePickerFrom);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.datePickerFrom]));
 			w5.Position = 1;
 			w5.Expand = false;
 			w5.Fill = false;
-			this.vbox1.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
-			w6.Position = 1;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.ylabel3 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel3.Name = "ylabel3";
+			this.ylabel3.LabelProp = global::Mono.Unix.Catalog.GetString("Дата МЛ с:");
+			this.hbox4.Add(this.ylabel3);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ylabel3]));
+			w6.Position = 2;
 			w6.Expand = false;
 			w6.Fill = false;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.datePickerTo = new global::Gamma.Widgets.yDatePicker();
+			this.datePickerTo.Events = ((global::Gdk.EventMask)(256));
+			this.datePickerTo.Name = "datePickerTo";
+			this.datePickerTo.WithTime = false;
+			this.datePickerTo.Date = new global::System.DateTime(0);
+			this.datePickerTo.IsEditable = false;
+			this.datePickerTo.AutoSeparation = false;
+			this.hbox4.Add(this.datePickerTo);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.datePickerTo]));
+			w7.Position = 3;
+			w7.Expand = false;
+			w7.Fill = false;
+			this.vbox1.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox5 = new global::Gtk.HBox();
 			this.hbox5.Name = "hbox5";
@@ -103,10 +129,10 @@ namespace Vodovoz.ServiceDialogs
 			this.buttonRecalculate.UseUnderline = true;
 			this.buttonRecalculate.Label = global::Mono.Unix.Catalog.GetString("Пересчитать ЗП водителей");
 			this.hbox5.Add(this.buttonRecalculate);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonRecalculate]));
-			w7.Position = 0;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonRecalculate]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
 			this.buttonRecalculateForwarder = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRecalculateForwarder.CanFocus = true;
@@ -114,15 +140,15 @@ namespace Vodovoz.ServiceDialogs
 			this.buttonRecalculateForwarder.UseUnderline = true;
 			this.buttonRecalculateForwarder.Label = global::Mono.Unix.Catalog.GetString("Пересчитать ЗП экспедиторов");
 			this.hbox5.Add(this.buttonRecalculateForwarder);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonRecalculateForwarder]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonRecalculateForwarder]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.vbox1.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
