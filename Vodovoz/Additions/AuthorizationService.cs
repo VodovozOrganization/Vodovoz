@@ -29,29 +29,31 @@ namespace Vodovoz.Additions
 
         private const int passwordLength = 8;
 
-        public bool ResetPassword(Employee employee, string password)
+        public bool ResetPassword(Employee employee, string password, IUnitOfWork uow)
         {
             if (emailService == null)
             {
                 return false;
             }
-
-            #region Смена пароля в БД
-
             string login = employee.User.Login;
-            mySQLUserRepository.ChangePassword(login, password);
+            var result = SendCredentialsToEmail(login, password, employee.Email);
+            if (result)
+            {
+                mySQLUserRepository.ChangePassword(login, password);
+                var user = new User
+                {
+                    Login = employee.User.Login,
+                    Name = employee.FullName,
+                    NeedPasswordChange = true
+                };
+                uow.Save(user);
+            }
 
-            #endregion
-
-            #region Отправка почты
-
-            return SendCredentialsToEmail(login, password, employee.Email);
-
-            #endregion
+            return result;
         }
 
-        public bool ResetPasswordToGenerated(Employee employee) 
-	        => ResetPassword(employee, passwordGenerator.GeneratePassword(passwordLength));
+        public bool ResetPasswordToGenerated(Employee employee, IUnitOfWork uow) 
+	        => ResetPassword(employee, passwordGenerator.GeneratePassword(passwordLength), uow);
 
         public bool TryToSaveUser(Employee employee, IUnitOfWork uow)
         {
