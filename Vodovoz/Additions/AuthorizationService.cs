@@ -35,8 +35,7 @@ namespace Vodovoz.Additions
             {
                 return false;
             }
-            string login = userLogin;
-            mySQLUserRepository.ChangePassword(login, password);
+            mySQLUserRepository.ChangePassword(userLogin, password);
 
             using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
             {
@@ -49,7 +48,7 @@ namespace Vodovoz.Additions
                 }
             }
 
-            return SendCredentialsToEmail(login, password, email);
+            return SendCredentialsToEmail(userLogin, password, email);
         }
 
         public bool ResetPasswordToGenerated(string userLogin, string email) 
