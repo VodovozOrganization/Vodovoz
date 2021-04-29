@@ -1,7 +1,7 @@
 ﻿using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders
 {

@@ -30,6 +30,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.JournalColumnsConfigs
 {

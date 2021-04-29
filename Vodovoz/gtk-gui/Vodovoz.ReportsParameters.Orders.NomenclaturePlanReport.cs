@@ -609,7 +609,7 @@ namespace Vodovoz.ReportsParameters.Orders
 			this.vbox8.Spacing = 6;
 			// Container child vbox8.Gtk.Box+BoxChild
 			this.ycomboboxSubdivision = new global::Gamma.Widgets.ySpecComboBox();
-            this.ycomboboxSubdivision.WidthRequest = 215;
+			this.ycomboboxSubdivision.WidthRequest = 215;
 			this.ycomboboxSubdivision.Name = "ycomboboxSubdivision";
 			this.ycomboboxSubdivision.AddIfNotExist = false;
 			this.ycomboboxSubdivision.DefaultFirst = true;

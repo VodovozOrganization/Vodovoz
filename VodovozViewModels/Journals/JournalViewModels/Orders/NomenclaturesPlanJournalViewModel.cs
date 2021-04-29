@@ -1,20 +1,17 @@
-﻿using NHibernate;
+﻿using System;
+using System.Linq;
+using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.JournalNodes;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Order;
-using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.ViewModels.Orders;
 
-namespace Vodovoz.JournalViewModels
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
     public class NomenclaturesPlanJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclaturePlanViewModel, NomenclaturePlanJournalNode, NomenclaturePlanFilterViewModel>
     {
@@ -38,21 +35,21 @@ namespace Vodovoz.JournalViewModels
 
             var itemsQuery = uow.Session.QueryOver(() => nomenclatureAlias);
 
-            if (!FilterViewModel.NomenclatureFilterViewModel.RestrictArchive)
+            if (!FilterViewModel.RestrictArchive)
                 itemsQuery.Where(() => !nomenclatureAlias.IsArchive);
 
-            if (!FilterViewModel.NomenclatureFilterViewModel.RestrictDilers)
+            if (!FilterViewModel.RestrictDilers)
                 itemsQuery.Where(() => !nomenclatureAlias.IsDiler);
 
-            if (FilterViewModel.NomenclatureFilterViewModel.RestrictCategory == NomenclatureCategory.water)
-                itemsQuery.Where(() => nomenclatureAlias.IsDisposableTare == FilterViewModel.NomenclatureFilterViewModel.RestrictDisposbleTare);
+            if (FilterViewModel.RestrictCategory == NomenclatureCategory.water)
+                itemsQuery.Where(() => nomenclatureAlias.IsDisposableTare == FilterViewModel.RestrictDisposbleTare);
 
-            if (FilterViewModel.NomenclatureFilterViewModel.RestrictCategory.HasValue)
-                itemsQuery.Where(() => nomenclatureAlias.Category == FilterViewModel.NomenclatureFilterViewModel.RestrictCategory.Value);
+            if (FilterViewModel.RestrictCategory.HasValue)
+                itemsQuery.Where(() => nomenclatureAlias.Category == FilterViewModel.RestrictCategory.Value);
 
-            if (FilterViewModel.NomenclatureFilterViewModel.SelectCategory.HasValue && FilterViewModel.NomenclatureFilterViewModel.SelectSaleCategory.HasValue
-                && Nomenclature.GetCategoriesWithSaleCategory().Contains(FilterViewModel.NomenclatureFilterViewModel.SelectCategory.Value))
-                itemsQuery.Where(() => nomenclatureAlias.SaleCategory == FilterViewModel.NomenclatureFilterViewModel.SelectSaleCategory);
+            if (FilterViewModel.SelectCategory.HasValue && FilterViewModel.SelectSaleCategory.HasValue
+                && Nomenclature.GetCategoriesWithSaleCategory().Contains(FilterViewModel.SelectCategory.Value))
+                itemsQuery.Where(() => nomenclatureAlias.SaleCategory == FilterViewModel.SelectSaleCategory);
 
             if (FilterViewModel.IsOnlyPlanned)
                 itemsQuery.Where(n => n.PlanDay != null || n.PlanMonth != null);

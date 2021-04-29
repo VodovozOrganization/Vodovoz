@@ -18,7 +18,9 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Representations;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Order;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -176,7 +178,7 @@ namespace Vodovoz.ReportsParameters.Orders
         private void ButtonNomenclaturePlan_Clicked(object sender, EventArgs e)
         {
             MainClass.MainWin.TdiMain.OpenTab(() => new NomenclaturesPlanJournalViewModel(
-                new NomenclaturePlanFilterViewModel(new NomenclatureFilterViewModel()) { HidenByDefault = true },
+                new NomenclaturePlanFilterViewModel() { HidenByDefault = true },
                 UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices)
             );

@@ -1,11 +1,10 @@
-﻿using QS.Commands;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 
-namespace Vodovoz.ViewModels.Orders
+namespace Vodovoz.ViewModels.ViewModels.Orders
 {
     public class NomenclaturePlanViewModel : EntityTabViewModelBase<Nomenclature>
     {

@@ -1,8 +1,7 @@
-using System.Linq;
 using QS.Project.Journal;
 using Vodovoz.Domain.Goods;
 
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.ViewModels.Journals.JournalNodes
 {
 	public class NomenclaturePlanJournalNode : JournalEntityNodeBase<Nomenclature>
 	{

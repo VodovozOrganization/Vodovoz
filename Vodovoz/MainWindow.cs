@@ -108,7 +108,8 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Order;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2143,10 +2144,8 @@ public partial class MainWindow : Gtk.Window
     }
     protected void OnActionNomenclaturePlanActivated(object sender, EventArgs e)
     {
-        NomenclatureFilterViewModel nomenclatureFilterViewModel = new NomenclatureFilterViewModel();
-
         tdiMain.OpenTab(() => new NomenclaturesPlanJournalViewModel(
-                    new NomenclaturePlanFilterViewModel(nomenclatureFilterViewModel) { HidenByDefault = true },
+                    new NomenclaturePlanFilterViewModel() { HidenByDefault = true },
                     UnitOfWorkFactory.GetDefaultFactory,
                     ServicesConfig.CommonServices)
         );
