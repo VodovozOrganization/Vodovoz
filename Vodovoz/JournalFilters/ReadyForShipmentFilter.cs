@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
