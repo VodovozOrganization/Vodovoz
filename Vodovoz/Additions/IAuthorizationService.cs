@@ -5,8 +5,8 @@ namespace Vodovoz.Additions
 {
     public interface IAuthorizationService
     {
-        bool ResetPasswordToGenerated(Employee employee, IUnitOfWork uow);
-        bool ResetPassword(Employee employee, string password, IUnitOfWork uow);
+        bool ResetPasswordToGenerated(string userLogin, string email);
+        bool ResetPassword(string userLogin, string password, string email);
         bool TryToSaveUser(Employee employee, IUnitOfWork uow);
     }
 }
