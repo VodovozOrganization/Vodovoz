@@ -192,18 +192,6 @@ ORDER BY driver_name</CommandText>
           <DataField>route_list_sum</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
-        <Field Name="count_largus">
-          <DataField>count_largus</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="count_gazelle">
-          <DataField>count_gazelle</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="count_raskat">
-          <DataField>count_raskat</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Counting">
