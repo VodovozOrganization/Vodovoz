@@ -209,57 +209,54 @@ ORDER BY driver_name</CommandText>
     <DataSet Name="Counting">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>(SELECT
-			COUNT(route_list_addresses.id) as counting,
+        <CommandText>
+	(SELECT	COUNT(route_list_addresses.id) as counting,
 			CASE cars.type_of_use
 				WHEN 'CompanyLargus' THEN 'Ларгусы'
 				WHEN 'CompanyGAZelle' THEN 'ГАЗели'
 				ELSE 'Раскат'
 			END AS type_of_use
-FROM
-	route_lists
+	FROM route_lists
 		LEFT JOIN
-	route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+			route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
 		LEFT JOIN
-	cars ON route_lists.car_id = cars.id
-WHERE (route_lists.date BETWEEN @start_date AND @end_date)
-			AND( route_list_addresses.route_list_id = route_lists.id)
-				AND (route_list_addresses.status = 'Completed')
-				AND (cars.type_of_use = 'CompanyLargus'))
-		UNION ALL (SELECT
-			COUNT(route_list_addresses.id),
+			cars ON route_lists.car_id = cars.id
+	WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+		AND (route_list_addresses.route_list_id = route_lists.id)
+		AND (route_list_addresses.status = 'Completed')
+		AND (cars.type_of_use = 'CompanyLargus'))
+UNION ALL 
+	(SELECT	COUNT(route_list_addresses.id),
 			CASE cars.type_of_use
 				WHEN 'CompanyLargus' THEN 'Ларгусы'
 				WHEN 'CompanyGAZelle' THEN 'ГАЗели'
 				ELSE 'Раскат'
 			END AS type_of_use
-FROM
-	route_lists
+	FROM route_lists
 		LEFT JOIN
-	route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+			route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
 		LEFT JOIN
-	cars ON route_lists.car_id = cars.id
-WHERE (route_lists.date BETWEEN @start_date AND @end_date)
-			AND( route_list_addresses.route_list_id = route_lists.id)
-				AND (route_list_addresses.status = 'Completed')
-				AND (cars.type_of_use = 'CompanyGAZelle'))
-		UNION ALL (SELECT
-			COUNT(route_list_addresses.id),
+			cars ON route_lists.car_id = cars.id
+	WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+		AND (route_list_addresses.route_list_id = route_lists.id)
+		AND (route_list_addresses.status = 'Completed')
+		AND (cars.type_of_use = 'CompanyGAZelle'))
+UNION ALL 
+	(SELECT COUNT(route_list_addresses.id),
 			CASE cars.type_of_use
 				WHEN 'CompanyLargus' THEN 'Ларгусы'
 				WHEN 'CompanyGAZelle' THEN 'ГАЗели'
 				ELSE 'Раскат'
 			END AS type_of_use
-FROM
-	route_lists
+	FROM route_lists
 		LEFT JOIN
-	route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+			route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
 		LEFT JOIN
-	cars ON route_lists.car_id = cars.id
-WHERE (route_lists.date BETWEEN @start_date AND @end_date)
-			AND( route_list_addresses.route_list_id = route_lists.id)
-				AND (route_list_addresses.status = 'Completed')
-				AND (cars.type_of_use NOT IN ('CompanyLargus','CompanyGAZelle')) AND cars.is_raskat)</CommandText>
+			cars ON route_lists.car_id = cars.id
+	WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+		AND (route_list_addresses.route_list_id = route_lists.id)
+		AND (route_list_addresses.status = 'Completed')
+		AND (cars.type_of_use NOT IN ('CompanyLargus','CompanyGAZelle')) AND cars.is_raskat)</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
