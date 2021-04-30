@@ -130,7 +130,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<PaymentItem> GetPaymentItemsForOrder(IUnitOfWork uow, int orderId);
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
-		bool CanAddVodovozCatalogToOrder(IUnitOfWork uow, int catalogId);
+		bool CanAddVodovozCatalogToOrder(
+			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int catalogId, int geographicGroup);
 	}
 
 	public class ClientEquipmentNode

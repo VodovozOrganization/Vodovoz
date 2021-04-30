@@ -100,7 +100,6 @@ namespace Vodovoz.EntityRepositories.Orders
 			VodovozOrder orderAlias = null;
 			return UoW.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.Client.Id == counterparty.Id)
-				//.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.paid)
 				.List();
 		}
 
@@ -805,38 +804,49 @@ namespace Vodovoz.EntityRepositories.Orders
 			return receipt != null;
 		}
 
-		public bool CanAddVodovozCatalogToOrder(IUnitOfWork uow, int catalogId)
+		public bool CanAddVodovozCatalogToOrder(
+			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int catalogId, int geographicGroupId)
 		{
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			VodovozOrder orderAlias = null;
-			OrderItem orderItemAlias = null;
-			
+			DeliveryPoint deliveryPointAlias = null;
+			District districtAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+
+			var warehouseId = geographicGroupId == 1
+				? routeListParametersProvider.WarehouseSofiiskayaId 
+				: routeListParametersProvider.WarehouseParnasId;
+
 			var subqueryAdded = uow.Session.QueryOver(() => operationAddAlias)
 				.Where(() => operationAddAlias.Nomenclature.Id == catalogId)
 				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
+				.Where(o => o.IncomingWarehouse.Id == warehouseId)
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
 				.SingleOrDefault<decimal>();
 
 			var subqueryRemoved = uow.Session.QueryOver(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Nomenclature.Id == catalogId)
 				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
+				.Where(o => o.WriteoffWarehouse.Id == warehouseId)
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
 				.SingleOrDefault<decimal>();
 
 			var subqueryReserved = uow.Session.QueryOver(() => orderAlias)
-				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => orderItemAlias.Nomenclature.Id == catalogId)
-				.Where(() => nomenclatureAlias.DoNotReserve == false)
+				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderEquipmentAlias.Nomenclature.Id == catalogId)
+				.Where(() => districtAlias.GeographicGroup.Id == geographicGroupId)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
 				             || orderAlias.OrderStatus == OrderStatus.InTravelList
 				             || orderAlias.OrderStatus == OrderStatus.OnLoading)
-				.Select(Projections.Sum(() => orderItemAlias.Count))
-				.SingleOrDefault<decimal>();
+				.Select(Projections.Sum(() => orderEquipmentAlias.Count))
+				.SingleOrDefault<int>();
 
-			return ((subqueryAdded - subqueryRemoved) - subqueryReserved) > 0;
+			return subqueryAdded - subqueryRemoved - subqueryReserved > 0;
 		}
 	}
 }

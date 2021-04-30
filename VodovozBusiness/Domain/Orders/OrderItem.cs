@@ -21,11 +21,9 @@ namespace Vodovoz.Domain.Orders
 	public class OrderItem : PropertyChangedBase, IDomainObject, IOrderItemWageCalculationSource
 	{
 		private int? paidDeliveryNomenclatureId;
-		private int PaidDeliveryNomenclatureId => paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId = int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))).Value;
-
-		private int? vodovozCatalogId;
-		private int VodovozCatalogId => 
-			vodovozCatalogId ?? (vodovozCatalogId = new NomenclatureParametersProvider().VodovozCatalogId).Value;
+		private int PaidDeliveryNomenclatureId => 
+			paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId = new NomenclatureParametersProvider().PaidDeliveryNomenclatureId).Value;
+		
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -405,8 +403,7 @@ namespace Vodovoz.Domain.Orders
 					result = false;
 				}
 
-				if(Nomenclature.Id == PaidDeliveryNomenclatureId ||
-				   Nomenclature.Id == VodovozCatalogId)
+				if(Nomenclature.Id == PaidDeliveryNomenclatureId)
 					result = false;
 
 				if(PromoSet != null && !PromoSet.CanEditNomenclatureCount)

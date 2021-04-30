@@ -101,7 +101,7 @@ namespace Vodovoz
 		private IOrganizationProvider organizationProvider;
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
-		private Nomenclature vodovozCatalog;
+		private Nomenclature vodovozLeaflet;
 		
 		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
@@ -363,7 +363,7 @@ namespace Vodovoz
 				|| Entity.OrderStatus == OrderStatus.Closed
 				|| Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading;
 
-			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
+			orderEquipmentItemsView.Configure(UoWGeneric, Entity, new NomenclatureParametersProvider());
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
 
 			//Подписывемся на изменения листов для засеривания клиента
@@ -641,15 +641,25 @@ namespace Vodovoz
 
 		private void TryAddVodovozCatalog(INomenclatureParametersProvider nomenclatureParametersProvider)
 		{
-			if (vodovozCatalog == null) {
-				vodovozCatalog = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.VodovozCatalogId);
-			}
+			if (Entity.SelfDelivery 
+			    || Entity.OrderStatus != OrderStatus.NewOrder
+			    || Entity.DeliveryPoint.District == null) return;
 			
-			if (!orderRepository.CanAddVodovozCatalogToOrder(UoW, vodovozCatalog.Id)) {
+			if (vodovozLeaflet == null) {
+				vodovozLeaflet = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.VodovozLeafletId);
+			}
+
+			var geographicGroupId = Entity.DeliveryPoint.District.GeographicGroup.Id;
+			
+			if (!orderRepository.CanAddVodovozCatalogToOrder(
+			    UoW, 
+			    new RouteListParametersProvider(ParametersProvider.Instance), 
+			    vodovozLeaflet.Id, 
+			    geographicGroupId)) {
 				return;
 			}
 
-			Entity.AddVodovozCatalogNomenclature(vodovozCatalog);
+			Entity.AddVodovozLeafletNomenclature(vodovozLeaflet);
 		}
 
 		private void OnDeliveryPointChanged(EntityChangeEvent[] changeevents)
@@ -1869,7 +1879,6 @@ namespace Vodovoz
 
 				enumTax.SelectedItem = Entity.Client.TaxType;
 				enumTax.Visible = lblTax.Visible = IsEnumTaxVisible();
-				TryAddVodovozCatalog(new NomenclatureParametersProvider());
 			} else {
 				referenceDeliveryPoint.Sensitive = false;
 			}
@@ -1925,6 +1934,16 @@ namespace Vodovoz
 			
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
+			
+			if (Entity.DeliveryPoint != null) {
+				TryAddVodovozCatalog(new NomenclatureParametersProvider());
+			}
+			else {
+				if (vodovozLeaflet != null) {
+					Entity.ObservableOrderEquipments.Remove(Entity.ObservableOrderEquipments.SingleOrDefault(
+						x => x.Nomenclature.Id == vodovozLeaflet.Id));
+				}
+			}
 		}
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
