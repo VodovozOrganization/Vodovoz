@@ -113,34 +113,7 @@
 						AND (route_lists.status = 'OnClosing'
 						OR route_lists.status = 'MileageCheck'
 						OR route_lists.status = 'Closed')),
-			0) AS wages,
-			(SELECT 
-			COUNT(route_list_addresses.id)
-		FROM
-			route_list_addresses
-		WHERE
-			route_list_addresses.route_list_id = route_lists.id
-			    AND (route_lists.date BETWEEN @start_date AND @end_date)
-				AND (route_list_addresses.status = 'Completed')
-				AND (cars.type_of_use = 'CompanyLargus'))  AS count_largus,
-	(SELECT 
-			COUNT(route_list_addresses.id)
-		FROM
-			route_list_addresses
-		WHERE
-			route_list_addresses.route_list_id = route_lists.id
-			    AND (route_lists.date BETWEEN @start_date AND @end_date)
-				AND (route_list_addresses.status = 'Completed')
-				AND (cars.type_of_use = 'CompanyGAZelle'))  AS count_gazelle,
-	(SELECT 
-			COUNT(route_list_addresses.id)
-		FROM
-			route_list_addresses
-		WHERE
-			route_list_addresses.route_list_id = route_lists.id
-			    AND (route_lists.date BETWEEN @start_date AND @end_date)
-				AND (route_list_addresses.status = 'Completed')
-				AND (cars.type_of_use NOT IN ('CompanyGAZelle', 'CompanyLargus')))  AS count_raskat
+			0) AS wages
 FROM
 	route_lists
 		LEFT JOIN
