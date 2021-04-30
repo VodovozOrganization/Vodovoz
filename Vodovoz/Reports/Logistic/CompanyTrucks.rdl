@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	CASE cars.type_of_use
@@ -166,7 +166,7 @@ ORDER BY driver_name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -230,6 +230,80 @@ ORDER BY driver_name</CommandText>
         <Field Name="count_raskat">
           <DataField>count_raskat</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Counting">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>(SELECT
+			COUNT(route_list_addresses.id) as counting,
+			CASE cars.type_of_use
+				WHEN 'CompanyLargus' THEN 'Ларгусы'
+				WHEN 'CompanyGAZelle' THEN 'ГАЗели'
+				ELSE 'Раскат'
+			END AS type_of_use
+FROM
+	route_lists
+		LEFT JOIN
+	route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+		LEFT JOIN
+	cars ON route_lists.car_id = cars.id
+WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+			AND( route_list_addresses.route_list_id = route_lists.id)
+				AND (route_list_addresses.status = 'Completed')
+				AND (cars.type_of_use = 'CompanyLargus'))
+		UNION ALL (SELECT
+			COUNT(route_list_addresses.id),
+			CASE cars.type_of_use
+				WHEN 'CompanyLargus' THEN 'Ларгусы'
+				WHEN 'CompanyGAZelle' THEN 'ГАЗели'
+				ELSE 'Раскат'
+			END AS type_of_use
+FROM
+	route_lists
+		LEFT JOIN
+	route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+		LEFT JOIN
+	cars ON route_lists.car_id = cars.id
+WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+			AND( route_list_addresses.route_list_id = route_lists.id)
+				AND (route_list_addresses.status = 'Completed')
+				AND (cars.type_of_use = 'CompanyGAZelle'))
+		UNION ALL (SELECT
+			COUNT(route_list_addresses.id),
+			CASE cars.type_of_use
+				WHEN 'CompanyLargus' THEN 'Ларгусы'
+				WHEN 'CompanyGAZelle' THEN 'ГАЗели'
+				ELSE 'Раскат'
+			END AS type_of_use
+FROM
+	route_lists
+		LEFT JOIN
+	route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+		LEFT JOIN
+	cars ON route_lists.car_id = cars.id
+WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+			AND( route_list_addresses.route_list_id = route_lists.id)
+				AND (route_list_addresses.status = 'Completed')
+				AND (cars.type_of_use NOT IN ('CompanyLargus','CompanyGAZelle')) AND cars.is_raskat)</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="counting">
+          <DataField>counting</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="type_of_use">
+          <DataField>type_of_use</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1066,591 +1140,134 @@ ORDER BY driver_name</CommandText>
         </TableGroups>
         <Left>0.0pt</Left>
         <Top>1.6pt</Top>
-        <Footer >
+      </Table>
+      <Table Name="Table2">
+        <DataSetName>Counting</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>90.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
           <TableRows>
             <TableRow>
-              <Height>.2in</Height>
+              <Height>25.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>Доставлено адресов</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>25.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
+                      <Value>Наименование автомобиля</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontWeight>Bold</FontWeight>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                      <Value>Доставлено адресов</Value>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>3</ColSpan>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox8">
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                <Value>
-                </Value>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox10">
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                <Value>
-                </Value>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox11">
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                <Value>
-                </Value>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox12">
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                <Value>
-                </Value>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox15">
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                <Value>
-                </Value>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox16">
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                <Value>
-                </Value>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox17">
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                <Value>
-                </Value>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox21">
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                <Value>
-                </Value>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Value>Газели</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox40">
-                      <Value>Ларгусы</Value>
+                    <Textbox Name="Textbox6">
+                      <Value>Кол-во</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox41">
-                      <Value>Раскат</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox42">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox43">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox44">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox49">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox51">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox52">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox53">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox54">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox57">
-                      <Value>=Sum({count_gazelle})</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox59">
-                      <Value>=Sum({count_largus})</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox60">
-                      <Value>=Sum({count_raskat})</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox61">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox62">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox63">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox64">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox65">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox66">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox67">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
-                </TableCell>
-                <TableCell>
-                <ReportItems>
-                <Textbox Name="Textbox68">
-                <Value>
-                </Value>
-                <Style>
-                <BorderStyle>
-                <Default>None</Default>
-                <Left >None</Left>
-                <Right >None</Right>
-                <Top >None</Top>
-                <Bottom >None</Bottom>
-                </BorderStyle>
-                <BorderColor />
-                <BorderWidth />
-                </Style>
-                </Textbox>
-                </ReportItems>
                 </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
-        </Footer>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>={type_of_use}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>=Fields!counting.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>42.4pt</Left>
+        <Top>110.8pt</Top>
       </Table>
     </ReportItems>
-    <Height>153.4pt</Height>
+    <Height>202.7pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
