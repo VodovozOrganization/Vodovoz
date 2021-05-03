@@ -11,7 +11,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SET @call_center_subdivision_id = (SELECT str_value FROM base_parameters p WHERE p.name = 'call_center_subdivision_id');
 SET @call_center_employees_count =
@@ -69,7 +69,7 @@ ORDER BY person_name
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="person_name">
           <DataField>person_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -94,13 +94,13 @@ ORDER BY person_name
     </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>.5in</Height>
+    <Height>46.3pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Top>.1in</Top>
-        <Left>.1in</Left>
-        <Width>6in</Width>
-        <Height>.25in</Height>
+        <Top>7.23pt</Top>
+        <Left>7.23pt</Left>
+        <Width>544.90pt</Width>
+        <Height>18.07pt</Height>
         <Value>Отчет по мотивации КЦ</Value>
         <Style>
           <FontSize>15pt</FontSize>
@@ -108,6 +108,23 @@ ORDER BY person_name
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
+          <TextAlign >Center</TextAlign>
+        </Style>
+        <CanGrow >true</CanGrow>
+        <CanShrink >true</CanShrink>
+      </Textbox>
+      <Textbox Name="Textbox8" >
+        <Height>13.54pt</Height>
+        <Width>560.71pt</Width>
+        <Value>=Iif({?start_date}={?end_date}, "на "+Format(CDate({?start_date}), "dd/MM/yyyy"), "с "+Format(CDate({?start_date}), "dd/MM/yyyy")+" по "+Format(CDate({?end_date}), "dd/MM/yyyy"))</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2.3pt</Left>
+        <Top>26.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
@@ -123,6 +140,8 @@ ORDER BY person_name
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -144,7 +163,7 @@ ORDER BY person_name
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12pt</Height>
+              <Height>14.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -158,6 +177,7 @@ ORDER BY person_name
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <Color >Black</Color>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -234,7 +254,7 @@ ORDER BY person_name
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12pt</Height>
+              <Height>15.5pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -246,8 +266,9 @@ ORDER BY person_name
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -262,6 +283,7 @@ ORDER BY person_name
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -278,6 +300,7 @@ ORDER BY person_name
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
                         <Format>0.00</Format>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -296,6 +319,7 @@ ORDER BY person_name
                         <BorderColor />
                         <BorderWidth />
                         <Format>0.00</Format>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -313,6 +337,7 @@ ORDER BY person_name
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
                         <Format>0.00</Format>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
                     </Textbox>
@@ -377,11 +402,11 @@ ORDER BY person_name
       <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_dev_omega;user=A.Belyaev;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

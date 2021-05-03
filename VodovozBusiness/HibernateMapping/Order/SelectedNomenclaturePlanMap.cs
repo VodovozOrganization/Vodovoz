@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping.Order
         {
             Table("selected_nomenclature_plan");
             Id(x => x.Id).Column("id").GeneratedBy.Native();
-            Map(x => x.NomenclatureId).Column("nomenclature_id");
+            References(x => x.Nomenclature).Column("nomenclature_id");
         }
     }
 }
