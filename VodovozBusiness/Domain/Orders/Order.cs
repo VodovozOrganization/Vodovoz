@@ -1524,8 +1524,8 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			Contract = counterpartyContract;
-			for (int i = 0; i < ObservableOrderItems.Count; i++) {
-				ObservableOrderItems[i].CalculateVATType();
+			for (int i = 0; i < OrderItems.Count; i++) {
+				OrderItems[i].CalculateVATType();
 			}
 			UpdateContractDocument();
 			UpdateDocuments();
