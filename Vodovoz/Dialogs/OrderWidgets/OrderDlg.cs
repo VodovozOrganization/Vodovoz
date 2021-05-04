@@ -1,4 +1,4 @@
-﻿using EmailService;
+using EmailService;
 using fyiReporting.RDL;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -101,6 +101,7 @@ namespace Vodovoz
 		private IOrganizationProvider organizationProvider;
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
+		private Nomenclature vodovozLeaflet;
 		
 		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
@@ -362,7 +363,7 @@ namespace Vodovoz
 				|| Entity.OrderStatus == OrderStatus.Closed
 				|| Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading;
 
-			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
+			orderEquipmentItemsView.Configure(UoWGeneric, Entity, new NomenclatureParametersProvider());
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
 
 			//Подписывемся на изменения листов для засеривания клиента
@@ -636,6 +637,29 @@ namespace Vodovoz
 				hboxDocumentType.Remove(torg12OnlyLabel);
 				hboxDocumentType.Add(enumDocumentType);
 			}
+		}
+
+		private void TryAddVodovozLeaflet(INomenclatureParametersProvider nomenclatureParametersProvider)
+		{
+			if (Entity.SelfDelivery 
+			    || Entity.OrderStatus != OrderStatus.NewOrder
+			    || Entity.DeliveryPoint.District == null) return;
+			
+			if (vodovozLeaflet == null) {
+				vodovozLeaflet = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.VodovozLeafletId);
+			}
+
+			var geographicGroupId = Entity.DeliveryPoint.District.GeographicGroup.Id;
+			
+			if (!orderRepository.CanAddVodovozCatalogToOrder(
+			    UoW, 
+			    new RouteListParametersProvider(ParametersProvider.Instance), 
+			    vodovozLeaflet.Id, 
+			    geographicGroupId)) {
+				return;
+			}
+
+			Entity.AddVodovozLeafletNomenclature(vodovozLeaflet);
 		}
 
 		private void OnDeliveryPointChanged(EntityChangeEvent[] changeevents)
@@ -1910,6 +1934,16 @@ namespace Vodovoz
 			
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
+			
+			if (Entity.DeliveryPoint != null) {
+				TryAddVodovozLeaflet(new NomenclatureParametersProvider());
+			}
+			else {
+				if (vodovozLeaflet != null) {
+					Entity.ObservableOrderEquipments.Remove(Entity.ObservableOrderEquipments.SingleOrDefault(
+						x => x.Nomenclature.Id == vodovozLeaflet.Id));
+				}
+			}
 		}
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)

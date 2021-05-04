@@ -112,7 +112,7 @@ namespace Vodovoz.JournalViewModels
 				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
 				return;
             }
-			if (authorizationService.ResetPasswordToGenerated(employee))
+			if (authorizationService.ResetPasswordToGenerated(employee.User.Login, employee.Email))
 			{
 				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Email с паролем отправлена успешно");
 			} else {
