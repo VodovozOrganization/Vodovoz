@@ -2169,6 +2169,8 @@ public partial class MainWindow : Gtk.Window
     protected void OnHighlightTabsWithColorToggled(object sender, EventArgs e)
     {
         var isActive = HighlightTabsWithColor.Active;
+        if (!isActive)
+            KeepTabColor.Active = false;
         KeepTabColor.Sensitive = isActive;
         if (CurrentUserSettings.Settings.HighlightTabsWithColor != isActive)
         {
