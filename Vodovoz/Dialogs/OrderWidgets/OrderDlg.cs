@@ -639,7 +639,7 @@ namespace Vodovoz
 			}
 		}
 
-		private void TryAddVodovozCatalog(INomenclatureParametersProvider nomenclatureParametersProvider)
+		private void TryAddVodovozLeaflet(INomenclatureParametersProvider nomenclatureParametersProvider)
 		{
 			if (Entity.SelfDelivery 
 			    || Entity.OrderStatus != OrderStatus.NewOrder
@@ -1936,7 +1936,7 @@ namespace Vodovoz
 				OnFormOrderActions();
 			
 			if (Entity.DeliveryPoint != null) {
-				TryAddVodovozCatalog(new NomenclatureParametersProvider());
+				TryAddVodovozLeaflet(new NomenclatureParametersProvider());
 			}
 			else {
 				if (vodovozLeaflet != null) {
