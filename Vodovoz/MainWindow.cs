@@ -108,6 +108,8 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2189,5 +2191,23 @@ public partial class MainWindow : Gtk.Window
             CurrentUserSettings.SaveSettings();
             MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
         }
+    }
+
+    protected void OnActionNomenclaturePlanActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(() => new NomenclaturesPlanJournalViewModel(
+                    new NomenclaturePlanFilterViewModel() { HidenByDefault = true },
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices)
+        );
+    }
+
+    protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<NomenclaturePlanReport>(),
+            () => new QSReport.ReportViewDlg(new NomenclaturePlanReport())
+        );
+    
     }
 }
