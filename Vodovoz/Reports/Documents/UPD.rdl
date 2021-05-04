@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -34,24 +34,24 @@
 	END AS vat_old,#удалить, если спустя какое-то время не будет проблем с отображением НДС
 	order_items.value_added_tax + 1 AS vat
 FROM
-	order_items
-LEFT JOIN
-	nomenclature ON order_items.nomenclature_id = nomenclature.id
-LEFT JOIN
-	measurement_units ON nomenclature.unit_id = measurement_units.id
-LEFT JOIN
-	orders ON orders.id = order_items.order_id
-LEFT JOIN
-	special_nomenclature ON special_nomenclature.counterparty_id = orders.client_id AND special_nomenclature.nomenclature_id = nomenclature.id
+    order_items
+        LEFT JOIN
+    nomenclature ON order_items.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    measurement_units ON nomenclature.unit_id = measurement_units.id
+        LEFT JOIN
+    orders ON orders.id = order_items.order_id
+        LEFT JOIN
+    special_nomenclature ON special_nomenclature.counterparty_id = orders.client_id AND special_nomenclature.nomenclature_id = nomenclature.id
 WHERE
-	order_items.order_id = @order_id;</CommandText>
+    order_items.order_id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -3917,7 +3917,7 @@ WHERE o.id = @order_id
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -3949,7 +3949,8 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
