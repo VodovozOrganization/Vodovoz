@@ -2155,11 +2155,10 @@ public partial class MainWindow : Gtk.Window
             CurrentUserSettings.SaveSettings();
             MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
         }
-        TDIMain.SetTabsReordering(isActive);
     }
 
     string[] GetTabsColors() =>
-        new[] {"#F81919", "#009F6B", "#1F8BFF", "#FF9F00", "#FB7B7B", "#B46034", "#99B6FF", "#FFB133", "#00CC44"};
+        new[] {"#F81919", "#009F6B", "#1F8BFF", "#FF9F00", "#FA7A7A", "#B46034", "#99B6FF", "#8F2BE1", "#00CC44"};
 
     protected void OnHighlightTabsWithColorToggled(object sender, EventArgs e)
     {
@@ -2171,7 +2170,6 @@ public partial class MainWindow : Gtk.Window
             CurrentUserSettings.SaveSettings();
             MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
         }
-        TDIMain.SetTabsColorHighlighting(isActive, CurrentUserSettings.Settings.KeepTabColor, GetTabsColors());
     }
 
     protected void OnKeepTabColorToggled(object sender, EventArgs e)
@@ -2183,6 +2181,5 @@ public partial class MainWindow : Gtk.Window
             CurrentUserSettings.SaveSettings();
             MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
         }
-        TDIMain.SetTabsColorHighlighting(CurrentUserSettings.Settings.HighlightTabsWithColor, isActive, GetTabsColors());
     }
 }
