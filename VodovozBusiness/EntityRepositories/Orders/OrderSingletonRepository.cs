@@ -805,7 +805,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		}
 
 		public bool CanAddVodovozCatalogToOrder(
-			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int catalogId, int geographicGroupId)
+			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int leafletId, int geographicGroupId)
 		{
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;
@@ -820,14 +820,14 @@ namespace Vodovoz.EntityRepositories.Orders
 				: routeListParametersProvider.WarehouseParnasId;
 
 			var subqueryAdded = uow.Session.QueryOver(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == catalogId)
+				.Where(() => operationAddAlias.Nomenclature.Id == leafletId)
 				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
 				.Where(o => o.IncomingWarehouse.Id == warehouseId)
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
 				.SingleOrDefault<decimal>();
 
 			var subqueryRemoved = uow.Session.QueryOver(() => operationRemoveAlias)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == catalogId)
+				.Where(() => operationRemoveAlias.Nomenclature.Id == leafletId)
 				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
 				.Where(o => o.WriteoffWarehouse.Id == warehouseId)
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
@@ -838,7 +838,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => orderEquipmentAlias.Nomenclature.Id == catalogId)
+				.Where(() => orderEquipmentAlias.Nomenclature.Id == leafletId)
 				.Where(() => districtAlias.GeographicGroup.Id == geographicGroupId)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
 				             || orderAlias.OrderStatus == OrderStatus.InTravelList
