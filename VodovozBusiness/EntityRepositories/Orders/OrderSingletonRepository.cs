@@ -815,7 +815,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			District districtAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 
-			var warehouseId = geographicGroupId == 1
+			var warehouseId = geographicGroupId == routeListParametersProvider.SouthGeographicGroupId
 				? routeListParametersProvider.WarehouseSofiiskayaId 
 				: routeListParametersProvider.WarehouseParnasId;
 
