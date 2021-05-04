@@ -156,7 +156,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                     .SelectSubQuery(cashReuestSumSubquery).WithAlias(() => resultAlias.Sum)
                     .Select(c => c.Basis).WithAlias(() => resultAlias.Basis)
                 ).TransformUsing(Transformers.AliasToBean<CashRequestJournalNode>())
-                .OrderBy(x => x.Date);
+                .OrderBy(x => x.Date).Desc();
             return result;
         };
 

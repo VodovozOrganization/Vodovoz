@@ -1815,7 +1815,7 @@ GROUP BY fuel_transfer_documents.id</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_dev_beta;user=;password=;port=3306;server=vod.qsolution.ru;SslMode=none;</ConnectString>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
