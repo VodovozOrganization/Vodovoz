@@ -132,6 +132,17 @@ public partial class MainWindow : Gtk.Window
         BuildToolbarActions();
         tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
         TDIMain.MainNotebook = tdiMain;
+        var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
+        var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
+        var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
+        TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors());
+        TDIMain.SetTabsReordering(reorderTabs);
+        if (reorderTabs)
+            ReorderTabs.Activate();
+        if (highlightWColor)
+            HighlightTabsWithColor.Activate();
+        if (keepTabColor)
+            KeepTabColor.Activate();
 
         bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         if (isWindows)
@@ -1766,7 +1777,7 @@ public partial class MainWindow : Gtk.Window
         var counterpartyAutocompleteSelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
-        
+
         var userRepository = UserSingletonRepository.GetInstance();
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
@@ -2069,7 +2080,7 @@ public partial class MainWindow : Gtk.Window
             )
         );
     }
-    
+
     protected void OnActionCarsExploitationReportActivated(object sender, EventArgs e)
     {
         IEntityAutocompleteSelectorFactory carEntityAutocompleteSelectorFactory
@@ -2131,7 +2142,7 @@ public partial class MainWindow : Gtk.Window
 
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
-            () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory, 
+            () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory,
                 UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
     }
 
@@ -2142,6 +2153,46 @@ public partial class MainWindow : Gtk.Window
             () => new QSReport.ReportViewDlg(new DriversToDistrictsAssignmentReport())
         );
     }
+
+    protected void OnReorderTabsToggled(object sender, EventArgs e)
+    {
+        var isActive = ReorderTabs.Active;
+        if (CurrentUserSettings.Settings.ReorderTabs != isActive)
+        {
+            CurrentUserSettings.Settings.ReorderTabs = isActive;
+            CurrentUserSettings.SaveSettings();
+            MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
+        }
+    }
+
+    string[] GetTabsColors() =>
+        new[] {"#F81919", "#009F6B", "#1F8BFF", "#FF9F00", "#FA7A7A", "#B46034", "#99B6FF", "#8F2BE1", "#00CC44"};
+
+    protected void OnHighlightTabsWithColorToggled(object sender, EventArgs e)
+    {
+        var isActive = HighlightTabsWithColor.Active;
+        if (!isActive)
+            KeepTabColor.Active = false;
+        KeepTabColor.Sensitive = isActive;
+        if (CurrentUserSettings.Settings.HighlightTabsWithColor != isActive)
+        {
+            CurrentUserSettings.Settings.HighlightTabsWithColor = isActive;
+            CurrentUserSettings.SaveSettings();
+            MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
+        }
+    }
+
+    protected void OnKeepTabColorToggled(object sender, EventArgs e)
+    {
+        var isActive = KeepTabColor.Active;
+        if (CurrentUserSettings.Settings.KeepTabColor != isActive)
+        {
+            CurrentUserSettings.Settings.KeepTabColor = isActive;
+            CurrentUserSettings.SaveSettings();
+            MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
+        }
+    }
+
     protected void OnActionNomenclaturePlanActivated(object sender, EventArgs e)
     {
         tdiMain.OpenTab(() => new NomenclaturesPlanJournalViewModel(
