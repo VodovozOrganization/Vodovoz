@@ -443,8 +443,9 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.notebook1.SwitchPage += new global::Gtk.SwitchPageHandler(this.OnNotebook1SwitchPage);
 			this.buttonAddDocument.Clicked += new global::System.EventHandler(this.OnButtonAddDocumentClicked);
 			this.buttonDeleteDocument.Clicked += new global::System.EventHandler(this.OnButtonDeleteDocumentClicked);
-		}
+        }
 	}
 }

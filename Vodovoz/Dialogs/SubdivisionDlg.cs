@@ -58,8 +58,7 @@ namespace Vodovoz
 			yentryrefParentSubdivision.Binding.AddBinding(Entity, e => e.ParentSubdivision, w => w.Subject).InitializeFromSource();
 			yentryreferenceChief.RepresentationModel = new EmployeesVM();
 			yentryreferenceChief.Binding.AddBinding(Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
-
-			yenumcomboType.ItemsEnum = typeof(SubdivisionType);
+            yenumcomboType.ItemsEnum = typeof(SubdivisionType);
 			yenumcomboType.Binding.AddBinding(Entity, e => e.SubdivisionType, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboType.Sensitive = false;
 
@@ -83,16 +82,6 @@ namespace Vodovoz
 			else
 				frmWarehoses.Visible = false;
 			vboxDocuments.Visible = QSMain.User.Admin;
-
-			presetPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, new PermissionRepository(), Entity);
-			vboxPresetPermissions.Add(new PresetPermissionsView(presetPermissionVM));
-			vboxPresetPermissions.ShowAll();
-			vboxPresetPermissions.Visible = QSMain.User.Admin;
-
-            warehousePermissionsViewModel = new WarehousePermissionsViewModel(UoW, permissionResult, Entity);
-            vboxSubdivision.Add(new WarehousePermissionView(warehousePermissionsViewModel));
-            vboxSubdivision.ShowAll();
-            vboxSubdivision.Visible = QSMain.User.Admin;
 		}
 
 		void YSpecCmbGeographicGroup_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -148,5 +137,30 @@ namespace Vodovoz
 			lblGeographicGroup.Visible = ySpecCmbGeographicGroup.Visible
 				= Entity.ParentSubdivision != null && Entity.ChildSubdivisions.Any();
 		}
+
+        protected void OnNotebook1SwitchPage(object o, Gtk.SwitchPageArgs args)
+        {
+	        if (args.PageNum == 3)
+	        {
+		        if(vboxPresetPermissions.Children.Length < 1) {
+			        presetPermissionVM =
+				        new PresetSubdivisionPermissionsViewModel(UoW, new PermissionRepository(), Entity);
+			        vboxPresetPermissions.Add(new PresetPermissionsView(presetPermissionVM));
+			        vboxPresetPermissions.ShowAll();
+			        vboxPresetPermissions.Visible = QSMain.User.Admin;
+		        }
+	        }
+
+	        if (args.PageNum == 4)
+	        {
+		        if (vboxSubdivision.Children.Length < 1)
+		        {
+			        warehousePermissionsViewModel = new WarehousePermissionsViewModel(UoW, permissionResult, Entity);
+			        vboxSubdivision.Add(new WarehousePermissionView(warehousePermissionsViewModel));
+			        vboxSubdivision.ShowAll();
+			        vboxSubdivision.Visible = QSMain.User.Admin;
+		        }
+	        }
+        }
 	}
 }

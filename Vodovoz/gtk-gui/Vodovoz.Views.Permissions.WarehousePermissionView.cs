@@ -8,7 +8,7 @@ namespace Vodovoz.Views.Permissions
 
 		private global::Gtk.ScrolledWindow scrolledwindow1;
 
-		private global::Gtk.Table tablePermissionMatrix;
+		private global::Gamma.GtkWidgets.yTable tablePermissionMatrix;
 
 		protected virtual void Build()
 		{
@@ -29,8 +29,10 @@ namespace Vodovoz.Views.Permissions
 			global::Gtk.Viewport w1 = new global::Gtk.Viewport();
 			w1.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
-			this.tablePermissionMatrix = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
+			this.tablePermissionMatrix = new global::Gamma.GtkWidgets.yTable();
 			this.tablePermissionMatrix.Name = "tablePermissionMatrix";
+			this.tablePermissionMatrix.NRows = ((uint)(3));
+			this.tablePermissionMatrix.NColumns = ((uint)(3));
 			this.tablePermissionMatrix.RowSpacing = ((uint)(6));
 			this.tablePermissionMatrix.ColumnSpacing = ((uint)(6));
 			w1.Add(this.tablePermissionMatrix);

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.Permissions.Warehouse
@@ -46,12 +47,12 @@ namespace Vodovoz.Domain.Permissions.Warehouse
                 unitOfWork.TryDelete(permissionForDelete);
         }
 
-        public override IEnumerable<WarehousePermission> GetEnumerator()
-        {
-            var query = unitOfWork.Session.QueryOver<SubdivisionWarehousePermission>().List();
-
-            return query?.Where(x => x.Subdivision.Id == subdivision.Id);
-        }
+        public override IEnumerable<WarehousePermission> GetEnumerator() => unitOfWork.Session
+            .QueryOver<SubdivisionWarehousePermission>().Where(x => x.Subdivision.Id == subdivision.Id)
+            .Fetch(x => x.Subdivision).Eager
+            .Fetch(x=>x.Warehouse).Eager
+            .Fetch(x=>x.User).Eager
+            .List();
 
         public override List<WarehousePermission> AllPermission { get; set; }
     }
