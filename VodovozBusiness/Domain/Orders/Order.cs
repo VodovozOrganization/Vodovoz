@@ -2444,8 +2444,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RemoveEquipment(OrderEquipment item)
 		{
-			if (item.Nomenclature != null && item.Nomenclature.Id == VodovozLeafletId) return;
-			
 			ObservableOrderEquipments.Remove(item);
 			UpdateDocuments();
 			UpdateRentsCount();
