@@ -133,13 +133,8 @@ public partial class MainWindow : Gtk.Window
         var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
         var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
         var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
-        var prefix = '\u25CF';
-        using (var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение настроек для вкладок"))
-        {
-            var asString = uow.Session.Get<BaseParameter>("tab_prefix")?.StrValue;
-            char.TryParse(System.Text.RegularExpressions.Regex.Unescape(asString), out prefix);
-        }
-        TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), prefix);
+        var tabsParametersProvider = new TabsParametersProvider(ParametersProvider.Instance);
+        TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
         TDIMain.SetTabsReordering(reorderTabs);
         if (reorderTabs)
             ReorderTabs.Activate();
