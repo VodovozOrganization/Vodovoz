@@ -135,7 +135,8 @@ public partial class MainWindow : Gtk.Window
         var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
         var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
         var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
-        TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), '\u2B24');
+        var tabsParametersProvider = new TabsParametersProvider(ParametersProvider.Instance);
+        TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
         TDIMain.SetTabsReordering(reorderTabs);
         if (reorderTabs)
             ReorderTabs.Activate();
