@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using NHibernate.Persister.Entity;
 using NLog;
 using QS.DomainModel.UoW;
@@ -113,7 +112,7 @@ namespace Vodovoz.Parameters
                 
 			string value = GetParameterValue(parameterId);
 
-			if(string.IsNullOrWhiteSpace(value) || !char.TryParse(Regex.Unescape(value), out char result))
+			if(string.IsNullOrWhiteSpace(value) || !char.TryParse(value, out char result))
 			{
 				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
 			}
