@@ -35,6 +35,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Journal;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -231,7 +232,7 @@ namespace Vodovoz
 			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceClient.Binding.AddBinding(orderNode, s => s.Client, w => w.Subject).InitializeFromSource();
 			referenceClient.CanEditReference = false;
-			orderEquipmentItemsView.Configure(UoW, routeListItem.Order);
+			orderEquipmentItemsView.Configure(UoW, routeListItem.Order, new NomenclatureParametersProvider());
 			ConfigureDeliveryPointRefference(orderNode.Client);
 
 			ytreeToClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
