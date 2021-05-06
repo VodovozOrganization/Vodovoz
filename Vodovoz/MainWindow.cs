@@ -226,7 +226,8 @@ public partial class MainWindow : Gtk.Window
 
         bool userIsSalesRepresentative;
 
-        using (var uow = UnitOfWorkFactory.CreateWithoutRoot()){
+        using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+        {
             userIsSalesRepresentative = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
             && !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
         }
@@ -247,7 +248,7 @@ public partial class MainWindow : Gtk.Window
 
         // Отчеты в Продажи
 
-        ActionOrderCreationDateReport.Visible = 
+        ActionOrderCreationDateReport.Visible =
             ActionPlanImplementationReport.Visible =
             ActionSetBillsReport.Visible = !userIsSalesRepresentative;
 
@@ -1001,7 +1002,7 @@ public partial class MainWindow : Gtk.Window
 
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
-            () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory, 
+            () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory,
                 employeeSelectorFactory, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
     }
 
@@ -2129,7 +2130,7 @@ public partial class MainWindow : Gtk.Window
     {
         var dlg = new RecalculateDriverWageDlg();
         tdiMain.AddTab(dlg);
-	}
+    }
 
     protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
     {
@@ -2167,7 +2168,7 @@ public partial class MainWindow : Gtk.Window
     }
 
     string[] GetTabsColors() =>
-        new[] {"#F81919", "#009F6B", "#1F8BFF", "#FF9F00", "#FA7A7A", "#B46034", "#99B6FF", "#8F2BE1", "#00CC44"};
+        new[] { "#F81919", "#009F6B", "#1F8BFF", "#FF9F00", "#FA7A7A", "#B46034", "#99B6FF", "#8F2BE1", "#00CC44" };
 
     protected void OnHighlightTabsWithColorToggled(object sender, EventArgs e)
     {
@@ -2209,6 +2210,20 @@ public partial class MainWindow : Gtk.Window
             QSReport.ReportViewDlg.GenerateHashName<NomenclaturePlanReport>(),
             () => new QSReport.ReportViewDlg(new NomenclaturePlanReport())
         );
-    
+    }
+
+    protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
+    {
+        var factory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+            () => new EmployeesJournalViewModel(
+                new EmployeeFilterViewModel(),
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices));
+        
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
+            () => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(
+                factory, ServicesConfig.InteractiveService))
+        );
     }
 }
