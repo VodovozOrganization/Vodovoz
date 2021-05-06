@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public Action UpdateNodes;
         public Employee CurrentEmployee { get; }
         public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
-        public IEnumerable<UserRole> UserRoles { get; }
+        public IEnumerable<CashRequestUserRole> UserRoles { get; }
 
         private readonly IEntityUoWBuilder uowBuilder;
         private readonly CashRepository cashRepository;
@@ -189,7 +189,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         private DelegateCommand afterSaveCommand;
         public DelegateCommand AfterSaveCommand => afterSaveCommand ?? (afterSaveCommand = new DelegateCommand(
             () => {
-                if (Entity.ExpenseCategory == null && UserRole == UserRole.Cashier)
+                if (Entity.ExpenseCategory == null && UserRole == CashRequestUserRole.Cashier)
                 {
                     CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Необходимо заполнить статью расхода");
                     return;
@@ -271,8 +271,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
         #region Properties
 
-        private UserRole userRole;
-        public UserRole UserRole
+        private CashRequestUserRole userRole;
+        public CashRequestUserRole UserRole
         {
             get { 
                 return userRole; 
@@ -310,20 +310,20 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         
         #region Editability
 
-        public bool CanEditOnlyCoordinator => UserRole == UserRole.Coordinator;
+        public bool CanEditOnlyCoordinator => UserRole == CashRequestUserRole.Coordinator;
 
         
         public bool SensitiveForFinancier => (Entity.State == CashRequest.States.New ||
                                                               Entity.State == CashRequest.States.Agreed ||
                                                               Entity.State == CashRequest.States.GivenForTake) &&
-                                                             UserRole == UserRole.Financier;
+                                                             UserRole == CashRequestUserRole.Financier;
 
         public bool ExpenseCategorySensitive => (Entity.State == CashRequest.States.New 
                                              || Entity.State == CashRequest.States.Agreed 
                                              || Entity.State == CashRequest.States.GivenForTake) 
-                                             && (UserRole == UserRole.Financier || UserRole == UserRole.Cashier);
+                                             && (UserRole == CashRequestUserRole.Financier || UserRole == CashRequestUserRole.Cashier);
 
-        public bool CanEditSumVisible => UserRole == UserRole.RequestCreator || UserRole == UserRole.Coordinator;
+        public bool CanEditSumVisible => UserRole == CashRequestUserRole.RequestCreator || UserRole == CashRequestUserRole.Coordinator;
         //редактировать можно только не выданные
         public bool CanEditSumSensitive => SelectedItem != null && !SelectedItem.ObservableExpenses.Any();
 
@@ -332,10 +332,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
         #region Visibility
 
-        public bool VisibleOnlyForFinancer => UserRole == UserRole.Financier;
+        public bool VisibleOnlyForFinancer => UserRole == CashRequestUserRole.Financier;
         public bool VisibleOnlyForStatusUpperThanCreated => Entity.State != CashRequest.States.New;
-        public bool ExpenseCategoryVisibility => UserRole == UserRole.Cashier || UserRole == UserRole.Financier;
-        public bool CanConfirmPossibilityNotToReconcilePayments => Entity.ObservableSums.Count > 1 && Entity.State == CashRequest.States.Submited && UserRole == UserRole.Coordinator;
+        public bool ExpenseCategoryVisibility => UserRole == CashRequestUserRole.Cashier || UserRole == CashRequestUserRole.Financier;
+        public bool CanConfirmPossibilityNotToReconcilePayments => Entity.ObservableSums.Count > 1 && Entity.State == CashRequest.States.Submited && UserRole == CashRequestUserRole.Coordinator;
         #endregion Visibility
 
         #region Permissions
@@ -344,7 +344,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanAddItems => CanEdit;
         public bool CanDeleteItems => CanEdit && SelectedItem != null;
         
-        public bool CanGiveSum => UserRole == UserRole.Cashier && (Entity.State == CashRequest.States.GivenForTake || Entity.State == CashRequest.States.PartiallyClosed);
+        public bool CanGiveSum => UserRole == CashRequestUserRole.Cashier && (Entity.State == CashRequest.States.GivenForTake || Entity.State == CashRequest.States.PartiallyClosed);
 
         public bool CanDeleteSum => uowBuilder.IsNewEntity;
         //Подтвердить
@@ -352,8 +352,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             (Entity.State == CashRequest.States.New || Entity.State == CashRequest.States.OnClarification);
 
         //Согласовать
-        public bool CanApprove => Entity.State == CashRequest.States.Submited && UserRole == UserRole.Coordinator;
-        public bool CanConveyForResults => UserRole == UserRole.Financier && Entity.State == CashRequest.States.Agreed;
+        public bool CanApprove => Entity.State == CashRequest.States.Submited && UserRole == CashRequestUserRole.Coordinator;
+        public bool CanConveyForResults => UserRole == CashRequestUserRole.Financier && Entity.State == CashRequest.States.Agreed;
         public bool CanReturnToRenegotiation => Entity.State == CashRequest.States.Agreed ||
                                                 Entity.State == CashRequest.States.GivenForTake ||
                                                 Entity.State == CashRequest.States.PartiallyClosed ||
@@ -362,8 +362,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanCancel => Entity.State == CashRequest.States.Submited ||
                                  Entity.State == CashRequest.States.OnClarification ||
                                  Entity.State == CashRequest.States.New ||
-                                 (Entity.State == CashRequest.States.Agreed && UserRole == UserRole.Coordinator) ||
-                                 (Entity.State == CashRequest.States.GivenForTake && UserRole == UserRole.Coordinator);
+                                 (Entity.State == CashRequest.States.Agreed && UserRole == CashRequestUserRole.Coordinator) ||
+                                 (Entity.State == CashRequest.States.GivenForTake && UserRole == CashRequestUserRole.Coordinator);
         
         
 
@@ -373,17 +373,17 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
         #region Methods
 
-        private IEnumerable<UserRole> getUserRoles(int userId)
+        private IEnumerable<CashRequestUserRole> getUserRoles(int userId)
         {
-            var roles = new List<UserRole>();
+            var roles = new List<CashRequestUserRole>();
             if (checkRole("role_financier_cash_request", userId))
-                roles.Add(UserRole.Financier);
+                roles.Add(CashRequestUserRole.Financier);
             if (checkRole("role_coordinator_cash_request", userId))
-                roles.Add(UserRole.Coordinator);
+                roles.Add(CashRequestUserRole.Coordinator);
             if (checkRole("role_сashier", userId))
-                roles.Add(UserRole.Cashier);
+                roles.Add(CashRequestUserRole.Cashier);
             if (Entity.Author == null || Entity.Author.Id == CurrentEmployee.Id)
-                roles.Add(UserRole.RequestCreator);
+                roles.Add(CashRequestUserRole.RequestCreator);
 
             if (roles.Count == 0)
                 throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
@@ -462,7 +462,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
             () =>
             {
-                if (string.IsNullOrEmpty(Entity.CancelReason) && UserRole == UserRole.Coordinator) {
+                if (string.IsNullOrEmpty(Entity.CancelReason) && UserRole == CashRequestUserRole.Coordinator) {
                     CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,"Причина отмены должна быть заполнена");
                 } else {
                     Entity.ChangeState(CashRequest.States.Canceled);
@@ -475,7 +475,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand ConveyForResultsCommand => conveyForResultsCommand ?? (conveyForResultsCommand = new DelegateCommand(
             () =>
             {
-                if (Entity.State == CashRequest.States.Agreed && Entity.ExpenseCategory == null && UserRole == UserRole.Cashier)
+                if (Entity.State == CashRequest.States.Agreed && Entity.ExpenseCategory == null && UserRole == CashRequestUserRole.Cashier)
                 {
                     CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
                         "Необходимо заполнить статью расхода");
@@ -509,7 +509,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         #endregion
     }
 
-    public enum UserRole
+    public enum CashRequestUserRole
     {
         [Display(Name = "Заявитель")]
         RequestCreator,
