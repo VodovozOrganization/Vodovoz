@@ -17,12 +17,39 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     distr.district_name AS d_name,
-    NULLIF(COUNT(DISTINCT IF(HOUR(dsch.to_time) &lt; 13,  o.id, NULL)), 0) AS orders_before_13,
-    NULLIF(COUNT(DISTINCT IF(HOUR(dsch.to_time) &gt;= 13 AND HOUR(dsch.to_time) &lt;= 18, o.id, NULL)),0) AS orders_between_13_18,
-    NULLIF(COUNT(DISTINCT IF(HOUR(dsch.to_time) &gt; 18, o.id, NULL)),0) AS orders_after_18,
-    NULLIF(SUM(IF(HOUR(dsch.to_time) &lt; 13, IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)),0) AS bottles_before_13,
-    NULLIF(SUM(IF(HOUR(dsch.to_time) &gt;= 13 AND HOUR(dsch.to_time) &lt;= 18, IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)),0) AS bottles_between_13_18,
-    NULLIF(SUM(IF(HOUR(dsch.to_time) &gt; 18,IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)),0) AS bottles_after_18,
+    NULLIF(
+        COUNT(DISTINCT IF(
+            HOUR(dsch.to_time) &lt; 13,  o.id, NULL
+        )), 0) AS orders_before_13,
+    NULLIF(
+        COUNT(DISTINCT IF(
+            HOUR(dsch.to_time) &gt;= 13 AND HOUR(dsch.to_time) &lt;= 18, o.id, NULL
+        )),0) AS orders_between_13_18,
+    NULLIF(
+        COUNT(DISTINCT IF(
+            HOUR(dsch.to_time) &gt; 18, o.id, NULL
+        )),0) AS orders_after_18,
+    NULLIF(
+        SUM(IF(
+            HOUR(dsch.to_time) &lt; 13, 
+            IF(
+                n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
+            ), 0
+        )),0) AS bottles_before_13,
+    NULLIF(
+        SUM(IF(
+            HOUR(dsch.to_time) &gt;= 13 AND HOUR(dsch.to_time) &lt;= 18,
+            IF(
+                n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
+            ), 0
+        )),0) AS bottles_between_13_18,
+    NULLIF(
+        SUM(IF(
+            HOUR(dsch.to_time) &gt; 18,
+            IF(
+                n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
+            ), 0
+        )),0) AS bottles_after_18,
     COUNT(DISTINCT o.id) AS total_orders_count,
     SUM(IF(n.category = 'water' AND n.tare_volume = 'Vol19L', cast(i.count as SIGNED), NULL)) AS total_bottles_count,
     HOUR(dsch.to_time) AS delivery_schedule
@@ -487,6 +514,7 @@ GROUP BY distr.id</CommandText>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>N</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -525,6 +553,7 @@ GROUP BY distr.id</CommandText>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>N</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -563,6 +592,7 @@ GROUP BY distr.id</CommandText>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>N</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -601,6 +631,7 @@ GROUP BY distr.id</CommandText>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>N</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -672,6 +703,7 @@ GROUP BY distr.id</CommandText>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>N</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -710,6 +742,7 @@ GROUP BY distr.id</CommandText>
                         <BorderWidth>
                           <Top>3pt</Top>
                         </BorderWidth>
+                        <Format>N</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -748,6 +781,7 @@ GROUP BY distr.id</CommandText>
                         <BorderWidth>
                           <Top>3pt</Top>
                         </BorderWidth>
+                        <Format>N</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -786,6 +820,7 @@ GROUP BY distr.id</CommandText>
                         <BorderWidth>
                           <Top>3pt</Top>
                         </BorderWidth>
+                        <Format>N</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -796,16 +831,20 @@ GROUP BY distr.id</CommandText>
         </Footer>
       </Table>
       <Textbox Name="Textbox10">
-        <Height>26.35pt</Height>
-        <Width>765.78pt</Width>
-        <Value>В отчет не попадают заказы в статусах: Доставка отменена, Недовоз, Отменен.
-Также не попадают заказы без МЛ</Value>
+        <Height>12.84pt</Height>
+        <Width>764.28pt</Width>
+        <Value>В отчет не попадают заказы в статусах: Отменён, Новый, Ожидание оплаты</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>104.70pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
       </Textbox>
     </ReportItems>
-    <Height>135.0pt</Height>
+    <Height>122.2pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
