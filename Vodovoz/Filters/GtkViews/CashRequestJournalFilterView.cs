@@ -66,19 +66,19 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboStatus.ShowSpecialStateAll = true;
 			
 
-			UserRole? userRole = ViewModel.GetUserRole();
+			CashRequestUserRole? userRole = ViewModel.GetUserRole();
 			//Для Роли Согласователя по-умолчанию Создана Подана,
 			//для Роли Финансиста - Согласована,
 			//для Кассира - Передана на Выдачу,
 			
 			//Иные роли - только видят только свои заявки, поэтому нужно скрытиь фильтр по авторам
-			if (userRole == UserRole.Coordinator){
+			if (userRole == CashRequestUserRole.Coordinator){
 				yenumcomboStatus.SelectedItem = CashRequest.States.Submited;
-			} else if (userRole == UserRole.Financier){
+			} else if (userRole == CashRequestUserRole.Financier){
 				yenumcomboStatus.SelectedItem = CashRequest.States.Agreed;
-			} else if (userRole == UserRole.Cashier){
+			} else if (userRole == CashRequestUserRole.Cashier){
 				yenumcomboStatus.SelectedItem = CashRequest.States.GivenForTake;
-			} else if (userRole == UserRole.Other){
+			} else if (userRole == CashRequestUserRole.Other){
 				AuthorEntityviewmodelentry.Visible = false;
 				label3.Visible = false;
 			}

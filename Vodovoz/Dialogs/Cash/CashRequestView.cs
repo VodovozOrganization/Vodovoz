@@ -102,7 +102,7 @@ namespace Vodovoz.Dialogs.Cash
 			}
 
             //Смена ролей
-            comboRoleChooser.SetRenderTextFunc<UserRole>(ur => ur.GetEnumTitle());
+            comboRoleChooser.SetRenderTextFunc<CashRequestUserRole>(ur => ur.GetEnumTitle());
             comboRoleChooser.ItemsList = ViewModel.UserRoles;
             comboRoleChooser.Binding.AddBinding(ViewModel, vm => vm.UserRole, w => w.SelectedItem).InitializeFromSource();
 			comboRoleChooser.Sensitive = ViewModel.IsRoleChooserSensitive;
