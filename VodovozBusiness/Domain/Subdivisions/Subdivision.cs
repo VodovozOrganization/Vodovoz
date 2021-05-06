@@ -107,14 +107,6 @@ namespace Vodovoz
 			get => subdivisionType;
 			set => SetField(ref subdivisionType, value, () => SubdivisionType);
 		}
-
-		private IList<SubdivisionWarehousePermission> subdivisionWarehousePermissions = new List<SubdivisionWarehousePermission>();
-		[Display(Name = "Права для подразделения")]
-		public virtual IList<SubdivisionWarehousePermission> SubdivisionWarehousePermissions
-		{
-			get => subdivisionWarehousePermissions;
-			set => SetField(ref subdivisionWarehousePermissions, value);
-		}
 		#endregion
 
 		#region Геттеры и методы

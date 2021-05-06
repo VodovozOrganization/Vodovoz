@@ -49,9 +49,6 @@ namespace Vodovoz.Domain.Permissions.Warehouse
 
         public override IEnumerable<WarehousePermission> GetEnumerator() => unitOfWork.Session
             .QueryOver<SubdivisionWarehousePermission>().Where(x => x.Subdivision.Id == subdivision.Id)
-            .Fetch(x => x.Subdivision).Eager
-            .Fetch(x=>x.Warehouse).Eager
-            .Fetch(x=>x.User).Eager
             .List();
 
         public override List<WarehousePermission> AllPermission { get; set; }
