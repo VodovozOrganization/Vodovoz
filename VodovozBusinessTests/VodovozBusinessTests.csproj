@@ -92,8 +92,13 @@
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\AdvancedWageParameters\DeliveryTimeAdvancedWageParameterTest.cs" />
     <Compile Include="ErrorReporting\DefaultErrorMessageModelTest.cs" />
     <Compile Include="ErrorReporting\SingletonErrorReporterTest.cs" />
+    <Compile Include="SmsPaymentService\SmsPaymentItemDTOCalculateTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
+      <Project>{EFE73102-83BC-4036-8642-D3A4121E8351}</Project>
+      <Name>SmsPaymentService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
