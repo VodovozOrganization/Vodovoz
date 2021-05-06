@@ -29,12 +29,15 @@ namespace SmsPaymentService
         {
             List<SmsPaymentItemDTO> smsPaymentDTOList = new List<SmsPaymentItemDTO>();
 
+            SmsPaymentItemDTO compensatingItem = null;
+            decimal remains = 0;
+
             foreach (var item in itemList)
             {
-                decimal price = decimal.Round(item.Sum / item.Count, 2, MidpointRounding.AwayFromZero);
-                bool isDevided = item.Sum == price * item.Count;
+                decimal price = decimal.Round(item.ActualSum / item.CurrentCount, 2, MidpointRounding.AwayFromZero);
+                bool isDivided = item.ActualSum == price * item.CurrentCount;
 
-                if (isDevided)
+                if (isDivided)
                 {
                     smsPaymentDTOList.Add(
                         new SmsPaymentItemDTO()
@@ -50,18 +53,29 @@ namespace SmsPaymentService
                         new SmsPaymentItemDTO()
                         {
                             Name = item.Nomenclature.OfficialName,
-                            Quantity = item.CurrentCount - 1,
+                            Quantity = item.CurrentCount - (compensatingItem == null ? 1 : 0),
                             Price = price
                         });
 
-                    smsPaymentDTOList.Add(
-                        new SmsPaymentItemDTO()
+                    remains += item.ActualSum - price * item.CurrentCount;
+
+                    if (compensatingItem == null)
+                    {
+                        compensatingItem = new SmsPaymentItemDTO
                         {
                             Name = item.Nomenclature.OfficialName,
                             Quantity = 1,
-                            Price = item.Sum - (price * (item.Count - 1))
-                        });
+                            Price = price
+                        };
+
+                        smsPaymentDTOList.Add(compensatingItem);
+                    }
                 }
+            }
+
+            if (compensatingItem != null)
+            {
+                compensatingItem.Price += remains;
             }
 
             return smsPaymentDTOList;

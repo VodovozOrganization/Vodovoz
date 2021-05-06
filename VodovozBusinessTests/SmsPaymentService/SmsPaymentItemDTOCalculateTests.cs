@@ -1,18 +1,16 @@
-﻿using System;
+﻿using NSubstitute;
 using NUnit.Framework;
 using SmsPaymentService;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NSubstitute;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
 namespace VodovozBusinessTests.SmsPaymentService
 {
-    [TestFixture]
+	[TestFixture]
     public class SmsPaymentItemDTOCalculateTests
     {
         static IEnumerable OrdersTestSource()
@@ -71,7 +69,7 @@ namespace VodovozBusinessTests.SmsPaymentService
 
             // assert
 
-            Assert.That(result, Is.EqualTo(order.TotalSum));
+            Assert.That(result, Is.EqualTo(order.OrderSum));
         }
 
         [Test(Description = "Распределение цен по номенклатурам (число без дроби)")]
@@ -154,5 +152,42 @@ namespace VodovozBusinessTests.SmsPaymentService
             Assert.That(smsPaymentDTO.Items[1].Price, Is.EqualTo(142.84));
             Assert.That(smsPaymentDTO.Items[1].Quantity, Is.EqualTo(1));
         }
+
+        [Test(Description = "Распределение цен по номенклатурам (комбинация разных вариантов )")]
+        public void SmsPaymentPriceForNomenclatureDistributions_WithCirculatingFraction_Combine()
+        {
+	        // arrange
+
+	        SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory();
+	        var smsPaymentMock = Substitute.For<SmsPayment>();
+	        var orderMock = Substitute.For<Order>();
+	        orderMock.OrderItems = new List<OrderItem>
+	        {
+		        new OrderItem {Count = 3, Price = 150, DiscountMoney = 50, Nomenclature = new Nomenclature()},
+		        new OrderItem {Count = 7, Price = 200, DiscountMoney = 400, Nomenclature = new Nomenclature()},
+		        new OrderItem {Count = 3, Price = 100,  Nomenclature = new Nomenclature()}
+            };
+
+	        // act
+
+	        var smsPaymentDTO = smsPaymentDTOFactory.CreateSmsPaymentDTO(smsPaymentMock, orderMock);
+
+	        // assert
+
+	        Assert.That(smsPaymentDTO.Items.Count, Is.EqualTo(4));
+
+	        Assert.That(smsPaymentDTO.Items[0].Price, Is.EqualTo(133.33));
+	        Assert.That(smsPaymentDTO.Items[0].Quantity, Is.EqualTo(2));
+
+	        Assert.That(smsPaymentDTO.Items[1].Price, Is.EqualTo(133.32));
+	        Assert.That(smsPaymentDTO.Items[1].Quantity, Is.EqualTo(1));
+
+	        Assert.That(smsPaymentDTO.Items[2].Price, Is.EqualTo(142.86));
+	        Assert.That(smsPaymentDTO.Items[2].Quantity, Is.EqualTo(7));
+
+	        Assert.That(smsPaymentDTO.Items[3].Price, Is.EqualTo(100));
+	        Assert.That(smsPaymentDTO.Items[3].Quantity, Is.EqualTo(3));
+        }
+
     }
 }
