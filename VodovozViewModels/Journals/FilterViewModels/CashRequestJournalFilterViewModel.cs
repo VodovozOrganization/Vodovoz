@@ -39,18 +39,18 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
             set => UpdateFilterField(ref state, value);
         }
 
-        public UserRole GetUserRole()
+        public CashRequestUserRole GetUserRole()
         {
             int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
             
             if (CashRequestViewModel.checkRole("role_financier_cash_request", userId)){
-                return UserRole.Financier;
+                return CashRequestUserRole.Financier;
             } else if (CashRequestViewModel.checkRole("role_coordinator_cash_request", userId)){
-                return UserRole.Coordinator;
+                return CashRequestUserRole.Coordinator;
             } else if (CashRequestViewModel.checkRole("role_сashier", userId)) {
-                return UserRole.Cashier;
+                return CashRequestUserRole.Cashier;
             } else {
-                return UserRole.Other;
+                return CashRequestUserRole.Other;
             }
         }
     }
