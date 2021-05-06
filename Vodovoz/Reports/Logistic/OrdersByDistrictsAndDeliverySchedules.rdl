@@ -19,11 +19,11 @@
     distr.district_name AS d_name,
     NULLIF(
         COUNT(DISTINCT IF(
-            HOUR(dsch.to_time) &lt; 13,  o.id, NULL
+            HOUR(dsch.to_time) &lt;= 13,  o.id, NULL
         )), 0) AS orders_before_13,
     NULLIF(
         COUNT(DISTINCT IF(
-            HOUR(dsch.to_time) &gt;= 13 AND HOUR(dsch.to_time) &lt;= 18, o.id, NULL
+            HOUR(dsch.to_time) &gt; 13 AND HOUR(dsch.to_time) &lt;= 18, o.id, NULL
         )),0) AS orders_between_13_18,
     NULLIF(
         COUNT(DISTINCT IF(
@@ -31,14 +31,14 @@
         )),0) AS orders_after_18,
     NULLIF(
         SUM(IF(
-            HOUR(dsch.to_time) &lt; 13, 
+            HOUR(dsch.to_time) &lt;= 13, 
             IF(
                 n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
             ), 0
         )),0) AS bottles_before_13,
     NULLIF(
         SUM(IF(
-            HOUR(dsch.to_time) &gt;= 13 AND HOUR(dsch.to_time) &lt;= 18,
+            HOUR(dsch.to_time) &gt; 13 AND HOUR(dsch.to_time) &lt;= 18,
             IF(
                 n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
             ), 0
@@ -514,7 +514,7 @@ GROUP BY distr.id</CommandText>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>N</Format>
+                        <Format>N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -553,7 +553,7 @@ GROUP BY distr.id</CommandText>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>N</Format>
+                        <Format>N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -592,7 +592,7 @@ GROUP BY distr.id</CommandText>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>N</Format>
+                        <Format>N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -631,7 +631,7 @@ GROUP BY distr.id</CommandText>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>N</Format>
+                        <Format>N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -703,7 +703,7 @@ GROUP BY distr.id</CommandText>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>N</Format>
+                        <Format>N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -742,7 +742,7 @@ GROUP BY distr.id</CommandText>
                         <BorderWidth>
                           <Top>3pt</Top>
                         </BorderWidth>
-                        <Format>N</Format>
+                        <Format>N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -781,7 +781,7 @@ GROUP BY distr.id</CommandText>
                         <BorderWidth>
                           <Top>3pt</Top>
                         </BorderWidth>
-                        <Format>N</Format>
+                        <Format>N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -820,7 +820,7 @@ GROUP BY distr.id</CommandText>
                         <BorderWidth>
                           <Top>3pt</Top>
                         </BorderWidth>
-                        <Format>N</Format>
+                        <Format>N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -829,11 +829,13 @@ GROUP BY distr.id</CommandText>
             </TableRow>
           </TableRows>
         </Footer>
+        <PageBreakAtEnd >false</PageBreakAtEnd>
       </Table>
       <Textbox Name="Textbox10">
-        <Height>12.84pt</Height>
-        <Width>764.28pt</Width>
-        <Value>В отчет не попадают заказы в статусах: Отменён, Новый, Ожидание оплаты</Value>
+        <Height>23.34pt</Height>
+        <Width>761.28pt</Width>
+        <Value>В отчет не попадают заказы в статусах: Отменён, Новый, Ожидание оплаты
+Интервал заказа определяется по последнему времени в расписании доставки</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>104.70pt</Top>
@@ -844,7 +846,7 @@ GROUP BY distr.id</CommandText>
         </Style>
       </Textbox>
     </ReportItems>
-    <Height>122.2pt</Height>
+    <Height>132.0pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
