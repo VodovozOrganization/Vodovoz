@@ -30,18 +30,20 @@ FROM
     orders o
         LEFT JOIN
     order_items i ON o.id = i.order_id
-        LEFT JOIN
-    delivery_points dp ON dp.id = o.delivery_point_id AND dp.latitude IS NOT NULL AND dp.longitude IS NOT NULL
+        INNER JOIN
+    delivery_points dp ON dp.id = o.delivery_point_id
         LEFT JOIN
     nomenclature n ON i.nomenclature_id = n.id
-        LEFT JOIN
-    districts distr ON ST_CONTAINS(distr.district_border, POINT(dp.latitude, dp.longitude))
+        INNER JOIN
+    districts distr ON dp.district_id = distr.id
         LEFT JOIN
     delivery_schedule dsch ON o.delivery_schedule_id = dsch.id
 WHERE
-        o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-  AND EXISTS (SELECT route_list_addresses.id FROM route_list_addresses WHERE route_list_addresses.order_id = o.id)
+  o.order_status NOT IN ('Canceled','NewOrder','WaitForPayment')
   AND o.delivery_date = @date
+  AND o.delivery_schedule_id IS NOT NULL
+  AND NOT o.is_contract_closer
+  AND NOT o.service
 GROUP BY distr.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
