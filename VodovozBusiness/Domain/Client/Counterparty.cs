@@ -452,7 +452,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#region Особое требование срок годности
-
+		[Display(Name = "Особое требование: требуется срок годности")]
 		bool specialExpireDatePercentCheck;
 		public virtual bool SpecialExpireDatePercentCheck
 		{
@@ -461,6 +461,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		decimal specialExpireDatePercent;
+		[Display(Name = "Особое требование: срок годности %")]
 		public virtual decimal SpecialExpireDatePercent {
 			get => specialExpireDatePercent;
 			set => SetField(ref specialExpireDatePercent, value, () => SpecialExpireDatePercent); 
