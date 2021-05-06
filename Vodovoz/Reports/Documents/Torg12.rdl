@@ -301,7 +301,7 @@ GROUP BY orders.id</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>659.3pt</Height>
+    <Height>566.9pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox45">
@@ -1618,13 +1618,13 @@ GROUP BY orders.id</CommandText>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Footer>
         <Left>12.5pt</Left>
-        <Top>226.8pt</Top>
+        <Top>217.8pt</Top>
       </Table>
       <List Name="List4">
         <Height>216.99pt</Height>
         <Width>785.50pt</Width>
-        <Left>0.00pt</Left>
-        <Top>308.20pt</Top>
+        <Left>0.0pt</Left>
+        <Top>298.6pt</Top>
         <ReportItems>
           <Textbox Name="Textbox131">
             <Height>10.53pt</Height>
@@ -2457,7 +2457,7 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox116" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
             <Width>389.15pt</Width>
-            <Value>=SummaString_Val(Convert.ToString(Sum(Fields!item_price.Value * Fields!count.Value - {item_discount_money}, "Goods")))</Value>
+            <Value>=SummaString_Val(Convert.ToString(Sum(Round(Fields!item_price.Value * Fields!count.Value - {item_discount_money}, 2), "Goods")))</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
             <Top>85.1pt</Top>
@@ -2926,7 +2926,7 @@ GROUP BY orders.id</CommandText>
         <Value>Вид операции</Value>
         <ZIndex>1</ZIndex>
         <Left>620.3pt</Left>
-        <Top>201.1pt</Top>
+        <Top>192.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3083,7 +3083,7 @@ GROUP BY orders.id</CommandText>
         <Value>="Страница " + {@PageNumber}</Value>
         <ZIndex>1</ZIndex>
         <Left>718.1pt</Left>
-        <Top>214.8pt</Top>
+        <Top>205.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
