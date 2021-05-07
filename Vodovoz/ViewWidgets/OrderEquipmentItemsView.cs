@@ -10,6 +10,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalFilters;
+using Vodovoz.Services;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ViewWidgets
@@ -17,6 +18,7 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderEquipmentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private int vodovozLeafletId;
 		public IUnitOfWork UoW { get; set; }
 
 		public Order Order { get; set; }
@@ -46,10 +48,15 @@ namespace Vodovoz.ViewWidgets
 		/// </summary>
 		int treeAnyGoodsFirstColWidth;
 
-		public void Configure(IUnitOfWork uow, Order order)
+		public void Configure(IUnitOfWork uow, Order order, INomenclatureParametersProvider nomenclatureParametersProvider)
 		{
+			if (nomenclatureParametersProvider == null) {
+				throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			}
+			
 			UoW = uow;
 			Order = order;
+			vodovozLeafletId = nomenclatureParametersProvider.VodovozLeafletId;
 
 			buttonDeleteEquipment.Sensitive = false;
 			Order.ObservableOrderEquipments.ElementAdded += Order_ObservableOrderEquipments_ElementAdded;
@@ -86,9 +93,10 @@ namespace Vodovoz.ViewWidgets
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 				.AddSetter((cell, node) => {
-					cell.Editable = !(node.OrderItem != null && node.OwnType == OwnTypes.Rent);
+					cell.Editable = node.Nomenclature.Id != vodovozLeafletId 
+					                && !(node.OrderItem != null && node.OwnType == OwnTypes.Rent);
 				})
-				.AddTextRenderer(node => string.Format("({0})", node.ReturnedCount))
+				.AddTextRenderer(node => $"({node.ReturnedCount})")
 				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
 				.AddSetter((c, n) => {
 					c.Editable = false;
@@ -176,7 +184,7 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Кол-во(недовоз)")
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(false)
-				.AddTextRenderer(node => string.Format("({0})", node.ReturnedCount))
+				.AddTextRenderer(node => $"({node.ReturnedCount})")
 				.AddColumn("Кол-во по факту")
 					.AddNumericRenderer(node => node.ActualCount, new NullValueToZeroConverter(), false)
 					.AddSetter((cell, node) => {

@@ -1,4 +1,3 @@
-using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Services;
@@ -27,6 +26,8 @@ namespace Vodovoz.Parameters
         public int CurrentOnlineStoreId => parametersProvider.GetIntValue("current_online_store_id");
 
         public string OnlineStoreExportFileUrl => parametersProvider.GetStringValue("online_store_export_file_url");
+
+        public int VodovozLeafletId => parametersProvider.GetIntValue("vodovoz_leaflet_id");
 
         #region Получение номенклатур воды
 

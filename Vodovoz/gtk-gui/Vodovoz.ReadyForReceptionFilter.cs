@@ -8,7 +8,11 @@ namespace Vodovoz
 
 		private global::Gtk.Label label2;
 
-		private global::Gamma.Widgets.ySpecComboBox yspeccomboWarehouse;
+		private global::Gtk.HBox hbox2;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox comboWarehouses;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryWarehouses;
 
 		private global::Gtk.CheckButton checkWithoutUnload;
 
@@ -32,33 +36,54 @@ namespace Vodovoz
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yspeccomboWarehouse = new global::Gamma.Widgets.ySpecComboBox();
-			this.yspeccomboWarehouse.Name = "yspeccomboWarehouse";
-			this.yspeccomboWarehouse.AddIfNotExist = false;
-			this.yspeccomboWarehouse.DefaultFirst = false;
-			this.yspeccomboWarehouse.ShowSpecialStateAll = true;
-			this.yspeccomboWarehouse.ShowSpecialStateNot = false;
-			this.hbox3.Add(this.yspeccomboWarehouse);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yspeccomboWarehouse]));
-			w2.Position = 1;
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.comboWarehouses = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.comboWarehouses.Name = "comboWarehouses";
+			this.comboWarehouses.AddIfNotExist = false;
+			this.comboWarehouses.DefaultFirst = false;
+			this.comboWarehouses.ShowSpecialStateAll = true;
+			this.comboWarehouses.ShowSpecialStateNot = false;
+			this.hbox2.Add(this.comboWarehouses);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.comboWarehouses]));
+			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.entryWarehouses = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryWarehouses.WidthRequest = 350;
+			this.entryWarehouses.Events = ((global::Gdk.EventMask)(256));
+			this.entryWarehouses.Name = "entryWarehouses";
+			this.entryWarehouses.CanEditReference = false;
+			this.hbox2.Add(this.entryWarehouses);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entryWarehouses]));
+			w3.Position = 1;
+			w3.Expand = false;
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.checkWithoutUnload = new global::Gtk.CheckButton();
 			this.checkWithoutUnload.CanFocus = true;
 			this.checkWithoutUnload.Name = "checkWithoutUnload";
 			this.checkWithoutUnload.Label = global::Mono.Unix.Catalog.GetString("Только без разгрузок");
 			this.checkWithoutUnload.DrawIndicator = true;
 			this.checkWithoutUnload.UseUnderline = true;
-			this.hbox3.Add(this.checkWithoutUnload);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.checkWithoutUnload]));
-			w3.Position = 2;
+			this.hbox2.Add(this.checkWithoutUnload);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.checkWithoutUnload]));
+			w4.Position = 2;
+			this.hbox3.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.hbox2]));
+			w5.Position = 1;
 			this.Add(this.hbox3);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
+			this.comboWarehouses.Hide();
+			this.entryWarehouses.Hide();
 			this.Hide();
-			this.yspeccomboWarehouse.ItemSelected += new global::System.EventHandler< Gamma.Widgets.ItemSelectedEventArgs > (this.OnYspeccomboWarehouseItemSelected);
+			this.comboWarehouses.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnComboWarehousesItemSelected);
+			this.entryWarehouses.ChangedByUser += new global::System.EventHandler(this.OnEntryWarehousesChangedByUser);
 			this.checkWithoutUnload.Toggled += new global::System.EventHandler(this.OnCheckWithoutUnloadToggled);
 		}
 	}

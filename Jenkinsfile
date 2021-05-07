@@ -37,7 +37,7 @@ node('Vodovoz') {
 	stage('My-FyiReporting') {
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
-			branches: [[name: '*/release/1.4']],
+			branches: [[name: '*/QSBuild']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
 				[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
@@ -49,7 +49,7 @@ node('Vodovoz') {
 	stage('QSProjects') {
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
-			branches: [[name: '*/release/1.4']],
+			branches: [[name: '*/master']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
 				[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
