@@ -127,7 +127,7 @@ namespace Vodovoz.Additions
                 Text = messageText,
                 HtmlText = messageText,
                 Recipient = new EmailContact("", mailAddress),
-                Sender = new EmailContact("vodovoz-spb.ru", ParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
+                Sender = new EmailContact("vodovoz-spb.ru", SingletonParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
             };
 
             return emailService.SendEmail(email);

@@ -51,9 +51,9 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		public Subdivision GetQCDepartment(IUnitOfWork uow)
 		{
 			var qcDep = "номер_отдела_ОКК";
-			if(!ParametersProvider.Instance.ContainsParameter(qcDep))
+			if(!SingletonParametersProvider.Instance.ContainsParameter(qcDep))
 				throw new InvalidProgramException("В параметрах базы не указан номер отдела контроля качества [номер_отдела_ОКК]");
-			return uow.GetById<Subdivision>(int.Parse(ParametersProvider.Instance.GetParameterValue(qcDep)));
+			return uow.GetById<Subdivision>(int.Parse(SingletonParametersProvider.Instance.GetParameterValue(qcDep)));
 		}
 
 		/// <summary>

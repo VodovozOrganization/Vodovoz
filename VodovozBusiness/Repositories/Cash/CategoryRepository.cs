@@ -53,9 +53,9 @@ namespace Vodovoz.Repository.Cash
 
 		public static IncomeCategory DefaultIncomeCategory (IUnitOfWork uow)
 		{
-			if (ParametersProvider.Instance.ContainsParameter(defaultIncomeCategory)) {
+			if (SingletonParametersProvider.Instance.ContainsParameter(defaultIncomeCategory)) {
 				int id = -1;
-				id = int.Parse (ParametersProvider.Instance.GetParameterValue(defaultIncomeCategory));
+				id = int.Parse (SingletonParametersProvider.Instance.GetParameterValue(defaultIncomeCategory));
 				if (id == -1)
 					return null;
 				return uow.Session.QueryOver<IncomeCategory> ()
@@ -68,10 +68,10 @@ namespace Vodovoz.Repository.Cash
 
 		public static IncomeCategory RouteListClosingIncomeCategory(IUnitOfWork uow)
 		{
-			if (ParametersProvider.Instance.ContainsParameter(routeListClosingIncomeCategory))
+			if (SingletonParametersProvider.Instance.ContainsParameter(routeListClosingIncomeCategory))
 			{
 				int id = -1;
-				id = int.Parse (ParametersProvider.Instance.GetParameterValue(routeListClosingIncomeCategory));
+				id = int.Parse (SingletonParametersProvider.Instance.GetParameterValue(routeListClosingIncomeCategory));
 				if (id == -1)
 					return null;
 				return uow.Session.QueryOver<IncomeCategory> ()
@@ -84,10 +84,10 @@ namespace Vodovoz.Repository.Cash
 
 		public static ExpenseCategory RouteListClosingExpenseCategory(IUnitOfWork uow)
 		{
-			if (ParametersProvider.Instance.ContainsParameter(routeListClosingExpenseCategory))
+			if (SingletonParametersProvider.Instance.ContainsParameter(routeListClosingExpenseCategory))
 			{
 				int id = -1;
-				id = int.Parse (ParametersProvider.Instance.GetParameterValue(routeListClosingExpenseCategory));
+				id = int.Parse (SingletonParametersProvider.Instance.GetParameterValue(routeListClosingExpenseCategory));
 				if (id == -1)
 					return null;
 				return uow.Session.QueryOver<ExpenseCategory> ()
@@ -105,10 +105,10 @@ namespace Vodovoz.Repository.Cash
 				return FuelDocumentExpenseCategoryTestGap(uow);
 			}
 
-			if(ParametersProvider.Instance.ContainsParameter(fuelDocumentExpenseCategory))
+			if(SingletonParametersProvider.Instance.ContainsParameter(fuelDocumentExpenseCategory))
 			{
 				int id = -1;
-				id = int.Parse (ParametersProvider.Instance.GetParameterValue(fuelDocumentExpenseCategory));
+				id = int.Parse (SingletonParametersProvider.Instance.GetParameterValue(fuelDocumentExpenseCategory));
 				if (id == -1)
 					return null;
 				return uow.Session.QueryOver<ExpenseCategory> ()
@@ -121,9 +121,9 @@ namespace Vodovoz.Repository.Cash
 
 		public static ExpenseCategory EmployeeSalaryExpenseCategory(IUnitOfWork uow)
 		{
-			if(ParametersProvider.Instance.ContainsParameter(employeeSalaryExpenseCategory)) {
+			if(SingletonParametersProvider.Instance.ContainsParameter(employeeSalaryExpenseCategory)) {
 				int id = -1;
-				id = int.Parse(ParametersProvider.Instance.GetParameterValue(employeeSalaryExpenseCategory));
+				id = int.Parse(SingletonParametersProvider.Instance.GetParameterValue(employeeSalaryExpenseCategory));
 				if(id == -1)
 					return null;
 				return uow.Session.QueryOver<ExpenseCategory>()

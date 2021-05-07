@@ -10,7 +10,7 @@ namespace Vodovoz.Parameters
         
         public NomenclatureParametersProvider()
         {
-            parametersProvider = ParametersProvider.Instance;
+            parametersProvider = SingletonParametersProvider.Instance;
         }
         
         #region INomenclatureParametersProvider implementation

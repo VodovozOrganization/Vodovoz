@@ -56,7 +56,7 @@ namespace Vodovoz
 	{
 		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
-				new OrganizationParametersProvider(ParametersProvider.Instance));
+				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
 		
 		public EmployeeDlg()
 		{
