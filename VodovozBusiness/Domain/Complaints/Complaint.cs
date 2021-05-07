@@ -9,6 +9,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Complaints
@@ -81,6 +82,14 @@ namespace Vodovoz.Domain.Complaints
 		public virtual DeliveryPoint DeliveryPoint {
 			get => deliveryPoint;
 			set => SetField(ref deliveryPoint, value);
+		}
+
+		RouteListItem routeListItem;
+		[Display(Name = "Адрес маршрутного листа")]
+		public virtual RouteListItem RouteListItem
+		{
+			get => routeListItem;
+			set => SetField(ref routeListItem, value);
 		}
 
 		private string complainantName;

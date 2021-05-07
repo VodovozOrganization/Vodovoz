@@ -22,17 +22,17 @@ namespace DriverAPI.Library.Converters
         {
             var result = new APIRouteList()
             {
-                CompletionStatusEnum = convertToAPIRouteListCompletionStatus(routeList.Status)
+                CompletionStatus = convertToAPIRouteListCompletionStatus(routeList.Status)
             };
 
             
 
-            if (result.CompletionStatusEnum == APIRouteListCompletionStatus.Completed)
+            if (result.CompletionStatus == APIRouteListCompletionStatus.Completed)
             {
                 result.CompletedRouteList = new APICompletedRouteList()
                 {
                     RouteListId = routeList.Id,
-                    RouteListStatusEnum = convertToAPIStatus(routeList.Status),
+                    RouteListStatus = convertToAPIStatus(routeList.Status),
                     CashMoney = routeList.Addresses
                         .Where(rla => rla.Status == RouteListItemStatus.Completed 
                             && rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.cash)
@@ -55,7 +55,7 @@ namespace DriverAPI.Library.Converters
             }
             else
             {
-                if (result.CompletionStatusEnum == APIRouteListCompletionStatus.Incompleted)
+                if (result.CompletionStatus == APIRouteListCompletionStatus.Incompleted)
                 {
                     var routelistAddresses = new List<APIRouteListAddress>();
 
@@ -74,7 +74,7 @@ namespace DriverAPI.Library.Converters
                     result.IncompletedRouteList = new APIIncompletedRouteList()
                     {
                         RouteListId = routeList.Id,
-                        RouteListStatusEnum = convertToAPIStatus(routeList.Status),
+                        RouteListStatus = convertToAPIStatus(routeList.Status),
                         RouteListAddresses = routelistAddresses
                     };
                 }
@@ -154,7 +154,7 @@ namespace DriverAPI.Library.Converters
             return new APIRouteListAddress()
             {
                 Id = routeListAddress.Id,
-                StatusEnum = convertToAPIRouteListAddressStatus(routeListAddress.Status),
+                Status = convertToAPIRouteListAddressStatus(routeListAddress.Status),
                 DeliveryTime = routeListAddress.Order.DeliveryDate ?? DateTime.MinValue,
                 OrderId = routeListAddress.Order.Id,
                 FullBottlesCount = routeListAddress.Order.BottlesReturn ?? 0,

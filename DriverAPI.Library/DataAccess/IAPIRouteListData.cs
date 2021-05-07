@@ -7,5 +7,6 @@ namespace DriverAPI.Library.DataAccess
     {
         APIRouteList Get(int routeListId);
         IEnumerable<APIRouteList> Get(int[] routeListsIds);
+        IEnumerable<int> GetRouteListsIdsForDriverByEmail(string email);
     }
 }

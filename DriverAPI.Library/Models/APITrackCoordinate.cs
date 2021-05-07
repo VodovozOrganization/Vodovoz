@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace DriverAPI.Models
+namespace DriverAPI.Library.Models
 {
-    public class TrackCoordinate
+    public class APITrackCoordinate
     {
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }

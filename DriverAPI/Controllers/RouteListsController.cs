@@ -2,7 +2,7 @@
 using DriverAPI.Library.Models;
 using DriverAPI.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -18,11 +18,16 @@ namespace DriverAPI.Controllers
     {
         private readonly IAPIRouteListData aPIRouteListData;
         private readonly IAPIOrderData aPIOrderData;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public RouteListsController(IAPIRouteListData aPIRouteListData, IAPIOrderData aPIOrderData)
+        public RouteListsController(
+            IAPIRouteListData aPIRouteListData, 
+            IAPIOrderData aPIOrderData,
+            UserManager<IdentityUser> userManager)
         {
             this.aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
             this.aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
+            this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         /// <summary>
@@ -36,7 +41,7 @@ namespace DriverAPI.Controllers
         public GetRouteListsDetailsResponseModel Get([FromBody] int[] routeListsIds)
         {
             var routeLists = aPIRouteListData.Get(routeListsIds);
-            var ordersIds = routeLists.Where(x => x.CompletionStatusEnum == APIRouteListCompletionStatus.Incompleted)
+            var ordersIds = routeLists.Where(x => x.CompletionStatus == APIRouteListCompletionStatus.Incompleted)
                 .SelectMany(x => x.IncompletedRouteList.RouteListAddresses.Select(x => x.OrderId));
 
             var orders = aPIOrderData.Get(ordersIds.ToArray());
@@ -68,9 +73,12 @@ namespace DriverAPI.Controllers
         /// <returns>IEnumerable<int> - список идентификаторов МЛ</returns>
         [HttpGet]
         [Route("/api/GetRouteListsIds")]
-        public IEnumerable<int> GetIds()
+        public async Task<IEnumerable<int>> GetIds()
         {
-            return new int[] { 1, 2, 3, 4, 5 };
+            var user = await userManager.GetUserAsync(User);
+            var userEmail = await userManager.GetEmailAsync(user);
+
+            return aPIRouteListData.GetRouteListsIdsForDriverByEmail(userEmail);
         }
     }
 }

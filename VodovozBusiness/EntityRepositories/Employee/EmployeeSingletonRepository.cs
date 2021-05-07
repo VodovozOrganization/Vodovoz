@@ -139,5 +139,10 @@ namespace Vodovoz.EntityRepositories.Employees
 		{
 			return QueryOver.Of<Employee>().Where(e => e.Status != EmployeeStatus.IsFired).OrderBy(e => e.LastName).Asc.ThenBy(e => e.Name).Asc.ThenBy(e => e.Patronymic).Asc;
 		}
-	}
+
+        public Employee GetEmployeeByEmail(IUnitOfWork uow, string email)
+        {
+			return uow.Session.QueryOver<Employee>().Where(x => x.Email == email).Take(1).SingleOrDefault();
+		}
+    }
 }

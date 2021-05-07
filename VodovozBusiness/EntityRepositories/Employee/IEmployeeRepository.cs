@@ -15,6 +15,7 @@ namespace Vodovoz.EntityRepositories.Employees
 		QueryOver<Employee> DriversQuery();
 		QueryOver<Employee> ForwarderQuery();
 		Employee GetDriverByAndroidLogin(IUnitOfWork uow, string login);
+		Employee GetEmployeeByEmail(IUnitOfWork uow, string email);
 		Employee GetDriverByAuthKey(IUnitOfWork uow, string authKey);
 		Employee GetEmployeeByINNAndAccount(IUnitOfWork uow, string inn, string account);
 		Employee GetEmployeeForCurrentUser(IUnitOfWork uow);

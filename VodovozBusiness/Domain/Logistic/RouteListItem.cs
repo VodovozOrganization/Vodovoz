@@ -45,7 +45,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Заказ")]
 		public virtual Orders.Order Order {
 			get => order;
-			set => SetField(ref order, value, () => Order);
+			set => SetField(ref order, value);
 		}
 
 		RouteList routeList;
@@ -53,21 +53,21 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Маршрутный лист")]
 		public virtual RouteList RouteList {
 			get => routeList;
-			set => SetField(ref routeList, value, () => RouteList);
+			set => SetField(ref routeList, value);
 		}
 
 		RouteListItemStatus status;
 		[Display(Name = "Статус адреса")]
 		public virtual RouteListItemStatus Status {
 			get => status;
-			protected set => SetField(ref status, value, () => Status);
+			protected set => SetField(ref status, value);
 		}
 
 		DateTime? statusLastUpdate;
 		[Display(Name = "Время изменения статуса")]
 		public virtual DateTime? StatusLastUpdate {
 			get => statusLastUpdate;
-			set => SetField(ref statusLastUpdate, value, () => StatusLastUpdate);
+			set => SetField(ref statusLastUpdate, value);
 		}
 
 		private RouteListItem transferedTo;
@@ -76,7 +76,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual RouteListItem TransferedTo {
 			get => transferedTo;
 			set {
-				if(SetField(ref transferedTo, value, () => TransferedTo) && value != null)
+				if(SetField(ref transferedTo, value) && value != null)
 					Status = RouteListItemStatus.Transfered;
 			}
 		}
@@ -86,7 +86,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Необходима повторная загрузка")]
 		public virtual bool NeedToReload {
 			get => needToReload;
-			set => SetField(ref needToReload, value, () => NeedToReload);
+			set => SetField(ref needToReload, value);
 		}
 
 		private bool wasTransfered;
@@ -94,7 +94,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Был перенесен")]
 		public virtual bool WasTransfered {
 			get => wasTransfered;
-			set => SetField(ref wasTransfered, value, () => WasTransfered);
+			set => SetField(ref wasTransfered, value);
 		}
 
 		private string cashierComment;
@@ -102,7 +102,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Комментарий кассира")]
 		public virtual string CashierComment {
 			get => cashierComment;
-			set => SetField(ref cashierComment, value, () => CashierComment);
+			set => SetField(ref cashierComment, value);
 		}
 
 		private DateTime? cashierCommentCreateDate;
@@ -110,7 +110,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Дата создания комментария кассира")]
 		public virtual DateTime? CashierCommentCreateDate {
 			get => cashierCommentCreateDate;
-			set => SetField(ref cashierCommentCreateDate, value, () => CashierCommentCreateDate);
+			set => SetField(ref cashierCommentCreateDate, value);
 		}
 
 		private DateTime? cashierCommentLastUpdate;
@@ -118,7 +118,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Дата обновления комментария кассира")]
 		public virtual DateTime? CashierCommentLastUpdate {
 			get => cashierCommentLastUpdate;
-			set => SetField(ref cashierCommentLastUpdate, value, () => CashierCommentLastUpdate);
+			set => SetField(ref cashierCommentLastUpdate, value);
 		}
 
 		private Employee cashierCommentAuthor;
@@ -126,42 +126,50 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Автор комментария")]
 		public virtual Employee CashierCommentAuthor {
 			get => cashierCommentAuthor;
-			set => SetField(ref cashierCommentAuthor, value, () => CashierCommentAuthor);
+			set => SetField(ref cashierCommentAuthor, value);
 		}
 
 		string comment;
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get => comment;
-			set => SetField(ref comment, value, () => Comment);
+			set => SetField(ref comment, value);
 		}
 
 		bool withForwarder;
 		[Display(Name = "С экспедитором")]
 		public virtual bool WithForwarder {
 			get => withForwarder;
-			set => SetField(ref withForwarder, value, () => WithForwarder);
+			set => SetField(ref withForwarder, value);
 		}
 
 		int indexInRoute;
 		[Display(Name = "Порядковый номер в МЛ")]
 		public virtual int IndexInRoute {
 			get => indexInRoute;
-			set => SetField(ref indexInRoute, value, () => IndexInRoute);
+			set => SetField(ref indexInRoute, value);
 		}
 
-		int bottlesReturned;
+		private int bottlesReturned;
 		[Display(Name = "Возвращено бутылей")]
 		public virtual int BottlesReturned {
 			get => bottlesReturned;
-			set => SetField(ref bottlesReturned, value, () => BottlesReturned);
+			set => SetField(ref bottlesReturned, value);
 		}
 
-		int? driverBottlesReturned;
+		private int? driverBottlesReturned;
 		[Display(Name = "Возвращено бутылей - водитель")]
 		public virtual int? DriverBottlesReturned {
 			get => driverBottlesReturned;
-			set => SetField(ref driverBottlesReturned, value, () => DriverBottlesReturned);
+			set => SetField(ref driverBottlesReturned, value);
+		}
+
+		private int driverRating;
+		[Display(Name = "Водительский рейтинг")]
+		public virtual int DriverRating
+		{
+			get => driverRating;
+			set => SetField(ref driverRating, value);
 		}
 
 		decimal oldBottleDepositsCollected;
@@ -171,7 +179,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Старый залог за бутыли")]
 		public virtual decimal OldBottleDepositsCollected {
 			get => oldBottleDepositsCollected;
-			set => SetField(ref oldBottleDepositsCollected, value, () => OldBottleDepositsCollected);
+			set => SetField(ref oldBottleDepositsCollected, value);
 		}
 
 		public virtual decimal BottleDepositsCollected {
@@ -196,7 +204,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Старый залог за оборудование")]
 		public virtual decimal OldEquipmentDepositsCollected {
 			get => oldEquipmentDepositsCollected;
-			set => SetField(ref oldEquipmentDepositsCollected, value, () => OldEquipmentDepositsCollected);
+			set => SetField(ref oldEquipmentDepositsCollected, value);
 		}
 
 		public virtual decimal EquipmentDepositsCollected {
@@ -229,28 +237,28 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Всего наличных")]
 		public virtual decimal TotalCash {
 			get => totalCash;
-			set => SetField(ref totalCash, value, () => TotalCash);
+			set => SetField(ref totalCash, value);
 		}
 
 		decimal extraCash;
 		[Display(Name = "Дополнительно наличных")]
 		public virtual decimal ExtraCash {
 			get => extraCash;
-			set => SetField(ref extraCash, value, () => ExtraCash);
+			set => SetField(ref extraCash, value);
 		}
 
 		decimal driverWage;
 		[Display(Name = "ЗП водителя")]
 		public virtual decimal DriverWage {
 			get => driverWage;
-			set => SetField(ref driverWage, value, () => DriverWage);
+			set => SetField(ref driverWage, value);
 		}
 
 		decimal driverWageSurcharge;
 		[Display(Name = "Надбавка к ЗП водителя")]
 		public virtual decimal DriverWageSurcharge {
 			get => driverWageSurcharge;
-			set => SetField(ref driverWageSurcharge, value, () => DriverWageSurcharge);
+			set => SetField(ref driverWageSurcharge, value);
 		}
 
 		decimal forwarderWage;
@@ -258,7 +266,7 @@ namespace Vodovoz.Domain.Logistic
 		//Зарплана с уже включенной надбавкой ForwarderWageSurcharge
 		public virtual decimal ForwarderWage {
 			get => forwarderWage;
-			set => SetField(ref forwarderWage, value, () => ForwarderWage);
+			set => SetField(ref forwarderWage, value);
 		}
 
 		[Display(Name = "Оповещение за 30 минут")]
@@ -274,7 +282,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Запланированное время приезда min")]
 		public virtual TimeSpan? PlanTimeStart {
 			get => planTimeStart;
-			set => SetField(ref planTimeStart, value, () => PlanTimeStart);
+			set => SetField(ref planTimeStart, value);
 		}
 
 		private TimeSpan? planTimeEnd;
@@ -282,7 +290,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Запланированное время приезда max")]
 		public virtual TimeSpan? PlanTimeEnd {
 			get => planTimeEnd;
-			set => SetField(ref planTimeEnd, value, () => PlanTimeEnd);
+			set => SetField(ref planTimeEnd, value);
 		}
 
 		WageDistrictLevelRate forwarderWageCalulationMethodic;
