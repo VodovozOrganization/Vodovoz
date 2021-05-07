@@ -1,13 +1,9 @@
 ﻿using DriverAPI.Library.DataAccess;
 using DriverAPI.Library.Models;
-using DriverAPI.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers
 {
@@ -26,7 +22,7 @@ namespace DriverAPI.Controllers
         /// <summary>
         /// Эндпоинт получения популярных причин
         /// </summary>
-        /// <returns>APIDriverComplaintReason Список популярных причин</returns>
+        /// <returns>Список популярных причин</returns>
         [Authorize]
         [HttpGet]
         [Route("/api/GetDriverComplaintReasons")]

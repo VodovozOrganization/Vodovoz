@@ -1,11 +1,11 @@
 ﻿using DriverAPI.Library.Models;
 using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Services;
 
 namespace DriverAPI.Library.Converters
 {
@@ -13,14 +13,17 @@ namespace DriverAPI.Library.Converters
     {
         private readonly ILogger<OrderConverter> logger;
         private readonly DeliveryPointConverter deliveryPointConverter;
+        private readonly IOrderParametersProvider orderParametersProvider;
         private readonly SmsPaymentConverter smsPaymentConverter;
 
         public OrderConverter(ILogger<OrderConverter> logger,
             DeliveryPointConverter deliveryPointConverter,
+            IOrderParametersProvider orderParametersProvider, 
             SmsPaymentConverter smsPaymentConverter)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
+            this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             this.smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
         }
 
@@ -31,12 +34,12 @@ namespace DriverAPI.Library.Converters
             var apiOrder = new APIOrder()
             {
                 OrderId = vodovozOrder.Id,
-                SmsPaymentStatusEnum = smsPaymentConverter.convertToAPIPaymentStatus(smsPaymentStatus),
+                SmsPaymentStatus = smsPaymentConverter.convertToAPIPaymentStatus(smsPaymentStatus),
                 DeliveryTime = vodovozOrder.TimeDelivered?.ToString("HH:mm:ss"),
                 FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,
                 Counterparty = vodovozOrder.Client.FullName,
                 CounterpartyPhoneNumbers = vodovozOrder.Client.Phones.Select(x => "+7" + x.DigitsNumber),
-                PaymentTypeEnum = convertToAPIPaymentType(vodovozOrder.PaymentType),
+                PaymentType = convertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
                 Address = deliveryPointConverter.extractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
                 OrderComment = vodovozOrder.Comment,
                 OrderSum = vodovozOrder.ActualTotalSum,
@@ -118,16 +121,29 @@ namespace DriverAPI.Library.Converters
             return result;
         }
 
-        private APIPaymentType convertToAPIPaymentType(PaymentType paymentType)
+        private APIPaymentType convertToAPIPaymentType(PaymentType paymentType, Vodovoz.Domain.Orders.PaymentFrom paymentByCardFrom)
         {
             switch (paymentType)
             {
                 case PaymentType.cash:
                     return APIPaymentType.Cash;
+                case PaymentType.cashless:
+                    return APIPaymentType.Cashless;
                 case PaymentType.ByCard:
-                    return APIPaymentType.ByCard;
+                    if (paymentByCardFrom.Id == orderParametersProvider.PaymentByCardFromSmsId)
+                    {
+                        return APIPaymentType.Sms;
+                    }
+                    else
+                    {
+                        return APIPaymentType.ByCard;
+                    }
                 case PaymentType.Terminal:
                     return APIPaymentType.Terminal;
+                case PaymentType.BeveragesWorld:
+                case PaymentType.barter:
+                case PaymentType.ContractDoc:
+                    return APIPaymentType.Payed;
                 default:
                     logger.LogWarning($"Не поддерживается тип: {paymentType}");
                     throw new ArgumentException($"Не поддерживается тип: {paymentType}");

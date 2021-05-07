@@ -37,6 +37,23 @@ namespace Vodovoz.EntityRepositories.Logistic
 					  .List();
 		}
 
+		public IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null)
+		{
+			RouteList routeListAlias = null;
+
+			var query = uow.Session.QueryOver<RouteList>(() => routeListAlias)
+					  .Where(() => routeListAlias.Driver == driver);
+
+			if (status != null)
+			{
+				query.Where(() => routeListAlias.Status == status);
+			}
+
+			return query.SelectList(list =>
+					list.Select(x => x.Id)
+				).List<int>();
+		}
+
 		public QueryOver<RouteList> GetRoutesAtDay(DateTime date)
 		{
 			return QueryOver.Of<RouteList>()

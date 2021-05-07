@@ -17,12 +17,15 @@ using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
-using QSProjectsLib;
 using System;
 using System.Text;
+using Vodovoz.EntityRepositories.Complaints;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.NhibernateExtensions;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Tools;
 
 namespace DriverAPI
@@ -54,37 +57,19 @@ namespace DriverAPI
 
             // Конфигурация Nhibernate
 
-            try {
+            try
+            {
                 CreateBaseConfig();
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 logger.LogCritical(e, e.Message);
                 throw;
             }
 
-            // Сервисы для контроллеров
-
-            // Unit Of Work
-            services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot());
-
-            // Репозитории водовоза
-            services.AddScoped<IRouteListRepository, RouteListRepository>();
-            services.AddScoped<IOrderRepository, OrderSingletonRepository>((sp) => OrderSingletonRepository.GetInstance());
-
-            // Конвертеры
-            services.AddScoped<DeliveryPointConverter>();
-            services.AddScoped<RouteListConverter>();
-            services.AddScoped<OrderConverter>();
-            services.AddScoped<SmsPaymentConverter>();
-
-            // DAL обертки
-            services.AddScoped<IAPIRouteListData, APIRouteListData>();
-            services.AddScoped<IAPIOrderData, APIOrderData>();
-            services.AddScoped<IAPISmsPaymentData, APISmsPaymentData>();
-            services.AddScoped<IAPIDriverComplaintData, APIDriverComplaintData>();
+            RegisterDependencies(ref services);
 
             // Аутентификация
-
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -149,8 +134,7 @@ namespace DriverAPI
 
         void CreateBaseConfig()
         {
-            logger.LogInformation("Настройка параметров базы...");
-            //Увеличиваем таймоут
+            logger.LogInformation("Настройка параметров Nhibernate...");
 
             var conStrBuilder = new MySqlConnectionStringBuilder();
             conStrBuilder.Server = Configuration["Nhibernate:Server"];
@@ -160,11 +144,11 @@ namespace DriverAPI
             conStrBuilder.Password = Configuration["Nhibernate:Password"];
             conStrBuilder.SslMode = MySqlSslMode.None;
 
-            QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
+            var connectionString = conStrBuilder.GetConnectionString(true);
 
             var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
                 .Dialect<MySQL57SpatialExtendedDialect>()
-                .ConnectionString(QSMain.ConnectionString)
+                .ConnectionString(connectionString)
                 .AdoNetBatchSize(100)
                 .Driver<LoggedMySqlClientDriver>();
 
@@ -180,6 +164,45 @@ namespace DriverAPI
             );
 
             HistoryMain.Enable();
+        }
+
+        void RegisterDependencies(ref IServiceCollection services)
+        {
+            // Сервисы для контроллеров
+
+            // Unit Of Work
+            services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
+
+            // ErrorReporter
+            services.AddScoped<IErrorReporter>((sp) => SingletonErrorReporter.Instance);
+
+            // Репозитории водовоза
+            services.AddScoped<ITrackRepository, TrackRepository>();
+            services.AddScoped<IComplaintsRepository, ComplaintsRepository>();
+            services.AddScoped<IRouteListRepository, RouteListRepository>();
+            services.AddScoped<IRouteListItemRepository, RouteListItemRepository>();
+            services.AddScoped<IOrderRepository, OrderSingletonRepository>((sp) => OrderSingletonRepository.GetInstance());
+            services.AddScoped<IEmployeeRepository, EmployeeSingletonRepository>((sp) => EmployeeSingletonRepository.GetInstance());
+
+            // Провайдеры параметров
+            services.AddScoped<IParametersProvider, ParametersProvider>();
+            services.AddScoped<IOrderParametersProvider, OrderParametersProvider>();
+            services.AddScoped<IWebApiParametersProvider, WebApiParametersProvider>();
+
+            // Конвертеры
+            services.AddScoped<DriverComplaintReasonConverter>();
+            services.AddScoped<DeliveryPointConverter>();
+            services.AddScoped<RouteListConverter>();
+            services.AddScoped<OrderConverter>();
+            services.AddScoped<SmsPaymentConverter>();
+
+            // DAL обертки
+            services.AddScoped<ITrackPointsData, TrackPointsData>();
+            services.AddScoped<IDriverMobileAppActionRecordData, DriverMobileAppActionRecordData>();
+            services.AddScoped<IAPIRouteListData, APIRouteListData>();
+            services.AddScoped<IAPIOrderData, APIOrderData>();
+            services.AddScoped<IAPISmsPaymentData, APISmsPaymentData>();
+            services.AddScoped<IAPIDriverComplaintData, APIDriverComplaintData>();
         }
     }
 }

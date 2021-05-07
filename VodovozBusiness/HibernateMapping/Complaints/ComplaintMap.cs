@@ -35,6 +35,7 @@ namespace Vodovoz.HibernateMapping.Complaints
 			References(x => x.ComplaintSource).Column("complaint_source_id");
 			References(x => x.ComplaintResult).Column("complaint_result_id");
 			References(x => x.ComplaintKind).Column("complaint_kind_id");
+			References(x => x.RouteListItem).Column("route_list_address_id");
 
 			HasMany(x => x.Guilties).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("complaint_id");
 			HasMany(x => x.ComplaintDiscussions).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("complaint_id");

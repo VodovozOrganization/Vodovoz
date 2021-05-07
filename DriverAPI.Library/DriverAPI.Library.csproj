@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
     <ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj" />
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj" />
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj" />

@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 
 namespace DriverAPI.Library.DataAccess
@@ -14,25 +15,37 @@ namespace DriverAPI.Library.DataAccess
         private readonly ILogger<APIRouteListData> logger;
         private readonly IRouteListRepository routeListRepository;
         private readonly RouteListConverter routeListConverter;
+        private readonly IEmployeeRepository employeeRepository;
         private readonly IUnitOfWork unitOfWork;
 
         public APIRouteListData(ILogger<APIRouteListData> logger,
             IRouteListRepository routeListRepository,
             RouteListConverter routeListConverter,
+            IEmployeeRepository employeeRepository,
             IUnitOfWork unitOfWork)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
             this.routeListConverter = routeListConverter ?? throw new ArgumentNullException(nameof(routeListConverter));
+            this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
             this.unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
-        public APIRouteList Get(int routeListId) => Get(new[] { routeListId }).FirstOrDefault();
+        /// <summary>
+        /// Получение информации о маошрутном листе в требуемом формате
+        /// </summary>
+        /// <param name="routeListId">Идентификатор МЛ</param>
+        /// <returns>APIRouteList</returns>
+        public APIRouteList Get(int routeListId) => Get(new[] { routeListId }).SingleOrDefault();
 
+        /// <summary>
+        /// Получение информации о маршрутных листах в требуемом формате
+        /// </summary>
+        /// <param name="routeListsIds">Список идентификаторов МЛ</param>
+        /// <returns>IEnumerable APIRouteList</returns>
         public IEnumerable<APIRouteList> Get(int[] routeListsIds)
         {
             var vodovozRouteLists = routeListRepository.GetRouteLists(unitOfWork, routeListsIds);
-
             var routeLists = new List<APIRouteList>();
 
             foreach (var routelist in vodovozRouteLists)
@@ -48,6 +61,22 @@ namespace DriverAPI.Library.DataAccess
             }
 
             return routeLists;
+        }
+
+        /// <summary>
+        /// Получение списка идентификаторов МЛ для водителя по его Email адресу
+        /// </summary>
+        /// <param name="email">Email адрес</param>
+        /// <returns>Список идентификаторов</returns>
+        public IEnumerable<int> GetRouteListsIdsForDriverByEmail(string email)
+        {
+            var driver = employeeRepository.GetEmployeeByEmail(unitOfWork, email);
+
+            return routeListRepository.GetDriverRouteListsIds(
+                    unitOfWork,
+                    driver,
+                    Vodovoz.Domain.Logistic.RouteListStatus.EnRoute
+                );
         }
     }
 }

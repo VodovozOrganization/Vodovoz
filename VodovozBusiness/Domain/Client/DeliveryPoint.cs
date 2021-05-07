@@ -479,6 +479,26 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		private IList<DeliveryPointEstimatedCoordinate> deliveryPointEstimatedCoordinates = new List<DeliveryPointEstimatedCoordinate>();
+		[Display(Name = "Предполагаемые координаты доставки")]
+		public virtual IList<DeliveryPointEstimatedCoordinate> DeliveryPointEstimatedCoordinates
+		{
+			get => deliveryPointEstimatedCoordinates;
+			set => SetField(ref deliveryPointEstimatedCoordinates, value);
+		}
+
+		GenericObservableList<DeliveryPointEstimatedCoordinate> observableDeliveryPointEstimatedCoordinates;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<DeliveryPointEstimatedCoordinate> ObservableDeliveryPointEstimatedCoordinates
+		{
+			get
+			{
+				if (observableDeliveryPointEstimatedCoordinates == null)
+					observableDeliveryPointEstimatedCoordinates = new GenericObservableList<DeliveryPointEstimatedCoordinate>(DeliveryPointEstimatedCoordinates);
+				return observableDeliveryPointEstimatedCoordinates;
+			}
+		}
+
 		#region Временные поля для хранения фиксированных цен из 1с
 
 		private decimal fixPrice1;

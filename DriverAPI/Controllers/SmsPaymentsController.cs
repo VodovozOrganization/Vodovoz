@@ -47,9 +47,9 @@ namespace DriverAPI.Controllers
 
             return new OrderPaymentStatusResponseModel()
             {
-                AvailablePaymentEnumTypes = additionalInfo.AvailablePaymentEnumTypes,
+                AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
                 CanSendSms = additionalInfo.CanSendSms,
-                SmsPaymentStatusEnum = smsPaymentConverter.convertToAPIPaymentStatus(
+                SmsPaymentStatus = smsPaymentConverter.convertToAPIPaymentStatus(
                     aPISmsPaymentData.GetOrderPaymentStatus(orderId)
                 )
             };

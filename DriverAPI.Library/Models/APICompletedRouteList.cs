@@ -1,25 +1,9 @@
-﻿using System.Text.Json.Serialization;
-using System.Xml.Serialization;
-
-namespace DriverAPI.Library.Models
+﻿namespace DriverAPI.Library.Models
 {
     public class APICompletedRouteList
     {
         public int RouteListId { get; set; }
-        public string RouteListStatus => routeListStatus;
-        private string routeListStatus;
-        [XmlIgnore]
-        [JsonIgnore]
-        public APIRouteListStatus RouteListStatusEnum
-        {
-            get => routeListStatusEnum;
-            set
-            {
-                routeListStatus = value.ToString();
-                routeListStatusEnum = value;
-            }
-        }
-        private APIRouteListStatus routeListStatusEnum;
+        public APIRouteListStatus RouteListStatus { get; set; }
         public decimal CashMoney { get; set; }
         public decimal TerminalMoney { get; set; }
         public int TerminalOrdersCount { get; set; }

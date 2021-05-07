@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using DriverAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Vodovoz.Services;
 
 namespace DriverAPI.Controllers
 {
@@ -13,12 +11,22 @@ namespace DriverAPI.Controllers
     [Authorize]
     public class ValuesController : ControllerBase
     {
+        private readonly IWebApiParametersProvider webApiParametersProvider;
+
+        public ValuesController(IWebApiParametersProvider webApiParametersProvider)
+        {
+            this.webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
+        }
+
         // GET: GetRouteList 
         [HttpGet]
         [Route("/api/GetCompanyPhoneNumber")]
-        public string GetCompanyPhoneNumber()
+        public CompanyNumberResponseModel GetCompanyPhoneNumber()
         {
-            return "Here must be phone number";
+            return new CompanyNumberResponseModel()
+            {
+                Number = webApiParametersProvider.CompanyPhoneNumber
+            };
         }
     }
 }

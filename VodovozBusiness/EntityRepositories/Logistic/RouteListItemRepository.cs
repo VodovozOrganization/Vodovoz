@@ -77,5 +77,33 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.Take(1).List().FirstOrDefault();
 			return anotherRouteListItem != null;
 		}
+
+		public RouteListItemStatus[] GetUndeliveryStatuses()
+		{
+			return new RouteListItemStatus[]
+				{
+					RouteListItemStatus.Canceled,
+					RouteListItemStatus.Overdue
+				};
+		}
+		
+		/// <summary>
+		/// Возвращает все возможные конечные статусы <see cref="RouteListItem"/>, при которых <see cref="RouteListItem"/> не был довезён
+		/// </summary>
+		/// <returns></returns>
+		public static RouteListItemStatus[] GetNotDeliveredStatuses()
+		{
+			return new RouteListItemStatus[]
+			{
+				RouteListItemStatus.Canceled,
+				RouteListItemStatus.Overdue,
+				RouteListItemStatus.Transfered
+			};
+		}
+
+        public RouteListItem GetRouteListItemById(IUnitOfWork uow, int routeListAddressId)
+        {
+			return uow.GetById<RouteListItem>(routeListAddressId);
+        }
 	}
 }
