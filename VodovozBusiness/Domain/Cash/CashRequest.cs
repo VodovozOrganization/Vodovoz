@@ -132,6 +132,9 @@ namespace Vodovoz.Domain.Cash
             set => SetField(ref author, value);
         }
 
+        /// <summary>
+        /// Не понятное поле, не было в ТЗ, не использовать в логике до задачи по изменению
+        /// </summary>
         private Subdivision subdivision;
         [Display(Name = "Подразделение")]
         public virtual Subdivision Subdivision {
