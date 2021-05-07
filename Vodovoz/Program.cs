@@ -96,9 +96,9 @@ namespace Vodovoz
 			PerformanceHelper.StartMeasurement ("Замер запуска приложения");
 			GetPermissionsSettings();
 			//Настройка базы
-			var databaseConfigurator = new DatabaseConfigurator();
-			databaseConfigurator.ConfigureOrm();
-			databaseConfigurator.CreateBaseConfig();
+			var applicationConfigurator = new ApplicationConfigurator();
+			applicationConfigurator.ConfigureOrm();
+			applicationConfigurator.CreateApplicationConfig();
 
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
@@ -177,9 +177,9 @@ namespace Vodovoz
 				usersDlg.Destroy();
 				return;
 			} else {
-                if (ChangePassword(databaseConfigurator) && CanLogin())
+                if (ChangePassword(applicationConfigurator) && CanLogin())
                 {
-					StartMainWindow(LoginDialog.BaseName, databaseConfigurator);
+					StartMainWindow(LoginDialog.BaseName, applicationConfigurator);
 				}
 				else
 					return;
@@ -207,7 +207,7 @@ namespace Vodovoz
 		/// <b>False</b> - Если смена была затребована смена пароля, но пароль не был изменён
 		/// </returns>
 		/// <exception cref="InvalidOperationException">Если текущий пользователь null</exception>
-		private static bool ChangePassword(IDatabaseConfigurator databaseConfigurator)
+		private static bool ChangePassword(IApplicationConfigurator applicationConfigurator)
 		{
 			ResponseType result;
 			int currentUserId;
@@ -229,7 +229,7 @@ namespace Vodovoz
 				}
 
 				var mySqlPasswordRepository = new MySqlPasswordRepository();
-				changePasswordModel = new MysqlChangePasswordModelExtended(databaseConfigurator, mySqlConnection, mySqlPasswordRepository);
+				changePasswordModel = new MysqlChangePasswordModelExtended(applicationConfigurator, mySqlConnection, mySqlPasswordRepository);
 				var changePasswordViewModel = new ChangePasswordViewModel(
 					changePasswordModel,
 					passwordValidator,
@@ -258,7 +258,7 @@ namespace Vodovoz
 			return false;
 		}
 
-		private static void StartMainWindow(string loginDialogName, IDatabaseConfigurator databaseConfigurator)
+		private static void StartMainWindow(string loginDialogName, IApplicationConfigurator applicationConfigurator)
 		{
 			//Настрока удаления
 			Configure.ConfigureDeletion();
@@ -284,7 +284,7 @@ namespace Vodovoz
 			CreateTempDir();
 
 			//Запускаем программу
-			MainWin = new MainWindow(passwordValidator, databaseConfigurator);
+			MainWin = new MainWindow(passwordValidator, applicationConfigurator);
 			MainWin.Title += $" (БД: {loginDialogName})";
 			QSMain.ErrorDlgParrent = MainWin;
 			MainWin.Show();

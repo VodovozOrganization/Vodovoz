@@ -1,8 +1,8 @@
 namespace VodovozInfrastructure.Database
 {
-    public interface IDatabaseConfigurator
+    public interface IApplicationConfigurator
     {
         void ConfigureOrm();
-        void CreateBaseConfig();
+        void CreateApplicationConfig();
     }
 }

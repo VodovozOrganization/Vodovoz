@@ -125,16 +125,16 @@ public partial class MainWindow : Gtk.Window
     private readonly ILifetimeScope autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
     private readonly IApplicationInfo applicationInfo;
     private readonly IPasswordValidator passwordValidator;
-    private readonly IDatabaseConfigurator databaseConfigurator;
+    private readonly IApplicationConfigurator applicationConfigurator;
 
     public TdiNotebook TdiMain => tdiMain;
     public readonly TdiNavigationManager NavigationManager;
     public readonly MangoManager MangoManager;
 
-    public MainWindow(IPasswordValidator passwordValidator, IDatabaseConfigurator databaseConfigurator) : base(Gtk.WindowType.Toplevel)
+    public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
     {
         this.passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
-        this.databaseConfigurator = databaseConfigurator ?? throw new ArgumentNullException(nameof(databaseConfigurator));
+        this.applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
         Build();
         PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
         applicationInfo = new ApplicationVersionInfo();
@@ -333,7 +333,7 @@ public partial class MainWindow : Gtk.Window
             throw new InvalidOperationException($"Текущее подключение не является {nameof(MySqlConnection)}");
         }
         var mySqlPasswordRepository = new MySqlPasswordRepository();
-        var changePasswordModel = new MysqlChangePasswordModelExtended(databaseConfigurator, mySqlConnection, mySqlPasswordRepository);
+        var changePasswordModel = new MysqlChangePasswordModelExtended(applicationConfigurator, mySqlConnection, mySqlPasswordRepository);
         var changePasswordViewModel = new ChangePasswordViewModel(changePasswordModel, passwordValidator, null);
         var changePasswordView = new ChangePasswordView(changePasswordViewModel);
         

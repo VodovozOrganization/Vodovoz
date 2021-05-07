@@ -12,15 +12,15 @@ namespace VodovozInfrastructure.Passwords
     public class MysqlChangePasswordModelExtended : MySqlChangePasswordModel
     {
         public MysqlChangePasswordModelExtended(
-            IDatabaseConfigurator databaseConfigurator,
+            IApplicationConfigurator applicationConfigurator,
             MySqlConnection connection,
             IMySqlPasswordRepository mySqlPasswordRepository)
             : base(connection, mySqlPasswordRepository)
         {
-            this.databaseConfigurator = databaseConfigurator ?? throw new ArgumentNullException(nameof(databaseConfigurator));
+            this.applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
         }
 
-        private readonly IDatabaseConfigurator databaseConfigurator;
+        private readonly IApplicationConfigurator applicationConfigurator;
 
         public override void ChangePassword(SecureString newPassword)
         {
@@ -32,7 +32,7 @@ namespace VodovozInfrastructure.Passwords
             };
 
             Connection.ChangeDbConnectionString(dbConnectionStringBuilder.ConnectionString);
-            databaseConfigurator.ConfigureOrm();
+            applicationConfigurator.ConfigureOrm();
         }
     }
 }

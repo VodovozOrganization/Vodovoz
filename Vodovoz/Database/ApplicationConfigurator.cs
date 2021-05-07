@@ -52,7 +52,7 @@ using VodovozInfrastructure.Database;
 
 namespace Vodovoz.Database
 {
-    public class DatabaseConfigurator : IDatabaseConfigurator
+    public class ApplicationConfigurator : IApplicationConfigurator
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private const int connectionTimeoutSeconds = 120;
@@ -104,7 +104,7 @@ namespace Vodovoz.Database
             logger.Debug("OK");
         }
 
-        public void CreateBaseConfig()
+        public void CreateApplicationConfig()
         {
             logger.Debug("Конфигурация маппингов диалогов, HistoryTrace, принтеров и ParentReference...");
 

@@ -31,7 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\RestrictedHistoryProperty.cs" />
-    <Compile Include="Database\IDatabaseConfigurator.cs" />
+    <Compile Include="Database\IApplicationConfigurator.cs" />
     <Compile Include="Interfaces\IFileChooserProvider.cs" />
     <Compile Include="Passwords\MysqlChangePasswordModelExtended.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
