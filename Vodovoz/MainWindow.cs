@@ -114,7 +114,7 @@ using QS.BaseParameters.Views;
 using QS.ChangePassword.Views;
 using QS.Project.Repositories;
 using QS.ViewModels;
-using VodovozInfrastructure.Database;
+using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 

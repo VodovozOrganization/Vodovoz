@@ -33,10 +33,10 @@ using QS.Project.Repositories;
 using QS.Project.Versioning;
 using QS.Validation;
 using QS.ViewModels;
-using Vodovoz.Database;
+using Vodovoz.Configuration;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Tools.Validation;
-using VodovozInfrastructure.Database;
+using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 

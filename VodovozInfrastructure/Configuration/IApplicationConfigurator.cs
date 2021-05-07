@@ -1,4 +1,4 @@
-namespace VodovozInfrastructure.Database
+namespace VodovozInfrastructure.Configuration
 {
     public interface IApplicationConfigurator
     {

@@ -5,7 +5,7 @@ using QS.Project.DB;
 using QS.Project.DB.Passwords;
 using QS.Project.Repositories;
 using QS.Utilities.Text;
-using VodovozInfrastructure.Database;
+using VodovozInfrastructure.Configuration;
 
 namespace VodovozInfrastructure.Passwords
 {
