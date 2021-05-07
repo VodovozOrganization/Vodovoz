@@ -37,8 +37,7 @@ namespace Vodovoz.Tools.Validation
                             .AddScalar("value", NHibernateUtil.Int32)
                             .List<int>().First(),
                         AllowWhitespaces = false,
-                        ASCIIOnly = true,
-                        NotAllowedStrings = new[] { "'", Environment.NewLine }
+                        ASCIIOnly = true
                     };
                 }
                 catch(Exception ex) {

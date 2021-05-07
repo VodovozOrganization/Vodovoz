@@ -398,6 +398,7 @@
     <Compile Include="Commons\HotkeyHandler.cs" />
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
+    <Compile Include="Configuration\ApplicationConfigurator.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.OrderChangesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.NomenclaturePlanView.cs" />

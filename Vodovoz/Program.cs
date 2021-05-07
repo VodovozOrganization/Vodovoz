@@ -24,11 +24,21 @@ using Vodovoz.Domain.Security;
 using System.Linq;
 using System.Reflection;
 using GMap.NET.MapProviders;
+using MySql.Data.MySqlClient;
 using QS.BaseParameters;
+using QS.ChangePassword.Views;
 using QS.Dialog;
+using QS.Project.DB.Passwords;
+using QS.Project.Repositories;
 using QS.Project.Versioning;
 using QS.Validation;
+using QS.ViewModels;
+using Vodovoz.Configuration;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Tools.Validation;
+using VodovozInfrastructure.Configuration;
+using VodovozInfrastructure.Passwords;
+using Connection = QS.Project.DB.Connection;
 
 namespace Vodovoz
 {
@@ -86,7 +96,9 @@ namespace Vodovoz
 			PerformanceHelper.StartMeasurement ("Замер запуска приложения");
 			GetPermissionsSettings();
 			//Настройка базы
-			CreateBaseConfig ();
+			var applicationConfigurator = new ApplicationConfigurator();
+			applicationConfigurator.ConfigureOrm();
+			applicationConfigurator.CreateApplicationConfig();
 
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
@@ -165,9 +177,9 @@ namespace Vodovoz
 				usersDlg.Destroy();
 				return;
 			} else {
-                if (ChangePassword(LoginDialog.BaseName) && CanLogin())
+                if (ChangePassword(applicationConfigurator) && CanLogin())
                 {
-					StartMainWindow(LoginDialog.BaseName);
+					StartMainWindow(LoginDialog.BaseName, applicationConfigurator);
 				}
 				else
 					return;
@@ -187,31 +199,66 @@ namespace Vodovoz
 			ClearTempDir();
 		}
 
-		private static bool ChangePassword(string loginDialogName)
+		/// <summary>
+		/// Проверяет, необходима ли смена пароля для текущего пользователя, и, если необходима, открывает диалог смены пароля
+		/// </summary>
+		/// <returns>
+		/// <para><b>True</b> - Если смена пароля не нужна или пароль был успешно изменён</para>
+		/// <b>False</b> - Если смена была затребована смена пароля, но пароль не был изменён
+		/// </returns>
+		/// <exception cref="InvalidOperationException">Если текущий пользователь null</exception>
+		private static bool ChangePassword(IApplicationConfigurator applicationConfigurator)
 		{
-			using(var UoW = UnitOfWorkFactory.GetDefaultFactory.CreateForRoot<User>(QSMain.User.Id)) {
-				if(!UoW.Root.NeedPasswordChange)
+			ResponseType result;
+			int currentUserId;
+			IChangePasswordModel changePasswordModel;
+			
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				var userRepository = new UserSingletonRepository();
+				var currentUser = userRepository.GetCurrentUser(uow);
+				if(currentUser is null) {
+					throw new InvalidOperationException("CurrentUser is null");
+				}
+				if(!currentUser.NeedPasswordChange) {
 					return true;
+				}
+				currentUserId = currentUser.Id;
+				
+				if(!(Connection.ConnectionDB is MySqlConnection mySqlConnection)) {
+					throw new InvalidOperationException($"Текущее подключение не является {nameof(MySqlConnection)}");
+				}
 
-				ChangePassword changePasswordWindow = new ChangePassword(passwordValidator);
-				changePasswordWindow.Title = "Требуется сменить пароль";
-				QSMain.ErrorDlgParrent = changePasswordWindow;
-
-				int response = changePasswordWindow.Run();
-				if(response == (int)ResponseType.Ok) {
-					UoW.Root.NeedPasswordChange = false;
-					UoW.Save();
-					changePasswordWindow.Destroy();
+				var mySqlPasswordRepository = new MySqlPasswordRepository();
+				changePasswordModel = new MysqlChangePasswordModelExtended(applicationConfigurator, mySqlConnection, mySqlPasswordRepository);
+				var changePasswordViewModel = new ChangePasswordViewModel(
+					changePasswordModel,
+					passwordValidator,
+					null
+				);
+				var changePasswordView = new ChangePasswordView(changePasswordViewModel) {
+					Title = "Требуется сменить пароль"
+				};
+				changePasswordView.ShowAll();
+				result = (ResponseType)changePasswordView.Run();
+				changePasswordView.Destroy();
+			}
+		
+			if(result == ResponseType.Ok && changePasswordModel.PasswordWasChanged) {
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+					var user = uow.GetById<User>(currentUserId);
+					user.NeedPasswordChange = false;
+					uow.Save(user);
+					uow.Commit();
 					return true;
-				} else {
-					QSSaaS.Session.StopSessionRefresh();
-					ClearTempDir();
-					return false;
 				}
 			}
+			
+			QSSaaS.Session.StopSessionRefresh();
+			ClearTempDir();
+			return false;
 		}
 
-		private static void StartMainWindow(string loginDialogName)
+		private static void StartMainWindow(string loginDialogName, IApplicationConfigurator applicationConfigurator)
 		{
 			//Настрока удаления
 			Configure.ConfigureDeletion();
@@ -237,7 +284,7 @@ namespace Vodovoz
 			CreateTempDir();
 
 			//Запускаем программу
-			MainWin = new MainWindow(passwordValidator);
+			MainWin = new MainWindow(passwordValidator, applicationConfigurator);
 			MainWin.Title += $" (БД: {loginDialogName})";
 			QSMain.ErrorDlgParrent = MainWin;
 			MainWin.Show();
