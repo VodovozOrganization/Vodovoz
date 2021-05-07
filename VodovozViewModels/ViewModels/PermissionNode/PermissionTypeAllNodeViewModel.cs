@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
 using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Domain.Store;
 
@@ -18,7 +19,7 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
         public PermissionTypeAllNodeViewModel(WarehousePermissions warehousePermissions, IEnumerable<Warehouse> warehouses, WarehousePermissionModel warehousePermissionModel)
         {
             WarehousePermissions = warehousePermissions;
-            Title = WarehousePermissions.ToString();
+            Title = WarehousePermissions.GetEnumTitle();
             SubNodeViewModel = new List<WarehousePermissionNodeViewModel>();
             foreach (var warehouse in warehouses)
             {
