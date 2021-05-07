@@ -1,8 +1,10 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using Vodovoz.Core;
 using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Infrastructure.Services;
+
 namespace Vodovoz.Services.Permissions
 {
 	public class WarehousePermissionService : IWarehousePermissionService
@@ -23,14 +25,14 @@ namespace Vodovoz.Services.Permissions
 
 		public WarehousePermissionService()
 		{
-			
+			WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory();
 		}
 
 		public IWarehousePermissionValidator GetValidator(IUnitOfWork uow, int userId)
 		{
 			var repository = EmployeeSingletonRepository.GetInstance();
 			var employee = repository.GetEmployeeForCurrentUser(uow);
-			return WarehousePermissionValidatorFactory.CreateValidator(employee.Subdivision.Id);
+			return WarehousePermissionValidatorFactory.CreateValidator(employee.Subdivision);
 		}
 	}
 }

@@ -1270,8 +1270,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.AdvancedWageParametersView.cs" />
     <Compile Include="Views\Warehouse\MovementDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.MovementDocumentView.cs" />
-    <Compile Include="Core\WarehousePermissionValidator.cs" />
-    <Compile Include="Core\WarehousePermissionValidatorFactory.cs" />
     <Compile Include="TempAdapters\NomenclatureSelectorFactory.cs" />
     <Compile Include="Core\BasedOnNameViewModelWidgetResolver.cs" />
     <Compile Include="Core\RdlPreviewOpener.cs" />

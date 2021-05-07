@@ -2,6 +2,6 @@
 {
 	public interface IWarehousePermissionValidatorFactory
 	{
-		IWarehousePermissionValidator CreateValidator(int userId);
+		IWarehousePermissionValidator CreateValidator(Subdivision subdivision);
 	}
 }

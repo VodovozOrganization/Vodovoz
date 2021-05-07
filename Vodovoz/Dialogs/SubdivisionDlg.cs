@@ -102,9 +102,9 @@ namespace Vodovoz
 				return false;
 
 			UoWGeneric.Save();
-			subdivisionentitypermissionwidget.ViewModel.SavePermissions(UoW);
-			presetPermissionVM.SaveCommand.Execute();
-			warehousePermissionsViewModel.SaveWarehousePermissions();
+			subdivisionentitypermissionwidget?.ViewModel.SavePermissions(UoW);
+			presetPermissionVM?.SaveCommand.Execute();
+			warehousePermissionsViewModel?.SaveWarehousePermissions();
 			UoW.Commit();
 			return true;
 		}

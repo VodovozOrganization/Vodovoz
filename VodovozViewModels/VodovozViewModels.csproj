@@ -47,6 +47,8 @@
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
+    <Compile Include="Infrastructure\Services\WarehousePermissionValidator.cs" />
+    <Compile Include="Infrastructure\Services\WarehousePermissionValidatorFactory.cs" />
     <Compile Include="Journals\FilterViewModels\CashRequestJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
     <Compile Include="Journals\FilterViewModels\ExpenseCategoryJournalFilterViewModel.cs" />
