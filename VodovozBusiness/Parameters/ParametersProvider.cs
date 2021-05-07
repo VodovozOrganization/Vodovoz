@@ -8,10 +8,10 @@ using Vodovoz.Domain;
 
 namespace Vodovoz.Parameters
 {
-	public class ParametersProvider
+	public class ParametersProvider : IParametersProvider
 	{
 		private readonly Logger logger = LogManager.GetCurrentClassLogger();
-		public static ParametersProvider Instance { get; private set; }
+		public static IParametersProvider Instance { get; private set; }
 
 		static ParametersProvider()
 		{

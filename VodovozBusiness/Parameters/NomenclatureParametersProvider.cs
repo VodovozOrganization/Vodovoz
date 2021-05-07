@@ -6,7 +6,7 @@ namespace Vodovoz.Parameters
 {
     public class NomenclatureParametersProvider : INomenclatureParametersProvider
     {
-        private ParametersProvider parametersProvider;
+        private IParametersProvider parametersProvider;
         
         public NomenclatureParametersProvider()
         {

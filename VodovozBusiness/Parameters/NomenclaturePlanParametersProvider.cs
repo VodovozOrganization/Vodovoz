@@ -5,9 +5,9 @@ namespace Vodovoz.Parameters
 {
     public class NomenclaturePlanParametersProvider : INomenclaturePlanParametersProvider
     {
-        private readonly ParametersProvider parametersProvider;
+        private readonly IParametersProvider parametersProvider;
 
-        public NomenclaturePlanParametersProvider(ParametersProvider parametersProvider)
+        public NomenclaturePlanParametersProvider(IParametersProvider parametersProvider)
         {
             this.parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }

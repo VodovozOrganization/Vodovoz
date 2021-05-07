@@ -4,7 +4,7 @@ namespace Vodovoz.Parameters
 {
     public class OrderPaymentSettings: IOrderPaymentSettings
     {
-        private ParametersProvider parametersProvider;
+        private IParametersProvider parametersProvider;
 
         public OrderPaymentSettings()
         {
