@@ -854,7 +854,8 @@ namespace Vodovoz.Domain.Client
 			ObservablePriceNodes.Clear();
 			var pItems = SuplierPriceItems.Select(i => i.NomenclatureToBuy)
 										  .Distinct()
-										  .Where(ShortOrFullNameContainsSearchValues)
+										  .Where(i => ShortOrFullNameContainsSearchValues(i) 
+												   || searchValues.Contains(i.Id.ToString()))
 										  ;
 			foreach(var nom in pItems) {
 				var sNom = new SellingNomenclature {

@@ -106,7 +106,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 {
                     if (commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests"))
                     {
-                        result.Where(() => cashRequestAlias.Subdivision == currentEmployee.Subdivision);
+                        result.Where(() => authorAlias.Subdivision.Id == currentEmployee.Subdivision.Id);
                     }
                     else
                     {
