@@ -5,9 +5,9 @@ namespace Vodovoz.Parameters
 {
     public class TabsParametersProvider : ITabsParametersProvider
     {
-        private readonly ParametersProvider parametersProvider;
+        private readonly IParametersProvider parametersProvider;
         
-        public TabsParametersProvider(ParametersProvider parametersProvider)
+        public TabsParametersProvider(IParametersProvider parametersProvider)
         {
             this.parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }
