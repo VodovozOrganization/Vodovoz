@@ -24,16 +24,20 @@ using Vodovoz.Domain.Security;
 using System.Linq;
 using System.Reflection;
 using GMap.NET.MapProviders;
+using MySql.Data.MySqlClient;
 using QS.BaseParameters;
 using QS.ChangePassword.Views;
 using QS.Dialog;
 using QS.Project.DB.Passwords;
+using QS.Project.Repositories;
 using QS.Project.Versioning;
 using QS.Validation;
 using QS.ViewModels;
 using Vodovoz.Database;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Tools.Validation;
+using VodovozInfrastructure.Database;
+using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 
 namespace Vodovoz
@@ -207,6 +211,7 @@ namespace Vodovoz
 		{
 			ResponseType result;
 			int currentUserId;
+			IChangePasswordModel changePasswordModel;
 			
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				var userRepository = new UserSingletonRepository();
@@ -218,9 +223,15 @@ namespace Vodovoz
 					return true;
 				}
 				currentUserId = currentUser.Id;
+				
+				if(!(Connection.ConnectionDB is MySqlConnection mySqlConnection)) {
+					throw new InvalidOperationException($"Текущее подключение не является {nameof(MySqlConnection)}");
+				}
+
+				var mySqlPasswordRepository = new MySqlPasswordRepository();
+				changePasswordModel = new MysqlChangePasswordModelExtended(databaseConfigurator, mySqlConnection, mySqlPasswordRepository);
 				var changePasswordViewModel = new ChangePasswordViewModel(
-					new DatabasePasswordModel(),
-					Connection.ConnectionDB,
+					changePasswordModel,
 					passwordValidator,
 					null
 				);
@@ -232,8 +243,7 @@ namespace Vodovoz
 				changePasswordView.Destroy();
 			}
 		
-			if(result == ResponseType.Ok) {
-				databaseConfigurator.ConfigureOrm();
+			if(result == ResponseType.Ok && changePasswordModel.PasswordWasChanged) {
 				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 					var user = uow.GetById<User>(currentUserId);
 					user.NeedPasswordChange = false;

@@ -105,15 +105,17 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
+using MySql.Data.MySqlClient;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using QS.BaseParameters;
 using QS.BaseParameters.ViewModels;
 using QS.BaseParameters.Views;
 using QS.ChangePassword.Views;
-using QS.Project.DB.Passwords;
+using QS.Project.Repositories;
 using QS.ViewModels;
-using Vodovoz.Database;
+using VodovozInfrastructure.Database;
+using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 
 public partial class MainWindow : Gtk.Window
@@ -327,12 +329,16 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnDialogAuthenticationActionActivated(object sender, EventArgs e)
     {
-        var changePasswordViewModel = new ChangePasswordViewModel(new DatabasePasswordModel(), Connection.ConnectionDB, passwordValidator, null);
-        var changePasswordView = new ChangePasswordView(changePasswordViewModel);
-        changePasswordView.ShowAll();
-        if(changePasswordView.Run() == (int)ResponseType.Ok) {
-            databaseConfigurator.ConfigureOrm();
+        if(!(Connection.ConnectionDB is MySqlConnection mySqlConnection)) {
+            throw new InvalidOperationException($"Текущее подключение не является {nameof(MySqlConnection)}");
         }
+        var mySqlPasswordRepository = new MySqlPasswordRepository();
+        var changePasswordModel = new MysqlChangePasswordModelExtended(databaseConfigurator, mySqlConnection, mySqlPasswordRepository);
+        var changePasswordViewModel = new ChangePasswordViewModel(changePasswordModel, passwordValidator, null);
+        var changePasswordView = new ChangePasswordView(changePasswordViewModel);
+        
+        changePasswordView.ShowAll();
+        changePasswordView.Run();
         changePasswordView.Destroy();
     }
 

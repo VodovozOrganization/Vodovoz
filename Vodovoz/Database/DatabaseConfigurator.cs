@@ -48,6 +48,7 @@ using Vodovoz.Tools;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.Views.Users;
+using VodovozInfrastructure.Database;
 
 namespace Vodovoz.Database
 {
