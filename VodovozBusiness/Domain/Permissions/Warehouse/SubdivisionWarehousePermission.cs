@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Permissions.Warehouse
 
         private Subdivision subdivision;
         [Display(Name = "Подразделение")]
-        public virtual Subdivision Subdivision {
+        public override Subdivision Subdivision {
             get => subdivision;
             set => SetField(ref subdivision, value);
         }

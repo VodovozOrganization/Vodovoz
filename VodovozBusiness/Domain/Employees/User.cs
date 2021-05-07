@@ -26,15 +26,6 @@ namespace Vodovoz.Domain.Employees
 			get => registeredRMs;
 			set => SetField(ref registeredRMs, value);
 		}
-
-		private IList<UserWarehousePermission> userWarehousePermissions = new List<UserWarehousePermission>();
-
-		[Display(Name = "Права пользователя")]
-		public virtual IList<UserWarehousePermission> UserWarehousePermissions
-		{
-			get => userWarehousePermissions;
-			set => SetField(ref userWarehousePermissions, value);
-		}
 	}
 }
 
