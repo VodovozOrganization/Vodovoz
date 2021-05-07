@@ -447,7 +447,7 @@ namespace Vodovoz
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
 			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			var excludedPaymentFromId = new OrderParametersProvider(ParametersProvider.Instance).PaymentByCardFromSmsId;
+			var excludedPaymentFromId = new OrderParametersProvider(SingletonParametersProvider.Instance).PaymentByCardFromSmsId;
 			if (Entity.PaymentByCardFrom?.Id != excludedPaymentFromId)
 				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(x => x.Id != excludedPaymentFromId).List();
 			else
@@ -653,7 +653,7 @@ namespace Vodovoz
 			
 			if (!orderRepository.CanAddVodovozCatalogToOrder(
 			    UoW, 
-			    new RouteListParametersProvider(ParametersProvider.Instance), 
+			    new RouteListParametersProvider(SingletonParametersProvider.Instance), 
 			    vodovozLeaflet.Id, 
 			    geographicGroupId)) {
 				return;
@@ -2694,7 +2694,7 @@ namespace Vodovoz
 				Text = billTemplate.Text,
 				HtmlText = billTemplate.TextHtml,
 				Recipient = new EmailContact("", emailAddressForBill.Address),
-				Sender = new EmailContact("vodovoz-spb.ru", ParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
+				Sender = new EmailContact("vodovoz-spb.ru", SingletonParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
 				Order = Entity.Id,
 				OrderDocumentType = OrderDocumentType.Bill
 			};

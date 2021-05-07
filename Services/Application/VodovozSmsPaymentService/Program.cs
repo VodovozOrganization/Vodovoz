@@ -113,7 +113,7 @@ namespace VodovozSmsPaymentService
 				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
 					paymentSender, 
 					driverPaymentService,
-					new OrderParametersProvider(ParametersProvider.Instance),
+					new OrderParametersProvider(SingletonParametersProvider.Instance),
 					smsPaymentFileCache
 				);
 

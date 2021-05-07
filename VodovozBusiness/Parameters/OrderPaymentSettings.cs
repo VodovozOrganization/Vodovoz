@@ -8,7 +8,7 @@ namespace Vodovoz.Parameters
 
         public OrderPaymentSettings()
         {
-            parametersProvider = ParametersProvider.Instance;
+            parametersProvider = SingletonParametersProvider.Instance;
         }
 
         public int DefaultSelfDeliveryPaymentFromId{

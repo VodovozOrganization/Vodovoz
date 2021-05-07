@@ -144,7 +144,7 @@ public partial class MainWindow : Gtk.Window
         var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
         var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
         var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
-        var tabsParametersProvider = new TabsParametersProvider(ParametersProvider.Instance);
+        var tabsParametersProvider = new TabsParametersProvider(SingletonParametersProvider.Instance);
         TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
         TDIMain.SetTabsReordering(reorderTabs);
         if (reorderTabs)
@@ -1963,7 +1963,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
-            () => new QSReport.ReportViewDlg(new OrderChangesReport(new ReportDefaultsProvider(ParametersProvider.Instance)))
+            () => new QSReport.ReportViewDlg(new OrderChangesReport(new ReportDefaultsProvider(SingletonParametersProvider.Instance)))
         );
     }
 
