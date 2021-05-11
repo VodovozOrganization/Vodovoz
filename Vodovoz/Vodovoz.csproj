@@ -2007,6 +2007,9 @@
     <None Include="Reports\Logistic\DriversToDistrictsAssignmentReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\Orders\NomenclaturePlanReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Reports\Orders\OrderChangesReport.rdl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
