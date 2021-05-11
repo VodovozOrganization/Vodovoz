@@ -36,7 +36,7 @@ namespace Vodovoz.Core
 		public bool Validate(WarehousePermissions warehousePermissions, Warehouse warehouse, User user)
 		{
 			if (warehouse is null) return false;
-			//if (user.IsAdmin) return true;
+			if (user.IsAdmin) return true;
 			return Validate(warehousePermissions, warehouse.Id);
 		}
 
