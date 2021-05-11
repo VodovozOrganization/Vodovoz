@@ -5,9 +5,9 @@ namespace Vodovoz.Parameters
 {
     public class RouteListParametersProvider : IRouteListParametersProvider
     {
-        private readonly ParametersProvider parametersProvider;
+        private readonly IParametersProvider parametersProvider;
 
-        public RouteListParametersProvider(ParametersProvider parametersProvider)
+        public RouteListParametersProvider(IParametersProvider parametersProvider)
         {
             this.parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }

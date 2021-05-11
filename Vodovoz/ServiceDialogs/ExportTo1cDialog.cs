@@ -50,12 +50,12 @@ namespace Vodovoz
                 organizationId = (comboOrganization.SelectedItem as Organization)?.Id;
             }
             else if(mode == Export1cMode.BuhgalteriaOOO) {
-                organizationId = new OrganizationParametersProvider(ParametersProvider.Instance).VodovozOrganizationId;
+                organizationId = new OrganizationParametersProvider(SingletonParametersProvider.Instance).VodovozOrganizationId;
             }
 
             using(var exportOperation = new ExportOperation(
                 mode,
-                new OrderParametersProvider(ParametersProvider.Instance),
+                new OrderParametersProvider(SingletonParametersProvider.Instance),
                 dateStart,
                 dateEnd,
                 organizationId

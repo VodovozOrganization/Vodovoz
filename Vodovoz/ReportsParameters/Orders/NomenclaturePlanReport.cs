@@ -176,7 +176,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
             ycomboboxSubdivision.ItemsList = subdivisions;
             ycomboboxSubdivision.SetRenderTextFunc<SubdivisionReportNode>(x => x.Name);
-            var nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(ParametersProvider.Instance);
+            var nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(SingletonParametersProvider.Instance);
             ycomboboxSubdivision.SelectedItem = subdivisions.FirstOrDefault(x =>
                 x.Id == nomenclaturePlanParametersProvider.CallCenterSubdivisionId);
             ycomboboxSubdivision.Changed += EmployeeSearch_OnSearch;

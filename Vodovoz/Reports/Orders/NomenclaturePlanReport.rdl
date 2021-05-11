@@ -13,6 +13,7 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>60</Timeout>
         <CommandText>SET @call_center_subdivision_id = (SELECT str_value FROM base_parameters p WHERE p.name = 'call_center_subdivision_id');
 SET @call_center_employees_count =
 	(SELECT COUNT(*) FROM employees e

@@ -134,7 +134,7 @@ namespace Vodovoz.Models
         
         public int GetMainOrganization()
         {
-            return ParametersProvider.Instance.GetIntValue("main_organization_id");
+            return SingletonParametersProvider.Instance.GetIntValue("main_organization_id");
         }
     }
 }

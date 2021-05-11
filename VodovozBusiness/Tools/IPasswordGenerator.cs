@@ -2,6 +2,7 @@
 {
 	public interface IPasswordGenerator
 	{
-		string GeneratePassword(int length);
+		string GeneratePassword(uint length);
+		string GeneratePasswordWithOtherCharacter(uint length);
 	}
 }

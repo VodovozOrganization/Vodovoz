@@ -5,9 +5,6 @@ using Autofac;
 using Gtk;
 using NLog;
 using QS.Banks.Domain;
-using QS.BaseParameters;
-using QS.BaseParameters.ViewModels;
-using QS.BaseParameters.Views;
 using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -108,8 +105,18 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
+using MySql.Data.MySqlClient;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using QS.BaseParameters;
+using QS.BaseParameters.ViewModels;
+using QS.BaseParameters.Views;
+using QS.ChangePassword.Views;
+using QS.Project.Repositories;
+using QS.ViewModels;
+using VodovozInfrastructure.Configuration;
+using VodovozInfrastructure.Passwords;
+using Connection = QS.Project.DB.Connection;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -118,14 +125,16 @@ public partial class MainWindow : Gtk.Window
     private readonly ILifetimeScope autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
     private readonly IApplicationInfo applicationInfo;
     private readonly IPasswordValidator passwordValidator;
+    private readonly IApplicationConfigurator applicationConfigurator;
 
     public TdiNotebook TdiMain => tdiMain;
     public readonly TdiNavigationManager NavigationManager;
     public readonly MangoManager MangoManager;
 
-    public MainWindow(IPasswordValidator passwordValidator) : base(Gtk.WindowType.Toplevel)
+    public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
     {
         this.passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
+        this.applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
         Build();
         PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
         applicationInfo = new ApplicationVersionInfo();
@@ -135,7 +144,7 @@ public partial class MainWindow : Gtk.Window
         var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
         var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
         var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
-        var tabsParametersProvider = new TabsParametersProvider(ParametersProvider.Instance);
+        var tabsParametersProvider = new TabsParametersProvider(SingletonParametersProvider.Instance);
         TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
         TDIMain.SetTabsReordering(reorderTabs);
         if (reorderTabs)
@@ -321,7 +330,17 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnDialogAuthenticationActionActivated(object sender, EventArgs e)
     {
-        QSMain.User.ChangeUserPassword(this, passwordValidator);
+        if(!(Connection.ConnectionDB is MySqlConnection mySqlConnection)) {
+            throw new InvalidOperationException($"Текущее подключение не является {nameof(MySqlConnection)}");
+        }
+        var mySqlPasswordRepository = new MySqlPasswordRepository();
+        var changePasswordModel = new MysqlChangePasswordModelExtended(applicationConfigurator, mySqlConnection, mySqlPasswordRepository);
+        var changePasswordViewModel = new ChangePasswordViewModel(changePasswordModel, passwordValidator, null);
+        var changePasswordView = new ChangePasswordView(changePasswordViewModel);
+        
+        changePasswordView.ShowAll();
+        changePasswordView.Run();
+        changePasswordView.Destroy();
     }
 
     protected void OnAboutActionActivated(object sender, EventArgs e)
@@ -1945,7 +1964,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
-            () => new QSReport.ReportViewDlg(new OrderChangesReport(new ReportDefaultsProvider(ParametersProvider.Instance)))
+            () => new QSReport.ReportViewDlg(new OrderChangesReport(new ReportDefaultsProvider(SingletonParametersProvider.Instance)))
         );
     }
 

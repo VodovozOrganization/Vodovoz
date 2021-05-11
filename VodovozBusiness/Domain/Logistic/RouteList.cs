@@ -51,7 +51,7 @@ namespace Vodovoz.Domain.Logistic
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(ParametersProvider.Instance)),
+					new OrganizationParametersProvider(SingletonParametersProvider.Instance)),
 				new RouteListItemCashDistributionDocumentRepository(),
 				OrderSingletonRepository.GetInstance());
 		
@@ -60,7 +60,7 @@ namespace Vodovoz.Domain.Logistic
 
 		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
-				new OrganizationParametersProvider(ParametersProvider.Instance));
+				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
 
 		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository();
 		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
@@ -835,7 +835,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool IsConsistentWithUnloadDocument()
 		{
-			var returnedBottlesNom = int.Parse(ParametersProvider.Instance.GetParameterValue("returned_bottle_nomenclature_id"));
+			var returnedBottlesNom = int.Parse(SingletonParametersProvider.Instance.GetParameterValue("returned_bottle_nomenclature_id"));
 			var bottlesReturnedToWarehouse = (int)new RouteListRepository().GetReturnsToWarehouse(
 				UoW,
 				Id,
