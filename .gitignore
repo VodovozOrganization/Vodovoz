@@ -25,3 +25,6 @@ WinInstall/*
 !*.nsi
 !*.sh
 *.sln.DotSettings.user
+
+#Production Environment Settings
+*appsettings.Production.json
