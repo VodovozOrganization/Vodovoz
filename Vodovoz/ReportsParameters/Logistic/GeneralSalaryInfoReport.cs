@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
@@ -69,7 +70,7 @@ namespace Vodovoz.ReportsParameters.Logistic
             var selectedMonth = (int)comboMonth.SelectedItem;
             var endDate = new DateTime(selectedYear, selectedMonth, DateTime.DaysInMonth(selectedYear, selectedMonth),
                 23, 59, 59);
-            
+
             return new ReportInfo {
                 Identifier = "Logistic.GeneralSalaryInfoReport",
                 Parameters = new Dictionary<string, object>
@@ -79,9 +80,33 @@ namespace Vodovoz.ReportsParameters.Logistic
                     { "creation_date", DateTime.Now },
                     { "driver_of", comboDriverOf.SelectedItemOrNull },
                     { "employee_category", comboCategory.SelectedItemOrNull },
-                    { "employee_id", entryEmployee.Subject?.GetIdOrNull() }
+                    { "employee_id", entryEmployee.Subject?.GetIdOrNull() },
+                    {"filters", GetSelectedFilters()}
                 }
             };
+        }
+
+        string GetSelectedFilters()
+        {
+            var empl = entryEmployee.GetSubject<Employee>();
+            var filters = "Фильтры: ";
+            if (empl == null)
+            {
+                var driver_of = comboDriverOf.SelectedItemOrNull == null ? "все, кроме фур" : ((CarTypeOfUse)comboDriverOf.SelectedItem).GetEnumTitle();
+                var category = comboCategory.SelectedItemOrNull == null ? "водители и экспедиторы" : ((EmployeeCategory)comboCategory.SelectedItem).GetEnumTitle();
+                filters += "сотрудник: все, категория: ";
+                filters += category;
+                filters += ", тип авто: ";
+                filters += driver_of;
+            }
+            else
+            {
+                filters += $"сотрудник: {empl.ShortName}, категория: {empl.Category.GetEnumTitle()}";
+                if (empl.Category != EmployeeCategory.forwarder)
+                    filters += $", управляет: {empl.DriverOf.GetEnumTitle()}";
+            }
+
+            return filters;
         }
 
         private void OnEmployeeSelected()
