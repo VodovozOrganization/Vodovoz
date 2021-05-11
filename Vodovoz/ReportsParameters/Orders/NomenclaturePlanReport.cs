@@ -257,6 +257,8 @@ namespace Vodovoz.ReportsParameters.Orders
                 itemsQuery.WhereNot(e => e.Id.IsIn(selectedEmployees.Select(se => se.Id).ToArray()));
             }
 
+            itemsQuery.Where(e => e.Status == EmployeeStatus.IsWorking);
+
             itemsQuery
                 .SelectList(list => list
                     .Select(x => x.Id).WithAlias(() => employeeResultAlias.Id)
