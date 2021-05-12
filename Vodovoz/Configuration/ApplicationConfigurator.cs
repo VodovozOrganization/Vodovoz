@@ -144,7 +144,11 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString())
                     .SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<DeliverySchedule>.Create().Dialog<DeliveryScheduleDlg>().DefaultTableView()
-                    .SearchColumn("Название", x => x.Name).SearchColumn("Время доставки", x => x.DeliveryTime).End(),
+                    .SearchColumn("Название", x => x.Name)
+                    .SearchColumn("Время доставки", x => x.DeliveryTime)
+                    .Column("Архивный?", x => x.IsArchive ? "Да" : string.Empty)
+                    .OrderAsc(x => x.IsArchive).OrderAsc(x => x.From).OrderAsc(x => x.To)
+                    .End(),
                 OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView()
                     .SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<EquipmentType>.Create().Dialog<EquipmentTypeDlg>().DefaultTableView()
