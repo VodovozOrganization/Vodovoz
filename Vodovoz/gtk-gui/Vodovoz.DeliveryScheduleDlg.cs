@@ -28,6 +28,10 @@ namespace Vodovoz
 
 		private global::Gtk.Label label11;
 
+		private global::Gtk.Label label2;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckIsArchive;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -76,7 +80,7 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.datatable1 = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
+			this.datatable1 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
@@ -163,13 +167,39 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1[this.label11]));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.label2 = new global::Gtk.Label();
+			this.label2.Name = "label2";
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Архивный:");
+			this.datatable1.Add(this.label2);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1[this.label2]));
+			w13.TopAttach = ((uint)(2));
+			w13.BottomAttach = ((uint)(3));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.ycheckIsArchive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckIsArchive.CanFocus = true;
+			this.ycheckIsArchive.Name = "ycheckIsArchive";
+			this.ycheckIsArchive.Label = "";
+			this.ycheckIsArchive.DrawIndicator = true;
+			this.ycheckIsArchive.UseUnderline = true;
+			this.datatable1.Add(this.ycheckIsArchive);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ycheckIsArchive]));
+			w14.TopAttach = ((uint)(2));
+			w14.BottomAttach = ((uint)(3));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox3.Add(this.datatable1);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.datatable1]));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.datatable1]));
+			w15.Position = 1;
+			w15.Expand = false;
+			w15.Fill = false;
 			this.Add(this.vbox3);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
