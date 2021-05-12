@@ -5,7 +5,6 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.Search;
@@ -31,7 +30,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
-    [System.ComponentModel.ToolboxItem(true)]
     public partial class NomenclaturePlanReport : SingleUoWWidgetBase, IParametersWidget
     {
         public string Title => "Отчёт по мотивации КЦ";
@@ -98,11 +96,12 @@ namespace Vodovoz.ReportsParameters.Orders
             btnNomenclatureDelete.Clicked += NomenclatureDeleted;
 
             ytreeviewNomenclatures.RowActivated += NomenclatureAdded;
+            ytreeviewNomenclatures.Selection.Mode = SelectionMode.Multiple;
             ytreeviewSelectedNomenclatures.RowActivated += NomenclatureDeleted;
-
+            ytreeviewSelectedNomenclatures.Selection.Mode = SelectionMode.Multiple;
             yentryProductGroup.JournalButtons = Buttons.None;
             yentryProductGroup.RepresentationModel = new ProductGroupVM(UoW, new ProductGroupFilterViewModel());
-            yentryProductGroup.Changed += NomenclatureSearch_OnSearch; //YentryProductGroup_Changed;
+            yentryProductGroup.Changed += NomenclatureSearch_OnSearch;
 
             ytreeviewNomenclatures.ColumnsConfig = FluentColumnsConfig<NomenclatureReportNode>.Create()
                 .AddColumn("ТМЦ").AddTextRenderer(x => x.Name)
@@ -123,7 +122,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
             savedNomenclatures = UoW.Session.QueryOver<SelectedNomenclaturePlan>()
                 .List<SelectedNomenclaturePlan>()
-                .OrderBy(x=>x.Nomenclature.Name)
+                .OrderBy(x => x.Nomenclature.Name)
                 .ToList();
 
             selectedNomenclatures = new GenericObservableList<NomenclatureReportNode>(savedNomenclatures
@@ -142,7 +141,7 @@ namespace Vodovoz.ReportsParameters.Orders
             ybuttonSave.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
                 "can_save_callcenter_motivation_report_filter");
 
-            nomenclatureDataLoader =  new ThreadDataLoader<NomenclatureReportNode>(UnitOfWorkFactory.GetDefaultFactory) { PageSize = pageSize };
+            nomenclatureDataLoader = new ThreadDataLoader<NomenclatureReportNode>(UnitOfWorkFactory.GetDefaultFactory) { PageSize = pageSize };
             nomenclatureDataLoader.AddQuery(NomenclatureItemsSourceQueryFunction);
             nomenclatureDataLoader.ItemsListUpdated += NomenclatureViewModel_ItemsListUpdated;
 
@@ -158,11 +157,18 @@ namespace Vodovoz.ReportsParameters.Orders
             hboxEmployeeSearch.Add(employeeSearchView);
             employeeSearchView.Show();
 
+            yenumcomboStatus.ShowSpecialStateAll = true;
+            yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
+            yenumcomboStatus.SelectedItem = EmployeeStatus.IsWorking;
+            yenumcomboStatus.Changed += EmployeeSearch_OnSearch;
+
             btnEmployeeAdd.Clicked += EmployeeAdded;
             btnEmployeeDelete.Clicked += EmployeeDeleted;
 
             ytreeviewEmployees.RowActivated += EmployeeAdded;
+            ytreeviewEmployees.Selection.Mode = SelectionMode.Multiple;
             ytreeviewSelectedEmployees.RowActivated += EmployeeDeleted;
+            ytreeviewSelectedEmployees.Selection.Mode = SelectionMode.Multiple;
 
             SubdivisionReportNode subdivisionResultAlias = null;
             var subdivisions = UoW.Session.QueryOver<Subdivision>()
@@ -257,7 +263,10 @@ namespace Vodovoz.ReportsParameters.Orders
                 itemsQuery.WhereNot(e => e.Id.IsIn(selectedEmployees.Select(se => se.Id).ToArray()));
             }
 
-            itemsQuery.Where(e => e.Status == EmployeeStatus.IsWorking);
+            if (yenumcomboStatus.SelectedItem is EmployeeStatus status)
+            {
+                itemsQuery.Where(x => x.Status == status);
+            }
 
             itemsQuery
                 .SelectList(list => list
@@ -352,7 +361,29 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private void ButtonHelp_Clicked(object sender, EventArgs e)
         {
-            MessageDialogHelper.RunInfoDialog("Кнопками со стрелками влево/вправо, либо двойным щелчком мыши выберите ТМЦ и сотрудников для отчёта. Для настройки плана продаж нажмите на соответствующую кнопку сверху.");
+            var info =
+                "Кнопками со стрелками влево/вправо, либо двойным щелчком мыши выберите ТМЦ и сотрудников для отчёта.\n" +
+                "Для настройки плана продаж нажмите на соответствующую кнопку сверху. \n\n" +
+                "Подсчёт происходит по заказам, кроме заказов со статусами \"Доставка отменена\", \"Отменён\", \"Недовоз\" \n" +
+                "и кроме заказов-закрывашек по контракту.\n\n" +
+                "Фильтр периода дат применяется для даты создания заказа. Если указан 1 день, то сравнивается с планом на день.\n" +
+                "Если указан период, то сравнивается с планом на месяц.\n" +
+                "Если в справочнике не заданы плановые показатели за день или месяц, то сравнение показателей происходит по \n" +
+                "среднему по выбранным ТМЦ по всем сотрудникам установленного подразделения.";
+
+            var label = new Label { Markup = info };
+            label.SetPadding(10, 10);
+            var vbox = new VBox { label };
+
+            var messageWindow = new Window(WindowType.Toplevel)
+            {
+                Resizable = false,
+                Title = "Информация",
+                WindowPosition = WindowPosition.Center,
+                Modal = true
+            };
+            messageWindow.Add(vbox);
+            messageWindow.ShowAll();
         }
 
         private void ButtonNomenclaturePlan_Clicked(object sender, EventArgs e)
@@ -397,17 +428,20 @@ namespace Vodovoz.ReportsParameters.Orders
             UoW.Commit();
         }
 
-        private void SelectNomenclature(NomenclatureReportNode node)
+        private void SelectNomenclature(NomenclatureReportNode[] nodes)
         {
-            if (node == null)
+            if (nodes.Length == 0)
                 return;
 
-            selectedNomenclatures.Add(node);
+            foreach (var node in nodes)
+            {
+                selectedNomenclatures.Add(node);
+            }
 
-            nomenclatureDataLoader.PageSize = nomenclatureDataLoader.Items.Count;
+            nomenclatureDataLoader.PageSize = nomenclatureDataLoader.Items.Count + nodes.Length;
             nomenclatureLastScrollPosition = ytreeviewNomenclatures.Vadjustment.Value;
 
-            nomenclatureDataLoader.LoadData(false);
+            nomenclatureDataLoader.LoadData(isNomenclatureNextPage = false);
 
             GtkHelper.WaitRedraw();
             ytreeviewNomenclatures.Vadjustment.Value = nomenclatureLastScrollPosition;
@@ -415,14 +449,17 @@ namespace Vodovoz.ReportsParameters.Orders
             nomenclatureDataLoader.PageSize = pageSize;
         }
 
-        private void DeselectNomenclature(NomenclatureReportNode node)
+        private void DeselectNomenclature(NomenclatureReportNode[] nodes)
         {
-            if (node == null)
+            if (nodes.Length == 0)
                 return;
 
-            selectedNomenclatures.Remove(node);
+            foreach (var node in nodes)
+            {
+                selectedNomenclatures.Remove(node);
+            }
 
-            nomenclatureDataLoader.PageSize = nomenclatureDataLoader.Items.Count + 1;
+            nomenclatureDataLoader.PageSize = nomenclatureDataLoader.Items.Count + nodes.Length;
             nomenclatureLastScrollPosition = ytreeviewNomenclatures.Vadjustment.Value;
 
             nomenclatureDataLoader.LoadData(isNomenclatureNextPage = false);
@@ -432,32 +469,38 @@ namespace Vodovoz.ReportsParameters.Orders
             nomenclatureDataLoader.PageSize = pageSize;
         }
 
-        private void SelectEmployee(EmployeeReportNode node)
+        private void SelectEmployee(EmployeeReportNode[] nodes)
         {
-            if (node == null)
+            if (nodes.Length == 0)
                 return;
 
-            selectedEmployees.Add(node);
+            foreach (var node in nodes)
+            {
+                selectedEmployees.Add(node);
+            }
 
-            employeeDataLoader.PageSize = employeeDataLoader.Items.Count;
+            employeeDataLoader.PageSize = employeeDataLoader.Items.Count + nodes.Length;
             employeeLastScrollPosition = ytreeviewEmployees.Vadjustment.Value;
 
-            employeeDataLoader.LoadData(false);
-            
+            employeeDataLoader.LoadData(isEmployeeNextPage = false);
+
             GtkHelper.WaitRedraw();
             ytreeviewEmployees.Vadjustment.Value = employeeLastScrollPosition;
             ytreeviewSelectedEmployees.Vadjustment.Value = ytreeviewSelectedEmployees.Vadjustment.Upper - ytreeviewSelectedEmployees.Vadjustment.PageSize;
             employeeDataLoader.PageSize = pageSize;
         }
 
-        private void DeselectEmployee(EmployeeReportNode node)
+        private void DeselectEmployee(EmployeeReportNode[] nodes)
         {
-            if (node == null)
+            if (nodes.Length == 0)
                 return;
 
-            selectedEmployees.Remove(node);
+            foreach (var node in nodes)
+            {
+                selectedEmployees.Remove(node);
+            }
 
-            employeeDataLoader.PageSize = employeeDataLoader.Items.Count + 1;
+            employeeDataLoader.PageSize = employeeDataLoader.Items.Count + nodes.Length;
             employeeLastScrollPosition = ytreeviewEmployees.Vadjustment.Value;
 
             employeeDataLoader.LoadData(isEmployeeNextPage = false);
@@ -469,22 +512,22 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private void NomenclatureAdded(object sender, EventArgs e)
         {
-            SelectNomenclature(ytreeviewNomenclatures.GetSelectedObject<NomenclatureReportNode>());
+            SelectNomenclature(ytreeviewNomenclatures.GetSelectedObjects<NomenclatureReportNode>());
         }
 
         private void NomenclatureDeleted(object sender, EventArgs e)
         {
-            DeselectNomenclature(ytreeviewSelectedNomenclatures.GetSelectedObject<NomenclatureReportNode>());
+            DeselectNomenclature(ytreeviewSelectedNomenclatures.GetSelectedObjects<NomenclatureReportNode>());
         }
 
         private void EmployeeAdded(object sender, EventArgs e)
         {
-            SelectEmployee(ytreeviewEmployees.GetSelectedObject<EmployeeReportNode>());
+            SelectEmployee(ytreeviewEmployees.GetSelectedObjects<EmployeeReportNode>());
         }
 
         private void EmployeeDeleted(object sender, EventArgs e)
         {
-            DeselectEmployee(ytreeviewSelectedEmployees.GetSelectedObject<EmployeeReportNode>());
+            DeselectEmployee(ytreeviewSelectedEmployees.GetSelectedObjects<EmployeeReportNode>());
         }
 
         private bool isDestroyed;
