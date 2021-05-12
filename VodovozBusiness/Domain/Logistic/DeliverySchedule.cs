@@ -45,6 +45,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual string DeliveryTime => $"с {from:hh\\:mm} до {to:hh\\:mm}";
 
+		private bool isArchive;
+		[Display(Name = "Архивный")]
+		public virtual bool IsArchive {
+			get => isArchive;
+			set => SetField(ref isArchive, value);
+		}
+
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
