@@ -113,6 +113,7 @@ namespace Vodovoz
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.NHibernateStaleObjectStateExceptionHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionConnectionTimeoutHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionAuthHandler);
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.SocketTimeoutException);
 			
 			#endregion
 

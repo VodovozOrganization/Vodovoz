@@ -64,5 +64,18 @@ namespace Vodovoz
 			}
 			return false;
 		}
+
+		public static bool SocketTimeoutException(Exception exception, IApplicationInfo application, UserBase user, IInteractiveService interactiveService)
+        {
+			var nhibernateEx = ExceptionHelper.FindExceptionTypeInInner<NHibernate.Exceptions.GenericADOException>(exception);
+			var timeOutEx = ExceptionHelper.FindExceptionTypeInInner<System.Net.Sockets.SocketException>(exception);
+
+			if (nhibernateEx != null && timeOutEx != null && timeOutEx.SocketErrorCode == System.Net.Sockets.SocketError.TimedOut)
+            {
+				interactiveService.ShowMessage(ImportanceLevel.Warning, "Программа не смогла обработать запрос во время, переоткройте вкладку");
+				return true;
+            }
+			return false;
+        }
 	}
 }
