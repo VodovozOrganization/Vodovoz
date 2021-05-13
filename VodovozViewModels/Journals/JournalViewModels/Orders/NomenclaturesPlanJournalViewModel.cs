@@ -5,6 +5,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -25,7 +26,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
         protected override void CreateNodeActions()
         {
             NodeActionsList.Clear();
-            CreateDefaultEditAction();
+
+            bool canEdit = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_save_callcenter_motivation_report_filter");
+            
+            if (canEdit)
+                CreateDefaultEditAction();
         }
 
         protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) =>
