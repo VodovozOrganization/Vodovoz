@@ -57,6 +57,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
             comboDriverOf.ItemsEnum = typeof(CarTypeOfUse);
             comboDriverOf.AddEnumToHideList(new Enum[] {CarTypeOfUse.CompanyTruck});
+            comboDriverOf.ChangedByUser += (sender, args) => OnDriverOfSelected();
 
             entryEmployee.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
             entryEmployee.CanEditReference = true;
@@ -151,6 +152,19 @@ namespace Vodovoz.ReportsParameters.Logistic
             };
             messageWindow.Add(vbox);
             messageWindow.ShowAll();
+        }
+
+        private void OnDriverOfSelected()
+        {
+            if (comboDriverOf.SelectedItemOrNull != null)
+            {//если выбран тип авто, то выбираем только водителей
+                comboCategory.Sensitive = false;
+                comboCategory.SelectedItem = EmployeeCategory.driver;
+            }
+            else
+            {// если выбраны все, включаем sensitive
+                comboCategory.Sensitive = true;
+            }
         }
 
         private void OnEmployeeSelected()
