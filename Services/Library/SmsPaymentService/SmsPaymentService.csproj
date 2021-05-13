@@ -51,6 +51,7 @@
     <Compile Include="BitrixPaymentController.cs" />
     <Compile Include="DTO\PaymentResult.cs" />
     <Compile Include="DTO\RequestBody.cs" />
+    <Compile Include="DTO\SendPaymentRequest.cs" />
     <Compile Include="DTO\SendResponse.cs" />
     <Compile Include="DTO\SmsPaymentCacheDTO.cs" />
     <Compile Include="DTO\SmsPaymentDTO.cs" />
