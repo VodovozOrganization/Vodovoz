@@ -59,6 +59,7 @@ namespace Vodovoz.ReportsParameters.Logistic
             comboDriverOf.AddEnumToHideList(new Enum[] {CarTypeOfUse.CompanyTruck});
 
             entryEmployee.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
+            entryEmployee.CanEditReference = true;
             entryEmployee.Changed += (sender, args) => OnEmployeeSelected();
         }
 
