@@ -770,7 +770,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			//ОБОРУДОВАНИЕ
-			var orderEquipments = Addresses.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
+			var orderEquipments = Addresses.Where(item => item.TransferedTo == null)
 									   .SelectMany(item => item.Order.OrderEquipments)
 									   .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 									   .ToList();
