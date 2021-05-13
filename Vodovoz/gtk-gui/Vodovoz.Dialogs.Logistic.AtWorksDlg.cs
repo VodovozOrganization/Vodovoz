@@ -48,7 +48,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.Button buttonEditDistricts;
 
-		private global::QSWidgetLib.SidePanels.HideHorizontalSeparator hideForwaders;
+		private global::Gamma.Widgets.SidePanels.HideHorizontalSeparator hideForwaders;
 
 		private global::Gtk.VBox vboxForwarders;
 
@@ -294,7 +294,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w27.Expand = false;
 			w27.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hideForwaders = new global::QSWidgetLib.SidePanels.HideHorizontalSeparator();
+			this.hideForwaders = new global::Gamma.Widgets.SidePanels.HideHorizontalSeparator();
 			this.hideForwaders.Events = ((global::Gdk.EventMask)(256));
 			this.hideForwaders.Name = "hideForwaders";
 			this.hideForwaders.Label = "Экспедиторы на работе";
