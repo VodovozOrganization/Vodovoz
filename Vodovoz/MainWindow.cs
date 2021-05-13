@@ -2140,4 +2140,19 @@ public partial class MainWindow : Gtk.Window
             () => new QSReport.ReportViewDlg(new DriversToDistrictsAssignmentReport())
         );
     }
+
+    protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
+    {
+        var factory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+            () => new EmployeesJournalViewModel(
+                new EmployeeFilterViewModel(),
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices));
+        
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
+            () => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(
+                factory, ServicesConfig.InteractiveService))
+        );
+    }
 }

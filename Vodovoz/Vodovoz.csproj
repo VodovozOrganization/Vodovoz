@@ -1595,6 +1595,8 @@
     <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
     <Compile Include="Views\Warehouse\WarehouseView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.WarehouseView.cs" />
+    <Compile Include="ReportsParameters\Logistic\GeneralSalaryInfoReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.GeneralSalaryInfoReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2490,6 +2492,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Reports\Logistic\GeneralSalaryInfoReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="Reports\Payments\PaymentsDelayNetwork.rdl" />
     <Content Include="Reports\Prodaction\ProducedProdaction.rdl" />
   </ItemGroup>
