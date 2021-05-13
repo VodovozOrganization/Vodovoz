@@ -7,6 +7,7 @@ using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NLog;
 using QS.DomainModel.UoW;
+using SmsPaymentService.DTO;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -122,8 +123,13 @@ namespace SmsPaymentService
             }
             return new PaymentResult(SmsPaymentStatus.WaitingForPayment);
         }
-        
-		public StatusCode ReceivePayment(RequestBody body)
+
+        public PaymentResult PayBySms(SendPaymentRequest sendPaymentRequest)
+        {
+            return SendPayment(sendPaymentRequest.OrderId, sendPaymentRequest.PhoneNumber);
+        }
+
+        public StatusCode ReceivePayment(RequestBody body)
         {
             int orderId;
             int externalId = 0;
