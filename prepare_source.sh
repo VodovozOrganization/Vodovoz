@@ -15,13 +15,15 @@ rm -v -f -R ../My-FyiReporting/packages/*
 ;;&
     *1*)
 git pull --autostash
-cd ../QSProjects
-git pull --autostash
-cd ../Gtk.DataBindings
-git pull --autostash
 cd ../GammaBinding
 git pull --autostash
 cd ../GMap.NET
+git pull --autostash
+cd ../Gtk.DataBindings
+git pull --autostash
+cd ../My-FyiReporting
+git pull --autostash
+cd ../QSProjects
 git pull --autostash
 cd ../Vodovoz
 ;;&
@@ -34,6 +36,5 @@ nuget restore ../My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln
 msbuild /p:Configuration=Debug /p:Platform=x86 Vodovoz.sln
 ;;&
 esac
-
 
 read -p "Press enter to exit"
