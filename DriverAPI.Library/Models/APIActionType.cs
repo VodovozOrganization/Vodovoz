@@ -7,6 +7,7 @@ namespace DriverAPI.Library.Models
     {
         OpenOrderInfoPanel,
         OpenOrderDeliveryPanel,
-        OpenOrderReceiptionPanel
+        OpenOrderReceiptionPanel,
+        CompleteOrderClicked
     }
 }

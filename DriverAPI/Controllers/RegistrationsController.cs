@@ -1,10 +1,10 @@
-﻿using DriverAPI.Library.DataAccess;
+﻿using DriverAPI.Library.Converters;
+using DriverAPI.Library.DataAccess;
 using DriverAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
@@ -20,28 +20,29 @@ namespace DriverAPI.Controllers
     public class RegistrationsController : ControllerBase
     {
         private readonly ILogger<RegistrationsController> logger;
-        private readonly IEmployeeRepository employeeRepository;
-        private readonly IRouteListItemRepository routeListItemRepository;
         private readonly UserManager<IdentityUser> userManager;
+        private readonly IEmployeeData employeeData;
         private readonly IDriverMobileAppActionRecordData driverMobileAppActionRecordData;
+        private readonly IAPIRouteListData aPIRouteListData;
         private readonly ITrackPointsData trackPointsData;
-        private readonly IUnitOfWork unitOfWork;
+        private readonly ActionTypeConverter actionTypeConverter;
 
-        public RegistrationsController(ILogger<RegistrationsController> logger,
-            IEmployeeRepository employeeRepository,
-            IRouteListItemRepository routeListItemRepository,
+        public RegistrationsController(
+            ILogger<RegistrationsController> logger,
             UserManager<IdentityUser> userManager,
+            IEmployeeData employeeData,
             IDriverMobileAppActionRecordData driverMobileAppActionRecordData,
+            IAPIRouteListData aPIRouteListData,
             ITrackPointsData trackPointsData,
-            IUnitOfWork unitOfWork)
+            ActionTypeConverter actionTypeConverter)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-            this.routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            this.employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
             this.driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
+            this.aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
             this.trackPointsData = trackPointsData ?? throw new ArgumentNullException(nameof(trackPointsData));
-            this.unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            this.actionTypeConverter = actionTypeConverter ?? throw new ArgumentNullException(nameof(actionTypeConverter));
         }
 
         /// <summary>
@@ -59,27 +60,13 @@ namespace DriverAPI.Controllers
                 {
                     try // Должны ли регистрироваться все экшны, которые прошли валидацию?
                     {
-                        DriverMobileAppActionType driverMobileAppActionType;
+                        var user = userManager.GetUserAsync(User).Result;
+                        var driver = employeeData.GetByAPILogin(user.UserName);
 
-                        switch (driverActionModel.ActionType)
-                        {
-                            case Library.Models.APIActionType.OpenOrderInfoPanel:
-                                driverMobileAppActionType = DriverMobileAppActionType.OpenOrderInfoPanel;
-                                break;
-                            case Library.Models.APIActionType.OpenOrderDeliveryPanel:
-                                driverMobileAppActionType = DriverMobileAppActionType.OpenOrderDeliveryPanel;
-                                break;
-                            case Library.Models.APIActionType.OpenOrderReceiptionPanel:
-                                driverMobileAppActionType = DriverMobileAppActionType.OpenOrderReceiptionPanel;
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException(nameof(driverActionModel.ActionType));
-                        }
-
-                        var driverEmail = userManager.GetEmailAsync(userManager.GetUserAsync(User).Result).Result;
-                        var driver = employeeRepository.GetEmployeeByEmail(unitOfWork, driverEmail);
-
-                        driverMobileAppActionRecordData.RegisterAction(driver, driverMobileAppActionType, driverActionModel.ActionTime);
+                        driverMobileAppActionRecordData.RegisterAction(
+                            driver,
+                            actionTypeConverter.ConvertToDriverMobileAppActionType(driverActionModel.ActionType),
+                            driverActionModel.ActionTime);
                     }
                     catch (ArgumentOutOfRangeException e)
                     {
@@ -103,27 +90,19 @@ namespace DriverAPI.Controllers
         {
             try
             {
-                var routeListAddress = routeListItemRepository.GetRouteListItemById(unitOfWork, routeListAddressCoordinate.RouteListAddressId);
-                var deliveryPoint = routeListAddress?.Order?.DeliveryPoint;
+                var user = userManager.GetUserAsync(User).Result;
+                var driver = employeeData.GetByAPILogin(user.UserName);
 
-                if (deliveryPoint == null)
-                {
-                    return BadRequest();
-                }
+                aPIRouteListData.RegisterCoordinateForRouteListItem(
+                    routeListAddressCoordinate.RouteListAddressId,
+                    routeListAddressCoordinate.Latitude,
+                    routeListAddressCoordinate.Longitude,
+                    routeListAddressCoordinate.ActionTime);
 
-                var coordinate = new DeliveryPointEstimatedCoordinate()
-                {
-                    DeliveryPointId = deliveryPoint.Id,
-                    Latitude = routeListAddressCoordinate.Latitude,
-                    Longitude = routeListAddressCoordinate.Longitude,
-                    RegistrationTime = routeListAddressCoordinate.ActionTime
-                };
-
-                deliveryPoint.DeliveryPointEstimatedCoordinates.Add(coordinate);
-
-                unitOfWork.Save(coordinate);
-                unitOfWork.Save(deliveryPoint);
-                unitOfWork.Commit();
+                driverMobileAppActionRecordData.RegisterAction(
+                    driver,
+                    actionTypeConverter.ConvertToDriverMobileAppActionType(routeListAddressCoordinate.ActionType),
+                    routeListAddressCoordinate.ActionTime);
 
                 return Ok();
             }

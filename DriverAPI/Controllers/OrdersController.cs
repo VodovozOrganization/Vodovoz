@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,22 +18,21 @@ namespace DriverAPI.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly ILogger<OrdersController> logger;
+        private readonly IEmployeeData employeeData;
         private readonly IEmployeeRepository employeeRepository;
         private readonly UserManager<IdentityUser> userManager;
         private readonly IAPIOrderData aPIOrderData;
-        private readonly IUnitOfWork unitOfWork;
 
         public OrdersController(ILogger<OrdersController> logger,
-            IEmployeeRepository employeeRepository,
+            IEmployeeData employeeData,
             UserManager<IdentityUser> userManager,
-            IAPIOrderData aPIOrderData,
-            IUnitOfWork unitOfWork)
+            IAPIOrderData aPIOrderData)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
             this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             this.aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
-            this.unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
         /// <summary>
@@ -66,8 +64,8 @@ namespace DriverAPI.Controllers
         {
             try
             {
-                var driverEmail = userManager.GetEmailAsync(userManager.GetUserAsync(User).Result).Result;
-                var driver = employeeRepository.GetEmployeeByEmail(unitOfWork, driverEmail);
+                var user = userManager.GetUserAsync(User).Result;
+                var driver = employeeData.GetByAPILogin(user.UserName);
 
                 aPIOrderData.CompleteOrderDelivery(
                     driver,

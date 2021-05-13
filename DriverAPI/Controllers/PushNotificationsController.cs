@@ -1,11 +1,10 @@
-﻿using DriverAPI.Models;
+﻿using DriverAPI.Library.DataAccess;
+using DriverAPI.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers
 {
@@ -14,6 +13,17 @@ namespace DriverAPI.Controllers
     [Authorize]
     public class PushNotificationsController : ControllerBase
     {
+        private readonly ILogger<PushNotificationsController> logger;
+        private readonly UserManager<IdentityUser> userManager;
+        private readonly IEmployeeData employeeData;
+
+        public PushNotificationsController(ILogger<PushNotificationsController> logger, UserManager<IdentityUser> userManager, IEmployeeData employeeData)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            this.employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
+        }
+
         /// <summary>
         /// Эндпоинт включения PUSH уведомлений
         /// </summary>
@@ -23,13 +33,17 @@ namespace DriverAPI.Controllers
         [Route("/api/EnablePushNotifications")]
         public IActionResult EnablePushNotifications([FromBody] EnablePushNotificationsRequestModel enablePushNotificationsRequest)
         {
-            if (true)
+            try
             {
+                var user = userManager.GetUserAsync(User).Result;
+                var driver = employeeData.GetByAPILogin(user.UserName);
+                employeeData.EnablePushNotifications(driver, enablePushNotificationsRequest.Token);
                 return Ok();
             }
-            else
+            catch (Exception e)
             {
-                return BadRequest();
+                logger.LogError(e, e.Message);
+                return BadRequest(new ErrorResponseModel(e.Message));
             }
         }
 
@@ -41,13 +55,17 @@ namespace DriverAPI.Controllers
         [Route("/api/DisablePushNotifications")]
         public IActionResult DisablePushNotifications()
         {
-            if (true)
+            try
             {
+                var user = userManager.GetUserAsync(User).Result;
+                var driver = employeeData.GetByAPILogin(user.UserName);
+                employeeData.DisablePushNotifications(driver);
                 return Ok();
             }
-            else
+            catch (Exception e)
             {
-                return BadRequest();
+                logger.LogError(e, e.Message);
+                return BadRequest(new ErrorResponseModel(e.Message));
             }
         }
     }
