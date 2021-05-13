@@ -1,5 +1,6 @@
 ﻿using DriverAPI.Library.Converters;
 using DriverAPI.Library.DataAccess;
+using DriverAPI.Library.Helpers;
 using DriverAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,16 +17,19 @@ namespace DriverAPI.Controllers
         private readonly ILogger<SmsPaymentsController> logger;
         private readonly IAPISmsPaymentData aPISmsPaymentData;
         private readonly SmsPaymentConverter smsPaymentConverter;
+        private readonly ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper;
         private readonly IAPIOrderData aPIOrderData;
 
         public SmsPaymentsController(ILogger<SmsPaymentsController> logger,
             IAPISmsPaymentData aPISmsPaymentData,
             SmsPaymentConverter smsPaymentConverter,
+            ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
             IAPIOrderData aPIOrderData)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
             this.smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
+            this.smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
             this.aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
         }
 
@@ -64,13 +68,15 @@ namespace DriverAPI.Controllers
         [Route("/api/PayBySms")]
         public IActionResult PayBySms(PayBySmsRequestModel payBySmsRequestModel)
         {
-            if (true)
+            try
             {
+                smsPaymentServiceAPIHelper.SendPayment(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber).Wait();
                 return Ok();
             }
-            else
+            catch (Exception e)
             {
-                return BadRequest();
+                logger.LogError(e, e.Message);
+                return BadRequest(new ErrorResponseModel(e.Message));
             }
         }
     }

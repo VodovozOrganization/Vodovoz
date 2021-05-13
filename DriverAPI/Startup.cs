@@ -1,6 +1,7 @@
 using DriverAPI.Data;
 using DriverAPI.Library.Converters;
 using DriverAPI.Library.DataAccess;
+using DriverAPI.Library.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -198,6 +199,9 @@ namespace DriverAPI
             services.AddScoped<RouteListConverter>();
             services.AddScoped<OrderConverter>();
             services.AddScoped<SmsPaymentConverter>();
+
+            // Хелперы
+            services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();
 
             // DAL обертки
             services.AddScoped<ITrackPointsData, TrackPointsData>();

@@ -7,10 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Logistic.Drivers;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Logistic;
 
 namespace DriverAPI.Controllers
 {
