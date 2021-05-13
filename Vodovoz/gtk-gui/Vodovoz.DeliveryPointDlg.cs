@@ -174,7 +174,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yEntry yentryKPP;
 
-		private global::QSWidgetLib.RightSidePanel rightsidepanel1;
+		private global::Gamma.Widgets.SidePanels.RightSidePanel rightsidepanel1;
 
 		private global::Gtk.Label label12;
 
@@ -1121,7 +1121,7 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w87 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.GtkScrolledWindow1]));
 			w87.Position = 0;
 			// Container child hbox12.Gtk.Box+BoxChild
-			this.rightsidepanel1 = new global::QSWidgetLib.RightSidePanel();
+			this.rightsidepanel1 = new global::Gamma.Widgets.SidePanels.RightSidePanel();
 			this.rightsidepanel1.Events = ((global::Gdk.EventMask)(256));
 			this.rightsidepanel1.Name = "rightsidepanel1";
 			this.rightsidepanel1.Title = "Карта";
