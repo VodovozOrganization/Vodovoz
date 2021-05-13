@@ -467,7 +467,7 @@ namespace Vodovoz
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
 
-			referenceDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.AllQuery();
+			referenceDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.NotArchiveQuery();
 			referenceDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule>(e => e.Name);
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
