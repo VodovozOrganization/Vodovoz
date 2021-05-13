@@ -137,11 +137,14 @@ namespace DriverAPI
             logger.LogInformation("Настройка параметров Nhibernate...");
 
             var conStrBuilder = new MySqlConnectionStringBuilder();
-            conStrBuilder.Server = Configuration["Nhibernate:Server"];
-            conStrBuilder.Port = uint.Parse(Configuration["Nhibernate:Port"]);
-            conStrBuilder.Database = Configuration["Nhibernate:Database"];
-            conStrBuilder.UserID = Configuration["Nhibernate:UserID"];
-            conStrBuilder.Password = Configuration["Nhibernate:Password"];
+
+            var domainDBConfig = Configuration.GetSection("DomainDB");
+
+            conStrBuilder.Server = domainDBConfig["Server"];
+            conStrBuilder.Port = uint.Parse(domainDBConfig["Port"]);
+            conStrBuilder.Database = domainDBConfig["Database"];
+            conStrBuilder.UserID = domainDBConfig["UserID"];
+            conStrBuilder.Password = domainDBConfig["Password"];
             conStrBuilder.SslMode = MySqlSslMode.None;
 
             var connectionString = conStrBuilder.GetConnectionString(true);
