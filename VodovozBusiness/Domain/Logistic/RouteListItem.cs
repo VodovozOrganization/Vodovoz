@@ -164,14 +164,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref driverBottlesReturned, value);
 		}
 
-		private int driverRating;
-		[Display(Name = "Водительский рейтинг")]
-		public virtual int DriverRating
-		{
-			get => driverRating;
-			set => SetField(ref driverRating, value);
-		}
-
 		decimal oldBottleDepositsCollected;
 		/// <summary>
 		/// Устаревший залог за бутыли. Который раньше вводился пользователем вручную при закрытии МЛ
