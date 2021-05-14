@@ -13,12 +13,10 @@ namespace Vodovoz.ReportsParameters.Logistic
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ShipmentReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		IUnitOfWork uow;
-
 		public ShipmentReport()
 		{
 			this.Build();
-			uow = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ydatepicker.Date = DateTime.Now.Date;
 			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
 			ButtonSensitivity();
@@ -28,11 +26,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчёт по отгрузке автомобилей";
-			}
-		}
+		public string Title => "Отчёт по отгрузке автомобилей";
 
 		#endregion
 
