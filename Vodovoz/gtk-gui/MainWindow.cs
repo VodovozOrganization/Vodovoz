@@ -1476,9 +1476,6 @@ public partial class MainWindow
 		this.tdiMain.CurrentPage = 0;
 		this.tdiMain.ShowTabs = false;
 		this.tdiMain.Scrollable = true;
-		this.tdiMain.UseTabColors = false;
-		this.tdiMain.KeepColors = false;
-		this.tdiMain.AllowToReorderTabs = false;
 		this.vbox1.Add(this.tdiMain);
 		global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.tdiMain]));
 		w7.Position = 3;
