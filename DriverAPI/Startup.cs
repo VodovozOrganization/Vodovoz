@@ -28,6 +28,7 @@ using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools;
+using NLog.Web;
 
 namespace DriverAPI
 {
@@ -45,9 +46,14 @@ namespace DriverAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging(logging => logging.AddConsole());
+            services.AddLogging(
+                logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddNLogWeb();
+                });
 
-            logger = new Logger<Startup>(LoggerFactory.Create(logging => logging.AddConsole()));
+            logger = new Logger<Startup>(LoggerFactory.Create(logging => logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
             // Подключение к БД
 
