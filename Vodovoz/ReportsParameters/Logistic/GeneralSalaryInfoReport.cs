@@ -162,7 +162,7 @@ namespace Vodovoz.ReportsParameters.Logistic
                 comboCategory.SelectedItem = EmployeeCategory.driver;
             }
             else
-            {// если выбраны все, включаем sensitive
+            {
                 comboCategory.Sensitive = true;
             }
         }
