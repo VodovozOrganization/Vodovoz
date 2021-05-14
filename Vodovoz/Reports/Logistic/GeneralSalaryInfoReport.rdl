@@ -15,6 +15,7 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
           master.emplID as empl_id,
           master.emplName as empl_name,
@@ -34,7 +35,7 @@
           -- Расчет зп
           master.moneySum as salary_fact,
           ROUND(master.moneySum / master.countWD, 2) as salary_fact_avg,
-          ROUND(ROUND(master.moneySum / master.countWD, 2) * 22, 2) as estimated_salary
+          ROUND(master.moneySum / master.countWD, 2) * 22 as estimated_salary
 
           FROM
           (
