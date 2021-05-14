@@ -55,7 +55,7 @@
                   END) as emplDriverOf,
                   CONCAT_WS('', CONCAT(works_with.last_name, ' '), IF(works_with.name = '', '', CONCAT(LEFT(works_with.name, 1),'.')), IF(works_with.patronymic = '', '', CONCAT(LEFT(works_with.patronymic, 1),'.'))
                   ) as works_withName,
-                  COUNT(DISTINCT(DAY(rl.closing_date))) as countWD,
+                  COUNT(DISTINCT(DAY(rl.date))) as countWD,
                   SUM(wmo.money) as moneySum
               FROM employees empl
               LEFT JOIN employees works_with ON (works_with.id = empl.default_forwarder_id AND empl.category ='driver')
