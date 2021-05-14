@@ -34,8 +34,8 @@
           -- Расчет зп
           master.moneySum as salary_fact,
           ROUND(master.moneySum / master.countWD, 2) as salary_fact_avg,
-          ROUND(master.moneySum / master.countWD * 22, 2) as estimated_salary 
-              
+          ROUND(ROUND(master.moneySum / master.countWD, 2) * 22, 2) as estimated_salary
+
           FROM
           (
               SELECT
