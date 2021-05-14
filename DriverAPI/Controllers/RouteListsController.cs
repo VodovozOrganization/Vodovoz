@@ -36,7 +36,7 @@ namespace DriverAPI.Controllers
         /// </summary>
         /// <param name="routeListsIds">Список идентификаторов МЛ</param>
         /// <returns>GetRouteListsDetailsResponseModel</returns>
-        [HttpGet]
+        [HttpPost]
         [Route("/api/GetRouteListsDetails")]
         public GetRouteListsDetailsResponseModel Get([FromBody] int[] routeListsIds)
         {
