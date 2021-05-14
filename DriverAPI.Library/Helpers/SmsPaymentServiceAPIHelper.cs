@@ -40,7 +40,7 @@ namespace DriverAPI.Library.Helpers
 
         private void InitializeClient(IConfiguration configuration)
         {
-            var apiConfiguration = configuration.GetSection("SmsPaymentServiceAPI") as IConfigurationSection;
+            var apiConfiguration = configuration.GetSection("SmsPaymentServiceAPI");
 
             _apiClient = new HttpClient();
             _apiClient.BaseAddress = new Uri(apiConfiguration["ApiBase"]);
