@@ -215,8 +215,6 @@ namespace DriverAPI.Library.DataAccess
 
             routeListAddress.UpdateStatus(unitOfWork, RouteListItemStatus.Completed);
 
-            routeListAddress.DriverRating = rating;
-
             if (rating < maxClosingRating)
             {
                 var complaintReason = complaintsRepository.GetDriverComplaintReason(unitOfWork, driverComplaintReasonId);
@@ -228,7 +226,7 @@ namespace DriverAPI.Library.DataAccess
                     ComplaintSource = complaintSource,
                     ComplaintType = ComplaintType.Inner,
                     Order = vodovozOrder,
-                    RouteListItem = routeListAddress,
+                    DriverRating = rating,
                     DeliveryPoint = vodovozOrder.DeliveryPoint,
                     CreationDate = actionTime,
                     ComplaintText = $"Заказ номер {orderId}\n" +

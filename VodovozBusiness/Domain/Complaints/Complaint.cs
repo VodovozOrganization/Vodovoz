@@ -84,14 +84,6 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref deliveryPoint, value);
 		}
 
-		RouteListItem routeListItem;
-		[Display(Name = "Адрес маршрутного листа")]
-		public virtual RouteListItem RouteListItem
-		{
-			get => routeListItem;
-			set => SetField(ref routeListItem, value);
-		}
-
 		private string complainantName;
 		[Display(Name = "Имя заявителя рекламации")]
 		public virtual string ComplainantName {
@@ -174,6 +166,14 @@ namespace Vodovoz.Domain.Complaints
 		public virtual string Arrangement {
 			get => arrangement;
 			set => SetField(ref arrangement, value);
+		}
+
+		int driverRating;
+		[Display(Name = "Оценка водителя")]
+		public virtual int DriverRating
+		{
+			get => driverRating;
+			set => SetField(ref driverRating, value);
 		}
 
 		IList<Fine> fines = new List<Fine>();
