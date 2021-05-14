@@ -132,7 +132,7 @@ namespace DriverAPI.Library.Converters
                 case PaymentType.ByCard:
                     if (paymentByCardFrom.Id == orderParametersProvider.PaymentByCardFromSmsId)
                     {
-                        return APIPaymentType.Sms;
+                        return APIPaymentType.ByCardFromSms;
                     }
                     else
                     {
