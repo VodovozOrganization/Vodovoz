@@ -78,10 +78,10 @@
                   SUM(bmo.delivered) as delCount,
                   SUM(bmo.returned) as retCount
               FROM employees empl
-              LEFT JOIN route_lists rl ON rl.status = 'Closed'  AND rl.date  &gt;= @start_date AND rl.date  &lt;= @end_date
+              INNER JOIN route_lists rl ON rl.status = 'Closed'  AND rl.date  &gt;= @start_date AND rl.date  &lt;= @end_date
                                       AND ((empl.category='forwarder' AND rl.forwarder_id = empl.id)
                                        OR (empl.category='driver' AND rl.driver_id = empl.id))
-              LEFT JOIN route_list_addresses rla ON rla.route_list_id = rl.id AND rla.status = 'Completed'
+              INNER JOIN route_list_addresses rla ON rla.route_list_id = rl.id AND rla.status = 'Completed'
               LEFT JOIN bottles_movement_operations bmo ON bmo.order_id = rla.order_id
               WHERE
                   (@employee_id != '' AND empl.id = @employee_id OR @employee_id = '')
