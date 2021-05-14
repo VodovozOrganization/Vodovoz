@@ -1,9 +1,9 @@
-Write-Output "Что делаем?"
+п»їWrite-Output "Р§С‚Рѕ РґРµР»Р°РµРј?"
 Write-Output "1) git pull"
 Write-Output "2) nuget restore"
-Write-Output "3) Очистить кэш nuget пакетов"
-Write-Output "4) build Vodovoz.sln (for Windows, временно не работает)"
-Write-Output "Можно вызывать вместе, например git+nuget=12"
+Write-Output "3) РћС‡РёСЃС‚РёС‚СЊ РєСЌС€ nuget РїР°РєРµС‚РѕРІ"
+Write-Output "4) build Vodovoz.sln (for Windows, РІСЂРµРјРµРЅРЅРѕ РЅРµ СЂР°Р±РѕС‚Р°РµС‚)"
+Write-Output "РњРѕР¶РЅРѕ РІС‹Р·С‹РІР°С‚СЊ РІРјРµСЃС‚Рµ, РЅР°РїСЂРёРјРµСЂ git+nuget=12"
 $selection = Read-Host
 
 if ($selection.Contains("3")){
@@ -35,4 +35,4 @@ if ($selection.Contains("4")){
    dotnet msbuild /p:Configuration=DebugWin /p:Platform=x86 Vodovoz.sln
 }
 
-Write-Output "Выполнение завершено"
+Write-Output "Р’С‹РїРѕР»РЅРµРЅРёРµ Р·Р°РІРµСЂС€РµРЅРѕ"
