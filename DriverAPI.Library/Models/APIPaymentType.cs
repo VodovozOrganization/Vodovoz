@@ -9,7 +9,7 @@ namespace DriverAPI.Library.Models
         Cashless,
         Terminal,
         ByCard,
-        Sms,
+        ByCardFromSms,
         Payed
     }
 }
