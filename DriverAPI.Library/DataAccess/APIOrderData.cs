@@ -224,7 +224,7 @@ namespace DriverAPI.Library.DataAccess
                 var complaint = new Complaint
                 {
                     ComplaintSource = complaintSource,
-                    ComplaintType = ComplaintType.Inner,
+                    ComplaintType = ComplaintType.Driver,
                     Order = vodovozOrder,
                     DriverRating = rating,
                     DeliveryPoint = vodovozOrder.DeliveryPoint,
