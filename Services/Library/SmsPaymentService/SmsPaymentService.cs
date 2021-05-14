@@ -20,13 +20,15 @@ namespace SmsPaymentService
     {
         public SmsPaymentService(
             IPaymentController paymentController, 
-            IDriverPaymentService androidDriverService, 
+            IDriverPaymentService androidDriverService,
+            ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever,
             IOrderParametersProvider orderParametersProvider,
             SmsPaymentFileCache smsPaymentFileCache
         )
         {
             this.paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
             this.androidDriverService = androidDriverService ?? throw new ArgumentNullException(nameof(androidDriverService));
+            this.smsPaymentStatusNotificationReciever = smsPaymentStatusNotificationReciever ?? throw new ArgumentNullException(nameof(smsPaymentStatusNotificationReciever));
             this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             this.smsPaymentFileCache = smsPaymentFileCache ?? throw new ArgumentNullException(nameof(smsPaymentFileCache));
         }
@@ -34,6 +36,7 @@ namespace SmsPaymentService
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IPaymentController paymentController;
 		private readonly IDriverPaymentService androidDriverService;
+        private readonly ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever;
         private readonly IOrderParametersProvider orderParametersProvider;
         private readonly SmsPaymentFileCache smsPaymentFileCache;
         private readonly SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory();
@@ -218,6 +221,16 @@ namespace SmsPaymentService
 			catch(Exception ex) {
 				logger.Error(ex, $"Не получилось уведомить службу водителей об обновлении статуса заказа");
 			}
+
+            // TODO: При переходе на WebApi - это разкоментировать, верхний такой же блок - удалить
+            //try
+            //{
+            //    smsPaymentStatusNotificationReciever.NotifyOfSmsPaymentStatusChanged(orderId).Wait();
+            //}
+            //catch (Exception ex)
+            //{
+            //    logger.Error(ex, $"Не получилось уведомить DriverAPI об обновлении статуса заказа");
+            //}
 
 			return new StatusCode(HttpStatusCode.OK);
         }
