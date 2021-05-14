@@ -43,5 +43,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		decimal TerminalTransferedCountToRouteList(IUnitOfWork unitOfWork, RouteList routeList);
 		IList<DocumentPrintHistory> GetPrintsHistory(IUnitOfWork uow, RouteList routeList);
         IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null);
+		RouteList GetRouteListByOrderId(IUnitOfWork uow, int orderId);
     }
 }

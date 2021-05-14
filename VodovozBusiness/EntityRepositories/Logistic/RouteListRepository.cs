@@ -719,6 +719,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 			   .List();
 		}
 
+		public RouteList GetRouteListByOrderId(IUnitOfWork uow, int orderId)
+		{
+			var order = uow.GetById<Domain.Orders.Order>(orderId);
+
+			return GetRouteListByOrder(uow, order);
+		}
+
 		public RouteList GetRouteListByOrder(IUnitOfWork uow, Domain.Orders.Order order)
 		{
 			RouteList routeListAlias = null;
