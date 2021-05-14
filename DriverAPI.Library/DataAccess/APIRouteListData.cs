@@ -107,5 +107,20 @@ namespace DriverAPI.Library.DataAccess
             unitOfWork.Save(deliveryPoint);
             unitOfWork.Commit();
         }
+
+        public string GetActualDriverPushNotificationsTokenByOrderId(int orderId)
+        {
+
+            var routeList = routeListRepository.GetRouteListByOrderId(unitOfWork, orderId);
+
+            var fcmToken = routeList.Driver?.AndroidToken;
+
+            if (fcmToken == null)
+            {
+                throw new ArgumentOutOfRangeException($"Не найден токен водителя для заказа {orderId}");
+            }
+
+            return fcmToken;
+        }
     }
 }

@@ -10,5 +10,6 @@ namespace DriverAPI.Library.DataAccess
         IEnumerable<APIRouteList> Get(int[] routeListsIds);
         IEnumerable<int> GetRouteListsIdsForDriverByEmail(string email);
         void RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime);
+        string GetActualDriverPushNotificationsTokenByOrderId(int orderId);
     }
 }

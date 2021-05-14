@@ -202,12 +202,14 @@ namespace DriverAPI
 
             // Хелперы
             services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();
+            services.AddScoped<IFCMAPIHelper, FCMAPIHelper>();
 
             // DAL обертки
             services.AddScoped<ITrackPointsData, TrackPointsData>();
             services.AddScoped<IDriverMobileAppActionRecordData, DriverMobileAppActionRecordData>();
             services.AddScoped<IAPIRouteListData, APIRouteListData>();
             services.AddScoped<IAPIOrderData, APIOrderData>();
+            services.AddScoped<IEmployeeData, EmployeeData>();
             services.AddScoped<IAPISmsPaymentData, APISmsPaymentData>();
             services.AddScoped<IAPIDriverComplaintData, APIDriverComplaintData>();
         }
