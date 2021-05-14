@@ -17,6 +17,8 @@
     <PackageReference Include="MySql.EntityFrameworkCore" Version="5.0.3" />
     <PackageReference Include="NHibernate" Version="5.3.8" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
+    <PackageReference Include="NLog.Config" Version="4.7.10" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.12.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
@@ -25,6 +27,12 @@
     <ProjectReference Include="..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
     <ProjectReference Include="..\DriverAPI.Library\DriverAPI.Library.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
