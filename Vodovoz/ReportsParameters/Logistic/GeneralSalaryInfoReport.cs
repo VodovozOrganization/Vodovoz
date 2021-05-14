@@ -157,7 +157,7 @@ namespace Vodovoz.ReportsParameters.Logistic
         private void OnDriverOfSelected()
         {
             if (comboDriverOf.SelectedItemOrNull != null)
-            {//если выбран тип авто, то выбираем только водителей
+            {
                 comboCategory.Sensitive = false;
                 comboCategory.SelectedItem = EmployeeCategory.driver;
             }
