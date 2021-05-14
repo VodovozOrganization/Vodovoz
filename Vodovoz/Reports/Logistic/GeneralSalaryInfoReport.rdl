@@ -23,19 +23,19 @@
           master.emplDriverOf as driver_of,
           master.works_withName as works_with_name,
           -- Рабочие дни и адреса
-          master.countWD as days_worked,
+          servant.countWD as days_worked,
           servant.addrCount as addresses_total,
-          ROUND(servant.addrCount / master.countWD, 0) as addresses_avg,
+          ROUND(servant.addrCount / servant.countWD, 0) as addresses_avg,
           -- Полные бутыли
           IFNULL(servant.delCount, 0) as filled_bottles,
-          ROUND(IFNULL(servant.delCount, 0) / master.countWD, 0) as filled_avg,
+          ROUND(IFNULL(servant.delCount, 0) / servant.countWD, 0) as filled_avg,
           -- Пустые бутыли
           IFNULL(servant.retCount, 0) as empty_bottles,
-          ROUND(IFNULL(servant.retCount, 0) / master.countWD, 0) as empty_avg,
+          ROUND(IFNULL(servant.retCount, 0) / servant.countWD, 0) as empty_avg,
           -- Расчет зп
           master.moneySum as salary_fact,
-          ROUND(master.moneySum / master.countWD, 2) as salary_fact_avg,
-          ROUND(master.moneySum / master.countWD, 2) * 22 as estimated_salary
+          ROUND(master.moneySum / servant.countWD, 2) as salary_fact_avg,
+          ROUND(master.moneySum / servant.countWD, 2) * 22 as estimated_salary
 
           FROM
           (
@@ -55,7 +55,6 @@
                   END) as emplDriverOf,
                   CONCAT_WS('', CONCAT(works_with.last_name, ' '), IF(works_with.name = '', '', CONCAT(LEFT(works_with.name, 1),'.')), IF(works_with.patronymic = '', '', CONCAT(LEFT(works_with.patronymic, 1),'.'))
                   ) as works_withName,
-                  COUNT(DISTINCT(DAY(rl.date))) as countWD,
                   SUM(wmo.money) as moneySum
               FROM employees empl
               LEFT JOIN employees works_with ON (works_with.id = empl.default_forwarder_id AND empl.category ='driver')
@@ -77,7 +76,8 @@
                   empl.id as emplID,
                   COUNT(rla.id) as addrCount,
                   SUM(bmo.delivered) as delCount,
-                  SUM(bmo.returned) as retCount
+                  SUM(bmo.returned) as retCount,
+                  COUNT(DISTINCT(DAY(rl.date))) as countWD
               FROM employees empl
               INNER JOIN route_lists rl ON rl.status = 'Closed'  AND rl.date  &gt;= @start_date AND rl.date  &lt;= @end_date
                                       AND ((empl.category='forwarder' AND rl.forwarder_id = empl.id)
