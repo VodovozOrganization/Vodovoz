@@ -160,7 +160,7 @@ namespace VodovozBitrixIntegrationService
 		{
 			try
 			{
-				IBitrixServiceSettings bitrixServiceSettings = new BitrixServiceSettings(ParametersProvider.Instance);
+				IBitrixServiceSettings bitrixServiceSettings = new BitrixServiceSettings(SingletonParametersProvider.Instance);
 				var bitrixInstanceProvider = new BitrixInstanceProvider(bitrixServiceSettings);
 
 				IMeasurementUnitsRepository measurementUnitsRepository = new MeasurementUnitsRepository();

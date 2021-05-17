@@ -5,7 +5,7 @@ namespace Vodovoz.Parameters
 {
     public class BitrixServiceSettings : IBitrixServiceSettings
     {
-        private readonly ParametersProvider parametersProvider;
+        private readonly IParametersProvider parametersProvider;
         public int MaxStatusesInQueueForWorkingService => parametersProvider.GetIntValue("MaxStatusesInQueueForWorkingService");
         
         public int EmployeeForOrderCreate => parametersProvider.GetIntValue("сотрудник_по_умолчанию_для_службы_Bitrix");
@@ -14,7 +14,7 @@ namespace Vodovoz.Parameters
 
         public string OsrmServiceURL => parametersProvider.GetStringValue("osrm_service_url");
 
-        public BitrixServiceSettings(ParametersProvider parametersProvider)
+        public BitrixServiceSettings(IParametersProvider parametersProvider)
         {
             this.parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }
