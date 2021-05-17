@@ -30,7 +30,7 @@ namespace DriverAPI.Library.DataAccess
 
             if (track == null) // Должен ли создаваться трек, если его нету?
             {
-                var routeList = routeListRepository.GetRouteLists(unitOfWork, new[] { routeListId }).SingleOrDefault();
+                var routeList = routeListRepository.GetRouteList(unitOfWork, routeListId);
                 track = new Track()
                 {
                     RouteList = routeList,

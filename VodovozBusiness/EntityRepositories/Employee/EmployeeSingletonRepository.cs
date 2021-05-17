@@ -139,5 +139,5 @@ namespace Vodovoz.EntityRepositories.Employees
 		{
 			return QueryOver.Of<Employee>().Where(e => e.Status != EmployeeStatus.IsFired).OrderBy(e => e.LastName).Asc.ThenBy(e => e.Name).Asc.ThenBy(e => e.Patronymic).Asc;
 		}
-    }
+	}
 }
