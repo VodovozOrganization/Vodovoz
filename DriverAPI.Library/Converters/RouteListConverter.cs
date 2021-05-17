@@ -11,28 +11,36 @@ namespace DriverAPI.Library.Converters
     {
         private readonly ILogger<RouteListConverter> logger;
         private readonly DeliveryPointConverter deliveryPointConverter;
+        private readonly RouteListStatusConverter routeListStatusConverter;
+        private readonly RouteListAddressStatusConverter routeListAddressStatusConverter;
+        private readonly RouteListCompletionStatusConverter routeListCompletionStatusConverter;
 
-        public RouteListConverter(ILogger<RouteListConverter> logger, DeliveryPointConverter deliveryPointConverter)
+        public RouteListConverter(ILogger<RouteListConverter> logger,
+            DeliveryPointConverter deliveryPointConverter,
+            RouteListStatusConverter routeListStatusConverter,
+            RouteListAddressStatusConverter routeListAddressStatusConverter,
+            RouteListCompletionStatusConverter routeListCompletionStatusConverter)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
+            this.routeListStatusConverter = routeListStatusConverter ?? throw new ArgumentNullException(nameof(routeListStatusConverter));
+            this.routeListAddressStatusConverter = routeListAddressStatusConverter ?? throw new ArgumentNullException(nameof(routeListAddressStatusConverter));
+            this.routeListCompletionStatusConverter = routeListCompletionStatusConverter ?? throw new ArgumentNullException(nameof(routeListCompletionStatusConverter));
         }
 
         public APIRouteList convertToAPIRouteList(RouteList routeList)
         {
             var result = new APIRouteList()
             {
-                CompletionStatus = convertToAPIRouteListCompletionStatus(routeList.Status)
+                CompletionStatus = routeListCompletionStatusConverter.convertToAPIRouteListCompletionStatus(routeList.Status)
             };
-
-            
 
             if (result.CompletionStatus == APIRouteListCompletionStatus.Completed)
             {
                 result.CompletedRouteList = new APICompletedRouteList()
                 {
                     RouteListId = routeList.Id,
-                    RouteListStatus = convertToAPIStatus(routeList.Status),
+                    RouteListStatus = routeListStatusConverter.convertToAPIRouteListStatus(routeList.Status),
                     CashMoney = routeList.Addresses
                         .Where(rla => rla.Status == RouteListItemStatus.Completed 
                             && rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.cash)
@@ -65,7 +73,7 @@ namespace DriverAPI.Library.Converters
                         {
                             routelistAddresses.Add(convertToAPIRouteListAddress(address));
                         }
-                        catch (ArgumentException e)
+                        catch (ConverterException e)
                         {
                             logger.LogWarning(e, $"Ошибка конвертирования адреса маршрутного листа {address.Id}");
                         }
@@ -74,7 +82,7 @@ namespace DriverAPI.Library.Converters
                     result.IncompletedRouteList = new APIIncompletedRouteList()
                     {
                         RouteListId = routeList.Id,
-                        RouteListStatus = convertToAPIStatus(routeList.Status),
+                        RouteListStatus = routeListStatusConverter.convertToAPIRouteListStatus(routeList.Status),
                         RouteListAddresses = routelistAddresses
                     };
                 }
@@ -83,78 +91,12 @@ namespace DriverAPI.Library.Converters
             return result;
         }
 
-        private APIRouteListStatus convertToAPIStatus(RouteListStatus routeListStatus)
-        {
-            switch (routeListStatus)
-            {
-                case RouteListStatus.New:
-                    return APIRouteListStatus.New;
-                case RouteListStatus.Confirmed:
-                    return APIRouteListStatus.Confirmed;
-                case RouteListStatus.InLoading:
-                    return APIRouteListStatus.InLoading;
-                case RouteListStatus.EnRoute:
-                    return APIRouteListStatus.EnRoute;
-                case RouteListStatus.Delivered:
-                    return APIRouteListStatus.Delivered;
-                case RouteListStatus.OnClosing:
-                    return APIRouteListStatus.OnClosing;
-                case RouteListStatus.MileageCheck:
-                    return APIRouteListStatus.MileageCheck;
-                case RouteListStatus.Closed:
-                    return APIRouteListStatus.Closed;
-                default:
-                    logger.LogWarning($"Не поддерживается тип: {routeListStatus}");
-                    throw new ArgumentException($"Не поддерживается тип: {routeListStatus}");
-            }
-        }
-
-        private APIRouteListCompletionStatus convertToAPIRouteListCompletionStatus(RouteListStatus routeListStatus)
-        {
-            switch (routeListStatus)
-            {
-                case RouteListStatus.New:
-                case RouteListStatus.Confirmed:
-                case RouteListStatus.InLoading:
-                case RouteListStatus.EnRoute:
-                    return APIRouteListCompletionStatus.Incompleted;
-                case RouteListStatus.Delivered:
-                case RouteListStatus.OnClosing:
-                case RouteListStatus.MileageCheck:
-                case RouteListStatus.Closed:
-                    return APIRouteListCompletionStatus.Completed;
-                default:
-                    logger.LogWarning($"Не поддерживается тип: {routeListStatus}");
-                    throw new ArgumentException($"Не поддерживается тип: {routeListStatus}");
-            }
-        }
-
-        private APIRouteListAddressStatus convertToAPIRouteListAddressStatus(RouteListItemStatus routeListItemStatus)
-        {
-            switch (routeListItemStatus)
-            {
-                case RouteListItemStatus.EnRoute:
-                    return APIRouteListAddressStatus.EnRoute;
-                case RouteListItemStatus.Completed:
-                    return APIRouteListAddressStatus.Completed;
-                case RouteListItemStatus.Canceled:
-                    return APIRouteListAddressStatus.Canceled;
-                case RouteListItemStatus.Overdue:
-                    return APIRouteListAddressStatus.Overdue;
-                case RouteListItemStatus.Transfered:
-                    return APIRouteListAddressStatus.Transfered;
-                default:
-                    logger.LogWarning($"Не поддерживается тип: {routeListItemStatus}");
-                    throw new ArgumentException($"Не поддерживается тип: {routeListItemStatus}");
-            }
-        }
-
         private APIRouteListAddress convertToAPIRouteListAddress(RouteListItem routeListAddress)
         {
             return new APIRouteListAddress()
             {
                 Id = routeListAddress.Id,
-                Status = convertToAPIRouteListAddressStatus(routeListAddress.Status),
+                Status = routeListAddressStatusConverter.convertToAPIRouteListAddressStatus(routeListAddress.Status),
                 DeliveryTime = routeListAddress.Order.DeliveryDate ?? DateTime.MinValue,
                 OrderId = routeListAddress.Order.Id,
                 FullBottlesCount = routeListAddress.Order.BottlesReturn ?? 0,

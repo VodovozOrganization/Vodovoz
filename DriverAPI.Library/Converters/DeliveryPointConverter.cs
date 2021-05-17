@@ -1,19 +1,10 @@
 ﻿using DriverAPI.Library.Models;
-using Microsoft.Extensions.Logging;
-using System;
 using Vodovoz.Domain.Client;
 
 namespace DriverAPI.Library.Converters
 {
     public class DeliveryPointConverter
     {
-        private readonly ILogger<DeliveryPointConverter> logger;
-
-        public DeliveryPointConverter(ILogger<DeliveryPointConverter> logger)
-        {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
-
         public APIAddress extractAPIAddressFromDeliveryPoint(DeliveryPoint deliveryPoint)
         {
             return new APIAddress()

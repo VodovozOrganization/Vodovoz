@@ -16,13 +16,13 @@ namespace DriverAPI.Controllers
     {
         private readonly ILogger<SmsPaymentsController> logger;
         private readonly IAPISmsPaymentData aPISmsPaymentData;
-        private readonly SmsPaymentConverter smsPaymentConverter;
+        private readonly SmsPaymentStatusConverter smsPaymentConverter;
         private readonly ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper;
         private readonly IAPIOrderData aPIOrderData;
 
         public SmsPaymentsController(ILogger<SmsPaymentsController> logger,
             IAPISmsPaymentData aPISmsPaymentData,
-            SmsPaymentConverter smsPaymentConverter,
+            SmsPaymentStatusConverter smsPaymentConverter,
             ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
             IAPIOrderData aPIOrderData)
         {
@@ -40,7 +40,7 @@ namespace DriverAPI.Controllers
         /// <returns>OrderPaymentStatusResponseModel или null</returns>
         [HttpGet]
         [Route("/api/GetOrderSmsPaymentStatus")]
-        public OrderPaymentStatusResponseModel GetOrderSmsPaymentStatus([FromBody] int orderId)
+        public IActionResult GetOrderSmsPaymentStatus([FromBody] int orderId)
         {
             var additionalInfo = aPIOrderData.GetAdditionalInfoOrNull(orderId);
 
@@ -49,14 +49,23 @@ namespace DriverAPI.Controllers
                 return null;
             }
 
-            return new OrderPaymentStatusResponseModel()
+            try
             {
-                AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
-                CanSendSms = additionalInfo.CanSendSms,
-                SmsPaymentStatus = smsPaymentConverter.convertToAPIPaymentStatus(
-                    aPISmsPaymentData.GetOrderPaymentStatus(orderId)
-                )
-            };
+                var response = new OrderPaymentStatusResponseModel()
+                {
+                    AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
+                    CanSendSms = additionalInfo.CanSendSms,
+                    SmsPaymentStatus = smsPaymentConverter.convertToAPIPaymentStatus(
+                        aPISmsPaymentData.GetOrderPaymentStatus(orderId)
+                    )
+                };
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, e.Message);
+                return BadRequest(new ErrorResponseModel(e.Message));
+            }
         }
 
         /// <summary>

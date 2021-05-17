@@ -1,5 +1,4 @@
 using DriverAPI.Data;
-using DriverAPI.Library.Converters;
 using DriverAPI.Library.DataAccess;
 using DriverAPI.Library.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,11 +13,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MySql.Data.MySqlClient;
+using NLog.Web;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using System;
+using System.Linq;
 using System.Text;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
@@ -28,7 +29,6 @@ using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools;
-using NLog.Web;
 
 namespace DriverAPI
 {
@@ -200,12 +200,14 @@ namespace DriverAPI
             services.AddScoped<IWebApiParametersProvider, WebApiParametersProvider>();
 
             // Конвертеры
-            services.AddScoped<DriverComplaintReasonConverter>();
-            services.AddScoped<DeliveryPointConverter>();
-            services.AddScoped<RouteListConverter>();
-            services.AddScoped<OrderConverter>();
-            services.AddScoped<SmsPaymentConverter>();
-
+            foreach (var type in typeof(Library.Bootstrapper).Assembly.GetTypes()
+                                          .Where(type => type.IsClass)
+                                          .Where(type => type.Name.EndsWith("Converter"))
+                                          .ToList())
+            {
+                services.AddScoped(type);
+            }
+            
             // Хелперы
             services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();
             services.AddScoped<IFCMAPIHelper, FCMAPIHelper>();
