@@ -11,14 +11,14 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 	public class WageSingletonRepository : IWageCalculationRepository
 	{
 		static WageSingletonRepository instance;
+
+		[Obsolete("Необходимо избавляться от синглтонов")]
 		public static WageSingletonRepository GetInstance()
 		{
 			if(instance == null)
 				instance = new WageSingletonRepository();
 			return instance;
 		}
-
-		protected WageSingletonRepository() { }
 
 		public IEnumerable<WageDistrict> AllWageDistricts(IUnitOfWork uow, bool hideArchive = true)
 		{

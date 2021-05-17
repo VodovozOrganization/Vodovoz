@@ -610,6 +610,25 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref bitrixId, value);
 		}
 
+
+        private int? planDay;
+
+        [Display(Name = "План день")]
+        public virtual int? PlanDay
+        {
+            get => planDay;
+            set => SetField(ref planDay, value);
+        }
+
+        private int? planMonth;
+
+        [Display(Name = "План месяц")]
+        public virtual int? PlanMonth
+        {
+            get => planMonth;
+            set => SetField(ref planMonth, value);
+        }
+
 		#endregion
 
 		#region Рассчетные
@@ -622,7 +641,7 @@ namespace Vodovoz.Domain.Goods
 			Category == NomenclatureCategory.water
 			&& TareVolume.HasValue
 			&& TareVolume.Value == Goods.TareVolume.Vol19L;
-		
+
 		public override string ToString() => $"id ={Id} Name = {Name}";
 
 		public virtual bool IsOnlineStoreNomenclature => OnlineStore != null;

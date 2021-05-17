@@ -24,9 +24,21 @@ using Vodovoz.Domain.Security;
 using System.Linq;
 using System.Reflection;
 using GMap.NET.MapProviders;
+using MySql.Data.MySqlClient;
 using QS.BaseParameters;
+using QS.ChangePassword.Views;
 using QS.Dialog;
+using QS.Project.DB.Passwords;
+using QS.Project.Repositories;
 using QS.Project.Versioning;
+using QS.Validation;
+using QS.ViewModels;
+using Vodovoz.Configuration;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Tools.Validation;
+using VodovozInfrastructure.Configuration;
+using VodovozInfrastructure.Passwords;
+using Connection = QS.Project.DB.Connection;
 
 namespace Vodovoz
 {
@@ -34,6 +46,8 @@ namespace Vodovoz
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private static IApplicationInfo applicationInfo;
+		private static IPasswordValidator passwordValidator;
+
 		public static MainWindow MainWin;
 
 		[STAThread]
@@ -82,10 +96,13 @@ namespace Vodovoz
 			PerformanceHelper.StartMeasurement ("Замер запуска приложения");
 			GetPermissionsSettings();
 			//Настройка базы
-			CreateBaseConfig ();
+			var applicationConfigurator = new ApplicationConfigurator();
+			applicationConfigurator.ConfigureOrm();
+			applicationConfigurator.CreateApplicationConfig();
+
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
-			ParametersProvider.Instance.RefreshParameters();
+			SingletonParametersProvider.Instance.RefreshParameters();
 
 			#region Настройка обработки ошибок c параметрами из базы и сервисами
 			var baseParameters = new BaseParametersProvider();
@@ -110,6 +127,10 @@ namespace Vodovoz
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionAuthHandler);
 			
 			#endregion
+
+			passwordValidator = new PasswordValidator(
+				new PasswordValidationSettingsFactory(UnitOfWorkFactory.GetDefaultFactory).GetPasswordValidationSettings()
+			);
 
 			//Настройка карты
 			GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
@@ -156,9 +177,9 @@ namespace Vodovoz
 				usersDlg.Destroy();
 				return;
 			} else {
-                if (ChangePassword(LoginDialog.BaseName) && CanLogin())
+                if (ChangePassword(applicationConfigurator) && CanLogin())
                 {
-					StartMainWindow(LoginDialog.BaseName);
+					StartMainWindow(LoginDialog.BaseName, applicationConfigurator);
 				}
 				else
 					return;
@@ -178,57 +199,92 @@ namespace Vodovoz
 			ClearTempDir();
 		}
 
-		private static bool ChangePassword(string loginDialogName)
+		/// <summary>
+		/// Проверяет, необходима ли смена пароля для текущего пользователя, и, если необходима, открывает диалог смены пароля
+		/// </summary>
+		/// <returns>
+		/// <para><b>True</b> - Если смена пароля не нужна или пароль был успешно изменён</para>
+		/// <b>False</b> - Если смена была затребована смена пароля, но пароль не был изменён
+		/// </returns>
+		/// <exception cref="InvalidOperationException">Если текущий пользователь null</exception>
+		private static bool ChangePassword(IApplicationConfigurator applicationConfigurator)
 		{
-			using(var UoW = UnitOfWorkFactory.GetDefaultFactory.CreateForRoot<User>(QSMain.User.Id)) {
-				if(!UoW.Root.NeedPasswordChange)
+			ResponseType result;
+			int currentUserId;
+			IChangePasswordModel changePasswordModel;
+			
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				var userRepository = new UserSingletonRepository();
+				var currentUser = userRepository.GetCurrentUser(uow);
+				if(currentUser is null) {
+					throw new InvalidOperationException("CurrentUser is null");
+				}
+				if(!currentUser.NeedPasswordChange) {
 					return true;
+				}
+				currentUserId = currentUser.Id;
+				
+				if(!(Connection.ConnectionDB is MySqlConnection mySqlConnection)) {
+					throw new InvalidOperationException($"Текущее подключение не является {nameof(MySqlConnection)}");
+				}
 
-				ChangePassword changePasswordWindow = new ChangePassword();
-				changePasswordWindow.Title = "Требуется сменить пароль";
-				QSMain.ErrorDlgParrent = changePasswordWindow;
-
-				int response = changePasswordWindow.Run();
-				if(response == (int)ResponseType.Ok) {
-					UoW.Root.NeedPasswordChange = false;
-					UoW.Save();
-					changePasswordWindow.Destroy();
+				var mySqlPasswordRepository = new MySqlPasswordRepository();
+				changePasswordModel = new MysqlChangePasswordModelExtended(applicationConfigurator, mySqlConnection, mySqlPasswordRepository);
+				var changePasswordViewModel = new ChangePasswordViewModel(
+					changePasswordModel,
+					passwordValidator,
+					null
+				);
+				var changePasswordView = new ChangePasswordView(changePasswordViewModel) {
+					Title = "Требуется сменить пароль"
+				};
+				changePasswordView.ShowAll();
+				result = (ResponseType)changePasswordView.Run();
+				changePasswordView.Destroy();
+			}
+		
+			if(result == ResponseType.Ok && changePasswordModel.PasswordWasChanged) {
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+					var user = uow.GetById<User>(currentUserId);
+					user.NeedPasswordChange = false;
+					uow.Save(user);
+					uow.Commit();
 					return true;
-				} else {
-					QSSaaS.Session.StopSessionRefresh();
-					ClearTempDir();
-					return false;
 				}
 			}
+			
+			QSSaaS.Session.StopSessionRefresh();
+			ClearTempDir();
+			return false;
 		}
 
-		private static void StartMainWindow(string loginDialogName)
+		private static void StartMainWindow(string loginDialogName, IApplicationConfigurator applicationConfigurator)
 		{
 			//Настрока удаления
 			Configure.ConfigureDeletion();
 			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
 			//Настройка сервисов
-			if(ParametersProvider.Instance.ContainsParameter("email_send_enabled_database") && ParametersProvider.Instance.ContainsParameter("email_service_address")) {
-				if(ParametersProvider.Instance.GetParameterValue("email_send_enabled_database") == loginDialogName) {
-					EmailServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("email_service_address"));
+			if(SingletonParametersProvider.Instance.ContainsParameter("email_send_enabled_database") && SingletonParametersProvider.Instance.ContainsParameter("email_service_address")) {
+				if(SingletonParametersProvider.Instance.GetParameterValue("email_send_enabled_database") == loginDialogName) {
+					EmailServiceSetting.Init(SingletonParametersProvider.Instance.GetParameterValue("email_service_address"));
 				}
 			}
-			if(ParametersProvider.Instance.ContainsParameter("instant_sms_enabled_database") && ParametersProvider.Instance.ContainsParameter("sms_service_address")) {
-				if(ParametersProvider.Instance.GetParameterValue("instant_sms_enabled_database") == loginDialogName) {
-					InstantSmsServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("sms_service_address"));
+			if(SingletonParametersProvider.Instance.ContainsParameter("instant_sms_enabled_database") && SingletonParametersProvider.Instance.ContainsParameter("sms_service_address")) {
+				if(SingletonParametersProvider.Instance.GetParameterValue("instant_sms_enabled_database") == loginDialogName) {
+					InstantSmsServiceSetting.Init(SingletonParametersProvider.Instance.GetParameterValue("sms_service_address"));
 				}
 			}
 			
-			if(ParametersProvider.Instance.ContainsParameter("sms_payment_send_enabled_database") && ParametersProvider.Instance.ContainsParameter("sms_payment_send_service_address")) {
-				if(ParametersProvider.Instance.GetParameterValue("sms_payment_send_enabled_database") == loginDialogName) {
-					SmsPaymentServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("sms_payment_send_service_address"));
+			if(SingletonParametersProvider.Instance.ContainsParameter("sms_payment_send_enabled_database") && SingletonParametersProvider.Instance.ContainsParameter("sms_payment_send_service_address")) {
+				if(SingletonParametersProvider.Instance.GetParameterValue("sms_payment_send_enabled_database") == loginDialogName) {
+					SmsPaymentServiceSetting.Init(SingletonParametersProvider.Instance.GetParameterValue("sms_payment_send_service_address"));
 				}
 			}
 
 			CreateTempDir();
 
 			//Запускаем программу
-			MainWin = new MainWindow();
+			MainWin = new MainWindow(passwordValidator, applicationConfigurator);
 			MainWin.Title += $" (БД: {loginDialogName})";
 			QSMain.ErrorDlgParrent = MainWin;
 			MainWin.Show();

@@ -95,7 +95,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				Parameters = new Dictionary<string, object> {
 					{ "bill_ws_for_payment_id", Id },
 					{ "special_contract_number", SpecialContractNumber },
-					{ "organization_id", new OrganizationParametersProvider(ParametersProvider.Instance).GetCashlessOrganisationId },
+					{ "organization_id", new OrganizationParametersProvider(SingletonParametersProvider.Instance).GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
 					{ "special", false }
 				}

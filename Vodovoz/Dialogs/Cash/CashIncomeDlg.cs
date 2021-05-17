@@ -40,14 +40,14 @@ namespace Vodovoz
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(ParametersProvider.Instance)),
+					new OrganizationParametersProvider(SingletonParametersProvider.Instance)),
 				new RouteListItemCashDistributionDocumentRepository(),
 				OrderSingletonRepository.GetInstance());
 		
 		private IncomeCashOrganisationDistributor incomeCashOrganisationDistributor = 
 			new IncomeCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(ParametersProvider.Instance)));
+					new OrganizationParametersProvider(SingletonParametersProvider.Instance)));
 		
 		List<Selectable<Expense>> selectableAdvances;
 

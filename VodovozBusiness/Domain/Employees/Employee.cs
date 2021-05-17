@@ -524,18 +524,6 @@ namespace Vodovoz.Domain.Employees
 							}
 						};
 					}
-					else if(DriverOf == CarTypeOfUse.CompanyLargus) {
-						decimal fixedWage = wageParametersProvider.GetFixedWageForNewLargusDrivers();
-						parameterForDriver = new EmployeeWageParameter {
-							WageParameterItem = new FixedWageParameterItem {
-								RouteListFixedWage = fixedWage
-							},
-							WageParameterItemForOurCars = new FixedWageParameterItem {
-								RouteListFixedWage = fixedWage
-							},
-							IsStartedWageParameter = true
-						};
-					}
 					else if(!IsDriverForOneDay) {
 						parameterForDriver = new EmployeeWageParameter {
 							WageParameterItem = new RatesLevelWageParameterItem {

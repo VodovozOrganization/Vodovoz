@@ -1,4 +1,4 @@
-﻿using EmailService;
+using EmailService;
 using fyiReporting.RDL;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -102,6 +102,7 @@ namespace Vodovoz
 		private IOrganizationProvider organizationProvider;
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
+		private Nomenclature vodovozLeaflet;
 		
 		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
@@ -363,7 +364,7 @@ namespace Vodovoz
 				|| Entity.OrderStatus == OrderStatus.Closed
 				|| Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading;
 
-			orderEquipmentItemsView.Configure(UoWGeneric, Entity);
+			orderEquipmentItemsView.Configure(UoWGeneric, Entity, new NomenclatureParametersProvider());
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
 
 			//Подписывемся на изменения листов для засеривания клиента
@@ -447,7 +448,7 @@ namespace Vodovoz
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
 			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			var excludedPaymentFromId = new OrderParametersProvider(ParametersProvider.Instance).PaymentByCardFromSmsId;
+			var excludedPaymentFromId = new OrderParametersProvider(SingletonParametersProvider.Instance).PaymentByCardFromSmsId;
 			if (Entity.PaymentByCardFrom?.Id != excludedPaymentFromId)
 				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(x => x.Id != excludedPaymentFromId).List();
 			else
@@ -467,7 +468,7 @@ namespace Vodovoz
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
 
-			referenceDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.AllQuery();
+			referenceDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.NotArchiveQuery();
 			referenceDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule>(e => e.Name);
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
@@ -637,6 +638,29 @@ namespace Vodovoz
 				hboxDocumentType.Remove(torg12OnlyLabel);
 				hboxDocumentType.Add(enumDocumentType);
 			}
+		}
+
+		private void TryAddVodovozLeaflet(INomenclatureParametersProvider nomenclatureParametersProvider)
+		{
+			if (Entity.SelfDelivery 
+			    || Entity.OrderStatus != OrderStatus.NewOrder
+			    || Entity.DeliveryPoint.District == null) return;
+			
+			if (vodovozLeaflet == null) {
+				vodovozLeaflet = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.VodovozLeafletId);
+			}
+
+			var geographicGroupId = Entity.DeliveryPoint.District.GeographicGroup.Id;
+			
+			if (!orderRepository.CanAddVodovozCatalogToOrder(
+			    UoW, 
+			    new RouteListParametersProvider(SingletonParametersProvider.Instance), 
+			    vodovozLeaflet.Id, 
+			    geographicGroupId)) {
+				return;
+			}
+
+			Entity.AddVodovozLeafletNomenclature(vodovozLeaflet);
 		}
 
 		private void OnDeliveryPointChanged(EntityChangeEvent[] changeevents)
@@ -1911,6 +1935,16 @@ namespace Vodovoz
 			
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
+			
+			if (Entity.DeliveryPoint != null) {
+				TryAddVodovozLeaflet(new NomenclatureParametersProvider());
+			}
+			else {
+				if (vodovozLeaflet != null) {
+					Entity.ObservableOrderEquipments.Remove(Entity.ObservableOrderEquipments.SingleOrDefault(
+						x => x.Nomenclature.Id == vodovozLeaflet.Id));
+				}
+			}
 		}
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
@@ -2661,7 +2695,7 @@ namespace Vodovoz
 				Text = billTemplate.Text,
 				HtmlText = billTemplate.TextHtml,
 				Recipient = new EmailContact("", emailAddressForBill.Address),
-				Sender = new EmailContact("vodovoz-spb.ru", ParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
+				Sender = new EmailContact("vodovoz-spb.ru", SingletonParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
 				Order = Entity.Id,
 				OrderDocumentType = OrderDocumentType.Bill
 			};

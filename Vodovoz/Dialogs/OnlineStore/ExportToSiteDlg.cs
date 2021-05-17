@@ -23,14 +23,14 @@ namespace Vodovoz.Dialogs.OnlineStore
 			this.Build();
 			TabName = "Экспорт интернет магазин";
 			comboExportMode.ItemsEnum = typeof(ExportMode);
-			if(ParametersProvider.Instance.ContainsParameter(Export.OnlineStoreUrlParameterName))
-				entrySitePath.Text = ParametersProvider.Instance.GetParameterValue(Export.OnlineStoreUrlParameterName);
-			if(ParametersProvider.Instance.ContainsParameter(Export.OnlineStoreLoginParameterName))
-				entryUser.Text = ParametersProvider.Instance.GetParameterValue(Export.OnlineStoreLoginParameterName);
-			if(ParametersProvider.Instance.ContainsParameter(Export.OnlineStorePasswordParameterName))
-				entryPassword.Text = ParametersProvider.Instance.GetParameterValue(Export.OnlineStorePasswordParameterName);
-			if(ParametersProvider.Instance.ContainsParameter(Export.OnlineStoreExportMode))
-				comboExportMode.SelectedItem = Enum.Parse(typeof(ExportMode), ParametersProvider.Instance.GetParameterValue(Export.OnlineStoreExportMode));
+			if(SingletonParametersProvider.Instance.ContainsParameter(Export.OnlineStoreUrlParameterName))
+				entrySitePath.Text = SingletonParametersProvider.Instance.GetParameterValue(Export.OnlineStoreUrlParameterName);
+			if(SingletonParametersProvider.Instance.ContainsParameter(Export.OnlineStoreLoginParameterName))
+				entryUser.Text = SingletonParametersProvider.Instance.GetParameterValue(Export.OnlineStoreLoginParameterName);
+			if(SingletonParametersProvider.Instance.ContainsParameter(Export.OnlineStorePasswordParameterName))
+				entryPassword.Text = SingletonParametersProvider.Instance.GetParameterValue(Export.OnlineStorePasswordParameterName);
+			if(SingletonParametersProvider.Instance.ContainsParameter(Export.OnlineStoreExportMode))
+				comboExportMode.SelectedItem = Enum.Parse(typeof(ExportMode), SingletonParametersProvider.Instance.GetParameterValue(Export.OnlineStoreExportMode));
 		}
 
 		protected void OnButtonRunToFileClicked(object sender, EventArgs e)
@@ -69,22 +69,22 @@ namespace Vodovoz.Dialogs.OnlineStore
 
 		protected void OnEntrySitePathFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			ParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStoreUrlParameterName, entrySitePath.Text);
+			SingletonParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStoreUrlParameterName, entrySitePath.Text);
 		}
 
 		protected void OnEntryUserFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			ParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStoreLoginParameterName, entryUser.Text);
+			SingletonParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStoreLoginParameterName, entryUser.Text);
 		}
 
 		protected void OnEntryPasswordFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			ParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStorePasswordParameterName, entryPassword.Text);
+			SingletonParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStorePasswordParameterName, entryPassword.Text);
 		}
 
 		protected void OnComboExportModeChangedByUser(object sender, EventArgs e)
 		{
-			ParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStoreExportMode,  comboExportMode.SelectedItem.ToString());
+			SingletonParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStoreExportMode,  comboExportMode.SelectedItem.ToString());
 		}
 
 		protected void OnButtonExportToSiteClicked(object sender, EventArgs e)

@@ -135,9 +135,6 @@ namespace Vodovoz.Views.Client
 			ViewModel.ListContentChanged += (sender, e) => {
 				yTreePrices.YTreeModel.EmitModelChanged();
 				yTreePrices.ExpandAll();
-
-				GtkHelper.WaitRedraw();
-				GtkScrolledWindow.Vadjustment.Value = GtkScrolledWindow.Vadjustment.Upper;
 			};
 			yTreePrices.Selection.Changed += (sender, e) => ViewModel.CanRemove = GetSelectedTreeItem() != null;
 

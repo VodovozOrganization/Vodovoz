@@ -101,13 +101,11 @@ namespace Vodovoz.Dialogs.Cash
 				speccomboOrganization.SelectedItem = orgList.First();
 			}
 
-			//Смена ролей для админов   
-			comboIfAdminRoleChooser.ItemsEnum = typeof(UserRole);
-			comboIfAdminRoleChooser.Binding.AddBinding(ViewModel, e => CashRequestViewModel.savedUserRole, w => w.SelectedItem).InitializeFromSource();
-			comboIfAdminRoleChooser.SelectedItem = ViewModel.UserRole;
-			comboIfAdminRoleChooser.Visible = ViewModel.IsAdminPanelVisible;
-			ybtnAdminRoleRemember.Visible = ViewModel.IsAdminPanelVisible;
-			ybtnAdminRoleRemember.Clicked += (sender, args) => { ViewModel.RememberRole(comboIfAdminRoleChooser.SelectedItem); };
+            //Смена ролей
+            comboRoleChooser.SetRenderTextFunc<CashRequestUserRole>(ur => ur.GetEnumTitle());
+            comboRoleChooser.ItemsList = ViewModel.UserRoles;
+            comboRoleChooser.Binding.AddBinding(ViewModel, vm => vm.UserRole, w => w.SelectedItem).InitializeFromSource();
+			comboRoleChooser.Sensitive = ViewModel.IsRoleChooserSensitive;
 
 			#endregion
 
@@ -143,8 +141,8 @@ namespace Vodovoz.Dialogs.Cash
 			ybtnConveyForResults.Clicked += (sender, args) => ViewModel.ConveyForResultsCommand.Execute();
 			//Отправить на пересогласование
 			ybtnReturnForRenegotiation.Clicked += (sender, args) => ViewModel.ReturnToRenegotiationCommand.Execute();
-			
-			ybtnGiveSumm.Clicked += (sender, args) => ViewModel.GiveSumCommand.Execute(ytreeviewSums.GetSelectedObject<CashRequestSumItem>());
+
+            ybtnGiveSumm.Clicked += (sender, args) => ViewModel.GiveSumCommand.Execute(ytreeviewSums.GetSelectedObject<CashRequestSumItem>());
 			ybtnGiveSumm.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
 			ybtnGiveSumm.Sensitive = ViewModel.Entity.ObservableSums.Any(x => x.ObservableExpenses == null || !x.ObservableExpenses.Any());
 
@@ -153,8 +151,9 @@ namespace Vodovoz.Dialogs.Cash
 				);
 			ybtnGiveSummPartially.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
 			ybtnGiveSummPartially.Sensitive = ViewModel.Entity.ObservableSums.Any(x => x.ObservableExpenses == null || !x.ObservableExpenses.Any());
+            yspinGivePartially.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
 
-			ybtnAddSumm.Clicked += (sender, args) => ViewModel.AddSumCommand.Execute();
+            ybtnAddSumm.Clicked += (sender, args) => ViewModel.AddSumCommand.Execute();
 			ybtnEditSum.Clicked += (sender, args) => ViewModel.EditSumCommand.Execute();
 			ybtnDeleteSumm.Clicked += (sender, args) => ViewModel.DeleteSumCommand.Execute();
 			ybtnEditSum.Binding.AddBinding(ViewModel, vm => vm.CanEditSumSensitive, w => w.Sensitive).InitializeFromSource();
@@ -174,34 +173,33 @@ namespace Vodovoz.Dialogs.Cash
 			ycheckPossibilityNotToReconcilePayments.Binding.AddBinding(ViewModel, vm => vm.CanConfirmPossibilityNotToReconcilePayments, w => w.Visible).InitializeFromSource();
 			ylabelPossibilityNotToReconcilePayments.Binding.AddBinding(ViewModel, vm => vm.CanConfirmPossibilityNotToReconcilePayments, w => w.Visible).InitializeFromSource();
 
-			hboxGivePartially.Visible = ViewModel.CanGiveSum;
+            #endregion Buttons
 
-			#endregion Buttons
+            #region Editibility
 
-			#region Editibility
-
-			yentryCancelReason.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyCoordinator, w => w.Sensitive).InitializeFromSource();
+            yentryCancelReason.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyCoordinator, w => w.Sensitive).InitializeFromSource();
 			ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategorySensitive, w => w.Sensitive).InitializeFromSource();
-			speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNAGandRoldFinancier, w => w.Sensitive).InitializeFromSource();
+    
+			speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.SensitiveForFinancier, w => w.Sensitive).InitializeFromSource();
 
-			#endregion Editibility
+            #endregion Editibility
 
-			#region Visibility
+            #region Visibility
 
-			labelBalansOrganizations.Visible = ViewModel.VisibleOnlyForFinancer;
-			ylabelBalansOrganizations.Visible = ViewModel.VisibleOnlyForFinancer;
-			
-			speccomboOrganization.Visible = ViewModel.VisibleOnlyForFinancer;
-			labelcomboOrganization.Visible = ViewModel.VisibleOnlyForFinancer;
+            labelBalansOrganizations.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
+            ylabelBalansOrganizations.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
 
-            labelCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible);
-            ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible);
+            labelcomboOrganization.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
+            speccomboOrganization.Binding.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible).InitializeFromSource();
 
-			yentryReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
-			labelReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
-			
-			yentryCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
-			labelCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
+            labelCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible).InitializeFromSource();
+            ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible).InitializeFromSource();
+
+            yentryReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
+            labelReasonForSendToReapproval.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
+
+            yentryCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
+            labelCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 
 			if (ViewModel.Entity.State == CashRequest.States.New)
 			{
@@ -216,7 +214,6 @@ namespace Vodovoz.Dialogs.Cash
 
 			ycheckHaveReceipt.Binding.AddBinding(ViewModel.Entity, e => e.HaveReceipt, w => w.Active).InitializeFromSource();
 			ylabelBalansOrganizations.Text = ViewModel.LoadOrganizationsSums();
-			ylabelRole.Binding.AddFuncBinding(ViewModel, vm => vm.UserRole.GetEnumTitle(), w => w.Text).InitializeFromSource();
 			ylabelStatus.Binding.AddBinding(ViewModel, vm => vm.StateName, w => w.Text).InitializeFromSource();
 			ylabelStatus.Text = ViewModel.Entity.State.GetEnumTitle();
 
@@ -240,7 +237,7 @@ namespace Vodovoz.Dialogs.Cash
 			}
 		}
 
-		private void ConfigureTreeView()
+        private void ConfigureTreeView()
 		{
 			ytreeviewSums.CreateFluentColumnsConfig<CashRequestSumItem>()
 				.AddColumn("Сумма")

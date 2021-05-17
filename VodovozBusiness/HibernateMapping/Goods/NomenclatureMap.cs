@@ -71,6 +71,10 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.StorageCell).Column("storage_cell");
 			Map(x => x.PurchasePrice).Column("purchase_price");
 
+			//Планирование продаж для КЦ
+			Map(x => x.PlanDay).Column("plan_day");
+			Map(x => x.PlanMonth).Column("plan_month");
+
 			References(x => x.ShipperCounterparty).Column("shipper_counterparty_id");
 			References(x => x.CreatedBy).Column("created_by");
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");

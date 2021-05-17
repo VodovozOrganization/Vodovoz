@@ -126,9 +126,8 @@ FROM
 	delivery_points ON orders.delivery_point_id = delivery_points.id
 		LEFT JOIN
 	cars ON route_lists.car_id = cars.id
-WHERE
-	(route_lists.date BETWEEN @start_date AND @end_date)
-		AND ((cars.type_of_use = 'CompanyLargus' OR cars.type_of_use = 'CompanyGAZelle') OR cars.is_raskat = 1)
+WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+      		AND ((cars.type_of_use = 'CompanyLargus' OR cars.type_of_use = 'CompanyGAZelle') OR cars.is_raskat = 1)
 GROUP BY route_lists.id
 ORDER BY driver_name</CommandText>
         <QueryParameters>
@@ -195,6 +194,77 @@ ORDER BY driver_name</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="Counting">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>
+	(SELECT	COUNT(route_list_addresses.id) as counting,
+			CASE cars.type_of_use
+				WHEN 'CompanyLargus' THEN 'Ларгусы'
+				WHEN 'CompanyGAZelle' THEN 'ГАЗели'
+				ELSE 'Раскат'
+			END AS type_of_use
+	FROM route_lists
+		LEFT JOIN
+			route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+		LEFT JOIN
+			cars ON route_lists.car_id = cars.id
+	WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+		AND (route_list_addresses.route_list_id = route_lists.id)
+		AND (route_list_addresses.status = 'Completed')
+		AND (cars.type_of_use = 'CompanyLargus'))
+UNION ALL 
+	(SELECT	COUNT(route_list_addresses.id),
+			CASE cars.type_of_use
+				WHEN 'CompanyLargus' THEN 'Ларгусы'
+				WHEN 'CompanyGAZelle' THEN 'ГАЗели'
+				ELSE 'Раскат'
+			END AS type_of_use
+	FROM route_lists
+		LEFT JOIN
+			route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+		LEFT JOIN
+			cars ON route_lists.car_id = cars.id
+	WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+		AND (route_list_addresses.route_list_id = route_lists.id)
+		AND (route_list_addresses.status = 'Completed')
+		AND (cars.type_of_use = 'CompanyGAZelle'))
+UNION ALL 
+	(SELECT COUNT(route_list_addresses.id),
+			CASE cars.type_of_use
+				WHEN 'CompanyLargus' THEN 'Ларгусы'
+				WHEN 'CompanyGAZelle' THEN 'ГАЗели'
+				ELSE 'Раскат'
+			END AS type_of_use
+	FROM route_lists
+		LEFT JOIN
+			route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+		LEFT JOIN
+			cars ON route_lists.car_id = cars.id
+	WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+		AND (route_list_addresses.route_list_id = route_lists.id)
+		AND (route_list_addresses.status = 'Completed')
+		AND (cars.type_of_use NOT IN ('CompanyLargus','CompanyGAZelle')) AND cars.is_raskat)</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="counting">
+          <DataField>counting</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="type_of_use">
+          <DataField>type_of_use</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>27.1pt</Height>
@@ -232,7 +302,7 @@ ORDER BY driver_name</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>34.2pt</Width>
+            <Width>39.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>64.3pt</Width>
@@ -716,7 +786,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >0</Format>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -734,7 +804,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >0</Format>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -753,7 +823,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >0</Format>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -771,7 +841,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >0</Format>
+                        <Format>0</Format>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -790,7 +860,7 @@ ORDER BY driver_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <DataElementName>formula1</DataElementName>
                       <CanGrow>true</CanGrow>
@@ -853,7 +923,7 @@ ORDER BY driver_name</CommandText>
               <RepeatOnNewPage>false</RepeatOnNewPage>
               <TableRows>
                 <TableRow>
-                  <Height>.2in</Height>
+                  <Height>14.2pt</Height>
                   <TableCells>
                     <TableCell>
                       <ReportItems>
@@ -939,7 +1009,7 @@ ORDER BY driver_name</CommandText>
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
-                            <Format >0</Format>
+                            <Format>0</Format>
                           </Style>
                           <Value>=Sum(Fields!water19_amount.Value)</Value>
                         </Textbox>
@@ -957,7 +1027,7 @@ ORDER BY driver_name</CommandText>
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
-                            <Format >0</Format>
+                            <Format>0</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -973,7 +1043,7 @@ ORDER BY driver_name</CommandText>
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
-                            <Format >0</Format>
+                            <Format>0</Format>
                           </Style>
                           <Value>=Sum(Fields!water19_absent.Value)</Value>
                         </Textbox>
@@ -991,7 +1061,7 @@ ORDER BY driver_name</CommandText>
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
-                            <Format >0</Format>
+                            <Format>0</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1008,7 +1078,7 @@ ORDER BY driver_name</CommandText>
                             <BorderWidth />
                             <FontWeight>=Iif ( Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5)) &lt; 1625,  'Bold', 'Normal')</FontWeight>
                             <TextAlign>Center</TextAlign>
-                            <Format >#,##0.00</Format>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <CanGrow>true</CanGrow>
                         </Textbox>
@@ -1029,8 +1099,133 @@ ORDER BY driver_name</CommandText>
         <Left>0.0pt</Left>
         <Top>1.6pt</Top>
       </Table>
+      <Table Name="Table2">
+        <DataSetName>Counting</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>90.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>25.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>Доставлено адресов</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>25.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Наименование автомобиля</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Кол-во</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>={type_of_use}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>=Fields!counting.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>42.4pt</Left>
+        <Top>110.8pt</Top>
+      </Table>
     </ReportItems>
-    <Height>97.4pt</Height>
+    <Height>202.7pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>

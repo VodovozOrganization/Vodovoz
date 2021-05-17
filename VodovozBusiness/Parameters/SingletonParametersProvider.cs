@@ -8,17 +8,17 @@ using Vodovoz.Domain;
 
 namespace Vodovoz.Parameters
 {
-	public class ParametersProvider
+	public class SingletonParametersProvider : IParametersProvider
 	{
 		private readonly Logger logger = LogManager.GetCurrentClassLogger();
-		public static ParametersProvider Instance { get; private set; }
+		public static IParametersProvider Instance { get; private set; }
 
-		static ParametersProvider()
+		static SingletonParametersProvider()
 		{
-			Instance = new ParametersProvider();
+			Instance = new SingletonParametersProvider();
 		}
 
-		private ParametersProvider()
+		private SingletonParametersProvider()
 		{
 		}
 
@@ -97,6 +97,22 @@ namespace Vodovoz.Parameters
 			string value = GetParameterValue(parameterId);
 
 			if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
+			{
+				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
+			}
+
+			return result;
+		}
+
+		public char GetCharValue(string parameterId)
+		{
+			if(!ContainsParameter(parameterId)) {
+				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})" );
+			}
+                
+			string value = GetParameterValue(parameterId);
+
+			if(string.IsNullOrWhiteSpace(value) || !char.TryParse(value, out char result))
 			{
 				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
 			}

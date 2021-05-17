@@ -16,17 +16,15 @@ namespace Vodovoz.ViewModels
 
 		private Dictionary<string, string> documentProperties;
 		private List<Dictionary<string, string>> accounts;
-		private List<Domain.Organizations.Organization> organizations;
 
 		private string[] tags = { "СекцияРасчСчет", "СекцияДокумент", "КонецДокумента", "КонецФайла" };
 		private readonly decimal[] curVersion = { 1.02M, 1.03M };
 
-		public TransferDocumentsFromBankParser(string docPath, List<Domain.Organizations.Organization> organizations)
+		public TransferDocumentsFromBankParser(string docPath)
 		{
 			DocPath = docPath;
 			documentProperties = new Dictionary<string, string>();
 			accounts = new List<Dictionary<string, string>>();
-			this.organizations = organizations;
 		}
 
 		public void Parse()
@@ -97,9 +95,7 @@ namespace Vodovoz.ViewModels
 					//Читаем документы
 					while(!line.StartsWith(tags[3]))
 					{
-						if (line.StartsWith(tags[2]) && 
-						    organizations.Find(x=>x.FullName == doc.PayerName) is null &&
-						    organizations.Find(x=>x.FullName == doc.RecipientName) is null)
+						if (line.StartsWith(tags[2]))
 							TransferDocuments.Add(doc);
 						
 						if(line.StartsWith(tags[1])) 

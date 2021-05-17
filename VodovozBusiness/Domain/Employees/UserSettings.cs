@@ -43,6 +43,30 @@ namespace Vodovoz.Domain.Employees
 			set { SetField (ref toolBarIconsSize, value, () => ToolBarIconsSize); }
 		}
 
+		private bool reorderTabs;
+		
+		[Display(Name = "Перемещение вкладок")]
+		public virtual bool ReorderTabs {
+			get => reorderTabs;
+			set => SetField(ref reorderTabs, value);
+		}
+
+		private bool highlightTabsWithColor;
+
+		[Display(Name = "Выделение вкладок цветом")]
+		public virtual bool HighlightTabsWithColor {
+			get => highlightTabsWithColor;
+			set => SetField(ref highlightTabsWithColor, value);
+		}
+		
+		private bool keepTabColor;
+
+		[Display(Name = "Сохранять цвет вкладки")]
+		public virtual bool KeepTabColor {
+			get => keepTabColor;
+			set => SetField(ref keepTabColor, value);
+		}
+
 		Warehouse defaultWarehouse;
 
 		[Display (Name = "Склад")]
