@@ -76,9 +76,9 @@ namespace DriverAPI.Controllers
         public async Task<IEnumerable<int>> GetIds()
         {
             var user = await userManager.GetUserAsync(User);
-            var userEmail = await userManager.GetEmailAsync(user);
+            var userName = await userManager.GetUserNameAsync(user);
 
-            return aPIRouteListData.GetRouteListsIdsForDriverByEmail(userEmail);
+            return aPIRouteListData.GetRouteListsIdsForDriverByAndroidLogin(userName);
         }
     }
 }

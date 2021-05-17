@@ -8,7 +8,7 @@ namespace DriverAPI.Library.DataAccess
     {
         APIRouteList Get(int routeListId);
         IEnumerable<APIRouteList> Get(int[] routeListsIds);
-        IEnumerable<int> GetRouteListsIdsForDriverByEmail(string email);
+        IEnumerable<int> GetRouteListsIdsForDriverByAndroidLogin(string login);
         void RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime);
         string GetActualDriverPushNotificationsTokenByOrderId(int orderId);
     }
