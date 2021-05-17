@@ -1,4 +1,4 @@
-using DriverAPI.Data;
+п»їusing DriverAPI.Data;
 using DriverAPI.Library.DataAccess;
 using DriverAPI.Library.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -55,14 +55,14 @@ namespace DriverAPI
 
             logger = new Logger<Startup>(LoggerFactory.Create(logging => logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
-            // Подключение к БД
+            // РџРѕРґРєР»СЋС‡РµРЅРёРµ Рє Р‘Р”
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySQL(
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            // Конфигурация Nhibernate
+            // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ Nhibernate
 
             try
             {
@@ -76,7 +76,7 @@ namespace DriverAPI
 
             RegisterDependencies(ref services);
 
-            // Аутентификация
+            // РђСѓС‚РµРЅС‚РёС„РёРєР°С†РёСЏ
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -94,7 +94,7 @@ namespace DriverAPI
                     };
                 });
 
-            // Регистрация контроллеров
+            // Р РµРіРёСЃС‚СЂР°С†РёСЏ РєРѕРЅС‚СЂРѕР»Р»РµСЂРѕРІ
 
             services.AddControllersWithViews();
             services.AddControllers();
@@ -141,7 +141,7 @@ namespace DriverAPI
 
         void CreateBaseConfig()
         {
-            logger.LogInformation("Настройка параметров Nhibernate...");
+            logger.LogInformation("РќР°СЃС‚СЂРѕР№РєР° РїР°СЂР°РјРµС‚СЂРѕРІ Nhibernate...");
 
             var conStrBuilder = new MySqlConnectionStringBuilder();
 
@@ -162,7 +162,7 @@ namespace DriverAPI
                 .AdoNetBatchSize(100)
                 .Driver<LoggedMySqlClientDriver>();
 
-            // Настройка ORM
+            // РќР°СЃС‚СЂРѕР№РєР° ORM
             OrmConfig.ConfigureOrm(
                 db_config,
                 new System.Reflection.Assembly[] {
@@ -178,15 +178,15 @@ namespace DriverAPI
 
         void RegisterDependencies(ref IServiceCollection services)
         {
-            // Сервисы для контроллеров
+            // РЎРµСЂРІРёСЃС‹ РґР»СЏ РєРѕРЅС‚СЂРѕР»Р»РµСЂРѕРІ
 
             // Unit Of Work
-            services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
+            services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("РњРѕР±РёР»СЊРЅРѕРµ РїСЂРёР»РѕР¶РµРЅРёРµ РІРѕРґРёС‚РµР»РµР№"));
 
             // ErrorReporter
             services.AddScoped<IErrorReporter>((sp) => SingletonErrorReporter.Instance);
 
-            // Репозитории водовоза
+            // Р РµРїРѕР·РёС‚РѕСЂРёРё РІРѕРґРѕРІРѕР·Р°
             services.AddScoped<ITrackRepository, TrackRepository>();
             services.AddScoped<IComplaintsRepository, ComplaintsRepository>();
             services.AddScoped<IRouteListRepository, RouteListRepository>();
@@ -194,12 +194,12 @@ namespace DriverAPI
             services.AddScoped<IOrderRepository, OrderSingletonRepository>((sp) => OrderSingletonRepository.GetInstance());
             services.AddScoped<IEmployeeRepository, EmployeeSingletonRepository>((sp) => EmployeeSingletonRepository.GetInstance());
 
-            // Провайдеры параметров
+            // РџСЂРѕРІР°Р№РґРµСЂС‹ РїР°СЂР°РјРµС‚СЂРѕРІ
             services.AddScoped<IParametersProvider, ParametersProvider>();
             services.AddScoped<IOrderParametersProvider, OrderParametersProvider>();
             services.AddScoped<IWebApiParametersProvider, WebApiParametersProvider>();
 
-            // Конвертеры
+            // РљРѕРЅРІРµСЂС‚РµСЂС‹
             foreach (var type in typeof(Library.Bootstrapper).Assembly.GetTypes()
                                           .Where(type => type.IsClass)
                                           .Where(type => type.Name.EndsWith("Converter"))
@@ -208,11 +208,11 @@ namespace DriverAPI
                 services.AddScoped(type);
             }
             
-            // Хелперы
+            // РҐРµР»РїРµСЂС‹
             services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();
             services.AddScoped<IFCMAPIHelper, FCMAPIHelper>();
 
-            // DAL обертки
+            // DAL РѕР±РµСЂС‚РєРё
             services.AddScoped<ITrackPointsData, TrackPointsData>();
             services.AddScoped<IDriverMobileAppActionRecordData, DriverMobileAppActionRecordData>();
             services.AddScoped<IAPIRouteListData, APIRouteListData>();
