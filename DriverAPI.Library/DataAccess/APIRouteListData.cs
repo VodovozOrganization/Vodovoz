@@ -58,7 +58,7 @@ namespace DriverAPI.Library.DataAccess
                 {
                     routeLists.Add(routeListConverter.convertToAPIRouteList(routelist));
                 }
-                catch (ArgumentException e)
+                catch (ConverterException e)
                 {
                     logger.LogWarning(e, $"Ошибка конвертирования маршрутного листа {routelist.Id}");
                 }

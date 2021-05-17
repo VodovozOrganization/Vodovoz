@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MySql.EntityFrameworkCore.Metadata;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DriverAPI.Data
 {
@@ -38,7 +35,7 @@ namespace DriverAPI.Data
 
                 b.HasIndex("NormalizedName")
                     .IsUnique()
-                    .HasName("RoleNameIndex")
+                    .HasDatabaseName("RoleNameIndex")
                     .HasFilter("[NormalizedName] IS NOT NULL");
 
                 b.ToTable("AspNetRoles");
@@ -127,11 +124,11 @@ namespace DriverAPI.Data
                 b.HasKey("Id");
 
                 b.HasIndex("NormalizedEmail")
-                    .HasName("EmailIndex");
+                    .HasDatabaseName("EmailIndex");
 
                 b.HasIndex("NormalizedUserName")
                     .IsUnique()
-                    .HasName("UserNameIndex")
+                    .HasDatabaseName("UserNameIndex")
                     .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                 b.ToTable("AspNetUsers");
