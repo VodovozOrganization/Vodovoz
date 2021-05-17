@@ -62,7 +62,8 @@ namespace DriverAPI.Library.DataAccess
         /// </summary>
         /// <param name="orderId">Идентификатор заказа</param>
         /// <returns>APIOrder</returns>
-        public APIOrder Get(int orderId) => Get(new int[] { orderId }).SingleOrDefault();
+        public APIOrder Get(int orderId)
+            => orderConverter.convertToAPIOrder(orderRepository.GetOrder(unitOfWork, orderId), aPISmsPaymentData.GetOrderPaymentStatus(orderId));
 
         /// <summary>
         /// Получение списка заказов в требуемом формате из заказов программы ДВ по списку идентификаторов

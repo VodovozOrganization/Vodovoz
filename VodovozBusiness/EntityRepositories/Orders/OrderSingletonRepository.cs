@@ -889,5 +889,10 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return query.List();
 		}
-	}
+
+        public VodovozOrder GetOrder(IUnitOfWork unitOfWork, int orderId)
+        {
+			return unitOfWork.GetById<VodovozOrder>(orderId);
+        }
+    }
 }
