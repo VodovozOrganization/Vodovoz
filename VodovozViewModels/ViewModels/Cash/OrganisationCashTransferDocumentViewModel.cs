@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
@@ -19,23 +20,23 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public IEnumerable<Organization> Organizations { get; }
         public bool CanEdit { get; }
         public bool CanEditRectroactively { get; }
-        private readonly Employee Author;
+        private readonly Employee author;
 
         public OrganisationCashTransferDocumentViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEntityExtendedPermissionValidator entityExtendedPermissionValidator)
             : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
             Organizations = UoW.GetAll<Organization>();
-            Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+            author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 
             CanEditRectroactively = entityExtendedPermissionValidator.Validate(typeof(OrganisationCashTransferDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
-            CanEdit = (UoW.IsNew && PermissionResult.CanCreate) ||
+            CanEdit = (Entity.Id == 0 && PermissionResult.CanCreate) ||
                       (PermissionResult.CanUpdate && Entity.DocumentDate.Date == DateTime.Now.Date) ||
                       CanEditRectroactively;
 
-            if (UoW.IsNew)
+            if (Entity.Id == 0)
             {
                 Entity.DocumentDate = DateTime.Now;
-                Entity.Author = Author;
+                Entity.Author = author;
             }
         }
 
@@ -44,19 +45,24 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             if (!CanEdit || !Validate())
                 return false;
 
-            var operationFrom = Entity.OrganisationCashMovementOperationFrom = Entity.OrganisationCashMovementOperationFrom ?? new OrganisationCashMovementOperation { OperationTime = DateTime.Now };
-            var operationTo = Entity.OrganisationCashMovementOperationTo = Entity.OrganisationCashMovementOperationTo ?? new OrganisationCashMovementOperation { OperationTime = DateTime.Now };
+            if (HasChanges)
+            {
+                var operationFrom = Entity.OrganisationCashMovementOperationFrom = Entity.OrganisationCashMovementOperationFrom ?? new OrganisationCashMovementOperation { OperationTime = DateTime.Now };
+                var operationTo = Entity.OrganisationCashMovementOperationTo = Entity.OrganisationCashMovementOperationTo ?? new OrganisationCashMovementOperation { OperationTime = DateTime.Now };
 
-            operationFrom.Organisation = Entity.OrganizationFrom;
-            operationFrom.Amount = -Entity.TransferedSum;
+                operationFrom.Organisation = Entity.OrganizationFrom;
+                operationFrom.Amount = -Entity.TransferedSum;
 
-            operationTo.Organisation = Entity.OrganizationTo;
-            operationTo.Amount = Entity.TransferedSum;
+                operationTo.Organisation = Entity.OrganizationTo;
+                operationTo.Amount = Entity.TransferedSum;
 
-            UoW.Save(operationFrom);
-            UoW.Save(operationTo);
+                UoW.Save(operationFrom);
+                UoW.Save(operationTo);
+                UoW.Save();
+            }
 
-            return base.Save(close);
+            Close(false, CloseSource.Save);
+            return true;
         }
     }
 }

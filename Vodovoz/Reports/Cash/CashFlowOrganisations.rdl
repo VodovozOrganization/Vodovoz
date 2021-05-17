@@ -33,7 +33,7 @@ FROM
         LEFT JOIN 
     cash_income ci ON codd.cash_income_id = ci.id
         LEFT JOIN
-    cash_income_category ON cash_income_category.id = IFNULL(ci.cash_income_category_id, (SELECT str_value FROM base_parameters WHERE NAME = 'cash_income_category_transfer_id'))
+    cash_income_category ON cash_income_category.id = IFNULL(ci.cash_income_category_id, @cash_income_category_transfer_id)
         LEFT JOIN
     organisation_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_to_id = ocmo.id
        
@@ -62,6 +62,9 @@ ORDER BY Category;</CommandText>
           <QueryParameter Name="organisations">
             <Value>=Parameters!organisations</Value>
           </QueryParameter>
+          <QueryParameter Name="cash_income_category_transfer_id">
+            <Value>={?cash_income_category_transfer_id}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields>
@@ -88,7 +91,7 @@ FROM
         LEFT JOIN
     cash_expense ce ON codd.cash_expense_id = ce.id
         LEFT JOIN
-    cash_expense_category ON cash_expense_category.id = IFNULL(ce.cash_expense_category_id, (SELECT str_value FROM base_parameters WHERE name = 'cash_expense_category_transfer_id'))
+    cash_expense_category ON cash_expense_category.id = IFNULL(ce.cash_expense_category_id, @cash_expense_category_transfer_id)
         LEFT JOIN
     organisation_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_from_id = ocmo.id
 
@@ -115,6 +118,9 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
           <QueryParameter Name="organisations">
             <Value>=Parameters!organisations</Value>
+          </QueryParameter>
+          <QueryParameter Name="cash_expense_category_transfer_id">
+            <Value>={?cash_expense_category_transfer_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1570,7 +1576,21 @@ GROUP BY org.id;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="cash_income_category_transfer_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="cash_expense_category_transfer_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

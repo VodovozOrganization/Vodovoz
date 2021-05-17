@@ -1,7 +1,11 @@
 ﻿using System;
+using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Views.GtkUI;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModel;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 
 namespace Vodovoz.Filters.GtkViews
@@ -21,8 +25,8 @@ namespace Vodovoz.Filters.GtkViews
             dateperiodCashTransfer.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
             dateperiodCashTransfer.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
 
-            entryreferencevmEmployee.RepresentationModel = new EmployeesVM(new EmployeeFilterViewModel());
-            entryreferencevmEmployee.Binding.AddBinding(ViewModel, x => x.Author, v => v.Subject).InitializeFromSource();
+            entityviewmodelentryAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
+            entityviewmodelentryAuthor.Binding.AddBinding(ViewModel, vm => vm.Author, w => w.Subject).InitializeFromSource();
 
             speciallistCmbOrganisationsFrom.ItemsList = ViewModel.Organizations;
             speciallistCmbOrganisationsFrom.Binding.AddBinding(ViewModel, vm => vm.OrganizationFrom, w => w.SelectedItem).InitializeFromSource();

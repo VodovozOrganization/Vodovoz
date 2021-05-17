@@ -681,8 +681,22 @@ public partial class MainWindow : Window
 		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(),
 			EmployeeSingletonRepository.GetInstance());
 
-		tdiMain.OpenTab(() => new OrganisationCashTransferDocumentJournalViewModel(
-			new OrganisationCashTransferDocumentFilterViewModel() { HidenByDefault = true },
+        var employeeSelectorFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+            () =>
+            {
+                var employeeFilter = new EmployeeFilterViewModel
+                {
+                    Status = EmployeeStatus.IsWorking,
+                };
+                return new EmployeesJournalViewModel(
+                    employeeFilter,
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices);
+            });
+
+
+        tdiMain.OpenTab(() => new OrganisationCashTransferDocumentJournalViewModel(
+			new OrganisationCashTransferDocumentFilterViewModel(employeeSelectorFactory) { HidenByDefault = true },
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			entityExtendedPermissionValidator)

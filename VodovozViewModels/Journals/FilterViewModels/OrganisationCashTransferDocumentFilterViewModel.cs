@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.Project.Filter;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 
@@ -8,8 +9,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 {
     public class OrganisationCashTransferDocumentFilterViewModel : FilterViewModelBase<OrganisationCashTransferDocumentFilterViewModel>
     {
-        public OrganisationCashTransferDocumentFilterViewModel()
+        public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+        public OrganisationCashTransferDocumentFilterViewModel(IEntityAutocompleteSelectorFactory employeeSelectorFactory)
         {
+            this.EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
             Organizations = UoW.GetAll<Organization>();
         }
 

@@ -23,9 +23,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         public OrganisationCashTransferDocumentJournalViewModel(OrganisationCashTransferDocumentFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEntityExtendedPermissionValidator entityExtendedPermissionValidator)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
+            this.entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
             TabName = "Журнал перемещения д/с для юр.лиц";
             UpdateOnChanges(typeof(OrganisationCashTransferDocument));
-            this.entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
         }
 
         protected override Func<IUnitOfWork, IQueryOver<OrganisationCashTransferDocument>> ItemsSourceQueryFunction => (uow) =>
@@ -65,6 +65,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 itemsQuery.Where(() => organisationCashTransferDocumentAlias.OrganizationTo == FilterViewModel.OrganizationTo);
 
             itemsQuery.Where(GetSearchCriterion(
+                () => organizationFromAlias.Id,
+                () => organizationToAlias.Id,
                 () => organizationFromAlias.FullName,
                 () => organizationToAlias.FullName)
             );

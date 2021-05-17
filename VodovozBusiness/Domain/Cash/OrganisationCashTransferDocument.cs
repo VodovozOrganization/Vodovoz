@@ -10,7 +10,7 @@ using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Cash
 {
-    [Appellative(Gender = GrammaticalGender.Feminine,
+    [Appellative(Gender = GrammaticalGender.Masculine,
         NominativePlural = "документы перемещения д/с между юр.лицами",
         Nominative = "документ перемещения д/с между юр.лицами")]
     [EntityPermission]
@@ -60,6 +60,8 @@ namespace Vodovoz.Domain.Cash
                 yield return new ValidationResult("Должны быть выбраны разные организации", new[] { nameof(OrganizationFrom) });
             if (TransferedSum <= 0)
                 yield return new ValidationResult("Некорректная сумма для перемещения", new[] { nameof(TransferedSum) });
+            if (Comment?.Length > 255)
+                yield return new ValidationResult("Cлишком длинный комментарий", new[] { nameof(TransferedSum) });
         }
 
         #endregion
