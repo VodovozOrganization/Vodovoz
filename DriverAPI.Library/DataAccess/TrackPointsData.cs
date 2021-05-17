@@ -26,7 +26,7 @@ namespace DriverAPI.Library.DataAccess
 
         public void RegisterForRouteList(int routeListId, IEnumerable<APITrackCoordinate> trackList)
         {
-            var track = trackRepository.GetTrackByRouteListId(routeListId);
+            var track = trackRepository.GetTrackByRouteListId(unitOfWork, routeListId);
 
             if (track == null) // Должен ли создаваться трек, если его нету?
             {
