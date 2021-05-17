@@ -71,11 +71,11 @@ namespace DriverAPI.Library.DataAccess
         /// <summary>
         /// Получение списка идентификаторов МЛ для водителя по его Email адресу
         /// </summary>
-        /// <param name="email">Email адрес</param>
+        /// <param name="login">Android - login</param>
         /// <returns>Список идентификаторов</returns>
-        public IEnumerable<int> GetRouteListsIdsForDriverByEmail(string email)
+        public IEnumerable<int> GetRouteListsIdsForDriverByAndroidLogin(string login)
         {
-            var driver = employeeRepository.GetEmployeeByEmail(unitOfWork, email);
+            var driver = employeeRepository.GetDriverByAndroidLogin(unitOfWork, login);
 
             return routeListRepository.GetDriverRouteListsIds(
                     unitOfWork,
