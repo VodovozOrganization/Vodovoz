@@ -59,7 +59,7 @@ namespace DriverAPI.Library.DataAccess
                 track.TrackPoints.Add(trackPoint);
             }
 
-            trackRepository.Save(track);
+            unitOfWork.Save(track);
             unitOfWork.Commit();
         }
     }
