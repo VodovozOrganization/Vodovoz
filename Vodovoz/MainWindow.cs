@@ -1823,9 +1823,14 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
     {
+        var employeeFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+            () => new EmployeesJournalViewModel(
+                new EmployeeFilterViewModel(),
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices));
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
-            () => new QSReport.ReportViewDlg(new ReturnedTareReport())
+            () => new QSReport.ReportViewDlg(new ReturnedTareReport(employeeFactory))
         );
     }
 
