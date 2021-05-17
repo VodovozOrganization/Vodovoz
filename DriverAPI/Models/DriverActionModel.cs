@@ -1,6 +1,5 @@
 ﻿using DriverAPI.Library.Models;
 using System;
-using System.Text.Json.Serialization;
 
 namespace DriverAPI.Controllers
 {

@@ -1,5 +1,4 @@
-﻿using DriverAPI.Library.Models;
-using System;
+﻿using System;
 
 namespace DriverAPI.Models
 {

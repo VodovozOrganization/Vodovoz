@@ -56,22 +56,4 @@ namespace DriverAPI.Library.Helpers
             sendPaymentEndpointURI = apiConfiguration["SendPaymentEndpointURI"];
         }
     }
-
-    public class FCMException : Exception
-    {
-        public FCMException(string message) : base(message){ }
-    }
-
-    public class FCMSendPushRequestModel
-    {
-        public string to { get; set; }
-        public FCMSendPushMessageModel data { get; set; }
-    }
-
-    public class FCMSendPushMessageModel
-    {
-        public string notificationType { get; set; }
-        public string message { get; set; }
-        public string sender { get; set; }
-    }
 }
