@@ -40,7 +40,8 @@ namespace DriverAPI.Library.DataAccess
         /// </summary>
         /// <param name="routeListId">Идентификатор МЛ</param>
         /// <returns>APIRouteList</returns>
-        public APIRouteList Get(int routeListId) => Get(new[] { routeListId }).SingleOrDefault();
+        public APIRouteList Get(int routeListId)
+            => routeListConverter.convertToAPIRouteList(routeListRepository.GetRouteList(unitOfWork, routeListId));
 
         /// <summary>
         /// Получение информации о маршрутных листах в требуемом формате
