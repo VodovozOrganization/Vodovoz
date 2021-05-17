@@ -18,10 +18,5 @@ namespace Vodovoz.EntityRepositories.Logistic
         {
             return unitOfWork.Session.Query<Track>().Where(t => t.RouteList.Id == routeListId).SingleOrDefault();
         }
-
-        public void Save(Track track)
-        {
-            unitOfWork.Save(track);
-        }
     }
 }
