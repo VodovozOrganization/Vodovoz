@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Client;
-using Vodovoz.Services;
 
 namespace DriverAPI.Library.Converters
 {
@@ -13,18 +11,18 @@ namespace DriverAPI.Library.Converters
     {
         private readonly ILogger<OrderConverter> logger;
         private readonly DeliveryPointConverter deliveryPointConverter;
-        private readonly IOrderParametersProvider orderParametersProvider;
-        private readonly SmsPaymentConverter smsPaymentConverter;
+        private readonly SmsPaymentStatusConverter smsPaymentConverter;
+        private readonly PaymentTypeConverter paymentTypeConverter;
 
         public OrderConverter(ILogger<OrderConverter> logger,
             DeliveryPointConverter deliveryPointConverter,
-            IOrderParametersProvider orderParametersProvider, 
-            SmsPaymentConverter smsPaymentConverter)
+            SmsPaymentStatusConverter smsPaymentConverter,
+            PaymentTypeConverter paymentTypeConverter)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
-            this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             this.smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
+            this.paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
         }
 
         public APIOrder convertToAPIOrder(Vodovoz.Domain.Orders.Order vodovozOrder, SmsPaymentStatus? smsPaymentStatus)
@@ -39,7 +37,7 @@ namespace DriverAPI.Library.Converters
                 FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,
                 Counterparty = vodovozOrder.Client.FullName,
                 CounterpartyPhoneNumbers = vodovozOrder.Client.Phones.Select(x => "+7" + x.DigitsNumber),
-                PaymentType = convertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
+                PaymentType = paymentTypeConverter.convertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
                 Address = deliveryPointConverter.extractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
                 OrderComment = vodovozOrder.Comment,
                 OrderSum = vodovozOrder.ActualTotalSum,
@@ -78,7 +76,14 @@ namespace DriverAPI.Library.Converters
 
             foreach (var saleItem in orderItems)
             {
-                result.Add(convertToAPIOrderSaleItem(saleItem));
+                try
+                {
+                    result.Add(convertToAPIOrderSaleItem(saleItem));
+                }
+                catch(ConverterException e) 
+                {
+                    logger.LogWarning(e, $"Товар {saleItem.Id} пропущен, ошибка конвертирования");
+                }
             }
 
             return result;
@@ -119,35 +124,6 @@ namespace DriverAPI.Library.Converters
             };
 
             return result;
-        }
-
-        private APIPaymentType convertToAPIPaymentType(PaymentType paymentType, Vodovoz.Domain.Orders.PaymentFrom paymentByCardFrom)
-        {
-            switch (paymentType)
-            {
-                case PaymentType.cash:
-                    return APIPaymentType.Cash;
-                case PaymentType.cashless:
-                    return APIPaymentType.Cashless;
-                case PaymentType.ByCard:
-                    if (paymentByCardFrom.Id == orderParametersProvider.PaymentByCardFromSmsId)
-                    {
-                        return APIPaymentType.ByCardFromSms;
-                    }
-                    else
-                    {
-                        return APIPaymentType.ByCard;
-                    }
-                case PaymentType.Terminal:
-                    return APIPaymentType.Terminal;
-                case PaymentType.BeveragesWorld:
-                case PaymentType.barter:
-                case PaymentType.ContractDoc:
-                    return APIPaymentType.Payed;
-                default:
-                    logger.LogWarning($"Не поддерживается тип: {paymentType}");
-                    throw new ArgumentException($"Не поддерживается тип: {paymentType}");
-            }
         }
     }
 }

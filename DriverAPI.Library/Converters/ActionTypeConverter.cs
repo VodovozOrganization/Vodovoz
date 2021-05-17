@@ -1,5 +1,4 @@
 ﻿using DriverAPI.Library.Models;
-using System;
 using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Library.Converters
@@ -25,7 +24,7 @@ namespace DriverAPI.Library.Converters
                     result = APIActionType.CompleteOrderClicked;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(driverMobileAppActionType));
+                    throw new ConverterException(nameof(driverMobileAppActionType), driverMobileAppActionType, $"Значение {driverMobileAppActionType} не поддерживается");
             }
 
             return result;
@@ -50,7 +49,7 @@ namespace DriverAPI.Library.Converters
                     result = DriverMobileAppActionType.CompleteOrderClicked;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(aPIActionType));
+                    throw new ConverterException(nameof(aPIActionType), aPIActionType, $"Значение {aPIActionType} не поддерживается");
             }
 
             return result;

@@ -10,12 +10,11 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Library.DataAccess
 {
@@ -84,9 +83,9 @@ namespace DriverAPI.Library.DataAccess
                     order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
                     result.Add(order);
                 }
-                catch (ArgumentException e)
+                catch (ConverterException)
                 {
-                    logger.LogWarning(e, $"Ошибка конвертирования заказа {vodovozOrder.Id}");
+                    logger.LogWarning($"Пропущен заказ: {vodovozOrder.Id}, ошибка конвертирования");
                 }
             }
 
