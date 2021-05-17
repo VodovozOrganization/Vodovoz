@@ -40,30 +40,28 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref version, value);
 		}
 
-		Orders.Order order;
-
+		private Orders.Order order;
 		[Display(Name = "Заказ")]
 		public virtual Orders.Order Order {
 			get => order;
 			set => SetField(ref order, value);
 		}
 
-		RouteList routeList;
-
+		private RouteList routeList;
 		[Display(Name = "Маршрутный лист")]
 		public virtual RouteList RouteList {
 			get => routeList;
 			set => SetField(ref routeList, value);
 		}
 
-		RouteListItemStatus status;
+		private RouteListItemStatus status;
 		[Display(Name = "Статус адреса")]
 		public virtual RouteListItemStatus Status {
 			get => status;
 			protected set => SetField(ref status, value);
 		}
 
-		DateTime? statusLastUpdate;
+		private DateTime? statusLastUpdate;
 		[Display(Name = "Время изменения статуса")]
 		public virtual DateTime? StatusLastUpdate {
 			get => statusLastUpdate;
@@ -71,7 +69,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		private RouteListItem transferedTo;
-
 		[Display(Name = "Перенесен в другой маршрутный лист")]
 		public virtual RouteListItem TransferedTo {
 			get => transferedTo;
@@ -82,7 +79,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		private bool needToReload;
-
 		[Display(Name = "Необходима повторная загрузка")]
 		public virtual bool NeedToReload {
 			get => needToReload;
@@ -90,7 +86,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		private bool wasTransfered;
-
 		[Display(Name = "Был перенесен")]
 		public virtual bool WasTransfered {
 			get => wasTransfered;
@@ -98,7 +93,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		private string cashierComment;
-
 		[Display(Name = "Комментарий кассира")]
 		public virtual string CashierComment {
 			get => cashierComment;
@@ -106,7 +100,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		private DateTime? cashierCommentCreateDate;
-
 		[Display(Name = "Дата создания комментария кассира")]
 		public virtual DateTime? CashierCommentCreateDate {
 			get => cashierCommentCreateDate;
@@ -114,7 +107,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		private DateTime? cashierCommentLastUpdate;
-
 		[Display(Name = "Дата обновления комментария кассира")]
 		public virtual DateTime? CashierCommentLastUpdate {
 			get => cashierCommentLastUpdate;
@@ -122,28 +114,27 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		private Employee cashierCommentAuthor;
-
 		[Display(Name = "Автор комментария")]
 		public virtual Employee CashierCommentAuthor {
 			get => cashierCommentAuthor;
 			set => SetField(ref cashierCommentAuthor, value);
 		}
 
-		string comment;
+		private string comment;
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get => comment;
 			set => SetField(ref comment, value);
 		}
 
-		bool withForwarder;
+		private bool withForwarder;
 		[Display(Name = "С экспедитором")]
 		public virtual bool WithForwarder {
 			get => withForwarder;
 			set => SetField(ref withForwarder, value);
 		}
 
-		int indexInRoute;
+		private int indexInRoute;
 		[Display(Name = "Порядковый номер в МЛ")]
 		public virtual int IndexInRoute {
 			get => indexInRoute;
@@ -164,7 +155,7 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref driverBottlesReturned, value);
 		}
 
-		decimal oldBottleDepositsCollected;
+		private decimal oldBottleDepositsCollected;
 		/// <summary>
 		/// Устаревший залог за бутыли. Который раньше вводился пользователем вручную при закрытии МЛ
 		/// </summary>
@@ -188,8 +179,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		decimal oldEquipmentDepositsCollected;
-
+		private decimal oldEquipmentDepositsCollected;
 		/// <summary>
 		/// Устаревший залог за оборудование. Который раньше вводился пользователем вручную при закрытии МЛ
 		/// </summary>
@@ -225,35 +215,35 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		decimal totalCash;
+		private decimal totalCash;
 		[Display(Name = "Всего наличных")]
 		public virtual decimal TotalCash {
 			get => totalCash;
 			set => SetField(ref totalCash, value);
 		}
 
-		decimal extraCash;
+		private decimal extraCash;
 		[Display(Name = "Дополнительно наличных")]
 		public virtual decimal ExtraCash {
 			get => extraCash;
 			set => SetField(ref extraCash, value);
 		}
 
-		decimal driverWage;
+		private decimal driverWage;
 		[Display(Name = "ЗП водителя")]
 		public virtual decimal DriverWage {
 			get => driverWage;
 			set => SetField(ref driverWage, value);
 		}
 
-		decimal driverWageSurcharge;
+		private decimal driverWageSurcharge;
 		[Display(Name = "Надбавка к ЗП водителя")]
 		public virtual decimal DriverWageSurcharge {
 			get => driverWageSurcharge;
 			set => SetField(ref driverWageSurcharge, value);
 		}
 
-		decimal forwarderWage;
+		private decimal forwarderWage;
 		[Display(Name = "ЗП экспедитора")]
 		//Зарплана с уже включенной надбавкой ForwarderWageSurcharge
 		public virtual decimal ForwarderWage {
@@ -270,7 +260,6 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool NotifiedTimeout { get; set; }
 
 		private TimeSpan? planTimeStart;
-
 		[Display(Name = "Запланированное время приезда min")]
 		public virtual TimeSpan? PlanTimeStart {
 			get => planTimeStart;
@@ -278,49 +267,48 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		private TimeSpan? planTimeEnd;
-
 		[Display(Name = "Запланированное время приезда max")]
 		public virtual TimeSpan? PlanTimeEnd {
 			get => planTimeEnd;
 			set => SetField(ref planTimeEnd, value);
 		}
 
-		WageDistrictLevelRate forwarderWageCalulationMethodic;
+		private WageDistrictLevelRate forwarderWageCalulationMethodic;
 		[Display(Name = "Методика расчёта ЗП экспедитора")]
 		public virtual WageDistrictLevelRate ForwarderWageCalculationMethodic {
 			get => forwarderWageCalulationMethodic;
 			set => SetField(ref forwarderWageCalulationMethodic, value);
 		}
 
-		WageDistrictLevelRate driverWageCalulationMethodic;
+		private WageDistrictLevelRate driverWageCalulationMethodic;
 		[Display(Name = "Методика расчёта ЗП водителя")]
 		public virtual WageDistrictLevelRate DriverWageCalculationMethodic {
 			get => driverWageCalulationMethodic;
 			set => SetField(ref driverWageCalulationMethodic, value);
 		}
-		
-		LateArrivalReason lateArrivalReason;
+
+		private LateArrivalReason lateArrivalReason;
 		[Display(Name = "Причина опоздания водителя")]
 		public virtual LateArrivalReason LateArrivalReason {
 			get => lateArrivalReason;
 			set => SetField(ref lateArrivalReason, value);
 		}
-		
-		Employee lateArrivalReasonAuthor;
+
+		private Employee lateArrivalReasonAuthor;
 		[Display(Name = "Автор причины опоздания водителя")]
 		public virtual Employee LateArrivalReasonAuthor {
 			get => lateArrivalReasonAuthor;
 			set => SetField(ref lateArrivalReasonAuthor, value);
 		}
-		
-		string commentForFine;
+
+		private string commentForFine;
 		[Display(Name = "Комментарий по штрафу")]
 		public virtual string CommentForFine {
 			get => commentForFine;
 			set => SetField(ref commentForFine, value);
 		}
-		
-		Employee commentForFineAuthor;
+
+		private Employee commentForFineAuthor;
 		[Display(Name = "Последний редактор комментария по штрафу")]
 		public virtual Employee CommentForFineAuthor {
 			get => commentForFineAuthor;
@@ -330,8 +318,8 @@ namespace Vodovoz.Domain.Logistic
 					SetField(ref commentForFineAuthor, value);
 			}
 		}
-		
-		IList<Fine> fines = new List<Fine>();
+
+		private IList<Fine> fines = new List<Fine>();
 		[Display(Name = "Штрафы")]
 		public virtual IList<Fine> Fines {
 			get => fines;
@@ -524,21 +512,22 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
+					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.Shipped, callTaskWorker);
-					if(Order.TimeDelivered == null) {
-						Order.TimeDelivered = DateTime.Now;
-					}
+					Order.TimeDelivered = DateTime.Now;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
+					Order.TimeDelivered = null;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
+					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 			}
@@ -556,21 +545,22 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatus(OrderStatus.DeliveryCanceled);
+					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatus(OrderStatus.Shipped);
-					if(Order.TimeDelivered == null) {
-						Order.TimeDelivered = DateTime.Now;
-					}
+					Order.TimeDelivered = DateTime.Now;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatus(OrderStatus.OnTheWay);
+					Order.TimeDelivered = null;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatus(OrderStatus.NotDelivered);
+					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 			}

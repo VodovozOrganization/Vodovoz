@@ -127,7 +127,7 @@ namespace DriverAPI.Controllers
 
             Vodovoz.Domain.Client.PaymentType newVodovozPaymentType;
 
-            if (newEnumPaymentType == APIPaymentType.Terminal) // переместить в конвертер
+            if (newEnumPaymentType == APIPaymentType.Terminal)
             {
                 newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.Terminal;
             }

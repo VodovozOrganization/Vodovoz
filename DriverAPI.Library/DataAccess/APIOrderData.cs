@@ -100,7 +100,7 @@ namespace DriverAPI.Library.DataAccess
         /// <returns>IEnumerable APIPaymentType</returns>
         public IEnumerable<APIPaymentType> GetAvailableToChangePaymentTypes(int orderId)
         {
-            var vodovozOrder = orderRepository.GetOrders(unitOfWork, new[] { orderId }).SingleOrDefault();
+            var vodovozOrder = orderRepository.GetOrder(unitOfWork, orderId);
             if (vodovozOrder == null)
             {
                 throw new ArgumentException($"Не найден заказ {orderId}");
@@ -137,7 +137,7 @@ namespace DriverAPI.Library.DataAccess
         /// <returns>APIOrderAdditionalInfo</returns>
         public APIOrderAdditionalInfo GetAdditionalInfoOrNull(int orderId) 
         {
-            var vodovozOrder = orderRepository.GetOrders(unitOfWork, new[] { orderId }).FirstOrDefault();
+            var vodovozOrder = orderRepository.GetOrder(unitOfWork, orderId);
 
             if (vodovozOrder == null)
             {
@@ -176,7 +176,7 @@ namespace DriverAPI.Library.DataAccess
 
         public void ChangeOrderPaymentType(int orderId, PaymentType paymentType)
         {
-            var vodovozOrder = orderRepository.GetOrders(unitOfWork, new[] {orderId}).SingleOrDefault();
+            var vodovozOrder = orderRepository.GetOrder(unitOfWork, orderId);
 
             if (vodovozOrder == null)
             {
@@ -199,7 +199,7 @@ namespace DriverAPI.Library.DataAccess
             string otherDriverComplaintReasonComment,
             DateTime actionTime)
         {
-            var vodovozOrder = orderRepository.GetOrders(unitOfWork, new[] { orderId }).SingleOrDefault();
+            var vodovozOrder = orderRepository.GetOrder(unitOfWork, orderId);
             var routeList = routeListRepository.GetRouteListByOrder(unitOfWork, vodovozOrder);
             var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId).SingleOrDefault();
 
