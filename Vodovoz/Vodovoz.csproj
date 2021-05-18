@@ -1597,6 +1597,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.WarehouseView.cs" />
     <Compile Include="ReportsParameters\Logistic\GeneralSalaryInfoReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.GeneralSalaryInfoReport.cs" />
+    <Compile Include="ReportsParameters\Employees\EmployeesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Employees.EmployeesReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1895,6 +1897,7 @@
     <Folder Include="Views\Retail\" />
     <Folder Include="ReportsParameters\Retail\" />
     <Folder Include="Reports\Retail\" />
+    <Folder Include="ReportsParameters\Employees\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2493,6 +2496,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Reports\Logistic\GeneralSalaryInfoReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Employees\EmployeesReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Content Include="Reports\Payments\PaymentsDelayNetwork.rdl" />
