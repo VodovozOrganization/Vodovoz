@@ -17,39 +17,40 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     distr.district_name AS d_name,
+    gg.name as gg_name,
     NULLIF(
-        COUNT(DISTINCT IF(
-            HOUR(dsch.to_time) &lt;= 13,  o.id, NULL
-        )), 0) AS orders_before_13,
+            COUNT(DISTINCT IF(
+                        HOUR(dsch.to_time) &lt;= 13,  o.id, NULL
+                )), 0) AS orders_before_13,
     NULLIF(
-        COUNT(DISTINCT IF(
-            HOUR(dsch.to_time) &gt; 13 AND HOUR(dsch.to_time) &lt;= 18, o.id, NULL
-        )),0) AS orders_between_13_18,
+            COUNT(DISTINCT IF(
+                            HOUR(dsch.to_time) &gt; 13 AND HOUR(dsch.to_time) &lt;= 18, o.id, NULL
+                )),0) AS orders_between_13_18,
     NULLIF(
-        COUNT(DISTINCT IF(
-            HOUR(dsch.to_time) &gt; 18, o.id, NULL
-        )),0) AS orders_after_18,
+            COUNT(DISTINCT IF(
+                        HOUR(dsch.to_time) &gt; 18, o.id, NULL
+                )),0) AS orders_after_18,
     NULLIF(
-        SUM(IF(
-            HOUR(dsch.to_time) &lt;= 13, 
-            IF(
-                n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
-            ), 0
-        )),0) AS bottles_before_13,
+            SUM(IF(
+                        HOUR(dsch.to_time) &lt;= 13,
+                        IF(
+                                        n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
+                            ), 0
+                )),0) AS bottles_before_13,
     NULLIF(
-        SUM(IF(
-            HOUR(dsch.to_time) &gt; 13 AND HOUR(dsch.to_time) &lt;= 18,
-            IF(
-                n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
-            ), 0
-        )),0) AS bottles_between_13_18,
+            SUM(IF(
+                            HOUR(dsch.to_time) &gt; 13 AND HOUR(dsch.to_time) &lt;= 18,
+                            IF(
+                                            n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
+                                ), 0
+                )),0) AS bottles_between_13_18,
     NULLIF(
-        SUM(IF(
-            HOUR(dsch.to_time) &gt; 18,
-            IF(
-                n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
-            ), 0
-        )),0) AS bottles_after_18,
+            SUM(IF(
+                        HOUR(dsch.to_time) &gt; 18,
+                        IF(
+                                        n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
+                            ), 0
+                )),0) AS bottles_after_18,
     COUNT(DISTINCT o.id) AS total_orders_count,
     SUM(IF(n.category = 'water' AND n.tare_volume = 'Vol19L', cast(i.count as SIGNED), NULL)) AS total_bottles_count,
     HOUR(dsch.to_time) AS delivery_schedule
@@ -64,14 +65,16 @@ FROM
         INNER JOIN
     districts distr ON dp.district_id = distr.id
         LEFT JOIN
+    geographic_groups gg on distr.geographic_group_id = gg.id
+        LEFT JOIN
     delivery_schedule dsch ON o.delivery_schedule_id = dsch.id
 WHERE
-  o.order_status NOT IN ('Canceled','NewOrder','WaitForPayment')
+        o.order_status NOT IN ('Canceled','NewOrder','WaitForPayment')
   AND o.delivery_date = @date
   AND o.delivery_schedule_id IS NOT NULL
   AND NOT o.is_contract_closer
   AND NOT o.service
-GROUP BY distr.id</CommandText>
+GROUP BY distr.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>={?date}</Value>
@@ -114,6 +117,10 @@ GROUP BY distr.id</CommandText>
         <Field Name="total_bottles_count">
           <DataField>total_bottles_count</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="gg_name">
+          <DataField>gg_name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -167,6 +174,9 @@ GROUP BY distr.id</CommandText>
           <TableColumn>
             <Width>255.4pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>79.9pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>53.2pt</Width>
           </TableColumn>
@@ -202,6 +212,23 @@ GROUP BY distr.id</CommandText>
                     <Textbox Name="Textbox2">
                       <Value>Логистический район</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>Часть города</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -294,6 +321,24 @@ GROUP BY distr.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -479,6 +524,28 @@ GROUP BY distr.id</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>={gg_name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                          <Right>Solid</Right>
+                          <Top>Solid</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="money">
@@ -640,7 +707,7 @@ GROUP BY distr.id</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.8pt</Left>
+        <Left>0.0pt</Left>
         <Top>7.2pt</Top>
         <Footer>
           <TableRows>
@@ -666,6 +733,29 @@ GROUP BY distr.id</CommandText>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>Solid</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>3pt</Top>
+                        </BorderWidth>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -829,7 +919,7 @@ GROUP BY distr.id</CommandText>
             </TableRow>
           </TableRows>
         </Footer>
-        <PageBreakAtEnd >false</PageBreakAtEnd>
+        <PageBreakAtEnd>false</PageBreakAtEnd>
       </Table>
       <Textbox Name="Textbox10">
         <Height>23.34pt</Height>
