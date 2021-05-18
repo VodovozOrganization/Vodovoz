@@ -114,6 +114,7 @@ using QS.BaseParameters.Views;
 using QS.ChangePassword.Views;
 using QS.Project.Repositories;
 using QS.ViewModels;
+using Vodovoz.ReportsParameters.Employees;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
@@ -2243,6 +2244,14 @@ public partial class MainWindow : Gtk.Window
             QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
             () => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(
                 factory, ServicesConfig.InteractiveService))
+        );
+    }
+
+    protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
+            () => new QSReport.ReportViewDlg(new EmployeesReport())
         );
     }
 }
