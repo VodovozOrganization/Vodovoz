@@ -5,7 +5,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
-using QSSaaS;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ReportsParameters.Employees
@@ -25,7 +24,7 @@ namespace Vodovoz.ReportsParameters.Employees
 
         void Configure()
         {
-            buttonHelp.Clicked += ShowHelpWindow;
+            buttonInfo.Clicked += ShowInfoWindow;
             buttonRun.Clicked += ButtonRunOnClicked;
             buttonRun.Sensitive = false;
 
@@ -104,7 +103,7 @@ namespace Vodovoz.ReportsParameters.Employees
             return result.TrimEnd(',');
         }
 
-        void ShowHelpWindow(object sender, EventArgs args)
+        void ShowInfoWindow(object sender, EventArgs args)
         {
             var info = "Фильтры отчета:\n" +
                        "<b>Категория</b>: выбор категории сотрудника\n" +

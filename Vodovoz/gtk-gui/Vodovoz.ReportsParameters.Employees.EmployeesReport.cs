@@ -22,7 +22,7 @@ namespace Vodovoz.ReportsParameters.Employees
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gamma.GtkWidgets.yButton buttonHelp;
+		private global::Gamma.GtkWidgets.yButton buttonInfo;
 
 		private global::Gtk.HBox hbox9;
 
@@ -167,16 +167,16 @@ namespace Vodovoz.ReportsParameters.Employees
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonHelp = new global::Gamma.GtkWidgets.yButton();
-			this.buttonHelp.CanFocus = true;
-			this.buttonHelp.Name = "buttonHelp";
-			this.buttonHelp.UseUnderline = true;
-			this.buttonHelp.Xalign = 1F;
+			this.buttonInfo = new global::Gamma.GtkWidgets.yButton();
+			this.buttonInfo.CanFocus = true;
+			this.buttonInfo.Name = "buttonInfo";
+			this.buttonInfo.UseUnderline = true;
+			this.buttonInfo.Xalign = 1F;
 			global::Gtk.Image w8 = new global::Gtk.Image();
 			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
-			this.buttonHelp.Image = w8;
-			this.hbox3.Add(this.buttonHelp);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonHelp]));
+			this.buttonInfo.Image = w8;
+			this.hbox3.Add(this.buttonInfo);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonInfo]));
 			w9.PackType = ((global::Gtk.PackType)(1));
 			w9.Position = 1;
 			w9.Expand = false;
