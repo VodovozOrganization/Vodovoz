@@ -960,7 +960,7 @@
                     empl.min_route_addresses as min_addresses,
                     empl.max_route_addresses as max_addresses
                 from employees empl
-                    inner join subdivisions s on s.id = empl.subdivision_id
+                    left join subdivisions s on s.id = empl.subdivision_id
                     left join employees works_with on works_with.id = empl.default_forwarder_id
                     left join cars c on c.driver_id = empl.id
                     left join driver_district_priority_sets ddps   on (ddps.driver_id = empl.id and ddps.is_active=1)
@@ -1102,7 +1102,7 @@
                     frl.date as first_rl,
                     lrl.date as last_rl
                 from employees empl
-                    inner join subdivisions s on s.id = empl.subdivision_id
+                    left join subdivisions s on s.id = empl.subdivision_id
                     left join employees works_with on works_with.default_forwarder_id = empl.id
                     left join route_lists frl on frl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.forwarder_id order by sub_rl.date limit 1)
                     left join route_lists lrl on lrl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.forwarder_id order by sub_rl.date desc limit 1)
