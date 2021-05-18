@@ -689,12 +689,14 @@
     GROUP_CONCAT(DISTINCT subdivisions.name SEPARATOR ' ') AS subdivisions,
     counterparty.name AS client,
     complaints.arrangement_text AS arrangement_text,
-    CASE
-        WHEN complaint_guilty_items.guilty_type = 'Client' THEN 'Клиент'
-        WHEN complaint_guilty_items.guilty_type = 'Node' THEN 'Нет'
-        WHEN complaint_guilty_items.guilty_type = 'Employee' THEN  CONCAT_WS('', CONCAT(guiltyEmployee.last_name, ' '), IF(guiltyEmployee.name = '', '', CONCAT(LEFT(guiltyEmployee.name, 1), '.')), IF(guiltyEmployee.patronymic = '', '', CONCAT(LEFT(guiltyEmployee.patronymic, 1), '.')))
-        WHEN complaint_guilty_items.guilty_type = 'Subdivision' THEN guiltySubdivisions.name
-    END AS guilties,
+    GROUP_CONCAT(DISTINCT
+        CASE complaint_guilty_items.guilty_type
+            WHEN 'Client' THEN 'Клиент'
+            WHEN 'None'	THEN 'Нет'
+            WHEN 'Employee' THEN GET_PERSON_NAME_WITH_INITIALS(guiltyEmployee.last_name, guiltyEmployee.name, guiltyEmployee.patronymic)
+            WHEN 'Subdivision' THEN guiltySubdivisions.name
+        END SEPARATOR ';\n')
+    AS guilties,
     complaints.complaint_text,
     GROUP_CONCAT(DISTINCT ROUND(fines.total_money,2) SEPARATOR ' ') AS fines,
     complaints.result_text,
