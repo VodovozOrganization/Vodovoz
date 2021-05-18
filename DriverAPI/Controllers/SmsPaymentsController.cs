@@ -40,7 +40,7 @@ namespace DriverAPI.Controllers
         /// <returns>OrderPaymentStatusResponseModel или null</returns>
         [HttpGet]
         [Route("/api/GetOrderSmsPaymentStatus")]
-        public IActionResult GetOrderSmsPaymentStatus([FromBody] int orderId)
+        public IActionResult GetOrderSmsPaymentStatus(int orderId)
         {
             var additionalInfo = aPIOrderData.GetAdditionalInfoOrNull(orderId);
 

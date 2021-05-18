@@ -63,7 +63,11 @@ namespace DriverAPI.Library.DataAccess
         /// <param name="orderId">Идентификатор заказа</param>
         /// <returns>APIOrder</returns>
         public APIOrder Get(int orderId)
-            => orderConverter.convertToAPIOrder(orderRepository.GetOrder(unitOfWork, orderId), aPISmsPaymentData.GetOrderPaymentStatus(orderId));
+        {
+            var order = orderRepository.GetOrder(unitOfWork, orderId) ?? throw new ArgumentOutOfRangeException($"Заказ {orderId} не найден");
+
+            return orderConverter.convertToAPIOrder(order, aPISmsPaymentData.GetOrderPaymentStatus(orderId));
+        }
 
         /// <summary>
         /// Получение списка заказов в требуемом формате из заказов программы ДВ по списку идентификаторов
