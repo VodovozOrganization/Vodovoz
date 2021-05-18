@@ -14,7 +14,7 @@ namespace DriverAPI.Controllers
         public ErrorResponseModel Error()
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
-            var exception = context?.Error ?? new System.Exception("Exception");
+            var exception = context?.Error ?? new System.Exception("Вызван обработчик ошибок без ошибки");
             var code = 500;
 
             Response.StatusCode = code;
