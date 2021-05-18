@@ -971,9 +971,9 @@
                 where (@empl_category = 'driver'
                     and empl.category=@empl_category
                     and instr(@empl_status, empl.status) &gt; 0
-                    and empl.visiting_master=0
-                    and empl.is_driver_for_one_day=0
-                    and empl.driver_of != 'CompanyTruck'
+                    and (empl.visiting_master=0 or empl.visiting_master is null)
+                    and (empl.is_driver_for_one_day=0 or empl.is_driver_for_one_day is null)
+                    and (empl.driver_of != 'companytruck' or empl.driver_of is null)
                     and ((empl.status='IsFired' and (empl.date_fired &gt;= @date_fired and empl.date_fired &lt;= @date_fired_end) or empl.date_fired is null) or @date_fired = '')
                     and ((empl.status='OnCalculation' and (empl.date_calculated &gt;= @date_calculation and empl.date_calculated &lt;= @date_calculation_end) or empl.date_calculated is null) or @date_calculation = '')
                     and (empl.creation_date &gt;= @creation_date and empl.creation_date &lt;= @creation_date_end or @creation_date = '')
