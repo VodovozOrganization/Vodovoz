@@ -13,7 +13,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.ViewModels.Organization;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Journals.JournalViewModels.Organization
 {
