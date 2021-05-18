@@ -960,7 +960,7 @@
                     empl.min_route_addresses as min_addresses,
                     empl.max_route_addresses as max_addresses
                 from employees empl
-                    inner join subdivisions s on s.id = empl.subdivision_id
+                    left join subdivisions s on s.id = empl.subdivision_id
                     left join employees works_with on works_with.id = empl.default_forwarder_id
                     left join cars c on c.driver_id = empl.id
                     left join driver_district_priority_sets ddps   on (ddps.driver_id = empl.id and ddps.is_active=1)
@@ -971,11 +971,11 @@
                 where (@empl_category = 'driver'
                     and empl.category=@empl_category
                     and instr(@empl_status, empl.status) &gt; 0
-                    and empl.visiting_master=0
-                    and empl.is_driver_for_one_day=0
-                    and empl.driver_of != 'CompanyTruck'
+                    and (empl.visiting_master=0 or empl.visiting_master is null)
+                    and (empl.is_driver_for_one_day=0 or empl.is_driver_for_one_day is null)
+                    and (empl.driver_of != 'companytruck' or empl.driver_of is null)
                     and ((empl.status='IsFired' and (empl.date_fired &gt;= @date_fired and empl.date_fired &lt;= @date_fired_end) or empl.date_fired is null) or @date_fired = '')
-                    and ((empl.status='OnCalculation' and (empl.date_calculated &gt;= @date_calculation and empl.date_calculated &lt;= @date_calculation_end) or empl.date_calculated is null) or @date_calculation = '')
+                    and (((empl.status='OnCalculation' or empl.status='IsFired') and (empl.date_calculated &gt;= @date_calculation and empl.date_calculated &lt;= @date_calculation_end) or empl.date_calculated is null) or @date_calculation = '')
                     and (empl.creation_date &gt;= @creation_date and empl.creation_date &lt;= @creation_date_end or @creation_date = '')
                     and (empl.first_work_day &gt;= @first_work_day and empl.first_work_day  &lt;= @first_work_day_end or @first_work_day = '')
                     and (empl.date_hired &gt;= @date_hired and empl.date_hired &lt;= @date_hired_end or @date_hired = '')
@@ -1102,7 +1102,7 @@
                     frl.date as first_rl,
                     lrl.date as last_rl
                 from employees empl
-                    inner join subdivisions s on s.id = empl.subdivision_id
+                    left join subdivisions s on s.id = empl.subdivision_id
                     left join employees works_with on works_with.default_forwarder_id = empl.id
                     left join route_lists frl on frl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.forwarder_id order by sub_rl.date limit 1)
                     left join route_lists lrl on lrl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.forwarder_id order by sub_rl.date desc limit 1)
@@ -1110,7 +1110,7 @@
                     and empl.category= @empl_category
                     and instr(@empl_status, empl.status) &gt; 0
                     and ((empl.status='IsFired' and (empl.date_fired &gt;= @date_fired and empl.date_fired &lt;= @date_fired_end) or empl.date_fired is null) or @date_fired = '')
-                    and ((empl.status='OnCalculation' and (empl.date_calculated &gt;= @date_calculation and empl.date_calculated &lt;= @date_calculation_end) or empl.date_calculated is null) or @date_calculation = '')
+                    and (((empl.status='OnCalculation' or empl.status='IsFired') and (empl.date_calculated &gt;= @date_calculation and empl.date_calculated &lt;= @date_calculation_end) or empl.date_calculated is null) or @date_calculation = '')
                     and (empl.creation_date &gt;= @creation_date and empl.creation_date &lt;= @creation_date_end or @creation_date = '')
                     and (empl.first_work_day &gt;= @first_work_day and empl.first_work_day  &lt;= @first_work_day_end or @first_work_day = '')
                     and (empl.date_hired &gt;= @date_hired and empl.date_hired &lt;= @date_hired_end or @date_hired = '')
