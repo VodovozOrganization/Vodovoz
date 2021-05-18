@@ -183,7 +183,6 @@
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
     <Compile Include="Models\Stage1OrganizationProvider.cs" />
     <Compile Include="Models\Stage2OrganizationProvider.cs" />
-    <Compile Include="NhibernateExtensions\CustomProjections.cs" />
     <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
