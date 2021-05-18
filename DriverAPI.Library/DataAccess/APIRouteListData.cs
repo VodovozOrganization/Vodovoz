@@ -41,7 +41,11 @@ namespace DriverAPI.Library.DataAccess
         /// <param name="routeListId">Идентификатор МЛ</param>
         /// <returns>APIRouteList</returns>
         public APIRouteList Get(int routeListId)
-            => routeListConverter.convertToAPIRouteList(routeListRepository.GetRouteList(unitOfWork, routeListId));
+        {
+            var routeList = routeListRepository.GetRouteList(unitOfWork, routeListId) ?? throw new ArgumentOutOfRangeException($"Маршрутный лист {routeListId} не найден");
+
+            return routeListConverter.convertToAPIRouteList(routeList);
+        }
 
         /// <summary>
         /// Получение информации о маршрутных листах в требуемом формате

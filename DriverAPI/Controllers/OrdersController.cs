@@ -44,7 +44,7 @@ namespace DriverAPI.Controllers
         /// <returns>APIOrder или null</returns>
         [HttpGet]
         [Route("/api/GetOrder")]
-        public IActionResult Get([FromBody] int orderId)
+        public IActionResult Get(int orderId)
         {
             try
             {
