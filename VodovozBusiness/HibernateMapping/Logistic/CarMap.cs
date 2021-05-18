@@ -37,6 +37,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.FuelCardNumber)         .Column ("fuel_card_number");
 			Map(x => x.DocPTSNumber)           .Column ("doc_pts_num");
 			Map(x => x.DocPTSSeries)           .Column ("doc_pts_series");
+			Map(x => x.OrderNumber)            .Column ("car_order_number");
 
 			References(x => x.Driver)          .Column("driver_id");
 			References(x => x.FuelType)        .Column("fuel_type_id");
