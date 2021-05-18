@@ -21,7 +21,7 @@ namespace Vodovoz.PermissionExtensions
 			       || typeOfEntity == typeof(Income)
 			       || typeOfEntity == typeof(Expense)
 			       || typeOfEntity == typeof(AdvanceReport)
-			       || typeOfEntity == typeof(OrganisationCashTransferDocument);
+			       || typeOfEntity == typeof(OrganizationCashTransferDocument);
 
 		}
 	}

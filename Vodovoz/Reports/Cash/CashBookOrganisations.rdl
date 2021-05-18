@@ -1095,7 +1095,7 @@ FROM organisation_cash_movement_operations ocmo
     inner join cash_income ci on codd.cash_income_id = ci.id) ON codd.organisation_cash_movement_operation_id = ocmo.id
     left join employees employeeal1_ on codd.employee_id = employeeal1_.id
     left join employees author on codd.author_id = author.id
-    LEFT JOIN organisation_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_to_id = ocmo.id
+    LEFT JOIN organization_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_to_id = ocmo.id
     LEFT JOIN organizations ON organizations.id = octd.organization_to_id
 
 WHERE IF(@organisation != -1,
@@ -1136,7 +1136,7 @@ FROM organisation_cash_movement_operations ocmo
     inner join cash_expense ce on codd.cash_expense_id = ce.id) ON codd.organisation_cash_movement_operation_id = ocmo.id
     left join employees employeeal1_ on codd.employee_id = employeeal1_.id
     left join employees author on codd.author_id = author.id
-    LEFT JOIN organisation_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_from_id = ocmo.id
+    LEFT JOIN organization_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_from_id = ocmo.id
     LEFT JOIN organizations ON organizations.id = octd.organization_from_id      
 	 
 WHERE IF(@organisation != -1,

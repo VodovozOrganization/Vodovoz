@@ -1049,9 +1049,9 @@ namespace Vodovoz.JournalColumnsConfigs
                     .Finish()
             );
 
-            //OrganisationCashTransferDocumentJournalViewModel
-            TreeViewColumnsConfigFactory.Register<OrganisationCashTransferDocumentJournalViewModel>(
-                () => FluentColumnsConfig<OrganisationCashTransferDocumentJournalNode>.Create()
+            //OrganizationCashTransferDocumentJournalViewModel
+            TreeViewColumnsConfigFactory.Register<OrganizationCashTransferDocumentJournalViewModel>(
+                () => FluentColumnsConfig<OrganizationCashTransferDocumentJournalNode>.Create()
                     .AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
                     .AddColumn("Дата").AddTextRenderer(node => node.DocumentDate.ToString("d"))
                     .AddColumn("Автор").AddTextRenderer(node => node.Author)

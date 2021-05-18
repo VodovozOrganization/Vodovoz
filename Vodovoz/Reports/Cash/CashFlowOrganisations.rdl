@@ -35,7 +35,7 @@ FROM
         LEFT JOIN
     cash_income_category ON cash_income_category.id = IFNULL(ci.cash_income_category_id, @cash_income_category_transfer_id)
         LEFT JOIN
-    organisation_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_to_id = ocmo.id
+    organization_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_to_id = ocmo.id
        
      
 WHERE
@@ -93,7 +93,7 @@ FROM
         LEFT JOIN
     cash_expense_category ON cash_expense_category.id = IFNULL(ce.cash_expense_category_id, @cash_expense_category_transfer_id)
         LEFT JOIN
-    organisation_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_from_id = ocmo.id
+    organization_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_from_id = ocmo.id
 
         
 WHERE (ce.type_operation != 'Advance' OR octd.id IS NOT NULL)

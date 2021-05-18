@@ -130,7 +130,7 @@ public partial class MainWindow : Window
 	Action ActionDistricts;
 	Action ActionCashTransferDocuments;
 	Action ActionFuelTransferDocuments;
-	Action ActionOrganisationCashTransferDocuments;
+	Action ActionOrganizationCashTransferDocuments;
 
 	//Suppliers
 	Action ActionNewRequestToSupplier;
@@ -180,7 +180,7 @@ public partial class MainWindow : Window
 		ActionSelfdeliveryOrders = new Action("ActionSelfdeliveryOrders", "Журнал самовывозов", null, "table");
 		ActionCashTransferDocuments = new Action("ActionCashTransferDocuments", "Журнал перемещения д/с", null, "table");
 		ActionFuelTransferDocuments = new Action("ActionFuelTransferDocuments", "Журнал учета топлива", null, "table");
-		ActionOrganisationCashTransferDocuments = new Action("ActionOrganisationCashTransferDocuments", "Журнал перемещения д/с для юр.лиц", null, "table");
+		ActionOrganizationCashTransferDocuments = new Action("ActionOrganizationCashTransferDocuments", "Журнал перемещения д/с для юр.лиц", null, "table");
 
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
@@ -252,7 +252,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionSelfdeliveryOrders, null);
 		w1.Add(ActionCashTransferDocuments, null);
 		w1.Add(ActionFuelTransferDocuments, null);
-		w1.Add(ActionOrganisationCashTransferDocuments, null);
+		w1.Add(ActionOrganizationCashTransferDocuments, null);
 		w1.Add(ActionFinesJournal, null);
 		w1.Add(ActionPremiumJournal, null);
 		w1.Add(ActionCarProxiesJournal, null);
@@ -316,7 +316,7 @@ public partial class MainWindow : Window
 		ActionSelfdeliveryOrders.Activated += ActionSelfdeliveryOrders_Activated;
 		ActionCashTransferDocuments.Activated += ActionCashTransferDocuments_Activated;
 		ActionFuelTransferDocuments.Activated += ActionFuelTransferDocuments_Activated;
-		ActionOrganisationCashTransferDocuments.Activated += ActionOrganisationCashTransferDocuments_Activated;
+		ActionOrganizationCashTransferDocuments.Activated += ActionOrganizationCashTransferDocuments_Activated;
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
 		ActionCarProxiesJournal.Activated += ActionCarProxiesJournal_Activated;
@@ -676,7 +676,7 @@ public partial class MainWindow : Window
 		tdiMain.AddTab(fuelDocumentsJournalViewModel);
 	}
 
-	void ActionOrganisationCashTransferDocuments_Activated(object sender, System.EventArgs e)
+	void ActionOrganizationCashTransferDocuments_Activated(object sender, System.EventArgs e)
 	{
 		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(),
 			EmployeeSingletonRepository.GetInstance());
@@ -695,8 +695,8 @@ public partial class MainWindow : Window
             });
 
 
-        tdiMain.OpenTab(() => new OrganisationCashTransferDocumentJournalViewModel(
-			new OrganisationCashTransferDocumentFilterViewModel(employeeSelectorFactory) { HidenByDefault = true },
+        tdiMain.OpenTab(() => new OrganizationCashTransferDocumentJournalViewModel(
+			new OrganizationCashTransferDocumentFilterViewModel(employeeSelectorFactory) { HidenByDefault = true },
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			entityExtendedPermissionValidator)
