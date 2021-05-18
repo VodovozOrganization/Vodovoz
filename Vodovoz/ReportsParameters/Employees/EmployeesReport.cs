@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -82,13 +83,13 @@ namespace Vodovoz.ReportsParameters.Employees
             result += checkIsFired.Active ? "уволен, " : "";
             result += checkOnMaternityLeave.Active ? "в декрете, " : "";
             result += checkOnCalculation.Active ? "на расчете, " : "";
-            result += creationPicker.StartDateOrNull != null ? $"дата создания: с {creationPicker.StartDateOrNull} по {creationPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}" : "";
-            result += firstWorkingDayPicker.StartDateOrNull != null ? $", дата первого рабочего дня: с {firstWorkingDayPicker.StartDateOrNull} по {firstWorkingDayPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}" : "";
-            result += hiredPicker.StartDateOrNull != null ? $", дата приема на работу: с {hiredPicker.StartDateOrNull} по {hiredPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}" : "";
-            result += firedPicker.StartDateOrNull != null ? $", дата увольнения: с {firedPicker.StartDateOrNull} по {firedPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}" : "";
-            result += calculationPicker.StartDateOrNull != null ? $", дата расчета: с {calculationPicker.StartDateOrNull} по {calculationPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}" : "";
-            result += firstRLPicker.StartDateOrNull != null ? $", дата первого МЛ: с {firstRLPicker.StartDateOrNull} по {firstRLPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}" : "";
-            result += lastRLPicker.StartDateOrNull != null ? $", дата последнего МЛ: с {lastRLPicker.StartDateOrNull} по {lastRLPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}" : "";
+            result += creationPicker.StartDateOrNull != null ? $"дата создания: с {creationPicker.StartDateOrNull} по {creationPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}, " : "";
+            result += firstWorkingDayPicker.StartDateOrNull != null ? $"дата первого рабочего дня: с {firstWorkingDayPicker.StartDateOrNull} по {firstWorkingDayPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}, " : "";
+            result += hiredPicker.StartDateOrNull != null ? $"дата приема на работу: с {hiredPicker.StartDateOrNull} по {hiredPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}, " : "";
+            result += firedPicker.StartDateOrNull != null ? $"дата увольнения: с {firedPicker.StartDateOrNull} по {firedPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}, " : "";
+            result += calculationPicker.StartDateOrNull != null ? $"дата расчета: с {calculationPicker.StartDateOrNull} по {calculationPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}, " : "";
+            result += firstRLPicker.StartDateOrNull != null ? $"дата первого МЛ: с {firstRLPicker.StartDateOrNull} по {firstRLPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}, " : "";
+            result += lastRLPicker.StartDateOrNull != null ? $"дата последнего МЛ: с {lastRLPicker.StartDateOrNull} по {lastRLPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)}, " : "";
             return result.TrimEnd(',', ' ');
         }
 
@@ -105,7 +106,25 @@ namespace Vodovoz.ReportsParameters.Employees
 
         void ShowHelpWindow(object sender, EventArgs args)
         {
+            var info = "Фильтры отчета:\n" +
+                       "<b>Категория</b>: выбор категории сотрудника\n" +
+                       "<b>Фильтр статусов</b>: позволяет выбрать несколько статусов. Если не выбран ни один статус - в таблицу попадут сотрудники с любыми статусами\n" +
+                       "<b>Фильтры периодов</b>: не обязательны для выбора и не конфликтуют между собой. " +
+                       "<b>Периоды по дате расчета и увольнения</b>: учитываются, если выбраны соответствующие статусы\n" +
+                       "<b>В отчет не попадают</b>: водители управляющие фурой компании, являющиеся разовыми, являющиеся мастерами\n";
+            var label = new Label {Markup = info};
+            label.SetPadding(10, 10);
+            var vbox = new VBox {label};
 
+            var messageWindow = new Window(WindowType.Toplevel)
+            {
+                Resizable = false,
+                Title = "Информация",
+                WindowPosition = WindowPosition.Center,
+                Modal = true
+            };
+            messageWindow.Add(vbox);
+            messageWindow.ShowAll();
         }
     }
 }
