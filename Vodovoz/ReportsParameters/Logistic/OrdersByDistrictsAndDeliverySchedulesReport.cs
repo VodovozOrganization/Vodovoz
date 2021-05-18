@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrdersByDistrictsAndDeliverySchedulesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		DateTime date;
 		public OrdersByDistrictsAndDeliverySchedulesReport()
 		{
 			this.Build();
@@ -21,7 +20,9 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		void ConfigureDlg()
 		{
-			date = pkrDate.Date = DateTime.Today.AddDays(1);
+			pkrDate.StartDate = pkrDate.EndDate = DateTime.Today;
+			lstGeographicGroup.ItemsList = UoW.GetAll<GeographicGroup>();
+			lstGeographicGroup.SetRenderTextFunc<GeographicGroup>(x => x.Name);
 		}
 
 		#region IParametersWidget implementation
@@ -48,14 +49,12 @@ namespace Vodovoz.ReportsParameters.Logistic
 			return new ReportInfo {
 				Identifier = "Logistic.OrdersByDistrictsAndDeliverySchedules",
 				Parameters = new Dictionary<string, object> {
-					{ "date", date }
+					{ "start_date", pkrDate.StartDate },
+					{ "end_date", pkrDate.EndDate },
+					{ "geographic_group_id",(lstGeographicGroup.SelectedItem as GeographicGroup)?.Id },
+					{ "geographic_group_name",(lstGeographicGroup.SelectedItem as GeographicGroup)?.Name }
 				}
 			};
-		}
-
-		protected void OnPkrDateDateChangedByUser(object sender, EventArgs e)
-		{
-			date = pkrDate.Date;
 		}
 	}
 }
