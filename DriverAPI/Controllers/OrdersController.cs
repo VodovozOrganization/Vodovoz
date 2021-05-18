@@ -19,7 +19,6 @@ namespace DriverAPI.Controllers
     {
         private readonly ILogger<OrdersController> logger;
         private readonly IEmployeeData employeeData;
-        private readonly IEmployeeRepository employeeRepository;
         private readonly UserManager<IdentityUser> userManager;
         private readonly IAPIOrderData aPIOrderData;
 
@@ -30,7 +29,6 @@ namespace DriverAPI.Controllers
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
-            this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             this.aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
         }

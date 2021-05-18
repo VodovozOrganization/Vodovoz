@@ -40,32 +40,21 @@ namespace DriverAPI.Controllers
         /// <returns>OrderPaymentStatusResponseModel или null</returns>
         [HttpGet]
         [Route("/api/GetOrderSmsPaymentStatus")]
-        public IActionResult GetOrderSmsPaymentStatus(int orderId)
+        public OrderPaymentStatusResponseModel GetOrderSmsPaymentStatus(int orderId)
         {
-            var additionalInfo = aPIOrderData.GetAdditionalInfoOrNull(orderId);
+            var additionalInfo = aPIOrderData.GetAdditionalInfoOrNull(orderId) 
+                ?? throw new Exception($"Не удалось получить информацию о заказе {orderId}");
 
-            if (additionalInfo == null)
+            var response = new OrderPaymentStatusResponseModel()
             {
-                return null;
-            }
+                AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
+                CanSendSms = additionalInfo.CanSendSms,
+                SmsPaymentStatus = smsPaymentConverter.convertToAPIPaymentStatus(
+                    aPISmsPaymentData.GetOrderPaymentStatus(orderId)
+                )
+            };
 
-            try
-            {
-                var response = new OrderPaymentStatusResponseModel()
-                {
-                    AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
-                    CanSendSms = additionalInfo.CanSendSms,
-                    SmsPaymentStatus = smsPaymentConverter.convertToAPIPaymentStatus(
-                        aPISmsPaymentData.GetOrderPaymentStatus(orderId)
-                    )
-                };
-                return Ok(response);
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e, e.Message);
-                return BadRequest(new ErrorResponseModel(e.Message));
-            }
+            return response;
         }
 
         /// <summary>
