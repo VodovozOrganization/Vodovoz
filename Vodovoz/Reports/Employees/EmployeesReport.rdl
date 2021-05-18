@@ -31,7 +31,7 @@
                     <BorderStyle />
                     <BorderColor />
                     <BorderWidth />
-                    <FontSize>14pt</FontSize>
+                    <FontSize>16pt</FontSize>
                     <TextAlign>Center</TextAlign>
                 </Style>
             </Textbox>
@@ -956,7 +956,7 @@
                     lrl.date as last_rl,
                     concat_ws('', concat(works_with.last_name, ' '), if(works_with.name = '', '', concat(left(works_with.name, 1),'.')), if(works_with.patronymic = '', '', concat(left(works_with.patronymic, 1),'.')))
                     as works_with_name,
-                    group_concat(dicts.district_name) as districts,
+                    group_concat(dicts.district_name SEPARATOR ', ') as districts,
                     empl.min_route_addresses as min_addresses,
                     empl.max_route_addresses as max_addresses
                 from employees empl
@@ -966,10 +966,8 @@
                     left join driver_district_priority_sets ddps   on (ddps.driver_id = empl.id and ddps.is_active=1)
                     left join driver_district_priorities ddp 	   on ddp.driver_district_priority_set_id = ddps.id
                     left join districts dicts 					   on dicts.id = ddp.district_id
-                    inner join route_lists frl on frl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.driver_id order by sub_rl.date limit 1)
-                                              and (frl.date &gt;= @first_rl and frl.date &lt;= @first_rl_end or @first_rl ='')
-                    inner join route_lists lrl on lrl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.driver_id order by sub_rl.date desc limit 1)
-                                              and (lrl.date &gt;= @last_rl and lrl.date &lt;= @last_rl_end or @last_rl ='')
+                    left join route_lists frl on frl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.driver_id order by sub_rl.date limit 1)
+                    left join route_lists lrl on lrl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.driver_id order by sub_rl.date desc limit 1)
                 where (@empl_category = 'driver'
                     and empl.category=@empl_category
                     and instr(@empl_status, empl.status) &gt; 0
@@ -981,7 +979,9 @@
                     and (empl.creation_date &gt;= @creation_date and empl.creation_date &lt;= @creation_date_end or @creation_date = '')
                     and (empl.first_work_day &gt;= @first_work_day and empl.first_work_day  &lt;= @first_work_day_end or @first_work_day = '')
                     and (empl.date_hired &gt;= @date_hired and empl.date_hired &lt;= @date_hired_end or @date_hired = '')
-                ) group by empl.id order by empl.last_name</CommandText>
+                    and (frl.date &gt;= @first_rl and frl.date &lt;= @first_rl_end or @first_rl ='')
+                    and (lrl.date &gt;= @last_rl and lrl.date &lt;= @last_rl_end or @last_rl ='')
+                ) group by empl.id order by empl.last_name </CommandText>
                 <QueryParameters>
                     <QueryParameter Name="empl_category">
                         <Value>={?empl_category}</Value>
@@ -1096,17 +1096,16 @@
                     concat_ws('', concat(empl.last_name, ' '), if(empl.name = '', '', concat(left(empl.name, 1),'.')), if(empl.patronymic = '', '', concat(left(empl.patronymic, 1),'.')))
                     as empl_name,
                     s.short_name as subdiv,
-                    concat_ws('', concat(works_with.last_name, ' '), if(works_with.name = '', '', concat(left(works_with.name, 1),'.')), if(works_with.patronymic = '', '', concat(left(works_with.patronymic, 1),'.')))
+                    group_concat(concat_ws('', concat(works_with.last_name, ' '), if(works_with.name = '', '', concat(left(works_with.name, 1),'.')), if(works_with.patronymic = '', '', concat(left(works_with.patronymic, 1),'.')))
+                    SEPARATOR ', ')
                     as works_with_name,
                     frl.date as first_rl,
                     lrl.date as last_rl
                 from employees empl
                     inner join subdivisions s on s.id = empl.subdivision_id
                     left join employees works_with on works_with.default_forwarder_id = empl.id
-                    inner join route_lists frl on frl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.forwarder_id order by sub_rl.date limit 1)
-                                              and (frl.date &gt;= @first_rl and frl.date &lt;= @first_rl_end or @first_rl ='')
-                    inner join route_lists lrl on lrl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.forwarder_id order by sub_rl.date desc limit 1)
-                                              and (lrl.date &gt;= @last_rl and lrl.date &lt;= @last_rl_end or @last_rl ='')
+                    left join route_lists frl on frl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.forwarder_id order by sub_rl.date limit 1)
+                    left join route_lists lrl on lrl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.forwarder_id order by sub_rl.date desc limit 1)
                 where (@empl_category = 'forwarder'
                     and empl.category= @empl_category
                     and instr(@empl_status, empl.status) &gt; 0
@@ -1115,8 +1114,9 @@
                     and (empl.creation_date &gt;= @creation_date and empl.creation_date &lt;= @creation_date_end or @creation_date = '')
                     and (empl.first_work_day &gt;= @first_work_day and empl.first_work_day  &lt;= @first_work_day_end or @first_work_day = '')
                     and (empl.date_hired &gt;= @date_hired and empl.date_hired &lt;= @date_hired_end or @date_hired = '')
-                ) order by empl.last_name
-                </CommandText>
+                    and (frl.date &gt;= @first_rl and frl.date &lt;= @first_rl_end or @first_rl='')
+                    and (lrl.date &gt;= @last_rl and lrl.date &lt;= @last_rl_end or @last_rl='')
+                ) group by empl.id order by empl.last_name </CommandText>
                 <QueryParameters>
                     <QueryParameter Name="empl_category">
                         <Value>={?empl_category}</Value>
