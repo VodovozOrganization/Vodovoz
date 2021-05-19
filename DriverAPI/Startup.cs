@@ -139,7 +139,7 @@ namespace DriverAPI
             });
         }
 
-        void CreateBaseConfig()
+        private void CreateBaseConfig()
         {
             logger.LogInformation("Настройка параметров Nhibernate...");
 
@@ -176,7 +176,7 @@ namespace DriverAPI
             HistoryMain.Enable();
         }
 
-        void RegisterDependencies(ref IServiceCollection services)
+        private void RegisterDependencies(ref IServiceCollection services)
         {
             // Сервисы для контроллеров
 
