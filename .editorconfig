@@ -11,6 +11,8 @@ charset = utf-8-bom
 
 #### .NET Coding Conventions ####
 
+max_line_length = 140
+
 # Modifier preferences
 dotnet_style_require_accessibility_modifiers = for_non_interface_members
 
