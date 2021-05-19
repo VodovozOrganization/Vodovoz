@@ -2,13 +2,13 @@
 
 namespace DriverAPI.Library.Models
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum APIRouteListAddressStatus
-    {
-        EnRoute,
-        Completed,
-        Canceled,
-        Overdue,
-        Transfered
-    }
+	[JsonConverter(typeof(JsonStringEnumConverter))]
+	public enum APIRouteListAddressStatus
+	{
+		EnRoute,
+		Completed,
+		Canceled,
+		Overdue,
+		Transfered
+	}
 }

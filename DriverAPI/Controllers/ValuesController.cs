@@ -6,27 +6,27 @@ using Vodovoz.Services;
 
 namespace DriverAPI.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
-    public class ValuesController : ControllerBase
-    {
-        private readonly IWebApiParametersProvider webApiParametersProvider;
+	[Route("api/[controller]")]
+	[ApiController]
+	[Authorize]
+	public class ValuesController : ControllerBase
+	{
+		private readonly IWebApiParametersProvider webApiParametersProvider;
 
-        public ValuesController(IWebApiParametersProvider webApiParametersProvider)
-        {
-            this.webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
-        }
+		public ValuesController(IWebApiParametersProvider webApiParametersProvider)
+		{
+			this.webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
+		}
 
-        // GET: GetRouteList 
-        [HttpGet]
-        [Route("/api/GetCompanyPhoneNumber")]
-        public CompanyNumberResponseModel GetCompanyPhoneNumber()
-        {
-            return new CompanyNumberResponseModel()
-            {
-                Number = webApiParametersProvider.CompanyPhoneNumber
-            };
-        }
-    }
+		// GET: GetRouteList 
+		[HttpGet]
+		[Route("/api/GetCompanyPhoneNumber")]
+		public CompanyNumberResponseModel GetCompanyPhoneNumber()
+		{
+			return new CompanyNumberResponseModel()
+			{
+				Number = webApiParametersProvider.CompanyPhoneNumber
+			};
+		}
+	}
 }

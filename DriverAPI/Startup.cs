@@ -32,194 +32,194 @@ using Vodovoz.Tools;
 
 namespace DriverAPI
 {
-    public class Startup
-    {
-        private ILogger<Startup> logger;
+	public class Startup
+	{
+		private ILogger<Startup> logger;
 
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
-        public IConfiguration Configuration { get; }
+		public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddLogging(
-                logging =>
-                {
-                    logging.ClearProviders();
-                    logging.AddNLogWeb();
-                });
+		// This method gets called by the runtime. Use this method to add services to the container.
+		public void ConfigureServices(IServiceCollection services)
+		{
+			services.AddLogging(
+				logging =>
+				{
+					logging.ClearProviders();
+					logging.AddNLogWeb();
+				});
 
-            logger = new Logger<Startup>(LoggerFactory.Create(logging => logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
+			logger = new Logger<Startup>(LoggerFactory.Create(logging => logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
-            // Подключение к БД
+			// Подключение к БД
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseMySQL(
-                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDatabaseDeveloperPageExceptionFilter();
+			services.AddDbContext<ApplicationDbContext>(options =>
+				options.UseMySQL(
+					Configuration.GetConnectionString("DefaultConnection")));
+			services.AddDatabaseDeveloperPageExceptionFilter();
 
-            // Конфигурация Nhibernate
+			// Конфигурация Nhibernate
 
-            try
-            {
-                CreateBaseConfig();
-            }
-            catch (Exception e)
-            {
-                logger.LogCritical(e, e.Message);
-                throw;
-            }
+			try
+			{
+				CreateBaseConfig();
+			}
+			catch (Exception e)
+			{
+				logger.LogCritical(e, e.Message);
+				throw;
+			}
 
-            RegisterDependencies(ref services);
+			RegisterDependencies(ref services);
 
-            // Аутентификация
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+			// Аутентификация
+			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+				.AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(cfg =>
-                {
-                    cfg.TokenValidationParameters = new TokenValidationParameters()
-                    {
-                        ValidateIssuer = false,
-                        ValidIssuer = Configuration["Security:Tokens:Issuer"],
-                        ValidateAudience = false,
-                        ValidAudience = Configuration["Security:Tokens:Audience"],
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Security:Tokens:Key"])),
-                    };
-                });
+			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+				.AddJwtBearer(cfg =>
+				{
+					cfg.TokenValidationParameters = new TokenValidationParameters()
+					{
+						ValidateIssuer = false,
+						ValidIssuer = Configuration["Security:Tokens:Issuer"],
+						ValidateAudience = false,
+						ValidAudience = Configuration["Security:Tokens:Audience"],
+						ValidateIssuerSigningKey = true,
+						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Security:Tokens:Key"])),
+					};
+				});
 
-            // Регистрация контроллеров
+			// Регистрация контроллеров
 
-            services.AddControllersWithViews();
-            services.AddControllers();
+			services.AddControllersWithViews();
+			services.AddControllers();
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "DriverAPI", Version = "v1" });
-            });
-        }
+			services.AddSwaggerGen(c =>
+			{
+				c.SwaggerDoc("v1", new OpenApiInfo { Title = "DriverAPI", Version = "v1" });
+			});
+		}
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseMigrationsEndPoint();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DriverAPI v1"));
-            }
-            else
-            {
-                app.UseExceptionHandler("/api/error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		{
+			if (env.IsDevelopment())
+			{
+				app.UseDeveloperExceptionPage();
+				app.UseMigrationsEndPoint();
+				app.UseSwagger();
+				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DriverAPI v1"));
+			}
+			else
+			{
+				app.UseExceptionHandler("/api/error");
+				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+				app.UseHsts();
+			}
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
+			app.UseHttpsRedirection();
+			app.UseStaticFiles();
 
-            app.UseRouting();
+			app.UseRouting();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+			app.UseAuthentication();
+			app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapRazorPages();
-            });
-        }
+			app.UseEndpoints(endpoints =>
+			{
+				endpoints.MapControllerRoute(
+					name: "default",
+					pattern: "{controller=Home}/{action=Index}/{id?}");
+				endpoints.MapRazorPages();
+			});
+		}
 
-        private void CreateBaseConfig()
-        {
-            logger.LogInformation("Настройка параметров Nhibernate...");
+		private void CreateBaseConfig()
+		{
+			logger.LogInformation("Настройка параметров Nhibernate...");
 
-            var conStrBuilder = new MySqlConnectionStringBuilder();
+			var conStrBuilder = new MySqlConnectionStringBuilder();
 
-            var domainDBConfig = Configuration.GetSection("DomainDB");
+			var domainDBConfig = Configuration.GetSection("DomainDB");
 
-            conStrBuilder.Server = domainDBConfig["Server"];
-            conStrBuilder.Port = uint.Parse(domainDBConfig["Port"]);
-            conStrBuilder.Database = domainDBConfig["Database"];
-            conStrBuilder.UserID = domainDBConfig["UserID"];
-            conStrBuilder.Password = domainDBConfig["Password"];
-            conStrBuilder.SslMode = MySqlSslMode.None;
+			conStrBuilder.Server = domainDBConfig["Server"];
+			conStrBuilder.Port = uint.Parse(domainDBConfig["Port"]);
+			conStrBuilder.Database = domainDBConfig["Database"];
+			conStrBuilder.UserID = domainDBConfig["UserID"];
+			conStrBuilder.Password = domainDBConfig["Password"];
+			conStrBuilder.SslMode = MySqlSslMode.None;
 
-            var connectionString = conStrBuilder.GetConnectionString(true);
+			var connectionString = conStrBuilder.GetConnectionString(true);
 
-            var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-                .Dialect<MySQL57SpatialExtendedDialect>()
-                .ConnectionString(connectionString)
-                .AdoNetBatchSize(100)
-                .Driver<LoggedMySqlClientDriver>();
+			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+				.Dialect<MySQL57SpatialExtendedDialect>()
+				.ConnectionString(connectionString)
+				.AdoNetBatchSize(100)
+				.Driver<LoggedMySqlClientDriver>();
 
-            // Настройка ORM
-            OrmConfig.ConfigureOrm(
-                db_config,
-                new System.Reflection.Assembly[] {
-                    System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
-                    System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
-                    System.Reflection.Assembly.GetAssembly (typeof(Bank)),
-                    System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
-                }
-            );
+			// Настройка ORM
+			OrmConfig.ConfigureOrm(
+				db_config,
+				new System.Reflection.Assembly[] {
+					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+					System.Reflection.Assembly.GetAssembly (typeof(Bank)),
+					System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
+				}
+			);
 
-            HistoryMain.Enable();
-        }
+			HistoryMain.Enable();
+		}
 
-        private void RegisterDependencies(ref IServiceCollection services)
-        {
-            // Сервисы для контроллеров
+		private void RegisterDependencies(ref IServiceCollection services)
+		{
+			// Сервисы для контроллеров
 
-            // Unit Of Work
-            services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
+			// Unit Of Work
+			services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
 
-            // ErrorReporter
-            services.AddScoped<IErrorReporter>((sp) => SingletonErrorReporter.Instance);
+			// ErrorReporter
+			services.AddScoped<IErrorReporter>((sp) => SingletonErrorReporter.Instance);
 
-            // Репозитории водовоза
-            services.AddScoped<ITrackRepository, TrackRepository>();
-            services.AddScoped<IComplaintsRepository, ComplaintsRepository>();
-            services.AddScoped<IRouteListRepository, RouteListRepository>();
-            services.AddScoped<IRouteListItemRepository, RouteListItemRepository>();
-            services.AddScoped<IOrderRepository, OrderSingletonRepository>((sp) => OrderSingletonRepository.GetInstance());
-            services.AddScoped<IEmployeeRepository, EmployeeSingletonRepository>((sp) => EmployeeSingletonRepository.GetInstance());
+			// Репозитории водовоза
+			services.AddScoped<ITrackRepository, TrackRepository>();
+			services.AddScoped<IComplaintsRepository, ComplaintsRepository>();
+			services.AddScoped<IRouteListRepository, RouteListRepository>();
+			services.AddScoped<IRouteListItemRepository, RouteListItemRepository>();
+			services.AddScoped<IOrderRepository, OrderSingletonRepository>((sp) => OrderSingletonRepository.GetInstance());
+			services.AddScoped<IEmployeeRepository, EmployeeSingletonRepository>((sp) => EmployeeSingletonRepository.GetInstance());
 
-            // Провайдеры параметров
-            services.AddScoped<IParametersProvider, ParametersProvider>();
-            services.AddScoped<IOrderParametersProvider, OrderParametersProvider>();
-            services.AddScoped<IWebApiParametersProvider, WebApiParametersProvider>();
+			// Провайдеры параметров
+			services.AddScoped<IParametersProvider, ParametersProvider>();
+			services.AddScoped<IOrderParametersProvider, OrderParametersProvider>();
+			services.AddScoped<IWebApiParametersProvider, WebApiParametersProvider>();
 
-            // Конвертеры
-            foreach (var type in typeof(Library.Bootstrapper).Assembly.GetTypes()
-                                          .Where(type => type.IsClass)
-                                          .Where(type => type.Name.EndsWith("Converter"))
-                                          .ToList())
-            {
-                services.AddScoped(type);
-            }
-            
-            // Хелперы
-            services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();
-            services.AddScoped<IFCMAPIHelper, FCMAPIHelper>();
+			// Конвертеры
+			foreach (var type in typeof(Library.Bootstrapper).Assembly.GetTypes()
+										  .Where(type => type.IsClass)
+										  .Where(type => type.Name.EndsWith("Converter"))
+										  .ToList())
+			{
+				services.AddScoped(type);
+			}
 
-            // DAL обертки
-            services.AddScoped<ITrackPointsData, TrackPointsData>();
-            services.AddScoped<IDriverMobileAppActionRecordData, DriverMobileAppActionRecordData>();
-            services.AddScoped<IAPIRouteListData, APIRouteListData>();
-            services.AddScoped<IAPIOrderData, APIOrderData>();
-            services.AddScoped<IEmployeeData, EmployeeData>();
-            services.AddScoped<IAPISmsPaymentData, APISmsPaymentData>();
-            services.AddScoped<IAPIDriverComplaintData, APIDriverComplaintData>();
-        }
-    }
+			// Хелперы
+			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();
+			services.AddScoped<IFCMAPIHelper, FCMAPIHelper>();
+
+			// DAL обертки
+			services.AddScoped<ITrackPointsData, TrackPointsData>();
+			services.AddScoped<IDriverMobileAppActionRecordData, DriverMobileAppActionRecordData>();
+			services.AddScoped<IAPIRouteListData, APIRouteListData>();
+			services.AddScoped<IAPIOrderData, APIOrderData>();
+			services.AddScoped<IEmployeeData, EmployeeData>();
+			services.AddScoped<IAPISmsPaymentData, APISmsPaymentData>();
+			services.AddScoped<IAPIDriverComplaintData, APIDriverComplaintData>();
+		}
+	}
 }

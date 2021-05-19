@@ -6,48 +6,48 @@ using System.Threading.Tasks;
 
 namespace DriverAPI.Library.Helpers
 {
-    public class SmsPaymentServiceAPIHelper : ISmsPaymentServiceAPIHelper
-    {
-        private string sendPaymentEndpointURI = "SendPayment";
-        private HttpClient _apiClient;
+	public class SmsPaymentServiceAPIHelper : ISmsPaymentServiceAPIHelper
+	{
+		private string sendPaymentEndpointURI = "SendPayment";
+		private HttpClient _apiClient;
 
-        public SmsPaymentServiceAPIHelper(IConfiguration configuration)
-        {
-            InitializeClient(configuration);
-        }
+		public SmsPaymentServiceAPIHelper(IConfiguration configuration)
+		{
+			InitializeClient(configuration);
+		}
 
-        public async Task SendPayment(int orderId, string phoneNumber)
-        {
-            using (HttpResponseMessage response = await _apiClient.PostAsJsonAsync(sendPaymentEndpointURI, new { OrderId = orderId, PhoneNumber = phoneNumber }))
-            {
-                if (response.IsSuccessStatusCode)
-                {
-                    var result = await response.Content.ReadAsAsync<SendPaymentResponseModel>();
+		public async Task SendPayment(int orderId, string phoneNumber)
+		{
+			using (HttpResponseMessage response = await _apiClient.PostAsJsonAsync(sendPaymentEndpointURI, new { OrderId = orderId, PhoneNumber = phoneNumber }))
+			{
+				if (response.IsSuccessStatusCode)
+				{
+					var result = await response.Content.ReadAsAsync<SendPaymentResponseModel>();
 
-                    if (result.Status == SendPaymentResponseModelMessageStatus.Ok)
-                    {
-                        return;
-                    }
+					if (result.Status == SendPaymentResponseModelMessageStatus.Ok)
+					{
+						return;
+					}
 
-                    throw new SmsPaymentServiceAPIHelperException(result.ErrorDescription);
-                }
-                else
-                {
-                    throw new SmsPaymentServiceAPIHelperException(response.ReasonPhrase);
-                }
-            }
-        }
+					throw new SmsPaymentServiceAPIHelperException(result.ErrorDescription);
+				}
+				else
+				{
+					throw new SmsPaymentServiceAPIHelperException(response.ReasonPhrase);
+				}
+			}
+		}
 
-        private void InitializeClient(IConfiguration configuration)
-        {
-            var apiConfiguration = configuration.GetSection("SmsPaymentServiceAPI");
+		private void InitializeClient(IConfiguration configuration)
+		{
+			var apiConfiguration = configuration.GetSection("SmsPaymentServiceAPI");
 
-            _apiClient = new HttpClient();
-            _apiClient.BaseAddress = new Uri(apiConfiguration["ApiBase"]);
-            _apiClient.DefaultRequestHeaders.Accept.Clear();
-            _apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			_apiClient = new HttpClient();
+			_apiClient.BaseAddress = new Uri(apiConfiguration["ApiBase"]);
+			_apiClient.DefaultRequestHeaders.Accept.Clear();
+			_apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            sendPaymentEndpointURI = apiConfiguration["SendPaymentEndpointURI"];
-        }
-    }
+			sendPaymentEndpointURI = apiConfiguration["SendPaymentEndpointURI"];
+		}
+	}
 }

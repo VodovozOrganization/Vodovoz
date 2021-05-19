@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace DriverAPI.Models
 {
-    public class OrderPaymentStatusResponseModel
-    {
-        public IEnumerable<APIPaymentType> AvailablePaymentTypes { get; set; }
-        public bool CanSendSms { get; set; }
-        public APISmsPaymentStatus? SmsPaymentStatus { get; set; }
-    }
+	public class OrderPaymentStatusResponseModel
+	{
+		public IEnumerable<APIPaymentType> AvailablePaymentTypes { get; set; }
+		public bool CanSendSms { get; set; }
+		public APISmsPaymentStatus? SmsPaymentStatus { get; set; }
+	}
 }

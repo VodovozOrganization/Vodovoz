@@ -2,11 +2,11 @@
 
 namespace DriverAPI.Library.Models
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum APISmsPaymentStatus
-    {
-        WaitingForPayment,
-        Paid,
-        Cancelled
-    }
+	[JsonConverter(typeof(JsonStringEnumConverter))]
+	public enum APISmsPaymentStatus
+	{
+		WaitingForPayment,
+		Paid,
+		Cancelled
+	}
 }
