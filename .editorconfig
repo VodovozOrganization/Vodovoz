@@ -1,9 +1,30 @@
-# Remove the line below if you want to inherit .editorconfig settings from higher directories
+﻿# Remove the line below if you want to inherit .editorconfig settings from higher directories
 root = true
+
+[*]
+indent_style = tabs
+end_of_line = lf
+charset = utf-8-bom
 
 # C# files
 [*.cs]
 
-#### Core EditorConfig Options ####
+#### .NET Coding Conventions ####
+
+max_line_length = 140
+
+# Modifier preferences
+dotnet_style_require_accessibility_modifiers = for_non_interface_members
+
+#### C# Coding Conventions ####
+
+# Code-block preferences
+csharp_prefer_braces = true:warning
+
+#### C# Formatting Rules ####
+
 # New line preferences
-end_of_line = lf
+csharp_new_line_before_catch = true
+csharp_new_line_before_else = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_open_brace = all
