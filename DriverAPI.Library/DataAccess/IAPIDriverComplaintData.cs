@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace DriverAPI.Library.DataAccess
 {
-    public interface IAPIDriverComplaintData
-    {
-        IEnumerable<APIDriverComplaintReason> GetPinnedComplaintReasons();
-    }
+	public interface IAPIDriverComplaintData
+	{
+		IEnumerable<APIDriverComplaintReason> GetPinnedComplaintReasons();
+	}
 }

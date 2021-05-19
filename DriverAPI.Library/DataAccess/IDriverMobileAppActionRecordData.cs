@@ -1,11 +1,12 @@
-﻿using System;
+﻿using DriverAPI.Library.Models;
+using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Library.DataAccess
 {
-    public interface IDriverMobileAppActionRecordData
-    {
-        void RegisterAction(Employee driver, DriverMobileAppActionType completeOrderClicked, DateTime actionTime);
-    }
+	public interface IDriverMobileAppActionRecordData
+	{
+		void RegisterAction(Employee driver, APIDriverActionModel driverAction);
+		void RegisterActionsRangeForDriver(Employee driver, IEnumerable<APIDriverActionModel> driverActionModels);
+	}
 }

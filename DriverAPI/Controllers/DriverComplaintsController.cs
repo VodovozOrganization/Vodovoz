@@ -7,28 +7,28 @@ using System.Collections.Generic;
 
 namespace DriverAPI.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
-    public class DriverComplaintsController : ControllerBase
-    {
-        private readonly IAPIDriverComplaintData iAPIDriverComplaintData;
+	[Route("api/[controller]")]
+	[ApiController]
+	[Authorize]
+	public class DriverComplaintsController : ControllerBase
+	{
+		private readonly IAPIDriverComplaintData iAPIDriverComplaintData;
 
-        public DriverComplaintsController(IAPIDriverComplaintData iAPIDriverComplaintData)
-        {
-            this.iAPIDriverComplaintData = iAPIDriverComplaintData ?? throw new ArgumentNullException(nameof(iAPIDriverComplaintData));
-        }
+		public DriverComplaintsController(IAPIDriverComplaintData iAPIDriverComplaintData)
+		{
+			this.iAPIDriverComplaintData = iAPIDriverComplaintData ?? throw new ArgumentNullException(nameof(iAPIDriverComplaintData));
+		}
 
-        /// <summary>
-        /// Эндпоинт получения популярных причин
-        /// </summary>
-        /// <returns>Список популярных причин</returns>
-        [Authorize]
-        [HttpGet]
-        [Route("/api/GetDriverComplaintReasons")]
-        public IEnumerable<APIDriverComplaintReason> GetDriverComplaintReasons()
-        {
-            return iAPIDriverComplaintData.GetPinnedComplaintReasons();
-        }
-    }
+		/// <summary>
+		/// Эндпоинт получения популярных причин
+		/// </summary>
+		/// <returns>Список популярных причин</returns>
+		[Authorize]
+		[HttpGet]
+		[Route("/api/GetDriverComplaintReasons")]
+		public IEnumerable<APIDriverComplaintReason> GetDriverComplaintReasons()
+		{
+			return iAPIDriverComplaintData.GetPinnedComplaintReasons();
+		}
+	}
 }
