@@ -4,9 +4,9 @@ namespace Vodovoz.Parameters
 {
     public class ReportDefaultsProvider : IReportDefaultsProvider
     {
-        private readonly ParametersProvider parametersProvider;
+        private readonly IParametersProvider parametersProvider;
 
-        public ReportDefaultsProvider(ParametersProvider parametersProvider)
+        public ReportDefaultsProvider(IParametersProvider parametersProvider)
         {
             this.parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }

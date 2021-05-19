@@ -101,6 +101,7 @@
     <Compile Include="Domain\Orders\Documents\PrintableOrderDocument.cs" />
     <Compile Include="Domain\Orders\ReturnTareReason.cs" />
     <Compile Include="Domain\Orders\ReturnTareReasonCategory.cs" />
+    <Compile Include="Domain\Orders\SelectedNomenclaturePlan.cs" />
     <Compile Include="Domain\Organizations\Organization.cs" />
     <Compile Include="Domain\Payments\PaymentsFromYookassaParser.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
@@ -163,6 +164,7 @@
     <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
+    <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
@@ -186,12 +188,15 @@
     <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
+    <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
+    <Compile Include="Parameters\NomenclaturePlanParametersProvider.cs" />
     <Compile Include="Parameters\OrderParametersProvider.cs" />
     <Compile Include="Parameters\OrganizationParametersProvider.cs" />
     <Compile Include="Parameters\ReportDefaultsProvider.cs" />
     <Compile Include="Parameters\RouteListParametersProvider.cs" />
+    <Compile Include="Parameters\TabsParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -447,9 +452,11 @@
     <Compile Include="Services\ICashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
+    <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />
     <Compile Include="Services\IOrderParametersProvider.cs" />
     <Compile Include="Services\IOrganizationParametersProvider.cs" />
     <Compile Include="Services\IRouteListParametersProvider.cs" />
+    <Compile Include="Services\ITabsParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Tools\LoggedMySqlClientDriver.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
@@ -805,7 +812,7 @@
     <Compile Include="Domain\Complaints\ComplaintKind.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintKindMap.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\WageCalculationServiceForOldRouteLists.cs" />
-    <Compile Include="Parameters\ParametersProvider.cs" />
+    <Compile Include="Parameters\SingletonParametersProvider.cs" />
     <Compile Include="EntityRepositories\SmsNotifications\ISmsNotificationRepository.cs" />
     <Compile Include="EntityRepositories\SmsNotifications\SmsNotificationRepository.cs" />
     <Compile Include="Services\ISmsNotificationServiceSettings.cs" />

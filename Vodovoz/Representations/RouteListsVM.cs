@@ -352,7 +352,7 @@ namespace Vodovoz.ViewModel
 
 							foreach (var routeList in routeLists)
 							{
-								var routeListParametersProvider = new RouteListParametersProvider(ParametersProvider.Instance);
+								var routeListParametersProvider = new RouteListParametersProvider(SingletonParametersProvider.Instance);
 								int warehouseId = 0;
 								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.CashSubdivisionSofiiskayaId)
 									warehouseId = routeListParametersProvider.WarehouseSofiiskayaId;

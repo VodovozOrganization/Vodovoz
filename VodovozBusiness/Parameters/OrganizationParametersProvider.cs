@@ -5,9 +5,9 @@ namespace Vodovoz.Parameters
 {
     public class OrganizationParametersProvider : IOrganizationParametersProvider
     {
-        private readonly ParametersProvider parametersProvider;
+        private readonly IParametersProvider parametersProvider;
 
-        public OrganizationParametersProvider(ParametersProvider parametersProvider)
+        public OrganizationParametersProvider(IParametersProvider parametersProvider)
         {
             this.parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }
