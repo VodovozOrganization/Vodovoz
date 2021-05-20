@@ -200,15 +200,15 @@
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox2">
-        <Height>35pt</Height>
+        <Height>35.00pt</Height>
         <Width>816.42pt</Width>
         <Value>='Основная информация по ЗП за ' + MonthName(Month(CDate({?start_date}))) + ' ' +
           Year(CDate({?start_date})) + 'г.\n с ' +Format(CDate({?start_date}), 'dd.MM.yy') +' по '+
           Format(CDate({?end_date}),'dd.MM.yy')
         </Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>0.0pt</Top>
+        <Left>0.00pt</Left>
+        <Top>0.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -304,9 +304,10 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox36">
-                      <Value>№</Value>
-                      <Style>
+                    <Textbox Name="Textbox36" >
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -492,8 +493,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>
-                      </Value>
+                      <Value>№</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -504,7 +504,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign>Bottom</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -702,7 +702,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -738,7 +738,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
