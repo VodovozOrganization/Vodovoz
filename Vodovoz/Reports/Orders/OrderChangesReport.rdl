@@ -433,6 +433,7 @@
                         <PaddingTop>1pt</PaddingTop>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -452,6 +453,7 @@
                         <PaddingTop>1pt</PaddingTop>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -586,6 +588,7 @@
                         <PaddingTop>1pt</PaddingTop>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -643,6 +646,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
