@@ -1,10 +1,10 @@
 ﻿using System;
+using Gamma.Binding.Converters;
 using Gamma.Widgets.Additions;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
-using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Representations;
