@@ -14,6 +14,9 @@ using Vodovoz.Domain.Orders;
 using QS.Commands;
 using QS.Dialog;
 using QS.Project.Journal;
+using Vodovoz.Core.DataService;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Employees;
@@ -29,6 +32,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 		private readonly IEmployeeService employeeService;
+		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
 		#region Properties
 
@@ -281,5 +285,8 @@ namespace Vodovoz.ViewModels.Logistic
 			if(!string.IsNullOrEmpty(Entity.LogisticiansComment))
 				Entity.LogisticiansCommentAuthor = CurrentEmployee;
 		}
+
+		public void CalculateWages() =>
+			Entity.CalculateWages(wageParameterService);
 	}
 }
