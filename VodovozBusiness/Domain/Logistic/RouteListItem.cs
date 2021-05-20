@@ -32,6 +32,14 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int Id { get; set; }
 
+		DateTime version;
+		[Display(Name = "Версия")]
+		public virtual DateTime Version
+		{
+			get => version;
+			set => SetField(ref version, value);
+		}
+
 		Orders.Order order;
 
 		[Display(Name = "Заказ")]
