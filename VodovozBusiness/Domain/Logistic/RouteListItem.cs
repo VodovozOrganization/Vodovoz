@@ -511,7 +511,9 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.Shipped, callTaskWorker);
-					Order.TimeDelivered = DateTime.Now;
+					if(Order.TimeDelivered == null) {
+						Order.TimeDelivered = DateTime.Now;
+					}
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.EnRoute:
@@ -541,7 +543,9 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatus(OrderStatus.Shipped);
-					Order.TimeDelivered = DateTime.Now;
+					if(Order.TimeDelivered == null) {
+						Order.TimeDelivered = DateTime.Now;
+					}
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.EnRoute:
