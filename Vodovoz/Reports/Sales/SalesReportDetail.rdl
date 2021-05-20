@@ -47,16 +47,19 @@
         </Style>
         <TableColumns>
           <TableColumn>
+            <Width>27.5pt</Width>
+          </TableColumn>
+          <TableColumn>
             <Width>137.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>281.0pt</Width>
+            <Width>273.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80.6pt</Width>
+            <Width>71.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>168.3pt</Width>
+            <Width>162.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65.1pt</Width>
@@ -70,6 +73,23 @@
             <TableRow>
               <Height>30.9pt</Height>
               <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>Код</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
@@ -188,6 +208,23 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>={counterparty_id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox26">
                       <Value>=Fields!counterparty.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -270,7 +307,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >='N' + {digits}</Format>
+                        <Format>='N' + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -296,13 +333,34 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>5.7pt</Left>
+        <Left>4pt</Left>
         <Top>49.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
@@ -442,6 +500,26 @@
                   <TableCells>
                     <TableCell>
                       <ReportItems>
+                        <Textbox Name="Textbox38">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>11pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <TextAlign>Left</TextAlign>
+                            <PaddingLeft>10pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
                         <Textbox Name="Textbox28">
                           <Value>=Switch(
     Fields!category.Value = 'rent', 'Аренда кулеров',
@@ -482,6 +560,27 @@
                 <TableRow>
                   <Height>.2in</Height>
                   <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox39">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>None</Default>
+                              <Left>None</Left>
+                              <Right>None</Right>
+                              <Top>None</Top>
+                              <Bottom>None</Bottom>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox29">
@@ -778,6 +877,7 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
+    T.counterparty_id,
     T.counterparty,
     T.delivery_point,
     T.order_id,
@@ -1045,6 +1145,10 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
         <Field Name="digits">
           <DataField>digits</DataField>
           <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="counterparty_id">
+          <DataField>counterparty_id</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
