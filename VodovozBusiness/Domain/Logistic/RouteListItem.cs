@@ -512,22 +512,22 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.Shipped, callTaskWorker);
-					Order.TimeDelivered = DateTime.Now;
+					if (Order.TimeDelivered == null)
+					{
+						Order.TimeDelivered = DateTime.Now;
+					}
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
-					Order.TimeDelivered = null;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 			}
@@ -537,7 +537,9 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status)
 		{
 			if(Status == status)
+			{
 				return;
+			}
 
 			Status = status;
 			StatusLastUpdate = DateTime.Now;
@@ -545,22 +547,22 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatus(OrderStatus.DeliveryCanceled);
-					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatus(OrderStatus.Shipped);
-					Order.TimeDelivered = DateTime.Now;
+					if (Order.TimeDelivered == null)
+					{
+						Order.TimeDelivered = DateTime.Now;
+					}
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatus(OrderStatus.OnTheWay);
-					Order.TimeDelivered = null;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatus(OrderStatus.NotDelivered);
-					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 			}
