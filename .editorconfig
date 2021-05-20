@@ -6,6 +6,11 @@ indent_style = tab
 end_of_line = lf
 charset = utf-8-bom
 
+# RDL files
+[*.rdl]
+indent_style = space
+indent_size = 2
+
 # C# files
 [*.cs]
 
