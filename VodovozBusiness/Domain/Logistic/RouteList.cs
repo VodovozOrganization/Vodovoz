@@ -2034,6 +2034,53 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		/// <summary>
+		/// Рассчитывает и записывает предварительную зарплату
+		/// </summary>
+		public virtual void CalculatePreliminaryWages(WageParameterService wageParameterService)
+		{
+			if (wageParameterService == null)
+			{
+				throw new ArgumentNullException(nameof(wageParameterService));
+			}
+
+			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
+			IRouteListWageCalculationService routeListForwarderWageCalculationService = null;
+			if (Forwarder != null)
+			{
+				routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
+			}
+			foreach(var address in Addresses)
+			{
+				var drvWageResult = routeListDriverWageCalculationService.CalculateWageForRouteListItem(address.DriverWageCalculationSrc);
+				address.DriverWage = drvWageResult.Wage;
+				address.DriverWageCalcMethodicTemporaryStore = drvWageResult.WageDistrictLevelRate;
+				if (Forwarder != null)
+				{
+					var fwdWageResult = routeListForwarderWageCalculationService.CalculateWageForRouteListItem(address.ForwarderWageCalculationSrc);
+					address.ForwarderWage = fwdWageResult.Wage;
+					address.ForwarderWageCalcMethodicTemporaryStore = fwdWageResult.WageDistrictLevelRate;
+				}
+			}
+
+			FixedDriverWage = GetRecalculatedDriverWage(wageParameterService);
+			FixedForwarderWage = GetRecalculatedForwarderWage(wageParameterService);
+		}
+
+		/// <summary>
+		/// Обнуляет зарплату в МЛ и его адресах
+		/// </summary>
+		public virtual void ClearWages()
+		{
+			FixedDriverWage = 0;
+			FixedForwarderWage = 0;
+			foreach(var address in Addresses)
+			{
+				address.DriverWage = 0;
+				address.ForwarderWage = 0;
+			}
+		}
+
 		public virtual void RecalculateAllWages(WageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
