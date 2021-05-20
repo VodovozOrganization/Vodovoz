@@ -392,7 +392,7 @@ namespace Vodovoz
 				{
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.Delivered, CallTaskWorker);
 				}
-				Entity.CalculatePreliminaryWages(wageParameterService);
+				Entity.CalculateWages(wageParameterService);
 
 				UoWGeneric.Save();
 

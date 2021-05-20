@@ -2013,13 +2013,19 @@ namespace Vodovoz.Domain.Logistic
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
+			if (Status == RouteListStatus.New)
+			{
+				ClearWages();
+				return;
+			}
+
 			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
-			FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().FixedWage;
+			FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().Wage;
 
 			IRouteListWageCalculationService routeListForwarderWageCalculationService = null;
 			if(Forwarder != null) {
 				routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
-				FixedForwarderWage = routeListForwarderWageCalculationService.CalculateWage().FixedWage;
+				FixedForwarderWage = routeListForwarderWageCalculationService.CalculateWage().Wage;
 			}
 
 			foreach(var address in Addresses) {
@@ -2032,39 +2038,6 @@ namespace Vodovoz.Domain.Logistic
 					address.ForwarderWageCalcMethodicTemporaryStore = fwdWageResult.WageDistrictLevelRate;
 				}
 			}
-		}
-
-		/// <summary>
-		/// Рассчитывает и записывает предварительную зарплату
-		/// </summary>
-		public virtual void CalculatePreliminaryWages(WageParameterService wageParameterService)
-		{
-			if (wageParameterService == null)
-			{
-				throw new ArgumentNullException(nameof(wageParameterService));
-			}
-
-			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
-			IRouteListWageCalculationService routeListForwarderWageCalculationService = null;
-			if (Forwarder != null)
-			{
-				routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
-			}
-			foreach(var address in Addresses)
-			{
-				var drvWageResult = routeListDriverWageCalculationService.CalculateWageForRouteListItem(address.DriverWageCalculationSrc);
-				address.DriverWage = drvWageResult.Wage;
-				address.DriverWageCalcMethodicTemporaryStore = drvWageResult.WageDistrictLevelRate;
-				if (Forwarder != null)
-				{
-					var fwdWageResult = routeListForwarderWageCalculationService.CalculateWageForRouteListItem(address.ForwarderWageCalculationSrc);
-					address.ForwarderWage = fwdWageResult.Wage;
-					address.ForwarderWageCalcMethodicTemporaryStore = fwdWageResult.WageDistrictLevelRate;
-				}
-			}
-
-			FixedDriverWage = GetRecalculatedDriverWage(wageParameterService);
-			FixedForwarderWage = GetRecalculatedForwarderWage(wageParameterService);
 		}
 
 		/// <summary>
