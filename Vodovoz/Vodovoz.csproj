@@ -981,8 +981,6 @@
     <Compile Include="ServiceDialogs\ExportCounterpartiesTo1C.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ExportCounterpartiesTo1cDlg.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportCounterpariesData.cs" />
-    <Compile Include="ReportsParameters\SendedEmailsReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SendedEmailsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.DefectiveItemsReport.cs" />
     <Compile Include="ReportsParameters\Store\DefectiveItemsReport.cs" />
     <Compile Include="DriverTerminal\DriverTerminalWindow.cs" />
@@ -2297,9 +2295,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Orders\UndeliveriesWithComments.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\SendedBillsReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\DefectiveItemsReport.rdl">
