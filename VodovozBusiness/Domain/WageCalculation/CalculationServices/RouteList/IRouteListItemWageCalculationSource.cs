@@ -98,5 +98,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 		IEnumerable<IOrderItemWageCalculationSource> OrderItemsSource { get; }
 		IEnumerable<IOrderDepositItemWageCalculationSource> OrderDepositItemsSource { get; }
+
+		bool IsDriverForeignDistrict { get; }
 	}
 }

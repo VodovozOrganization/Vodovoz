@@ -219,7 +219,10 @@ namespace Vodovoz
 				.AddColumn("С погрузкой").HeaderAlignment(0.5f)
 					.AddToggleRenderer(item => item.TransferedTo != null ? item.TransferedTo.NeedToReload : item.NeedToReload )
 						.Editing(false)
-						
+				.AddColumn("Чужой район\n для водит.").HeaderAlignment(0.5f)
+					.AddToggleRenderer(item => item.IsDriverForeignDistrict)
+						.Editing(false)
+
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>

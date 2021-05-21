@@ -27,8 +27,10 @@ namespace Vodovoz.Domain.WageCalculation
 		Bottle1500ml,
 		[Display(Name = "За наличие оборудования или единицу оборудования")]
 		Equipment,
-		[Display(Name = "За 1 адрес")]
+		[Display(Name = "За 1 адрес в своем районе")]
 		Address,
+		[Display(Name = "За 1 адрес не в своем районе")]
+		ForeignAddress,
 		[Display(Name = "За расторжение")]
 		ContractCancelation
 	}
