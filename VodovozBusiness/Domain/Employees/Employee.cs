@@ -594,7 +594,8 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			driverDistrictPrioritySet.IsActive = true;
-			driverDistrictPrioritySet.DateActivated = currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
+			driverDistrictPrioritySet.DateActivated 
+				= currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
 		}
 		
 		public virtual void AddActiveDriverWorkScheduleSet(DriverWorkScheduleSet activeDriverWorkScheduleSet)
