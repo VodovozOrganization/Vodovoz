@@ -50,6 +50,8 @@ namespace Vodovoz.Views.Logistic
 			ybuttonForm.Clicked += OnButtonFormClicked;
 			ybuttonExport.Clicked += OnButtonExportClicked;
 
+			ybuttonInfo.Clicked += (sender, args) => ViewModel.HelpCommand.Execute();
+
 			ViewModel.PropertyChanged += (sender, args) =>
 			{
 				if(args.PropertyName == nameof(ViewModel.Items))
