@@ -770,22 +770,45 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			//ОБОРУДОВАНИЕ
-			var orderEquipments = Addresses.Where(item => item.TransferedTo == null)
-									   .SelectMany(item => item.Order.OrderEquipments)
-									   .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-									   .ToList();
-			foreach(var orderEquip in orderEquipments) {
-				var discrepancy = new Discrepancy {
-					Nomenclature = orderEquip.Nomenclature,
-					Name = orderEquip.Nomenclature.Name
-				};
 
-				if(orderEquip.Direction == Direction.Deliver)
-					discrepancy.ClientRejected = orderEquip.ReturnedCount;
-				else
-					discrepancy.PickedUpFromClient = orderEquip.ActualCount ?? 0;
+			foreach (var address in Addresses)
+			{
+				foreach (var orderEquipment in address.Order.OrderEquipments)
+				{
+					if (!Nomenclature.GetCategoriesForShipment().Contains(orderEquipment.Nomenclature.Category))
+					{
+						continue;
+					}
+					var discrepancy = new Discrepancy
+					{
+						Nomenclature = orderEquipment.Nomenclature,
+						Name = orderEquipment.Nomenclature.Name
+					};
 
-				AddDiscrepancy(result, discrepancy);
+					if (address.TransferedTo == null)
+					{
+						if (orderEquipment.Direction == Direction.Deliver)
+						{
+							discrepancy.ClientRejected = orderEquipment.ReturnedCount;
+						}
+						else
+						{
+							discrepancy.PickedUpFromClient = orderEquipment.ActualCount ?? 0;
+						}
+						AddDiscrepancy(result, discrepancy);
+					}
+					else if (address.TransferedTo.NeedToReload)
+					{
+						if (orderEquipment.Direction == Direction.Deliver)
+						{// не обрабатываем pickup, т.к. водитель физически не был на адресе, чтобы забрать оборудование
+							discrepancy.ClientRejected = orderEquipment.Count;
+						}
+						if (discrepancy.ClientRejected != 0)
+						{// оборудование от клиента в перенесенных заказах не будет отображаться в таблице расхождений
+							AddDiscrepancy(result, discrepancy);
+						}
+					}
+				}
 			}
 
 			//ДОСТАВЛЕНО НА СКЛАД
