@@ -16,8 +16,10 @@ namespace Vodovoz.Tools
 		protected override void OnBeforePrepare(DbCommand command)
 		{
 			base.OnBeforePrepare(command);
-			try {
-				logger.Debug(GetResultQueryText(command));
+			try
+			{
+				var text = GetResultQueryText(command);
+				logger.Debug(text);
 			}
 			catch (Exception ex) {
 				logger.Error(ex, "Ошибка при формировании текста SQL запроса для логгера");

@@ -118,6 +118,9 @@ using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Vodovoz.ReportsParameters.Employees;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2150,6 +2153,18 @@ public partial class MainWindow : Gtk.Window
     {
         var dlg = new RecalculateDriverWageDlg();
         tdiMain.AddTab(dlg);
+	}
+    
+    protected void OnActionDriversInfoExportActivated(object sender, EventArgs e)
+    {
+        var wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+        tdiMain.AddTab(
+            new DriversInfoExportViewModel(
+                wageParameterService,
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.InteractiveService,
+                null)
+        );
     }
 
     protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
