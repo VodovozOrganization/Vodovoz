@@ -75,8 +75,7 @@ namespace Vodovoz.ViewModels.Logistic
         private readonly IEmployeeRepository employeeRepository;
         private readonly IPermissionResult permissionResult;
 
-		public delegate void EntityAcceptedHandler(object sender, DriverDistrictPrioritySetAcceptedEventArgs args);
-		public EntityAcceptedHandler EntityAccepted;
+		public EventHandler<DriverDistrictPrioritySetAcceptedEventArgs> EntityAccepted;
 
 		public bool IsInfoVisible => Entity.Id != 0;
         public bool CanEdit => (Entity.Id == 0 && permissionResult.CanCreate) || (Entity.Id != 0 && permissionResult.CanUpdate);
