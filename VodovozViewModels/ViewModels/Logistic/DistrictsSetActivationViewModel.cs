@@ -97,7 +97,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 							ReAssignDeliveryPoints();
 							TryToFindNearbyDistrict();
-							ReAssignDriverDistirctPriorities();
+							ReAssignDriverDistrictPriorities();
 						});
 						await task;
 
@@ -185,7 +185,7 @@ namespace Vodovoz.ViewModels.Logistic
 			UoW.Commit();
 		}
 
-		private void ReAssignDriverDistirctPriorities()
+		private void ReAssignDriverDistrictPriorities()
 		{
 			ActivationStatus = "Переприсвоение приоритетов доставки водителей...";
 			NotCopiedPriorities.Clear();
