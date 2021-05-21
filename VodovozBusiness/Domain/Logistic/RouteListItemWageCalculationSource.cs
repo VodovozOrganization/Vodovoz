@@ -49,7 +49,7 @@ namespace Vodovoz.Domain.Logistic
 			{
 				var driverDistricts = item.RouteList.Driver.DriverDistrictPrioritySets
 					.FirstOrDefault(x =>
-						item.RouteList.Date >= x.DateActivated && item.RouteList.Date <= (x.DateDeactivated ?? item.RouteList.Date))
+						item.RouteList.Date >= x.DateActivated && (x.DateDeactivated == null || item.RouteList.Date <= x.DateDeactivated))
 					?.DriverDistrictPriorities
 					?.Select(x => x.District);
 
