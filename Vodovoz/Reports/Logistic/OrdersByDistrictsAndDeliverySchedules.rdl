@@ -76,6 +76,7 @@ WHERE
   AND NOT o.is_contract_closer
   AND NOT o.service
   AND (@geographic_group_id = '' OR distr.geographic_group_id = @geographic_group_id)
+  AND NOT o.self_delivery
 GROUP BY distr.id, o.delivery_date
 ORDER BY d_name, delivery_date;</CommandText>
         <QueryParameters>
