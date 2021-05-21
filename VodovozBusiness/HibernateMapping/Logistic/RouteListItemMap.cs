@@ -39,7 +39,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.PlanTimeStart)							.Column("plan_time_start").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.PlanTimeEnd)								.Column("plan_time_end").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.CommentForFine).Column("comment_for_fine");
-			
+			Map(x => x.IsDriverForeignDistrict).Column("is_driver_foreign_district");
+
 			References(x => x.RouteList)						.Column("route_list_id").Not.Nullable ();
 			References(x => x.Order)							.Column("order_id").Cascade.SaveUpdate();
 			References(x => x.TransferedTo)						.Column("transfered_to_id");

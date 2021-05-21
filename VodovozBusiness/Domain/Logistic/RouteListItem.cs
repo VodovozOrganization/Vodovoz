@@ -338,6 +338,15 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref fines, value);
 		}
 
+		private bool isDriverForeignDistrict;
+
+		[Display(Name = "Чужой район для водителя")]
+		public virtual bool IsDriverForeignDistrict
+		{
+			get => isDriverForeignDistrict;
+			set => SetField(ref isDriverForeignDistrict, value);
+		}
+
 		GenericObservableList<Fine> observableFines;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Fine> ObservableFines {

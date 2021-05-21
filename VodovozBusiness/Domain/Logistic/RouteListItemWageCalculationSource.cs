@@ -43,6 +43,19 @@ namespace Vodovoz.Domain.Logistic
 		public IEnumerable<IOrderItemWageCalculationSource> OrderItemsSource => item.Order.OrderItems;
 
 		public IEnumerable<IOrderDepositItemWageCalculationSource> OrderDepositItemsSource => item.Order.OrderDepositItems;
+		public bool IsDriverForeignDistrict
+		{
+			get
+			{
+				var driverDistricts = item.RouteList.Driver.DriverDistrictPrioritySets
+					.FirstOrDefault(x =>
+						item.RouteList.Date >= x.DateActivated && item.RouteList.Date <= (x.DateDeactivated ?? item.RouteList.Date))
+					?.DriverDistrictPriorities
+					?.Select(x => x.District);
+
+				return driverDistricts == null || !driverDistricts.Contains(item.Order.DeliveryPoint.District);
+			}
+		}
 
 		public bool HasFirstOrderForDeliveryPoint {
 			get {

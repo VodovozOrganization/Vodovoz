@@ -67,8 +67,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			if(!src.HasFirstOrderForDeliveryPoint)
 				return 0;
-
-			var rate = GetCurrentWageDistrictLevelRate(src).WageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Address);
+			
+			var rate = GetCurrentWageDistrictLevelRate(src).WageRates.FirstOrDefault(r => r.WageRateType == (src.IsDriverForeignDistrict? WageRateTypes.ForeignAddress : WageRateTypes.Address));
 
 			return GetRateValue(src, rate);
 		}
