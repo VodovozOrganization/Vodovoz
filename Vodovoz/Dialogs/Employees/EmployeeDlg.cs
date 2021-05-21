@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using EmailService;
@@ -52,7 +53,7 @@ using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz
 {
-	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>
+	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>, INotifyPropertyChanged
 	{
 		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
@@ -130,7 +131,8 @@ namespace Vodovoz
 			if (Entity.Id == 0) {
 				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
 			}
-			
+
+			canActivateDriverDistrictPrioritySetPermission = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_driver_district_priority_set");
 			canManageDriversAndForwarders = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_drivers_and_forwarders");
 			canManageOfficeWorkers = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_office_workers");
 			canEditOrganisationForSalary = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_organisation_for_salary");
@@ -272,13 +274,14 @@ namespace Vodovoz
 		#region DriverDistrictPriorities
 
 		private IPermissionResult driverDistrictPrioritySetPermission;
+		private bool canActivateDriverDistrictPrioritySetPermission;
 
 		private void ConfigureDistrictPriorities()
 		{
 			driverDistrictPrioritySetPermission =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(
 					typeof(DriverDistrictPrioritySet));
-			
+
 			ytreeDistrictPrioritySets.ColumnsConfig = FluentColumnsConfig<DriverDistrictPrioritySet>.Create()
 				.AddColumn("Код")
 					.HeaderAlignment(0.5f)
@@ -292,7 +295,7 @@ namespace Vodovoz
 					.Editing(false)
 				.AddColumn("Дата\nактивации")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => x.DateActivated.ToString("g"))
+					.AddTextRenderer(x => x.DateActivated != null ? x.DateActivated.Value.ToString("g") : "")
 				.AddColumn("Дата\nдеактивации")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.DateDeactivated != null ? x.DateDeactivated.Value.ToString("g") : "")
@@ -327,15 +330,31 @@ namespace Vodovoz
 			ybuttonEditDistrictPrioritySet.Sensitive = false;
 			ybuttonEditDistrictPrioritySet.Clicked += (sender, args) => OpenDistrictPrioritySetEditWindow();
 
+			ybuttonActivateDistrictPrioritySet.Clicked += (sender, args) => OnActivateDistrictPrioritySetClicked();
+			ybuttonActivateDistrictPrioritySet.Binding.AddBinding(this, x => x.CanActivateDistrictPrioritySet, w => w.Sensitive).InitializeFromSource();
+
 			ytreeDistrictPrioritySets.Selection.Changed += (o, args) => {
-				ybuttonCopyDistrictPrioritySet.Sensitive = ytreeDistrictPrioritySets.GetSelectedObject() != null
+				var selectedDistrictPrioritySet = ytreeDistrictPrioritySets.GetSelectedObject() as DriverDistrictPrioritySet;
+				ybuttonCopyDistrictPrioritySet.Sensitive = selectedDistrictPrioritySet != null
 					&& driverDistrictPrioritySetPermission.CanCreate;
-				ybuttonEditDistrictPrioritySet.Sensitive = ytreeDistrictPrioritySets.GetSelectedObject() != null
+				ybuttonEditDistrictPrioritySet.Sensitive = selectedDistrictPrioritySet != null
 					&& (driverDistrictPrioritySetPermission.CanUpdate || driverDistrictPrioritySetPermission.CanRead);
+				CanActivateDistrictPrioritySet = selectedDistrictPrioritySet != null
+					&& !selectedDistrictPrioritySet.IsActive && canActivateDriverDistrictPrioritySetPermission;
 			};
 
 			ybuttonCreateDistrictPrioritySet.Clicked += (sender, args) => OpenDistrictPrioritySetCreateWindow();
 			ybuttonCreateDistrictPrioritySet.Sensitive = driverDistrictPrioritySetPermission.CanCreate;
+		}
+
+		private bool canActivateDistrictPrioritySet;
+		public bool CanActivateDistrictPrioritySet
+		{
+			get => canActivateDistrictPrioritySet;
+			private set {
+				canActivateDistrictPrioritySet = value;
+				OnPropertyChanged(nameof(CanActivateDistrictPrioritySet));
+			}
 		}
 
 		private void OnButtonCopyDistrictPrioritySetClicked(object sender, EventArgs e)
@@ -379,8 +398,12 @@ namespace Vodovoz
 				new BaseParametersProvider(),
 				EmployeeSingletonRepository.GetInstance()
 			);
+
 			driverDistrictPrioritySetViewModel.EntityAccepted += (o, eventArgs) => {
-				Entity.AddActiveDriverDistrictPrioritySet(newDistrictPrioritySet);
+				var now = DateTime.Now;
+				eventArgs.AcceptedEntity.DateCreated = now;
+				eventArgs.AcceptedEntity.DateLastChanged = now;
+				Entity.AddDriverDistrictPrioritySet(eventArgs.AcceptedEntity);
 			};
 			
 			TabParent.AddSlaveTab(this, driverDistrictPrioritySetViewModel);
@@ -400,9 +423,29 @@ namespace Vodovoz
 				new BaseParametersProvider(),
 				EmployeeSingletonRepository.GetInstance()
 			);
+
+			driverDistrictPrioritySetViewModel.EntityAccepted += (o, eventArgs) => {
+				eventArgs.AcceptedEntity.DateLastChanged = DateTime.Now;
+			};
+
 			TabParent.AddSlaveTab(this, driverDistrictPrioritySetViewModel);
 		}
-		
+
+		private void OnActivateDistrictPrioritySetClicked()
+		{
+			if (!(ytreeDistrictPrioritySets.GetSelectedObject() is DriverDistrictPrioritySet districtPrioritySet))
+			{
+				return;
+			}
+
+			var now = DateTime.Now;
+
+			districtPrioritySet.DateLastChanged = now;
+			districtPrioritySet.DateActivated = now;
+
+			Entity.ActivateDriverDistrictPrioritySet(districtPrioritySet);
+		}
+
 		private void OpenDistrictPrioritySetCreateWindow()
 		{
 			var newDistrictPrioritySet = new DriverDistrictPrioritySet {
@@ -418,8 +461,12 @@ namespace Vodovoz
 				new BaseParametersProvider(),
 				EmployeeSingletonRepository.GetInstance()
 			);
+
 			driverDistrictPrioritySetViewModel.EntityAccepted += (o, eventArgs) => {
-				Entity.AddActiveDriverDistrictPrioritySet(newDistrictPrioritySet);
+				var now = DateTime.Now;
+				eventArgs.AcceptedEntity.DateCreated = now;
+				eventArgs.AcceptedEntity.DateLastChanged = now;
+				Entity.AddDriverDistrictPrioritySet(eventArgs.AcceptedEntity);
 			};
 			
 			TabParent.AddSlaveTab(this, driverDistrictPrioritySetViewModel);
@@ -430,7 +477,14 @@ namespace Vodovoz
 		#region DriverWorkSchedules
 
 		private IPermissionResult driverWorkScheduleSetPermission;
-		
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		public void OnPropertyChanged(string propertyName)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
 		private void ConfigureWorkSchedules()
 		{
 			driverWorkScheduleSetPermission =
@@ -536,7 +590,7 @@ namespace Vodovoz
 			);
 			TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
 		}
-		
+
 		private void OpenDriverWorkScheduleSetCreateWindow()
 		{
 			var newDriverWorkScheduleSet = new DriverWorkScheduleSet {

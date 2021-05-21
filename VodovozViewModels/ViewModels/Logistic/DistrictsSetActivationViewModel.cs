@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -203,8 +203,9 @@ namespace Vodovoz.ViewModels.Logistic
                 NotCopiedPriorities.AddRange(notCopied);
 
                 if(newSet.DriverDistrictPriorities.Any()) {
-                    driver.AddActiveDriverDistrictPrioritySet(newSet);
-                }
+                    driver.AddDriverDistrictPrioritySet(newSet);
+					driver.ActivateDriverDistrictPrioritySet(newSet);
+				}
             }
         }
     }

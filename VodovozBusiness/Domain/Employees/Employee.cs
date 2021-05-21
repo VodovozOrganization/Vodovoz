@@ -568,26 +568,33 @@ namespace Vodovoz.Domain.Employees
 			return stringPhoneNumber;
 		}
 
-		public virtual void AddActiveDriverDistrictPrioritySet(DriverDistrictPrioritySet activeDistrictPrioritySet)
+		public virtual void AddDriverDistrictPrioritySet(DriverDistrictPrioritySet activeDistrictPrioritySet)
+		{
+			if (ObservableDriverDistrictPrioritySets.Any())
+			{
+				ObservableDriverDistrictPrioritySets.Insert(0, activeDistrictPrioritySet);
+			}
+			else
+			{
+				ObservableDriverDistrictPrioritySets.Add(activeDistrictPrioritySet);
+			}
+		}
+
+		public virtual void ActivateDriverDistrictPrioritySet(DriverDistrictPrioritySet driverDistrictPrioritySet)
 		{
 			var currentActiveSet = ObservableDriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
-			if(currentActiveSet != null) {
+
+			if (currentActiveSet != null)
+			{
 				currentActiveSet.IsActive = false;
-				
-				currentActiveSet.DateDeactivated = currentActiveSet.DateActivated.Date > DateTime.Today
-					? currentActiveSet.DateActivated.Date.AddDays(1).AddMilliseconds(-1)
+
+				currentActiveSet.DateDeactivated = currentActiveSet.DateActivated.Value.Date > DateTime.Today
+					? currentActiveSet.DateActivated.Value.Date.AddDays(1).AddMilliseconds(-1)
 					: DateTime.Today.AddDays(1).AddMilliseconds(-1);
 			}
 
-			activeDistrictPrioritySet.IsActive = true;
-			activeDistrictPrioritySet.DateActivated = currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
-			
-			if(ObservableDriverDistrictPrioritySets.Any()) {
-				ObservableDriverDistrictPrioritySets.Insert(0, activeDistrictPrioritySet);
-			}
-			else {
-				ObservableDriverDistrictPrioritySets.Add(activeDistrictPrioritySet);
-			}
+			driverDistrictPrioritySet.IsActive = true;
+			driverDistrictPrioritySet.DateActivated = currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
 		}
 		
 		public virtual void AddActiveDriverWorkScheduleSet(DriverWorkScheduleSet activeDriverWorkScheduleSet)
