@@ -62,7 +62,7 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
-using Vodovoz.ViewModels.Organization;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
@@ -194,6 +194,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ReturnTareReasonViewModel, ReturnTareReasonView>()
 				.RegisterWidgetForTabViewModel<PaymentByCardViewModel, PaymentByCardView>()
 				.RegisterWidgetForTabViewModel<RouteListAnalysisViewModel, RouteListAnalysisView>()
+				.RegisterWidgetForTabViewModel<DriversInfoExportViewModel, DriversInfoExportView>()
 				.RegisterWidgetForTabViewModel<LateArrivalReasonViewModel, LateArrivalReasonView>()
 				.RegisterWidgetForTabViewModel<NomenclatureViewModel, NomenclatureView>()
 				.RegisterWidgetForTabViewModel<FinancialDistrictsSetViewModel, FinancialDistrictsSetView>()
@@ -204,6 +205,7 @@ namespace Vodovoz
                 .RegisterWidgetForTabViewModel<SalesChannelViewModel, SalesChannelView>()
                 .RegisterWidgetForTabViewModel<DeliveryPointResponsiblePersonTypeViewModel, DeliveryPointResponsiblePersonTypeView>()
                 .RegisterWidgetForTabViewModel<NomenclaturePlanViewModel, NomenclaturePlanView>()
+                .RegisterWidgetForTabViewModel<OrganizationCashTransferDocumentViewModel, OrganizationCashTransferDocumentView>()
                 ;
 
             //Регистрация виджетов
@@ -253,6 +255,7 @@ namespace Vodovoz
                 .RegisterWidgetForWidgetViewModel<EmployeePostViewModel, EmployeePostView>()
                 .RegisterWidgetForWidgetViewModel<WarehouseViewModel, WarehouseView>()
                 .RegisterWidgetForWidgetViewModel<NomenclaturePlanFilterViewModel, NomenclaturePlanFilterView>()
+                .RegisterWidgetForWidgetViewModel<OrganizationCashTransferDocumentFilterViewModel, OrganizationCashTransferDocumentFilterView>()
                 ;
 
             DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

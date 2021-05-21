@@ -139,7 +139,7 @@
             <Width>47.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>54.0pt</Width>
+            <Width>59.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>51.0pt</Width>
@@ -433,6 +433,7 @@
                         <PaddingTop>1pt</PaddingTop>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -452,6 +453,7 @@
                         <PaddingTop>1pt</PaddingTop>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -534,8 +536,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>= Format(Convert.ToDateTime({delivery_date}), "dd.MM.yyyy") + ' ' + Iif(Fields!time_delivered.IsMissing, '', 
-Format(Convert.ToDateTime({time_delivered}), "HH:mm"))</Value>
+                      <Value>= Format(Convert.ToDateTime({delivery_date}), "dd.MM.yyyy HH:mm")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -587,6 +588,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm"))</Value>
                         <PaddingTop>1pt</PaddingTop>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -644,6 +646,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm"))</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -726,28 +729,7 @@ Format(Convert.ToDateTime({time_delivered}), "HH:mm"))</Value>
     ) as summary,
     n2.name as nomenclature_name,
     CONCAT(c2.full_name, IF(c2.person_type = 'legal', CONCAT(' ИНН ', c2.inn), '')) as counterparty,
-    (
-        SELECT hc.new_value
-        FROM history_changed_entities hce
-                 LEFT JOIN history_changes hc
-                           ON hc.chaged_entity_id = hce.id
-                               AND hc.field_name = 'DeliveryDate'
-        WHERE hce.entity_class = 'Order'
-          AND hce.entity_id = source.order_id
-          AND hce.operation = 'Create'
-        LIMIT 1
-    ) AS delivery_date,
-    (
-        SELECT hc.new_value
-        FROM history_changed_entities hce
-                 LEFT JOIN history_changes hc
-                           ON hc.chaged_entity_id = hce.id
-                               AND hc.field_name = 'TimeDelivered'
-        WHERE hce.entity_class = 'Order'
-          AND hce.entity_id = source.order_id
-          AND hce.operation = 'Create'
-        LIMIT 1
-    ) AS time_delivered,
+    source.shipped_date AS delivery_date,
     source.change_time,
     IF(source.operation = 'Delete', n2.official_name, source.old_value) as old_value,
     IF(source.operation = 'Create', n2.official_name, source.new_value) as new_value,
@@ -765,7 +747,7 @@ FROM
                hce.entity_id,
                hce.datetime as change_time,
                hce.operation,
-               shipped.datetime as shipped_date,
+               o.time_delivered as shipped_date,
                hc.type,
                'Форма оплаты' as field_name,
                IF(hce.operation IN ('Create', 'Delete'),
@@ -845,23 +827,9 @@ FROM
                                   AND hc_pay_type.new_value = 'ByCard'
                               )
                       )
-                INNER JOIN (
-                SELECT
-                    o_inner.id as order_id,
-                    hce_inner.datetime
-                FROM history_changed_entities hce_inner
-                         INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
-                    AND hce_inner.entity_class = 'Order'
-                    AND hce_inner.operation = 'Change'
-                         INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id
-                    AND hc_inner.type = 'Changed'
-                    AND hc_inner.field_name = 'OrderStatus'
-                    AND hc_inner.new_value = 'Shipped'
-                GROUP BY hce_inner.entity_id
-            ) shipped ON shipped.order_id = o.id
                 LEFT JOIN history_changes hc ON hc.chaged_entity_id = hce.id
         WHERE
-                hce.datetime &gt; shipped.datetime
+                hce.datetime &gt; o.time_delivered
           AND hc.type = 'Changed'
           AND hc.field_name = 'PaymentType'
           AND (FIND_IN_SET('PaymentType', @change_types) &gt; 0 OR @issue_types &lt;&gt; '')
@@ -876,7 +844,7 @@ FROM
                hce.entity_id,
                hce.datetime as change_time,
                hce.operation,
-               shipped.datetime as shipped_date,
+               o.time_delivered as shipped_date,
                hc.type,
                IF(hce.operation IN ('Create', 'Delete'),
                   NULL,
@@ -922,20 +890,6 @@ FROM
                 INNER JOIN orders o ON o.id = oi.order_id
                 INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id
                 AND cc.organization_id = @organization_id
-                INNER JOIN (
-                SELECT
-                    o_inner.id as order_id,
-                    hce_inner.datetime
-                FROM history_changed_entities hce_inner
-                         INNER JOIN orders o_inner ON o_inner.id = hce_inner.entity_id
-                    AND hce_inner.entity_class = 'Order'
-                    AND hce_inner.operation = 'Change'
-                         INNER JOIN history_changes hc_inner ON hc_inner.chaged_entity_id = hce_inner.id
-                    AND hc_inner.type = 'Changed'
-                    AND hc_inner.field_name = 'OrderStatus'
-                    AND hc_inner.new_value = 'Shipped'
-                GROUP BY hce_inner.entity_id
-            ) shipped ON shipped.order_id = o.id
                 INNER JOIN (
                 SELECT
                     o_pay_type.id as order_id,
@@ -993,7 +947,7 @@ FROM
             ) payment_type_changes ON payment_type_changes.order_id = o.id
                 LEFT JOIN history_changes hc ON hc.chaged_entity_id = hce.id
         WHERE
-                hce.datetime &gt; shipped.datetime
+                hce.datetime &gt; o.time_delivered
           AND (
                 (hc.type = 'Changed' AND hc.field_name IN ('Price', 'ActualCount') AND FIND_IN_SET('Price', @change_types) &gt; 0 AND FIND_IN_SET('ActualCount', @change_types) &gt; 0)
                 OR
@@ -1047,10 +1001,6 @@ FROM
         </Field>
         <Field Name="delivery_date">
           <DataField>delivery_date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="time_delivered">
-          <DataField>time_delivered</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="change_time">

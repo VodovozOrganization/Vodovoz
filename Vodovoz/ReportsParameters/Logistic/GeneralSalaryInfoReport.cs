@@ -57,8 +57,10 @@ namespace Vodovoz.ReportsParameters.Logistic
 
             comboDriverOf.ItemsEnum = typeof(CarTypeOfUse);
             comboDriverOf.AddEnumToHideList(new Enum[] {CarTypeOfUse.CompanyTruck});
+            comboDriverOf.ChangedByUser += (sender, args) => OnDriverOfSelected();
 
             entryEmployee.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
+            entryEmployee.CanEditReference = true;
             entryEmployee.Changed += (sender, args) => OnEmployeeSelected();
         }
 
@@ -71,8 +73,10 @@ namespace Vodovoz.ReportsParameters.Logistic
         {
             var selectedYear = (int) comboYear.SelectedItem;
             var selectedMonth = (int) comboMonth.SelectedItem;
-            var endDate = new DateTime(selectedYear, selectedMonth, DateTime.DaysInMonth(selectedYear, selectedMonth),
-                23, 59, 59);
+            var creationDate = DateTime.Now;
+            var endDate = creationDate.Month == selectedMonth && creationDate.Year == selectedYear
+                ? new DateTime(creationDate.Year, creationDate.Month, creationDate.Day - 1, 23,59,59)
+                : new DateTime(selectedYear, selectedMonth, DateTime.DaysInMonth(selectedYear, selectedMonth), 23, 59, 59);
 
             return new ReportInfo
             {
@@ -81,7 +85,7 @@ namespace Vodovoz.ReportsParameters.Logistic
                 {
                     {"start_date", new DateTime(selectedYear, selectedMonth, 1)},
                     {"end_date", endDate},
-                    {"creation_date", DateTime.Now},
+                    {"creation_date", creationDate},
                     {"driver_of", comboDriverOf.SelectedItemOrNull},
                     {"employee_category", comboCategory.SelectedItemOrNull},
                     {"employee_id", entryEmployee.Subject?.GetIdOrNull()},
@@ -90,7 +94,7 @@ namespace Vodovoz.ReportsParameters.Logistic
             };
         }
 
-        string GetSelectedFilters()
+        private string GetSelectedFilters()
         {
             var empl = entryEmployee.GetSubject<Employee>();
             var filters = "Фильтры: ";
@@ -117,9 +121,12 @@ namespace Vodovoz.ReportsParameters.Logistic
             return filters;
         }
 
-        void ShowInfoWindow(object sender, EventArgs e)
+        private void ShowInfoWindow(object sender, EventArgs e)
         {
-            var info = "Столбцы отчета:\n" +
+            var info = "Сокращения отчета:\n" +
+                       "<b>КТС</b>: категория транспортного средства. \n\tСокращения столбца: " +
+                       "<b>К</b>: транспорт компании , <b>Н</b>: наемный транспорт, <b>Р</b>: раскатный, <b>Л</b>: ларгус, <b>Г</b>: газель.\n" +
+                       "Столбцы отчета:\n" +
                        "<b>№</b>: порядковый номер\n" +
                        "<b>Код</b>: код сотрудника\n" +
                        "<b>ФИО</b>: фамилия имя отчество сотрудника\n" +
@@ -150,6 +157,19 @@ namespace Vodovoz.ReportsParameters.Logistic
             };
             messageWindow.Add(vbox);
             messageWindow.ShowAll();
+        }
+
+        private void OnDriverOfSelected()
+        {
+            if (comboDriverOf.SelectedItemOrNull != null)
+            {
+                comboCategory.Sensitive = false;
+                comboCategory.SelectedItem = EmployeeCategory.driver;
+            }
+            else
+            {
+                comboCategory.Sensitive = true;
+            }
         }
 
         private void OnEmployeeSelected()

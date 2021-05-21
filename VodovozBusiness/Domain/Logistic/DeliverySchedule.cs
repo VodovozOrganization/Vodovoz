@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Project.Services;
@@ -44,6 +43,13 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual string DeliveryTime => $"с {from:hh\\:mm} до {to:hh\\:mm}";
+
+		private bool isArchive;
+		[Display(Name = "Архивный")]
+		public virtual bool IsArchive {
+			get => isArchive;
+			set => SetField(ref isArchive, value);
+		}
 
 		#region IValidatableObject implementation
 
