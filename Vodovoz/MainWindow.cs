@@ -105,6 +105,8 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
+using QS.Services;
+using Vodovoz.ViewModels.Reports;
 using MySql.Data.MySqlClient;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -2259,6 +2261,15 @@ public partial class MainWindow : Gtk.Window
         );
     }
 
+    protected void OnActionOrderAnalyticsReportActivated(object sender, EventArgs e)
+    {
+        var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+        var interactiveService = autofacScope.Resolve<IInteractiveService>();
+
+        NavigationManager.OpenViewModel<OrderAnalyticsReportViewModel, INavigationManager, IUnitOfWorkFactory, IInteractiveService>(
+            null, NavigationManager, uowFactory, interactiveService);
+    }
+    
     protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
     {
         tdiMain.OpenTab(
