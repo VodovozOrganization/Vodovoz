@@ -145,7 +145,7 @@ namespace BitrixIntegration {
 		        SelfDelivery = deal.IsSelfDelivery(),
 		        Comment = deal.Comment,
 		        Trifle = deal.Trifle ?? 0,
-		        BottlesReturn = deal.BottlsToReturn,
+		        BottlesReturn = deal.BottlesToReturn,
 		        Contract = new CounterpartyContract(),
 		        EShopOrder = (int)deal.Id,
 		        OnlineOrder = deal.OrderNumber ?? null
@@ -190,7 +190,7 @@ namespace BitrixIntegration {
         {
 	        logger.Info("-------ProcessContact-------");
 	        //Получаем клиента из сделки
-	        var contact = await bitrixApi.GetContact(deal.ContancId);
+	        var contact = await bitrixApi.GetContact(deal.ContactId);
 	        
 	        //ищем у нас контакт по битрикс Id
 	        if (matcher.MatchCounterpartyByBitrixId(uow, contact.Id, out var matchedByBitrixId)){

@@ -19,7 +19,7 @@ namespace BitrixApi.DTO
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         [JsonProperty("ID")]  public uint Id { get; set; }
         [JsonProperty("TITLE")]  public string Title { get; set; }
-        [JsonProperty("TYPE_ID")] public string TipeId { get; set; }
+        [JsonProperty("TYPE_ID")] public string TypeId { get; set; }
         [JsonProperty("STAGE_ID")] public string StageId { get; set; }
         [JsonProperty("CURRENCY_ID")]  public string CurrencyId { get; set; }
         [JsonProperty("OPPORTUNITY")]  public decimal Opportunity { get; set; }
@@ -27,9 +27,9 @@ namespace BitrixApi.DTO
         [JsonProperty("TAX_VALUE")]  public decimal? TaxValue { get; set; }
         [JsonProperty("LEAD_ID")] public string LeadId { get; set; }
         [JsonProperty("COMPANY_ID")] public uint CompanyId { get; set; }
-        [JsonProperty("CONTACT_ID")] public uint ContancId { get; set; }
+        [JsonProperty("CONTACT_ID")] public uint ContactId { get; set; }
         [JsonProperty("COMMENTS")] public string Comment { get; set; }
-        [JsonProperty("QUOTE_ID")]  public string QuioteId { get; set; }
+        [JsonProperty("QUOTE_ID")]  public string QuoteId { get; set; }
         [JsonProperty("BEGINDATE")]  public DateTime BegunDate { get; set; }
         // [JsonProperty("CLOSEDATE")]  public DateTime CloseDate { get; set; }
         [JsonProperty("ASSIGNED_BY_ID")]  public int AssignedById { get; set; }
@@ -69,7 +69,7 @@ namespace BitrixApi.DTO
         [JsonProperty("UF_CRM_5DA85CFA0C838")] public string EntranceType { get; set; }
         [JsonProperty("UF_CRM_5DA9BBA03A12A")] public uint DeliverySchedule { get; set; }
         [JsonProperty("UF_CRM_1603521814")] public uint CreateInDV { get; set; }
-        [JsonProperty("UF_CRM_1613635090586")] public int? BottlsToReturn { get; set; }
+        [JsonProperty("UF_CRM_1613635090586")] public int? BottlesToReturn { get; set; }
         [JsonProperty("UF_CRM_5DADB4A27E1EC")] public int? Trifle { get; set; }
         [JsonProperty("UF_CRM_1596873234121")] public int? OrderNumber { get; set; }
         
