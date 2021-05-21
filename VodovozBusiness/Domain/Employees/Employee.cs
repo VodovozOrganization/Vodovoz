@@ -568,25 +568,22 @@ namespace Vodovoz.Domain.Employees
 			return stringPhoneNumber;
 		}
 
-		public virtual void AddDriverDistrictPrioritySet(DriverDistrictPrioritySet activeDistrictPrioritySet)
+		public virtual void AddDriverDistrictPrioritySet(DriverDistrictPrioritySet districtPrioritySet)
 		{
-			if (ObservableDriverDistrictPrioritySets.Any())
-			{
-				ObservableDriverDistrictPrioritySets.Insert(0, activeDistrictPrioritySet);
-			}
-			else
-			{
-				ObservableDriverDistrictPrioritySets.Add(activeDistrictPrioritySet);
-			}
+			ObservableDriverDistrictPrioritySets.Add(districtPrioritySet);
 		}
 
-		public virtual void ActivateDriverDistrictPrioritySet(DriverDistrictPrioritySet driverDistrictPrioritySet)
+		public virtual void ActivateDriverDistrictPrioritySet(DriverDistrictPrioritySet driverDistrictPrioritySet, Employee editor)
 		{
 			var currentActiveSet = ObservableDriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
+
+			var now = DateTime.Now;
 
 			if (currentActiveSet != null)
 			{
 				currentActiveSet.IsActive = false;
+				currentActiveSet.DateLastChanged = now;
+				currentActiveSet.LastEditor = editor;
 
 				currentActiveSet.DateDeactivated = currentActiveSet.DateActivated.Value.Date > DateTime.Today
 					? currentActiveSet.DateActivated.Value.Date.AddDays(1).AddMilliseconds(-1)
@@ -594,6 +591,8 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			driverDistrictPrioritySet.IsActive = true;
+			driverDistrictPrioritySet.DateLastChanged = now;
+			driverDistrictPrioritySet.LastEditor = editor;
 			driverDistrictPrioritySet.DateActivated 
 				= currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
 		}

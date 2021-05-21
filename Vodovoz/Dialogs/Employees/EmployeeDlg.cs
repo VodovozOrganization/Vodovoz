@@ -57,7 +57,9 @@ namespace Vodovoz
 		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
 				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
-		
+
+		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
+
 		public EmployeeDlg()
 		{
 			this.Build();
@@ -522,6 +524,8 @@ namespace Vodovoz
 
 		private void OnActivateDistrictPrioritySetClicked()
 		{
+			var employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(UoW);
+
 			if (!(ytreeDistrictPrioritySets.GetSelectedObject() is DriverDistrictPrioritySet districtPrioritySet))
 			{
 				return;
@@ -532,7 +536,7 @@ namespace Vodovoz
 			districtPrioritySet.DateLastChanged = now;
 			districtPrioritySet.DateActivated = now;
 
-			Entity.ActivateDriverDistrictPrioritySet(districtPrioritySet);
+			Entity.ActivateDriverDistrictPrioritySet(districtPrioritySet, employeeForCurrentUser);
 		}
 
 		private void OpenDistrictPrioritySetCreateWindow()
