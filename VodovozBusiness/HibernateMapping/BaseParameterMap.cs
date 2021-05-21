@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using NHibernate.Type;
 using Vodovoz.Domain;
 
 namespace Vodovoz.HibernateMapping
@@ -12,6 +13,7 @@ namespace Vodovoz.HibernateMapping
 			Id(x => x.Name).Column("name").GeneratedBy.Assigned();
 
 			Map(x => x.StrValue).Column("str_value");
+			Map(x => x.CacheTimeout).Column("cache_timeout").CustomType<TimeAsTimeSpanType>();
 		}
 	}
 }

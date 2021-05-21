@@ -10,7 +10,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.ViewModels.Permissions;
 
-namespace Vodovoz.ViewModels.Organization
+namespace Vodovoz.ViewModels.ViewModels.Organizations
 {
 	public class SubdivisionViewModel : EntityTabViewModelBase<Subdivision>
 	{

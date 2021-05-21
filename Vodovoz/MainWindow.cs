@@ -116,9 +116,13 @@ using QS.BaseParameters.Views;
 using QS.ChangePassword.Views;
 using QS.Project.Repositories;
 using QS.ViewModels;
+using Vodovoz.ReportsParameters.Employees;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1825,9 +1829,14 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
     {
+        var employeeFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+            () => new EmployeesJournalViewModel(
+                new EmployeeFilterViewModel(),
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices));
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
-            () => new QSReport.ReportViewDlg(new ReturnedTareReport())
+            () => new QSReport.ReportViewDlg(new ReturnedTareReport(employeeFactory))
         );
     }
 
@@ -2151,6 +2160,18 @@ public partial class MainWindow : Gtk.Window
     {
         var dlg = new RecalculateDriverWageDlg();
         tdiMain.AddTab(dlg);
+	}
+    
+    protected void OnActionDriversInfoExportActivated(object sender, EventArgs e)
+    {
+        var wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+        tdiMain.AddTab(
+            new DriversInfoExportViewModel(
+                wageParameterService,
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.InteractiveService,
+                null)
+        );
     }
 
     protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
@@ -2245,6 +2266,14 @@ public partial class MainWindow : Gtk.Window
             QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
             () => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(
                 factory, ServicesConfig.InteractiveService))
+        );
+    }
+
+    protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
+            () => new QSReport.ReportViewDlg(new EmployeesReport())
         );
     }
 }

@@ -2082,7 +2082,19 @@ namespace Vodovoz.Domain.Orders
 				};
 				AddOrderItem(newItem);
 			}
+
 			RecalculateItemsPrice();
+
+			//Перенос скидки на доставку
+			var deliveryOrderItemFrom = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
+			var deliveryOrderItemTo = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
+			if (deliveryOrderItemFrom != null && deliveryOrderItemTo != null)
+			{
+				deliveryOrderItemTo.IsDiscountInMoney = deliveryOrderItemFrom.IsDiscountInMoney;
+				deliveryOrderItemTo.DiscountMoney = deliveryOrderItemFrom.DiscountMoney;
+				deliveryOrderItemTo.Discount = deliveryOrderItemFrom.Discount;
+				deliveryOrderItemTo.DiscountReason = deliveryOrderItemFrom.DiscountReason ?? deliveryOrderItemFrom.OriginalDiscountReason;
+			}
 		}
 
 		/// <summary>

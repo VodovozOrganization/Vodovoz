@@ -1048,6 +1048,18 @@ namespace Vodovoz.JournalColumnsConfigs
                         .AddTextRenderer(node => node.PlanMonth.ToString())
                     .Finish()
             );
+
+            //OrganizationCashTransferDocumentJournalViewModel
+            TreeViewColumnsConfigFactory.Register<OrganizationCashTransferDocumentJournalViewModel>(
+                () => FluentColumnsConfig<OrganizationCashTransferDocumentJournalNode>.Create()
+                    .AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Дата").AddTextRenderer(node => node.DocumentDate.ToString("d"))
+                    .AddColumn("Автор").AddTextRenderer(node => node.Author)
+                    .AddColumn("Орг.откуда").AddTextRenderer(node => node.OrganizationFrom)
+                    .AddColumn("Орг.куда").AddTextRenderer(node => node.OrganizationTo)
+                    .AddColumn("Сумма").AddTextRenderer(node => node.TransferedSum.ToString())
+                    .Finish()
+            );
 		}
 	}
 }
