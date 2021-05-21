@@ -2020,12 +2020,12 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
-			FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().Wage;
+			FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().FixedWage;
 
 			IRouteListWageCalculationService routeListForwarderWageCalculationService = null;
 			if(Forwarder != null) {
 				routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
-				FixedForwarderWage = routeListForwarderWageCalculationService.CalculateWage().Wage;
+				FixedForwarderWage = routeListForwarderWageCalculationService.CalculateWage().FixedWage;
 			}
 
 			foreach(var address in Addresses) {
