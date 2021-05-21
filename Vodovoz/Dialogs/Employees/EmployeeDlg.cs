@@ -361,6 +361,12 @@ namespace Vodovoz
 					.AddToggleRenderer(x => x.IsActive)
 					.XAlign(0.5f)
 					.Editing(false)
+				.AddColumn("Дата\nсоздания")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.DateCreated.ToString("g"))
+				.AddColumn("Дата\nпоследнего изменения")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.DateLastChanged.ToString("g"))
 				.AddColumn("Дата\nактивации")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.DateActivated != null ? x.DateActivated.Value.ToString("g") : "")
@@ -413,6 +419,9 @@ namespace Vodovoz
 					|| driverDistrictPrioritySetPermission.CanRead);
 				CanActivateDistrictPrioritySet = selectedDistrictPrioritySet != null
 					&& !selectedDistrictPrioritySet.IsActive 
+					&& selectedDistrictPrioritySet.DateActivated == null
+					&& selectedDistrictPrioritySet.ObservableDriverDistrictPriorities
+						.All(x => x.District.DistrictsSet.Status == DistrictsSetStatus.Active)
 					&& canActivateDriverDistrictPrioritySetPermission;
 			};
 
