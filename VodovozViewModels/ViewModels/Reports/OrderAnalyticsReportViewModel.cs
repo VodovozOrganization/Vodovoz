@@ -149,7 +149,7 @@ namespace Vodovoz.ViewModels.Reports
         public GenericObservableList<OrderAnalyticsReportNode> NodesList { get; } =
 	        new GenericObservableList<OrderAnalyticsReportNode>();
         
-        public DelegateCommand ExportCommand => exportCommand ?? new DelegateCommand(
+        public DelegateCommand ExportCommand => exportCommand ?? (exportCommand = new DelegateCommand(
             () => 
             {
                 try
@@ -176,17 +176,17 @@ namespace Vodovoz.ViewModels.Reports
                 }
             },
             () => !string.IsNullOrEmpty(FileName)
-        );
+        ));
         
-        public DelegateCommand HelpCommand => helpCommand ?? new DelegateCommand(
+        public DelegateCommand HelpCommand => helpCommand ?? (helpCommand = new DelegateCommand(
             () => 
             {
                 interactiveService.ShowMessage(ImportanceLevel.Info, HELP, "Справка");
             },
             () => true
-        );
+        ));
         
-        public DelegateCommand RunReportCommand => runReportCommand ?? new DelegateCommand(
+        public DelegateCommand RunReportCommand => runReportCommand ?? (runReportCommand = new DelegateCommand(
 	        () => 
 	        {
 		        try
@@ -220,7 +220,7 @@ namespace Vodovoz.ViewModels.Reports
 		        }
 	        },
 	        () => true
-        );
+        ));
 
         private IEnumerable<OrderAnalyticsReportNode> UpdateNodes()
         {
