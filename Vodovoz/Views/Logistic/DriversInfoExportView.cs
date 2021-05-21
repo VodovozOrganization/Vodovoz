@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.ErrorReporting;
 using QS.Utilities;
 using QS.Views.GtkUI;
@@ -103,7 +102,12 @@ namespace Vodovoz.Views.Logistic
 		private void OnButtonExportClicked(object sender, EventArgs e)
 		{
 			var parentWindow = GtkHelper.GetParentWindow(this);
-			var folderChooser = new FileChooserDialog(
+
+			var csvFilter = new FileFilter();
+			csvFilter.AddPattern("*.csv");
+			csvFilter.Name = "Comma Separated Values File (*.csv)";
+
+			var fileChooserDialog = new FileChooserDialog(
 				"Сохранение выгрузки",
 				parentWindow,
 				FileChooserAction.Save,
@@ -111,22 +115,24 @@ namespace Vodovoz.Views.Logistic
 			{
 				DoOverwriteConfirmation = true, CurrentName = $"Выгрузка по водителям {DateTime.Today:d}.csv"
 			};
-			folderChooser.ShowAll();
-			if((ResponseType)folderChooser.Run() == ResponseType.Accept)
+
+			fileChooserDialog.AddFilter(csvFilter);
+			fileChooserDialog.ShowAll();
+			if((ResponseType)fileChooserDialog.Run() == ResponseType.Accept)
 			{
-				if(String.IsNullOrWhiteSpace(folderChooser.Filename))
+				if(String.IsNullOrWhiteSpace(fileChooserDialog.Filename))
 				{
-					folderChooser.Destroy();
+					fileChooserDialog.Destroy();
 					return;
 				}
-				var fileName = folderChooser.Filename;
+				var fileName = fileChooserDialog.Filename;
 				ViewModel.ExportPath = fileName.EndsWith(".csv") ? fileName : fileName + ".csv";
-				folderChooser.Destroy();
+				fileChooserDialog.Destroy();
 				ViewModel.ExportCommand.Execute();
 			}
 			else
 			{
-				folderChooser.Destroy();
+				fileChooserDialog.Destroy();
 			}
 		}
 
