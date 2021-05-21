@@ -613,6 +613,8 @@
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderReturnsView.cs" />
     <Compile Include="Commons\OrderPopupMenu.cs" />
+    <Compile Include="Views\Logistic\DriversInfoExportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversInfoExportView.cs" />
     <Compile Include="JournalViewers\RouteListKeepingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListKeepingView.cs" />
     <Compile Include="Dialogs\Logistic\RouteListKeepingDlg.cs" />
