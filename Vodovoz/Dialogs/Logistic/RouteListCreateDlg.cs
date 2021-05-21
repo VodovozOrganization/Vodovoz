@@ -243,6 +243,7 @@ namespace Vodovoz
 			var valid = new QSValidator<RouteList>(Entity, new Dictionary<object, object>() { { nameof(IRouteListItemRepository), new RouteListItemRepository() } });
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
+			Entity.CalculateWages(wageParameterService);
 
 			logger.Info("Сохраняем маршрутный лист...");
 			UoWGeneric.Save();

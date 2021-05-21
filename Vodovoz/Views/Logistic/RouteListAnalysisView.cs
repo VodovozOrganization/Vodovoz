@@ -234,6 +234,7 @@ namespace Vodovoz.Views.Logistic
 				return;
 
 			ViewModel.SetLogisticianCommentAuthor();
+			ViewModel.CalculateWages();
 
 			ViewModel.UoW.Save();
 			ViewModel.Close(false, CloseSource.Save);

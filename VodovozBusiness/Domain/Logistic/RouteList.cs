@@ -2013,13 +2013,19 @@ namespace Vodovoz.Domain.Logistic
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
+			if (Status == RouteListStatus.New)
+			{
+				ClearWages();
+				return;
+			}
+
 			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
-			FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().FixedWage;
+			FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().Wage;
 
 			IRouteListWageCalculationService routeListForwarderWageCalculationService = null;
 			if(Forwarder != null) {
 				routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
-				FixedForwarderWage = routeListForwarderWageCalculationService.CalculateWage().FixedWage;
+				FixedForwarderWage = routeListForwarderWageCalculationService.CalculateWage().Wage;
 			}
 
 			foreach(var address in Addresses) {
@@ -2031,6 +2037,20 @@ namespace Vodovoz.Domain.Logistic
 					address.ForwarderWage = fwdWageResult.Wage;
 					address.ForwarderWageCalcMethodicTemporaryStore = fwdWageResult.WageDistrictLevelRate;
 				}
+			}
+		}
+
+		/// <summary>
+		/// Обнуляет зарплату в МЛ и его адресах
+		/// </summary>
+		public virtual void ClearWages()
+		{
+			FixedDriverWage = 0;
+			FixedForwarderWage = 0;
+			foreach(var address in Addresses)
+			{
+				address.DriverWage = 0;
+				address.ForwarderWage = 0;
 			}
 		}
 

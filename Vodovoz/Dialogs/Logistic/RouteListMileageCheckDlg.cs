@@ -25,6 +25,8 @@ using Vodovoz.JournalViewModels;
 using QS.Osm;
 using QS.Osm.Osrm;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz
@@ -47,6 +49,8 @@ namespace Vodovoz
 				new BaseParametersProvider(),
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance));
+
+		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
 		#endregion
 
@@ -158,6 +162,7 @@ namespace Vodovoz
 			if(Entity.Status == RouteListStatus.Delivered) {
 				Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
 			}
+			Entity.CalculateWages(wageParameterService);
 
 			UoWGeneric.Save();
 
