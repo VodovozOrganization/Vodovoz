@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.HibernateMapping.StoredEmails
@@ -17,12 +16,6 @@ namespace Vodovoz.HibernateMapping.StoredEmails
 			Map(x => x.State).Column("state").CustomType<StoredEmailActionStatesStringType>();
 			Map(x => x.StateChangeDate).Column("state_change_date");
 			Map(x => x.Description).Column("description");
-			Map(x => x.HtmlText).Column("html_text");
-			Map(x => x.Text).Column("text");
-			Map(x => x.Title).Column("title");
-			Map(x => x.SenderName).Column("sender_name");
-			Map(x => x.SenderAddress).Column("sender_address");
-			Map(x => x.RecipientName).Column("recipient_name");
 			Map(x => x.RecipientAddress).Column("recipient_address");
 			Map(x => x.ManualSending).Column("manual_sending");
 			References(x => x.Author).Column("author_id");
