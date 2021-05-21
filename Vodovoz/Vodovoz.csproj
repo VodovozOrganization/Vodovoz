@@ -1606,6 +1606,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.NomenclaturePlanReport.cs" />
     <Compile Include="ReportsParameters\Logistic\GeneralSalaryInfoReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.GeneralSalaryInfoReport.cs" />
+    <Compile Include="Views\Reports\OrderAnalyticsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.OrderAnalyticsReportView.cs" />
     <Compile Include="Filters\GtkViews\OrganizationCashTransferDocumentFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrganizationCashTransferDocumentFilterView.cs" />
     <Compile Include="ReportsParameters\Employees\EmployeesReport.cs" />
@@ -1908,6 +1910,7 @@
     <Folder Include="Views\Retail\" />
     <Folder Include="ReportsParameters\Retail\" />
     <Folder Include="Reports\Retail\" />
+    <Folder Include="Views\Reports\" />
     <Folder Include="ReportsParameters\Employees\" />
   </ItemGroup>
   <ItemGroup>
