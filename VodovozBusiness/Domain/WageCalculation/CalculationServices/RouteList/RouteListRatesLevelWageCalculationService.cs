@@ -26,13 +26,6 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			decimal resultSum = 0;
 
-			if(!src.IsDelivered) {
-				return new RouteListItemWageResult(
-					0,
-					GetCurrentWageDistrictLevelRate(src)
-				);
-			}
-
 			#region Оплата оборудования, если нет 19л воды в заказе
 			var wageForBottlesOrEquipment = CalculateWageForFull19LBottles(src);
 			if(wageForBottlesOrEquipment <= 0)
@@ -74,8 +67,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			if(!src.HasFirstOrderForDeliveryPoint)
 				return 0;
-
-			var rate = GetCurrentWageDistrictLevelRate(src).WageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Address);
+			
+			var rate = GetCurrentWageDistrictLevelRate(src).WageRates.FirstOrDefault(r => r.WageRateType == (src.IsDriverForeignDistrict? WageRateTypes.ForeignAddress : WageRateTypes.Address));
 
 			return GetRateValue(src, rate);
 		}

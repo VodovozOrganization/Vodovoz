@@ -613,6 +613,8 @@
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderReturnsView.cs" />
     <Compile Include="Commons\OrderPopupMenu.cs" />
+    <Compile Include="Views\Logistic\DriversInfoExportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversInfoExportView.cs" />
     <Compile Include="JournalViewers\RouteListKeepingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListKeepingView.cs" />
     <Compile Include="Dialogs\Logistic\RouteListKeepingDlg.cs" />
@@ -979,8 +981,6 @@
     <Compile Include="ServiceDialogs\ExportCounterpartiesTo1C.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ExportCounterpartiesTo1cDlg.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportCounterpariesData.cs" />
-    <Compile Include="ReportsParameters\SendedEmailsReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SendedEmailsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.DefectiveItemsReport.cs" />
     <Compile Include="ReportsParameters\Store\DefectiveItemsReport.cs" />
     <Compile Include="DriverTerminal\DriverTerminalWindow.cs" />
@@ -1606,6 +1606,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.NomenclaturePlanReport.cs" />
     <Compile Include="ReportsParameters\Logistic\GeneralSalaryInfoReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.GeneralSalaryInfoReport.cs" />
+    <Compile Include="Views\Reports\OrderAnalyticsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.OrderAnalyticsReportView.cs" />
     <Compile Include="Filters\GtkViews\OrganizationCashTransferDocumentFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrganizationCashTransferDocumentFilterView.cs" />
     <Compile Include="ReportsParameters\Employees\EmployeesReport.cs" />
@@ -1908,6 +1910,7 @@
     <Folder Include="Views\Retail\" />
     <Folder Include="ReportsParameters\Retail\" />
     <Folder Include="Reports\Retail\" />
+    <Folder Include="Views\Reports\" />
     <Folder Include="ReportsParameters\Employees\" />
   </ItemGroup>
   <ItemGroup>
@@ -2295,9 +2298,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Orders\UndeliveriesWithComments.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\SendedBillsReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\DefectiveItemsReport.rdl">

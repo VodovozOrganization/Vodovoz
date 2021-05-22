@@ -105,6 +105,8 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
+using QS.Services;
+using Vodovoz.ViewModels.Reports;
 using MySql.Data.MySqlClient;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -118,6 +120,9 @@ using Vodovoz.ReportsParameters.Employees;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1356,14 +1361,6 @@ public partial class MainWindow : Gtk.Window
         );
     }
 
-    protected void OnActionSendedBillsActivated(object sender, EventArgs e)
-    {
-        tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<SendedEmailsReport>(),
-            () => new QSReport.ReportViewDlg(new SendedEmailsReport())
-        );
-    }
-
     protected void OnActionDefectiveItemsReportActivated(object sender, EventArgs e)
     {
         tdiMain.OpenTab(
@@ -2155,6 +2152,18 @@ public partial class MainWindow : Gtk.Window
     {
         var dlg = new RecalculateDriverWageDlg();
         tdiMain.AddTab(dlg);
+	}
+    
+    protected void OnActionDriversInfoExportActivated(object sender, EventArgs e)
+    {
+        var wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+        tdiMain.AddTab(
+            new DriversInfoExportViewModel(
+                wageParameterService,
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.InteractiveService,
+                null)
+        );
     }
 
     protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
@@ -2252,6 +2261,15 @@ public partial class MainWindow : Gtk.Window
         );
     }
 
+    protected void OnActionOrderAnalyticsReportActivated(object sender, EventArgs e)
+    {
+        var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+        var interactiveService = autofacScope.Resolve<IInteractiveService>();
+
+        NavigationManager.OpenViewModel<OrderAnalyticsReportViewModel, INavigationManager, IUnitOfWorkFactory, IInteractiveService>(
+            null, NavigationManager, uowFactory, interactiveService);
+    }
+    
     protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
     {
         tdiMain.OpenTab(

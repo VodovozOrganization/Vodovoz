@@ -81,48 +81,6 @@ namespace Vodovoz.Domain.StoredEmails
 			set { SetField(ref description, value, () => Description); }
 		}
 
-		private string htmlText;
-		[Display(Name = "Текст письма в формате html")]
-		public virtual string HtmlText {
-			get { return htmlText; }
-			set { SetField(ref htmlText, value, () => HtmlText); }
-		}
-
-		private string text;
-		[Display(Name = "Текст письма")]
-		public virtual string Text {
-			get { return text; }
-			set { SetField(ref text, value, () => Text); }
-		}
-
-		private string title;
-		[Display(Name = "Тема письма")]
-		public virtual string Title {
-			get { return title; }
-			set { SetField(ref title, value, () => Title); }
-		}
-
-		private string senderName;
-		[Display(Name = "Имя отправителя")]
-		public virtual string SenderName {
-			get { return senderName; }
-			set { SetField(ref senderName, value, () => SenderName); }
-		}
-
-		private string senderAddress;
-		[Display(Name = "Почта отправителя")]
-		public virtual string SenderAddress {
-			get { return senderAddress; }
-			set { SetField(ref senderAddress, value, () => SenderAddress); }
-		}
-
-		private string recipientName;
-		[Display(Name = "Имя получателя")]
-		public virtual string RecipientName {
-			get { return recipientName; }
-			set { SetField(ref recipientName, value, () => RecipientName); }
-		}
-
 		private string recipientAddress;
 		[Display(Name = "Почта получателя")]
 		public virtual string RecipientAddress {

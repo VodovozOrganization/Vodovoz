@@ -114,6 +114,7 @@ using Vodovoz.Views.Retail;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.Views.Reports;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz
@@ -194,6 +195,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ReturnTareReasonViewModel, ReturnTareReasonView>()
 				.RegisterWidgetForTabViewModel<PaymentByCardViewModel, PaymentByCardView>()
 				.RegisterWidgetForTabViewModel<RouteListAnalysisViewModel, RouteListAnalysisView>()
+				.RegisterWidgetForTabViewModel<DriversInfoExportViewModel, DriversInfoExportView>()
 				.RegisterWidgetForTabViewModel<LateArrivalReasonViewModel, LateArrivalReasonView>()
 				.RegisterWidgetForTabViewModel<NomenclatureViewModel, NomenclatureView>()
 				.RegisterWidgetForTabViewModel<FinancialDistrictsSetViewModel, FinancialDistrictsSetView>()
@@ -253,6 +255,7 @@ namespace Vodovoz
                 .RegisterWidgetForWidgetViewModel<SalesChannelJournalFilterViewModel, SalesChannelJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<EmployeePostViewModel, EmployeePostView>()
                 .RegisterWidgetForWidgetViewModel<WarehouseViewModel, WarehouseView>()
+				.RegisterWidgetForWidgetViewModel<OrderAnalyticsReportViewModel, OrderAnalyticsReportView>()
                 .RegisterWidgetForWidgetViewModel<NomenclaturePlanFilterViewModel, NomenclaturePlanFilterView>()
                 .RegisterWidgetForWidgetViewModel<OrganizationCashTransferDocumentFilterViewModel, OrganizationCashTransferDocumentFilterView>()
                 ;

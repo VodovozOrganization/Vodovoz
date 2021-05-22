@@ -1,4 +1,5 @@
 ﻿using QS.Project.Versioning;
+using System;
 
 namespace Vodovoz.Infrastructure
 {
@@ -6,6 +7,8 @@ namespace Vodovoz.Infrastructure
 	{
 		public string Name { get; set; }
 		public bool IsDemo { get; set; }
+
+		public Guid? BaseGuid { get; }
 
 		public DatabaseInfo(string name, bool isDemo)
 		{

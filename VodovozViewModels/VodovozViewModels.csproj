@@ -139,6 +139,7 @@
     <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DriverDistrictPriorityNode.cs" />
     <Compile Include="ViewModels\Logistic\DriverDistrictPrioritySetViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DriversInfoExportViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DriverWorkScheduleNode.cs" />
     <Compile Include="ViewModels\Logistic\DriverWorkScheduleSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpenerForRouteListViewAndOrderView.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
+    <Compile Include="ViewModels\Reports\OrderAnalyticsReportViewModel.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
