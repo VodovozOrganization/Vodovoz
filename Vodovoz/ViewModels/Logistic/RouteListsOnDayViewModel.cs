@@ -567,13 +567,13 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public virtual GenericObservableList<Subdivision> ObservableSubdivisions { get; set; }
 
-		IList<DeliverySummary> deliverySummary = new List<DeliverySummary>();
+		private IList<DeliverySummary> deliverySummary = new List<DeliverySummary>();
 		public virtual IList<DeliverySummary> DeliverySummary {
 			get => deliverySummary;
 			set => SetField(ref deliverySummary, value);
 		}
 		
-		GenericObservableList<DeliverySummary> observableDeliverySummary;
+		private GenericObservableList<DeliverySummary> observableDeliverySummary;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<DeliverySummary> ObservableDeliverySummary {
 			get {
