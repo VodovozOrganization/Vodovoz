@@ -887,25 +887,6 @@ namespace Vodovoz.ViewModels.Logistic
 				return PointMarkerShape.cross;
 			return PointMarkerShape.star;
 		}
-		
-		void DeliverySum()
-		{
-			ObservableDeliverySummary.Clear();
-			var totalOrders = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-				.GetExecutableQueryOver(UoW.Session)
-				.Where(o => !o.IsContractCloser)
-				.And(o => !o.IsService)
-				.And(o=>o.OrderStatus != OrderStatus.WaitForPayment)
-				.And(o => o.OrderStatus != OrderStatus.NewOrder)
-				.And(o => o.OrderStatus != OrderStatus.Canceled)
-				.OrderBy(x=>x.OrderStatus).Asc.List();
-
-			foreach (var orderGroup in totalOrders.GroupBy(o=>o.OrderStatus))
-			{
-				var deliverySum = new DeliverySummary(orderGroup.Key, orderGroup.Select(x=>x).ToList());
-				ObservableDeliverySummary.Add(deliverySum);
-			}
-		}
 
 		public string GetOrdersInfo()
 		{
@@ -1362,6 +1343,25 @@ namespace Vodovoz.ViewModels.Logistic
 			return driverWorkSchedule == null 
 				? defaultDeliveryDaySchedule
 				: driverWorkSchedule.DaySchedule;
+		}
+		
+		private void DeliverySum()
+		{
+			ObservableDeliverySummary.Clear();
+			var totalOrders = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+				.GetExecutableQueryOver(UoW.Session)
+				.Where(o => !o.IsContractCloser)
+				.And(o => !o.IsService)
+				.And(o=>o.OrderStatus != OrderStatus.WaitForPayment)
+				.And(o => o.OrderStatus != OrderStatus.NewOrder)
+				.And(o => o.OrderStatus != OrderStatus.Canceled)
+				.OrderBy(x=>x.OrderStatus).Asc.List();
+
+			foreach (var orderGroup in totalOrders.GroupBy(o => o.OrderStatus))
+			{
+				var deliverySum = new DeliverySummary(orderGroup.Key, orderGroup.Select(x=>x).ToList());
+				ObservableDeliverySummary.Add(deliverySum);
+			}
 		}
 	}
 }
