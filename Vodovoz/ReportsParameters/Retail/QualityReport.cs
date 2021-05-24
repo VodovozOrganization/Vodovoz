@@ -43,9 +43,9 @@ namespace Vodovoz.ReportsParameters.Retail
         {
             var parameters = new Dictionary<string, object> {
                 { "create_date", ydateperiodpickerCreate.StartDateOrNull },
-                { "end_date", ydateperiodpickerCreate.EndDateOrNull },
-                { "shipping_date", ydateperiodpickerShipping.StartDateOrNull },
-                { "shipping_end_date", ydateperiodpickerShipping.EndDateOrNull },
+                { "end_date", ydateperiodpickerCreate.EndDateOrNull?.AddDays(1).AddSeconds(-1) },
+                { "shipping_start_date", ydateperiodpickerShipping.StartDateOrNull },
+                { "shipping_end_date", ydateperiodpickerShipping.EndDateOrNull?.AddDays(1).AddSeconds(-1) },
                 { "counterparty_id", ((Counterparty)yEntityCounterParty.Subject)?.Id ?? 0 },
                 { "sales_channel_id", ((SalesChannel)yEntitySalesChannel.Subject)?.Id ?? 0},
                 { "main_contact_id", ((Employee)yEntityMainContact.Subject)?.Id ?? 0}
@@ -74,9 +74,9 @@ namespace Vodovoz.ReportsParameters.Retail
         {
             string errorString = string.Empty;
             if (!(ydateperiodpickerCreate.StartDateOrNull.HasValue &&
-                ydateperiodpickerCreate.EndDateOrNull.HasValue &&
-                ydateperiodpickerShipping.StartDateOrNull.HasValue &&
-                ydateperiodpickerShipping.EndDateOrNull.HasValue))
+                ydateperiodpickerCreate.EndDateOrNull.HasValue) &&
+                !(ydateperiodpickerShipping.StartDateOrNull.HasValue && 
+                  ydateperiodpickerShipping.EndDateOrNull.HasValue))
             {
                 errorString = "Не выбраны периоды";
                 interactiveService.ShowMessage(ImportanceLevel.Error, errorString);

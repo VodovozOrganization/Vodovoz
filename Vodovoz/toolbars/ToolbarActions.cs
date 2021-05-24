@@ -519,7 +519,7 @@ public partial class MainWindow : Window
 				"AutoRouting",
 				() => new RouteListsOnDayViewModel(
 					ServicesConfig.CommonServices,
-					new DeliveryScheduleParametersProvider(ParametersProvider.Instance),
+					new DeliveryScheduleParametersProvider(SingletonParametersProvider.Instance),
 					new GtkTabsOpener(),
 					new RouteListRepository(),
 					new SubdivisionRepository(),
@@ -567,7 +567,7 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			NavigationManagerProvider.NavigationManager,
 			OrderSingletonRepository.GetInstance(),
-			new OrganizationParametersProvider(ParametersProvider.Instance),
+			new OrganizationParametersProvider(SingletonParametersProvider.Instance),
 			new BaseParametersProvider()
 		);
 

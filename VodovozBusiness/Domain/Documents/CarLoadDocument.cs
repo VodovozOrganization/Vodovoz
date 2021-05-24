@@ -107,6 +107,7 @@ namespace Vodovoz.Domain.Documents
 					new CarLoadDocumentItem {
 						Document = this,
 						Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
+						OwnType = inRoute.OwnType,
 						ExpireDatePercent = inRoute.ExpireDatePercent,
 						AmountInRouteList = inRoute.Amount,
 						Amount = inRoute.Amount

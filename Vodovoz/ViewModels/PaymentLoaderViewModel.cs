@@ -20,7 +20,8 @@ namespace Vodovoz.ViewModels
 		private readonly IProfitCategoryProvider profitCategoryProvider;
 		private readonly int vodovozId;
 		private readonly int vodovozSouthId;
-		private IReadOnlyList<Domain.Organizations.Organization> organisations;
+		private IReadOnlyList<Domain.Organizations.Organization> organisations;		
+		private IReadOnlyList<Domain.Organizations.Organization> allVodOrganisations;
 		//убираем из выписки Юмани и банк СИАБ (платежи от физ. лиц)
 		private readonly string[] excludeInnForVodovozSouth = new []{ "2465037737", "7750005725" };
 
@@ -71,6 +72,7 @@ namespace Vodovoz.ViewModels
 
 			var vodovozOrg = UoW.GetById<Domain.Organizations.Organization>(vodovozId);
 			var vodovozSouthOrg = UoW.GetById<Domain.Organizations.Organization>(vodovozSouthId);
+			allVodOrganisations = UoW.GetAll<Domain.Organizations.Organization>().ToList();
 
 			orgs.Add(vodovozOrg);
 			orgs.Add(vodovozSouthOrg);
@@ -147,11 +149,17 @@ namespace Vodovoz.ViewModels
 			
             AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(UoW);
             var defaultProfitCategory = UoW.GetById<CategoryProfit>(profitCategoryProvider.GetDefaultProfitCategory());
-            var paymentsToVodovoz = Parser.TransferDocuments.Where(x => x.RecipientInn == organisations[0].INN).ToList();
+            var paymentsToVodovoz = 
+	            Parser.TransferDocuments.Where(x => 
+		            x.RecipientInn == organisations[0].INN
+		            && !allVodOrganisations.Select(o => o.INN).Contains(x.PayerInn))
+		            .ToList();
             var paymentsToVodovozSouth = 
 				Parser.TransferDocuments.Where(x => 
 					x.RecipientInn == organisations[1].INN
-					&& !excludeInnForVodovozSouth.Contains(x.PayerInn)).ToList();
+					&& !excludeInnForVodovozSouth.Contains(x.PayerInn)
+					&& !allVodOrganisations.Select(o => o.INN).Contains(x.PayerInn))
+					.ToList();
 			var totalCount = paymentsToVodovoz.Count + paymentsToVodovozSouth.Count;
 
 			progress = 1d / totalCount;

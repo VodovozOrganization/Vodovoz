@@ -16,16 +16,17 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using QS.Project.Services.GtkUI;
 using QS.Project.Services.Interactive;
-using QS.Services;
+using QS.Project.Versioning;
+using QS.Project.ViewModels;
+using QS.Project.Views;
 using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Tools;
+using QS.Validation;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
-using QSSupportLib;
 using Vodovoz;
 using Vodovoz.CommonEnums;
 using Vodovoz.Core;
@@ -98,34 +99,72 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.Domain.Retail;
-using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
+using System.Runtime.InteropServices;
+using QS.Services;
+using Vodovoz.ViewModels.Reports;
+using MySql.Data.MySqlClient;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using QS.BaseParameters;
+using QS.BaseParameters.ViewModels;
+using QS.BaseParameters.Views;
+using QS.ChangePassword.Views;
+using QS.Project.Repositories;
+using QS.ViewModels;
+using VodovozInfrastructure.Configuration;
+using VodovozInfrastructure.Passwords;
+using Connection = QS.Project.DB.Connection;
+using Vodovoz.ReportsParameters.Employees;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 public partial class MainWindow : Gtk.Window
 {
     private static Logger logger = LogManager.GetCurrentClassLogger();
-    uint LastUiId;
+    private uint lastUiId;
+    private readonly ILifetimeScope autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
+    private readonly IApplicationInfo applicationInfo;
+    private readonly IPasswordValidator passwordValidator;
+    private readonly IApplicationConfigurator applicationConfigurator;
 
     public TdiNotebook TdiMain => tdiMain;
+    public readonly TdiNavigationManager NavigationManager;
+    public readonly MangoManager MangoManager;
 
-    private ILifetimeScope AutofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
-    public TdiNavigationManager NavigationManager;
-    public MangoManager MangoManager;
-
-    public MainWindow() : base(Gtk.WindowType.Toplevel)
+    public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
     {
+        this.passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
+        this.applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
         Build();
         PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
-        this.BuildToolbarActions();
+        applicationInfo = new ApplicationVersionInfo();
+        BuildToolbarActions();
         tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
         TDIMain.MainNotebook = tdiMain;
-        this.KeyReleaseEvent += TDIMain.TDIHandleKeyReleaseEvent;
-        this.Title = MainSupport.GetTitle();
+        var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
+        var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
+        var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
+        var tabsParametersProvider = new TabsParametersProvider(SingletonParametersProvider.Instance);
+        TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
+        TDIMain.SetTabsReordering(reorderTabs);
+        if (reorderTabs)
+            ReorderTabs.Activate();
+        if (highlightWColor)
+            HighlightTabsWithColor.Activate();
+        if (keepTabColor)
+            KeepTabColor.Activate();
+
+        bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        if (isWindows)
+            KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
+
+        Title = $"{applicationInfo.ProductTitle} v{applicationInfo.Version} от {applicationInfo.BuildDate:dd.MM.yyyy HH:mm}";
         //Настраиваем модули
         ActionUsers.Sensitive = QSMain.User.Admin;
         ActionAdministration.Sensitive = QSMain.User.Admin;
@@ -215,8 +254,8 @@ public partial class MainWindow : Gtk.Window
                 break;
         }
 
-        NavigationManager = AutofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-        MangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
+        NavigationManager = autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
+        MangoManager = autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
         MangoManager.Connect();
 
         BanksUpdater.CheckBanksUpdate(false);
@@ -225,7 +264,8 @@ public partial class MainWindow : Gtk.Window
 
         bool userIsSalesRepresentative;
 
-        using (var uow = UnitOfWorkFactory.CreateWithoutRoot()){
+        using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+        {
             userIsSalesRepresentative = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
             && !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
         }
@@ -246,7 +286,7 @@ public partial class MainWindow : Gtk.Window
 
         // Отчеты в Продажи
 
-        ActionOrderCreationDateReport.Visible = 
+        ActionOrderCreationDateReport.Visible =
             ActionPlanImplementationReport.Visible =
             ActionSetBillsReport.Visible = !userIsSalesRepresentative;
 
@@ -299,7 +339,7 @@ public partial class MainWindow : Gtk.Window
         if (tdiMain.CloseAllTabs())
         {
             a.RetVal = false;
-            AutofacScope.Dispose();
+            autofacScope.Dispose();
             Application.Quit();
         }
         else
@@ -312,19 +352,33 @@ public partial class MainWindow : Gtk.Window
     {
         if (tdiMain.CloseAllTabs())
         {
-            AutofacScope.Dispose();
+            autofacScope.Dispose();
             Application.Quit();
         }
     }
 
     protected void OnDialogAuthenticationActionActivated(object sender, EventArgs e)
     {
-        QSMain.User.ChangeUserPassword(this);
+        if(!(Connection.ConnectionDB is MySqlConnection mySqlConnection)) {
+            throw new InvalidOperationException($"Текущее подключение не является {nameof(MySqlConnection)}");
+        }
+        var mySqlPasswordRepository = new MySqlPasswordRepository();
+        var changePasswordModel = new MysqlChangePasswordModelExtended(applicationConfigurator, mySqlConnection, mySqlPasswordRepository);
+        var changePasswordViewModel = new ChangePasswordViewModel(changePasswordModel, passwordValidator, null);
+        var changePasswordView = new ChangePasswordView(changePasswordViewModel);
+        
+        changePasswordView.ShowAll();
+        changePasswordView.Run();
+        changePasswordView.Destroy();
     }
 
     protected void OnAboutActionActivated(object sender, EventArgs e)
     {
-        QSMain.RunAboutDialog();
+        var aboutViewModel = new AboutViewModel(applicationInfo);
+        var aboutView = new AboutView(aboutViewModel);
+        aboutView.ShowAll();
+        aboutView.Run();
+        aboutView.Destroy();
     }
 
     protected void OnActionOrdersToggled(object sender, EventArgs e)
@@ -335,12 +389,12 @@ public partial class MainWindow : Gtk.Window
 
     private void SwitchToUI(string uiResource)
     {
-        if (LastUiId > 0)
+        if (lastUiId > 0)
         {
-            this.UIManager.RemoveUi(LastUiId);
-            LastUiId = 0;
+            this.UIManager.RemoveUi(lastUiId);
+            lastUiId = 0;
         }
-        LastUiId = this.UIManager.AddUiFromResource(uiResource);
+        lastUiId = this.UIManager.AddUiFromResource(uiResource);
         this.UIManager.EnsureUpdate();
     }
 
@@ -596,10 +650,13 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionParametersActivated(object sender, EventArgs e)
     {
-        var config = new ApplicationConfigDialog();
-        config.ShowAll();
-        config.Run();
-        config.Destroy();
+        var baseParametersViewModel = new BaseParametersViewModel(
+            NavigationManager,
+            new ParametersService(QS.Project.DB.Connection.ConnectionDB));
+        var baseParametersView = new BaseParametersView(baseParametersViewModel);
+        baseParametersView.ShowAll();
+        baseParametersView.Run();
+        baseParametersView.Destroy();
     }
 
     protected void OnAction14Activated(object sender, EventArgs e)
@@ -750,7 +807,7 @@ public partial class MainWindow : Gtk.Window
 
         var filter = new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default };
 
-        var SubdivisionAutocompleteSelectorFactory =
+        var subdivisionAutocompleteSelectorFactory =
             new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
             {
                 return new SubdivisionsJournalViewModel(
@@ -760,7 +817,10 @@ public partial class MainWindow : Gtk.Window
                     employeeSelectorFactory
                 );
             });
-            
+
+        var counterpartyAutocompleteSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
         tdiMain.OpenTab(
             () =>
             {
@@ -770,7 +830,8 @@ public partial class MainWindow : Gtk.Window
                     ServicesConfig.CommonServices,
                     VodovozGtkServicesConfig.EmployeeService,
                     SubdivisionParametersProvider.Instance,
-                    SubdivisionAutocompleteSelectorFactory
+                    subdivisionAutocompleteSelectorFactory,
+                    counterpartyAutocompleteSelectorFactory
                 );
             }
         );
@@ -989,7 +1050,7 @@ public partial class MainWindow : Gtk.Window
 
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
-            () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory, 
+            () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory,
                 employeeSelectorFactory, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
     }
 
@@ -1398,7 +1459,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionUsersActivated(object sender, EventArgs e)
     {
-        UsersDialog usersDlg = new UsersDialog();
+        UsersDialog usersDlg = new UsersDialog(ServicesConfig.InteractiveService);
         usersDlg.Show();
         usersDlg.Run();
         usersDlg.Destroy();
@@ -1763,9 +1824,14 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionPaymentsReportActivated(object sender, EventArgs e)
     {
+        var counterpartyAutocompleteSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+
+        var userRepository = UserSingletonRepository.GetInstance();
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
-            () => new QSReport.ReportViewDlg(new PaymentsFromBankClientReport())
+            () => new QSReport.ReportViewDlg(new PaymentsFromBankClientReport(counterpartyAutocompleteSelectorFactory, userRepository, ServicesConfig.CommonServices))
         );
     }
 
@@ -1927,7 +1993,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
-            () => new QSReport.ReportViewDlg(new OrderChangesReport(new ReportDefaultsProvider(ParametersProvider.Instance)))
+            () => new QSReport.ReportViewDlg(new OrderChangesReport(new ReportDefaultsProvider(SingletonParametersProvider.Instance)))
         );
     }
 
@@ -2064,7 +2130,7 @@ public partial class MainWindow : Gtk.Window
             )
         );
     }
-    
+
     protected void OnActionCarsExploitationReportActivated(object sender, EventArgs e)
     {
         IEntityAutocompleteSelectorFactory carEntityAutocompleteSelectorFactory
@@ -2108,6 +2174,24 @@ public partial class MainWindow : Gtk.Window
         );
     }
 
+    protected void OnActionRecalculateDriverWagesActivated(object sender, EventArgs e)
+    {
+        var dlg = new RecalculateDriverWageDlg();
+        tdiMain.AddTab(dlg);
+	}
+    
+    protected void OnActionDriversInfoExportActivated(object sender, EventArgs e)
+    {
+        var wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+        tdiMain.AddTab(
+            new DriversInfoExportViewModel(
+                wageParameterService,
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.InteractiveService,
+                null)
+        );
+    }
+
     protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
     {
         IEntityAutocompleteSelectorFactory districtSelectorFactory =
@@ -2120,7 +2204,103 @@ public partial class MainWindow : Gtk.Window
 
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
-            () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory, 
+            () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory,
                 UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
+    }
+
+    protected void OnDriversToDistrictsAssignmentReportActionActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<DriversToDistrictsAssignmentReport>(),
+            () => new QSReport.ReportViewDlg(new DriversToDistrictsAssignmentReport())
+        );
+    }
+
+    protected void OnReorderTabsToggled(object sender, EventArgs e)
+    {
+        var isActive = ReorderTabs.Active;
+        if (CurrentUserSettings.Settings.ReorderTabs != isActive)
+        {
+            CurrentUserSettings.Settings.ReorderTabs = isActive;
+            CurrentUserSettings.SaveSettings();
+            MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
+        }
+    }
+
+    string[] GetTabsColors() =>
+        new[] { "#F81919", "#009F6B", "#1F8BFF", "#FF9F00", "#FA7A7A", "#B46034", "#99B6FF", "#8F2BE1", "#00CC44" };
+
+    protected void OnHighlightTabsWithColorToggled(object sender, EventArgs e)
+    {
+        var isActive = HighlightTabsWithColor.Active;
+        if (!isActive)
+            KeepTabColor.Active = false;
+        KeepTabColor.Sensitive = isActive;
+        if (CurrentUserSettings.Settings.HighlightTabsWithColor != isActive)
+        {
+            CurrentUserSettings.Settings.HighlightTabsWithColor = isActive;
+            CurrentUserSettings.SaveSettings();
+            MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
+        }
+    }
+
+    protected void OnKeepTabColorToggled(object sender, EventArgs e)
+    {
+        var isActive = KeepTabColor.Active;
+        if (CurrentUserSettings.Settings.KeepTabColor != isActive)
+        {
+            CurrentUserSettings.Settings.KeepTabColor = isActive;
+            CurrentUserSettings.SaveSettings();
+            MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
+        }
+    }
+
+    protected void OnActionNomenclaturePlanActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(() => new NomenclaturesPlanJournalViewModel(
+                    new NomenclaturePlanFilterViewModel() { HidenByDefault = true },
+                    UnitOfWorkFactory.GetDefaultFactory,
+                    ServicesConfig.CommonServices)
+        );
+    }
+
+    protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<NomenclaturePlanReport>(),
+            () => new QSReport.ReportViewDlg(new NomenclaturePlanReport())
+        );
+    }
+
+    protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
+    {
+        var factory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+            () => new EmployeesJournalViewModel(
+                new EmployeeFilterViewModel(),
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices));
+        
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
+            () => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(
+                factory, ServicesConfig.InteractiveService))
+        );
+    }
+
+    protected void OnActionOrderAnalyticsReportActivated(object sender, EventArgs e)
+    {
+        var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+        var interactiveService = autofacScope.Resolve<IInteractiveService>();
+
+        NavigationManager.OpenViewModel<OrderAnalyticsReportViewModel, INavigationManager, IUnitOfWorkFactory, IInteractiveService>(
+            null, NavigationManager, uowFactory, interactiveService);
+    }
+    
+    protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
+            () => new QSReport.ReportViewDlg(new EmployeesReport())
+        );
     }
 }

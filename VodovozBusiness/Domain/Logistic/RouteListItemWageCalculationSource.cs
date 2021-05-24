@@ -10,8 +10,8 @@ namespace Vodovoz.Domain.Logistic
 {
 	public class RouteListItemWageCalculationSource : IRouteListItemWageCalculationSource
 	{
-		readonly RouteListItem item;
-		readonly EmployeeCategory employeeCategory;
+		private readonly RouteListItem item;
+		private readonly EmployeeCategory employeeCategory;
 
 		public RouteListItemWageCalculationSource(RouteListItem item, EmployeeCategory employeeCategory)
 		{
@@ -21,18 +21,22 @@ namespace Vodovoz.Domain.Logistic
 
 		#region IRouteListItemWageCalculationSource implementation
 
-		public int FullBottle19LCount => (int)item.Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
-															  .Sum(item => item.ActualCount ?? 0);
+		public int FullBottle19LCount => (int)item.Order.OrderItems
+			.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
+			.Sum(i => i.CurrentCount);
 
 		public int EmptyBottle19LCount => item.BottlesReturned;
 
-		public int Bottle6LCount => (int)item.Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol6L)
-														 .Sum(item => item.ActualCount ?? 0);
+		public int Bottle6LCount => (int)item.Order.OrderItems
+			.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol6L)
+			.Sum(i => i.CurrentCount);
 
-		public int Bottle600mlCount => (int)item.Order.OrderItems.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol600ml)
-													   		.Sum(i => i.ActualCount ?? 0);
-		public int Bottle1500mlCount => (int)item.Order.OrderItems.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol1500ml)
-															.Sum(i => i.ActualCount ?? 0);
+		public int Bottle600mlCount => (int)item.Order.OrderItems
+			.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol600ml)
+			.Sum(i => i.CurrentCount);
+		public int Bottle1500mlCount => (int)item.Order.OrderItems
+			.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol1500ml)
+			.Sum(i => i.CurrentCount);
 
 		public bool ContractCancelation => false;
 

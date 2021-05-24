@@ -19,7 +19,7 @@
       <Textbox Name="Textbox20">
         <Height>23.34pt</Height>
         <Width>581.25pt</Width>
-        <Value>= "Отчет по клиентам розницы с " + (Format(Convert.ToDateTime({?create_date}), "dd.MM.yyyy"))</Value>
+        <Value>= "Отчет по клиентам розницы"</Value>
         <ZIndex>1</ZIndex>
         <Left>102.3pt</Left>
         <Top>5.6pt</Top>
@@ -63,31 +63,31 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>22.5pt</Width>
+            <Width>36.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>82.6pt</Width>
+            <Width>79.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.4pt</Width>
+            <Width>121.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>146.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.5pt</Width>
+            <Width>80.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.4pt</Width>
+            <Width>79.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>84.4pt</Width>
+            <Width>60.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>92.7pt</Width>
+            <Width>77.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>125.8pt</Width>
+            <Width>85.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -453,46 +453,53 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="counterparty">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	counterparty.id AS counter_id,
-    	counterparty.name AS name,
-   	counterparty.full_name AS full_name,
-    	counterparty.address AS address,
-	districts.district_name AS district,
-	(employees.last_name + employees.name + employees.patronymic) as employee_full_name,
-	date(orders.create_date) AS first_order,
-	sales_channels.name AS channel_name,
-	CASE
-		WHEN counterparty.payment_method = 'cash' THEN 'Наличная'
-		WHEN counterparty.payment_method = 'cashless' THEN 'Безналичная'
-		WHEN counterparty.payment_method = 'barter' THEN 'Бартер'
-		WHEN counterparty.payment_method = 'ByCard' THEN 'По карте'
-		WHEN counterparty.payment_method = 'ContractDoc' THEN 'Контрактная документация'	
-		WHEN counterparty.payment_method = 'Terminal' THEN 'Терминал'
-		WHEN counterparty.payment_method = 'BeveragesWorld' THEN 'Мир напитков'
-		
-		ELSE 'Неизвестная форма оплаты'
-	END AS payment_type
+counterparty.id AS counter_id,
+counterparty.name AS name,
+counterparty.full_name AS full_name,
+delivery_points.compiled_address AS address,
+districts.district_name AS district,
+delivery_points.id as points,
+date(orders.create_date) AS first_order,
+GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.name, employees.patronymic) AS employee_full_name,
+sales_channels.name AS channel_name,
+CASE
+     WHEN counterparty.payment_method = 'cash' THEN 'Наличная'
+     WHEN counterparty.payment_method = 'cashless' THEN 'Безналичная'
+     WHEN counterparty.payment_method = 'barter' THEN 'Бартер'
+     WHEN counterparty.payment_method = 'ByCard' THEN 'По карте'
+     WHEN counterparty.payment_method = 'ContractDoc' THEN 'Контрактная документация'
+     WHEN counterparty.payment_method = 'Terminal' THEN 'Терминал'
+     WHEN counterparty.payment_method = 'BeveragesWorld' THEN 'Мир напитков'
+
+     ELSE 'Неизвестная форма оплаты'
+END AS payment_type
 FROM counterparty
 LEFT JOIN delivery_points ON delivery_points.counterparty_id = counterparty.id
-LEFT JOIN districts ON districts.id = delivery_points.id
-LEFT JOIN sales_channel_to_counterparty ON  sales_channel_to_counterparty.counterparty_id = counterparty.id
+LEFT JOIN districts ON districts.id = delivery_points.district_id
+LEFT JOIN sales_channel_to_counterparty ON sales_channel_to_counterparty.counterparty_id = counterparty.id
 LEFT JOIN sales_channels ON sales_channels.id = sales_channel_to_counterparty.sales_channel_id
-LEFT JOIN orders ON orders.id = counterparty.first_order_id
-LEFT JOIN employees ON employees.id = counterparty.close_delivery_employee_id
-	WHERE
-	counterparty.is_for_retail = 1
-	AND (IF(@create_date IS NULL OR @create_date = '', 'empty', orders.create_date &gt;= @create_date))
-	AND (@sales_channel_id = 0 OR sales_channels.id = @sales_channel_id)
-	AND (@district = 0 OR districts.id = @district)
-	AND (@payment_type = counterparty.payment_method)
-GROUP BY counterparty.id
-ORDER BY first_order DESC</CommandText>
+LEFT JOIN delivery_points_responsible_persons points ON points.delivery_point_id = delivery_points.id
+LEFT JOIN employees ON employees.id = points.employee_id
+LEFT JOIN orders ON orders.client_id = counterparty.id
+    WHERE
+    counterparty.is_for_retail
+    AND (@create_date = '' OR orders.create_date &gt;= @create_date)
+    AND (@end_date = '' OR orders.create_date &lt;= @end_date)
+    AND (orders.order_status = 'Closed')
+    AND (@sales_channel_id = 0 OR sales_channels.id = @sales_channel_id)
+    AND (@district = 0 OR delivery_points.district_id = @district)
+    AND (IF(@all_types, true, counterparty.payment_method = @payment_type))
+GROUP BY delivery_points.compiled_address, counterparty.full_name
+ORDER BY counter_id, first_order DESC, orders.create_date DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="create_date">
             <Value>=Parameters!create_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
           </QueryParameter>
           <QueryParameter Name="sales_channel_id">
             <Value>=Parameters!sales_channel_id</Value>
@@ -503,9 +510,12 @@ ORDER BY first_order DESC</CommandText>
           <QueryParameter Name="payment_type">
             <Value>=Parameters!payment_type</Value>
           </QueryParameter>
+          <QueryParameter Name="all_types">
+            <Value>=Parameters!all_types</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="counter_id">
           <DataField>counter_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -557,11 +567,19 @@ ORDER BY first_order DESC</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="create_date">
       <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
@@ -571,21 +589,32 @@ ORDER BY first_order DESC</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="district">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="payment_type">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="all_types">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

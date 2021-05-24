@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.ColumnConfig;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
+using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -20,6 +24,8 @@ namespace Vodovoz.Reports
 	{
 		SelectableParametersReportFilter filter;
 
+		private GenericObservableList<SelectableSortTypeNode> selectableSortTypeNodes = new GenericObservableList<SelectableSortTypeNode>();
+
 		public StockMovements()
 		{
 			this.Build();
@@ -27,7 +33,7 @@ namespace Vodovoz.Reports
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			filter = new SelectableParametersReportFilter(UoW);
 			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
-				yentryrefWarehouse.Subject =  CurrentUserSettings.Settings.DefaultWarehouse;
+				yentryrefWarehouse.Subject = CurrentUserSettings.Settings.DefaultWarehouse;
 			ConfigureDlg();
 		}
 
@@ -48,10 +54,10 @@ namespace Vodovoz.Reports
 					SelectableEntityParameter<Nomenclature> resultAlias = null;
 					var query = UoW.Session.QueryOver<Nomenclature>()
 						.Where(x => !x.IsArchive);
-					if(filters != null && filters.Any()) {
-						foreach(var f in filters) {
+					if (filters != null && filters.Any()) {
+						foreach (var f in filters) {
 							var filterCriterion = f();
-							if(filterCriterion != null) {
+							if (filterCriterion != null) {
 								query.Where(filterCriterion);
 							}
 						}
@@ -69,7 +75,7 @@ namespace Vodovoz.Reports
 			nomenclatureParam.AddFilterOnSourceSelectionChanged(nomenclatureTypeParam,
 				() => {
 					var selectedValues = nomenclatureTypeParam.GetSelectedValues();
-					if(!selectedValues.Any()) {
+					if (!selectedValues.Any()) {
 						return null;
 					}
 					return Restrictions.On<Nomenclature>(x => x.Category).IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray());
@@ -85,8 +91,8 @@ namespace Vodovoz.Reports
 				new RecursiveParametersFactory<ProductGroup>(UoW,
 				(filters) => {
 					var query = UoW.Session.QueryOver<ProductGroup>();
-					if(filters != null && filters.Any()) {
-						foreach(var f in filters) {
+					if (filters != null && filters.Any()) {
+						foreach (var f in filters) {
 							query.Where(f());
 						}
 					}
@@ -100,11 +106,51 @@ namespace Vodovoz.Reports
 			var filterWidget = new SelectableParameterReportFilterView(viewModel);
 			vboxParameters.Add(filterWidget);
 			filterWidget.Show();
+
+			ytreeSortPriority.ColumnsConfig = FluentColumnsConfig<SelectableSortTypeNode>.Create()
+				.AddColumn("").AddToggleRenderer(x => x.Selected)
+				.AddColumn("Имя").AddEnumRenderer(x => x.SortType)
+				.Finish();
+
+			ytreeSortPriority.HeadersVisible = false;
+			ytreeSortPriority.Reorderable = true;
+
+			ytreeSortPriority.ItemsDataSource = selectableSortTypeNodes;
+
+			foreach (SortType enumItem in Enum.GetValues(typeof(SortType)))
+            {
+				selectableSortTypeNodes.Add(new SelectableSortTypeNode(enumItem));
+			}
+
+			RefreshAvailableSortTypes();
+
+			yentryrefWarehouse.Changed += YentryrefWarehouse_Changed;
 		}
 
-		#region IParametersWidget implementation
+		private void RefreshAvailableSortTypes()
+        {
+			var sortTypeNodes = selectableSortTypeNodes.Where(x => x.SortType == Reports.SortType.GroupOfGoods);
 
-		public string Title => "Складские движения";
+			if (yentryrefWarehouse.Subject == null)
+			{
+				if (sortTypeNodes.Any())
+				{
+					selectableSortTypeNodes.Remove(sortTypeNodes.First());
+				}
+				return;
+			}
+
+			if (!sortTypeNodes.Any())
+			{
+				selectableSortTypeNodes.Add(new SelectableSortTypeNode(Reports.SortType.GroupOfGoods));
+			}
+		}
+
+		private void YentryrefWarehouse_Changed(object sender, EventArgs e) => RefreshAvailableSortTypes();
+
+        #region IParametersWidget implementation
+
+        public string Title => "Складские движения";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
@@ -124,11 +170,11 @@ namespace Vodovoz.Reports
 		{
 			string reportId;
 			var warehouse = yentryrefWarehouse.Subject as Warehouse;
-			if(warehouse == null)
+			if (warehouse == null)
 				reportId = "Store.StockWaterMovements";
-			else if(warehouse.TypeOfUse == WarehouseUsing.Shipment)
+			else if (warehouse.TypeOfUse == WarehouseUsing.Shipment)
 				reportId = "Store.StockShipmentMovements";
-			else if(warehouse.TypeOfUse == WarehouseUsing.Production)
+			else if (warehouse.TypeOfUse == WarehouseUsing.Production)
 				reportId = "Store.StockProductionMovements";
 			else
 				throw new NotImplementedException("Неизвестный тип использования склада.");
@@ -137,11 +183,12 @@ namespace Vodovoz.Reports
 			{
 				{ "startDate", dateperiodpicker1.StartDateOrNull.Value },
 				{ "endDate", dateperiodpicker1.EndDateOrNull.Value },
-				{ "warehouse_id", warehouse?.Id ?? -1},
-				{ "creationDate", DateTime.Now}
+				{ "warehouse_id", warehouse?.Id ?? -1 },
+				{ "creationDate", DateTime.Now },
+				{ "sortType", string.Join(", ", selectableSortTypeNodes.Where(x => x.Selected).Select(x => x.SortType.ToString())) }
 			};
 
-			foreach(var item in filter.GetParameters()) {
+			foreach (var item in filter.GetParameters()) {
 				parameters.Add(item.Key, item.Value);
 			}
 
@@ -150,7 +197,7 @@ namespace Vodovoz.Reports
 				Identifier = reportId,
 				Parameters = parameters
 			};
-		}			
+		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)
 		{
@@ -163,5 +210,27 @@ namespace Vodovoz.Reports
 			buttonRun.Sensitive = datePeriodSelected;
 		}
 	}
-}
 
+	public enum SortType
+	{
+		[Display(Name = "Тип")]
+		Type,
+		[Display(Name = "Группа товаров")]
+		GroupOfGoods,
+		[Display(Name = "По алфавиту")]
+		Alphabet,
+	}
+
+	public class SelectableSortTypeNode
+	{
+        public SelectableSortTypeNode(SortType sortType)
+        {
+			SortType = sortType;
+        }
+
+		public bool Selected { get; set; }
+
+		public SortType SortType { get; private set; }
+
+	}
+}

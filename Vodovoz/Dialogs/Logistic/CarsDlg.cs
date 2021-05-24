@@ -11,10 +11,11 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModel;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Logistic;
 using QS.Dialog.GtkUI;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
@@ -57,6 +58,10 @@ namespace Vodovoz
 			comboDriverCarKind.ItemsList = UoW.GetAll<DriverCarKind>();
 			comboDriverCarKind.Binding.AddBinding(Entity, e => e.DriverCarKind, w => w.SelectedItem).InitializeFromSource();
 
+			orderNumberSpin.Binding.AddBinding(Entity, e => e.OrderNumber, w => w.ValueAsInt).InitializeFromSource();
+			orderNumberSpin.Binding.AddBinding(Entity, e => e.IsCompanyCar, w => w.Visible).InitializeFromSource();
+			orderNumberLabel.Visible = Entity.IsCompanyCar;
+
 			yentryVIN.Binding.AddBinding(Entity, e => e.VIN, w => w.Text).InitializeFromSource();
 			yentryManufactureYear.Binding.AddBinding(Entity, e => e.ManufactureYear, w => w.Text).InitializeFromSource();
 			yentryMotorNumber.Binding.AddBinding(Entity, e => e.MotorNumber, w => w.Text).InitializeFromSource();
@@ -74,13 +79,17 @@ namespace Vodovoz
 			yentryPTSNum.Binding.AddBinding(Entity, e => e.DocPTSNumber, w => w.Text).InitializeFromSource();
 			yentryPTSSeries.Binding.AddBinding(Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
 			
-			var filter = new EmployeeFilterViewModel();
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			dataentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
-			dataentryreferenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			var employeeFilter = new EmployeeFilterViewModel {
+				RestrictCategory = EmployeeCategory.driver,
+				Status = EmployeeStatus.IsWorking
+			};
+			entryDriver.SetEntityAutocompleteSelectorFactory(
+				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
+					typeof(Employee),
+					() => new EmployeesJournalViewModel(employeeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices))
+				);
+			entryDriver.Changed += OnEntryDriverChanged;
+			entryDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			dataentryFuelType.SubjectType = typeof(FuelType);
 			dataentryFuelType.Binding.AddBinding(Entity, e => e.FuelType, w => w.Subject).InitializeFromSource();
@@ -107,13 +116,14 @@ namespace Vodovoz
 				}
 			};
 
-			checkIsRaskat.Toggled += (s, e) => { 
-				if (!carRepository.IsInAnyRouteList(UoW, Entity)) {
+			checkIsRaskat.Toggled += (s, e) => {
+				if(Entity.Id == 0 || !carRepository.IsInAnyRouteList(UoW, Entity)) {
 					Entity.IsRaskat = checkIsRaskat.Active;
-				} else if (checkIsRaskat.Active != Entity.IsRaskat) {
+				}
+				else if(checkIsRaskat.Active != Entity.IsRaskat) {
 					checkIsRaskat.Active = Entity.IsRaskat;
 					MessageDialogHelper.RunWarningDialog("На данном автомобиле есть МЛ, смена типа невозможна");
-                }
+				}
 			};
 
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
@@ -123,7 +133,7 @@ namespace Vodovoz
 				attachmentFiles.ItemId = UoWGeneric.Root.Id;
 				attachmentFiles.UpdateFileList();
 			}
-			OnDataentryreferenceDriverChanged(null, null);
+			OnEntryDriverChanged(null, null);
 			textDriverInfo.Selectable = true;
 
 			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
@@ -192,7 +202,7 @@ namespace Vodovoz
 				notebook1.CurrentPage = 2;
 		}
 
-		protected void OnDataentryreferenceDriverChanged(object sender, EventArgs e)
+		protected void OnEntryDriverChanged(object sender, EventArgs e)
 		{
 			if(UoWGeneric.Root.Driver != null) {
 				var docs = Entity.Driver.GetMainDocuments();
@@ -248,7 +258,6 @@ namespace Vodovoz
 
 		private void UpdateSensitivity()
 		{
-			dataentryreferenceDriver.Sensitive = Entity.TypeOfUse.HasValue && !Entity.IsCompanyCar;
 			comboDriverCarKind.Sensitive = Entity.TypeOfUse.HasValue && !Entity.IsCompanyCar;
 		}
 	}

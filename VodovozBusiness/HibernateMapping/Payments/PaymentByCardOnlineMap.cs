@@ -18,6 +18,7 @@ namespace Vodovoz.HibernateMapping.Payments
 			Map(x => x.Email).Column("email");
 			Map(x => x.Phone).Column("phone");
 			Map(x => x.Shop).Column("shop");
+			Map(x => x.PaymentByCardFrom).Column("payment_by_card_from");
 		}
 	}
 }

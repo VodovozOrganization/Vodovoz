@@ -108,7 +108,7 @@ namespace Vodovoz.ViewWidgets
 				return;
 			}
 
-			if(!ParametersProvider.Instance.ContainsParameter("email_for_email_delivery")) {
+			if(!SingletonParametersProvider.Instance.ContainsParameter("email_for_email_delivery")) {
 				MessageDialogHelper.RunErrorDialog("В параметрах базы не определена почта для рассылки");
 				return;
 			}
@@ -118,7 +118,7 @@ namespace Vodovoz.ViewWidgets
 				return;
 			}
 
-			Email email = CreateDocumentEmail("", "vodovoz-spb.ru", document);
+			OrderEmail email = CreateDocumentEmail("", "vodovoz-spb.ru", document);
 			if(email == null) {
 				MessageDialogHelper.RunErrorDialog("Для данного типа документа не реализовано формирование письма");
 				return;
@@ -134,7 +134,7 @@ namespace Vodovoz.ViewWidgets
 			if(service == null) {
 				return;
 			}
-			var result = service.SendEmail(email);
+			var result = service.SendOrderEmail(email);
 
 			//Если произошла ошибка и письмо не отправлено
 			string resultMessage = "";
@@ -146,7 +146,7 @@ namespace Vodovoz.ViewWidgets
 			UpdateEmails();
 		}
 
-		private Email CreateDocumentEmail(string clientName, string organizationName, OrderDocument document)
+		private OrderEmail CreateDocumentEmail(string clientName, string organizationName, OrderDocument document)
 		{
 			if(document.Type == OrderDocumentType.Bill) {
 				var billDocument = document as BillDocument;
@@ -156,7 +156,7 @@ namespace Vodovoz.ViewWidgets
 				billDocument.HideSignature = wasHideSignature;
 				            
 				EmailTemplate template = billDocument.GetEmailTemplate();
-				Email email = new Email();
+				OrderEmail email = new OrderEmail();
 				email.Title = string.Format("{0} {1}", template.Title, billDocument.Title);
 				email.Text = template.Text;
 				email.HtmlText = template.TextHtml;
@@ -165,7 +165,7 @@ namespace Vodovoz.ViewWidgets
 				}
 
 				email.Recipient = new EmailContact(clientName, yvalidatedentryEmail.Text);
-				email.Sender = new EmailContact(organizationName, ParametersProvider.Instance.GetParameterValue("email_for_email_delivery"));
+				email.Sender = new EmailContact(organizationName, SingletonParametersProvider.Instance.GetParameterValue("email_for_email_delivery"));
 				email.Order = document.Order.Id;
 				email.OrderDocumentType = document.Type;
 				using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {

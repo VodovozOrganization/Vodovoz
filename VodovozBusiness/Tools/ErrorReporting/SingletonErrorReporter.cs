@@ -2,7 +2,7 @@
 using System.Linq;
 using QS.ErrorReporting;
 using QS.Project.Domain;
-using QS.Project.VersionControl;
+using QS.Project.Versioning;
 
 namespace Vodovoz.Tools
 {
@@ -10,14 +10,15 @@ namespace Vodovoz.Tools
 	{
 		protected SingletonErrorReporter() { }
 
-		static SingletonErrorReporter instance;
+		private static SingletonErrorReporter instance;
 		/// <summary>
 		/// При использовании неинициализированного <see cref="SingletonErrorReporter"/> кидает ошибку
 		/// </summary>
 		public static SingletonErrorReporter Instance {
 			get {
-				if(instance == null)
+				if(instance == null) {
 					throw new ArgumentNullException(nameof(instance));
+				}
 				return instance;
 			}
 		}
@@ -42,11 +43,13 @@ namespace Vodovoz.Tools
 			int? autoSendLogRowCount = null
 		)
 		{
-			instance = new SingletonErrorReporter();
-			instance.sendService = sendService ?? throw new ArgumentNullException(nameof(sendService));
-			if(applicationInfo == null)
+			instance = new SingletonErrorReporter {
+				sendService = sendService ?? throw new ArgumentNullException(nameof(sendService))
+			};
+			if(applicationInfo == null) {
 				throw new ArgumentNullException(nameof(applicationInfo));
-			instance.Edition = applicationInfo.Edition;
+			}
+			instance.Edition = applicationInfo.Modification;
 			instance.Version = applicationInfo.Version.ToString();
 			instance.ProductName = applicationInfo.ProductName;
 			instance.DatabaseName = databaseName;
@@ -55,9 +58,9 @@ namespace Vodovoz.Tools
 			instance.autoSendLogRowCount = autoSendLogRowCount;
 		}
 
-		ILogService logService;
-		int? autoSendLogRowCount;
-		IErrorReportingService sendService;
+		private ILogService logService;
+		private int? autoSendLogRowCount;
+		private IErrorReportingService sendService;
 
 		public string DatabaseName { get; protected set; }
 		public string ProductName { get; protected set; }
@@ -73,19 +76,21 @@ namespace Vodovoz.Tools
 			UserBase user
 		)
 		{
-			if(errorReportType == ErrorReportType.Automatic && !CanSendAutomatically)
+			if(errorReportType == ErrorReportType.Automatic && !CanSendAutomatically) {
 				return false;
+			}
 
-			ErrorReport errorReport = new ErrorReport();
-			errorReport.DBName = DatabaseName;
-			errorReport.Edition = Edition;
-			errorReport.Product = ProductName;
-			errorReport.Version = Version;
-			errorReport.Email = email;
-			errorReport.Description = description;
-			errorReport.ReportType = errorReportType;
-			errorReport.StackTrace = GetExceptionText(exceptions);
-			errorReport.UserName = user?.Name;
+			var errorReport = new ErrorReport {
+				DBName = DatabaseName,
+				Edition = Edition,
+				Product = ProductName,
+				Version = Version,
+				Email = email,
+				Description = description,
+				ReportType = errorReportType,
+				StackTrace = GetExceptionText(exceptions),
+				UserName = user?.Name
+			};
 
 			errorReport = PrepareLog(errorReport);
 			return sendService.SubmitErrorReport(errorReport);
@@ -100,19 +105,21 @@ namespace Vodovoz.Tools
 			UserBase user
 		)
 		{
-			if(errorReportType == ErrorReportType.Automatic && !CanSendAutomatically)
+			if(errorReportType == ErrorReportType.Automatic && !CanSendAutomatically) {
 				return false;
+			}
 
-			ErrorReport errorReport = new ErrorReport();
-			errorReport.DBName = DatabaseName;
-			errorReport.Edition = Edition;
-			errorReport.Product = ProductName;
-			errorReport.Version = Version;
-			errorReport.Email = email;
-			errorReport.Description = description;
-			errorReport.ReportType = errorReportType;
-			errorReport.StackTrace = GetExceptionText(exceptions);
-			errorReport.UserName = user?.Name;
+			var errorReport = new ErrorReport {
+				DBName = DatabaseName,
+				Edition = Edition,
+				Product = ProductName,
+				Version = Version,
+				Email = email,
+				Description = description,
+				ReportType = errorReportType,
+				StackTrace = GetExceptionText(exceptions),
+				UserName = user?.Name
+			};
 
 			errorReport = PrepareLog(errorReport, logRowsCount);
 			return sendService.SubmitErrorReport(errorReport);
@@ -121,19 +128,19 @@ namespace Vodovoz.Tools
 		private ErrorReport PrepareLog(ErrorReport errorReport, int? logRowOverrideCount = null)
 		{
 			if(logService != null) {
-				if(logRowOverrideCount != null)
+				if(logRowOverrideCount != null) {
 					errorReport.LogFile = logService.GetLog(logRowOverrideCount);
+				}
 				else {
-					if(errorReport.ReportType == ErrorReportType.Automatic)
-						errorReport.LogFile = logService.GetLog(autoSendLogRowCount);
-					else
-						errorReport.LogFile = logService.GetLog();
+					errorReport.LogFile = errorReport.ReportType == ErrorReportType.Automatic
+						? logService.GetLog(autoSendLogRowCount)
+						: logService.GetLog();
 				}
 			}
 			return errorReport;
 		}
 
-		public string GetExceptionText(Exception[] exceptions) =>
+		public static string GetExceptionText(Exception[] exceptions) =>
 			string.Join("\n Следующее исключение:\n", exceptions.Select(ex => ex.ToString()));
 	}
 }

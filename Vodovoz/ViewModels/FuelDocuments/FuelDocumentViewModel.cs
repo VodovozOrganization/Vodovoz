@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
-				new OrganizationParametersProvider(ParametersProvider.Instance));
+				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
 
 		private FuelCashOrganisationDistributor fuelCashOrganisationDistributor;
 

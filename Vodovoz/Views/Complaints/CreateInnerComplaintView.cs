@@ -21,6 +21,8 @@ namespace Vodovoz.Views.Complaints
 			spLstComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
 			spLstComplaintKind.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem).InitializeFromSource();
 
+            complaintfilesview.ViewModel = ViewModel.FilesViewModel;
+            complaintfilesview.Sensitive = ViewModel.CanEdit;
 
 			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
 

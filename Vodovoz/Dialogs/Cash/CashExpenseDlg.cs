@@ -43,7 +43,7 @@ namespace Vodovoz
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(ParametersProvider.Instance)),
+					new OrganizationParametersProvider(SingletonParametersProvider.Instance)),
 				new RouteListItemCashDistributionDocumentRepository(),
 				OrderSingletonRepository.GetInstance());
 		
@@ -53,7 +53,7 @@ namespace Vodovoz
 		private FuelCashOrganisationDistributor fuelCashOrganisationDistributor = 
 			new FuelCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(ParametersProvider.Instance)));
+					new OrganizationParametersProvider(SingletonParametersProvider.Instance)));
 
 		public CashExpenseDlg (IPermissionService permissionService)
 		{

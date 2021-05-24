@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Linq;
+using FluentNHibernate.Utils;
 using NLog;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QS.Validation;
 using QSWidgetLib;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -34,6 +37,7 @@ namespace Vodovoz
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			entryFrom.Binding.AddBinding(Entity, e => e.From, w => w.Time).InitializeFromSource();
 			entryTo.Binding.AddBinding(Entity, e => e.To, w => w.Time).InitializeFromSource();
+            ycheckIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
 			var parallel = new ParallelEditing (entryName);
 			parallel.SubscribeOnChanges (entryFrom);
@@ -53,6 +57,42 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
+			var all = DeliveryScheduleRepository.All(UoWGeneric);
+			var notArchivedList = all.Where(ds => ds.IsArchive == false && ds.From == Entity.From && ds.To == Entity.To).ToList();
+			if (notArchivedList.Any() && UoWGeneric.Root.IsArchive == false)
+			{//при архивировании интервала эти проверки не нужны
+				//есть вероятность, что среди активных интервалов есть дубликаты, так что берем первый
+				var active = notArchivedList.First();
+				MessageDialogHelper.RunWarningDialog("Уже существует интервал с таким же периодом.\n" +
+				                                     "Создание нового интервала невозможно.\n" +
+				                                     "Существующий интервал:\n" +
+				                                     $"Код: {active.Id}\n" +
+				                                     $"Название: {active.Name}\n" +
+				                                     $"Период: {active.DeliveryTime}\n");
+				return false; // нашли активный
+			}
+			
+			var archivedList = all.Where(ds => ds.IsArchive && ds.From == Entity.From && ds.To == Entity.To).ToList();
+			if (archivedList.Any() && UoWGeneric.Root.IsArchive == false)
+			{//при архивировании интервала эти проверки не нужны
+				//т.к. интервалы нельзя удалять, архивными могут быть несколько, так что берем первый
+				var archived = archivedList.First();
+				if(MessageDialogHelper.RunQuestionDialog("Уже существует архивный интервал с таким же периодом.\n" +
+				                                         "Создание нового интервала невозможно.\n" +
+				                                         "Разархивировать существующий интервал?"))
+				{//отменяем изменения текущей сущности интервала и обновляем найденный архивный
+					UoWGeneric.Delete(UoWGeneric.Root);
+					archived.IsArchive = false;
+					UoWGeneric.Save(archived);
+					UoWGeneric.Commit();
+					MessageDialogHelper.RunInfoDialog("Разархивирован интервал:\n" +
+					                                  $"Код: {archived.Id}\n" +
+					                                  $"Название: {archived.Name}\n" +
+					                                  $"Период: {archived.DeliveryTime}\n");
+				}
+				return false; // нашли/разархивировали старый
+			}
+			
 			var valid = new QSValidator<DeliverySchedule> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -63,4 +103,3 @@ namespace Vodovoz
 		}
 	}
 }
-

@@ -21,8 +21,9 @@ namespace Vodovoz.Domain.Orders
 	public class OrderItem : PropertyChangedBase, IDomainObject, IOrderItemWageCalculationSource
 	{
 		private int? paidDeliveryNomenclatureId;
-		private int PaidDeliveryNomenclatureId => paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId = int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))).Value;
-
+		private int PaidDeliveryNomenclatureId => 
+			paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId = new NomenclatureParametersProvider().PaidDeliveryNomenclatureId).Value;
+		
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -90,6 +91,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Count {
 			get => count;
 			set {
+				if(Nomenclature?.Unit?.Digits == 0 && value % 1 != 0)
+					value = Math.Truncate(value);
 				if(SetField(ref count, value)) {
 					Order?.RecalculateItemsPrice();
 					RecalculateDiscount();
@@ -386,7 +389,7 @@ namespace Vodovoz.Domain.Orders
 
 		public decimal CurrentCount => ActualCount ?? Count;
 
-		public virtual decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);//FIXME Count -- CurrentCount
+		public virtual decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);
 
 		public virtual decimal ActualSum => Math.Round(Price * CurrentCount - DiscountMoney, 2);
 
@@ -463,7 +466,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculatePrice()
 		{
-			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed)
+			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || order.GetFixedPriceOrNull(Nomenclature) != null)
 				return;
 
 			Price = GetPriceByTotalCount();

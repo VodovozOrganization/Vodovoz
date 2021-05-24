@@ -1,10 +1,10 @@
 ﻿using System;
+using Gamma.Binding.Converters;
 using Gamma.Widgets.Additions;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
-using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Representations;
@@ -42,12 +42,6 @@ namespace Vodovoz.Dialogs.Goods
 				Entity, e => e.OnlineStoreGuid, w => w.Text, new GuidToStringConverter()).InitializeFromSource();
 
 			ycheckExportToOnlineStore.Binding.AddBinding(Entity, e => e.ExportToOnlineStore, w => w.Active).InitializeFromSource();
-			
-			ycheckbuttonOnlineStore.Binding.AddBinding(Entity, e => e.IsOnlineStore, w => w.Active).InitializeFromSource();
-			ycheckbuttonOnlineStore.Toggled += (sender, args) => {
-				Entity.FetchChilds(UoW);
-				Entity.SetIsOnlineStoreRecursively(ycheckbuttonOnlineStore.Active);
-			};
 			
 			ycheckArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			ycheckArchived.Toggled += (sender, args) => {

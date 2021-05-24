@@ -80,7 +80,7 @@ namespace Vodovoz
 
 		private global::Vodovoz.RouteListClosingItemsView routeListAddressesView;
 
-		private global::QSWidgetLib.RightSidePanel rightsidepanel1;
+		private global::Gamma.Widgets.SidePanels.RightSidePanel rightsidepanel1;
 
 		private global::Gtk.VBox vboxHidenPanel;
 
@@ -580,7 +580,7 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.routeListAddressesView]));
 			w40.Position = 0;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.rightsidepanel1 = new global::QSWidgetLib.RightSidePanel();
+			this.rightsidepanel1 = new global::Gamma.Widgets.SidePanels.RightSidePanel();
 			this.rightsidepanel1.Events = ((global::Gdk.EventMask)(256));
 			this.rightsidepanel1.Name = "rightsidepanel1";
 			this.rightsidepanel1.Title = "Возвраты/Недвозы";

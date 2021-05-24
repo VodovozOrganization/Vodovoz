@@ -7,6 +7,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -28,14 +29,13 @@ namespace Vodovoz.EntityRepositories.Orders
 	{
 		private static OrderSingletonRepository instance;
 
+		[Obsolete("Необходимо избавляться от синглтонов")]
 		public static OrderSingletonRepository GetInstance()
 		{
 			if(instance == null)
 				instance = new OrderSingletonRepository();
 			return instance;
 		}
-
-		protected OrderSingletonRepository() { }
 
 		public QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
 		{
@@ -101,7 +101,6 @@ namespace Vodovoz.EntityRepositories.Orders
 			VodovozOrder orderAlias = null;
 			return UoW.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.Client.Id == counterparty.Id)
-				//.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.paid)
 				.List();
 		}
 
@@ -586,7 +585,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			var orderSumRestriction = Restrictions.Gt(orderSumProjection, 0);
 
 			var alwaysSendOrdersRestriction = Restrictions.Disjunction()
-				.Add(() => productGroupAlias.IsOnlineStore)
+				.Add(() => productGroupAlias.OnlineStore != null)
 				.Add(() => counterpartyAlias.AlwaysSendReceitps)
 				.Add(() => orderAlias.SelfDelivery)
 				.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
@@ -618,7 +617,11 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
 				.Where(alwaysSendOrdersRestriction)
 				.And(paidByCardRestriction)
-				.And(orderDeliveredStatuses)
+				.And(Restrictions.Disjunction()
+					.Add(orderDeliveredStatuses)
+					.Add(Restrictions.Conjunction()
+						.Add(() => orderAlias.SelfDelivery)
+						.Add(() => orderAlias.IsSelfDeliveryPaid)))
 				.And(orderSumRestriction)
 				.And(orderPaymentTypesRestriction)
 				.And(Restrictions.Disjunction()
@@ -800,6 +803,51 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SingleOrDefault();
 
 			return receipt != null;
+		}
+
+		public bool CanAddVodovozCatalogToOrder(
+			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int leafletId, int geographicGroupId)
+		{
+			WarehouseMovementOperation operationAddAlias = null;
+			WarehouseMovementOperation operationRemoveAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			VodovozOrder orderAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			District districtAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+
+			var warehouseId = geographicGroupId == routeListParametersProvider.SouthGeographicGroupId
+				? routeListParametersProvider.WarehouseSofiiskayaId 
+				: routeListParametersProvider.WarehouseParnasId;
+
+			var subqueryAdded = uow.Session.QueryOver(() => operationAddAlias)
+				.Where(() => operationAddAlias.Nomenclature.Id == leafletId)
+				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
+				.Where(o => o.IncomingWarehouse.Id == warehouseId)
+				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
+				.SingleOrDefault<decimal>();
+
+			var subqueryRemoved = uow.Session.QueryOver(() => operationRemoveAlias)
+				.Where(() => operationRemoveAlias.Nomenclature.Id == leafletId)
+				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
+				.Where(o => o.WriteoffWarehouse.Id == warehouseId)
+				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
+				.SingleOrDefault<decimal>();
+
+			var subqueryReserved = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderEquipmentAlias.Nomenclature.Id == leafletId)
+				.Where(() => districtAlias.GeographicGroup.Id == geographicGroupId)
+				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
+				             || orderAlias.OrderStatus == OrderStatus.InTravelList
+				             || orderAlias.OrderStatus == OrderStatus.OnLoading)
+				.Select(Projections.Sum(() => orderEquipmentAlias.Count))
+				.SingleOrDefault<int>();
+
+			return subqueryAdded - subqueryRemoved - subqueryReserved > 0;
 		}
 	}
 }

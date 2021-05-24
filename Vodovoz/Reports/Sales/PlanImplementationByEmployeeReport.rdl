@@ -118,7 +118,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>

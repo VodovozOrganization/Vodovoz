@@ -81,6 +81,9 @@ true,
           <TableColumn>
             <Width>39.8pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>39.8pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>45.0pt</Width>
           </TableColumn>
@@ -238,6 +241,23 @@ true,
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>=Fields!amount_unloaded_empty.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -266,6 +286,7 @@ true,
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -273,7 +294,7 @@ true,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
-                      <Value>=Fields!bottles_to_return.Value - Fields!bottles_returned.Value</Value>
+                      <Value>=Fields!amount_unloaded_empty.Value - Fields!bottles_returned.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -470,6 +491,22 @@ true,
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox37" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <Value>=Sum(Fields!amount_unloaded_empty.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -498,6 +535,7 @@ true,
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -505,7 +543,7 @@ true,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>=Sum(Fields!bottles_to_return.Value) - Sum(Fields!bottles_returned.Value)</Value>
+                      <Value>=Sum(Fields!amount_unloaded_empty.Value) - Sum(Fields!bottles_returned.Value)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -693,6 +731,21 @@ true,
                         </Textbox>
                       </ReportItems>
                     </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>=Sum(Fields!amount_unloaded_empty.Value)</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox51" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -719,6 +772,7 @@ true,
                             <BorderColor />
                             <BorderWidth />
                             <TextAlign>Center</TextAlign>
+                            <Format >0</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -726,7 +780,7 @@ true,
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox40">
-                          <Value>=Sum(Fields!bottles_to_return.Value) - Sum(Fields!bottles_returned.Value)</Value>
+                          <Value>=Sum(Fields!amount_unloaded_empty.Value) - Sum(Fields!bottles_returned.Value)</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -842,7 +896,7 @@ true,
                           </Visibility>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>11</ColSpan>
+                      <ColSpan>12</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -875,7 +929,7 @@ true,
                           <Value>={status_for_grouping}</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>13</ColSpan>
+                      <ColSpan>14</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -1009,6 +1063,24 @@ true,
                       <ReportItems>
                         <Textbox Name="Textbox46" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                           <Value>Фактич. кол-во пуст. бут. касса</Value>
+                          <Style>
+                            <TextAlign>Center</TextAlign>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontSize>8pt</FontSize>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox17" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                          <Value>Фактич. кол-во пуст. бут. склад</Value>
                           <Style>
                             <TextAlign>Center</TextAlign>
                             <BorderStyle>

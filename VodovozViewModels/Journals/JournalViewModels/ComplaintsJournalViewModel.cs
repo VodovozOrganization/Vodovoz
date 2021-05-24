@@ -401,7 +401,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						commonServices,
 						nomenclatureSelectorFactory,
 						nomenclatureRepository,
-						userRepository
+						userRepository,
+                        filePickerService
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -433,7 +434,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						employeeService,
 						subdivisionRepository,
 						commonServices,
-						employeeSelectorFactory
+						employeeSelectorFactory,
+                        filePickerService
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -583,7 +585,8 @@ namespace Vodovoz.Journals.JournalViewModels
 		protected override void CreateNodeActions()
 		{
 			base.CreateNodeActions();
-			NodeActionsList.Add(new JournalAction("Открыть печатную форму", x => true, x => true, selectedItems => reportViewOpener.OpenReport(this, FilterViewModel.GetReportInfo())));
+			NodeActionsList.Add(new JournalAction("Открыть печатную форму", x => true, x => true,
+				selectedItems => reportViewOpener.OpenReportInSlaveTab(this, FilterViewModel.GetReportInfo())));
 		}
 	}
 }

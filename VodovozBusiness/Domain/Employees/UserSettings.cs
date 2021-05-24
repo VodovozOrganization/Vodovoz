@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -40,6 +41,30 @@ namespace Vodovoz.Domain.Employees
 		public virtual IconsSize ToolBarIconsSize {
 			get { return toolBarIconsSize; }
 			set { SetField (ref toolBarIconsSize, value, () => ToolBarIconsSize); }
+		}
+
+		private bool reorderTabs;
+		
+		[Display(Name = "Перемещение вкладок")]
+		public virtual bool ReorderTabs {
+			get => reorderTabs;
+			set => SetField(ref reorderTabs, value);
+		}
+
+		private bool highlightTabsWithColor;
+
+		[Display(Name = "Выделение вкладок цветом")]
+		public virtual bool HighlightTabsWithColor {
+			get => highlightTabsWithColor;
+			set => SetField(ref highlightTabsWithColor, value);
+		}
+		
+		private bool keepTabColor;
+
+		[Display(Name = "Сохранять цвет вкладки")]
+		public virtual bool KeepTabColor {
+			get => keepTabColor;
+			set => SetField(ref keepTabColor, value);
 		}
 
 		Warehouse defaultWarehouse;
@@ -141,6 +166,17 @@ namespace Vodovoz.Domain.Employees
             {
                 SetField(ref defaultSubdivision, value, () => DefaultSubdivision);
             }
+        }
+
+        /// <summary>
+        /// Для установки дефолтного контрагента в отчете по оплатам
+        /// </summary>
+        private Counterparty defaultCounterparty;
+        [Display(Name = "Контрагент")]
+        public virtual Counterparty DefaultCounterparty
+        {
+            get => defaultCounterparty;
+            set => SetField(ref defaultCounterparty, value);
         }
 
         /// <summary>

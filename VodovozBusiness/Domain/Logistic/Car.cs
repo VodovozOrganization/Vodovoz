@@ -241,6 +241,22 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref driverCarKind, value);
 		}
 
+		private int? orderNumber;
+		[Display(Name = "Порядковый номер автомобиля")]
+		public virtual int? OrderNumber {
+			get => orderNumber;
+			set {
+				if (value == 0)
+                {
+					SetField(ref orderNumber, null);
+				}
+				else
+                {
+					SetField(ref orderNumber, value);
+				}
+			}
+		}
+
 		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
 		[Display(Name = "Группа района")]
 		public virtual IList<GeographicGroup> GeographicGroups {
@@ -308,7 +324,10 @@ namespace Vodovoz.Domain.Logistic
 						"Отправьте его в архив, а затем повторите закрепление еще раз.", new[] { nameof(Car) });
 				}
 			}
-		}
+
+            if (IsRaskat && TypeOfUse != CarTypeOfUse.DriverCar)
+                yield return new ValidationResult("Раскатным может быть только автомобиль водителя", new[] { nameof(IsRaskat), nameof(TypeOfUse) });
+        }
 
 		#endregion
 	}

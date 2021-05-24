@@ -15,14 +15,13 @@ namespace Vodovoz.EntityRepositories.Employees
 	{
 		private static EmployeeSingletonRepository instance;
 
+		[Obsolete("Необходимо избавляться от синглтонов")]
 		public static EmployeeSingletonRepository GetInstance()
 		{
 			if(instance == null)
 				instance = new EmployeeSingletonRepository();
 			return instance;
 		}
-
-		protected EmployeeSingletonRepository() { }
 
 		public Employee GetEmployeeForCurrentUser(IUnitOfWork uow)
 		{

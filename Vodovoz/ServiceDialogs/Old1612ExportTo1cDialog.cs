@@ -30,7 +30,7 @@ namespace Vodovoz.Old1612ExportTo1c
 
             using(var exportOperation = new ExportOperation(
                 mode,
-                new OrderParametersProvider(ParametersProvider.Instance),
+                new OrderParametersProvider(SingletonParametersProvider.Instance),
                 dateStart,
                 dateEnd,
                 null))

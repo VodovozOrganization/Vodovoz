@@ -91,7 +91,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public int CurrentCount => ActualCount ?? Count;
 
-		public virtual decimal Total => Deposit * CurrentCount;
+		public virtual decimal Total => Math.Round(Deposit * CurrentCount, 2);
 
 		public string Title => string.Format("{0} на сумму {1}", DepositTypeString, CurrencyWorks.GetShortCurrencyString(Total));
 

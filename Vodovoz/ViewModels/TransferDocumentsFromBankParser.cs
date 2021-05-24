@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModels
 					//Читаем документы
 					while(!line.StartsWith(tags[3]))
 					{
-						if(line.StartsWith(tags[2])) 
+						if (line.StartsWith(tags[2]))
 							TransferDocuments.Add(doc);
 						
 						if(line.StartsWith(tags[1])) 

@@ -1297,9 +1297,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox90">
-                      <Value>
-                        <!--table_cell_total_without_stock-->
-                      </Value>
+                      <Value><!--table_cell_total_without_stock--></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1368,7 +1366,7 @@
           </TableRows>
         </Footer>
         <Left>3.2pt</Left>
-        <Top>98.4pt</Top>
+        <Top>104.8pt</Top>
       </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
@@ -1505,7 +1503,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>="Тоннаж МЛ: " + Sum({Weight}, "Orders") + "кг" + "\n" +
+                      <Value>="Тоннаж МЛ: " + Round(Sum({Weight}, "Orders"), 3) + "кг" + "\n" +
 "Грузоподъёмность: " + {max_weight} + "кг"</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1533,7 +1531,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>При возникновении проблем звонить в офис по телефону</Value>
+                      <Value>При возникновении проблем звонить дежурному логисту</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1545,6 +1543,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign >Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1553,7 +1552,55 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
-                      <Value>8(931)009-46-79</Value>
+                      <Value>8 (967) 530 - 43 - 36</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <TextDecoration>Underline</TextDecoration>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>или в офис   </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign >Right</TextAlign>
+                        <PaddingRight >5pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>8 (931) 009 - 46 - 79</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1625,8 +1672,8 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.5pt</Left>
-        <Top>9.6pt</Top>
+        <Left>1.7pt</Left>
+        <Top>10.4pt</Top>
       </Table>
       <Table Name="Table3">
         <DataSetName>RouteList</DataSetName>
@@ -2260,17 +2307,16 @@ WHERE order_deposit_items.deposit_type = 'Bottles'
             SELECT
                 order_items.order_id AS order_id,
                 IF(
-                        IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
+                        nomenclature.online_store_id IS NOT NULL,
                         -1, nomenclature_id) AS nomenclature_id,
                 IF(
-                        IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
+                        nomenclature.online_store_id IS NOT NULL,
                         CONCAT('Заказ ИМ ', o.e_shop_order), IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
                 IF(
-                        IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
+                        nomenclature.online_store_id IS NOT NULL,
                         1, cast(SUM(order_items.count) as DECIMAL)) AS cnt
             FROM order_items
                      LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-                     LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id
                      LEFT JOIN orders o ON o.id = order_items.order_id
                      JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
             WHERE nomenclature.category IN ('equipment', 'additional', 'spare_parts') AND nomenclature.hide = 0

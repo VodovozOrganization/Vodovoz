@@ -80,7 +80,7 @@ namespace Vodovoz.Old1612ExportTo1c
 			this.OrganizationCatalog = new OrganizationCatalog(this);
 			this.WarehouseCatalog = new WarehouseCatalog(this);
 			this.ExchangeRules = new RulesNode();
-			var orgProvider = new OrganizationParametersProvider(ParametersProvider.Instance);
+			var orgProvider = new OrganizationParametersProvider(SingletonParametersProvider.Instance);
 			this.cashlessOrganization = UoW.GetById<Organization>(orgProvider.GetCashlessOrganisationId);
 
 		}

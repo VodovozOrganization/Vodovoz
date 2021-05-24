@@ -27,7 +27,7 @@ namespace Vodovoz.ServiceDialogs
 
         GenericObservableList<PaymentByCardOnline> paymentsByCard;
 		List<string> errorList = new List<string>();
-		Dictionary<int, decimal> otherPaymentsFromDB;
+		IList<PaymentByCardOnlineNode> otherPaymentsFromDB;
 
 		string colorWhite = "white";
 		string colorLightRed = "light coral";
@@ -122,10 +122,14 @@ namespace Vodovoz.ServiceDialogs
 		{
 			if(otherPaymentsFromDB == null || !otherPaymentsFromDB.Any())
 				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-					otherPaymentsFromDB = PaymentsRepository.GetPaymentsByOneMonth(uow, DateTime.Now);
+					otherPaymentsFromDB = PaymentsRepository.GetPaymentsByTwoMonths(uow, payment.DateAndTime);
 				}
 
-			return otherPaymentsFromDB.Any() && otherPaymentsFromDB.ContainsKey(payment.PaymentNr);
+			return otherPaymentsFromDB.Any(
+				x =>
+					x.Number == payment.PaymentNr &&
+				    x.Sum == payment.PaymentRUR &&
+				    x.Date == payment.DateAndTime);
 		}
 
 		void SetControlsAccessibility(bool enabled = false)
