@@ -740,6 +740,12 @@ namespace Vodovoz
 					}
 					ordersCounter++;
 				}
+
+				if (item.CashierComment.Length > 255)
+				{
+					MessageDialogHelper.RunErrorDialog("Комментарий кассира должен быть меньше");
+					return false;
+				}
 			}
 
 			if(!isOrdersValid) {
