@@ -210,6 +210,7 @@ namespace Vodovoz.ViewModels.Logistic
 				);
 
 				newSet.LastEditor = employeeForCurrentUser;
+				newSet.Author = employeeForCurrentUser;
 				newSet.IsCreatedAutomatically = true;
 				NotCopiedPriorities.AddRange(notCopied);
 
