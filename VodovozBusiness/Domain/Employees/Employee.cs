@@ -570,7 +570,7 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual void AddDriverDistrictPrioritySet(DriverDistrictPrioritySet districtPrioritySet)
 		{
-			ObservableDriverDistrictPrioritySets.Add(districtPrioritySet);
+			ObservableDriverDistrictPrioritySets.Insert(0, districtPrioritySet);
 		}
 
 		public virtual void ActivateDriverDistrictPrioritySet(DriverDistrictPrioritySet driverDistrictPrioritySet, Employee editor)
