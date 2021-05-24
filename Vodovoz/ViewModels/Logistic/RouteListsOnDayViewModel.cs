@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using QS.Commands;
@@ -566,6 +567,22 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public virtual GenericObservableList<Subdivision> ObservableSubdivisions { get; set; }
 
+		private IList<DeliverySummary> deliverySummary = new List<DeliverySummary>();
+		public virtual IList<DeliverySummary> DeliverySummary {
+			get => deliverySummary;
+			set => SetField(ref deliverySummary, value);
+		}
+		
+		private GenericObservableList<DeliverySummary> observableDeliverySummary;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<DeliverySummary> ObservableDeliverySummary {
+			get {
+				if(observableDeliverySummary == null)
+					observableDeliverySummary = new GenericObservableList<DeliverySummary>(DeliverySummary);
+				return observableDeliverySummary;
+			}
+		}
+
 		#endregion
 
 		public IEnumerable<AddressTypeNode> AddressTypes { get; } = new[] {
@@ -919,7 +936,7 @@ namespace Vodovoz.ViewModels.Logistic
 				$"6л - {total6LBottles:N0}",
 				$"0,6л - {total600mlBottles:N0}"
 			};
-
+			
 			return string.Join("\n", text);
 		}
 
@@ -1213,7 +1230,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.Future();
 
 			GetWorkDriversInfo();
-
+			DeliverySum();
 			RoutesOnDay = routesQuery.ToList();
 			RoutesOnDay.ToList().ForEach(rl => rl.UoW = UoW);
 			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
@@ -1326,6 +1343,25 @@ namespace Vodovoz.ViewModels.Logistic
 			return driverWorkSchedule == null 
 				? defaultDeliveryDaySchedule
 				: driverWorkSchedule.DaySchedule;
+		}
+		
+		private void DeliverySum()
+		{
+			ObservableDeliverySummary.Clear();
+			var totalOrders = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+				.GetExecutableQueryOver(UoW.Session)
+				.Where(o => !o.IsContractCloser)
+				.And(o => !o.IsService)
+				.And(o=>o.OrderStatus != OrderStatus.WaitForPayment)
+				.And(o => o.OrderStatus != OrderStatus.NewOrder)
+				.And(o => o.OrderStatus != OrderStatus.Canceled)
+				.OrderBy(x=>x.OrderStatus).Asc.List();
+
+			foreach (var orderGroup in totalOrders.GroupBy(o => o.OrderStatus))
+			{
+				var deliverySum = new DeliverySummary(orderGroup.Key, orderGroup.Select(x=>x).ToList());
+				ObservableDeliverySummary.Add(deliverySum);
+			}
 		}
 	}
 }

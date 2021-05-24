@@ -93,6 +93,7 @@
     <Compile Include="Domain\EntityFactories\NomenclatureFixedPriceFactory.cs" />
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
+    <Compile Include="Domain\Logistic\DeliverySummary.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\DriverCarKind.cs" />
     <Compile Include="Domain\Operations\OrganisationCashMovementOperation.cs" />
