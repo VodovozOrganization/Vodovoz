@@ -1,4 +1,4 @@
-using SmsPaymentService.DTO;
+﻿using SmsPaymentService.DTO;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 
@@ -27,7 +27,7 @@ namespace SmsPaymentService
         /// <param name="orderId">Номер заказа</param>
         /// <param name="phoneNumber">Номер телефона клиента</param>
         [OperationContract, WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        PaymentResult PayBySms(SendPaymentRequest sendPaymentRequest);
+        PaymentResult SendPaymentPost(SendPaymentRequest sendPaymentRequest);
 
         /// <summary>
         /// Записывает в базу и возвращает актуальный статус платежа

@@ -208,7 +208,7 @@ namespace DriverAPI.Library.DataAccess
 
 			if (rating < maxClosingRating)
 			{
-				var complaintReason = complaintsRepository.GetDriverComplaintReason(unitOfWork, driverComplaintReasonId);
+				var complaintReason = complaintsRepository.GetDriverComplaintReasonById(unitOfWork, driverComplaintReasonId);
 				var complaintSource = complaintsRepository.GetComplaintSourceById(unitOfWork, webApiParametersProvider.ComplaintSourceId);
 				var reason = complaintReason?.Name ?? otherDriverComplaintReasonComment;
 

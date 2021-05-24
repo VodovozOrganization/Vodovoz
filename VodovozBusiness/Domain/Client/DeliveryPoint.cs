@@ -491,12 +491,8 @@ namespace Vodovoz.Domain.Client
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<DeliveryPointEstimatedCoordinate> ObservableDeliveryPointEstimatedCoordinates
 		{
-			get
-			{
-				if (observableDeliveryPointEstimatedCoordinates == null)
-					observableDeliveryPointEstimatedCoordinates = new GenericObservableList<DeliveryPointEstimatedCoordinate>(DeliveryPointEstimatedCoordinates);
-				return observableDeliveryPointEstimatedCoordinates;
-			}
+			get => observableDeliveryPointEstimatedCoordinates
+					?? new GenericObservableList<DeliveryPointEstimatedCoordinate>(DeliveryPointEstimatedCoordinates);
 		}
 
 		#region Временные поля для хранения фиксированных цен из 1с

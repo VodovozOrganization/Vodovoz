@@ -12,7 +12,7 @@ namespace Vodovoz.EntityRepositories.Complaints
 		IList<object[]> GetComplaintsResults(IUnitOfWork uow, DateTime? start = null, DateTime? end = null);
         IEnumerable<DriverComplaintReason> GetDriverComplaintReasons(IUnitOfWork unitOfWork);
         IEnumerable<DriverComplaintReason> GetDriverComplaintPopularReasons(IUnitOfWork unitOfWork);
-		DriverComplaintReason GetDriverComplaintReason(IUnitOfWork unitOfWork, int driverComplaintReasonId);
+		DriverComplaintReason GetDriverComplaintReasonById(IUnitOfWork unitOfWork, int driverComplaintReasonId);
         ComplaintSource GetComplaintSourceById(IUnitOfWork unitOfWork, int complaintSourceId);
     }
 }

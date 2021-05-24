@@ -122,7 +122,7 @@ namespace Vodovoz.EntityRepositories.Complaints
 			return query.List();
 		}
 
-        public DriverComplaintReason GetDriverComplaintReason(IUnitOfWork unitOfWork, int driverComplaintReasonId)
+        public DriverComplaintReason GetDriverComplaintReasonById(IUnitOfWork unitOfWork, int driverComplaintReasonId)
         {
 			return unitOfWork.GetById<DriverComplaintReason>(driverComplaintReasonId);
 		}

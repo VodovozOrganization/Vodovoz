@@ -8,191 +8,196 @@ using Vodovoz.Domain;
 
 namespace Vodovoz.Parameters
 {
-    public class ParametersProvider : IParametersProvider
-    {
-        private readonly Logger logger = LogManager.GetCurrentClassLogger();
+	public class ParametersProvider : IParametersProvider
+	{
+		private readonly Logger logger = LogManager.GetCurrentClassLogger();
+		public static IParametersProvider Instance { get; private set; }
 
-        Dictionary<string, string> parameters = new Dictionary<string, string>();
+		private readonly Dictionary<string, BaseParameter> parameters = new Dictionary<string, BaseParameter>();
 
-        public bool ContainsParameter(string parameterName)
-        {
-            RefreshParameter(parameterName);
-            return parameters.ContainsKey(parameterName);
-        }
+		public bool ContainsParameter(string parameterName)
+		{
+			if (parameters.ContainsKey(parameterName))
+			{
+				return true;
+			}
+			RefreshParameter(parameterName);
+			return parameters.ContainsKey(parameterName);
+		}
 
-        public string GetParameterValue(string parameterName)
-        {
-            if (string.IsNullOrWhiteSpace(parameterName))
-            {
-                throw new ArgumentNullException(nameof(parameterName));
-            }
+		public string GetParameterValue(string parameterName)
+		{
+			if (string.IsNullOrWhiteSpace(parameterName))
+			{
+				throw new ArgumentNullException(nameof(parameterName));
+			}
 
-            using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
-            {
-                string freshParameterValue = uow.Session.QueryOver<BaseParameter>()
-                    .Where(x => x.Name == parameterName)
-                    .Select(x => x.StrValue)
-                    .SingleOrDefault<string>();
-                if (parameters.ContainsKey(parameterName))
-                {
-                    parameters[parameterName] = freshParameterValue;
-                    return freshParameterValue;
-                }
-                if (!parameters.ContainsKey(parameterName) && !string.IsNullOrWhiteSpace(freshParameterValue))
-                {
-                    parameters.Add(parameterName, freshParameterValue);
-                    return freshParameterValue;
-                }
-                throw new InvalidProgramException($"В параметрах базы не найден параметр ({parameterName})");
-            }
-        }
+			if (!ContainsParameter(parameterName))
+			{
+				throw new InvalidProgramException($"В параметрах базы не найден параметр ({parameterName})");
+			}
 
-        private void RefreshParameter(string parameterName)
-        {
-            using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
-            {
-                BaseParameter parameter = uow.Session.QueryOver<BaseParameter>()
-                    .Where(x => x.Name == parameterName)
-                    .SingleOrDefault<BaseParameter>();
-                if (parameter == null)
-                {
-                    return;
-                }
+			var parameter = parameters[parameterName];
+			if (parameter.IsExpired)
+			{
+				RefreshParameter(parameterName);
+				parameter = parameters[parameterName];
+			}
+			if (String.IsNullOrWhiteSpace(parameter.StrValue))
+			{
+				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterName})");
+			}
+			return parameter.StrValue;
+		}
 
-                if (parameters.ContainsKey(parameterName))
-                {
-                    parameters[parameterName] = parameter.StrValue;
-                    return;
-                }
-                if (!parameters.ContainsKey(parameterName))
-                {
-                    parameters.Add(parameter.Name, parameter.StrValue);
-                    return;
-                }
-            }
-        }
+		private void RefreshParameter(string parameterName)
+		{
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				BaseParameter parameter = uow.Session.QueryOver<BaseParameter>()
+					.Where(x => x.Name == parameterName)
+					.SingleOrDefault<BaseParameter>();
+				if (parameter == null)
+				{
+					return;
+				}
 
-        public void RefreshParameters()
-        {
-            using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
-            {
-                var allParameters = uow.Session.QueryOver<BaseParameter>().List();
-                parameters.Clear();
-                foreach (var parameter in allParameters)
-                {
-                    if (parameters.ContainsKey(parameter.Name))
-                    {
-                        continue;
-                    }
-                    parameters.Add(parameter.Name, parameter.StrValue);
-                }
-            }
-        }
+				parameter.CachedTime = DateTime.Now;
+				if (parameters.ContainsKey(parameterName))
+				{
+					parameters[parameterName] = parameter;
+					return;
+				}
+				if (!parameters.ContainsKey(parameterName))
+				{
+					parameters.Add(parameter.Name, parameter);
+					return;
+				}
+			}
+		}
 
-        public int GetIntValue(string parameterId)
-        {
-            if (!ContainsParameter(parameterId))
-            {
-                throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
-            }
+		public void RefreshParameters()
+		{
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var allParameters = uow.Session.QueryOver<BaseParameter>().List();
+				parameters.Clear();
+				foreach (var parameter in allParameters)
+				{
+					if (parameters.ContainsKey(parameter.Name))
+					{
+						continue;
+					}
+					parameter.CachedTime = DateTime.Now;
+					parameters.Add(parameter.Name, parameter);
+				}
+			}
+		}
 
-            string value = GetParameterValue(parameterId);
+		public int GetIntValue(string parameterId)
+		{
+			if (!ContainsParameter(parameterId))
+			{
+				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
+			}
 
-            if (string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
-            {
-                throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
-            }
+			string value = GetParameterValue(parameterId);
 
-            return result;
-        }
+			if (string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
+			{
+				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
+			}
 
-        public char GetCharValue(string parameterId)
-        {
-            if (!ContainsParameter(parameterId))
-            {
-                throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
-            }
+			return result;
+		}
 
-            string value = GetParameterValue(parameterId);
+		public char GetCharValue(string parameterId)
+		{
+			if (!ContainsParameter(parameterId))
+			{
+				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
+			}
 
-            if (string.IsNullOrWhiteSpace(value) || !char.TryParse(value, out char result))
-            {
-                throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
-            }
+			string value = GetParameterValue(parameterId);
 
-            return result;
-        }
+			if (string.IsNullOrWhiteSpace(value) || !char.TryParse(value, out char result))
+			{
+				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
+			}
 
-        public decimal GetDecimalValue(string parameterId)
-        {
-            if (!ContainsParameter(parameterId))
-            {
-                throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
-            }
+			return result;
+		}
 
-            string value = GetParameterValue(parameterId);
+		public decimal GetDecimalValue(string parameterId)
+		{
+			if (!ContainsParameter(parameterId))
+			{
+				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
+			}
 
-            if (string.IsNullOrWhiteSpace(value) || !decimal.TryParse(value, out decimal result))
-            {
-                throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
-            }
+			string value = GetParameterValue(parameterId);
 
-            return result;
-        }
+			if (string.IsNullOrWhiteSpace(value) || !decimal.TryParse(value, out decimal result))
+			{
+				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
+			}
 
-        public string GetStringValue(string parameterId)
-        {
-            if (!ContainsParameter(parameterId))
-            {
-                throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
-            }
+			return result;
+		}
 
-            string value = GetParameterValue(parameterId);
+		public string GetStringValue(string parameterId)
+		{
+			if (!ContainsParameter(parameterId))
+			{
+				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
+			}
 
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
-            }
+			string value = GetParameterValue(parameterId);
 
-            return value;
-        }
+			if (string.IsNullOrWhiteSpace(value))
+			{
+				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
+			}
 
-        public void CreateOrUpdateParameter(string name, string value)
-        {
-            bool isInsert = false;
-            if (parameters.TryGetValue(name, out string oldValue))
-            {
-                if (oldValue == value)
-                {
-                    return;
-                }
-            }
-            else
-            {
-                isInsert = true;
-            }
-            using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
-            {
-                var bpPersister = (AbstractEntityPersister)uow.Session.SessionFactory.GetClassMetadata(typeof(BaseParameter));
-                var tableName = bpPersister.TableName;
-                var nameColumnName = bpPersister.GetPropertyColumnNames(nameof(BaseParameter.Name)).First();
-                var strValueColumnName = bpPersister.GetPropertyColumnNames(nameof(BaseParameter.StrValue)).First();
+			return value;
+		}
 
-                string sql;
-                if (isInsert)
-                {
-                    sql = $"INSERT INTO {tableName} ({nameColumnName}, {strValueColumnName}) VALUES ('{name}', '{value}')";
-                    logger.Debug($"Добавляем новый параметр базы {name}='{value}'");
-                }
-                else
-                {
-                    sql = $"UPDATE {tableName} SET {strValueColumnName} = '{value}' WHERE {nameColumnName} = '{name}'";
-                    logger.Debug($"Изменяем параметр базы {name}='{value}'");
-                }
-                uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
-            }
+		public void CreateOrUpdateParameter(string name, string value)
+		{
+			bool isInsert = false;
+			if (parameters.TryGetValue(name, out var oldParameter))
+			{
+				if (oldParameter.StrValue == value)
+				{
+					return;
+				}
+			}
+			else
+			{
+				isInsert = true;
+			}
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var bpPersister = (AbstractEntityPersister)uow.Session.SessionFactory.GetClassMetadata(typeof(BaseParameter));
+				var tableName = bpPersister.TableName;
+				var nameColumnName = bpPersister.GetPropertyColumnNames(nameof(BaseParameter.Name)).First();
+				var strValueColumnName = bpPersister.GetPropertyColumnNames(nameof(BaseParameter.StrValue)).First();
 
-            logger.Debug("Ок");
-        }
-    }
+				string sql;
+				if (isInsert)
+				{
+					sql = $"INSERT INTO {tableName} ({nameColumnName}, {strValueColumnName}) VALUES ('{name}', '{value}')";
+					logger.Debug($"Добавляем новый параметр базы {name}='{value}'");
+				}
+				else
+				{
+					sql = $"UPDATE {tableName} SET {strValueColumnName} = '{value}' WHERE {nameColumnName} = '{name}'";
+					logger.Debug($"Изменяем параметр базы {name}='{value}'");
+				}
+				uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
+			}
+
+			logger.Debug("Ок");
+		}
+	}
 }
