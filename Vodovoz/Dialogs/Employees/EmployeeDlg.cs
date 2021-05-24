@@ -671,19 +671,15 @@ namespace Vodovoz
 						return false;
 				}
 			}
+			
 			if(Entity.InnerPhone != null) {
 				var associatedEmployees = UoW.Session.Query<Employee>().Where(e => e.InnerPhone == Entity.InnerPhone);
 				if(associatedEmployees.Any(e => e.Id != Entity.Id && e.InnerPhone == Entity.InnerPhone)) {
-					string mes = String.Format("Внутренний номер {0} уже связан с сотрудником {1}, при привязке этого телефона к данному сотруднику , старая связь будет удалена. Продолжить?",
+					string mes = String.Format("Внутренний номер {0} уже связан с сотрудником {1}. Продолжить?",
 						Entity.InnerPhone,
 						String.Join(", ", associatedEmployees.Select(e => e.Name))
-						);
-					if(MessageDialogHelper.RunQuestionDialog(mes)) {
-						foreach(var ae in associatedEmployees.Where(e => e.InnerPhone == Entity.InnerPhone)) {
-							ae.InnerPhone = null;
-							UoW.Save(ae);
-						}
-					} else {
+					);
+					if(!MessageDialogHelper.RunQuestionDialog(mes)) {
 						return false;
 					}
 				}
