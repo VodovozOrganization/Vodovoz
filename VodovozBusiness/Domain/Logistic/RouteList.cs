@@ -802,9 +802,6 @@ namespace Vodovoz.Domain.Logistic
 						if (orderEquipment.Direction == Direction.Deliver)
 						{// не обрабатываем pickup, т.к. водитель физически не был на адресе, чтобы забрать оборудование
 							discrepancy.ClientRejected = orderEquipment.Count;
-						}
-						if (discrepancy.ClientRejected != 0)
-						{// оборудование от клиента в перенесенных заказах не будет отображаться в таблице расхождений
 							AddDiscrepancy(result, discrepancy);
 						}
 					}
