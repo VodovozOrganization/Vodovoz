@@ -568,26 +568,33 @@ namespace Vodovoz.Domain.Employees
 			return stringPhoneNumber;
 		}
 
-		public virtual void AddActiveDriverDistrictPrioritySet(DriverDistrictPrioritySet activeDistrictPrioritySet)
+		public virtual void AddDriverDistrictPrioritySet(DriverDistrictPrioritySet districtPrioritySet)
+		{
+			ObservableDriverDistrictPrioritySets.Insert(0, districtPrioritySet);
+		}
+
+		public virtual void ActivateDriverDistrictPrioritySet(DriverDistrictPrioritySet driverDistrictPrioritySet, Employee editor)
 		{
 			var currentActiveSet = ObservableDriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
-			if(currentActiveSet != null) {
+
+			var now = DateTime.Now;
+
+			if (currentActiveSet != null)
+			{
 				currentActiveSet.IsActive = false;
-				
-				currentActiveSet.DateDeactivated = currentActiveSet.DateActivated.Date > DateTime.Today
-					? currentActiveSet.DateActivated.Date.AddDays(1).AddMilliseconds(-1)
+				currentActiveSet.DateLastChanged = now;
+				currentActiveSet.LastEditor = editor;
+
+				currentActiveSet.DateDeactivated = currentActiveSet.DateActivated.Value.Date > DateTime.Today
+					? currentActiveSet.DateActivated.Value.Date.AddDays(1).AddMilliseconds(-1)
 					: DateTime.Today.AddDays(1).AddMilliseconds(-1);
 			}
 
-			activeDistrictPrioritySet.IsActive = true;
-			activeDistrictPrioritySet.DateActivated = currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
-			
-			if(ObservableDriverDistrictPrioritySets.Any()) {
-				ObservableDriverDistrictPrioritySets.Insert(0, activeDistrictPrioritySet);
-			}
-			else {
-				ObservableDriverDistrictPrioritySets.Add(activeDistrictPrioritySet);
-			}
+			driverDistrictPrioritySet.IsActive = true;
+			driverDistrictPrioritySet.DateLastChanged = now;
+			driverDistrictPrioritySet.LastEditor = editor;
+			driverDistrictPrioritySet.DateActivated 
+				= currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
 		}
 		
 		public virtual void AddActiveDriverWorkScheduleSet(DriverWorkScheduleSet activeDriverWorkScheduleSet)

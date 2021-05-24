@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -75,14 +75,14 @@ namespace Vodovoz.ViewModels.Logistic
         private readonly IEmployeeRepository employeeRepository;
         private readonly IPermissionResult permissionResult;
 
-        public EventHandler EntityAccepted;
+		public EventHandler<DriverDistrictPrioritySetAcceptedEventArgs> EntityAccepted;
 
-        public bool IsInfoVisible => Entity.Id != 0;
+		public bool IsInfoVisible => Entity.Id != 0;
         public bool CanEdit => (Entity.Id == 0 && permissionResult.CanCreate) || (Entity.Id != 0 && permissionResult.CanUpdate);
 
         public string Id => Entity.Id.ToString();
         public string Author => Entity.Author == null ? " - " : Entity.Author.ShortName;
-        public string DateActivated => Entity.DateActivated.ToString("g");
+        public string DateActivated => Entity.DateActivated?.ToString("g") ?? "";
         public string DateDeactivated => Entity.DateDeactivated == null ? " - " : Entity.DateDeactivated.Value.ToString("g");
 
         private DriverDistrictPrioritySet entity;
@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels.Logistic
             
                 SynchronizeDriverDistrictPriorities();
                 Close(false, CloseSource.Self);
-                EntityAccepted?.Invoke(this, EventArgs.Empty);
+                EntityAccepted?.Invoke(this, new DriverDistrictPrioritySetAcceptedEventArgs(Entity));
             },
             () => CanEdit
         ));
@@ -238,5 +238,15 @@ namespace Vodovoz.ViewModels.Logistic
 
         #endregion
     }
+
+	public class DriverDistrictPrioritySetAcceptedEventArgs : EventArgs
+	{
+		public DriverDistrictPrioritySetAcceptedEventArgs(DriverDistrictPrioritySet driverDistrictPrioritySet)
+		{
+			AcceptedEntity = driverDistrictPrioritySet;
+		}
+
+		public DriverDistrictPrioritySet AcceptedEntity { get; private set; }
+	}
 }
 
