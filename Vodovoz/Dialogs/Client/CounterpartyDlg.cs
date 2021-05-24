@@ -238,7 +238,7 @@ namespace Vodovoz
             menu.Add(menuItemFixedPrices);
             
             var menuComplaint = new Gtk.MenuItem("Журнал рекламаций");
-            menuComplaint.Activated += Complaint_View_Activated;
+            menuComplaint.Activated += ComplaintView_Activated;
             menu.Add(menuComplaint);
             
             menuActions.Menu = menu;
@@ -636,7 +636,7 @@ namespace Vodovoz
             TabParent.AddTab(OrdersDialog, this, false);
         }
         
-        void Complaint_View_Activated(object sender, EventArgs e)
+        private void ComplaintView_Activated(object sender, EventArgs e)
         {
 	        IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
 
@@ -659,7 +659,7 @@ namespace Vodovoz
 	        IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 	        IFilePickerService filePickerService = new GtkFilePicker();
 	        
-	        var item = new ComplaintsJournalViewModel(
+	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
 		        undeliveriesViewOpener,
@@ -682,7 +682,7 @@ namespace Vodovoz
 		        UserSingletonRepository.GetInstance()
 	        );
 	        
-	        TabParent.AddTab(item, this, false);
+	        TabParent.AddTab(complaintsJournalViewModel, this, false);
         }
 
         private bool canClose = true;
