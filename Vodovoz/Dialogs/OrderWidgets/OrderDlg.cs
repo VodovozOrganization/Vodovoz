@@ -1,4 +1,4 @@
-using EmailService;
+﻿using EmailService;
 using fyiReporting.RDL;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -216,10 +216,18 @@ namespace Vodovoz
 			base.Destroy();
 		}
 
-		public OrderDlg()
+		public OrderDlg(IUnitOfWork uow = null)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
+			if (uow != null)
+			{
+				UoWGeneric = UnitOfWorkFactory.CreateWithNewChildRoot<Order>(uow);
+				Entity.UoW = UoWGeneric;
+			}
+			else
+			{
+				UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
+			}
 			Entity.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать заказы, так как некого указывать в качестве автора документа.");

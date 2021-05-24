@@ -374,7 +374,7 @@ namespace Vodovoz.ViewWidgets
 		/// <param name="order">Заказ, из которого копируются свойства.</param>
 		void CreateNewOrder(Order order)
 		{
-			var dlg = new OrderDlg();
+			var dlg = new OrderDlg(UoW);
 			dlg.CopyOrderFrom(order.Id);
 			MyTab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Order>(dlg.Entity.Id),
