@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -127,7 +127,7 @@ namespace SmsPaymentService
             return new PaymentResult(SmsPaymentStatus.WaitingForPayment);
         }
 
-        public PaymentResult PayBySms(SendPaymentRequest sendPaymentRequest)
+        public PaymentResult SendPaymentPost(SendPaymentRequest sendPaymentRequest)
         {
             return SendPayment(sendPaymentRequest.OrderId, sendPaymentRequest.PhoneNumber);
         }
