@@ -201,7 +201,7 @@ namespace DriverAPI.Library.DataAccess
 			{
 				var error = $"Попытка завершения заказа, который был передан: {orderId}";
 				logger.LogWarning(error);
-				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+				throw new InvalidOperationException(error);
 			}
 
 			routeListAddress.UpdateStatus(unitOfWork, RouteListItemStatus.Completed);
