@@ -2,11 +2,11 @@
 
 namespace Vodovoz.Services
 {
-    public class WebApiParametersProvider : IWebApiParametersProvider
+    public class DriverApiParametersProvider : IDriverApiParametersProvider
     {
         private readonly IParametersProvider parametersProvider;
 
-        public WebApiParametersProvider(IParametersProvider parametersProvider)
+        public DriverApiParametersProvider(IParametersProvider parametersProvider)
         {
             this.parametersProvider = parametersProvider ?? throw new System.ArgumentNullException(nameof(parametersProvider));
         }

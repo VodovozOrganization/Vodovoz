@@ -11,9 +11,9 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class ValuesController : ControllerBase
 	{
-		private readonly IWebApiParametersProvider webApiParametersProvider;
+		private readonly IDriverApiParametersProvider webApiParametersProvider;
 
-		public ValuesController(IWebApiParametersProvider webApiParametersProvider)
+		public ValuesController(IDriverApiParametersProvider webApiParametersProvider)
 		{
 			this.webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
 		}

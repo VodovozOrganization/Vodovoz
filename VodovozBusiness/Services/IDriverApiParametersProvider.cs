@@ -1,6 +1,6 @@
 ﻿namespace Vodovoz.Services
 {
-    public interface IWebApiParametersProvider
+    public interface IDriverApiParametersProvider
     {
         string CompanyPhoneNumber { get; }
         int ComplaintSourceId { get; }

@@ -30,7 +30,7 @@ namespace DriverAPI.Library.DataAccess
 
 			if (track == null)
 			{
-				var routeList = routeListRepository.GetRouteList(unitOfWork, routeListId)
+				var routeList = routeListRepository.GetRouteListById(unitOfWork, routeListId)
 					?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
 
 				track = new Track()
