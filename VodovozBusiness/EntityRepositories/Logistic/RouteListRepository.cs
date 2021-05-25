@@ -718,14 +718,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			   .List();
 		}
 
-		public RouteList GetRouteListByOrderId(IUnitOfWork uow, int orderId)
-		{
-			var order = uow.GetById<Domain.Orders.Order>(orderId);
-
-			return GetRouteListByOrder(uow, order);
-		}
-
-		public RouteList GetRouteListByOrder(IUnitOfWork uow, Domain.Orders.Order order)
+		public RouteList GetRouteListByOrder(IUnitOfWork uow, VodovozOrder order)
 		{
 			RouteList routeListAlias = null;
 			RouteListItem routeListItemAlias = null;
@@ -744,7 +737,26 @@ namespace Vodovoz.EntityRepositories.Logistic
 				return actualRouteList.Version != routeList.Version;
 			}
 		}
-	}
+
+		public IList<RouteList> GetRouteListsByIds(IUnitOfWork uow, int[] routeListsIds)
+		{
+			RouteList routeListAlias = null;
+			var query = uow.Session.QueryOver(() => routeListAlias)
+				.Where(
+					Restrictions.In(
+						Projections.Property(() => routeListAlias.Id),
+						routeListsIds
+						)
+					);
+
+			return query.List();
+		}
+
+        public RouteList GetRouteListById(IUnitOfWork uow, int routeListsId)
+        {
+			return uow.GetById<RouteList>(routeListsId);
+		}
+    }
 
 	#region DTO
 

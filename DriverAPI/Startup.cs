@@ -197,7 +197,7 @@ namespace DriverAPI
 			// Провайдеры параметров
 			services.AddScoped<IParametersProvider, ParametersProvider>();
 			services.AddScoped<IOrderParametersProvider, OrderParametersProvider>();
-			services.AddScoped<IWebApiParametersProvider, WebApiParametersProvider>();
+			services.AddScoped<IDriverApiParametersProvider, DriverApiParametersProvider>();
 
 			// Конвертеры
 			foreach (var type in typeof(Library.Bootstrapper).Assembly.GetTypes()

@@ -139,5 +139,33 @@ namespace Vodovoz.EntityRepositories.Employees
 		{
 			return QueryOver.Of<Employee>().Where(e => e.Status != EmployeeStatus.IsFired).OrderBy(e => e.LastName).Asc.ThenBy(e => e.Name).Asc.ThenBy(e => e.Patronymic).Asc;
 		}
+
+		public string GetEmployeePushTokenByOrderId(IUnitOfWork uow, int orderId)
+		{
+			Vodovoz.Domain.Orders.Order vodovozOrder = null;
+			RouteListItem routeListAddress = null;
+			RouteList routeList = null;
+			Employee employee = null;
+
+			return uow.Session.QueryOver<Employee>()
+				.Inner.JoinAlias(() => routeList.Driver, () => employee)
+				.Inner.JoinAlias(() => routeList.Addresses, () => routeListAddress)
+				.Inner.JoinAlias(() => routeListAddress.Order, () => vodovozOrder)
+				.Where(Restrictions.And(
+					Restrictions.Eq(
+						Projections.Property(() => vodovozOrder.Id),
+						Projections.Constant(orderId)
+					),
+					Restrictions.Not(
+						Restrictions.Eq(
+							Projections.Property(() => routeListAddress.Status),
+							Projections.Constant(RouteListItemStatus.Transfered)
+						)
+					)
+				))
+				.Where(() => routeListAddress.TransferedTo == null)
+				.Select(e => e.AndroidLogin)
+				.SingleOrDefault<string>();
+		}
 	}
 }

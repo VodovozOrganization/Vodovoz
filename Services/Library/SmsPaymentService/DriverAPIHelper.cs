@@ -13,7 +13,7 @@ namespace SmsPaymentService
 
         public DriverAPIHelper(IConfiguration configuration)
         {
-            InitializeClient(configuration);
+            //InitializeClient(configuration); Раскомментировать при развертывании DriverApi
         }
 
         private void InitializeClient(IConfiguration configuration)

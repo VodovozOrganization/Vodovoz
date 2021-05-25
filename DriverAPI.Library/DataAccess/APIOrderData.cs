@@ -24,7 +24,7 @@ namespace DriverAPI.Library.DataAccess
 		private readonly IRouteListRepository routeListRepository;
 		private readonly OrderConverter orderConverter;
 		private readonly IOrderParametersProvider orderParametersProvider;
-		private readonly IWebApiParametersProvider webApiParametersProvider;
+		private readonly IDriverApiParametersProvider webApiParametersProvider;
 		private readonly IComplaintsRepository complaintsRepository;
 		private readonly IAPISmsPaymentData aPISmsPaymentData;
 		private readonly IDriverMobileAppActionRecordData driverMobileAppActionRecordData;
@@ -37,7 +37,7 @@ namespace DriverAPI.Library.DataAccess
 			IRouteListRepository routeListRepository,
 			OrderConverter orderConverter,
 			IOrderParametersProvider orderParametersProvider,
-			IWebApiParametersProvider webApiParametersProvider,
+			IDriverApiParametersProvider webApiParametersProvider,
 			IComplaintsRepository complaintsRepository,
 			IAPISmsPaymentData aPISmsPaymentData,
 			IDriverMobileAppActionRecordData driverMobileAppActionRecordData,

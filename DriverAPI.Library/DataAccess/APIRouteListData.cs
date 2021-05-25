@@ -41,7 +41,7 @@ namespace DriverAPI.Library.DataAccess
 		/// <returns>APIRouteList</returns>
 		public APIRouteList Get(int routeListId)
 		{
-			var routeList = routeListRepository.GetRouteList(unitOfWork, routeListId)
+			var routeList = routeListRepository.GetRouteListById(unitOfWork, routeListId)
 				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
 
 			return routeListConverter.convertToAPIRouteList(routeList);
@@ -54,7 +54,7 @@ namespace DriverAPI.Library.DataAccess
 		/// <returns>IEnumerable APIRouteList</returns>
 		public IEnumerable<APIRouteList> Get(int[] routeListsIds)
 		{
-			var vodovozRouteLists = routeListRepository.GetRouteLists(unitOfWork, routeListsIds);
+			var vodovozRouteLists = routeListRepository.GetRouteListsByIds(unitOfWork, routeListsIds);
 			var routeLists = new List<APIRouteList>();
 
 			foreach (var routelist in vodovozRouteLists)
@@ -111,10 +111,8 @@ namespace DriverAPI.Library.DataAccess
 
 		public string GetActualDriverPushNotificationsTokenByOrderId(int orderId)
 		{
-			var fcmToken = routeListRepository.GetRouteListByOrderId(unitOfWork, orderId).Driver?.AndroidToken
+			return employeeRepository.GetEmployeePushTokenByOrderId(unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Не найден токен для PUSH-сообщения водителя заказа {orderId}");
-
-			return fcmToken;
 		}
 	}
 }
