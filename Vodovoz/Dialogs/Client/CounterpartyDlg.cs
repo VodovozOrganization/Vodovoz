@@ -68,7 +68,17 @@ namespace Vodovoz
 
         private bool deliveryPointsConfigured = false;
         private bool documentsConfigured = false;
+        
+        private IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
 
+        private IEntityAutocompleteSelectorFactory employeeSelectorFactory =
+	        new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+		        ServicesConfig.CommonServices);
+
+        private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+        private IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
+        private IFilePickerService filePickerService = new GtkFilePicker();
+        
         public virtual INomenclatureRepository NomenclatureRepository {
             get {
                 if(nomenclatureRepository == null) {
@@ -638,27 +648,6 @@ namespace Vodovoz
         
         private void ComplaintView_Activated(object sender, EventArgs e)
         {
-	        IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
-
-	        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-
-	        IEntityAutocompleteSelectorFactory employeeSelectorFactory =
-		        new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
-			        ServicesConfig.CommonServices);
-
-	        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-		        new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-			        CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-
-	        IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-		        new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-				        .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-			        nomenclatureRepository, UserSingletonRepository.GetInstance());
-
-	        ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
-	        IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
-	        IFilePickerService filePickerService = new GtkFilePicker();
-	        
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
