@@ -25,6 +25,15 @@ namespace Vodovoz.Dialogs
 			UoW = uow;
 			this.order = order;
 			ConfigureDlg();
+			buttonCancel.Clicked += ButtonCancel_Clicked;
+		}
+
+		private void ButtonCancel_Clicked(object sender, EventArgs e)
+		{
+			if (undelivery.NewOrder != null)
+			{
+				UoW.Delete<Order>(undelivery.NewOrder);
+			}
 		}
 
 		public void ConfigureDlg()
