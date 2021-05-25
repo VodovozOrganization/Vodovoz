@@ -19,7 +19,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     employees.visiting_master,
@@ -77,7 +77,7 @@ ORDER BY driver_name, max_time
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -125,10 +125,10 @@ ORDER BY driver_name, max_time
           </BorderStyle>
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>23.5pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>79.9pt</Width>
           </TableColumn>
           <TableColumn>
@@ -149,7 +149,7 @@ ORDER BY driver_name, max_time
             <TableRow>
               <Height>12pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
                       <Value>№пп</Value>
@@ -161,12 +161,12 @@ ORDER BY driver_name, max_time
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
                       <Value>Водитель</Value>
@@ -178,7 +178,7 @@ ORDER BY driver_name, max_time
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -195,7 +195,7 @@ ORDER BY driver_name, max_time
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -212,7 +212,7 @@ ORDER BY driver_name, max_time
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -229,7 +229,7 @@ ORDER BY driver_name, max_time
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -246,7 +246,7 @@ ORDER BY driver_name, max_time
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -261,7 +261,7 @@ ORDER BY driver_name, max_time
             <TableRow>
               <Height>12pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
                       <Value>=RowNumber()</Value>
@@ -275,14 +275,14 @@ ORDER BY driver_name, max_time
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
                       <Value>={driver_name}</Value>
@@ -296,10 +296,12 @@ ORDER BY driver_name, max_time
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <FontSize >8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>8pt</FontSize>
+                        <PaddingTop >=Len({driver_name}) / 6 + "pt"</PaddingTop>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -317,9 +319,9 @@ ORDER BY driver_name, max_time
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -336,8 +338,8 @@ ORDER BY driver_name, max_time
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -354,8 +356,8 @@ ORDER BY driver_name, max_time
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -372,9 +374,9 @@ ORDER BY driver_name, max_time
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -383,8 +385,8 @@ ORDER BY driver_name, max_time
             </TableRow>
           </TableRows>
         </Details>
-        <Left >0.0pt</Left>
-        <Top >45.6pt</Top>
+        <Left>0.0pt</Left>
+        <Top>45.6pt</Top>
       </Table>
       <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
@@ -410,14 +412,14 @@ ORDER BY driver_name, max_time
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
-          <BorderStyle  />
-          <BorderColor  />
-          <BorderWidth  />
-          <TextAlign >Center</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox12" >
+      <Textbox Name="Textbox12">
         <Height>11.40pt</Height>
         <Width>310.00pt</Width>
         <Value>={?filters_text}</Value>
@@ -459,7 +461,7 @@ ORDER BY driver_name, max_time
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="beforeTime">
       <DataType>String</DataType>
       <DefaultValue>

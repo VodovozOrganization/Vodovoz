@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -67,9 +68,22 @@ namespace Vodovoz.ReportsParameters.Logistic
 				{
 					{ "beforeTime", ytimeDelivery.Text },
 					{ "geographic_groups", GetSelectedGeoGroupIds() },
-					{ "rl_type_of_use", GetSelectedRouteListTypeOfUses() }
+					{ "rl_type_of_use", GetSelectedRouteListTypeOfUses() },
+					{ "filters_text", GetSelectedFilters() },
+					{ "creation_date", DateTime.Now }
 				}
 			};
+		}
+
+		private string GetSelectedFilters()
+		{
+			var selectedGeoGroups = String.Join(", ", GetSelectedGeoGroups().Select(x => x.Name));
+			var selectedRouteListTypeOfUses =  String.Join(", ", GetSelectedRouteListTypeOfUses().Select(x => x.GetEnumTitle()));
+
+			return "Выбранные фильтры:\n" +
+				$"Время доставки до: {ytimeDelivery.Text}\n" +
+				$"Часть города: {selectedGeoGroups}\n" +
+				$"Принадлежность МЛ: {selectedRouteListTypeOfUses}\n";
 		}
 
 		private void OnButtonCreateReportClicked(object sender, EventArgs e)
@@ -97,10 +111,15 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private IEnumerable<int> GetSelectedGeoGroupIds()
 		{
+			return GetSelectedGeoGroups().Select(x => x.Id);
+		}
+
+		private IEnumerable<GeographicGroup> GetSelectedGeoGroups()
+		{
 			return (ytreeGeoGroups.ItemsDataSource as IEnumerable<SelectableParameter>)
 				?.Where(x => x.IsSelected)
-				.Select(x => x.GeographicGroup.Id)
-				?? new List<int>();
+				.Select(x => x.GeographicGroup)
+				?? new List<GeographicGroup>();
 		}
 
 		private void OnYtimeDeliveryChanged(object sender, EventArgs e)
