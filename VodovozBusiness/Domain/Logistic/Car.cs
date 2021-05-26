@@ -362,7 +362,7 @@ namespace Vodovoz.Domain.Logistic
 
 	public class RaskatTypeStringType : NHibernate.Type.EnumStringType
 	{
-		RaskatTypeStringType() : base(typeof(RaskatType)) { }
+		public RaskatTypeStringType() : base(typeof(RaskatType)) { }
 	}
 
 	public class CarTypeOfUseStringType : NHibernate.Type.EnumStringType
