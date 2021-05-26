@@ -72,7 +72,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yCheckButton checkIsRaskat;
 
-		private global::Gtk.Label labelRaskatType;
+		private global::Gamma.GtkWidgets.yLabel labelRaskatType;
 
 		private global::Gamma.Widgets.yEnumComboBox enumRaskatType;
 
@@ -569,9 +569,10 @@ namespace Vodovoz
 			w32.Expand = false;
 			w32.Fill = false;
 			// Container child hbox15.Gtk.Box+BoxChild
-			this.labelRaskatType = new global::Gtk.Label();
+			this.labelRaskatType = new global::Gamma.GtkWidgets.yLabel();
 			this.labelRaskatType.Name = "labelRaskatType";
 			this.labelRaskatType.LabelProp = global::Mono.Unix.Catalog.GetString("| Тип раската:");
+			this.labelRaskatType.Justify = ((global::Gtk.Justification)(1));
 			this.hbox15.Add(this.labelRaskatType);
 			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox15[this.labelRaskatType]));
 			w33.Position = 1;
