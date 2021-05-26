@@ -69,15 +69,80 @@ namespace Vodovoz
         private bool deliveryPointsConfigured = false;
         private bool documentsConfigured = false;
         
-        private IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
+        private IUndeliveriesViewOpener undeliveriesViewOpener;
 
-        private IEntityAutocompleteSelectorFactory employeeSelectorFactory =
-	        new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
-		        ServicesConfig.CommonServices);
+        public virtual IUndeliveriesViewOpener UndeliveriesViewOpener
+        {
+	        get
+	        {
+		        if (undeliveriesViewOpener is null)
+		        {
+			        undeliveriesViewOpener = new UndeliveriesViewOpener();
+		        }
 
-        private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
-        private IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
+		        return undeliveriesViewOpener;
+	        }
+        }
+
+        private IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+
+        public virtual IEntityAutocompleteSelectorFactory EmployeeSelectorFactory
+        {
+	        get
+	        {
+		        if (employeeSelectorFactory is null)
+		        {
+			        employeeSelectorFactory =
+				        new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					        ServicesConfig.CommonServices);
+		        }
+		        return employeeSelectorFactory;
+	        }
+        }
+
+        private ISubdivisionRepository subdivisionRepository;
+
+        public virtual ISubdivisionRepository SubdivisionRepository
+        {
+	        get
+	        {
+		        if (subdivisionRepository is null)
+		        {
+			        subdivisionRepository = new SubdivisionRepository();
+		        }
+		        return subdivisionRepository;
+	        }
+        }
+
+        private IRouteListItemRepository routeListItemRepository;
+        
+        public virtual IRouteListItemRepository RouteListItemRepository
+        {
+	        get
+	        {
+		        if (routeListItemRepository is null)
+		        {
+			        routeListItemRepository = new RouteListItemRepository();
+		        }
+
+		        return routeListItemRepository;
+	        }
+        }
+
         private IFilePickerService filePickerService = new GtkFilePicker();
+        
+        public virtual IFilePickerService FilePickerService
+        {
+	        get
+	        {
+		        if (filePickerService is null)
+		        {
+			        filePickerService = new GtkFilePicker();
+		        }
+
+		        return filePickerService;
+	        }
+        }
         
         public virtual INomenclatureRepository NomenclatureRepository {
             get {
@@ -651,24 +716,24 @@ namespace Vodovoz
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
-		        undeliveriesViewOpener,
-		        VodovozGtkServicesConfig.EmployeeService,
-		        employeeSelectorFactory,
-		        counterpartySelectorFactory,
-		        nomenclatureSelectorFactory,
-		        routeListItemRepository,
+		        UndeliveriesViewOpener,
+		        employeeService,
+		        EmployeeSelectorFactory,
+		        CounterpartySelectorFactory,
+		        NomenclatureSelectorFactory,
+		        RouteListItemRepository,
 		        SubdivisionParametersProvider.Instance,
 		        new ComplaintFilterViewModel(
 			        ServicesConfig.CommonServices,
-			        subdivisionRepository,
-			        employeeSelectorFactory
+			        SubdivisionRepository,
+			        EmployeeSelectorFactory
 		        ),
-		        filePickerService,
-		        subdivisionRepository,
+		        FilePickerService,
+		        SubdivisionRepository,
 		        new GtkReportViewOpener(),
 		        new GtkTabsOpener(),
-		        nomenclatureRepository,
-		        UserSingletonRepository.GetInstance()
+		        NomenclatureRepository,
+		        userRepository
 	        );
 	        
 	        TabParent.AddTab(complaintsJournalViewModel, this, false);
