@@ -236,7 +236,7 @@ namespace Vodovoz.Views.Logistic
 				.Create()
 				.AddColumn("Статус").AddTextRenderer(x => x.Name)
 				.AddColumn("Адреса").AddTextRenderer(x=>x.AddressCount.ToString())
-				.AddColumn("Бутыли").AddTextRenderer(x=>x.Bottles.ToString())
+				.AddColumn("Бутыли").AddTextRenderer(x=>x.Bottles.ToString("N0"))
 				.Finish();
 
 			viewDeliverySummary.Binding.AddBinding(ViewModel, vm => vm.ObservableDeliverySummary, w => w.ItemsDataSource).InitializeFromSource();

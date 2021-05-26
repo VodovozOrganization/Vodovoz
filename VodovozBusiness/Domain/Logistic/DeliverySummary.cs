@@ -2,6 +2,7 @@
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Logistic
@@ -9,13 +10,13 @@ namespace Vodovoz.Domain.Logistic
 	public class DeliverySummary: PropertyChangedBase
 	{
 		public DeliverySummary(){}
-		public DeliverySummary(OrderStatus status, IList<Order> orders)
+		public DeliverySummary(string status, IList<DeliverySummaryNode> orders)
 		{
-			name = status.GetEnumTitle();
+			name = status;
 			addressCount = orders.Count;
-			bottles = orders.Sum(x=>x.Total600mlBottlesToDeliver + x.Total6LBottlesToDeliver + x.Total19LBottlesToDeliver);;
+			bottles = orders.Sum(x=>x.Bottles);
 		}
-		
+
 		private string name;
 
 		public string Name
