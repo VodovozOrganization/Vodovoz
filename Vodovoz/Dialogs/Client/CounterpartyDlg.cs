@@ -313,7 +313,7 @@ namespace Vodovoz
             menu.Add(menuItemFixedPrices);
             
             var menuComplaint = new Gtk.MenuItem("Журнал рекламаций");
-            menuComplaint.Activated += ComplaintView_Activated;
+            menuComplaint.Activated += ComplaintViewOnActivated;
             menu.Add(menuComplaint);
             
             menuActions.Menu = menu;
@@ -711,7 +711,7 @@ namespace Vodovoz
             TabParent.AddTab(OrdersDialog, this, false);
         }
         
-        private void ComplaintView_Activated(object sender, EventArgs e)
+        private void ComplaintViewOnActivated(object sender, EventArgs e)
         {
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
 		        UnitOfWorkFactory.GetDefaultFactory,
