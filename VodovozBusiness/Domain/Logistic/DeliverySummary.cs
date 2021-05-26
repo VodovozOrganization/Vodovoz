@@ -10,10 +10,10 @@ namespace Vodovoz.Domain.Logistic
 	public class DeliverySummary: PropertyChangedBase
 	{
 		public DeliverySummary(){}
-		public DeliverySummary(string status, IList<DeliverySummaryNode> orders)
+		public DeliverySummary(string status, int ordersCount, IList<DeliverySummaryNode> orders)
 		{
 			name = status;
-			addressCount = orders.Count;
+			addressCount = ordersCount;
 			bottles = orders.Sum(x=>x.Bottles);
 		}
 

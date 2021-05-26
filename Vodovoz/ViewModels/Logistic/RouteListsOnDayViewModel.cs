@@ -1354,16 +1354,24 @@ namespace Vodovoz.ViewModels.Logistic
 			DeliverySummaryNode resultAlias = null;
 			
 			ObservableDeliverySummary.Clear();
-			
+
+			var totalOrderss = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+				.GetExecutableQueryOver(UoW.Session)
+				.Where(o => !o.IsContractCloser)
+				.And(o => !o.IsService)
+				.List().GroupBy(o=>o.OrderStatus);
 			var totalOrders = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 				.GetExecutableQueryOver(UoW.Session)
 				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
-				             (nomenclatureAlias.TareVolume == TareVolume.Vol19L || nomenclatureAlias.TareVolume == TareVolume.Vol6L ||
-				              nomenclatureAlias.TareVolume == TareVolume.Vol1500ml || nomenclatureAlias.TareVolume == TareVolume.Vol600ml))
+				             (nomenclatureAlias.TareVolume == TareVolume.Vol19L || nomenclatureAlias.TareVolume == TareVolume.Vol6L || 
+				              nomenclatureAlias.TareVolume == TareVolume.Vol600ml))
 				.Where(o => !o.IsContractCloser)
 				.And(o => !o.IsService)
+				.And(o=>o.OrderStatus != OrderStatus.WaitForPayment)
+				.And(o => o.OrderStatus != OrderStatus.NewOrder)
+				.And(o => o.OrderStatus != OrderStatus.Canceled)
 				.SelectList(list => list
 					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
 					.Select(() => orderItemAlias.Count).WithAlias(() => resultAlias.Bottles)
@@ -1378,7 +1386,10 @@ namespace Vodovoz.ViewModels.Logistic
 			
 			foreach (var orderGroup in totalOrders.GroupBy(o=>o.OrderStatus))
 			{
-				var deliverySum = new DeliverySummary(orderGroup.Key.GetEnumTitle(), orderGroup.Select(x=>x).ToList());
+
+				var deliverySum = new DeliverySummary(orderGroup.Key.GetEnumTitle(),
+					totalOrderss.Where(x => x.Key == orderGroup.Key).Sum(x => x.Select(y => y).Count()),
+					orderGroup.Select(x => x).ToList());
 				ObservableDeliverySummary.Add(deliverySum);
 				switch (orderGroup.Key)
 				{
