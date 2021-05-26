@@ -59,8 +59,6 @@ namespace Vodovoz
 			comboDriverCarKind.Binding.AddBinding(Entity, e => e.DriverCarKind, w => w.SelectedItem).InitializeFromSource();
 
 			orderNumberSpin.Binding.AddBinding(Entity, e => e.OrderNumber, w => w.ValueAsInt).InitializeFromSource();
-			orderNumberSpin.Binding.AddBinding(Entity, e => e.IsCompanyCar, w => w.Visible).InitializeFromSource();
-			orderNumberLabel.Visible = Entity.IsCompanyCar;
 
 			yentryVIN.Binding.AddBinding(Entity, e => e.VIN, w => w.Text).InitializeFromSource();
 			yentryManufactureYear.Binding.AddBinding(Entity, e => e.ManufactureYear, w => w.Text).InitializeFromSource();
