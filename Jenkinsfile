@@ -85,6 +85,7 @@ node('Vod3') {
 			if(
 				env.BRANCH_NAME == 'master'
 				|| env.BRANCH_NAME == 'develop'
+				|| env.BRANCH_NAME == 'Beta'
 				|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 			{
 				echo "Deploy branch " + env.BRANCH_NAME
