@@ -1351,16 +1351,21 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			OrdersCountNode ordersCountNode = null;
 			DeliverySummaryNode resultAlias = null;
 			
 			ObservableDeliverySummary.Clear();
 
-			var totalOrderss = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			var ordersCount = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 				.GetExecutableQueryOver(UoW.Session)
 				.Where(o => !o.IsContractCloser)
 				.And(o => !o.IsService)
-				.List().GroupBy(o=>o.OrderStatus);
-			var totalOrders = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+				.SelectList(list => list
+					.Select(o=>o.OrderStatus).WithAlias(() => ordersCountNode.OrderStatus)
+					.Select(o=>o.Id).WithAlias(() => ordersCountNode.Id)
+				).TransformUsing(Transformers.AliasToBean<OrdersCountNode>()).List<OrdersCountNode>().GroupBy(o=>o.OrderStatus);
+			
+			var deliverySummaryNodes = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 				.GetExecutableQueryOver(UoW.Session)
 				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -1369,9 +1374,6 @@ namespace Vodovoz.ViewModels.Logistic
 				              nomenclatureAlias.TareVolume == TareVolume.Vol600ml))
 				.Where(o => !o.IsContractCloser)
 				.And(o => !o.IsService)
-				.And(o=>o.OrderStatus != OrderStatus.WaitForPayment)
-				.And(o => o.OrderStatus != OrderStatus.NewOrder)
-				.And(o => o.OrderStatus != OrderStatus.Canceled)
 				.SelectList(list => list
 					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
 					.Select(() => orderItemAlias.Count).WithAlias(() => resultAlias.Bottles)
@@ -1384,12 +1386,10 @@ namespace Vodovoz.ViewModels.Logistic
 			var totalOnTheWay = new DeliverySummary {Name = "Итого в пути"};
 			var totalCompleted = new DeliverySummary {Name = "Итого выполнено"};
 			
-			foreach (var orderGroup in totalOrders.GroupBy(o=>o.OrderStatus))
+			foreach (var orderGroup in deliverySummaryNodes.GroupBy(o=>o.OrderStatus))
 			{
-
-				var deliverySum = new DeliverySummary(orderGroup.Key.GetEnumTitle(),
-					totalOrderss.Where(x => x.Key == orderGroup.Key).Sum(x => x.Select(y => y).Count()),
-					orderGroup.Select(x => x).ToList());
+				var addressCount = ordersCount.Where(x => x.Key == orderGroup.Key).Sum(x => x.Select(y => y).Count());
+				var deliverySum = new DeliverySummary(orderGroup.Key.GetEnumTitle(), addressCount, orderGroup.Select(x => x).ToList());
 				ObservableDeliverySummary.Add(deliverySum);
 				switch (orderGroup.Key)
 				{
