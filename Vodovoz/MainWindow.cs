@@ -1096,10 +1096,10 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionDeliveryTimeReportActivated(object sender, EventArgs e)
     {
-        tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport>(),
-            () => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport())
-        );
+	    tdiMain.OpenTab(QSReport.ReportViewDlg.GenerateHashName<DeliveryTimeReport>(),
+		    () => new QSReport.ReportViewDlg(
+			    new DeliveryTimeReport(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService))
+	    );
     }
 
     protected void OnActionOrdersByDistrict(object sender, EventArgs e)
