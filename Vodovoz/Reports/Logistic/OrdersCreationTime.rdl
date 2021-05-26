@@ -58,17 +58,19 @@
         </Style>
       </Textbox>
       <Textbox Name="Textbox3">
-        <Height>12.75pt</Height>
-        <Width>625.59pt</Width>
+        <Height>21.75pt</Height>
+        <Width>624.84pt</Width>
         <Value>=First({filters}, "FiltersInfo")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>108.4pt</Left>
-        <Top>51.9pt</Top>
+        <ZIndex>0</ZIndex>
+        <Left>109.15pt</Left>
+        <Top>51.90pt</Top>
         <Style>
           <TextAlign>Left</TextAlign>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
+          <PaddingTop >2pt</PaddingTop>
+          <PaddingBottom >5pt</PaddingBottom>
         </Style>
         <CanGrow>true</CanGrow>
       </Textbox>
@@ -81,6 +83,7 @@
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
+          <PaddingTop >10pt</PaddingTop>
         </Style>
         <TableColumns>
           <TableColumn>
@@ -175,7 +178,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -213,7 +216,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -508,7 +511,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -522,7 +525,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -536,7 +539,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -550,7 +553,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -564,7 +567,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -578,7 +581,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -592,7 +595,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -606,7 +609,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -620,7 +623,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -634,7 +637,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -648,7 +651,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -662,7 +665,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -671,8 +674,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>7.7pt</Left>
-        <Top>78.5pt</Top>
+        <Left>15.0pt</Left>
+        <Top>119.3pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -698,7 +701,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime1_addresses})</Value>
                     </Textbox>
@@ -713,7 +716,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime1_bottles})</Value>
                     </Textbox>
@@ -728,7 +731,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime2_addresses})</Value>
                     </Textbox>
@@ -743,7 +746,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime2_bottles})</Value>
                     </Textbox>
@@ -758,7 +761,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime3_addresses})</Value>
                     </Textbox>
@@ -773,7 +776,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime3_bottles})</Value>
                     </Textbox>
@@ -788,7 +791,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime4_addresses})</Value>
                     </Textbox>
@@ -803,7 +806,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime4_bottles})</Value>
                     </Textbox>
@@ -818,7 +821,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({online_addresses})</Value>
                     </Textbox>
@@ -833,7 +836,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({online_bottles})</Value>
                     </Textbox>
@@ -848,7 +851,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({summary_addresses})</Value>
                     </Textbox>
@@ -863,7 +866,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({summary_bottles})</Value>
                     </Textbox>
@@ -907,7 +910,7 @@
   </DataSources>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     source.delivery_interval,
@@ -1106,7 +1109,7 @@ GROUP BY source.delivery_interval
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="creationTime1_addresses">
           <DataField>creationTime1_addresses</DataField>
           <TypeName>System.Int32</TypeName>
@@ -1162,7 +1165,7 @@ GROUP BY source.delivery_interval
       </Fields>
     </DataSet>
     <DataSet Name="CreationTimes">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 TIME_FORMAT(DATE_ADD(STR_TO_DATE(@creation_time1,'%H:%i'), INTERVAL -1 minute), "%H:%i") as creationTime1_to,
@@ -1183,7 +1186,7 @@ TIME_FORMAT(DATE_ADD(STR_TO_DATE(@creation_time3,'%H:%i'), INTERVAL -1 minute), 
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="creationTime1_to">
           <DataField>creationTime1_to</DataField>
           <TypeName>System.String</TypeName>
@@ -1211,7 +1214,7 @@ TIME_FORMAT(DATE_ADD(STR_TO_DATE(@creation_time3,'%H:%i'), INTERVAL -1 minute), 
       </Fields>
     </DataSet>
     <DataSet Name="FiltersInfo">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS('\n',
@@ -1263,7 +1266,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="filters">
           <DataField>filters</DataField>
           <TypeName>System.String</TypeName>
@@ -1271,7 +1274,7 @@ FROM
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
