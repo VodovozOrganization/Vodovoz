@@ -274,6 +274,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		private RaskatType? raskatType;
+		[Display(Name = "Тип раската")]
+		public virtual RaskatType? RaskatType
+		{
+			get { return raskatType; }
+			set { SetField(ref raskatType, value, () => RaskatType); }
+		}
+
 		#endregion
 
 		public virtual string Title => String.Format("{0} ({1})", Model, RegistrationNumber);
@@ -342,6 +350,19 @@ namespace Vodovoz.Domain.Logistic
 		CompanyGAZelle,
 		[Display(Name = "Автомобиль водителя")]
 		DriverCar
+	}
+
+	public enum RaskatType
+	{
+		[Display(Name = "Газель")]
+		RaskatGazelle,
+		[Display(Name = "Ларгус")]
+		RaskatLargus
+	}
+
+	public class RaskatTypeStringType : NHibernate.Type.EnumStringType
+	{
+		RaskatTypeStringType() : base(typeof(RaskatType)) { }
 	}
 
 	public class CarTypeOfUseStringType : NHibernate.Type.EnumStringType
