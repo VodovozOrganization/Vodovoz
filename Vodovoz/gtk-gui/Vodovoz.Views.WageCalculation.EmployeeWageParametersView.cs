@@ -59,7 +59,7 @@ namespace Vodovoz.Views.WageCalculation
 			this.ydatepickerStart = new global::QS.Widgets.GtkUI.DatePicker();
 			this.ydatepickerStart.Events = ((global::Gdk.EventMask)(256));
 			this.ydatepickerStart.Name = "ydatepickerStart";
-			this.ydatepickerStart.WithTime = true;
+			this.ydatepickerStart.WithTime = false;
 			this.ydatepickerStart.Date = new global::System.DateTime(0);
 			this.ydatepickerStart.IsEditable = true;
 			this.ydatepickerStart.AutoSeparation = false;
