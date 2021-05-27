@@ -1,13 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
-using QS.DomainModel.Entity;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Logistic
 {
-	public class DeliverySummary: PropertyChangedBase
+	public class DeliverySummary
 	{
 		public DeliverySummary(){}
 		public DeliverySummary(string status, int ordersCount, IList<DeliverySummaryNode> orders)
@@ -22,7 +18,7 @@ namespace Vodovoz.Domain.Logistic
 		public string Name
 		{
 			get => name;
-			set => SetField(ref name, value);
+			set => name = value;
 		}
 
 		private int addressCount;
@@ -30,7 +26,7 @@ namespace Vodovoz.Domain.Logistic
 		public int AddressCount
 		{
 			get => addressCount;
-			set => SetField(ref addressCount, value);
+			set => addressCount = value;
 		}
 
 		private decimal bottles;
@@ -38,7 +34,7 @@ namespace Vodovoz.Domain.Logistic
 		public decimal Bottles
 		{
 			get => bottles;
-			set => SetField(ref bottles, value);
+			set => bottles = value;
 		}
 	}
 }

@@ -4,7 +4,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Gamma.Utilities;
-using NetTopologySuite.Operation.Valid;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -1232,7 +1231,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.Future();
 
 			GetWorkDriversInfo();
-			DeliverySum();
+			CalculateOnDeliverySum();
 			RoutesOnDay = routesQuery.ToList();
 			RoutesOnDay.ToList().ForEach(rl => rl.UoW = UoW);
 			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
@@ -1347,7 +1346,7 @@ namespace Vodovoz.ViewModels.Logistic
 				: driverWorkSchedule.DaySchedule;
 		}
 		
-		private void DeliverySum()
+		private void CalculateOnDeliverySum()
 		{
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;

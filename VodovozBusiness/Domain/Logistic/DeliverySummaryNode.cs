@@ -1,24 +1,23 @@
-﻿using QS.DomainModel.Entity;
-using Vodovoz.Domain.Goods;
+﻿using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Logistic
 {
-	public class DeliverySummaryNode: PropertyChangedBase
+	public class DeliverySummaryNode
 	{
 		private OrderStatus orderStatus;
 
 		public OrderStatus OrderStatus
 		{
 			get => orderStatus;
-			set => SetField(ref orderStatus, value);
+			set => orderStatus = value;
 		}
 
 		private TareVolume tareVolume;
 		public TareVolume TareVolume 
 		{
 			get => tareVolume;
-			set => SetField(ref tareVolume, value);
+			set => tareVolume = value;
 		}
 
 		private decimal bottles;
@@ -26,7 +25,7 @@ namespace Vodovoz.Domain.Logistic
 		public decimal Bottles
 		{
 			get => bottles;
-			set => SetField(ref bottles, value);
+			set => bottles = value;
 		}
 	}
 }
