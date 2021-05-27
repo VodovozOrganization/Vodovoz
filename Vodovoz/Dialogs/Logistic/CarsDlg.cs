@@ -123,6 +123,13 @@ namespace Vodovoz
 					MessageDialogHelper.RunWarningDialog("На данном автомобиле есть МЛ, смена типа невозможна");
 				}
 			};
+			labelRaskatType.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Visible).InitializeFromSource();
+			
+			enumRaskatType.ItemsEnum = typeof(RaskatType);
+			enumRaskatType.ShowSpecialStateNot = true;
+			enumRaskatType.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Visible).InitializeFromSource();
+			enumRaskatType.Binding.AddBinding(Entity, e => e.RaskatType, w => w.SelectedItemOrNull).InitializeFromSource();
+			enumRaskatType.Binding.AddFuncBinding(Entity, e => e.Id == 0, w => w.Sensitive).InitializeFromSource();
 
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
