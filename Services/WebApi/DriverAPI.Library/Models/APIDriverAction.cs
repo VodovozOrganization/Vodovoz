@@ -2,7 +2,7 @@
 
 namespace DriverAPI.Library.Models
 {
-	public class APIDriverActionModel
+	public class APIDriverAction
 	{
 		public APIActionType ActionType { get; set; }
 		public DateTime ActionTime { get; set; }

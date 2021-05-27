@@ -81,17 +81,10 @@ namespace DriverAPI.Library.DataAccess
 
 			foreach (var vodovozOrder in vodovozOrders)
 			{
-				try
-				{
-					var smsPaymentStatus = aPISmsPaymentData.GetOrderPaymentStatus(vodovozOrder.Id);
-					var order = orderConverter.convertToAPIOrder(vodovozOrder, smsPaymentStatus);
-					order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
-					result.Add(order);
-				}
-				catch (ConverterException e)
-				{
-					logger.LogWarning(e, $"Пропущен заказ: {vodovozOrder.Id}, ошибка конвертирования");
-				}
+				var smsPaymentStatus = aPISmsPaymentData.GetOrderPaymentStatus(vodovozOrder.Id);
+				var order = orderConverter.convertToAPIOrder(vodovozOrder, smsPaymentStatus);
+				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
+				result.Add(order);
 			}
 
 			return result;
@@ -238,7 +231,7 @@ namespace DriverAPI.Library.DataAccess
 
 			driverMobileAppActionRecordData.RegisterAction(
 				driver,
-				new APIDriverActionModel()
+				new APIDriverAction()
 				{
 					ActionType = APIActionType.CompleteOrderClicked,
 					ActionTime = actionTime

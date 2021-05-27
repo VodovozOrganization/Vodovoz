@@ -8,7 +8,7 @@ namespace DriverAPI.Library.Helpers
 {
 	public class FCMAPIHelper : IFCMAPIHelper
 	{
-		private string sendPaymentEndpointURI;
+		private string sendPushNotificationEndpointURI;
 		private HttpClient _apiClient;
 
 		public FCMAPIHelper(IConfiguration configuration)
@@ -29,7 +29,7 @@ namespace DriverAPI.Library.Helpers
 				}
 			};
 
-			using (HttpResponseMessage response = await _apiClient.PostAsJsonAsync(sendPaymentEndpointURI, request))
+			using (HttpResponseMessage response = await _apiClient.PostAsJsonAsync(sendPushNotificationEndpointURI, request))
 			{
 				if (response.IsSuccessStatusCode)
 				{
@@ -53,7 +53,7 @@ namespace DriverAPI.Library.Helpers
 			_apiClient.DefaultRequestHeaders.Add("Authorization", $"key={apiConfiguration["AccessToken"]}");
 			_apiClient.DefaultRequestHeaders.Add("Sender", $"id={apiConfiguration["AppId"]}");
 
-			sendPaymentEndpointURI = apiConfiguration["SendPaymentEndpointURI"];
+			sendPushNotificationEndpointURI = apiConfiguration["SendPushNotificationEndpointURI"];
 		}
 	}
 }
