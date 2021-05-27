@@ -3,9 +3,9 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.HibernateMapping
 {
-	public class PremiumMap : ClassMap<Premium>
+	public class PremiumBaseMap : ClassMap<PremiumBase>
 	{
-		public PremiumMap()
+		public PremiumBaseMap()
 		{
 			Table("premiums");
 
@@ -18,6 +18,26 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.Author).Column("author_id");
 
 			HasMany(x => x.Items).Cascade.AllDeleteOrphan().Inverse().KeyColumn("premium_id");
+
+			DiscriminateSubClassesOnColumn("type");
+		}
+
+		public class PremiumMap : SubclassMap<Premium>
+		{
+			public PremiumMap()
+			{
+				DiscriminatorValue("Premium");
+			}
+		}
+
+		public class PremiumGAZelRaskatMap : SubclassMap<PremiumGazelRaskat>
+		{
+			public PremiumGAZelRaskatMap()
+			{
+				DiscriminatorValue("GazelRaskat");
+
+				Map(x => x.RouteListDate).Column("route_list_date");
+			}
 		}
 	}
 }
