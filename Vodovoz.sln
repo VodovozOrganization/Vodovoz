@@ -168,9 +168,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamma.Utilities.Gtk", "..\G
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebAPI", "WebAPI", "{F2BFD0D2-5A21-4D6C-9CEA-328B30FDFBAB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DriverAPI", "Services\WebAPI\DriverAPI\DriverAPI.csproj", "{6E25FDA5-A35F-4A76-91AF-74FA0A01D868}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DriverAPI", "Services\WebApi\DriverAPI\DriverAPI.csproj", "{6E25FDA5-A35F-4A76-91AF-74FA0A01D868}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DriverAPI.Library", "Services\WebAPI\DriverAPI.Library\DriverAPI.Library.csproj", "{9DDEB5AB-8491-47E5-8C1F-1D52FA58C157}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DriverAPI.Library", "Services\WebApi\DriverAPI.Library\DriverAPI.Library.csproj", "{9DDEB5AB-8491-47E5-8C1F-1D52FA58C157}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

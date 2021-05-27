@@ -69,14 +69,7 @@ namespace DriverAPI.Library.Converters
 
 					foreach (var address in routeList.Addresses)
 					{
-						try
-						{
-							routelistAddresses.Add(convertToAPIRouteListAddress(address));
-						}
-						catch (ConverterException e)
-						{
-							logger.LogWarning(e, $"Ошибка конвертирования адреса маршрутного листа {address.Id}");
-						}
+						routelistAddresses.Add(convertToAPIRouteListAddress(address));
 					}
 
 					result.IncompletedRouteList = new APIIncompletedRouteList()

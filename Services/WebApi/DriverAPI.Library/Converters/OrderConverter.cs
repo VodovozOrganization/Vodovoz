@@ -76,14 +76,7 @@ namespace DriverAPI.Library.Converters
 
 			foreach (var saleItem in orderItems)
 			{
-				try
-				{
-					result.Add(convertToAPIOrderSaleItem(saleItem));
-				}
-				catch (ConverterException e)
-				{
-					logger.LogWarning(e, $"Товар {saleItem.Id} пропущен, ошибка конвертирования");
-				}
+				result.Add(convertToAPIOrderSaleItem(saleItem));
 			}
 
 			return result;

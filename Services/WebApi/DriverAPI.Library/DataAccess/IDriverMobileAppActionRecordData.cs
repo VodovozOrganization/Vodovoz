@@ -6,7 +6,7 @@ namespace DriverAPI.Library.DataAccess
 {
 	public interface IDriverMobileAppActionRecordData
 	{
-		void RegisterAction(Employee driver, APIDriverActionModel driverAction);
-		void RegisterActionsRangeForDriver(Employee driver, IEnumerable<APIDriverActionModel> driverActionModels);
+		void RegisterAction(Employee driver, APIDriverAction driverAction);
+		void RegisterActionsRangeForDriver(Employee driver, IEnumerable<APIDriverAction> driverActionModels);
 	}
 }
