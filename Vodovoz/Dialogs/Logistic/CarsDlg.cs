@@ -142,7 +142,11 @@ namespace Vodovoz
 			textDriverInfo.Selectable = true;
 
 			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-			bool canChangeVolumeWeightConsumption = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_volume_weight_consumption", currentUserId) || Entity.Id == 0 || !Entity.IsCompanyCar;
+			bool canChangeVolumeWeightConsumption = 
+				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_volume_weight_consumption", currentUserId)
+				|| Entity.Id == 0
+				|| !(Entity.IsCompanyCar || Entity.IsRaskat);
+
 			bool canChangeBottlesFromAddress = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_bottles_from_address", currentUserId);
 
 			dataspinbutton1.Sensitive = canChangeVolumeWeightConsumption;
