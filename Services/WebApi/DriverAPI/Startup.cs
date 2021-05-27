@@ -53,13 +53,13 @@ namespace DriverAPI
 					logging.AddNLogWeb();
 				});
 
-			logger = new Logger<Startup>(LoggerFactory.Create(logging => logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
+			logger = new Logger<Startup>(LoggerFactory.Create(logging => 
+				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
 			// Подключение к БД
 
 			services.AddDbContext<ApplicationDbContext>(options =>
-				options.UseMySQL(
-					Configuration.GetConnectionString("DefaultConnection")));
+										options.UseMySQL(	Configuration.GetConnectionString("DefaultConnection")));
 			services.AddDatabaseDeveloperPageExceptionFilter();
 
 			// Конфигурация Nhibernate
@@ -83,22 +83,22 @@ namespace DriverAPI
 			services.Configure<IdentityOptions>(options =>
 			{
 				// Password settings
-				options.Password.RequireDigit = false;
-				options.Password.RequireLowercase = false;
-				options.Password.RequireNonAlphanumeric = false;
-				options.Password.RequireUppercase = false;
-				options.Password.RequiredLength = 6;
-				options.Password.RequiredUniqueChars = 1;
+				options.Password.RequireDigit =				Configuration.GetValue<bool>("Security:Password:RequireDigit");
+				options.Password.RequireLowercase =			Configuration.GetValue<bool>("Security:Password:RequireLowercase");
+				options.Password.RequireNonAlphanumeric =	Configuration.GetValue<bool>("Security:Password:RequireNonAlphanumeric");
+				options.Password.RequireUppercase =			Configuration.GetValue<bool>("Security:Password:RequireUppercase");
+				options.Password.RequiredLength =			Configuration.GetValue<int>("Security:Password:RequiredLength");
+				options.Password.RequiredUniqueChars =		Configuration.GetValue<int>("Security:Password:RequiredUniqueChars");
 
 				// Lockout settings.
-				options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-				options.Lockout.MaxFailedAccessAttempts = 5;
-				options.Lockout.AllowedForNewUsers = true;
+				options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(
+															Configuration.GetValue<int>("Security:Lockout:DefaultLockoutTimeSpan"));
+				options.Lockout.MaxFailedAccessAttempts =	Configuration.GetValue<int>("Security:Lockout:MaxFailedAccessAttempts");
+				options.Lockout.AllowedForNewUsers =		Configuration.GetValue<bool>("Security:Password:AllowedForNewUsers");
 
 				// User settings.
-				options.User.AllowedUserNameCharacters =
-				"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-				options.User.RequireUniqueEmail = false;
+				options.User.AllowedUserNameCharacters =	Configuration.GetValue<string>("Security:Password:AllowedUserNameCharacters");
+				options.User.RequireUniqueEmail =			Configuration.GetValue<bool>("Security:Password:RequireNonAlphanumeric");
 			});
 
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -107,11 +107,13 @@ namespace DriverAPI
 					cfg.TokenValidationParameters = new TokenValidationParameters()
 					{
 						ValidateIssuer = false,
-						ValidIssuer = Configuration["Security:Tokens:Issuer"],
+						ValidIssuer =						Configuration.GetValue<string>("Security:Token:Issuer"),
 						ValidateAudience = false,
-						ValidAudience = Configuration["Security:Tokens:Audience"],
+						ValidAudience =						Configuration.GetValue<string>("Security:Token:Audience"),
 						ValidateIssuerSigningKey = true,
-						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Security:Tokens:Key"])),
+						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+															Configuration.GetValue<string>("Security:Token:Key")
+						)),
 					};
 				});
 
@@ -166,13 +168,13 @@ namespace DriverAPI
 
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
-			var domainDBConfig = Configuration.GetSection("DomainDB");
+			var domainDBConfig =							Configuration.GetSection("DomainDB");
 
-			conStrBuilder.Server = domainDBConfig["Server"];
-			conStrBuilder.Port = uint.Parse(domainDBConfig["Port"]);
-			conStrBuilder.Database = domainDBConfig["Database"];
-			conStrBuilder.UserID = domainDBConfig["UserID"];
-			conStrBuilder.Password = domainDBConfig["Password"];
+			conStrBuilder.Server =							domainDBConfig.GetValue<string>("Server");
+			conStrBuilder.Port =							domainDBConfig.GetValue<uint>("Port");
+			conStrBuilder.Database =						domainDBConfig.GetValue<string>("Database");
+			conStrBuilder.UserID =							domainDBConfig.GetValue<string>("UserID");
+			conStrBuilder.Password =						domainDBConfig.GetValue<string>("Password");
 			conStrBuilder.SslMode = MySqlSslMode.None;
 
 			var connectionString = conStrBuilder.GetConnectionString(true);
@@ -187,10 +189,10 @@ namespace DriverAPI
 			OrmConfig.ConfigureOrm(
 				db_config,
 				new System.Reflection.Assembly[] {
-					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
-					System.Reflection.Assembly.GetAssembly (typeof(Bank)),
-					System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
+					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
+					System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
 				}
 			);
 
