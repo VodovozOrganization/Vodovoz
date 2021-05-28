@@ -2277,4 +2277,12 @@ public partial class MainWindow : Gtk.Window
             () => new QSReport.ReportViewDlg(new EmployeesReport())
         );
     }
+
+    protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
+    {
+	    tdiMain.OpenTab(
+		    QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
+		    () => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport())
+	    );
+    }
 }
