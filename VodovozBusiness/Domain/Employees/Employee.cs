@@ -541,6 +541,10 @@ namespace Vodovoz.Domain.Employees
 					var parameterForForwarder = new EmployeeWageParameter {
 						WageParameterItem = new RatesLevelWageParameterItem {
 							WageDistrictLevelRates = defaultLevel
+						},
+						WageParameterItemForOurCars = new RatesLevelWageParameterItem
+						{
+							WageDistrictLevelRates = defaultLevelForOurCar
 						}
 					};
 					ChangeWageParameter(parameterForForwarder, DateTime.Today);
