@@ -393,10 +393,7 @@ namespace Vodovoz
 			Entity.ObservableOrderEquipments.ElementRemoved += ObservableOrderEquipmentsOnElementRemoved;
 
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
-			if (!(Entity.Client?.IsForRetail ?? false))
-            {
-				enumSignatureType.AddEnumToHideList(new object[] { OrderSignatureType.SignatureTranscript });
-            }
+
 			enumSignatureType.Binding.AddBinding(Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource();
 
 			labelCreationDateValue.Binding.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
@@ -610,13 +607,26 @@ namespace Vodovoz
 
 			Entity.PropertyChanged += (sender, args) =>
 			{
-				if(args.PropertyName == nameof(Order.OrderStatus)) {
-					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderStatus));
-				} 
-				else if(args.PropertyName == nameof(Order.Contract)) {
-					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
-					OnContractChanged();
-				} 
+				switch(args.PropertyName)
+				{
+					case nameof(Order.OrderStatus):
+						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderStatus));
+						break;
+					case nameof(Order.Contract):
+						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
+						OnContractChanged();
+						break;
+					case nameof(Order.Client):
+						if(Entity.Client?.IsForRetail ?? false)
+						{
+							enumSignatureType.RemoveEnumFromHideList(new object[] { OrderSignatureType.SignatureTranscript });
+						}
+						else
+						{
+							enumSignatureType.AddEnumToHideList(new object[] { OrderSignatureType.SignatureTranscript });
+						}
+						break;
+				}
 			};
 			OnContractChanged();
 			
