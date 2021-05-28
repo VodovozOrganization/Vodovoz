@@ -638,11 +638,11 @@ namespace Vodovoz.Domain.Employees
 
 	public enum DriverType
 	{
-		[Display(Name = "Компании ТС")]
+		[Display(Name = "Управляет ТС компании")]
 		companydriver,
-		[Display(Name = "Раскат")]
+		[Display(Name = "Управляет ТС в раскате")]
 		raskat,
-		[Display(Name = "Личное ТС")]
+		[Display(Name = "Управляет ТС личным")]
 		hireddriver
 	}
 
