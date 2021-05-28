@@ -167,11 +167,11 @@ namespace Vodovoz
 							 && DocumentUoW.Root.Items.IndexOf(x) < DocumentUoW.Root.Items.IndexOf(item))
 					.Sum(x => x.Amount);
 
-				var countcalculatedAvailableCount = item.AmountInStock - alreadyCounted;
+				var calculatedAvailableCount = item.AmountInStock - alreadyCounted;
 
-				if(item.Amount > countcalculatedAvailableCount)
+				if(item.Amount > calculatedAvailableCount)
 				{
-					item.Amount = countcalculatedAvailableCount;
+					item.Amount = calculatedAvailableCount;
 				}
 			}
 		}
