@@ -29,7 +29,6 @@ namespace Vodovoz.ViewModels.Complaints
 			this.commonServices = commonServices;
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
-			UpdateAcessibility();
 		}
 
 		GuiltyItemViewModel currentGuiltyVM;
