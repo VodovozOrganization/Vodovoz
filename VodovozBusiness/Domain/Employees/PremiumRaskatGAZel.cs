@@ -10,7 +10,7 @@ namespace Vodovoz.Domain.Employees
 		Nominative = "автопремия для раскатных газелей")]
 	[EntityPermission]
 
-	public class PremiumGazelRaskat : PremiumBase
+	public class PremiumRaskatGAZel : PremiumBase
 	{
 		DateTime routeListDate;
 

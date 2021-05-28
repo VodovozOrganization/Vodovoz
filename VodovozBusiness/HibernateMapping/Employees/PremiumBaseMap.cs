@@ -30,12 +30,11 @@ namespace Vodovoz.HibernateMapping
 			}
 		}
 
-		public class PremiumGAZelRaskatMap : SubclassMap<PremiumGazelRaskat>
+		public class PremiumRaskatGAZelMap : SubclassMap<PremiumRaskatGAZel>
 		{
-			public PremiumGAZelRaskatMap()
+			public PremiumRaskatGAZelMap()
 			{
-				DiscriminatorValue("GazelRaskat");
-
+				DiscriminatorValue("RaskatGAZel");
 				Map(x => x.RouteListDate).Column("route_list_date");
 			}
 		}

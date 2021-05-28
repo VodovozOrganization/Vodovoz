@@ -5,14 +5,13 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Utilities;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Employees
 {
-	public class PremiumBase : PropertyChangedBase, IDomainObject, IValidatableObject
+	public abstract class PremiumBase : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -26,7 +25,7 @@ namespace Vodovoz.Domain.Employees
 			get { return date; }
 			set
 			{
-				SetField(ref date, value, () => Date);
+				SetField(ref date, value);
 			}
 		}
 
@@ -36,7 +35,7 @@ namespace Vodovoz.Domain.Employees
 		public virtual decimal TotalMoney
 		{
 			get { return totalMoney; }
-			set { SetField(ref totalMoney, value, () => TotalMoney); }
+			set { SetField(ref totalMoney, value); }
 		}
 
 		private string premiumReasonString;
@@ -45,7 +44,7 @@ namespace Vodovoz.Domain.Employees
 		public virtual string PremiumReasonString
 		{
 			get { return premiumReasonString; }
-			set { SetField(ref premiumReasonString, value, () => PremiumReasonString); }
+			set { SetField(ref premiumReasonString, value); }
 		}
 
 		private Employee author;
@@ -54,7 +53,7 @@ namespace Vodovoz.Domain.Employees
 		public virtual Employee Author
 		{
 			get { return author; }
-			set { SetField(ref author, value, () => Author); }
+			set { SetField(ref author, value); }
 		}
 
 		IList<PremiumItem> items = new List<PremiumItem>();
@@ -65,7 +64,7 @@ namespace Vodovoz.Domain.Employees
 			get { return items; }
 			set
 			{
-				SetField(ref items, value, () => Items);
+				SetField(ref items, value);
 				observableItems = null;
 			}
 		}
@@ -108,10 +107,6 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		#endregion
-
-		//public Premium()
-		//{
-		//}
 
 		#region Методы
 
@@ -177,19 +172,18 @@ namespace Vodovoz.Domain.Employees
 		{
 			if (Items.Count == 0)
 				yield return new ValidationResult(String.Format("Отсутствуют сотрудники которым начислена премия."),
-					new[] { this.GetPropertyName(o => o.Items) });
+					new[] { nameof(Items) });
 
 			var totalSum = Items.Sum(x => x.Money);
 			if (totalSum != TotalMoney)
 				yield return new ValidationResult(String.Format("Общая сумма премии {0:C}, отличается от суммы премий всех сотрудников {1:C}.",
 					TotalMoney, totalSum),
-					new[] { this.GetPropertyName(o => o.Items) });
+					new[] { nameof(Items) });
 
 			if (string.IsNullOrWhiteSpace(PremiumReasonString))
 				yield return new ValidationResult(String.Format("Отсутствует причина начисления премии."),
-					new[] { this.GetPropertyName(o => o.PremiumReasonString) });
+					new[] { nameof(Items) });
 		}
-
 
 		#endregion
 
@@ -198,7 +192,7 @@ namespace Vodovoz.Domain.Employees
 			[Display(Name = "Премия сотрудников")]
 			Premium,
 			[Display(Name = "Автопремия для раскатных газелей")]
-			GazelRaskat
+			RaskatGAZel
 		}
 	}
 }
