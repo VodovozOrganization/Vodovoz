@@ -87,6 +87,8 @@
     <Compile Include="Domain\Documents\IncomeCashDistributionDocument.cs" />
     <Compile Include="Domain\Documents\RouteListItemCashDistributionDocument.cs" />
     <Compile Include="Domain\Documents\SelfDeliveryCashDistributionDocument.cs" />
+    <Compile Include="Domain\Employees\PremiumBase.cs" />
+    <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
     <Compile Include="Domain\FinancialDistrict.cs" />
     <Compile Include="Domain\FinancialDistrictsSet.cs" />
     <Compile Include="Domain\Goods\NomenclatureFixedPrice.cs" />
@@ -183,6 +185,7 @@
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPrioritySetMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
+    <Compile Include="Models\PremiumRaskatGAZelleWageModel.cs" />
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
@@ -201,6 +204,7 @@
     <Compile Include="Parameters\OrderParametersProvider.cs" />
     <Compile Include="Parameters\OrganizationParametersProvider.cs" />
     <Compile Include="Parameters\ReportDefaultsProvider.cs" />
+    <Compile Include="Parameters\PremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="Parameters\RouteListParametersProvider.cs" />
     <Compile Include="Parameters\TabsParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
@@ -462,6 +466,7 @@
     <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />
     <Compile Include="Services\IOrderParametersProvider.cs" />
     <Compile Include="Services\IOrganizationParametersProvider.cs" />
+    <Compile Include="Services\IPremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="Services\IRouteListParametersProvider.cs" />
     <Compile Include="Services\ITabsParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
@@ -504,7 +509,7 @@
     <Compile Include="Domain\Employees\Premium.cs" />
     <Compile Include="Domain\Employees\PremiumItem.cs" />
     <Compile Include="Domain\Employees\PremiumTemplate.cs" />
-    <Compile Include="HibernateMapping\Employees\PremiumMap.cs" />
+    <Compile Include="HibernateMapping\Employees\PremiumBaseMap.cs" />
     <Compile Include="HibernateMapping\Employees\PremiumItemMap.cs" />
     <Compile Include="HibernateMapping\Employees\PremiumTemplateMap.cs" />
     <Compile Include="Domain\Employees\CarProxyDocument.cs" />

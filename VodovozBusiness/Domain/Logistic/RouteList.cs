@@ -28,6 +28,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
@@ -1715,6 +1716,10 @@ namespace Vodovoz.Domain.Logistic
 			moneyMovementOperations.ForEach(op => UoW.Save(op));
 
 			UpdateWageOperation();
+
+			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(EmployeeSingletonRepository.GetInstance(), new BaseParametersProvider(),
+				new PremiumRaskatGAZelleParametersProvider(SingletonParametersProvider.Instance), this);
+			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}
 
 		#region Для логистических расчетов
