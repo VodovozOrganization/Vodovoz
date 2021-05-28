@@ -617,13 +617,20 @@ namespace Vodovoz
 						OnContractChanged();
 						break;
 					case nameof(Order.Client):
+						var signatureTranscriptType = new object[] { OrderSignatureType.SignatureTranscript };
 						if(Entity.Client?.IsForRetail ?? false)
 						{
-							enumSignatureType.RemoveEnumFromHideList(new object[] { OrderSignatureType.SignatureTranscript });
+							while(enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
+							{
+								enumSignatureType.RemoveEnumFromHideList(signatureTranscriptType);
+							}
 						}
 						else
 						{
-							enumSignatureType.AddEnumToHideList(new object[] { OrderSignatureType.SignatureTranscript });
+							if(!enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
+							{
+								enumSignatureType.AddEnumToHideList(signatureTranscriptType);
+							}
 						}
 						break;
 				}
