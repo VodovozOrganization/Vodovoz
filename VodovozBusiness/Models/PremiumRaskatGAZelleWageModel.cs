@@ -41,7 +41,7 @@ namespace Vodovoz.Models
 				Author = employeeRepository.GetEmployeeForCurrentUser(uow),
 				Date = DateTime.Now.Date,
 				TotalMoney = premiumRaskatGAZelleParametersProvider.PremiumRaskatGAZelleMoney,
-				RouteListDate = routeList.Date.Date
+				RouteList = routeList
 			};
 
 			uow.Save(premiumRaskatGAZelle);
@@ -77,13 +77,14 @@ namespace Vodovoz.Models
 			Car carAlias = null;
 			PremiumItem premiumItemAlias = null;
 			PremiumRaskatGAZelle premiumRaskatGAZelleAlias = null;
+			RouteList premiumRouteListAlias = null;
 
 			var premiumRaskatGAZelleSubquery = QueryOver.Of(() => premiumItemAlias)
 				.JoinAlias(() => premiumItemAlias.Premium, () => premiumRaskatGAZelleAlias)
-
-				.Where(() => premiumRaskatGAZelleAlias.RouteListDate == routeList.Date.Date &&
-							 premiumItemAlias.Employee == routeList.Driver &&
-							 premiumRaskatGAZelleAlias.GetType() == typeof(PremiumRaskatGAZelle))
+				.JoinAlias(() => premiumRaskatGAZelleAlias.RouteList, () => premiumRouteListAlias)
+				.Where(() => premiumRouteListAlias.Date.Date == routeList.Date.Date &&
+				             premiumItemAlias.Employee == routeList.Driver &&
+				             premiumRaskatGAZelleAlias.GetType() == typeof(PremiumRaskatGAZelle))
 				.Select(p => p.Id);
 
 			var wageDistrictSubquery = QueryOver.Of(() => routeListAdressesAlias)

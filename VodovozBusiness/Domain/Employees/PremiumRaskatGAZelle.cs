@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -12,13 +13,13 @@ namespace Vodovoz.Domain.Employees
 
 	public class PremiumRaskatGAZelle : PremiumBase
 	{
-		DateTime routeListDate;
+		RouteList routeList;
 
-		[Display(Name = "Дата маршрутного листа")]
-		public virtual DateTime RouteListDate
+		[Display(Name = "Закрываемый маршрутный лист")]
+		public virtual RouteList RouteList
 		{
-			get { return routeListDate; }
-			set { SetField(ref routeListDate, value); }
+			get { return routeList; }
+			set { SetField(ref routeList, value); }
 		}
 	}
 }

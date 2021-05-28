@@ -35,7 +35,7 @@ namespace Vodovoz.HibernateMapping
 			public PremiumRaskatGAZelleMap()
 			{
 				DiscriminatorValue("RaskatGAZelle");
-				Map(x => x.RouteListDate).Column("route_list_date");
+				References(x => x.RouteList).Column("route_list_id");
 			}
 		}
 	}
