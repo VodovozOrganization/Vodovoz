@@ -98,9 +98,17 @@ namespace Vodovoz.JournalViewModels
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
-			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			if(FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
+				query.JoinEntityAlias(
+					() => counterpartyAlias,
+					() => counterpartyAlias.Id == orderAlias.Client.Id
+					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+			}
+			else
+			{
+				query.Left.JoinAlias(o => o.Client, () => counterpartyAlias);
 			}
 
 			if (FilterViewModel.ViewTypes != ViewTypes.Order && FilterViewModel.ViewTypes != ViewTypes.All)
@@ -202,7 +210,6 @@ namespace Vodovoz.JournalViewModels
 
 			query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
-				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias)
 				.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
@@ -297,9 +304,17 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Id == -1);
 			}
 
-			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			if(FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
+				query.JoinEntityAlias(
+					() => counterpartyAlias,
+					() => counterpartyAlias.Id == orderWSDAlias.Client.Id
+					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+			}
+			else
+			{
+				query.Left.JoinAlias(o => o.Client, () => counterpartyAlias);
 			}
 
 			if (FilterViewModel.RestrictStartDate != null) {
@@ -314,8 +329,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
 			}
 			
-			query.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
-				 .Left.JoinAlias(o => o.Author, () => authorAlias);
+			query.Left.JoinAlias(o => o.Author, () => authorAlias);
 
 			query.Where(GetSearchCriterion(
 				() => orderWSDAlias.Id,
@@ -379,7 +393,6 @@ namespace Vodovoz.JournalViewModels
 			Employee authorAlias = null;
 
 			var query = uow.Session.QueryOver(() => orderWSPAlias)
-				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFP && FilterViewModel.ViewTypes != ViewTypes.All
@@ -396,9 +409,17 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Id == -1);
 			}
 
-			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			if(FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
+				query.JoinEntityAlias(
+					() => counterpartyAlias,
+					() => counterpartyAlias.Id == orderWSPAlias.Client.Id
+					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+			}
+			else
+			{
+				query.Left.JoinAlias(o => o.Client, () => counterpartyAlias);
 			}
 
 			if (FilterViewModel.RestrictStartDate != null) {
@@ -499,7 +520,6 @@ namespace Vodovoz.JournalViewModels
 			Nomenclature nomenclatureAlias = null;
 
 			var query = uow.Session.QueryOver(() => orderWSAPAlias)
-				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFAP && FilterViewModel.ViewTypes != ViewTypes.All
@@ -516,9 +536,17 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Id == -1);
 			}
 
-			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			if(FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
+				query.JoinEntityAlias(
+					() => counterpartyAlias,
+					() => counterpartyAlias.Id == orderWSAPAlias.Client.Id
+					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+			}
+			else
+			{
+				query.Left.JoinAlias(o => o.Client, () => counterpartyAlias);
 			}
 
 			if (FilterViewModel.RestrictStartDate != null) {
