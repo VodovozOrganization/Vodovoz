@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
@@ -566,6 +568,22 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public virtual GenericObservableList<Subdivision> ObservableSubdivisions { get; set; }
 
+		private IList<DeliverySummary> deliverySummary = new List<DeliverySummary>();
+		public virtual IList<DeliverySummary> DeliverySummary {
+			get => deliverySummary;
+			set => SetField(ref deliverySummary, value);
+		}
+		
+		private GenericObservableList<DeliverySummary> observableDeliverySummary;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<DeliverySummary> ObservableDeliverySummary {
+			get {
+				if(observableDeliverySummary == null)
+					observableDeliverySummary = new GenericObservableList<DeliverySummary>(DeliverySummary);
+				return observableDeliverySummary;
+			}
+		}
+
 		#endregion
 
 		public IEnumerable<AddressTypeNode> AddressTypes { get; } = new[] {
@@ -919,7 +937,7 @@ namespace Vodovoz.ViewModels.Logistic
 				$"6л - {total6LBottles:N0}",
 				$"0,6л - {total600mlBottles:N0}"
 			};
-
+			
 			return string.Join("\n", text);
 		}
 
@@ -1213,7 +1231,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.Future();
 
 			GetWorkDriversInfo();
-
+			CalculateOnDeliverySum();
 			RoutesOnDay = routesQuery.ToList();
 			RoutesOnDay.ToList().ForEach(rl => rl.UoW = UoW);
 			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
@@ -1326,6 +1344,105 @@ namespace Vodovoz.ViewModels.Logistic
 			return driverWorkSchedule == null 
 				? defaultDeliveryDaySchedule
 				: driverWorkSchedule.DaySchedule;
+		}
+		
+		private void CalculateOnDeliverySum()
+		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			OrdersCountNode ordersCountNode = null;
+			DeliverySummaryNode resultAlias = null;
+			
+			ObservableDeliverySummary.Clear();
+
+			var ordersCount = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+				.GetExecutableQueryOver(UoW.Session)
+				.Where(o => !o.IsContractCloser)
+				.And(o => !o.IsService)
+				.SelectList(list => list
+					.Select(o=>o.OrderStatus).WithAlias(() => ordersCountNode.OrderStatus)
+					.Select(o=>o.Id).WithAlias(() => ordersCountNode.Id)
+				).TransformUsing(Transformers.AliasToBean<OrdersCountNode>()).List<OrdersCountNode>().GroupBy(o=>o.OrderStatus);
+			
+			var deliverySummaryNodes = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+				.GetExecutableQueryOver(UoW.Session)
+				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
+				             (nomenclatureAlias.TareVolume == TareVolume.Vol19L || nomenclatureAlias.TareVolume == TareVolume.Vol6L || 
+				              nomenclatureAlias.TareVolume == TareVolume.Vol600ml))
+				.Where(o => !o.IsContractCloser)
+				.And(o => !o.IsService)
+				.SelectList(list => list
+					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(() => orderItemAlias.Count).WithAlias(() => resultAlias.Bottles)
+					.Select(() => nomenclatureAlias.TareVolume).WithAlias(() => resultAlias.TareVolume)
+				).TransformUsing(Transformers.AliasToBean<DeliverySummaryNode>()).List<DeliverySummaryNode>();
+
+			var totalCancellations = new DeliverySummary {Name = "Итого отмены"};
+			var totalNotRL = new DeliverySummary {Name = "Итого не в МЛ"};
+			var totalInRL = new DeliverySummary {Name = "Итого в МЛ"};
+			var totalOnTheWay = new DeliverySummary {Name = "Итого в пути"};
+			var totalCompleted = new DeliverySummary {Name = "Итого выполнено"};
+			
+			foreach (var orderGroup in deliverySummaryNodes.GroupBy(o=>o.OrderStatus))
+			{
+				var addressCount = ordersCount.Where(x => x.Key == orderGroup.Key).Sum(x => x.Select(y => y).Count());
+				var deliverySum = new DeliverySummary(orderGroup.Key.GetEnumTitle(), addressCount, orderGroup.Select(x => x).ToList());
+				ObservableDeliverySummary.Add(deliverySum);
+				switch (orderGroup.Key)
+				{
+					case OrderStatus.DeliveryCanceled:
+					case OrderStatus.NotDelivered:
+						totalCancellations.Bottles += deliverySum.Bottles;
+						totalCancellations.AddressCount += deliverySum.AddressCount;
+						break;
+					case OrderStatus.Accepted:
+						totalNotRL.Bottles += deliverySum.Bottles;
+						totalNotRL.AddressCount += deliverySum.AddressCount;
+						break;
+					case OrderStatus.InTravelList:
+					case OrderStatus.OnLoading:
+						totalInRL.Bottles += deliverySum.Bottles;
+						totalInRL.AddressCount += deliverySum.AddressCount;
+						break;
+					case OrderStatus.OnTheWay:
+						totalOnTheWay.Bottles += deliverySum.Bottles;
+						totalOnTheWay.AddressCount += deliverySum.AddressCount;
+						break;
+					case OrderStatus.UnloadingOnStock:
+					case OrderStatus.Shipped:
+					case OrderStatus.Closed:
+						totalCompleted.Bottles += deliverySum.Bottles;
+						totalCompleted.AddressCount += deliverySum.AddressCount;
+						break;
+				}
+			}
+			
+			var totalNoAway = new DeliverySummary
+			{
+				Name = "Итого не уехало", Bottles = totalNotRL.Bottles + totalInRL.Bottles,
+				AddressCount = totalNotRL.AddressCount + totalInRL.AddressCount
+			};
+			var totalLeft = new DeliverySummary
+			{
+				Name = "Итого уехало", Bottles = totalCompleted.Bottles + totalOnTheWay.Bottles,
+				AddressCount = totalCompleted.AddressCount + totalOnTheWay.AddressCount
+			};
+			var totalForDay = new DeliverySummary
+			{
+				Name = "Итого за день", Bottles = totalNoAway.Bottles + totalLeft.Bottles + totalCancellations.Bottles,
+				AddressCount = totalNoAway.AddressCount + totalLeft.AddressCount + totalCancellations.AddressCount
+			};
+			
+			ObservableDeliverySummary.Add(totalCancellations);
+			ObservableDeliverySummary.Add(totalNotRL);
+			ObservableDeliverySummary.Add(totalInRL);
+			ObservableDeliverySummary.Add(totalNoAway);
+			ObservableDeliverySummary.Add(totalOnTheWay);
+			ObservableDeliverySummary.Add(totalCompleted);
+			ObservableDeliverySummary.Add(totalLeft);
+			ObservableDeliverySummary.Add(totalForDay);
 		}
 	}
 }

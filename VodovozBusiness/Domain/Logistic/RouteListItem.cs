@@ -338,6 +338,15 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref fines, value);
 		}
 
+		private bool isDriverForeignDistrict;
+
+		[Display(Name = "Чужой район для водителя")]
+		public virtual bool IsDriverForeignDistrict
+		{
+			get => isDriverForeignDistrict;
+			set => SetField(ref isDriverForeignDistrict, value);
+		}
+
 		GenericObservableList<Fine> observableFines;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Fine> ObservableFines {
@@ -800,6 +809,12 @@ namespace Vodovoz.Domain.Logistic
 			if (CommentForFine?.Length > 1000)
 			{
 				yield return new ValidationResult($"В адресе: '{Title}' превышена максимально допустимая длина комментария по штрафу ({CommentForFine.Length}/1000)");
+			}
+
+			if (CashierComment?.Length > 255)
+			{
+				yield return new ValidationResult(
+					$"В адресе: '{Title}' превышена максимально допустимая длина комментария кассира ({CashierComment.Length}/255)");
 			}
 		}
 	}

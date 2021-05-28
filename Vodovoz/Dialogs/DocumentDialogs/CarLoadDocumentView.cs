@@ -158,10 +158,21 @@ namespace Vodovoz
 
 		public void UpdateAmounts()
 		{
-			foreach(var item in DocumentUoW.Root.Items) {
+			foreach(var item in DocumentUoW.Root.Items)
+			{
 				item.Amount = item.AmountInRouteList - item.AmountLoaded;
-				if(item.Amount > item.AmountInStock)
-					item.Amount = item.AmountInStock;
+
+				var alreadyCounted = DocumentUoW.Root.Items
+					.Where(x => x.Nomenclature == item.Nomenclature 
+							 && DocumentUoW.Root.Items.IndexOf(x) < DocumentUoW.Root.Items.IndexOf(item))
+					.Sum(x => x.Amount);
+
+				var calculatedAvailableCount = item.AmountInStock - alreadyCounted;
+
+				if(item.Amount > calculatedAvailableCount)
+				{
+					item.Amount = calculatedAvailableCount;
+				}
 			}
 		}
 	}

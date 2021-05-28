@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.HibernateMapping.Logistic
@@ -11,7 +11,10 @@ namespace Vodovoz.HibernateMapping.Logistic
 
             Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-            Map(x => x.DateActivated).Column("date_activated");
+			Map(x => x.DateCreated).Column("date_created");
+			Map(x => x.DateLastChanged).Column("date_last_changed");
+
+			Map(x => x.DateActivated).Column("date_activated");
             Map(x => x.DateDeactivated).Column("date_deactivated");
             Map(x => x.IsActive).Column("is_active");
             Map(x => x.IsCreatedAutomatically).Column("is_created_automatically");

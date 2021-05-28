@@ -105,6 +105,8 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
+using QS.Services;
+using Vodovoz.ViewModels.Reports;
 using MySql.Data.MySqlClient;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -1071,10 +1073,10 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionDeliveryTimeReportActivated(object sender, EventArgs e)
     {
-        tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport>(),
-            () => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport())
-        );
+	    tdiMain.OpenTab(QSReport.ReportViewDlg.GenerateHashName<DeliveryTimeReport>(),
+		    () => new QSReport.ReportViewDlg(
+			    new DeliveryTimeReport(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService))
+	    );
     }
 
     protected void OnActionOrdersByDistrict(object sender, EventArgs e)
@@ -1356,14 +1358,6 @@ public partial class MainWindow : Gtk.Window
         tdiMain.OpenTab(
             TdiTabBase.GenerateHashName<ExportToSiteDlg>(),
             () => new ExportToSiteDlg()
-        );
-    }
-
-    protected void OnActionSendedBillsActivated(object sender, EventArgs e)
-    {
-        tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<SendedEmailsReport>(),
-            () => new QSReport.ReportViewDlg(new SendedEmailsReport())
         );
     }
 
@@ -2267,6 +2261,15 @@ public partial class MainWindow : Gtk.Window
         );
     }
 
+    protected void OnActionOrderAnalyticsReportActivated(object sender, EventArgs e)
+    {
+        var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+        var interactiveService = autofacScope.Resolve<IInteractiveService>();
+
+        NavigationManager.OpenViewModel<OrderAnalyticsReportViewModel, INavigationManager, IUnitOfWorkFactory, IInteractiveService>(
+            null, NavigationManager, uowFactory, interactiveService);
+    }
+    
     protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
     {
         tdiMain.OpenTab(
