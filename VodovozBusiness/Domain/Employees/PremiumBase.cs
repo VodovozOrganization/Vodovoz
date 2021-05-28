@@ -192,7 +192,7 @@ namespace Vodovoz.Domain.Employees
 			[Display(Name = "Премия сотрудников")]
 			Premium,
 			[Display(Name = "Автопремия для раскатных газелей")]
-			RaskatGAZel
+			RaskatGAZelle
 		}
 	}
 }

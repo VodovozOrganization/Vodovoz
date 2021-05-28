@@ -1717,9 +1717,9 @@ namespace Vodovoz.Domain.Logistic
 
 			UpdateWageOperation();
 
-			var premiumRaskatGAZelWageModel = new PremiumRaskatGAZelWageModel(EmployeeSingletonRepository.GetInstance(), new BaseParametersProvider(),
-				new PremiumRaskatGAZelParametersProvider(SingletonParametersProvider.Instance), this);
-			premiumRaskatGAZelWageModel.UpdatePremiumRaskatGAZel(UoW);
+			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(EmployeeSingletonRepository.GetInstance(), new BaseParametersProvider(),
+				new PremiumRaskatGAZelleParametersProvider(SingletonParametersProvider.Instance), this);
+			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}
 
 		#region Для логистических расчетов

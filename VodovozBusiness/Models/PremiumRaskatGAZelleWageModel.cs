@@ -12,45 +12,45 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Models
 {
-	public class PremiumRaskatGAZelWageModel
+	public class PremiumRaskatGAZelleWageModel
 	{
 		private readonly IEmployeeRepository employeeRepository;
 		private readonly IWageParametersProvider wageParametersProvider;
-		private readonly IPremiumRaskatGAZelParametersProvider premiumRaskatGAZelParametersProvider;
+		private readonly IPremiumRaskatGAZelleParametersProvider premiumRaskatGAZelleParametersProvider;
 		private readonly RouteList routeList;
 
-		public PremiumRaskatGAZelWageModel(IEmployeeRepository employeeRepository, IWageParametersProvider wageParametersProvider,
-			IPremiumRaskatGAZelParametersProvider premiumRaskatGAZelParametersProvider, RouteList routeList)
+		public PremiumRaskatGAZelleWageModel(IEmployeeRepository employeeRepository, IWageParametersProvider wageParametersProvider,
+			IPremiumRaskatGAZelleParametersProvider premiumRaskatGaZelleParametersProvider, RouteList routeList)
 		{
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			this.wageParametersProvider = wageParametersProvider ?? throw new ArgumentNullException(nameof(wageParametersProvider));
-			this.premiumRaskatGAZelParametersProvider = premiumRaskatGAZelParametersProvider ?? throw new ArgumentNullException(nameof(premiumRaskatGAZelParametersProvider));
+			this.premiumRaskatGAZelleParametersProvider = premiumRaskatGaZelleParametersProvider ?? throw new ArgumentNullException(nameof(premiumRaskatGaZelleParametersProvider));
 			this.routeList = routeList ?? throw new ArgumentNullException(nameof(routeList));
 		}
 
-		public void UpdatePremiumRaskatGAZel(IUnitOfWork uow)
+		public void UpdatePremiumRaskatGAZelle(IUnitOfWork uow)
 		{
-			if (!NeedPremiumRaskatGAZelInRouteListDate(uow))
+			if (!NeedPremiumRaskatGAZelleInRouteListDate(uow))
 			{
 				return;
 			}
 
-			PremiumRaskatGAZel premiumRaskat = new PremiumRaskatGAZel()
+			PremiumRaskatGAZelle premiumRaskatGAZelle = new PremiumRaskatGAZelle()
 			{
 				PremiumReasonString = "Автопремия для раскатных газелей",
 				Author = employeeRepository.GetEmployeeForCurrentUser(uow),
 				Date = DateTime.Now.Date,
-				TotalMoney = premiumRaskatGAZelParametersProvider.PremiumRaskatGAZelMoney,
+				TotalMoney = premiumRaskatGAZelleParametersProvider.PremiumRaskatGAZelleMoney,
 				RouteListDate = routeList.Date.Date
 			};
 
-			uow.Save(premiumRaskat);
+			uow.Save(premiumRaskatGAZelle);
 
 			WagesMovementOperations operation = new WagesMovementOperations
 			{
 				OperationType = WagesType.PremiumWage,
 				Employee = routeList.Driver,
-				Money = premiumRaskatGAZelParametersProvider.PremiumRaskatGAZelMoney,
+				Money = premiumRaskatGAZelleParametersProvider.PremiumRaskatGAZelleMoney,
 				OperationTime = DateTime.Now.Date
 			};
 
@@ -58,16 +58,16 @@ namespace Vodovoz.Models
 
 			PremiumItem premiumItem = new PremiumItem()
 			{
-				Premium = premiumRaskat,
+				Premium = premiumRaskatGAZelle,
 				Employee = routeList.Driver,
-				Money = premiumRaskatGAZelParametersProvider.PremiumRaskatGAZelMoney,
+				Money = premiumRaskatGAZelleParametersProvider.PremiumRaskatGAZelleMoney,
 				WageOperation = operation
 			};
 
 			uow.Save(premiumItem);
 		}
 
-		private bool NeedPremiumRaskatGAZelInRouteListDate(IUnitOfWork uow)
+		private bool NeedPremiumRaskatGAZelleInRouteListDate(IUnitOfWork uow)
 		{
 			RouteList routeListAlias = null;
 			RouteListItem routeListAdressesAlias = null;
@@ -76,14 +76,14 @@ namespace Vodovoz.Models
 			District districtAlias = null;
 			Car carAlias = null;
 			PremiumItem premiumItemAlias = null;
-			PremiumRaskatGAZel premiumRaskatGaZelAlias = null;
+			PremiumRaskatGAZelle premiumRaskatGAZelleAlias = null;
 
-			var premiumRaskatGAZelSubquery = QueryOver.Of(() => premiumItemAlias)
-				.JoinAlias(() => premiumItemAlias.Premium, () => premiumRaskatGaZelAlias)
+			var premiumRaskatGAZelleSubquery = QueryOver.Of(() => premiumItemAlias)
+				.JoinAlias(() => premiumItemAlias.Premium, () => premiumRaskatGAZelleAlias)
 
-				.Where(() => premiumRaskatGaZelAlias.RouteListDate == routeList.Date.Date &&
+				.Where(() => premiumRaskatGAZelleAlias.RouteListDate == routeList.Date.Date &&
 							 premiumItemAlias.Employee == routeList.Driver &&
-							 premiumRaskatGaZelAlias.GetType() == typeof(PremiumRaskatGAZel))
+							 premiumRaskatGAZelleAlias.GetType() == typeof(PremiumRaskatGAZelle))
 				.Select(p => p.Id);
 
 			var wageDistrictSubquery = QueryOver.Of(() => routeListAdressesAlias)
@@ -96,11 +96,11 @@ namespace Vodovoz.Models
 
 			var checkQuery = uow.Session.QueryOver(() => routeListAlias)
 				.JoinAlias(() => routeListAlias.Car, () => carAlias)
-				.WithSubquery.WhereNotExists(premiumRaskatGAZelSubquery)
+				.WithSubquery.WhereNotExists(premiumRaskatGAZelleSubquery)
 				.WithSubquery.WhereExists(wageDistrictSubquery)
 				.Where(() => routeListAlias.Driver == routeList.Driver &&
 							 routeListAlias.Date.Date == routeList.Date.Date &&
-							 routeListAlias.RecalculatedDistance >= premiumRaskatGAZelParametersProvider.MinRecalculatedDistanceForPremiumRaskatGAZel &&
+							 routeListAlias.RecalculatedDistance >= premiumRaskatGAZelleParametersProvider.MinRecalculatedDistanceForPremiumRaskatGAZelle &&
 							 carAlias.IsRaskat
 				)
 				.Take(1).SingleOrDefault();
