@@ -1352,27 +1352,43 @@ namespace Vodovoz.ViewModels.Logistic
 			Nomenclature nomenclatureAlias = null;
 			OrdersCountNode ordersCountNode = null;
 			DeliverySummaryNode resultAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			District districtAlias = null;
+			GeographicGroup geographicGroupAlias = null;
 			
 			ObservableDeliverySummary.Clear();
-
-			var ordersCount = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			
+			var baseQuery = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 				.GetExecutableQueryOver(UoW.Session)
 				.Where(o => !o.IsContractCloser)
-				.And(o => !o.IsService)
+				.And(o => !o.IsService);
+			
+			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
+
+			if(AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Delivery))
+			{
+				if(selectedGeographicGroup.Any())
+				{
+					baseQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
+						.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
+						.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
+							selectedGeographicGroup.Select(x => x.Id).ToArray()));
+				}
+			}
+
+			var ordersCount = baseQuery
 				.SelectList(list => list
 					.Select(o=>o.OrderStatus).WithAlias(() => ordersCountNode.OrderStatus)
 					.Select(o=>o.Id).WithAlias(() => ordersCountNode.Id)
 				).TransformUsing(Transformers.AliasToBean<OrdersCountNode>()).List<OrdersCountNode>().GroupBy(o=>o.OrderStatus);
 			
-			var deliverySummaryNodes = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-				.GetExecutableQueryOver(UoW.Session)
+			var deliverySummaryNodes = baseQuery
 				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
 				             (nomenclatureAlias.TareVolume == TareVolume.Vol19L || nomenclatureAlias.TareVolume == TareVolume.Vol6L || 
 				              nomenclatureAlias.TareVolume == TareVolume.Vol600ml))
-				.Where(o => !o.IsContractCloser)
-				.And(o => !o.IsService)
 				.SelectList(list => list
 					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
 					.Select(() => orderItemAlias.Count).WithAlias(() => resultAlias.Bottles)
