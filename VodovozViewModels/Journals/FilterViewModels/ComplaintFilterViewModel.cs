@@ -63,6 +63,7 @@ namespace Vodovoz.FilterViewModels
 			UpdateWith(
 				x => x.ComplaintType,
 				x => x.ComplaintStatus,
+				x => x.Counterparty,
 				x => x.Employee,
 				x => x.StartDate,
 				x => x.EndDate,
