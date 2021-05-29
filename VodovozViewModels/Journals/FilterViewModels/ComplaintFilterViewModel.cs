@@ -6,6 +6,7 @@ using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Services;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -119,6 +120,13 @@ namespace Vodovoz.FilterViewModels
 		public virtual Employee Employee {
 			get { return employee; }
 			set { SetField(ref employee, value); }
+		}
+
+		private Counterparty counterparty;
+		public virtual Counterparty Counterparty
+		{
+			get { return counterparty; }
+			set { SetField(ref counterparty, value); }
 		}
 
 		private Subdivision subdivision;
