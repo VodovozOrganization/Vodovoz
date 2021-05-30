@@ -420,12 +420,12 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref onLoadTimeFixed, value, () => OnloadTimeFixed);
 		}
 
-		private bool printed;
+		private DateTime printTime;
 
-		[Display(Name = "МЛ напечатан")]
-		public virtual bool Printed {
-			get => printed;
-			set => SetField(ref printed, value, () => Printed);
+		[Display(Name = "Время печати МЛ")]
+		public virtual DateTime PrintTime {
+			get => printTime;
+			set => SetField(ref printTime, value);
 		}
 
 		private bool addressesOrderWasChangedAfterPrinted;
@@ -647,7 +647,7 @@ namespace Vodovoz.Domain.Logistic
 				}
 
 				if(Addresses[i].IndexInRoute != i) {
-					if(Printed) {
+					if(PrintTime != null) {
 						AddressesOrderWasChangedAfterPrinted = true;
 					}
 					Addresses[i].IndexInRoute = i;

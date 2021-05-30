@@ -136,7 +136,7 @@ namespace Vodovoz.Additions.Printing
 				if(args is EndPrintArgs endPrintArgs && endPrintArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle())) {
 					using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 						var rl = uow.GetById<RouteList>(currentRouteList.Id);
-						rl.Printed = true;
+						rl.PrintTime = DateTime.Now;
 						uow.Save(rl);
 						uow.Commit();
 					}
