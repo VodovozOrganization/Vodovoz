@@ -1,0 +1,1 @@
+UPDATE Vodovoz_dev_zeta.route_lists SET print_time = `date` 
