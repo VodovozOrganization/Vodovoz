@@ -12,11 +12,11 @@
   <PageHeader>
     <Height>43pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
-    <PrintOnLastPage>false</PrintOnLastPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox2">
         <Height>32.00pt</Height>
-        <Width>199mm</Width>
+        <Width>566.21pt</Width>
         <Value>='Отчет по переплатам за адрес\n с ' +Format(CDate({?start_date}), 'dd.MM.yy') +' по '+ Format(CDate({?end_date}),'dd.MM.yy')</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
@@ -49,7 +49,7 @@
       <Textbox Name="Textbox4">
         <Height>10pt</Height>
         <Width>195mm</Width>
-        <Value>={?selected_filters}</Value>
+        <Value>={?filters}</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>32.00pt</Top>
@@ -78,31 +78,34 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>37.5pt</Width>
+            <Width>22.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>37.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>79.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>21.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>43.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>112.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>39.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>58.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>86.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>30.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>53.1pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>86.6pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>49.1pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>58.8pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>103.4pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>61.0pt</Width>
+            <Width>68.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -123,6 +126,25 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>№ МЛ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -140,6 +162,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -157,6 +180,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -174,6 +198,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -191,6 +216,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -198,7 +224,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>Переплата</Value>
+                      <Value>Пере- плата</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -208,6 +234,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -225,6 +252,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -242,6 +270,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -259,6 +288,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -284,6 +314,25 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>={rl_id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -299,6 +348,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -314,6 +366,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -329,6 +384,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -344,6 +402,12 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingTop>=Len({districts_set}) / 5 + "pt"</PaddingTop>
+                        <FontSize>8pt</FontSize>
+                        <PaddingBottom>=Len({districts_set}) / 5 + "pt"</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -360,6 +424,9 @@
                         <BorderColor />
                         <BorderWidth />
                         <Format>#,##0.00</Format>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -375,6 +442,12 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingTop>=Len({districts_set}) / 6 + "pt"</PaddingTop>
+                        <PaddingBottom>=Len({districts_set}) / 6 + "pt"</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -390,6 +463,11 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>=Len({districts_set}) / 6 + "pt"</PaddingTop>
+                        <PaddingBottom>=Len({districts_set}) / 6 + "pt"</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -405,56 +483,15 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox23">
-                      <Value>Итого по переплате:</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Right>None</Right>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>10pt</FontSize>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontWeight>Bold</FontWeight>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingTop>=Len({districts_set}) / 6 + "pt"</PaddingTop>
+                        <FontSize>8pt</FontSize>
+                        <PaddingBottom>=Len({districts_set}) / 6 + "pt"</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox28">
-                      <Value>=Sum({overpayment})</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Right>Solid</Right>
-                          <Left>None</Left>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Format>#,##0.00</Format>
-                        <TextAlign>Left</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>10pt</FontSize>
-                        <FontWeight>Normal</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>4</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -462,6 +499,54 @@
         </Details>
         <Left>0.0pt</Left>
         <Top>0.0pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>Итого по переплате:</Value>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>6</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <Value>=Sum({overpayment})</Value>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>4</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
     </ReportItems>
   </Body>
@@ -498,6 +583,7 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	master.emplName as empl_name,
+	master.rlId as rl_id,
 	master.driverOf as driver_of,
 	master.subName as sub_name,
 	master.address as address,
@@ -509,6 +595,7 @@ FROM
 (
 	SELECT
 		rla.id as rlaID,
+		rl.id as rlId,
 		(IF(rl.forwarder_id=null,
 			(wr_foreign.for_driver_without_forwarder - wr.for_driver_without_forwarder),
 			(wr_foreign.for_driver_with_forwarder - wr.for_driver_with_forwarder))
@@ -579,29 +666,17 @@ INNER JOIN
 	GROUP BY rla.id
 ) as servant on servant.rlaID = master.rlaID</CommandText>
         <QueryParameters>
-          <QueryParameter Name="empl_name">
-            <Value>{?empl_name}</Value>
+          <QueryParameter Name="@start_date">
+            <Value>={?start_date}</Value>
           </QueryParameter>
-          <QueryParameter Name="driver_of">
-            <Value>{?driver_of}</Value>
+          <QueryParameter Name="@end_date">
+            <Value>={?end_date}</Value>
           </QueryParameter>
-          <QueryParameter Name="sub_name">
-            <Value>{?sub_name}</Value>
+          <QueryParameter Name="@driver_of">
+            <Value>={?driver_of}</Value>
           </QueryParameter>
-          <QueryParameter Name="address">
-            <Value>{?address}</Value>
-          </QueryParameter>
-          <QueryParameter Name="overpayment">
-            <Value>{?overpayment}</Value>
-          </QueryParameter>
-          <QueryParameter Name="dist_name">
-            <Value>{?dist_name}</Value>
-          </QueryParameter>
-          <QueryParameter Name="districts_set">
-            <Value>{?districts_set}</Value>
-          </QueryParameter>
-          <QueryParameter Name="comment_for_fine">
-            <Value>{?comment_for_fine}</Value>
+          <QueryParameter Name="@empl_id">
+            <Value>={?employee_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -637,6 +712,10 @@ INNER JOIN
         <Field Name="comment_for_fine">
           <DataField>comment_for_fine</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="rl_id">
+          <DataField>rl_id</DataField>
+          <TypeName>System.UInt64</TypeName>
         </Field>
       </Fields>
     </DataSet>
