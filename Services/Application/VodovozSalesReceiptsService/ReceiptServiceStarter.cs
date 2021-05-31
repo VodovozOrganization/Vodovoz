@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Web;
-using Nini.Config;
+using Microsoft.Extensions.Configuration;
 using NLog;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
 using VodovozSalesReceiptsService.DTO;
@@ -16,27 +15,17 @@ namespace VodovozSalesReceiptsService
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-		public static void StartService(IConfig serviceConfig, IConfig kassaConfig, IConfig[] cashboxesConfig)
+		public static void StartService(IConfigurationSection serviceConfig, IConfigurationSection kassaConfig, IEnumerable<CashBox> cashboxes)
 		{
 			string serviceHostName;
 			string servicePort;
 			string baseAddress;
-			IList<CashBox> cashboxes;
 
 			try {
-				cashboxes = new List<CashBox>();
-				foreach(var cashboxConfig in cashboxesConfig) {
-					cashboxes.Add(new CashBox {
-						Id = cashboxConfig.GetInt("cash_box_id"),
-						RetailPoint = cashboxConfig.GetString("retail_point"),
-						UserName = new Guid(cashboxConfig.GetString("user_name")),
-						Password = cashboxConfig.GetString("password")
-					});
-				}
-				serviceHostName = serviceConfig.GetString("service_host_name");
-				servicePort = serviceConfig.GetString("service_port");
+				serviceHostName = serviceConfig["service_host_name"];
+				servicePort = serviceConfig["service_port"];
 				
-				baseAddress = kassaConfig.GetString("base_address");
+				baseAddress = kassaConfig["base_address"];
 			}
 			catch(Exception ex) {
 				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
@@ -70,7 +59,6 @@ namespace VodovozSalesReceiptsService
 			);
 			salesReceiptsHost.Open();
 			logger.Info("Запущена служба мониторинга отправки чеков");
-
 		}
 	}
 }

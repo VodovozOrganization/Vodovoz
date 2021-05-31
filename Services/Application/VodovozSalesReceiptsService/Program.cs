@@ -1,18 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
+using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
-using Nini.Config;
 using NLog;
 using QS.Project.DB;
+using VodovozSalesReceiptsService.DTO;
 
 namespace VodovozSalesReceiptsService
 {
 	class Service
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		private const string configFile = "/etc/vodovoz-sales-receipts-service.xml";
+		private const string configFile = "/etc/vodovoz-sales-receipts-service.json";
 
 		//Mysql
 		private static string mysqlServerHostName;
@@ -26,29 +28,26 @@ namespace VodovozSalesReceiptsService
 			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
 
 			logger.Info("Чтение конфигурационного файла...");
-			IConfig serviceConfig;
-			IConfig kassaConfig;
-			IConfig[] cashboxesConfig;
+			IConfigurationSection modulKassaConfig;
+			IEnumerable<CashBox> cashboxes;
+			IConfigurationSection serviceConfig;
 			
 			try {
-				XmlConfigSource confFile = new XmlConfigSource(configFile);
-				confFile.Reload();
-				serviceConfig = confFile.Configs["Service"];
-				kassaConfig = confFile.Configs["ModulKassa"];
-				
-				cashboxesConfig = new[] {
-					confFile.Configs["RetailPointSosnovcev"],
-					confFile.Configs["RetailPointVodovozSouth"],
-					confFile.Configs["RetailPointVodovozNorth"]
-				};
+				var builder = new ConfigurationBuilder()
+					.AddJsonFile(configFile, false);
+				var configuration = builder.Build();
 
-				IConfig mysqlConfig = confFile.Configs["Mysql"];
-				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
-				mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
-				mysqlUser = mysqlConfig.GetString("mysql_user");
-				mysqlPassword = mysqlConfig.GetString("mysql_password");
-				mysqlDatabase = mysqlConfig.GetString("mysql_database");
+				serviceConfig = configuration.GetSection("Service");
+				modulKassaConfig = configuration.GetSection("ModulKassa");
 
+				var mysqlConfig = configuration.GetSection("MySql");
+				mysqlServerHostName = mysqlConfig["mysql_server_host_name"];
+				mysqlServerPort = mysqlConfig["mysql_server_port"];
+				mysqlUser = mysqlConfig["mysql_user"];
+				mysqlPassword = mysqlConfig["mysql_password"];
+				mysqlDatabase = mysqlConfig["mysql_database"];
+
+				cashboxes = configuration.GetSection("Cashboxes").Get<IEnumerable<CashBox>>();
 			}
 			catch(Exception ex) {
 				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
@@ -87,7 +86,7 @@ namespace VodovozSalesReceiptsService
 			}
 
 			try {
-				ReceiptServiceStarter.StartService(serviceConfig, kassaConfig, cashboxesConfig);
+				ReceiptServiceStarter.StartService(serviceConfig, modulKassaConfig, cashboxes);
 				
 				if(Environment.OSVersion.Platform == PlatformID.Unix) {
 					UnixSignal[] signals = {
