@@ -713,7 +713,7 @@ namespace Vodovoz
         
         private void ComplaintViewOnActivated(object sender, EventArgs e)
         {
-	        var filter = new ComplaintFilterViewModel(ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory);
+	        var filter = new ComplaintFilterViewModel(ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
 	        filter.SetAndRefilterAtOnce(x=> x.Counterparty = Entity);
 	        
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(

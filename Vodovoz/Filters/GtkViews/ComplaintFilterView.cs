@@ -1,7 +1,11 @@
-﻿using QS.Views.GtkUI;
+﻿using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
+using QS.Views.GtkUI;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Filters.GtkViews
@@ -19,6 +23,8 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			entryreferencevmEmployee.RepresentationModel = new EmployeesVM(new EmployeeFilterViewModel());
 			entryreferencevmEmployee.Binding.AddBinding(ViewModel, x => x.Employee, v => v.Subject).InitializeFromSource();
+			
+			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entryCounterparty.Binding.AddBinding(ViewModel, x => x.Counterparty, v => v.Subject).InitializeFromSource();
 
 			yenumcomboboxType.ItemsEnum = typeof(ComplaintType);

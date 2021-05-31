@@ -21,6 +21,8 @@ namespace Vodovoz.FilterViewModels
 		private readonly ICommonServices commonServices;
 		public ISubdivisionService SubdivisionService { get; set; }
 		public IEmployeeService EmployeeService { get; set; }
+		
+		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public ComplaintFilterViewModel()
 		{
@@ -40,10 +42,12 @@ namespace Vodovoz.FilterViewModels
 		public ComplaintFilterViewModel(
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory
 		) {
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-
+			CounterpartySelectorFactory =
+				counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
 				commonServices,
