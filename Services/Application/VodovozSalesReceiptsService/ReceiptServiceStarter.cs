@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Web;
-using Microsoft.Extensions.Configuration;
 using NLog;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Orders;
@@ -13,37 +11,22 @@ namespace VodovozSalesReceiptsService
 {
 	public static class ReceiptServiceStarter
 	{
-		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-		public static void StartService(IConfigurationSection serviceConfig, IConfigurationSection kassaConfig, IEnumerable<CashBox> cashboxes)
+		public static void StartService(string serviceHostName, string servicePort, string modulKassaBaseAddress, IEnumerable<CashBox> cashboxes)
 		{
-			string serviceHostName;
-			string servicePort;
-			string baseAddress;
-
-			try {
-				serviceHostName = serviceConfig["service_host_name"];
-				servicePort = serviceConfig["service_port"];
-				
-				baseAddress = kassaConfig["base_address"];
-			}
-			catch(Exception ex) {
-				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
-				return;
-			}
-
-			logger.Info("Запуск службы фискализации и печати кассовых чеков...");
+			_logger.Info("Запуск службы фискализации и печати кассовых чеков...");
 
 			var fiscalizationWorker = new FiscalizationWorker(
 				OrderSingletonRepository.GetInstance(),
-				new SalesReceiptSender(baseAddress),
+				new SalesReceiptSender(modulKassaBaseAddress),
 				new OrderParametersProvider(SingletonParametersProvider.Instance),
 				new OrganizationParametersProvider(SingletonParametersProvider.Instance),
 				cashboxes
 			);
 			fiscalizationWorker.Start();
 			
-			logger.Info("Служба фискализации запущена");
+			_logger.Info("Служба фискализации запущена");
 
 			var salesReceiptsInstanceProvider = new SalesReceiptsInstanceProvider(
 				new BaseParametersProvider(),
@@ -58,7 +41,7 @@ namespace VodovozSalesReceiptsService
 				$"http://{serviceHostName}:{servicePort}/SalesReceipts"
 			);
 			salesReceiptsHost.Open();
-			logger.Info("Запущена служба мониторинга отправки чеков");
+			_logger.Info("Запущена служба мониторинга отправки чеков");
 		}
 	}
 }
