@@ -48,11 +48,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
             operationFrom.Organisation = Entity.OrganizationFrom;
             operationFrom.Amount = -Entity.TransferedSum;
+			operationFrom.OperationTime = Entity.DocumentDate;
 
             operationTo.Organisation = Entity.OrganizationTo;
             operationTo.Amount = Entity.TransferedSum;
+			operationTo.OperationTime = Entity.DocumentDate;
 
-            UoW.Save(operationFrom);
+			UoW.Save(operationFrom);
             UoW.Save(operationTo);
         }
 

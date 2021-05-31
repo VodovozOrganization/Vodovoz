@@ -1100,7 +1100,7 @@ FROM organisation_cash_movement_operations ocmo
 
 WHERE IF(@organisation != -1,
         (IFNULL(codd.organisation_id, octd.organization_to_id) = @organisation AND ocmo.operation_time BETWEEN @StartDate and @EndDate),
-        (ocmo.operation_time BETWEEN @StartDate and @EndDate))
+        (ocmo.operation_time BETWEEN @StartDate and @EndDate) AND (IFNULL(codd.organisation_id, octd.organization_to_id) IS NOT NULL))
 
 UNION ALL
 
@@ -1141,7 +1141,7 @@ FROM organisation_cash_movement_operations ocmo
 	 
 WHERE IF(@organisation != -1,
         (IFNULL(codd.organisation_id, octd.organization_from_id) = @organisation AND ocmo.operation_time BETWEEN @StartDate and @EndDate),
-        (ocmo.operation_time BETWEEN @StartDate and @EndDate));</CommandText>
+        (ocmo.operation_time BETWEEN @StartDate and @EndDate) AND (IFNULL(codd.organisation_id, octd.organization_to_id) IS NOT NULL));</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
