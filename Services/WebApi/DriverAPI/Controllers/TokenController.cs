@@ -18,7 +18,7 @@ namespace DriverAPI.Controllers
 	[ApiController]
 	public class TokenController : ControllerBase
 	{
-		private readonly IConfiguration configuration;
+		private readonly IConfiguration _configuration;
 		private readonly ApplicationDbContext _context;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly double tokenLifetime;
@@ -29,12 +29,12 @@ namespace DriverAPI.Controllers
 			ApplicationDbContext context,
 			UserManager<IdentityUser> userManager)
 		{
-			this.configuration = configuration;
+			_configuration = configuration;
 			_context = context;
 			_userManager = userManager;
 
-			tokenLifetime = double.Parse(this.configuration["Security:Tokens:Lifetime"]);
-			securityKey = this.configuration["Security:Tokens:Key"];
+			tokenLifetime = _configuration.GetValue<double>("Security:Token:Lifetime");
+			securityKey = _configuration.GetValue<string>("Security:Token:Key");
 		}
 
 		[HttpPost]
