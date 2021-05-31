@@ -21,5 +21,10 @@ namespace Vodovoz.Domain.Employees
 			get { return routeList; }
 			set { SetField(ref routeList, value); }
 		}
+
+		public override string Title
+		{
+			get { return String.Format("Автопремия для раскатных газелей №{0} от {1:d} ({2})", Id, Date, RouteList.Title); }
+		}
 	}
 }

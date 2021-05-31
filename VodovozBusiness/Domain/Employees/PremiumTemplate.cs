@@ -9,7 +9,7 @@ namespace Vodovoz.Domain.Employees
 		NominativePlural = "шаблоны комментариев для премий",
 		Nominative = "шаблон комментария для премии")]
 	[EntityPermission]
-	public class PremiumTemplate: PropertyChangedBase, IDomainObject, IValidatableObject
+	public class PremiumTemplate : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -18,7 +18,8 @@ namespace Vodovoz.Domain.Employees
 		string reason;
 
 		[Display(Name = "Причина")]
-		public virtual string Reason {
+		public virtual string Reason
+		{
 			get { return reason; }
 			set { SetField(ref reason, value, () => Reason); }
 		}
@@ -26,7 +27,8 @@ namespace Vodovoz.Domain.Employees
 		private decimal premiumMoney;
 
 		[Display(Name = "Сумма премии")]
-		public virtual decimal PremiumMoney {
+		public virtual decimal PremiumMoney
+		{
 			get { return premiumMoney; }
 			set { SetField(ref premiumMoney, value, () => PremiumMoney); }
 		}
@@ -37,6 +39,11 @@ namespace Vodovoz.Domain.Employees
 		public PremiumTemplate()
 		{
 			Reason = String.Empty;
+		}
+
+		public override string ToString()
+		{
+			return $"Шаблон премии №{Id}: {Reason}";
 		}
 
 		#region IValidatableObject implementation

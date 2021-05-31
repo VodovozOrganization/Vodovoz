@@ -1061,6 +1061,29 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
 					.Finish()
             );
+
+			//PremiumJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PremiumJournalViewModel>(
+				() => FluentColumnsConfig<PremiumJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Дата").AddTextRenderer(node => node.Date != null ? ((DateTime)node.Date).ToString("d") : String.Empty)
+					.AddColumn("Тип").AddTextRenderer(node => node.ViewType)
+						.WrapMode(WrapMode.WordChar)
+						.WrapWidth(100)
+					.AddColumn("Сотрудники").AddTextRenderer(node => node.EmployeesName)
+					.AddColumn("Сумма премии").AddTextRenderer(node => node.PremiumSumm.ToString())
+					.AddColumn("Причина премии").AddTextRenderer(node => node.PremiumReason)
+					.Finish()
+			);
+
+			//PremiumTemplateJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PremiumTemplateJournalViewModel>(
+				() => FluentColumnsConfig<PremiumTemplateJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Шаблон комментария").AddTextRenderer(node => node.Reason)
+					.AddColumn("Сумма премии").AddTextRenderer(node => node.PremiumMoney.ToString())
+					.Finish()
+			);
 		}
 	}
 }

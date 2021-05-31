@@ -70,7 +70,9 @@ using Action = Gtk.Action;
 using Vodovoz.Old1612ExportTo1c;
 using Vodovoz.JournalFilters.Cash;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
 public partial class MainWindow : Window
 {
@@ -721,14 +723,17 @@ public partial class MainWindow : Window
 
 	void ActionPremiumJournal_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			PermissionControlledRepresentationJournal.GenerateHashName<PremiumVM>(),
-			() => {
-				Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_fines")
-														  ? Buttons.All
-														  : (Buttons.Add | Buttons.Edit);
-				return new PermissionControlledRepresentationJournal(new PremiumVM(), buttons).CustomTabName("Журнал премий");
-			}
+		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		IPremiumTemplateJournalFactory premiumTemplateJournalFactory = new PremiumTemplateJournalFactory();
+
+		tdiMain.OpenTab(() => new PremiumJournalViewModel(
+			new PremiumJournalFilterViewModel() { HidenByDefault = true },
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			VodovozGtkServicesConfig.EmployeeService,
+			employeeJournalFactory,
+			premiumTemplateJournalFactory
+			)
 		);
 	}
 
