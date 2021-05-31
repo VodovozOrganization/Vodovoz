@@ -2280,9 +2280,18 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
     {
-	    tdiMain.OpenTab(
+		var filter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
+		var factory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+			() => new EmployeesJournalViewModel(
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices));
+
+
+		tdiMain.OpenTab(
 		    QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
-		    () => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport())
-	    );
+		    () => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
+				factory, ServicesConfig.InteractiveService))
+		);
     }
 }
