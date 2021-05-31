@@ -1377,13 +1377,13 @@ namespace Vodovoz.ViewModels.Logistic
 				}
 			}
 
-			var ordersCount = baseQuery
+			var ordersCount = baseQuery.Clone()
 				.SelectList(list => list
 					.Select(o=>o.OrderStatus).WithAlias(() => ordersCountNode.OrderStatus)
 					.Select(o=>o.Id).WithAlias(() => ordersCountNode.Id)
 				).TransformUsing(Transformers.AliasToBean<OrdersCountNode>()).List<OrdersCountNode>().GroupBy(o=>o.OrderStatus);
 			
-			var deliverySummaryNodes = baseQuery
+			var deliverySummaryNodes = baseQuery.Clone()
 				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
