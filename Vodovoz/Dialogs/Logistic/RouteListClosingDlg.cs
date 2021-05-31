@@ -7,8 +7,11 @@ using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Osm;
+using QS.Osm.Osrm;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Parameters;
@@ -779,6 +782,11 @@ namespace Vodovoz
 					PerformanceHelper.AddTimePoint("Статус сменен на 'проверка километража' и создано задание");
 				}
 				return;
+			}
+
+			if(Entity.Car.IsRaskat)
+			{
+				Entity.RecountMileage();
 			}
 
 			Entity.UpdateMovementOperations();
