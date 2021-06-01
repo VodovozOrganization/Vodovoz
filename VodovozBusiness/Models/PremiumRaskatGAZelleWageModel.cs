@@ -40,8 +40,7 @@ namespace Vodovoz.Models
 				PremiumReasonString = "Автопремия для раскатных газелей",
 				Author = employeeRepository.GetEmployeeForCurrentUser(uow),
 				Date = DateTime.Now.Date,
-				TotalMoney = premiumRaskatGAZelleParametersProvider.PremiumRaskatGAZelleMoney,
-				RouteList = routeList
+				TotalMoney = premiumRaskatGAZelleParametersProvider.PremiumRaskatGAZelleMoney
 			};
 
 			uow.Save(premiumRaskatGAZelle);
@@ -69,44 +68,41 @@ namespace Vodovoz.Models
 
 		private bool NeedPremiumRaskatGAZelleInRouteListDate(IUnitOfWork uow)
 		{
-			RouteList routeListAlias = null;
-			RouteListItem routeListAdressesAlias = null;
-			Order orderAlias = null;
-			DeliveryPoint deliveryPointAlias = null;
-			District districtAlias = null;
-			Car carAlias = null;
-			PremiumItem premiumItemAlias = null;
-			PremiumRaskatGAZelle premiumRaskatGAZelleAlias = null;
-			RouteList premiumRouteListAlias = null;
+			if(routeList.RecalculatedDistance >= premiumRaskatGAZelleParametersProvider.MinRecalculatedDistanceForPremiumRaskatGAZelle &&
+				routeList.Car.IsRaskat &&
+				routeList.Car.TypeOfUse == CarTypeOfUse.DriverCar &&
+				routeList.Car.RaskatType == RaskatType.RaskatGazelle)
+			{
+				RouteListItem routeListAdressesAlias = null;
+				Order orderAlias = null;
+				DeliveryPoint deliveryPointAlias = null;
+				District districtAlias = null;
+				PremiumItem premiumItemAlias = null;
+				PremiumRaskatGAZelle premiumRaskatGAZelleAlias = null;
 
-			var premiumRaskatGAZelleSubquery = QueryOver.Of(() => premiumItemAlias)
-				.JoinAlias(() => premiumItemAlias.Premium, () => premiumRaskatGAZelleAlias)
-				.JoinAlias(() => premiumRaskatGAZelleAlias.RouteList, () => premiumRouteListAlias)
-				.Where(() => premiumRouteListAlias.Date.Date == routeList.Date.Date &&
-				             premiumItemAlias.Employee == routeList.Driver &&
-				             premiumRaskatGAZelleAlias.GetType() == typeof(PremiumRaskatGAZelle))
-				.Select(p => p.Id);
+				// Ищем премию на дату МЛ
+				var premiumRaskatGAZelleQuery = uow.Session.QueryOver(() => premiumItemAlias)
+					.JoinAlias(() => premiumItemAlias.Premium, () => premiumRaskatGAZelleAlias)
+					.Where(() => premiumRaskatGAZelleAlias.Date.Date == routeList.Date.Date &&
+								 premiumItemAlias.Employee == routeList.Driver &&
+								 premiumRaskatGAZelleAlias.GetType() == typeof(PremiumRaskatGAZelle))
+					.Take(1).SingleOrDefault();
 
-			var wageDistrictSubquery = QueryOver.Of(() => routeListAdressesAlias)
-					.JoinAlias(() => routeListAdressesAlias.Order, () => orderAlias)
-					.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-					.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-					.Where(() => districtAlias.WageDistrict.Id == wageParametersProvider.GetSuburbWageDistrictId &&
-								 routeListAdressesAlias.RouteList.Id == routeList.Id)
-					.Select(r => r.Id);
+				// Ищем заказ в пригороде
+				var wageDistrictQuery = uow.Session.QueryOver(() => routeListAdressesAlias)
+						.JoinAlias(() => routeListAdressesAlias.Order, () => orderAlias)
+						.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+						.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+						.Where(() => districtAlias.WageDistrict.Id == wageParametersProvider.GetSuburbWageDistrictId &&
+									 routeListAdressesAlias.RouteList.Id == routeList.Id)
+						.Take(1).SingleOrDefault();
 
-			var checkQuery = uow.Session.QueryOver(() => routeListAlias)
-				.JoinAlias(() => routeListAlias.Car, () => carAlias)
-				.WithSubquery.WhereNotExists(premiumRaskatGAZelleSubquery)
-				.WithSubquery.WhereExists(wageDistrictSubquery)
-				.Where(() => routeListAlias.Driver == routeList.Driver &&
-							 routeListAlias.Date.Date == routeList.Date.Date &&
-							 routeListAlias.RecalculatedDistance >= premiumRaskatGAZelleParametersProvider.MinRecalculatedDistanceForPremiumRaskatGAZelle &&
-							 carAlias.IsRaskat
-				)
-				.Take(1).SingleOrDefault();
-
-			return checkQuery != null;
+				return premiumRaskatGAZelleQuery == null && wageDistrictQuery != null;
+			}
+			else
+			{
+				return false;
+			}
 		}
 	}
 }
