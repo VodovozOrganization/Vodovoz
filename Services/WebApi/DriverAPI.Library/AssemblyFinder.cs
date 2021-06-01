@@ -1,6 +1,6 @@
 ﻿namespace DriverAPI.Library
 {
-	public class Bootstrapper
+	public class AssemblyFinder
 	{
 	}
 }
