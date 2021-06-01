@@ -83,7 +83,7 @@ namespace Vodovoz.Models
 				// Ищем премию на дату МЛ
 				var premiumRaskatGAZelleQuery = uow.Session.QueryOver(() => premiumItemAlias)
 					.JoinAlias(() => premiumItemAlias.Premium, () => premiumRaskatGAZelleAlias)
-					.Where(() => premiumRaskatGAZelleAlias.Date.Date == routeList.Date.Date &&
+					.Where(() => premiumRaskatGAZelleAlias.Date.Date == DateTime.Today &&
 								 premiumItemAlias.Employee == routeList.Driver &&
 								 premiumRaskatGAZelleAlias.GetType() == typeof(PremiumRaskatGAZelle))
 					.Take(1).SingleOrDefault();
