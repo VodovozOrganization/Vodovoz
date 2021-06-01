@@ -618,8 +618,8 @@ FROM
 	INNER JOIN 
 		route_lists rl ON rla.route_list_id = rl.id AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
 	INNER JOIN 
-		employees empl ON rl.driver_id = empl.id AND ((@driver_of!='' AND empl.driver_of=@driver_of) OR @driver_of='')
-												 AND ((@empl_id!='' AND empl.id=@empl_id) OR @empl_id='')
+		employees empl ON rl.driver_id = empl.id AND (empl.driver_of=@driver_of OR @driver_of='')
+												 AND (empl.id=@empl_id OR @empl_id='')
 	LEFT JOIN 
 		subdivisions s on empl.subdivision_id = s.id 
 	LEFT JOIN
