@@ -92,7 +92,6 @@
     <Compile Include="Domain\Documents\IncomeCashDistributionDocument.cs" />
     <Compile Include="Domain\Documents\RouteListItemCashDistributionDocument.cs" />
     <Compile Include="Domain\Documents\SelfDeliveryCashDistributionDocument.cs" />
-    <Compile Include="Domain\DriverAppActionRecord.cs" />
     <Compile Include="Domain\Employees\PremiumBase.cs" />
     <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
     <Compile Include="Domain\FinancialDistrict.cs" />
