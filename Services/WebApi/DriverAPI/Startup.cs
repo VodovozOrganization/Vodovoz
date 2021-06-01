@@ -223,7 +223,7 @@ namespace DriverAPI
 			services.AddScoped<IDriverApiParametersProvider, DriverApiParametersProvider>();
 
 			// Конвертеры
-			foreach (var type in typeof(Library.Bootstrapper).Assembly.GetTypes()
+			foreach (var type in typeof(Library.AssemblyFinder).Assembly.GetTypes()
 										  .Where(type => type.IsClass)
 										  .Where(type => type.Name.EndsWith("Converter"))
 										  .ToList())
