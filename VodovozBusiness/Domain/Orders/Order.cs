@@ -898,6 +898,10 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(DeliveryDate == null || DeliveryDate == default(DateTime))
+				yield return new ValidationResult("В заказе не указана дата доставки.",
+					new[] { this.GetPropertyName(o => o.DeliveryDate) });
+
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
 				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Client != null) {
@@ -910,9 +914,6 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 
-					if(DeliveryDate == null || DeliveryDate == default(DateTime))
-						yield return new ValidationResult("В заказе не указана дата доставки.",
-							new[] { this.GetPropertyName(o => o.DeliveryDate) });
 					if(!SelfDelivery && DeliverySchedule == null)
 						yield return new ValidationResult("В заказе не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
@@ -1050,9 +1051,6 @@ namespace Vodovoz.Domain.Orders
             if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
-			if(DeliveryDate == null || DeliveryDate == default(DateTime))
-				yield return new ValidationResult("В заказе не указана дата доставки.",
-					new[] { this.GetPropertyName(o => o.DeliveryDate) });
 			if(!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult("В заказе необходимо заполнить точку доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
