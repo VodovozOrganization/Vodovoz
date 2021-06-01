@@ -30,17 +30,18 @@ namespace Vodovoz.Models
 
 		public void UpdatePremiumRaskatGAZelle(IUnitOfWork uow)
 		{
-			if (!NeedPremiumRaskatGAZelleInRouteListDate(uow))
+			if(!NeedPremiumRaskatGAZelleInRouteListDate(uow))
 			{
 				return;
 			}
 
 			PremiumRaskatGAZelle premiumRaskatGAZelle = new PremiumRaskatGAZelle()
 			{
-				PremiumReasonString = "Автопремия для раскатных газелей",
+				PremiumReasonString = $"Автопремия для раскатных газелей МЛ №{routeList.Id.ToString()}",
 				Author = employeeRepository.GetEmployeeForCurrentUser(uow),
-				Date = DateTime.Now.Date,
-				TotalMoney = premiumRaskatGAZelleParametersProvider.PremiumRaskatGAZelleMoney
+				Date = DateTime.Today,
+				TotalMoney = premiumRaskatGAZelleParametersProvider.PremiumRaskatGAZelleMoney,
+				RouteList = routeList
 			};
 
 			uow.Save(premiumRaskatGAZelle);
@@ -50,7 +51,7 @@ namespace Vodovoz.Models
 				OperationType = WagesType.PremiumWage,
 				Employee = routeList.Driver,
 				Money = premiumRaskatGAZelleParametersProvider.PremiumRaskatGAZelleMoney,
-				OperationTime = DateTime.Now.Date
+				OperationTime = DateTime.Today
 			};
 
 			uow.Save(operation);
@@ -69,9 +70,9 @@ namespace Vodovoz.Models
 		private bool NeedPremiumRaskatGAZelleInRouteListDate(IUnitOfWork uow)
 		{
 			if(routeList.RecalculatedDistance >= premiumRaskatGAZelleParametersProvider.MinRecalculatedDistanceForPremiumRaskatGAZelle &&
-				routeList.Car.IsRaskat &&
-				routeList.Car.TypeOfUse == CarTypeOfUse.DriverCar &&
-				routeList.Car.RaskatType == RaskatType.RaskatGazelle)
+			   routeList.Car.IsRaskat &&
+			   routeList.Car.TypeOfUse == CarTypeOfUse.DriverCar &&
+			   routeList.Car.RaskatType == RaskatType.RaskatGazelle)
 			{
 				RouteListItem routeListAdressesAlias = null;
 				Order orderAlias = null;
@@ -80,22 +81,27 @@ namespace Vodovoz.Models
 				PremiumItem premiumItemAlias = null;
 				PremiumRaskatGAZelle premiumRaskatGAZelleAlias = null;
 
-				// Ищем премию на дату МЛ
+				// Ищем премию
 				var premiumRaskatGAZelleQuery = uow.Session.QueryOver(() => premiumItemAlias)
 					.JoinAlias(() => premiumItemAlias.Premium, () => premiumRaskatGAZelleAlias)
-					.Where(() => premiumRaskatGAZelleAlias.Date.Date == routeList.Date.Date &&
-								 premiumItemAlias.Employee == routeList.Driver &&
-								 premiumRaskatGAZelleAlias.GetType() == typeof(PremiumRaskatGAZelle))
+					.Where(() =>
+						(	// Если МЛ переоткрыли в другой день и повторно его закрывают
+							(premiumRaskatGAZelleAlias.RouteList.Id == routeList.Id) ||
+							// Если на дату закрытия у водителя уже есть премии
+							(premiumRaskatGAZelleAlias.Date == DateTime.Today && premiumItemAlias.Employee == routeList.Driver)
+						) &&
+						premiumRaskatGAZelleAlias.GetType() == typeof(PremiumRaskatGAZelle)
+					)
 					.Take(1).SingleOrDefault();
 
 				// Ищем заказ в пригороде
 				var wageDistrictQuery = uow.Session.QueryOver(() => routeListAdressesAlias)
-						.JoinAlias(() => routeListAdressesAlias.Order, () => orderAlias)
-						.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-						.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-						.Where(() => districtAlias.WageDistrict.Id == wageParametersProvider.GetSuburbWageDistrictId &&
-									 routeListAdressesAlias.RouteList.Id == routeList.Id)
-						.Take(1).SingleOrDefault();
+					.JoinAlias(() => routeListAdressesAlias.Order, () => orderAlias)
+					.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+					.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+					.Where(() => districtAlias.WageDistrict.Id == wageParametersProvider.GetSuburbWageDistrictId &&
+								 routeListAdressesAlias.RouteList.Id == routeList.Id)
+					.Take(1).SingleOrDefault();
 
 				return premiumRaskatGAZelleQuery == null && wageDistrictQuery != null;
 			}

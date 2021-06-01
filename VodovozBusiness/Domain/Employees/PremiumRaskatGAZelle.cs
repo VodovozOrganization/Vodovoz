@@ -14,5 +14,13 @@ namespace Vodovoz.Domain.Employees
 	public class PremiumRaskatGAZelle : PremiumBase
 	{
 		RouteList routeList;
+
+		[Display(Name = "Закрываемый маршрутный лист")]
+		public virtual RouteList RouteList
+		{
+			get => routeList;
+			set => SetField(ref routeList, value);
+		}
+
 	}
 }
