@@ -88,6 +88,23 @@ namespace Vodovoz.Parameters
 			}
 		}
 
+		public bool GetBoolValue(string parameterId)
+		{
+			if(!ContainsParameter(parameterId)) {
+				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})" );
+			}
+
+			string value = GetParameterValue(parameterId);
+
+			if(string.IsNullOrWhiteSpace(value) || !bool.TryParse(value, out bool result))
+			{
+				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
+			}
+
+			return result;
+		}
+
+
 		public int GetIntValue(string parameterId)
 		{
 			if(!ContainsParameter(parameterId)) {
