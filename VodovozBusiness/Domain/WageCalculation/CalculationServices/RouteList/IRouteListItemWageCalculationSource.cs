@@ -33,6 +33,11 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// Количество 1,5л бутылей
 		/// </summary>
 		int Bottle1500mlCount { get; }
+		
+		/// <summary>
+		/// Количество 0,5л бутылей
+		/// </summary>
+		int Bottle500mlCount { get; }
 
 		/// <summary>
 		/// Заказ на адресе является расторжением договора

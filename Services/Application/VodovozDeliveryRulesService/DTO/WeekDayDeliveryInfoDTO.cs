@@ -42,6 +42,9 @@ namespace VodovozDeliveryRulesService
 		public string Bottles600ml { get; set; }
 		
 		[DataMember]
+		public string Bottles500ml { get; set; }
+		
+		[DataMember]
 		public string MinOrder { get; set; }
 		
 		[DataMember]
