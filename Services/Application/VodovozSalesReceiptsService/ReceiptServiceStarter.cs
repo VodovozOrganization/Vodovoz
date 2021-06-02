@@ -22,6 +22,7 @@ namespace VodovozSalesReceiptsService
 				new SalesReceiptSender(modulKassaBaseAddress),
 				new OrderParametersProvider(SingletonParametersProvider.Instance),
 				new OrganizationParametersProvider(SingletonParametersProvider.Instance),
+				new SalesReceiptsParametersProvider(SingletonParametersProvider.Instance),
 				cashboxes
 			);
 			fiscalizationWorker.Start();
@@ -32,7 +33,8 @@ namespace VodovozSalesReceiptsService
 				new BaseParametersProvider(),
 				OrderSingletonRepository.GetInstance(),
 				new OrderParametersProvider(SingletonParametersProvider.Instance),
-				new OrganizationParametersProvider(SingletonParametersProvider.Instance)
+				new OrganizationParametersProvider(SingletonParametersProvider.Instance),
+				new SalesReceiptsParametersProvider(SingletonParametersProvider.Instance)
 			);
 			WebServiceHost salesReceiptsHost = new SalesReceiptsServiceHost(salesReceiptsInstanceProvider);
 			salesReceiptsHost.AddServiceEndpoint(
