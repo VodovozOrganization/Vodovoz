@@ -5,6 +5,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -127,6 +128,7 @@ namespace Vodovoz.Domain.Logistic
 		public decimal DriverWageSurcharge => item.DriverWageSurcharge;
 
 		public bool IsDelivered => item.IsDelivered() && item.Status != RouteListItemStatus.Transfered;
+		public bool IsValidForWageCalculation => !RouteListItem.GetNotDeliveredStatuses().Contains(item.Status);
 
 		public (TimeSpan, TimeSpan) DeliverySchedule => (item.Order.DeliverySchedule.From, item.Order.DeliverySchedule.To);
 
