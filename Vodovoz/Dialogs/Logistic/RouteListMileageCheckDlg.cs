@@ -135,7 +135,7 @@ namespace Vodovoz
 				vboxRouteList.Sensitive = table2.Sensitive = false;
 			}
 			else
-				RecountMileage();
+				Entity.RecountMileage();
 
 			//Телефон
 			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = MainClass.MainWin.MangoManager;
@@ -234,48 +234,6 @@ namespace Vodovoz
         }
         
         #endregion
-
-		private void RecountMileage()
-		{
-			var pointsToRecalculate = new List<PointOnEarth>();
-			var pointsToBase = new List<PointOnEarth>();
-			var baseLat = (double)Entity.GeographicGroups.FirstOrDefault().BaseLatitude.Value;
-			var baseLon = (double)Entity.GeographicGroups.FirstOrDefault().BaseLongitude.Value;
-
-			decimal totalDistanceTrack = 0;
-
-			IEnumerable<RouteListItem> completedAddresses = Entity.Addresses.Where(x => x.Status == RouteListItemStatus.Completed);
-
-			if(!completedAddresses.Any()) {
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Для МЛ нет завершенных адресов, невозможно расчитать трек", "");
-				return;
-			}
-
-			if(completedAddresses.Count() > 1) {
-				foreach(RouteListItem address in Entity.Addresses.OrderBy(x => x.StatusLastUpdate)) {
-					if(address.Status == RouteListItemStatus.Completed) {
-						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.Latitude, (double)address.Order.DeliveryPoint.Longitude));
-					}
-				}
-
-				var recalculatedTrackResponse = OsrmMain.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
-				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
-
-				totalDistanceTrack = recalculatedTrack.TotalDistanceKm;
-			} else {
-				var point = Entity.Addresses.First(x => x.Status == RouteListItemStatus.Completed).Order.DeliveryPoint;
-				pointsToRecalculate.Add(new PointOnEarth((double)point.Latitude, (double)point.Longitude));
-			}
-
-			pointsToBase.Add(pointsToRecalculate.Last());
-			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
-			pointsToBase.Add(pointsToRecalculate.First());
-
-			var recalculatedToBaseResponse = OsrmMain.GetRoute(pointsToBase, false, GeometryOverview.Full);
-			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
-
-			Entity.RecalculatedDistance = decimal.Round(totalDistanceTrack + recalculatedToBase.TotalDistanceKm);
-		}
 	}
 }
 

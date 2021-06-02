@@ -896,7 +896,8 @@ public partial class MainWindow : Gtk.Window
                     new ComplaintFilterViewModel(
                         ServicesConfig.CommonServices,
                         subdivisionRepository,
-                        employeeSelectorFactory
+                        employeeSelectorFactory,
+                        counterpartySelectorFactory
                     ),
                     filePickerService,
                     subdivisionRepository,
@@ -2027,7 +2028,8 @@ public partial class MainWindow : Gtk.Window
                     new ComplaintFilterViewModel(
                         ServicesConfig.CommonServices,
                         subdivisionRepository,
-                        employeeSelectorFactory
+                        employeeSelectorFactory,
+                        counterpartySelectorFactory
                     )
                     { IsForRetail = true },
                     filePickerService,
@@ -2276,5 +2278,22 @@ public partial class MainWindow : Gtk.Window
             QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
             () => new QSReport.ReportViewDlg(new EmployeesReport())
         );
+    }
+
+    protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
+    {
+		var filter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
+		var factory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+			() => new EmployeesJournalViewModel(
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices));
+
+
+		tdiMain.OpenTab(
+		    QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
+		    () => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
+				factory, ServicesConfig.InteractiveService))
+		);
     }
 }

@@ -316,6 +316,7 @@ namespace Vodovoz.Configuration
                 .Column("< 6л б.", x => x.Water6LCount)
                 .Column("< 1,5л б.", x => x.Water1500mlCount)
                 .Column("< 0,6л б.", x => x.Water600mlCount)
+                .Column("< 0,5л б.", x => x.Water500mlCount)
                 .Column("Минимальная сумма заказа", x => x.OrderMinSumEShopGoods.ToString())
                 .SearchColumn("Описание правила", x => x.Title)
                 .End();

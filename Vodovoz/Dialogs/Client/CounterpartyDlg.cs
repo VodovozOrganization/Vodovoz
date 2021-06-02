@@ -312,7 +312,7 @@ namespace Vodovoz
             menuItemFixedPrices.Activated += (s, e) => OpenFixedPrices();
             menu.Add(menuItemFixedPrices);
             
-            var menuComplaint = new Gtk.MenuItem("Журнал рекламаций");
+            var menuComplaint = new Gtk.MenuItem("Рекламации контрагента");
             menuComplaint.Activated += ComplaintViewOnActivated;
             menu.Add(menuComplaint);
             
@@ -713,6 +713,9 @@ namespace Vodovoz
         
         private void ComplaintViewOnActivated(object sender, EventArgs e)
         {
+	        var filter = new ComplaintFilterViewModel(ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
+	        filter.SetAndRefilterAtOnce(x=> x.Counterparty = Entity);
+	        
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
@@ -723,11 +726,7 @@ namespace Vodovoz
 		        NomenclatureSelectorFactory,
 		        RouteListItemRepository,
 		        SubdivisionParametersProvider.Instance,
-		        new ComplaintFilterViewModel(
-			        ServicesConfig.CommonServices,
-			        SubdivisionRepository,
-			        EmployeeSelectorFactory
-		        ),
+		        filter,
 		        FilePickerService,
 		        SubdivisionRepository,
 		        new GtkReportViewOpener(),
