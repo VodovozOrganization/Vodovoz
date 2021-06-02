@@ -92,6 +92,11 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		bool IsDelivered { get; }
 
 		/// <summary>
+		/// Можно ли расчитывать ЗП по этому адресу
+		/// </summary>
+		bool IsValidForWageCalculation { get; }
+
+		/// <summary>
 		/// Время доставки
 		/// </summary>
 		(TimeSpan,TimeSpan) DeliverySchedule { get; }
