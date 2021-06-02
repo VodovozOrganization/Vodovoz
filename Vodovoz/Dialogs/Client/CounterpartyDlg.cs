@@ -312,7 +312,7 @@ namespace Vodovoz
             menuItemFixedPrices.Activated += (s, e) => OpenFixedPrices();
             menu.Add(menuItemFixedPrices);
             
-            var menuComplaint = new Gtk.MenuItem("Журнал рекламаций");
+            var menuComplaint = new Gtk.MenuItem("Рекламации контрагента");
             menuComplaint.Activated += ComplaintViewOnActivated;
             menu.Add(menuComplaint);
             

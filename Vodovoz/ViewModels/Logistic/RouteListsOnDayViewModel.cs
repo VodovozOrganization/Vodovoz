@@ -1355,6 +1355,7 @@ namespace Vodovoz.ViewModels.Logistic
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
 			GeographicGroup geographicGroupAlias = null;
+			Counterparty counterpartyAlias = null;
 			
 			ObservableDeliverySummary.Clear();
 			
@@ -1362,6 +1363,39 @@ namespace Vodovoz.ViewModels.Logistic
 				.GetExecutableQueryOver(UoW.Session)
 				.Where(o => !o.IsContractCloser)
 				.And(o => !o.IsService);
+			
+			bool deliverySelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Delivery);
+			bool chainStoreSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.ChainStore);
+			bool serviceSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Service);
+			
+			//deliverySelected(Доставка) означает МЛ без chainStoreSelected(Сетевой магазин) и serviceSelected(Сервисное обслуживание)
+				
+			if(      deliverySelected &&  chainStoreSelected && !serviceSelected) {
+				baseQuery.Where(x => !x.IsService);
+			}
+			else if( deliverySelected && !chainStoreSelected &&  serviceSelected) {
+				baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+				baseQuery.Where(() => !counterpartyAlias.IsChainStore);
+			}
+			else if( deliverySelected && !chainStoreSelected && !serviceSelected) {
+				baseQuery.Where(x => !x.IsService);
+				baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+				baseQuery.Where(() => !counterpartyAlias.IsChainStore);
+			}
+			else if(!deliverySelected &&  chainStoreSelected &&  serviceSelected) {
+				baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+				baseQuery.Where(Restrictions.Or(
+					Restrictions.Where<Order>(x => x.IsService), 
+					Restrictions.Where(() => counterpartyAlias.IsChainStore)
+				));
+			}
+			else if(!deliverySelected &&  chainStoreSelected && !serviceSelected) {
+				baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+				baseQuery.Where(() => counterpartyAlias.IsChainStore);
+			}
+			else if(!deliverySelected && !chainStoreSelected &&  serviceSelected) {
+				baseQuery.Where(x => x.IsService);
+			}
 			
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 
@@ -1387,8 +1421,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
-				             (nomenclatureAlias.TareVolume == TareVolume.Vol19L || nomenclatureAlias.TareVolume == TareVolume.Vol6L || 
-				              nomenclatureAlias.TareVolume == TareVolume.Vol600ml))
+				             (nomenclatureAlias.TareVolume == TareVolume.Vol19L))
 				.SelectList(list => list
 					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
 					.Select(() => orderItemAlias.Count).WithAlias(() => resultAlias.Bottles)
