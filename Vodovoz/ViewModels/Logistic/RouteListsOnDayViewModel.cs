@@ -1345,7 +1345,7 @@ namespace Vodovoz.ViewModels.Logistic
 				? defaultDeliveryDaySchedule
 				: driverWorkSchedule.DaySchedule;
 		}
-		
+
 		private void CalculateOnDeliverySum()
 		{
 			OrderItem orderItemAlias = null;
@@ -1356,51 +1356,56 @@ namespace Vodovoz.ViewModels.Logistic
 			District districtAlias = null;
 			GeographicGroup geographicGroupAlias = null;
 			Counterparty counterpartyAlias = null;
-			
+
 			ObservableDeliverySummary.Clear();
-			
+
 			var baseQuery = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 				.GetExecutableQueryOver(UoW.Session)
 				.Where(o => !o.IsContractCloser)
 				.And(o => !o.IsService);
-			
-			bool deliverySelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Delivery);
-			bool chainStoreSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.ChainStore);
-			bool serviceSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Service);
-			
-			//deliverySelected(Доставка) означает МЛ без chainStoreSelected(Сетевой магазин) и serviceSelected(Сервисное обслуживание)
-				
-			if(      deliverySelected &&  chainStoreSelected && !serviceSelected) {
-				baseQuery.Where(x => !x.IsService);
-			}
-			else if( deliverySelected && !chainStoreSelected &&  serviceSelected) {
-				baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
-				baseQuery.Where(() => !counterpartyAlias.IsChainStore);
-			}
-			else if( deliverySelected && !chainStoreSelected && !serviceSelected) {
-				baseQuery.Where(x => !x.IsService);
-				baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
-				baseQuery.Where(() => !counterpartyAlias.IsChainStore);
-			}
-			else if(!deliverySelected &&  chainStoreSelected &&  serviceSelected) {
-				baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
-				baseQuery.Where(Restrictions.Or(
-					Restrictions.Where<Order>(x => x.IsService), 
-					Restrictions.Where(() => counterpartyAlias.IsChainStore)
-				));
-			}
-			else if(!deliverySelected &&  chainStoreSelected && !serviceSelected) {
-				baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
-				baseQuery.Where(() => counterpartyAlias.IsChainStore);
-			}
-			else if(!deliverySelected && !chainStoreSelected &&  serviceSelected) {
-				baseQuery.Where(x => x.IsService);
-			}
-			
-			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
-
-			if(AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Delivery))
+			if(AddressTypes.Any(x => x.Selected))
 			{
+				bool deliverySelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Delivery);
+				bool chainStoreSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.ChainStore);
+				bool serviceSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Service);
+
+				//deliverySelected(Доставка) означает МЛ без chainStoreSelected(Сетевой магазин) и serviceSelected(Сервисное обслуживание)
+
+				if(deliverySelected && chainStoreSelected && !serviceSelected)
+				{
+					baseQuery.Where(x => !x.IsService);
+				}
+				else if(deliverySelected && !chainStoreSelected && serviceSelected)
+				{
+					baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseQuery.Where(() => !counterpartyAlias.IsChainStore);
+				}
+				else if(deliverySelected && !chainStoreSelected && !serviceSelected)
+				{
+					baseQuery.Where(x => !x.IsService);
+					baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseQuery.Where(() => !counterpartyAlias.IsChainStore);
+				}
+				else if(!deliverySelected && chainStoreSelected && serviceSelected)
+				{
+					baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseQuery.Where(Restrictions.Or(
+						Restrictions.Where<Order>(x => x.IsService),
+						Restrictions.Where(() => counterpartyAlias.IsChainStore)
+					));
+				}
+				else if(!deliverySelected && chainStoreSelected && !serviceSelected)
+				{
+					baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseQuery.Where(() => counterpartyAlias.IsChainStore);
+				}
+				else if(!deliverySelected && !chainStoreSelected && serviceSelected)
+				{
+					baseQuery.Where(x => x.IsService);
+				}
+
+				var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
+				
 				if(selectedGeographicGroup.Any())
 				{
 					baseQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
