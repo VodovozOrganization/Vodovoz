@@ -420,10 +420,10 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref onLoadTimeFixed, value, () => OnloadTimeFixed);
 		}
 
-		private DateTime printTime;
+		private DateTime? printTime;
 
 		[Display(Name = "Время печати МЛ")]
-		public virtual DateTime PrintTime {
+		public virtual DateTime? PrintTime {
 			get => printTime;
 			set => SetField(ref printTime, value);
 		}

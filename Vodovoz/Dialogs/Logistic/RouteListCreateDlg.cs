@@ -230,7 +230,7 @@ namespace Vodovoz
 
 		void Dlg_DocumentsPrinted(object sender, EventArgs e)
 		{
-			if(Entity.PrintTime != null && e is EndPrintArgs printArgs) {
+			if(Entity.PrintTime == null && e is EndPrintArgs printArgs) {
 				if(printArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle())) {
 					Entity.PrintTime = DateTime.Now;
 					Save();
