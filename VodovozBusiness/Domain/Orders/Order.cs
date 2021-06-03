@@ -3527,14 +3527,18 @@ namespace Vodovoz.Domain.Orders
 			UoW.Session.Refresh(this);
 		}
 
-		public virtual void SaveEntity(IUnitOfWork uow)
+		public virtual void SaveEntity(IUnitOfWork uow, bool createdFromUndelivery)
 		{
 			SetFirstOrder();
 			LastEditor = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();
 			ClearPromotionSets();
-			uow.Save();
+			uow.Save(this);
+			if(!createdFromUndelivery)
+			{
+				uow.Commit();
+			}
 		}
 		
 		public virtual void RemoveReturnTareReason()
