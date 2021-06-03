@@ -376,10 +376,7 @@ namespace Vodovoz.ViewWidgets
 		{
 			var dlg = new OrderDlg(UoW);
 			dlg.CopyOrderFrom(order.Id);
-			MyTab.TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<Order>(dlg.Entity.Id),
-				() => dlg
-			);
+			MyTab.TabParent.AddSlaveTab(MyTab, dlg);
 
 			dlg.TabClosed += (sender, e) => {
 				if(sender is OrderDlg) {
@@ -400,7 +397,6 @@ namespace Vodovoz.ViewWidgets
 		void OpenOrder(Order order)
 		{
 			if(MessageDialogHelper.RunQuestionDialog("Требуется сохранить недовоз. Сохранить?")) {
-				UoW.Save();
 				UoW.Commit();
 				var dlg = new OrderDlg(order);
 				MyTab.TabParent.OpenTab(
