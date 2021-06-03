@@ -4,7 +4,6 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
-using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -13,12 +12,15 @@ namespace Vodovoz.Dialogs
 {
 	public partial class AddExistingDocumentsDlg : QS.Dialog.Gtk.TdiTabBase
 	{
-		public IUnitOfWorkGeneric<Order> UoW { get; private set; }
+		private readonly Order _order;
+		private readonly IUnitOfWork _uow;
 
-		public AddExistingDocumentsDlg(IUnitOfWorkGeneric<Order> uow, Counterparty client)
+		public AddExistingDocumentsDlg(IUnitOfWork uow, Order order)
 		{
 			this.Build();
-			UoW = uow;
+			_uow = uow;
+			_order = order;
+			var client = order.Client;
 			counterpartydocumentsview1.Config(uow, client, true);
 			orderselectedview1.Config(uow, client);
 			orderselectedview1.OrderActivated += Orderselectedview1_OrderActivated;
@@ -27,7 +29,6 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonAddSelectedDocumentsClicked(object sender, EventArgs e)
 		{
-			Order currentOrder = UoW.Root;
 			var counterpartyDocuments = counterpartydocumentsview1.GetSelectedDocuments();
 			var orderDocuments = orderselectedview1.GetSelectedDocuments();
 
@@ -35,7 +36,7 @@ namespace Vodovoz.Dialogs
 
 			//Контракты
 			var documentsContract = 
-				UoW.Session.QueryOver<OrderContract>()
+				_uow.Session.QueryOver<OrderContract>()
                    .WhereRestrictionOn(x => x.Contract.Id)
                    .IsIn(counterpartyDocuments
 						.Select(y => y.Document)
@@ -48,19 +49,19 @@ namespace Vodovoz.Dialogs
 			resultList.AddRange(documentsContract);
 
 			//Документы заказа
-			var documentsOrder = UoW.Session.QueryOver<OrderDocument>()
+			var documentsOrder = _uow.Session.QueryOver<OrderDocument>()
 			   .WhereRestrictionOn(x => x.Id).IsIn(orderDocuments.Select(y => y.DocumentId).ToList())
 			   .List();
 			resultList.AddRange(documentsOrder);
 
-			UoW.Root.AddAdditionalDocuments(resultList);
+			_order.AddAdditionalDocuments(resultList);
 
 			this.OnCloseTab(false);
 		}
 
 		void Orderselectedview1_OrderActivated(object sender, int e)
 		{
-			var doc = UoW.GetById<OrderDocument>(e) as IPrintableRDLDocument;
+			var doc = _uow.GetById<OrderDocument>(e) as IPrintableRDLDocument;
 			if(doc == null) {
 				return;
 			}

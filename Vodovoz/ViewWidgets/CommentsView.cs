@@ -4,7 +4,6 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
@@ -26,9 +25,6 @@ namespace Vodovoz.ViewWidgets
 				if(uow == value)
 					return;
 				uow = value;
-				viewModel = new CommentsVM(value);
-				ytreeComments.RepresentationModel = viewModel;
-				ytreeComments.RepresentationModel.UpdateNodes();
 			}
 		}
 
@@ -39,16 +35,24 @@ namespace Vodovoz.ViewWidgets
 			this.Build();
 		}
 
+		public void Configure(IUnitOfWork uow, Order order)
+		{
+			UoW = uow;
+			viewModel = new CommentsVM(uow, order);
+			ytreeComments.RepresentationModel = viewModel;
+			ytreeComments.RepresentationModel.UpdateNodes();
+		}
+
 		public IList<CommentsVMNode> Items { get { return viewModel.ItemsList as IList<CommentsVMNode>; } }
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			MyTab.TabParent.AddTab(new NuanceDlg(UoW.RootObject), MyTab);
+			MyTab.TabParent.AddTab(new NuanceDlg(viewModel.Order), MyTab);
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			MyTab.TabParent.AddTab(new NuanceDlg(UoW.RootObject, ytreeComments.GetSelectedId()), MyTab);
+			MyTab.TabParent.AddTab(new NuanceDlg(viewModel.Order, ytreeComments.GetSelectedId()), MyTab);
 		}
 
 		protected void OnYtreeCommentsCursorChanged(object sender, EventArgs e)
@@ -62,13 +66,12 @@ namespace Vodovoz.ViewWidgets
 
 	public class CommentsVM : RepresentationModelWithoutEntityBase<CommentsVMNode>
 	{
-		public CommentsVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
-		{
-		}
+		public Order Order { get; }
 
-		public CommentsVM(IUnitOfWork uow) : base(typeof(Comments))
+		public CommentsVM(IUnitOfWork uow, Order order) : base(typeof(Comments))
 		{
 			this.UoW = uow;
+			Order = order;
 		}
 
 		public override void UpdateNodes()
@@ -83,7 +86,7 @@ namespace Vodovoz.ViewWidgets
 
 
 
-			var UowCounterparty = UoW.RootObject as Counterparty;
+			var UowCounterparty = Order.Client;
 			if(UowCounterparty != null) {
 
 				var orderBottles = UoW.Session.QueryOver<Comments>(() => commentAlias)
@@ -109,7 +112,7 @@ namespace Vodovoz.ViewWidgets
 				SetItemsSource(orderBottles.ToList());
 			}
 
-			var UowDeliveryPoint = UoW.RootObject as DeliveryPoint;
+			var UowDeliveryPoint = Order.DeliveryPoint;
 			if(UowDeliveryPoint != null) {
 				var orderBottles = UoW.Session.QueryOver<Comments>(() => commentAlias)
 							 .JoinAlias(() => commentAlias.Author, () => commentsAuthorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -134,7 +137,7 @@ namespace Vodovoz.ViewWidgets
 				SetItemsSource(orderBottles.ToList());
 			}
 
-			var UowOrder = UoW.RootObject as Order;
+			var UowOrder = Order;
 			if(UowOrder != null) {
 
 				var orderBottles = UoW.Session.QueryOver<Comments>(() => commentAlias)
@@ -194,13 +197,3 @@ namespace Vodovoz.ViewWidgets
 		public bool IsFixed { get; set; }
 	}
 }
-
-
-
-//ITdiTab mytab = DialogHelper.FindParentTab(this);
-//if(mytab == null)
-//return;
-// использование WidgetOnDialogBase вместо Gtk позволяет не писать код выше, а сразу обращаться через this к окну
-//MyOrmDialog.UoW
-
-
