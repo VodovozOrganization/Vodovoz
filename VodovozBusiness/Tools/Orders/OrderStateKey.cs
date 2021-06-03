@@ -126,7 +126,7 @@ namespace Vodovoz.Tools.Orders
 				HasOrderItems = true;
 			}
 			
-			this.IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.Sum) <= 0m;
+			this.IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.ActualSum) <= 0m;
 			this.NeedToReturnBottles = Order.BottlesReturn > 0;
 			this.NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any();
 			this.PaymentType = Order.PaymentType;
