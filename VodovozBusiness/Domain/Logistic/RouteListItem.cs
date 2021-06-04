@@ -32,6 +32,14 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int Id { get; set; }
 
+		DateTime version;
+		[Display(Name = "Версия")]
+		public virtual DateTime Version
+		{
+			get => version;
+			set => SetField(ref version, value);
+		}
+
 		Orders.Order order;
 
 		[Display(Name = "Заказ")]
@@ -328,6 +336,15 @@ namespace Vodovoz.Domain.Logistic
 		public virtual IList<Fine> Fines {
 			get => fines;
 			set => SetField(ref fines, value);
+		}
+
+		private bool isDriverForeignDistrict;
+
+		[Display(Name = "Чужой район для водителя")]
+		public virtual bool IsDriverForeignDistrict
+		{
+			get => isDriverForeignDistrict;
+			set => SetField(ref isDriverForeignDistrict, value);
 		}
 
 		GenericObservableList<Fine> observableFines;
@@ -793,7 +810,36 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult($"В адресе: '{Title}' превышена максимально допустимая длина комментария по штрафу ({CommentForFine.Length}/1000)");
 			}
+
+			if (CashierComment?.Length > 255)
+			{
+				yield return new ValidationResult(
+					$"В адресе: '{Title}' превышена максимально допустимая длина комментария кассира ({CashierComment.Length}/255)");
+			}
 		}
+
+		public static RouteListItemStatus[] GetUndeliveryStatuses()
+        {
+        	return new RouteListItemStatus[]
+        		{
+        			RouteListItemStatus.Canceled,
+        			RouteListItemStatus.Overdue
+        		};
+        }
+
+        /// <summary>
+        /// Возвращает все возможные конечные статусы <see cref="RouteListItem"/>, при которых <see cref="RouteListItem"/> не был довезён
+        /// </summary>
+        /// <returns></returns>
+        public static RouteListItemStatus[] GetNotDeliveredStatuses()
+        {
+        	return new RouteListItemStatus[]
+        	{
+        		RouteListItemStatus.Canceled,
+        		RouteListItemStatus.Overdue,
+        		RouteListItemStatus.Transfered
+        	};
+        }
 	}
 
 	public enum RouteListItemStatus

@@ -167,9 +167,6 @@ namespace Vodovoz.Domain.Orders
 					InteractiveService.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
 					return;
 				}
-				if (value != null && (client != null || Id == 0)) {
-					IsForRetail = value.IsForRetail;
-				}
 				var oldClient = client;
 				if(SetField(ref client, value, () => Client)) {
 					if(Client == null || (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id))) {
@@ -587,14 +584,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isBottleStock, value, () => IsBottleStock);
 		}
 
-		private bool isForRetail;
-		[Display(Name = "Для розницы")]
-		public virtual bool IsForRetail
-		{
-			get => isForRetail;
-			set => SetField(ref isForRetail, value, () => IsForRetail);
-		}
-
         private bool isSelfDeliveryPaid;
 
         [Display(Name = "Самовывоз оплачен")]
@@ -895,7 +884,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			var order = new Order {
 				client = service.Counterparty,
-				IsForRetail = service.Counterparty.IsForRetail,
 				DeliveryPoint = service.DeliveryPoint,
 				DeliveryDate = service.ServiceStartDate,
 				PaymentType = service.Payment,
@@ -2072,7 +2060,19 @@ namespace Vodovoz.Domain.Orders
 				};
 				AddOrderItem(newItem);
 			}
+
 			RecalculateItemsPrice();
+
+			//Перенос скидки на доставку
+			var deliveryOrderItemFrom = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
+			var deliveryOrderItemTo = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
+			if (deliveryOrderItemFrom != null && deliveryOrderItemTo != null)
+			{
+				deliveryOrderItemTo.IsDiscountInMoney = deliveryOrderItemFrom.IsDiscountInMoney;
+				deliveryOrderItemTo.DiscountMoney = deliveryOrderItemFrom.DiscountMoney;
+				deliveryOrderItemTo.Discount = deliveryOrderItemFrom.Discount;
+				deliveryOrderItemTo.DiscountReason = deliveryOrderItemFrom.DiscountReason ?? deliveryOrderItemFrom.OriginalDiscountReason;
+			}
 		}
 
 		/// <summary>

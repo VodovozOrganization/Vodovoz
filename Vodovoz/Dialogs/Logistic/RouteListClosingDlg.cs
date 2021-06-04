@@ -7,8 +7,11 @@ using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Osm;
+using QS.Osm.Osrm;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Parameters;
@@ -592,8 +595,6 @@ namespace Vodovoz
 			Entity.CalculateWages(wageParameterService);
 			decimal driverWage = Entity.GetDriversTotalWage();
 			decimal forwarderWage = Entity.GetForwardersTotalWage();
-			decimal acceptedDriverWage = Entity.DriverWageOperation?.Money ?? 0;
-			decimal acceptedForwarderWage = Entity.ForwarderWageOperation?.Money ?? 0;
 
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = string.Format(
@@ -625,12 +626,9 @@ namespace Vodovoz
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = string.Format(
-				"ЗП вод.: <b>{0}</b> {4}" + "  " + "ЗП эксп.: <b>{2}</b> {4}" + " " + 
-				"Подтв.: ЗП вод.: <b>{1}</b> {4}" + "  " + "ЗП эксп.: <b>{3}</b> {4}",
+				"ЗП вод.: <b>{0}</b> {2}" + "  " + "ЗП эксп.: <b>{1}</b> {2}",
 				driverWage,
-				acceptedDriverWage,
 				forwarderWage,
-				acceptedForwarderWage,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelEmptyBottlesFommula.Markup = string.Format("Тара: <b>{0}</b><sub>(выгружено на склад)</sub> - <b>{1}</b><sub>(по документам)</sub> =",
@@ -784,6 +782,11 @@ namespace Vodovoz
 					PerformanceHelper.AddTimePoint("Статус сменен на 'проверка километража' и создано задание");
 				}
 				return;
+			}
+
+			if(Entity.Car.IsRaskat)
+			{
+				Entity.RecountMileage();
 			}
 
 			Entity.UpdateMovementOperations();

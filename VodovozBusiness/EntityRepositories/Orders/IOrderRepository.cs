@@ -119,6 +119,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow,
 			IOrderParametersProvider orderParametersProvider,
 			IOrganizationParametersProvider organizationParametersProvider,
+			ISalesReceiptsParametersProvider salesReceiptsParametersProvider,
 			DateTime? startDate = null);
 
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order);

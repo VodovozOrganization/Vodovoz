@@ -5,6 +5,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -34,8 +35,13 @@ namespace Vodovoz.Domain.Logistic
 		public int Bottle600mlCount => (int)item.Order.OrderItems
 			.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol600ml)
 			.Sum(i => i.CurrentCount);
+		
 		public int Bottle1500mlCount => (int)item.Order.OrderItems
 			.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol1500ml)
+			.Sum(i => i.CurrentCount);
+		
+		public int Bottle500mlCount => (int)item.Order.OrderItems
+			.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol500ml)
 			.Sum(i => i.CurrentCount);
 
 		public bool ContractCancelation => false;
@@ -43,6 +49,19 @@ namespace Vodovoz.Domain.Logistic
 		public IEnumerable<IOrderItemWageCalculationSource> OrderItemsSource => item.Order.OrderItems;
 
 		public IEnumerable<IOrderDepositItemWageCalculationSource> OrderDepositItemsSource => item.Order.OrderDepositItems;
+		public bool IsDriverForeignDistrict
+		{
+			get
+			{
+				var driverDistricts = item.RouteList.Driver.DriverDistrictPrioritySets
+					.FirstOrDefault(x =>
+						item.RouteList.Date >= x.DateActivated && (x.DateDeactivated == null || item.RouteList.Date <= x.DateDeactivated))
+					?.DriverDistrictPriorities
+					?.Select(x => x.District);
+
+				return driverDistricts == null || !driverDistricts.Contains(item.Order.DeliveryPoint.District);
+			}
+		}
 
 		public bool HasFirstOrderForDeliveryPoint {
 			get {
@@ -109,6 +128,7 @@ namespace Vodovoz.Domain.Logistic
 		public decimal DriverWageSurcharge => item.DriverWageSurcharge;
 
 		public bool IsDelivered => item.IsDelivered() && item.Status != RouteListItemStatus.Transfered;
+		public bool IsValidForWageCalculation => !RouteListItem.GetNotDeliveredStatuses().Contains(item.Status);
 
 		public (TimeSpan, TimeSpan) DeliverySchedule => (item.Order.DeliverySchedule.From, item.Order.DeliverySchedule.To);
 

@@ -979,7 +979,9 @@ namespace Vodovoz.Domain.Goods
 		[Display(Name = "1,5 л.")]
 		Vol1500ml = 1500,
 		[Display(Name = "0,6 л.")]
-		Vol600ml = 600
+		Vol600ml = 600,
+		[Display(Name = "0,5 л.")]
+		Vol500ml = 500
 	}
 
 	/// <summary>

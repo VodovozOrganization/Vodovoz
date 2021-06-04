@@ -26,6 +26,11 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			decimal resultSum = 0;
 
+			if(!src.IsValidForWageCalculation)
+			{
+				return new RouteListItemWageResult(0, GetCurrentWageDistrictLevelRate(src));
+			}
+
 			#region Оплата оборудования, если нет 19л воды в заказе
 			var wageForBottlesOrEquipment = CalculateWageForFull19LBottles(src);
 			if(wageForBottlesOrEquipment <= 0)
@@ -38,6 +43,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			resultSum += CalculateWageFor600mlBottles(src);
 			resultSum += CalculateWageFor6LBottles(src);
 			resultSum += CalculateWageFor1500mlBottles(src);
+			resultSum += CalculateWageFor500mlBottles(src);
 
 			return new RouteListItemWageResult(
 				resultSum,
@@ -67,8 +73,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			if(!src.HasFirstOrderForDeliveryPoint)
 				return 0;
-
-			var rate = GetCurrentWageDistrictLevelRate(src).WageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Address);
+			
+			var rate = GetCurrentWageDistrictLevelRate(src).WageRates.FirstOrDefault(r => r.WageRateType == (src.IsDriverForeignDistrict? WageRateTypes.ForeignAddress : WageRateTypes.Address));
 
 			return GetRateValue(src, rate);
 		}
@@ -172,6 +178,20 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			decimal paymentForOne = GetRateValue(src, rate);
 
 			return paymentForOne * src.Bottle1500mlCount;
+		}
+		
+		/// <summary>
+		/// Оплата доставки 0,5л бутылей
+		/// </summary>
+		decimal CalculateWageFor500mlBottles(IRouteListItemWageCalculationSource src)
+		{
+			WageDistrictLevelRate wageCalcMethodic = GetCurrentWageDistrictLevelRate(src);
+
+			var rate = wageCalcMethodic.WageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Bottle500ml);
+
+			decimal paymentForOne = GetRateValue(src, rate);
+
+			return paymentForOne * src.Bottle500mlCount;
 		}
 
 		/// <summary>
