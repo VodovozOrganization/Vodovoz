@@ -104,7 +104,7 @@ namespace Vodovoz.JournalViewModels
 					() => counterpartyAlias,
 					() => counterpartyAlias.Id == orderAlias.Client.Id
 					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+					NHibernate.SqlCommand.JoinType.InnerJoin);
 			}
 			else
 			{
