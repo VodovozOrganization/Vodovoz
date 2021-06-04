@@ -4,10 +4,16 @@ echo "1) git pull"
 echo "2) nuget restore"
 echo "3) cleanup packages directories"
 echo "4) build Vodovoz.sln (for Linux)"
+echo "5) remove obj & bin folders"
 echo "Можно вызывать вместе, например git+nuget=12"
 read case;
 
 case $case in
+    *5*)
+cd ../
+find . -type d -regex '.*\(bin\|obj\)' -exec rm -rv {} + 
+cd Vodovoz
+;;&
     *3*)
 rm -v -f -R ./packages/*
 rm -v -f -R ../QSProjects/packages/*
