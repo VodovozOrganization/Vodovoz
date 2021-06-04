@@ -260,7 +260,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>Районы водителя на дату МЛ</Value>
+                      <Value>Закрепленные районы</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -596,10 +596,10 @@ FROM
 	SELECT
 		rla.id as rlaID,
 		rl.id as rlId,
-		(IF(rl.forwarder_id=null,
+		(IFNULL(IF(rl.forwarder_id=null,
 			(wr_foreign.for_driver_without_forwarder - wr.for_driver_without_forwarder),
 			(wr_foreign.for_driver_with_forwarder - wr.for_driver_with_forwarder))
-		) as overpayment,
+		, 0)) as overpayment,
 		wr.id as wrId,
 		wr_foreign.id as wrfId,
 		GET_PERSON_NAME_WITH_INITIALS(empl.last_name, empl.name, empl.patronymic) as emplName,
@@ -643,6 +643,9 @@ FROM
 		wage_rates wr_foreign ON wr_foreign.id = (SELECT sub_wr.id FROM wage_rates sub_wr WHERE sub_wr.wage_district_level_rate_id = IF(rl.status='closed', rla.driver_wage_calculation_methodic_id, wdlr.id)
 																							AND sub_wr.wage_rate_type = 'ForeignAddress')
 	WHERE rla.is_driver_foreign_district=1
+	AND IF(rl.forwarder_id=null, (wr_foreign.for_driver_without_forwarder - wr.for_driver_without_forwarder),
+								 (wr_foreign.for_driver_with_forwarder - wr.for_driver_with_forwarder)) &gt; 0
+	AND (rla.status = 'Completed' OR rla.status = 'EnRoute')
 	GROUP BY rla.id ORDER BY empl.last_name, rla.id
 ) as master
 INNER JOIN
@@ -663,6 +666,7 @@ INNER JOIN
 	LEFT JOIN
 		districts dists ON dists.id = ddp.district_id
 	WHERE rla.is_driver_foreign_district=1
+	AND (rla.status = 'Completed' OR rla.status = 'EnRoute')
 	GROUP BY rla.id
 ) as servant on servant.rlaID = master.rlaID</CommandText>
         <QueryParameters>
