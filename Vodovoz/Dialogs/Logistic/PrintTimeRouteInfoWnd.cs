@@ -2,14 +2,14 @@
 namespace Vodovoz.Dialogs.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class PrintTimeRouteInfoWnd : Gtk.Bin
+	public partial class PrintTimeRouteInfoWnd : Gtk.Window
 	{
-		public PrintTimeRouteInfoWnd(DateTime time, int RLId)
+		public PrintTimeRouteInfoWnd(DateTime? time, int RLId) : base(Gtk.WindowType.Toplevel)
 		{
 			this.Build();
 			numberRL.Text = $"№ МЛ:{RLId}";
-			dateRL.Text = time.ToLongDateString();
-			timeRL.Text = time.ToShortTimeString();
+			dateRL.Text = $"Дата печати {time?.ToLongDateString()}";
+			timeRL.Text = $"Время печати {time?.ToShortTimeString()}";
 		}
 	}
 }

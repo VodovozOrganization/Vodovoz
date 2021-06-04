@@ -17,6 +17,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -145,7 +146,9 @@ namespace Vodovoz
 			referenceForwarder.Changed += (sender, args) => {
 				createroutelistitemsview1.OnForwarderChanged();
 			};
-
+			
+			printTimeButton.Clicked += (sender, e) => new PrintTimeRouteInfoWnd(Entity.PrintTime, Entity.Id).Show();
+			
 			referenceLogistican.Sensitive = false;
 			referenceLogistican.RepresentationModel = new EmployeesVM();
 			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Subject).InitializeFromSource();
