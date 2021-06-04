@@ -123,6 +123,13 @@ namespace Vodovoz
 					MessageDialogHelper.RunWarningDialog("На данном автомобиле есть МЛ, смена типа невозможна");
 				}
 			};
+			labelRaskatType.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Visible).InitializeFromSource();
+			
+			enumRaskatType.ItemsEnum = typeof(RaskatType);
+			enumRaskatType.ShowSpecialStateNot = true;
+			enumRaskatType.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Visible).InitializeFromSource();
+			enumRaskatType.Binding.AddBinding(Entity, e => e.RaskatType, w => w.SelectedItemOrNull).InitializeFromSource();
+			enumRaskatType.Binding.AddFuncBinding(Entity, e => e.Id == 0, w => w.Sensitive).InitializeFromSource();
 
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
@@ -135,7 +142,11 @@ namespace Vodovoz
 			textDriverInfo.Selectable = true;
 
 			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-			bool canChangeVolumeWeightConsumption = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_volume_weight_consumption", currentUserId) || Entity.Id == 0 || !Entity.IsCompanyCar;
+			bool canChangeVolumeWeightConsumption = 
+				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_volume_weight_consumption", currentUserId)
+				|| Entity.Id == 0
+				|| !(Entity.IsCompanyCar || Entity.IsRaskat);
+
 			bool canChangeBottlesFromAddress = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_bottles_from_address", currentUserId);
 
 			dataspinbutton1.Sensitive = canChangeVolumeWeightConsumption;

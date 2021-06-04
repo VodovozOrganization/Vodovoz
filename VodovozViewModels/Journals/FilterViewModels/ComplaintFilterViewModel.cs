@@ -6,6 +6,7 @@ using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Services;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -20,6 +21,8 @@ namespace Vodovoz.FilterViewModels
 		private readonly ICommonServices commonServices;
 		public ISubdivisionService SubdivisionService { get; set; }
 		public IEmployeeService EmployeeService { get; set; }
+		
+		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public ComplaintFilterViewModel()
 		{
@@ -39,10 +42,12 @@ namespace Vodovoz.FilterViewModels
 		public ComplaintFilterViewModel(
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory
 		) {
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-
+			CounterpartySelectorFactory =
+				counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
 				commonServices,
@@ -62,6 +67,7 @@ namespace Vodovoz.FilterViewModels
 			UpdateWith(
 				x => x.ComplaintType,
 				x => x.ComplaintStatus,
+				x => x.Counterparty,
 				x => x.Employee,
 				x => x.StartDate,
 				x => x.EndDate,
@@ -119,6 +125,13 @@ namespace Vodovoz.FilterViewModels
 		public virtual Employee Employee {
 			get { return employee; }
 			set { SetField(ref employee, value); }
+		}
+
+		private Counterparty counterparty;
+		public virtual Counterparty Counterparty
+		{
+			get { return counterparty; }
+			set { SetField(ref counterparty, value); }
 		}
 
 		private Subdivision subdivision;

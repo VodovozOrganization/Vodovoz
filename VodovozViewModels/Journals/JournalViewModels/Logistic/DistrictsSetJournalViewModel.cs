@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using NHibernate;
 using NHibernate.Transform;
@@ -165,7 +165,12 @@ namespace Vodovoz.Journals.JournalViewModels
 							return;
 						}
 						TabParent.AddSlaveTab(this, 
-							new DistrictsSetActivationViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices)
+							new DistrictsSetActivationViewModel(
+								EntityUoWBuilder.ForOpen(selectedNode.Id),
+								QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+								commonServices,
+								EmployeeSingletonRepository.GetInstance()
+								)
 						);
 						
 					}

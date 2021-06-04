@@ -22,10 +22,13 @@ namespace Vodovoz.Parameters
 		{
 		}
 
-		Dictionary<string, string> parameters = new Dictionary<string, string>();
+		private readonly Dictionary<string, BaseParameter> parameters = new Dictionary<string, BaseParameter>();
 
 		public bool ContainsParameter(string parameterName)
 		{
+			if(parameters.ContainsKey(parameterName)) {
+				return true;
+			}
 			RefreshParameter(parameterName);
 			return parameters.ContainsKey(parameterName);
 		}
@@ -36,21 +39,19 @@ namespace Vodovoz.Parameters
 				throw new ArgumentNullException(nameof(parameterName));
 			}
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				string freshParameterValue = uow.Session.QueryOver<BaseParameter>()
-					.Where(x => x.Name == parameterName)
-					.Select(x => x.StrValue)
-					.SingleOrDefault<string>();
-				if(parameters.ContainsKey(parameterName)) {
-					parameters[parameterName] = freshParameterValue;
-					return freshParameterValue;
-				}
-				if(!parameters.ContainsKey(parameterName) && !string.IsNullOrWhiteSpace(freshParameterValue)) {
-					parameters.Add(parameterName, freshParameterValue);
-					return freshParameterValue;
-				}
+			if(!ContainsParameter(parameterName)) {
 				throw new InvalidProgramException($"В параметрах базы не найден параметр ({parameterName})");
 			}
+
+			var parameter = parameters[parameterName];
+			if(parameter.IsExpired) {
+				RefreshParameter(parameterName);
+				parameter = parameters[parameterName];
+			}
+			if(String.IsNullOrWhiteSpace(parameter.StrValue)) {
+				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterName})" );
+			}
+			return parameter.StrValue;
 		}
 
 		private void RefreshParameter(string parameterName)
@@ -63,12 +64,13 @@ namespace Vodovoz.Parameters
 					return;
 				}
 
+				parameter.CachedTime = DateTime.Now;
 				if(parameters.ContainsKey(parameterName)) {
-					parameters[parameterName] = parameter.StrValue;
+					parameters[parameterName] = parameter;
 					return;
 				}
 				if(!parameters.ContainsKey(parameterName)) {
-					parameters.Add(parameter.Name, parameter.StrValue);
+					parameters.Add(parameter.Name, parameter);
 					return;
 				}
 			}
@@ -83,7 +85,8 @@ namespace Vodovoz.Parameters
 					if(parameters.ContainsKey(parameter.Name)) {
 						continue;
 					}
-					parameters.Add(parameter.Name, parameter.StrValue);
+					parameter.CachedTime = DateTime.Now;
+					parameters.Add(parameter.Name, parameter);
 				}
 			}
 		}
@@ -172,9 +175,9 @@ namespace Vodovoz.Parameters
 		public void CreateOrUpdateParameter(string name, string value)
 		{
 			bool isInsert = false;
-			if(parameters.TryGetValue(name, out string oldValue))
+			if(parameters.TryGetValue(name, out var oldParameter))
 			{
-				if(oldValue == value) {
+				if(oldParameter.StrValue == value) {
 					return;
 				}
 			}

@@ -116,10 +116,10 @@ using QS.BaseParameters.Views;
 using QS.ChangePassword.Views;
 using QS.Project.Repositories;
 using QS.ViewModels;
+using Vodovoz.ReportsParameters.Employees;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
-using Vodovoz.ReportsParameters.Employees;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -896,7 +896,8 @@ public partial class MainWindow : Gtk.Window
                     new ComplaintFilterViewModel(
                         ServicesConfig.CommonServices,
                         subdivisionRepository,
-                        employeeSelectorFactory
+                        employeeSelectorFactory,
+                        counterpartySelectorFactory
                     ),
                     filePickerService,
                     subdivisionRepository,
@@ -1361,14 +1362,6 @@ public partial class MainWindow : Gtk.Window
         );
     }
 
-    protected void OnActionSendedBillsActivated(object sender, EventArgs e)
-    {
-        tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<SendedEmailsReport>(),
-            () => new QSReport.ReportViewDlg(new SendedEmailsReport())
-        );
-    }
-
     protected void OnActionDefectiveItemsReportActivated(object sender, EventArgs e)
     {
         tdiMain.OpenTab(
@@ -1829,9 +1822,14 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
     {
+        var employeeFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+            () => new EmployeesJournalViewModel(
+                new EmployeeFilterViewModel(),
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices));
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
-            () => new QSReport.ReportViewDlg(new ReturnedTareReport())
+            () => new QSReport.ReportViewDlg(new ReturnedTareReport(employeeFactory))
         );
     }
 
@@ -2030,7 +2028,8 @@ public partial class MainWindow : Gtk.Window
                     new ComplaintFilterViewModel(
                         ServicesConfig.CommonServices,
                         subdivisionRepository,
-                        employeeSelectorFactory
+                        employeeSelectorFactory,
+                        counterpartySelectorFactory
                     )
                     { IsForRetail = true },
                     filePickerService,

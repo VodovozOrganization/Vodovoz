@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Osm;
+using QS.Osm.Osrm;
 using QS.Project.Services;
 using QS.Report;
 using QS.Tools;
@@ -28,6 +31,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
@@ -770,22 +774,42 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			//ОБОРУДОВАНИЕ
-			var orderEquipments = Addresses.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
-									   .SelectMany(item => item.Order.OrderEquipments)
-									   .Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-									   .ToList();
-			foreach(var orderEquip in orderEquipments) {
-				var discrepancy = new Discrepancy {
-					Nomenclature = orderEquip.Nomenclature,
-					Name = orderEquip.Nomenclature.Name
-				};
 
-				if(orderEquip.Direction == Direction.Deliver)
-					discrepancy.ClientRejected = orderEquip.ReturnedCount;
-				else
-					discrepancy.PickedUpFromClient = orderEquip.ActualCount ?? 0;
+			foreach (var address in Addresses)
+			{
+				foreach (var orderEquipment in address.Order.OrderEquipments)
+				{
+					if (!Nomenclature.GetCategoriesForShipment().Contains(orderEquipment.Nomenclature.Category))
+					{
+						continue;
+					}
+					var discrepancy = new Discrepancy
+					{
+						Nomenclature = orderEquipment.Nomenclature,
+						Name = orderEquipment.Nomenclature.Name
+					};
 
-				AddDiscrepancy(result, discrepancy);
+					if (address.TransferedTo == null)
+					{
+						if (orderEquipment.Direction == Direction.Deliver)
+						{
+							discrepancy.ClientRejected = orderEquipment.ReturnedCount;
+						}
+						else
+						{
+							discrepancy.PickedUpFromClient = orderEquipment.ActualCount ?? 0;
+						}
+						AddDiscrepancy(result, discrepancy);
+					}
+					else if (address.TransferedTo.NeedToReload)
+					{
+						if (orderEquipment.Direction == Direction.Deliver)
+						{// не обрабатываем pickup, т.к. водитель физически не был на адресе, чтобы забрать оборудование
+							discrepancy.ClientRejected = orderEquipment.Count;
+							AddDiscrepancy(result, discrepancy);
+						}
+					}
+				}
 			}
 
 			//ДОСТАВЛЕНО НА СКЛАД
@@ -1695,6 +1719,10 @@ namespace Vodovoz.Domain.Logistic
 			moneyMovementOperations.ForEach(op => UoW.Save(op));
 
 			UpdateWageOperation();
+
+			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(EmployeeSingletonRepository.GetInstance(), new BaseParametersProvider(),
+				new PremiumRaskatGAZelleParametersProvider(SingletonParametersProvider.Instance), this);
+			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}
 
 		#region Для логистических расчетов
@@ -1907,6 +1935,54 @@ namespace Vodovoz.Domain.Logistic
 			return notLoadedNomenclatures;
 		}
 
+		public virtual void RecountMileage()
+		{
+			var pointsToRecalculate = new List<PointOnEarth>();
+			var pointsToBase = new List<PointOnEarth>();
+			var baseLat = (double)GeographicGroups.FirstOrDefault().BaseLatitude.Value;
+			var baseLon = (double)GeographicGroups.FirstOrDefault().BaseLongitude.Value;
+
+			decimal totalDistanceTrack = 0;
+
+			IEnumerable<RouteListItem> completedAddresses = Addresses.Where(x => x.Status == RouteListItemStatus.Completed);
+
+			if(!completedAddresses.Any())
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Для МЛ нет завершенных адресов, невозможно расчитать трек", "");
+				return;
+			}
+
+			if(completedAddresses.Count() > 1)
+			{
+				foreach(RouteListItem address in Addresses.OrderBy(x => x.StatusLastUpdate))
+				{
+					if(address.Status == RouteListItemStatus.Completed)
+					{
+						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.Latitude, (double)address.Order.DeliveryPoint.Longitude));
+					}
+				}
+
+				var recalculatedTrackResponse = OsrmMain.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
+				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
+
+				totalDistanceTrack = recalculatedTrack.TotalDistanceKm;
+			}
+			else
+			{
+				var point = Addresses.First(x => x.Status == RouteListItemStatus.Completed).Order.DeliveryPoint;
+				pointsToRecalculate.Add(new PointOnEarth((double)point.Latitude, (double)point.Longitude));
+			}
+
+			pointsToBase.Add(pointsToRecalculate.Last());
+			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
+			pointsToBase.Add(pointsToRecalculate.First());
+
+			var recalculatedToBaseResponse = OsrmMain.GetRoute(pointsToBase, false, GeometryOverview.Full);
+			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
+
+			RecalculatedDistance = decimal.Round(totalDistanceTrack + recalculatedToBase.TotalDistanceKm);
+		}
+
 		#endregion
 
 		#region Зарплата
@@ -2013,6 +2089,12 @@ namespace Vodovoz.Domain.Logistic
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
+			if (Status == RouteListStatus.New)
+			{
+				ClearWages();
+				return;
+			}
+
 			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
 			FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().FixedWage;
 
@@ -2031,6 +2113,22 @@ namespace Vodovoz.Domain.Logistic
 					address.ForwarderWage = fwdWageResult.Wage;
 					address.ForwarderWageCalcMethodicTemporaryStore = fwdWageResult.WageDistrictLevelRate;
 				}
+
+				address.IsDriverForeignDistrict = address.DriverWageCalculationSrc.IsDriverForeignDistrict;
+			}
+		}
+
+		/// <summary>
+		/// Обнуляет зарплату в МЛ и его адресах
+		/// </summary>
+		public virtual void ClearWages()
+		{
+			FixedDriverWage = 0;
+			FixedForwarderWage = 0;
+			foreach(var address in Addresses)
+			{
+				address.DriverWage = 0;
+				address.ForwarderWage = 0;
 			}
 		}
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -15,8 +15,24 @@ namespace Vodovoz.Domain.Logistic
     public class DriverDistrictPrioritySet : PropertyChangedBase, IDomainObject, ICloneable
     {
          public virtual int Id { get; set; }
-        
-        private Employee driver;
+
+		private DateTime dateCreated;
+		[Display(Name = "Время создания")]
+		public virtual DateTime DateCreated
+		{
+			get => dateCreated;
+			set => SetField(ref dateCreated, value);
+		}
+
+		private DateTime dateLastChanged;
+		[Display(Name = "Время последнего изменения")]
+		public virtual DateTime DateLastChanged
+		{
+			get => dateLastChanged;
+			set => SetField(ref dateLastChanged, value);
+		}
+
+		private Employee driver;
         [Display(Name = "Водитель")]
         public virtual Employee Driver {
             get => driver;
@@ -37,9 +53,9 @@ namespace Vodovoz.Domain.Logistic
             set => SetField(ref lastEditor, value);
         }
 
-        private DateTime dateActivated;
+        private DateTime? dateActivated;
         [Display(Name = "Время активации")]
-        public virtual DateTime DateActivated {
+        public virtual DateTime? DateActivated {
             get => dateActivated;
             set => SetField(ref dateActivated, value);
         }

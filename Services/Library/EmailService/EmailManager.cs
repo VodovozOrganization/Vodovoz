@@ -151,13 +151,7 @@ namespace EmailService
 				uow.Root.DocumentType = email.OrderDocumentType;
 				uow.Root.SendDate = DateTime.Now;
 				uow.Root.StateChangeDate = DateTime.Now;
-				uow.Root.HtmlText = email.HtmlText;
-				uow.Root.Text = email.Text;
-				uow.Root.Title = email.Title;
 				uow.Root.State = StoredEmailStates.WaitingToSend;
-				uow.Root.SenderName = email.Sender.Title;
-				uow.Root.SenderAddress = email.Sender.EmailAddress;
-				uow.Root.RecipientName = email.Recipient.Title;
 				uow.Root.RecipientAddress = email.Recipient.EmailAddress;
 				uow.Root.ManualSending = email.ManualSending;
 				uow.Root.Author = email.AuthorId != 0 ? uow.GetById<Employee>(email.AuthorId) : null;

@@ -57,6 +57,7 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
+    <Compile Include="Domain\Cash\OrganizationCashTransferDocument.cs" />
     <Compile Include="Domain\Client\CounterpartyFile.cs" />
     <Compile Include="Domain\Documents\WayBillDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocumentItem.cs" />
@@ -86,14 +87,19 @@
     <Compile Include="Domain\Documents\IncomeCashDistributionDocument.cs" />
     <Compile Include="Domain\Documents\RouteListItemCashDistributionDocument.cs" />
     <Compile Include="Domain\Documents\SelfDeliveryCashDistributionDocument.cs" />
+    <Compile Include="Domain\Employees\PremiumBase.cs" />
+    <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
     <Compile Include="Domain\FinancialDistrict.cs" />
     <Compile Include="Domain\FinancialDistrictsSet.cs" />
     <Compile Include="Domain\Goods\NomenclatureFixedPrice.cs" />
     <Compile Include="Domain\EntityFactories\NomenclatureFixedPriceFactory.cs" />
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
+    <Compile Include="Domain\Logistic\DeliverySummary.cs" />
+    <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\DriverCarKind.cs" />
+    <Compile Include="Domain\Logistic\OrdersCountNode.cs" />
     <Compile Include="Domain\Operations\OrganisationCashMovementOperation.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceController.cs" />
     <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
@@ -139,6 +145,7 @@
     <Compile Include="EntityRepositories\Orders\ExtendedReceiptForOrderNode.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestMap.cs" />
+    <Compile Include="HibernateMapping\Cash\OrganizationCashTransferDocumentMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyFileMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
@@ -178,6 +185,7 @@
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPrioritySetMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
+    <Compile Include="Models\PremiumRaskatGAZelleWageModel.cs" />
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
@@ -191,10 +199,12 @@
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
+    <Compile Include="Parameters\OrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Parameters\NomenclaturePlanParametersProvider.cs" />
     <Compile Include="Parameters\OrderParametersProvider.cs" />
     <Compile Include="Parameters\OrganizationParametersProvider.cs" />
     <Compile Include="Parameters\ReportDefaultsProvider.cs" />
+    <Compile Include="Parameters\PremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="Parameters\RouteListParametersProvider.cs" />
     <Compile Include="Parameters\SalesReceiptsParametersProvider.cs" />
     <Compile Include="Parameters\TabsParametersProvider.cs" />
@@ -453,9 +463,11 @@
     <Compile Include="Services\ICashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
+    <Compile Include="Services\IOrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />
     <Compile Include="Services\IOrderParametersProvider.cs" />
     <Compile Include="Services\IOrganizationParametersProvider.cs" />
+    <Compile Include="Services\IPremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="Services\IRouteListParametersProvider.cs" />
     <Compile Include="Services\ISalesReceiptsParametersProvider.cs" />
     <Compile Include="Services\ITabsParametersProvider.cs" />
@@ -499,7 +511,7 @@
     <Compile Include="Domain\Employees\Premium.cs" />
     <Compile Include="Domain\Employees\PremiumItem.cs" />
     <Compile Include="Domain\Employees\PremiumTemplate.cs" />
-    <Compile Include="HibernateMapping\Employees\PremiumMap.cs" />
+    <Compile Include="HibernateMapping\Employees\PremiumBaseMap.cs" />
     <Compile Include="HibernateMapping\Employees\PremiumItemMap.cs" />
     <Compile Include="HibernateMapping\Employees\PremiumTemplateMap.cs" />
     <Compile Include="Domain\Employees\CarProxyDocument.cs" />

@@ -24,7 +24,7 @@ namespace VodovozSalesReceiptsService
             IOrderParametersProvider orderParametersProvider,
             IOrganizationParametersProvider organizationParametersProvider,
             ISalesReceiptsParametersProvider salesReceiptsParametersProvider,
-            IList<CashBox> cashBoxes)
+            IEnumerable<CashBox> cashBoxes)
         {
             this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
             this.salesReceiptSender = salesReceiptSender ?? throw new ArgumentNullException(nameof(salesReceiptSender));
@@ -40,7 +40,7 @@ namespace VodovozSalesReceiptsService
         private readonly IOrderParametersProvider orderParametersProvider;
         private readonly IOrganizationParametersProvider organizationParametersProvider;
         private readonly ISalesReceiptsParametersProvider _salesReceiptsParametersProvider;
-        private readonly IList<CashBox> cashBoxes;
+        private readonly IEnumerable<CashBox> cashBoxes;
         private readonly TimeSpan initialDelay = TimeSpan.FromSeconds(5);
         private readonly TimeSpan delay = TimeSpan.FromSeconds(45);
 

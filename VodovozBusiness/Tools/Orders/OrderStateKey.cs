@@ -95,6 +95,9 @@ namespace Vodovoz.Tools.Orders
 
 		[Display(Name = "Сколько воды одноразовой таре 0.6л?")]
 		public decimal DisposableWater600mlCount { get; set; }
+		
+		[Display(Name = "Сколько воды одноразовой таре 0.5л?")]
+		public decimal DisposableWater500mlCount { get; set; }
 
 		#endregion
 
@@ -164,6 +167,12 @@ namespace Vodovoz.Tools.Orders
 				&& x.Nomenclature.IsDisposableTare
 				&& x.Nomenclature.TareVolume == TareVolume.Vol600ml)
 				.Sum(x => x.Count);
+			this.DisposableWater500mlCount = Order.OrderItems
+				.Where(x => x.Nomenclature != null
+	            && x.Nomenclature.Category == NomenclatureCategory.water
+	            && x.Nomenclature.IsDisposableTare
+	            && x.Nomenclature.TareVolume == TareVolume.Vol500ml)
+				.Sum(x => x.Count);
 		}
 
 		public bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)
@@ -172,6 +181,7 @@ namespace Vodovoz.Tools.Orders
 			decimal totalNo19LWater = DisposableWater6LCount / rule.EqualsCount6LFor19L;
 			totalNo19LWater += DisposableWater1500mlCount / rule.EqualsCount1500mlFor19L;
 			totalNo19LWater += DisposableWater600mlCount / rule.EqualsCount600mlFor19L;
+			totalNo19LWater += DisposableWater500mlCount / rule.EqualsCount500mlFor19L;
 			total19LWater += (int)totalNo19LWater;
 
 			bool result = total19LWater < rule.Water19LCount;
