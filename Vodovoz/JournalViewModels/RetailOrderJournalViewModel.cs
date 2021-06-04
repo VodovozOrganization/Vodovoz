@@ -104,7 +104,7 @@ namespace Vodovoz.JournalViewModels
 					() => counterpartyAlias,
 					() => counterpartyAlias.Id == orderAlias.Client.Id
 					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+					NHibernate.SqlCommand.JoinType.InnerJoin);
 			}
 			else
 			{
@@ -310,7 +310,7 @@ namespace Vodovoz.JournalViewModels
 					() => counterpartyAlias,
 					() => counterpartyAlias.Id == orderWSDAlias.Client.Id
 					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+					NHibernate.SqlCommand.JoinType.InnerJoin);
 			}
 			else
 			{
@@ -415,7 +415,7 @@ namespace Vodovoz.JournalViewModels
 					() => counterpartyAlias,
 					() => counterpartyAlias.Id == orderWSPAlias.Client.Id
 					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+					NHibernate.SqlCommand.JoinType.InnerJoin);
 			}
 			else
 			{
@@ -542,7 +542,7 @@ namespace Vodovoz.JournalViewModels
 					() => counterpartyAlias,
 					() => counterpartyAlias.Id == orderWSAPAlias.Client.Id
 					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+					NHibernate.SqlCommand.JoinType.InnerJoin);
 			}
 			else
 			{
