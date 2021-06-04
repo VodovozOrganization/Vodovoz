@@ -55,11 +55,11 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null ? (x.Document as RouteListPrintableDocs).routeList.Car.RegistrationNumber : "нет")
 				.AddColumn("Часть города")
 					.AddTextRenderer(x => string.Join(", ", (x.Document as RouteListPrintableDocs).routeList.GeographicGroups.Select(g => g.Name)))
-				.AddColumn("МЛ распечатан")
-					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Printed ? "МЛ распечатан ранее" : "Не печатался")
+				.AddColumn("Время печати")
+					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.PrintTime.HasValue ? (x.Document as RouteListPrintableDocs).routeList.PrintTime.Value.ToLongDateString() : "МЛ не распечатан")
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRendererText>((c, n) => c.Foreground = (n.Document as RouteListPrintableDocs).routeList.Printed ? "grey" : "black")
+					.AddSetter<CellRendererText>((c, n) => c.Foreground = (n.Document as RouteListPrintableDocs).routeList.PrintTime.HasValue ? "grey" : "black")
 				.Finish();
 
 			geograficGroup.UoW = uow;
