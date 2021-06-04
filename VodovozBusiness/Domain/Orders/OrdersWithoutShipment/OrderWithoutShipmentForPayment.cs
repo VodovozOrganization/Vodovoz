@@ -80,7 +80,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			{
 				if (value != null)
 				{
-					IsForRetail = value.IsForRetail;
 					SetField(ref order, value);
 				}
 			}
@@ -128,14 +127,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual bool HideSignature {
 			get => hideSignature;
 			set => SetField(ref hideSignature, value);
-		}
-
-		private bool isForRetail;
-		[Display(Name = "Для розницы")]
-		public virtual bool IsForRetail
-		{
-			get => isForRetail;
-			set => SetField(ref isForRetail, value, () => IsForRetail);
 		}
 
 		#endregion

@@ -1,18 +1,22 @@
-﻿using System.Data.Bindings.Collections.Generic;
+﻿using System;
+using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using QS.Commands;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using System.Diagnostics;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using QS.Services;
 using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.ViewModels
 {
 	public class FilesViewModel : UoWWidgetViewModelBase
 	{
-		private IFilePickerService filePicker { get; }
+		private readonly IInteractiveService _interactiveService;
+		private readonly IFilePickerService _filePicker;
 
 		private GenericObservableList<ComplaintFile> filesList;
 		public virtual GenericObservableList<ComplaintFile> FilesList {
@@ -23,7 +27,7 @@ namespace Vodovoz.ViewModels
 		private bool readOnly;
 		public virtual bool ReadOnly {
 			get => readOnly;
-			set => SetField(ref readOnly, value, () => ReadOnly);
+			set => SetField(ref readOnly, value);
 		}
 
 		#region Commands
@@ -33,10 +37,11 @@ namespace Vodovoz.ViewModels
 		public DelegateCommand<ComplaintFile> DeleteItemCommand { get; private set; }
 		public DelegateCommand<ComplaintFile> LoadItemCommand { get; private set; }
 
-		public FilesViewModel(IFilePickerService filePicker, IUnitOfWork uow)
+		public FilesViewModel(IFilePickerService filePicker, IInteractiveService interactiveService, IUnitOfWork uow)
 		{
-			UoW = uow;
-			this.filePicker = filePicker;
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
+			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
 		}
 
@@ -45,10 +50,17 @@ namespace Vodovoz.ViewModels
 			AddItemCommand = new DelegateCommand(
 				() => {
 
-					if(filePicker.OpenSelectFilePicker(out string filePath)) 
+					if(_filePicker.OpenSelectFilePicker(out string filePath)) 
 					{
 						var complaintFile = new ComplaintFile();
 						complaintFile.FileStorageId = Path.GetFileName(filePath);
+						
+						if (complaintFile.FileStorageId.Length > 45) {
+							_interactiveService.ShowMessage(
+								ImportanceLevel.Warning,
+								"Слишком длинное имя файла. Оно не должно превышать 45 символов.");
+							return;
+						}
 
 						complaintFile.ByteFile = File.ReadAllBytes(filePath);
 
@@ -57,16 +69,14 @@ namespace Vodovoz.ViewModels
 						FilesList.Add(complaintFile);
 					}
 				},
-				() => { return !ReadOnly; }
-			);
+				() => !ReadOnly);
 
 			DeleteItemCommand = new DelegateCommand<ComplaintFile>(
-				(file) => { FilesList.Remove(file); },
-				(file) => { return !ReadOnly; }
-			);
+				file => { FilesList.Remove(file); },
+				file => !ReadOnly);
 
 			OpenItemCommand = new DelegateCommand<ComplaintFile>(
-				(file) => {
+				file => {
 
 					var vodUserTempDir = UserSingletonRepository.GetInstance().GetTempDirForCurrentUser(UoW);
 
@@ -84,12 +94,11 @@ namespace Vodovoz.ViewModels
 				});
 
 			LoadItemCommand = new DelegateCommand<ComplaintFile>(
-				(file) => {
-					if(filePicker.OpenSaveFilePicker(file.FileStorageId, out string filePath))
+				file => {
+					if(_filePicker.OpenSaveFilePicker(file.FileStorageId, out string filePath))
 						File.WriteAllBytes(filePath, file.ByteFile);
 				},
-				(file) => { return !ReadOnly; }
-			);
+				file => !ReadOnly);
 		}
 
 		#endregion Commands

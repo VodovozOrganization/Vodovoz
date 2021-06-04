@@ -46,7 +46,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.ToClientText)					.Column("to_client_text");
 			Map(x => x.FromClientText)					.Column("from_client_text");
 			Map(x => x.IsContractCloser)				.Column("is_contract_closer");
-			Map(x => x.IsForRetail)                     .Column("is_for_retail");
 			Map(x => x.IsSelfDeliveryPaid)              .Column("is_self_delivery_paid");
 			Map(x => x.BillDate)						.Column("bill_date");
 			Map(x => x.IsTareNonReturnReasonChangedByUser).Column("is_reason_type_changed_by_user");

@@ -896,7 +896,8 @@ public partial class MainWindow : Gtk.Window
                     new ComplaintFilterViewModel(
                         ServicesConfig.CommonServices,
                         subdivisionRepository,
-                        employeeSelectorFactory
+                        employeeSelectorFactory,
+                        counterpartySelectorFactory
                     ),
                     filePickerService,
                     subdivisionRepository,
@@ -2027,7 +2028,8 @@ public partial class MainWindow : Gtk.Window
                     new ComplaintFilterViewModel(
                         ServicesConfig.CommonServices,
                         subdivisionRepository,
-                        employeeSelectorFactory
+                        employeeSelectorFactory,
+                        counterpartySelectorFactory
                     )
                     { IsForRetail = true },
                     filePickerService,

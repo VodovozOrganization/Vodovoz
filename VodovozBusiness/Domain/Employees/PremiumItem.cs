@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Employees
 	{
 		public virtual int Id { get; set; }
 
-		public virtual Premium Premium { get; set; }
+		public virtual PremiumBase Premium { get; set; }
 
 		Employee employee;
 
