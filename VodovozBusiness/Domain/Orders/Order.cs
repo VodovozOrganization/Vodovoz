@@ -1293,9 +1293,6 @@ namespace Vodovoz.Domain.Orders
 		
 		private void UpdateContract(bool onPaymentTypeChanged = false)
 		{
-			NHibernate.NHibernateUtil.Initialize(Client);
-			NHibernate.NHibernateUtil.Initialize(Contract);
-
 			if(!NHibernate.NHibernateUtil.IsInitialized(Client)
 			   || !NHibernate.NHibernateUtil.IsInitialized(Contract)) {
 				return;
