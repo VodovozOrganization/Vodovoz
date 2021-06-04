@@ -64,6 +64,8 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox9;
 
+		private global::Gamma.GtkWidgets.yButton printTimeButton;
+
 		private global::QS.Widgets.EnumMenuButton enumPrint;
 
 		private global::Gtk.Button buttonAccept;
@@ -417,6 +419,17 @@ namespace Vodovoz
 			this.hbox9.Name = "hbox9";
 			this.hbox9.Spacing = 6;
 			// Container child hbox9.Gtk.Box+BoxChild
+			this.printTimeButton = new global::Gamma.GtkWidgets.yButton();
+			this.printTimeButton.CanFocus = true;
+			this.printTimeButton.Name = "printTimeButton";
+			this.printTimeButton.UseUnderline = true;
+			this.printTimeButton.Label = global::Mono.Unix.Catalog.GetString("Время печати МЛ");
+			this.hbox9.Add(this.printTimeButton);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.printTimeButton]));
+			w31.Position = 1;
+			w31.Expand = false;
+			w31.Fill = false;
+			// Container child hbox9.Gtk.Box+BoxChild
 			this.enumPrint = new global::QS.Widgets.EnumMenuButton();
 			this.enumPrint.CanFocus = true;
 			this.enumPrint.Name = "enumPrint";
@@ -424,35 +437,35 @@ namespace Vodovoz
 			this.enumPrint.UseMarkup = false;
 			this.enumPrint.LabelXAlign = 0F;
 			this.enumPrint.Label = global::Mono.Unix.Catalog.GetString("Распечатать");
-			global::Gtk.Image w31 = new global::Gtk.Image();
-			w31.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-print", global::Gtk.IconSize.Menu);
-			this.enumPrint.Image = w31;
+			global::Gtk.Image w32 = new global::Gtk.Image();
+			w32.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-print", global::Gtk.IconSize.Menu);
+			this.enumPrint.Image = w32;
 			this.hbox9.Add(this.enumPrint);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.enumPrint]));
-			w32.PackType = ((global::Gtk.PackType)(1));
-			w32.Position = 1;
-			w32.Expand = false;
-			w32.Fill = false;
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.enumPrint]));
+			w33.PackType = ((global::Gtk.PackType)(1));
+			w33.Position = 2;
+			w33.Expand = false;
+			w33.Fill = false;
 			// Container child hbox9.Gtk.Box+BoxChild
 			this.buttonAccept = new global::Gtk.Button();
 			this.buttonAccept.CanFocus = true;
 			this.buttonAccept.Name = "buttonAccept";
 			this.buttonAccept.UseUnderline = true;
 			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString("Подтвердить");
-			global::Gtk.Image w33 = new global::Gtk.Image();
-			w33.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
-			this.buttonAccept.Image = w33;
+			global::Gtk.Image w34 = new global::Gtk.Image();
+			w34.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonAccept.Image = w34;
 			this.hbox9.Add(this.buttonAccept);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.buttonAccept]));
-			w34.PackType = ((global::Gtk.PackType)(1));
-			w34.Position = 2;
-			w34.Expand = false;
-			w34.Fill = false;
-			this.vbox1.Add(this.hbox9);
-			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox9]));
-			w35.Position = 2;
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.buttonAccept]));
+			w35.PackType = ((global::Gtk.PackType)(1));
+			w35.Position = 3;
 			w35.Expand = false;
 			w35.Fill = false;
+			this.vbox1.Add(this.hbox9);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox9]));
+			w36.Position = 2;
+			w36.Expand = false;
+			w36.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
