@@ -38,8 +38,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public string EmployeesSum
 		{
 			get => employeesSum;
-			set { SetField(ref employeesSum, value); }
+			set => SetField(ref employeesSum, value); 
 		}
+
 		public bool CanEdit { get; private set; }
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory PremiumTemplateAutocompleteSelectorFactory { get; }

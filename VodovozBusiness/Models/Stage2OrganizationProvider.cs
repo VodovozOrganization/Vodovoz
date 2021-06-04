@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
@@ -13,23 +12,29 @@ namespace Vodovoz.Models
 {
     public class Stage2OrganizationProvider : IOrganizationProvider
     {
-        private readonly IOrganizationParametersProvider organizationParametersProvider;
-        private readonly IOrderParametersProvider orderParametersProvider;
+        private readonly IOrganizationParametersProvider _organizationParametersProvider;
+        private readonly IOrderParametersProvider _orderParametersProvider;
 
         public Stage2OrganizationProvider(
             IOrganizationParametersProvider organizationParametersProvider,
             IOrderParametersProvider orderParametersProvider
             )
         {
-            this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
-            this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+            _organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+            _orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
         }
         
         public Organization GetOrganization(IUnitOfWork uow, Order order)
         {
-            if (uow == null) throw new ArgumentNullException(nameof(uow));
-            if (order == null) throw new ArgumentNullException(nameof(order));
-            
+            if (uow == null)
+            {
+	            throw new ArgumentNullException(nameof(uow));
+            }
+            if (order == null)
+            {
+	            throw new ArgumentNullException(nameof(order));
+            }
+
             if(IsOnlineStoreOrder(order)) {
                 return GetOrganizationForOnlineStore(uow);
             }
@@ -43,20 +48,22 @@ namespace Vodovoz.Models
 
         private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, Order order)
         {
-            int organizationId = 0;
+            int organizationId;
             switch(order.PaymentType) {
                 case PaymentType.barter:
                 case PaymentType.cashless:
                 case PaymentType.ContractDoc:
-                    organizationId = organizationParametersProvider.VodovozOrganizationId;
+                    organizationId = _organizationParametersProvider.VodovozOrganizationId;
                     break;
                 case PaymentType.cash:
+	                organizationId = _organizationParametersProvider.VodovozDeshitsOrganizationId;
+	                break;
                 case PaymentType.Terminal:
                 case PaymentType.ByCard:
-                    organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
+                    organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
                     break;
                 case PaymentType.BeveragesWorld:
-                    organizationId = organizationParametersProvider.BeveragesWorldOrganizationId;
+                    organizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
                     break;
                 default:
                     throw new NotSupportedException($"Невозможно подобрать организацию, так как тип оплаты {order.PaymentType} не поддерживается.");
@@ -67,30 +74,32 @@ namespace Vodovoz.Models
 
         private bool IsOnlineStoreOrder(Order order)
         {
-            return order.OrderItems.Any(x => x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != orderParametersProvider.OldInternalOnlineStoreId);
+            return order.OrderItems.Any(x => x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != _orderParametersProvider.OldInternalOnlineStoreId);
         }
         
         private Organization GetOrganizationForOnlineStore(IUnitOfWork uow)
         {
-            return uow.GetById<Organization>(organizationParametersProvider.VodovozSouthOrganizationId);
+            return uow.GetById<Organization>(_organizationParametersProvider.VodovozSouthOrganizationId);
         }
         
         private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, Order order)
         {
-            int organizationId = 0;
+            int organizationId;
             switch(order.PaymentType) {
                 case PaymentType.barter:
                 case PaymentType.cashless:
                 case PaymentType.ContractDoc:
-                    organizationId = organizationParametersProvider.VodovozOrganizationId;
+                    organizationId = _organizationParametersProvider.VodovozOrganizationId;
                     break;
                 case PaymentType.cash:
+	                organizationId = _organizationParametersProvider.VodovozDeshitsOrganizationId;
+	                break;
                 case PaymentType.Terminal:
                 case PaymentType.ByCard:
-                    organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
+                    organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
                     break;
                 case PaymentType.BeveragesWorld:
-                    organizationId = organizationParametersProvider.BeveragesWorldOrganizationId;
+                    organizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
                     break;
                 default:
                     throw new NotSupportedException($"Тип оплаты {order.PaymentType} не поддерживается, невозможно подобрать организацию.");
@@ -101,12 +110,18 @@ namespace Vodovoz.Models
         
         public Organization GetOrganizationForOrderWithoutShipment(IUnitOfWork uow, OrderWithoutShipmentForAdvancePayment order)
         {
-            if (uow == null) throw new ArgumentNullException(nameof(uow));
-            if (order == null) throw new ArgumentNullException(nameof(order));
+            if (uow == null)
+            {
+	            throw new ArgumentNullException(nameof(uow));
+            }
+            if (order == null)
+            {
+	            throw new ArgumentNullException(nameof(order));
+            }
 
-            int organizationId = organizationParametersProvider.VodovozOrganizationId;
+            int organizationId = _organizationParametersProvider.VodovozOrganizationId;
             if(IsOnlineStoreOrderWithoutShipment(order)) {
-                organizationId = organizationParametersProvider.VodovozSouthOrganizationId;
+                organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
             }
             
             return uow.GetById<Organization>(organizationId);
@@ -114,7 +129,7 @@ namespace Vodovoz.Models
         
         private bool IsOnlineStoreOrderWithoutShipment(OrderWithoutShipmentForAdvancePayment order)
         {
-            return order.OrderWithoutDeliveryForAdvancePaymentItems.Any(x => x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != orderParametersProvider.OldInternalOnlineStoreId);
+            return order.OrderWithoutDeliveryForAdvancePaymentItems.Any(x => x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != _orderParametersProvider.OldInternalOnlineStoreId);
         }
         
         public int GetMainOrganization()

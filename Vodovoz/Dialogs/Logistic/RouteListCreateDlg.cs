@@ -230,9 +230,9 @@ namespace Vodovoz
 
 		void Dlg_DocumentsPrinted(object sender, EventArgs e)
 		{
-			if(!Entity.Printed && e is EndPrintArgs printArgs) {
+			if(!Entity.PrintTime.HasValue && e is EndPrintArgs printArgs) {
 				if(printArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle())) {
-					Entity.Printed = true;
+					Entity.PrintTime = DateTime.Now;
 					Save();
 				}
 			}
@@ -356,7 +356,7 @@ namespace Vodovoz
 
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, callTaskWorker);
 					//Строим маршрут для МЛ.
-					if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
+					if(!Entity.PrintTime.HasValue || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
 						var newRoute = optimizer.RebuidOneRoute(Entity);
 						if(newRoute != null) {

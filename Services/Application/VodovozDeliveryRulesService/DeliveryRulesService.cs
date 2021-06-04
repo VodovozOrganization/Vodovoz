@@ -212,6 +212,7 @@ namespace VodovozDeliveryRulesService
 					Bottles6l = rule.DeliveryPriceRule.Water6LCount,
 					Bottles1500ml = rule.DeliveryPriceRule.Water1500mlCount,
 					Bottles600ml = rule.DeliveryPriceRule.Water600mlCount,
+					Bottles500ml = rule.DeliveryPriceRule.Water500mlCount,
 					MinOrder = $"{rule.DeliveryPriceRule.OrderMinSumEShopGoods}",
 					Price = $"{rule.Price:N0}"
 				})

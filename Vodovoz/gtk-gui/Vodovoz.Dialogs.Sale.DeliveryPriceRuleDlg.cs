@@ -20,6 +20,8 @@ namespace Vodovoz.Dialogs.Sale
 
 		private global::Gtk.Label lbl19LQty;
 
+		private global::Gtk.Label lbl500mlQty;
+
 		private global::Gtk.Label lbl600mlQty;
 
 		private global::Gtk.Label lbl6LQty;
@@ -31,6 +33,8 @@ namespace Vodovoz.Dialogs.Sale
 		private global::Gamma.GtkWidgets.ySpinButton spinOrderMinSumEShopGoods;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel1500mlBottles;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel500mlBottles;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel600mlBottles;
 
@@ -96,7 +100,7 @@ namespace Vodovoz.Dialogs.Sale
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.table2 = new global::Gtk.Table(((uint)(7)), ((uint)(2)), false);
+			this.table2 = new global::Gtk.Table(((uint)(8)), ((uint)(2)), false);
 			this.table2.Name = "table2";
 			this.table2.RowSpacing = ((uint)(6));
 			this.table2.ColumnSpacing = ((uint)(6));
@@ -121,38 +125,49 @@ namespace Vodovoz.Dialogs.Sale
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
+			this.lbl500mlQty = new global::Gtk.Label();
+			this.lbl500mlQty.Name = "lbl500mlQty";
+			this.lbl500mlQty.Xalign = 1F;
+			this.lbl500mlQty.LabelProp = global::Mono.Unix.Catalog.GetString("Кол-во 0.5л бутылей:");
+			this.table2.Add(this.lbl500mlQty);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2[this.lbl500mlQty]));
+			w8.TopAttach = ((uint)(4));
+			w8.BottomAttach = ((uint)(5));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
 			this.lbl600mlQty = new global::Gtk.Label();
 			this.lbl600mlQty.Name = "lbl600mlQty";
 			this.lbl600mlQty.Xalign = 1F;
 			this.lbl600mlQty.LabelProp = global::Mono.Unix.Catalog.GetString("Кол-во 0.6л бутылей:");
 			this.table2.Add(this.lbl600mlQty);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2[this.lbl600mlQty]));
-			w8.TopAttach = ((uint)(3));
-			w8.BottomAttach = ((uint)(4));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table2[this.lbl600mlQty]));
+			w9.TopAttach = ((uint)(3));
+			w9.BottomAttach = ((uint)(4));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.lbl6LQty = new global::Gtk.Label();
 			this.lbl6LQty.Name = "lbl6LQty";
 			this.lbl6LQty.Xalign = 1F;
 			this.lbl6LQty.LabelProp = global::Mono.Unix.Catalog.GetString("Кол-во 6л бутылей:");
 			this.table2.Add(this.lbl6LQty);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table2[this.lbl6LQty]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table2[this.lbl6LQty]));
+			w10.TopAttach = ((uint)(1));
+			w10.BottomAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.lblOrderMinSumEShopGoods = new global::Gtk.Label();
 			this.lblOrderMinSumEShopGoods.Name = "lblOrderMinSumEShopGoods";
 			this.lblOrderMinSumEShopGoods.Xalign = 1F;
 			this.lblOrderMinSumEShopGoods.LabelProp = global::Mono.Unix.Catalog.GetString("Минимальный заказ:");
 			this.table2.Add(this.lblOrderMinSumEShopGoods);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table2[this.lblOrderMinSumEShopGoods]));
-			w10.TopAttach = ((uint)(4));
-			w10.BottomAttach = ((uint)(5));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table2[this.lblOrderMinSumEShopGoods]));
+			w11.TopAttach = ((uint)(5));
+			w11.BottomAttach = ((uint)(6));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.spin19LQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 500D, 2D);
 			this.spin19LQty.CanFocus = true;
@@ -164,11 +179,11 @@ namespace Vodovoz.Dialogs.Sale
 			this.spin19LQty.ValueAsDecimal = 0m;
 			this.spin19LQty.ValueAsInt = 0;
 			this.table2.Add(this.spin19LQty);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table2[this.spin19LQty]));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table2[this.spin19LQty]));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.spinOrderMinSumEShopGoods = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000D, 1D);
 			this.spinOrderMinSumEShopGoods.CanFocus = true;
@@ -180,54 +195,66 @@ namespace Vodovoz.Dialogs.Sale
 			this.spinOrderMinSumEShopGoods.ValueAsDecimal = 0m;
 			this.spinOrderMinSumEShopGoods.ValueAsInt = 0;
 			this.table2.Add(this.spinOrderMinSumEShopGoods);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table2[this.spinOrderMinSumEShopGoods]));
-			w12.TopAttach = ((uint)(4));
-			w12.BottomAttach = ((uint)(5));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.ylabel1500mlBottles = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel1500mlBottles.Name = "ylabel1500mlBottles";
-			this.ylabel1500mlBottles.Xalign = 0F;
-			this.table2.Add(this.ylabel1500mlBottles);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabel1500mlBottles]));
-			w13.TopAttach = ((uint)(2));
-			w13.BottomAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table2[this.spinOrderMinSumEShopGoods]));
+			w13.TopAttach = ((uint)(5));
+			w13.BottomAttach = ((uint)(6));
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(2));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
-			this.ylabel600mlBottles = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel600mlBottles.Name = "ylabel600mlBottles";
-			this.ylabel600mlBottles.Xalign = 0F;
-			this.table2.Add(this.ylabel600mlBottles);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabel600mlBottles]));
-			w14.TopAttach = ((uint)(3));
-			w14.BottomAttach = ((uint)(4));
+			this.ylabel1500mlBottles = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel1500mlBottles.Name = "ylabel1500mlBottles";
+			this.ylabel1500mlBottles.Xalign = 0F;
+			this.table2.Add(this.ylabel1500mlBottles);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabel1500mlBottles]));
+			w14.TopAttach = ((uint)(2));
+			w14.BottomAttach = ((uint)(3));
 			w14.LeftAttach = ((uint)(1));
 			w14.RightAttach = ((uint)(2));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
-			this.ylabel6LWater = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel6LWater.Name = "ylabel6LWater";
-			this.ylabel6LWater.Xalign = 0F;
-			this.table2.Add(this.ylabel6LWater);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabel6LWater]));
-			w15.TopAttach = ((uint)(1));
-			w15.BottomAttach = ((uint)(2));
+			this.ylabel500mlBottles = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel500mlBottles.Name = "ylabel500mlBottles";
+			this.ylabel500mlBottles.Xalign = 0F;
+			this.table2.Add(this.ylabel500mlBottles);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabel500mlBottles]));
+			w15.TopAttach = ((uint)(4));
+			w15.BottomAttach = ((uint)(5));
 			w15.LeftAttach = ((uint)(1));
 			w15.RightAttach = ((uint)(2));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.ylabel600mlBottles = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel600mlBottles.Name = "ylabel600mlBottles";
+			this.ylabel600mlBottles.Xalign = 0F;
+			this.table2.Add(this.ylabel600mlBottles);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabel600mlBottles]));
+			w16.TopAttach = ((uint)(3));
+			w16.BottomAttach = ((uint)(4));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.ylabel6LWater = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel6LWater.Name = "ylabel6LWater";
+			this.ylabel6LWater.Xalign = 0F;
+			this.table2.Add(this.ylabel6LWater);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabel6LWater]));
+			w17.TopAttach = ((uint)(1));
+			w17.BottomAttach = ((uint)(2));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.hbox2.Add(this.table2);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.table2]));
-			w16.Position = 0;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.table2]));
+			w18.Position = 0;
+			w18.Expand = false;
+			w18.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.vboxDistricts = new global::Gtk.VBox();
 			this.vboxDistricts.Name = "vboxDistricts";
@@ -238,10 +265,10 @@ namespace Vodovoz.Dialogs.Sale
 			this.lblDistricts.Xalign = 0F;
 			this.lblDistricts.LabelProp = global::Mono.Unix.Catalog.GetString("Правило используется в районах:");
 			this.vboxDistricts.Add(this.lblDistricts);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxDistricts[this.lblDistricts]));
-			w17.Position = 0;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxDistricts[this.lblDistricts]));
+			w19.Position = 0;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child vboxDistricts.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -253,16 +280,16 @@ namespace Vodovoz.Dialogs.Sale
 			this.treeDistricts.Name = "treeDistricts";
 			this.GtkScrolledWindow.Add(this.treeDistricts);
 			this.vboxDistricts.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxDistricts[this.GtkScrolledWindow]));
-			w19.Position = 1;
-			this.hbox2.Add(this.vboxDistricts);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vboxDistricts]));
-			w20.Position = 1;
-			this.vbox5.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox2]));
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxDistricts[this.GtkScrolledWindow]));
 			w21.Position = 1;
-			w21.Expand = false;
-			w21.Fill = false;
+			this.hbox2.Add(this.vboxDistricts);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vboxDistricts]));
+			w22.Position = 1;
+			this.vbox5.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox2]));
+			w23.Position = 1;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.Add(this.vbox5);
 			if ((this.Child != null))
 			{

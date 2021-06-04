@@ -1748,6 +1748,7 @@ namespace Vodovoz
 						continue;
 				}
 			}
+			Entity?.RecalculateItemsPrice();
 		}
 		#endregion
 

@@ -13,25 +13,28 @@ namespace VodovozSalesReceiptsService
 		private readonly IOrderRepository orderRepository;
 		private readonly IOrderParametersProvider orderParametersProvider;
 		private readonly IOrganizationParametersProvider organizationParametersProvider;
+		private readonly ISalesReceiptsParametersProvider _salesReceiptsParametersProvider;
 
 		public SalesReceiptsInstanceProvider(
 			ISalesReceiptsServiceSettings salesReceiptsServiceSettings,
 			IOrderRepository orderRepository,
 			IOrderParametersProvider orderParametersProvider,
-			IOrganizationParametersProvider organizationParametersProvider
+			IOrganizationParametersProvider organizationParametersProvider,
+			ISalesReceiptsParametersProvider salesReceiptsParametersProvider
 			)
 		{
 			this.salesReceiptsServiceSettings = salesReceiptsServiceSettings ?? throw new ArgumentNullException(nameof(salesReceiptsServiceSettings));
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+			_salesReceiptsParametersProvider = salesReceiptsParametersProvider ?? throw new ArgumentNullException(nameof(salesReceiptsParametersProvider));
 		}
 
 		#region IInstanceProvider implementation
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new SalesReceiptsService(salesReceiptsServiceSettings, orderRepository, orderParametersProvider, organizationParametersProvider);
+			return new SalesReceiptsService(salesReceiptsServiceSettings, orderRepository, orderParametersProvider, organizationParametersProvider, _salesReceiptsParametersProvider);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

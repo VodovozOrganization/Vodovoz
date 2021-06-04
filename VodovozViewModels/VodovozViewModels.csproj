@@ -259,6 +259,7 @@
     <Compile Include="ViewModels\Employees\EmployeePostViewModel.cs" />
     <Compile Include="Journals\JournalNodes\WarehouseJournalNode.cs" />
     <Compile Include="ViewModels\Warehouses\WarehouseViewModel.cs" />
+    <Compile Include="ViewModels\Reports\CarsExploitationReportViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />

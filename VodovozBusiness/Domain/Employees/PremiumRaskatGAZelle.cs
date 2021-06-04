@@ -18,8 +18,8 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Закрываемый маршрутный лист")]
 		public virtual RouteList RouteList
 		{
-			get { return routeList; }
-			set { SetField(ref routeList, value); }
+			get => routeList;
+			set => SetField(ref routeList, value);
 		}
 
 		public override string Title

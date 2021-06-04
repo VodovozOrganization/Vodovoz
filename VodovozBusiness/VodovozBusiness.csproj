@@ -206,6 +206,7 @@
     <Compile Include="Parameters\ReportDefaultsProvider.cs" />
     <Compile Include="Parameters\PremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="Parameters\RouteListParametersProvider.cs" />
+    <Compile Include="Parameters\SalesReceiptsParametersProvider.cs" />
     <Compile Include="Parameters\TabsParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
@@ -468,6 +469,7 @@
     <Compile Include="Services\IOrganizationParametersProvider.cs" />
     <Compile Include="Services\IPremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="Services\IRouteListParametersProvider.cs" />
+    <Compile Include="Services\ISalesReceiptsParametersProvider.cs" />
     <Compile Include="Services\ITabsParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Tools\LoggedMySqlClientDriver.cs" />
