@@ -8,8 +8,15 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			this.Build();
 			numberRL.Text = $"№ МЛ:{RLId}";
-			dateRL.Text = $"Дата печати {time?.ToLongDateString()}";
-			timeRL.Text = $"Время печати {time?.ToShortTimeString()}";
+			if(time.HasValue)
+			{
+				dateRL.Text = $"Дата печати {time?.ToLongDateString()}";
+				timeRL.Text = $"Время печати {time?.ToShortTimeString()}";
+			}
+			else
+			{
+				dateRL.Text = $"МЛ:{RLId} не был распечатан";
+			}
 		}
 	}
 }
