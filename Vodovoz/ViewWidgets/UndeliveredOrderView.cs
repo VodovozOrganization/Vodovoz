@@ -397,6 +397,7 @@ namespace Vodovoz.ViewWidgets
 		void OpenOrder(Order order)
 		{
 			if(MessageDialogHelper.RunQuestionDialog("Требуется сохранить недовоз. Сохранить?")) {
+				UoW.Save(undelivery);
 				UoW.Commit();
 				var dlg = new OrderDlg(order);
 				MyTab.TabParent.OpenTab(
