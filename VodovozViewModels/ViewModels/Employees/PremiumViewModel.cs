@@ -19,7 +19,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 	{
 		private readonly IEmployeeService employeeService;
 		private string employeesSum;
-		private PremiumItem selectedItem;
 
 		public PremiumViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory uowFactory, ICommonServices commonServices,
 			IEmployeeService employeeService, IEmployeeJournalFactory employeeJournalFactory, IPremiumTemplateJournalFactory premiumTemplateJournalFactory)
@@ -58,31 +57,22 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				() => CanEdit
 				));
 
-		private DelegateCommand<PremiumItem> selectionChangedCommand;
-		public DelegateCommand<PremiumItem> SelectionChangedCommand => selectionChangedCommand ?? (selectionChangedCommand =
+		private DelegateCommand<PremiumItem> deleteEmployeeCommand;
+		public DelegateCommand<PremiumItem> DeleteEmployeeCommand => deleteEmployeeCommand ?? (deleteEmployeeCommand =
 			new DelegateCommand<PremiumItem>((node) =>
 				{
-					selectedItem = node;
-				},
-				(node) => true
-				));
-
-		private DelegateCommand deleteEmployeeCommand;
-		public DelegateCommand DeleteEmployeeCommand => deleteEmployeeCommand ?? (deleteEmployeeCommand =
-			new DelegateCommand(() =>
-				{
-					var row = selectedItem;
-					if(row.Id > 0)
+					if(node?.Id > 0)
 					{
-						UoW.Delete(row);
-						if(row.WageOperation != null)
-							UoW.Delete(row.WageOperation);
+						UoW.Delete(node);
+						if(node.WageOperation != null)
+						{
+							UoW.Delete(node.WageOperation);
+						}
+						Entity.ObservableItems.Remove(node);
 					}
-					Entity.ObservableItems.Remove(row);
 				},
-				() => CanEdit
+				(node) => CanEdit
 				));
-
 
 		private DelegateCommand divideAtAllCommand;
 		public DelegateCommand DivideAtAllCommand => divideAtAllCommand ?? (divideAtAllCommand =
@@ -126,7 +116,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		private void OnPremiumTemplate_Select(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var selectedEmplyeeNode = e.SelectedNodes.Cast<PremiumTemplateJournalNode>().FirstOrDefault();
+			var selectedEmplyeeNode = e.SelectedNodes.OfType<PremiumTemplateJournalNode>().FirstOrDefault();
 
 			if(selectedEmplyeeNode == null)
 			{

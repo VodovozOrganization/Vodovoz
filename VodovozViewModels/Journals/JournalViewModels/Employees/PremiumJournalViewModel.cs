@@ -16,6 +16,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using QS.Project.DB;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
@@ -33,10 +34,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			this.premiumTemplateJournalFactory = premiumTemplateJournalFactory
+			this.premiumTemplateJournalFactory = premiumTemplateJournalFactory 
 			                                     ?? throw new ArgumentNullException(nameof(premiumTemplateJournalFactory));
 
-			TabName = "Журнал заказов";
+			TabName = "Журнал премий";
 
 			RegisterPremiums();
 			RegisterPremiumsRaskatGAZelle();
@@ -153,17 +154,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				.SelectList(list => list
 					.SelectGroup(() => premiumAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => premiumAlias.Date).WithAlias(() => resultAlias.Date)
-					.Select(Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
-						NHibernateUtil.String,
-						Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
-							NHibernateUtil.String,
-							Projections.Constant(" "),
-							Projections.Property(() => employeeAlias.LastName),
-							Projections.Property(() => employeeAlias.Name),
-							Projections.Property(() => employeeAlias.Patronymic)
-						),
-						Projections.Constant("\n"))).WithAlias(() => resultAlias.EmployeesName)
+					.Select(CustomProjections.GroupConcat(
+						CustomProjections.Concat_WS(
+							" ",
+							() => employeeAlias.LastName,
+							() => employeeAlias.Name,
+							() => employeeAlias.Patronymic
+							), 
+						false,
+						Projections.Property(() => employeeAlias.LastName),
+						OrderByDirection.Asc,
+						"\n")
+					).WithAlias(() => resultAlias.EmployeesName)
 					.Select(() => premiumAlias.PremiumReasonString).WithAlias(() => resultAlias.PremiumReason)
 					.Select(() => premiumAlias.TotalMoney).WithAlias(() => resultAlias.PremiumSum)
 				).OrderBy(o => o.Date).Desc
@@ -209,19 +211,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 			var resultQuery = query
 				.SelectList(list => list
-					.SelectGroup(() => premiumRaskatGAZelleAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => premiumRaskatGAZelleAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => premiumRaskatGAZelleAlias.Date).WithAlias(() => resultAlias.Date)
-					.Select(Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
-						NHibernateUtil.String,
-						Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
-							NHibernateUtil.String,
-							Projections.Constant(" "),
-							Projections.Property(() => employeeAlias.LastName),
-							Projections.Property(() => employeeAlias.Name),
-							Projections.Property(() => employeeAlias.Patronymic)
-						),
-						Projections.Constant("\n"))).WithAlias(() => resultAlias.EmployeesName)
+					.Select(CustomProjections.Concat_WS(
+						" ",
+						() => employeeAlias.LastName,
+						() => employeeAlias.Name,
+						() => employeeAlias.Patronymic)
+					).WithAlias(() => resultAlias.EmployeesName)
 					.Select(() => premiumRaskatGAZelleAlias.PremiumReasonString).WithAlias(() => resultAlias.PremiumReason)
 					.Select(() => premiumRaskatGAZelleAlias.TotalMoney).WithAlias(() => resultAlias.PremiumSum)
 				).OrderBy(o => o.Date).Desc

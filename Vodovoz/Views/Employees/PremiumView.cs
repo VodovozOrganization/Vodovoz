@@ -36,11 +36,11 @@ namespace Vodovoz.Views.Employees
 				.Finish();
 
 			ytreeviewItems.ItemsDataSource = ViewModel.Entity.ObservableItems;
-			ytreeviewItems.Selection.Changed += (sender, e) => ViewModel.SelectionChangedCommand.Execute(ytreeviewItems.GetSelectedObject<PremiumItem>());
 
 			buttonDivideAtAll.Clicked += (sender, e) => ViewModel.DivideAtAllCommand.Execute();
 			buttonAdd.Clicked += (sender, e) => ViewModel.AddEmployeeCommand.Execute();
-			buttonRemove.Clicked += (sender, e) => ViewModel.DeleteEmployeeCommand.Execute();
+			buttonRemove.Clicked += (sender, e) => ViewModel.DeleteEmployeeCommand
+				.Execute(ytreeviewItems.GetSelectedObject<PremiumItem>());
 			buttonGetReasonFromTemplate.Clicked += (sender, e) => ViewModel.GetReasonFromTemplate.Execute();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();

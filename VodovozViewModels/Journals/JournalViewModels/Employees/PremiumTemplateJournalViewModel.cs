@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			);
 
 			itemsQuery.SelectList(list => list
-					.SelectGroup(() => premiumTemplateAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => premiumTemplateAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => premiumTemplateAlias.PremiumMoney).WithAlias(() => resultAlias.PremiumMoney)
 					.Select(() => premiumTemplateAlias.Reason).WithAlias(() => resultAlias.Reason)
 				)
