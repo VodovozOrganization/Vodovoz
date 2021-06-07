@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public DateTime Date { get; set; }
 		public string EmployeesName { get; set; }
 		public string PremiumReason { get; set; }
-		public decimal PremiumSumm { get; set; }
+		public decimal PremiumSum { get; set; }
 		public string ViewType { get; set; }
 	}
 }

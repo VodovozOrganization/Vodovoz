@@ -1066,12 +1066,12 @@ namespace Vodovoz.JournalColumnsConfigs
 			TreeViewColumnsConfigFactory.Register<PremiumJournalViewModel>(
 				() => FluentColumnsConfig<PremiumJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
-					.AddColumn("Дата").AddTextRenderer(node => node.Date != null ? ((DateTime)node.Date).ToString("d") : String.Empty)
+					.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
 					.AddColumn("Тип").AddTextRenderer(node => node.ViewType)
 						.WrapMode(WrapMode.WordChar)
 						.WrapWidth(100)
 					.AddColumn("Сотрудники").AddTextRenderer(node => node.EmployeesName)
-					.AddColumn("Сумма премии").AddTextRenderer(node => node.PremiumSumm.ToString())
+					.AddColumn("Сумма премии").AddTextRenderer(node => node.PremiumSum.ToString())
 					.AddColumn("Причина премии").AddTextRenderer(node => node.PremiumReason)
 					.Finish()
 			);

@@ -29,7 +29,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			TabName = Entity.Title;
 
-			CanEdit = PermissionResult.CanUpdate;
+			CanEdit = (Entity.Id == 0 && PermissionResult.CanCreate) || (Entity.Id != 0 && PermissionResult.CanUpdate);
 			Entity.ObservableItems.ListContentChanged += OnObservableItems_ListContentChanged;
 			EmployeeAutocompleteSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			PremiumTemplateAutocompleteSelectorFactory = premiumTemplateJournalFactory.CreatePremiumTemplateAutocompleteSelectorFactory();
@@ -38,7 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public string EmployeesSum
 		{
 			get => employeesSum;
-			set => SetField(ref employeesSum, value); 
+			set => SetField(ref employeesSum, value);
 		}
 
 		public bool CanEdit { get; private set; }
@@ -48,86 +48,61 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		#region Commands
 
 		private DelegateCommand addEmployeeCommand;
-		public DelegateCommand AddEmployeeCommand
-		{
-			get
-			{
-				if(addEmployeeCommand == null)
+		public DelegateCommand AddEmployeeCommand => addEmployeeCommand ?? (addEmployeeCommand =
+			new DelegateCommand(() =>
 				{
-					addEmployeeCommand = new DelegateCommand(() =>
-					{
-						var selectorEmployee = EmployeeAutocompleteSelectorFactory.CreateAutocompleteSelector();
-						selectorEmployee.OnEntitySelectedResult += OnEmployee_Add;
-						this.TabParent.AddSlaveTab(this, selectorEmployee);
-					}, () => CanEdit);
-					addEmployeeCommand.CanExecuteChangedWith(this, x => x.CanEdit);
-				}
-				return addEmployeeCommand;
-			}
-		}
+					var selectorEmployee = EmployeeAutocompleteSelectorFactory.CreateAutocompleteSelector();
+					selectorEmployee.OnEntitySelectedResult += OnEmployee_Add;
+					this.TabParent.AddSlaveTab(this, selectorEmployee);
+				},
+				() => CanEdit
+				));
 
 		private DelegateCommand<PremiumItem> selectionChangedCommand;
-		public DelegateCommand<PremiumItem> SelectionChangedCommand
-		{
-			get
-			{
-				if(selectionChangedCommand == null)
+		public DelegateCommand<PremiumItem> SelectionChangedCommand => selectionChangedCommand ?? (selectionChangedCommand =
+			new DelegateCommand<PremiumItem>((node) =>
 				{
-					selectionChangedCommand = new DelegateCommand<PremiumItem>(
-						(node) =>
-						{
-							selectedItem = node;
-						},
-						(node) => true
-					);
-				}
-				return selectionChangedCommand;
-			}
-		}
+					selectedItem = node;
+				},
+				(node) => true
+				));
 
 		private DelegateCommand deleteEmployeeCommand;
-		public DelegateCommand DeleteEmployeeCommand
-		{
-			get
-			{
-				if(deleteEmployeeCommand == null)
+		public DelegateCommand DeleteEmployeeCommand => deleteEmployeeCommand ?? (deleteEmployeeCommand =
+			new DelegateCommand(() =>
 				{
-					deleteEmployeeCommand = new DelegateCommand(() =>
+					var row = selectedItem;
+					if(row.Id > 0)
 					{
-						var row = selectedItem;
-						if(row.Id > 0)
-						{
-							UoW.Delete(row);
-							if(row.WageOperation != null)
-								UoW.Delete(row.WageOperation);
-						}
-						Entity.ObservableItems.Remove(row);
-					}, () => CanEdit);
-					deleteEmployeeCommand.CanExecuteChangedWith(this, x => x.CanEdit);
-				}
-				return deleteEmployeeCommand;
-			}
-		}
+						UoW.Delete(row);
+						if(row.WageOperation != null)
+							UoW.Delete(row.WageOperation);
+					}
+					Entity.ObservableItems.Remove(row);
+				},
+				() => CanEdit
+				));
+
 
 		private DelegateCommand divideAtAllCommand;
-		public DelegateCommand DivideAtAllCommand => divideAtAllCommand ?? (divideAtAllCommand = new DelegateCommand(
-			() =>
-			{
-				Entity.DivideAtAll();
-			},
-			() => CanEdit
-		));
+		public DelegateCommand DivideAtAllCommand => divideAtAllCommand ?? (divideAtAllCommand =
+			new DelegateCommand(() =>
+				{
+					Entity.DivideAtAll();
+				},
+				() => CanEdit
+				));
 
 		private DelegateCommand getReasonFromTemplateCommand;
-		public DelegateCommand GetReasonFromTemplate => getReasonFromTemplateCommand ?? (getReasonFromTemplateCommand = new DelegateCommand(
-			() =>
-			{
-				var selectorPremiumTemplate = PremiumTemplateAutocompleteSelectorFactory.CreateAutocompleteSelector();
-				selectorPremiumTemplate.OnEntitySelectedResult += OnPremiumTemplate_Select;
-				this.TabParent.AddSlaveTab(this, selectorPremiumTemplate);
-			},
-			() => CanEdit
-		));
+		public DelegateCommand GetReasonFromTemplate => getReasonFromTemplateCommand ?? (getReasonFromTemplateCommand =
+			new DelegateCommand(() =>
+				{
+					var selectorPremiumTemplate = PremiumTemplateAutocompleteSelectorFactory.CreateAutocompleteSelector();
+					selectorPremiumTemplate.OnEntitySelectedResult += OnPremiumTemplate_Select;
+					this.TabParent.AddSlaveTab(this, selectorPremiumTemplate);
+				},
+				() => CanEdit
+				));
 
 		#endregion
 
@@ -184,7 +159,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public override bool Save(bool close)
 		{
 			if(!CanEdit)
+			{
 				return false;
+			}
 
 			Employee author;
 			if(!GetAuthor(out author))

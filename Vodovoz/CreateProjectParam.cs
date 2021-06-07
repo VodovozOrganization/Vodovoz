@@ -263,7 +263,6 @@ namespace Vodovoz
                 .RegisterWidgetForWidgetViewModel<NomenclaturePlanFilterViewModel, NomenclaturePlanFilterView>()
                 .RegisterWidgetForWidgetViewModel<OrganizationCashTransferDocumentFilterViewModel, OrganizationCashTransferDocumentFilterView>()
 				.RegisterWidgetForWidgetViewModel<PremiumJournalFilterViewModel, PremiumJournalFilterView>()
-				.RegisterWidgetForWidgetViewModel<PremiumTemplateJournalFilterViewModel, PremiumTemplateJournalFilterView>()
 ;
 
             DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

@@ -12,14 +12,16 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
-	public class PremiumTemplateJournalViewModel : FilterableSingleEntityJournalViewModelBase<PremiumTemplate, PremiumTemplateViewModel, PremiumTemplateJournalNode, PremiumTemplateJournalFilterViewModel>
+	public class PremiumTemplateJournalViewModel : SingleEntityJournalViewModelBase<PremiumTemplate, PremiumTemplateViewModel,
+		PremiumTemplateJournalNode>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		public PremiumTemplateJournalViewModel(PremiumTemplateJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public PremiumTemplateJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+			: base(unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
-			TabName = "Журнал Шаблоны премий";
+			TabName = "Журнал шаблонов премий";
 
 			UpdateOnChanges(typeof(PremiumTemplate));
 		}
@@ -47,7 +49,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			return itemsQuery;
 		};
 
-		protected override Func<PremiumTemplateViewModel> CreateDialogFunction => () => new PremiumTemplateViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices);
-		protected override Func<PremiumTemplateJournalNode, PremiumTemplateViewModel> OpenDialogFunction => (node) => new PremiumTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices);
+		protected override Func<PremiumTemplateViewModel> CreateDialogFunction => () =>
+			new PremiumTemplateViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices);
+		protected override Func<PremiumTemplateJournalNode, PremiumTemplateViewModel> OpenDialogFunction =>
+			(node) => new PremiumTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices);
 	}
 }

@@ -19,7 +19,8 @@ namespace Vodovoz.Views.Employees
 			ylabelMoney.Binding.AddFuncBinding(ViewModel.Entity, e => e.TotalMoney.ToString("C"), w => w.LabelProp).InitializeFromSource();
 			ylabelReason.Binding.AddBinding(ViewModel.Entity, e => e.PremiumReasonString, w => w.LabelProp).InitializeFromSource();
 			ylabelAuthor.Binding.AddFuncBinding(ViewModel.Entity, e => e.Author.FullName, w => w.LabelProp).InitializeFromSource();
-			ylabelPremiumEmployee.Binding.AddFuncBinding(ViewModel.Entity, e => e.Items.FirstOrDefault().Employee.FullName, w => w.LabelProp).InitializeFromSource();
+			ylabelPremiumEmployee.Binding.AddFuncBinding(ViewModel, vm => vm.EmployeeFullName,
+				w => w.LabelProp).InitializeFromSource();
 			
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 		}

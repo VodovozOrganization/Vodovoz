@@ -33,7 +33,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			this.premiumTemplateJournalFactory = premiumTemplateJournalFactory ?? throw new ArgumentNullException(nameof(premiumTemplateJournalFactory));
+			this.premiumTemplateJournalFactory = premiumTemplateJournalFactory
+			                                     ?? throw new ArgumentNullException(nameof(premiumTemplateJournalFactory));
 
 			TabName = "Журнал заказов";
 
@@ -95,9 +96,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 		private void RegisterPremiumsRaskatGAZelle()
 		{
-			var premiumRaskatGAZelleConfig = RegisterEntity<PremiumRaskatGAZelle>(GetPremiumsRaskatGAZelleQuery)
+			var premiumRaskatGAZelleConfig =
+				RegisterEntity<PremiumRaskatGAZelle>(GetPremiumsRaskatGAZelleQuery)
 				.AddDocumentConfigurationWithoutCreation(
-				//	//функция диалога открытия документа
+				//функция диалога открытия документа
 				(PremiumJournalNode node) => new PremiumRaskatGAZelleViewModel(
 					EntityUoWBuilder.ForOpen(node.Id),
 					UnitOfWorkFactory,
@@ -163,7 +165,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 						),
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.EmployeesName)
 					.Select(() => premiumAlias.PremiumReasonString).WithAlias(() => resultAlias.PremiumReason)
-					.Select(() => premiumAlias.TotalMoney).WithAlias(() => resultAlias.PremiumSumm)
+					.Select(() => premiumAlias.TotalMoney).WithAlias(() => resultAlias.PremiumSum)
 				).OrderBy(o => o.Date).Desc
 			.TransformUsing(Transformers.AliasToBean<PremiumJournalNode<Premium>>());
 
@@ -221,7 +223,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 						),
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.EmployeesName)
 					.Select(() => premiumRaskatGAZelleAlias.PremiumReasonString).WithAlias(() => resultAlias.PremiumReason)
-					.Select(() => premiumRaskatGAZelleAlias.TotalMoney).WithAlias(() => resultAlias.PremiumSumm)
+					.Select(() => premiumRaskatGAZelleAlias.TotalMoney).WithAlias(() => resultAlias.PremiumSum)
 				).OrderBy(o => o.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<PremiumJournalNode<PremiumRaskatGAZelle>>());
 

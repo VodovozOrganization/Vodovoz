@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using System.Linq;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
@@ -13,5 +14,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		{
 			TabName = Entity.Title;
 		}
+
+		public string EmployeeFullName => Entity.Items.FirstOrDefault().Employee.FullName;
 	}
 }

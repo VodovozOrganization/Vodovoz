@@ -1625,8 +1625,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.CarsExploitationReportView.cs" />
     <Compile Include="Views\Employees\PremiumTemplateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumTemplateView.cs" />
-    <Compile Include="Filters\GtkViews\PremiumTemplateJournalFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PremiumTemplateJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
