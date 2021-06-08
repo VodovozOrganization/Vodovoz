@@ -217,10 +217,7 @@ namespace Vodovoz
 
 		void PrintSelectedDocument(RouteListPrintableDocuments choise)
 		{
-			TabParent.OpenTab(
-				QS.Dialog.Gtk.TdiTabBase.GenerateHashName<DocumentsPrinterDlg>(),
-				() => CreateDocumentsPrinterDlg(choise)
-			);
+			TabParent.AddSlaveTab(this, CreateDocumentsPrinterDlg(choise));
 		}
 
 		DocumentsPrinterDlg CreateDocumentsPrinterDlg(RouteListPrintableDocuments choise)
