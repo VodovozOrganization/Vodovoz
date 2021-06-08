@@ -315,7 +315,7 @@ namespace Vodovoz
 			if(Entity.PrintTime.HasValue)
 			{
 				 ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info,
-					$"Дата печати {Entity.PrintTime.Value.Date} " +
+					$"Дата печати {Entity.PrintTime.Value.Date.ToShortDateString()} " +
 					$"\nВремя печати {Entity.PrintTime.Value.ToShortTimeString()}",
 					$"№ МЛ: {Entity.Id}");
 			}
