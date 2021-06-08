@@ -56,7 +56,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Часть города")
 					.AddTextRenderer(x => string.Join(", ", (x.Document as RouteListPrintableDocs).routeList.GeographicGroups.Select(g => g.Name)))
 				.AddColumn("Время печати")
-					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.PrintTime.HasValue ? (x.Document as RouteListPrintableDocs).routeList.PrintTime.Value.ToLongDateString() : "МЛ не распечатан")
+					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.PrintTime.HasValue ? (x.Document as RouteListPrintableDocs).routeList.PrintTime.Value.ToString(): "МЛ не распечатан")
 				.AddColumn("")
 				.RowCells()
 					.AddSetter<CellRendererText>((c, n) => c.Foreground = (n.Document as RouteListPrintableDocs).routeList.PrintTime.HasValue ? "grey" : "black")

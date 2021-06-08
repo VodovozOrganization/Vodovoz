@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
 using NLog;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
@@ -17,6 +18,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -306,6 +308,21 @@ namespace Vodovoz
 			buttonSave.Sensitive = isSensetive;
 			buttonCancel.Sensitive = isSensetive;
 			buttonAccept.Sensitive = isSensetive;
+		}
+
+		public void OnPrintTimeButtonClicked(object sender, EventArgs e)
+		{
+			if(Entity.PrintTime.HasValue)
+			{
+				 ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					$"Дата печати {Entity.PrintTime.Value.Date} " +
+					$"\nВремя печати {Entity.PrintTime.Value.ToShortTimeString()}",
+					$"№ МЛ: {Entity.Id}");
+			}
+			else
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, "МЛ не печатался ранее");
+			}
 		}
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
