@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
 using NLog;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
@@ -146,9 +147,7 @@ namespace Vodovoz
 			referenceForwarder.Changed += (sender, args) => {
 				createroutelistitemsview1.OnForwarderChanged();
 			};
-			
-			printTimeButton.Clicked += (sender, e) => new PrintTimeRouteInfoWnd(Entity.PrintTime, Entity.Id).Show();
-			
+
 			referenceLogistican.Sensitive = false;
 			referenceLogistican.RepresentationModel = new EmployeesVM();
 			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Subject).InitializeFromSource();
@@ -309,6 +308,21 @@ namespace Vodovoz
 			buttonSave.Sensitive = isSensetive;
 			buttonCancel.Sensitive = isSensetive;
 			buttonAccept.Sensitive = isSensetive;
+		}
+
+		public void OnPrintTimeButtonClicked(object sender, EventArgs e)
+		{
+			if(Entity.PrintTime.HasValue)
+			{
+				 ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					$"Дата печати {Entity.PrintTime.Value.Date} " +
+					$"\nВремя печати {Entity.PrintTime.Value.ToShortTimeString()}",
+					$"№ МЛ: {Entity.Id}");
+			}
+			else
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, "МЛ не печатался ранее");
+			}
 		}
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
