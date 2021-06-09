@@ -15,44 +15,37 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CommentsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get {
-				return uow;
-			}
-			set {
-				if(uow == value)
-					return;
-				uow = value;
-			}
-		}
-
-		CommentsVM viewModel;
+		private CommentsVM _viewModel;
 
 		public CommentsView()
 		{
 			this.Build();
 		}
-
-		public void Configure(IUnitOfWork uow, Order order)
+		
+		public void Configure(IUnitOfWork uow)
 		{
-			UoW = uow;
-			viewModel = new CommentsVM(uow, order);
-			ytreeComments.RepresentationModel = viewModel;
+			_viewModel = new CommentsVM(uow);
+			ytreeComments.RepresentationModel = _viewModel;
 			ytreeComments.RepresentationModel.UpdateNodes();
 		}
 
-		public IList<CommentsVMNode> Items { get { return viewModel.ItemsList as IList<CommentsVMNode>; } }
+		public void Configure(IUnitOfWork uow, Order order)
+		{
+			_viewModel = new CommentsVM(uow, order);
+			ytreeComments.RepresentationModel = _viewModel;
+			ytreeComments.RepresentationModel.UpdateNodes();
+		}
+
+		public IList<CommentsVMNode> Items { get { return _viewModel.ItemsList as IList<CommentsVMNode>; } }
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			MyTab.TabParent.AddTab(new NuanceDlg(viewModel.Order), MyTab);
+			MyTab.TabParent.AddTab(new NuanceDlg(_viewModel.Order), MyTab);
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			MyTab.TabParent.AddTab(new NuanceDlg(viewModel.Order, ytreeComments.GetSelectedId()), MyTab);
+			MyTab.TabParent.AddTab(new NuanceDlg(_viewModel.Order, ytreeComments.GetSelectedId()), MyTab);
 		}
 
 		protected void OnYtreeCommentsCursorChanged(object sender, EventArgs e)
@@ -73,6 +66,11 @@ namespace Vodovoz.ViewWidgets
 			this.UoW = uow;
 			Order = order;
 		}
+		
+		public CommentsVM(IUnitOfWork uow) : base(typeof(Comments))
+		{
+			this.UoW = uow;
+		}
 
 		public override void UpdateNodes()
 		{
@@ -85,9 +83,7 @@ namespace Vodovoz.ViewWidgets
 			DeliveryPoint deliveryPointAlias = null;
 
 
-
-			var UowCounterparty = Order.Client;
-			if(UowCounterparty != null) {
+			if(UoW.RootObject is Counterparty UowCounterparty) {
 
 				var orderBottles = UoW.Session.QueryOver<Comments>(() => commentAlias)
 							 .JoinAlias(() => commentAlias.Author, () => commentsAuthorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -112,8 +108,7 @@ namespace Vodovoz.ViewWidgets
 				SetItemsSource(orderBottles.ToList());
 			}
 
-			var UowDeliveryPoint = Order.DeliveryPoint;
-			if(UowDeliveryPoint != null) {
+			if(UoW.RootObject is DeliveryPoint UowDeliveryPoint) {
 				var orderBottles = UoW.Session.QueryOver<Comments>(() => commentAlias)
 							 .JoinAlias(() => commentAlias.Author, () => commentsAuthorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 							 .JoinAlias(() => commentAlias.CommentsGroups, () => commentsGroupsAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
