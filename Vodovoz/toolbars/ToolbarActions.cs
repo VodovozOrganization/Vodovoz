@@ -52,6 +52,7 @@ using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
+using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
@@ -73,6 +74,7 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.Journals.JournalViewModels.Organization;
 
 public partial class MainWindow : Window
 {
@@ -726,8 +728,19 @@ public partial class MainWindow : Window
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
 		IPremiumTemplateJournalFactory premiumTemplateJournalFactory = new PremiumTemplateJournalFactory();
 
+		var subdivisionAutocompleteSelectorFactory =
+			new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
+			{
+				return new SubdivisionsJournalViewModel(
+					new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default },
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices,
+					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()
+				);
+			});
+
 		tdiMain.OpenTab(() => new PremiumJournalViewModel(
-			new PremiumJournalFilterViewModel() { HidenByDefault = true },
+			new PremiumJournalFilterViewModel(subdivisionAutocompleteSelectorFactory) { HidenByDefault = true },
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,

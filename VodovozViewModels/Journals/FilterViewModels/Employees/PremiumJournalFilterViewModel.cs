@@ -1,5 +1,7 @@
 ﻿using QS.Project.Filter;
 using System;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.Journals.JournalViewModels.Organization;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 {
@@ -9,10 +11,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		private DateTime? _endDate;
 		private Subdivision _subdivision;
 
-		public PremiumJournalFilterViewModel()
+		public PremiumJournalFilterViewModel(EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel> subdivisionAutocompleteSelectorFactory)
 		{
-			StartDate = EndDate = DateTime.Today;
+			_startDate = _endDate = DateTime.Today;
+			SubdivisionAutocompleteSelectorFactory = subdivisionAutocompleteSelectorFactory;
 		}
+
+		public EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel> SubdivisionAutocompleteSelectorFactory { get; }
 
 		public virtual DateTime? StartDate
 		{

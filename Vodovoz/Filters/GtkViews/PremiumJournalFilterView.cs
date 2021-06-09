@@ -14,9 +14,9 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			yentryreferenceSubdivisions.SubjectType = typeof(Subdivision);
-			yentryreferenceSubdivisions.Binding.AddBinding(ViewModel, vm => vm.Subdivision, w => w.Subject).InitializeFromSource();
-			
+			yentrySubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionAutocompleteSelectorFactory);
+			yentrySubdivision.Binding.AddBinding(ViewModel, vm => vm.Subdivision, w => w.Subject).InitializeFromSource();
+
 			dateperiodpickerPremiumDate.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
 			dateperiodpickerPremiumDate.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
 		}

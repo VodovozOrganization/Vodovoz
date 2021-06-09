@@ -1079,7 +1079,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			//PremiumTemplateJournalViewModel
 			TreeViewColumnsConfigFactory.Register<PremiumTemplateJournalViewModel>(
 				() => FluentColumnsConfig<PremiumTemplateJournalNode>.Create()
-					.AddColumn("Номер").AddNumericRenderer(node => node.Id.ToString())
+					.AddColumn("Номер").AddNumericRenderer(node => node.Id)
 					.AddColumn("Шаблон комментария").AddTextRenderer(node => node.Reason)
 					.AddColumn("Сумма премии").AddNumericRenderer(node => node.PremiumMoney)
 					.Finish()

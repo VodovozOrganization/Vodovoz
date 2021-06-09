@@ -162,14 +162,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 					.SelectGroup(() => premiumAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => premiumAlias.Date).WithAlias(() => resultAlias.Date)
 					.Select(CustomProjections.GroupConcat(
-						CustomProjections.Concat_WS(
-							" ",
-							() => employeeAlias.LastName,
-							() => employeeAlias.Name,
-							() => employeeAlias.Patronymic
-							), 
+						employeeProjection, 
 						false,
-						Projections.Property(() => employeeAlias.LastName),
+						employeeProjection,
 						OrderByDirection.Asc,
 						"\n")
 					).WithAlias(() => resultAlias.EmployeesName)
@@ -227,12 +222,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				.SelectList(list => list
 					.Select(() => premiumRaskatGAZelleAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => premiumRaskatGAZelleAlias.Date).WithAlias(() => resultAlias.Date)
-					.Select(CustomProjections.Concat_WS(
-						" ",
-						() => employeeAlias.LastName,
-						() => employeeAlias.Name,
-						() => employeeAlias.Patronymic)
-					).WithAlias(() => resultAlias.EmployeesName)
+					.Select(CustomProjections.Concat_WS(" ", employeeProjection)).WithAlias(() => resultAlias.EmployeesName)
 					.Select(() => premiumRaskatGAZelleAlias.PremiumReasonString).WithAlias(() => resultAlias.PremiumReason)
 					.Select(() => premiumRaskatGAZelleAlias.TotalMoney).WithAlias(() => resultAlias.PremiumSum)
 				).OrderBy(o => o.Date).Desc
