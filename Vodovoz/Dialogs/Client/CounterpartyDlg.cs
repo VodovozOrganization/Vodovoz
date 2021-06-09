@@ -291,7 +291,6 @@ namespace Vodovoz
             }
 
             ConfigureTabInfo();
-            // ConfigureTabComments();
             ConfigureTabContacts();
             ConfigureTabProxies();
             ConfigureTabContracts();
@@ -473,11 +472,6 @@ namespace Vodovoz
             }
 
             SetVisibilityForCloseDeliveryComments();
-        }
-
-        private void ConfigureTabComments()
-        {
-            commentsview4.Configure(UoW);
         }
 
         private void ConfigureTabContacts()
