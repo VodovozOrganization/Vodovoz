@@ -291,7 +291,7 @@ namespace Vodovoz
             }
 
             ConfigureTabInfo();
-            ConfigureTabComments();
+            // ConfigureTabComments();
             ConfigureTabContacts();
             ConfigureTabProxies();
             ConfigureTabContracts();
@@ -477,7 +477,7 @@ namespace Vodovoz
 
         private void ConfigureTabComments()
         {
-            commentsview4.UoW = UoW;
+            commentsview4.Configure(UoW);
         }
 
         private void ConfigureTabContacts()

@@ -86,6 +86,7 @@ namespace Vodovoz
 {
     public partial class OrderDlg : TdiTabBase,
 	    ITdiDialog,
+	    ISingleUoWDialog,
 		ICounterpartyInfoProvider,
 		IDeliveryPointInfoProvider,
 		IContractInfoProvider,
@@ -641,7 +642,7 @@ namespace Vodovoz
 
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 
-			commentsview4.Configure(UoW, Entity);
+			// commentsview4.Configure(UoW, Entity);
 			
 			enumAddRentButton.ItemsEnum = typeof(RentType);
 			enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
