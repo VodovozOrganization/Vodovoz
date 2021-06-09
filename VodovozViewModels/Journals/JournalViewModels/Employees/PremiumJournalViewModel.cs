@@ -222,7 +222,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				.SelectList(list => list
 					.Select(() => premiumRaskatGAZelleAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => premiumRaskatGAZelleAlias.Date).WithAlias(() => resultAlias.Date)
-					.Select(CustomProjections.Concat_WS(" ", employeeProjection)).WithAlias(() => resultAlias.EmployeesName)
+					.Select(employeeProjection).WithAlias(() => resultAlias.EmployeesName)
 					.Select(() => premiumRaskatGAZelleAlias.PremiumReasonString).WithAlias(() => resultAlias.PremiumReason)
 					.Select(() => premiumRaskatGAZelleAlias.TotalMoney).WithAlias(() => resultAlias.PremiumSum)
 				).OrderBy(o => o.Date).Desc
