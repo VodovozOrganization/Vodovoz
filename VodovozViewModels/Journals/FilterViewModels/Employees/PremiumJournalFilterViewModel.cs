@@ -5,25 +5,31 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 {
 	public class PremiumJournalFilterViewModel:FilterViewModelBase<PremiumJournalFilterViewModel>
 	{
-		private DateTime? startDate;
+		private DateTime? _startDate;
+		private DateTime? _endDate;
+		private Subdivision _subdivision;
+
+		public PremiumJournalFilterViewModel()
+		{
+			StartDate = EndDate = DateTime.Today;
+		}
+
 		public virtual DateTime? StartDate
 		{
-			get => startDate;
-			set => UpdateFilterField(ref startDate, value);
+			get => _startDate;
+			set => UpdateFilterField(ref _startDate, value);
 		}
 
-		private DateTime? endDate;
 		public virtual DateTime? EndDate
 		{
-			get => endDate;
-			set => UpdateFilterField(ref endDate, value);
+			get => _endDate;
+			set => UpdateFilterField(ref _endDate, value);
 		}
 
-		private Subdivision subdivision;
 		public virtual Subdivision Subdivision
 		{
-			get => subdivision;
-			set => UpdateFilterField(ref subdivision, value);
+			get => _subdivision;
+			set => UpdateFilterField(ref _subdivision, value);
 		}
 	}
 }

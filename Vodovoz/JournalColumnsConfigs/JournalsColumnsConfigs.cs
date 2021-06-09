@@ -1065,13 +1065,13 @@ namespace Vodovoz.JournalColumnsConfigs
 			//PremiumJournalViewModel
 			TreeViewColumnsConfigFactory.Register<PremiumJournalViewModel>(
 				() => FluentColumnsConfig<PremiumJournalNode>.Create()
-					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Номер").AddNumericRenderer(node => node.Id)
 					.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
 					.AddColumn("Тип").AddTextRenderer(node => node.ViewType)
 						.WrapMode(WrapMode.WordChar)
 						.WrapWidth(100)
 					.AddColumn("Сотрудники").AddTextRenderer(node => node.EmployeesName)
-					.AddColumn("Сумма премии").AddTextRenderer(node => node.PremiumSum.ToString())
+					.AddColumn("Сумма премии").AddNumericRenderer(node => node.PremiumSum)
 					.AddColumn("Причина премии").AddTextRenderer(node => node.PremiumReason)
 					.Finish()
 			);
@@ -1079,9 +1079,9 @@ namespace Vodovoz.JournalColumnsConfigs
 			//PremiumTemplateJournalViewModel
 			TreeViewColumnsConfigFactory.Register<PremiumTemplateJournalViewModel>(
 				() => FluentColumnsConfig<PremiumTemplateJournalNode>.Create()
-					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Номер").AddNumericRenderer(node => node.Id.ToString())
 					.AddColumn("Шаблон комментария").AddTextRenderer(node => node.Reason)
-					.AddColumn("Сумма премии").AddTextRenderer(node => node.PremiumMoney.ToString())
+					.AddColumn("Сумма премии").AddNumericRenderer(node => node.PremiumMoney)
 					.Finish()
 			);
 		}

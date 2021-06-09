@@ -11,28 +11,26 @@ namespace Vodovoz.Domain.Employees
 	[EntityPermission]
 	public class PremiumTemplate : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private string _reason;
+		private decimal _premiumMoney;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
-		string reason;
-
 		[Display(Name = "Причина")]
 		public virtual string Reason
 		{
-			get { return reason; }
-			set { SetField(ref reason, value, () => Reason); }
+			get => _reason; 
+			set => SetField(ref _reason, value);
 		}
-
-		private decimal premiumMoney;
 
 		[Display(Name = "Сумма премии")]
 		public virtual decimal PremiumMoney
 		{
-			get { return premiumMoney; }
-			set { SetField(ref premiumMoney, value, () => PremiumMoney); }
+			get => _premiumMoney; 
+			set => SetField(ref _premiumMoney, value);
 		}
-
 
 		#endregion
 

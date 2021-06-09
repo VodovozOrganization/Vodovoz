@@ -15,12 +15,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 	public class PremiumTemplateJournalViewModel : SingleEntityJournalViewModelBase<PremiumTemplate, PremiumTemplateViewModel,
 		PremiumTemplateJournalNode>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		public PremiumTemplateJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: base(unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-
 			TabName = "Журнал шаблонов премий";
 
 			UpdateOnChanges(typeof(PremiumTemplate));
@@ -50,8 +47,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		};
 
 		protected override Func<PremiumTemplateViewModel> CreateDialogFunction => () =>
-			new PremiumTemplateViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices);
+			new PremiumTemplateViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
 		protected override Func<PremiumTemplateJournalNode, PremiumTemplateViewModel> OpenDialogFunction =>
-			(node) => new PremiumTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices);
+			(node) => new PremiumTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
 	}
 }

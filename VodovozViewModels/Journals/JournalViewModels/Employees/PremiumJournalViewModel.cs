@@ -22,19 +22,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
 	public class PremiumJournalViewModel : FilterableMultipleEntityJournalViewModelBase<PremiumJournalNode, PremiumJournalFilterViewModel>
 	{
-		private readonly ICommonServices commonServices;
-		private readonly IEmployeeService employeeService;
-		private readonly IEmployeeJournalFactory employeeJournalFactory;
-		private readonly IPremiumTemplateJournalFactory premiumTemplateJournalFactory;
+		private readonly ICommonServices _commonServices;
+		private readonly IEmployeeService _employeeService;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly IPremiumTemplateJournalFactory _premiumTemplateJournalFactory;
 		public PremiumJournalViewModel(PremiumJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices, IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory, IPremiumTemplateJournalFactory premiumTemplateJournalFactory)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			this.premiumTemplateJournalFactory = premiumTemplateJournalFactory 
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_premiumTemplateJournalFactory = premiumTemplateJournalFactory 
 			                                     ?? throw new ArgumentNullException(nameof(premiumTemplateJournalFactory));
 
 			TabName = "Журнал премий";
@@ -71,19 +71,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 					() => new PremiumViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices,
-						employeeService,
-						employeeJournalFactory,
-						premiumTemplateJournalFactory
+						_commonServices,
+						_employeeService,
+						_employeeJournalFactory,
+						_premiumTemplateJournalFactory
 					),
 					//функция диалога открытия документа
 					(PremiumJournalNode node) => new PremiumViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices,
-						employeeService,
-						employeeJournalFactory,
-						premiumTemplateJournalFactory
+						_commonServices,
+						_employeeService,
+						_employeeJournalFactory,
+						_premiumTemplateJournalFactory
 					),
 					//функция идентификации документа 
 					(PremiumJournalNode node) => node.EntityType == typeof(Premium),
@@ -104,7 +104,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				(PremiumJournalNode node) => new PremiumRaskatGAZelleViewModel(
 					EntityUoWBuilder.ForOpen(node.Id),
 					UnitOfWorkFactory,
-					commonServices
+					_commonServices
 				),
 				//функция идентификации документа 
 				(PremiumJournalNode node) => node.EntityType == typeof(PremiumRaskatGAZelle),
@@ -141,11 +141,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				query.Where(() => premiumAlias.Date <= FilterViewModel.EndDate.Value);
 			}
 
+			var employeeProjection = CustomProjections.Concat_WS(
+				" ",
+				() => employeeAlias.LastName,
+				() => employeeAlias.Name,
+				() => employeeAlias.Patronymic
+			);
+
 			query.Where(
 					GetSearchCriterion(
 						() => premiumAlias.Id,
 						() => premiumAlias.PremiumReasonString,
-						() => employeeAlias.LastName,
+						() => employeeProjection,
 						() => premiumAlias.TotalMoney
 				)
 			);
@@ -200,11 +207,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				query.Where(() => premiumRaskatGAZelleAlias.Date <= FilterViewModel.EndDate.Value);
 			}
 
+			var employeeProjection = CustomProjections.Concat_WS(
+				" ",
+				() => employeeAlias.LastName,
+				() => employeeAlias.Name,
+				() => employeeAlias.Patronymic
+			);
+
 			query.Where(
 				GetSearchCriterion(
 					() => premiumRaskatGAZelleAlias.Id,
 					() => premiumRaskatGAZelleAlias.PremiumReasonString,
-					() => employeeAlias.LastName,
+					() => employeeProjection,
 					() => premiumRaskatGAZelleAlias.TotalMoney
 				)
 			);

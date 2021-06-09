@@ -17,27 +17,31 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 {
 	public class PremiumViewModel : EntityTabViewModelBase<Premium>
 	{
-		private readonly IEmployeeService employeeService;
-		private string employeesSum;
+		private readonly IEmployeeService _employeeService;
+		private string _employeesSum;
+		private DelegateCommand _addEmployeeCommand;
+		private DelegateCommand<PremiumItem> _deleteEmployeeCommand;
+		private DelegateCommand _divideAtAllCommand;
+		private DelegateCommand _getReasonFromTemplateCommand;
 
 		public PremiumViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory uowFactory, ICommonServices commonServices,
 			IEmployeeService employeeService, IEmployeeJournalFactory employeeJournalFactory, IPremiumTemplateJournalFactory premiumTemplateJournalFactory)
 			: base(uowBuilder, uowFactory, commonServices)
 		{
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 
 			TabName = Entity.Title;
 
 			CanEdit = (Entity.Id == 0 && PermissionResult.CanCreate) || (Entity.Id != 0 && PermissionResult.CanUpdate);
-			Entity.ObservableItems.ListContentChanged += OnObservableItems_ListContentChanged;
+			Entity.ObservableItems.ListContentChanged += OnObservableItemsListContentChanged;
 			EmployeeAutocompleteSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			PremiumTemplateAutocompleteSelectorFactory = premiumTemplateJournalFactory.CreatePremiumTemplateAutocompleteSelectorFactory();
 		}
 
 		public string EmployeesSum
 		{
-			get => employeesSum;
-			set => SetField(ref employeesSum, value);
+			get => _employeesSum;
+			set => SetField(ref _employeesSum, value);
 		}
 
 		public bool CanEdit { get; private set; }
@@ -46,19 +50,17 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		#region Commands
 
-		private DelegateCommand addEmployeeCommand;
-		public DelegateCommand AddEmployeeCommand => addEmployeeCommand ?? (addEmployeeCommand =
+		public DelegateCommand AddEmployeeCommand => _addEmployeeCommand ?? (_addEmployeeCommand =
 			new DelegateCommand(() =>
 				{
 					var selectorEmployee = EmployeeAutocompleteSelectorFactory.CreateAutocompleteSelector();
-					selectorEmployee.OnEntitySelectedResult += OnEmployee_Add;
+					selectorEmployee.OnEntitySelectedResult += OnEmployeeAdd;
 					this.TabParent.AddSlaveTab(this, selectorEmployee);
 				},
 				() => CanEdit
 				));
 
-		private DelegateCommand<PremiumItem> deleteEmployeeCommand;
-		public DelegateCommand<PremiumItem> DeleteEmployeeCommand => deleteEmployeeCommand ?? (deleteEmployeeCommand =
+		public DelegateCommand<PremiumItem> DeleteEmployeeCommand => _deleteEmployeeCommand ?? (_deleteEmployeeCommand =
 			new DelegateCommand<PremiumItem>((node) =>
 				{
 					if(node?.Id > 0)
@@ -74,8 +76,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				(node) => CanEdit
 				));
 
-		private DelegateCommand divideAtAllCommand;
-		public DelegateCommand DivideAtAllCommand => divideAtAllCommand ?? (divideAtAllCommand =
+		public DelegateCommand DivideAtAllCommand => _divideAtAllCommand ?? (_divideAtAllCommand =
 			new DelegateCommand(() =>
 				{
 					Entity.DivideAtAll();
@@ -83,12 +84,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				() => CanEdit
 				));
 
-		private DelegateCommand getReasonFromTemplateCommand;
-		public DelegateCommand GetReasonFromTemplate => getReasonFromTemplateCommand ?? (getReasonFromTemplateCommand =
+		public DelegateCommand GetReasonFromTemplate => _getReasonFromTemplateCommand ?? (_getReasonFromTemplateCommand =
 			new DelegateCommand(() =>
 				{
 					var selectorPremiumTemplate = PremiumTemplateAutocompleteSelectorFactory.CreateAutocompleteSelector();
-					selectorPremiumTemplate.OnEntitySelectedResult += OnPremiumTemplate_Select;
+					selectorPremiumTemplate.OnEntitySelectedResult += OnPremiumTemplateSelect;
 					this.TabParent.AddSlaveTab(this, selectorPremiumTemplate);
 				},
 				() => CanEdit
@@ -97,7 +97,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		#endregion
 
 		#region Events
-		private void OnEmployee_Add(object sender, JournalSelectedNodesEventArgs e)
+		private void OnEmployeeAdd(object sender, JournalSelectedNodesEventArgs e)
 		{
 			var selectedEmplyeeNode = e.SelectedNodes.FirstOrDefault();
 			if(selectedEmplyeeNode == null)
@@ -114,7 +114,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			Entity.AddItem(employee);
 		}
 
-		private void OnPremiumTemplate_Select(object sender, JournalSelectedNodesEventArgs e)
+		private void OnPremiumTemplateSelect(object sender, JournalSelectedNodesEventArgs e)
 		{
 			var selectedEmplyeeNode = e.SelectedNodes.OfType<PremiumTemplateJournalNode>().FirstOrDefault();
 
@@ -127,7 +127,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			Entity.TotalMoney = selectedEmplyeeNode.PremiumMoney;
 		}
 
-		private void OnObservableItems_ListContentChanged(object sender, EventArgs e)
+		private void OnObservableItemsListContentChanged(object sender, EventArgs e)
 		{
 			decimal sum = Entity.Items.Sum(x => x.Money);
 			EmployeesSum = $"Итого по сотрудникам: {CurrencyWorks.GetShortCurrencyString(sum)}";
@@ -137,7 +137,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		private bool GetAuthor(out Employee cashier)
 		{
-			cashier = employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
+			cashier = _employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
 			if(cashier == null)
 			{
 				ShowErrorMessage("Ваш пользователь не привязан к действующему сотруднику.");
@@ -155,7 +155,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			Employee author;
 			if(!GetAuthor(out author))
+			{
 				return false;
+			}
 
 			if(Entity.Author == null)
 			{
