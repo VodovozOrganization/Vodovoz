@@ -432,6 +432,27 @@ namespace Vodovoz.Domain.Employees
 			} else {
 				throw new ArgumentException("Неверно передан ValidationContext");
 			}
+
+			var employees = UoW.Session.QueryOver<Employee>()
+				.Where(e => e.Name == this.Name && e.LastName == this.LastName && e.Patronymic == this.Patronymic)
+				.WhereNot(e => e.Id == this.Id)
+				.List();
+
+			if(employees.Count > 0)
+				yield return new ValidationResult("Сотрудник уже существует", new[] { "Duplication" });
+
+			List<EmployeeDocument> mainDocuments = GetMainDocuments();
+			if(mainDocuments.Count <= 0 && !IsDriverForOneDay)
+				yield return new ValidationResult(String.Format("У сотрудника должен присутствовать главный документ"),
+					new[] { this.GetPropertyName(x => x.Documents) });
+
+			if(mainDocuments.Count > 1)
+				yield return new ValidationResult(String.Format("Сотрудник может иметь только один главный документ"),
+					new[] { this.GetPropertyName(x => x.Documents) });
+
+			if(String.IsNullOrEmpty(DrivingLicense) && IsDriverForOneDay)
+				yield return new ValidationResult(String.Format("У разового водителя должно быть водительское удостоверение"),
+					new[] { this.GetPropertyName(x => x.DrivingLicense) });
 		}
 
 		#endregion
