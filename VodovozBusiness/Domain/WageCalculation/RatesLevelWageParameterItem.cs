@@ -17,7 +17,7 @@ namespace Vodovoz.Domain.WageCalculation
 	[EntityPermission]
 	public class RatesLevelWageParameterItem : WageParameterItem
 	{
-		public override string Title => $"{WageParameterItemType.GetEnumTitle()}, {WageDistrictLevelRates.Name}";
+		public override string Title => $"{WageParameterItemType.GetEnumTitle()}, {WageDistrictLevelRates?.Name}";
 		public override WageParameterItemTypes WageParameterItemType {
 			get { return WageParameterItemTypes.RatesLevel; }
 			set { }

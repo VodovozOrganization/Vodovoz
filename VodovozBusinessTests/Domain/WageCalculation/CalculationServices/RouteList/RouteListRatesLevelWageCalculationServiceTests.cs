@@ -92,6 +92,12 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 						ForDriverWithoutForwarder = 34,
 						ForDriverWithForwarder = 35,
 						ForForwarder = 36
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle500ml,
+						ForDriverWithoutForwarder = 37,
+						ForDriverWithForwarder = 38,
+						ForForwarder = 39
 					}
 				}
 			);
@@ -171,6 +177,12 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 						ForDriverWithoutForwarder = 134,
 						ForDriverWithForwarder = 135,
 						ForForwarder = 136
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle500ml,
+						ForDriverWithoutForwarder = 137,
+						ForDriverWithForwarder = 138,
+						ForForwarder = 139
 					}
 				}
 			);
@@ -205,6 +217,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
 			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district1);
 			routeListItemWageCalculationSource1.Bottle600mlCount.Returns(100);
+			routeListItemWageCalculationSource1.Bottle500mlCount.Returns(10);
 			routeListItemWageCalculationSource1.Bottle1500mlCount.Returns(22);
 			routeListItemWageCalculationSource1.FullBottle19LCount.Returns(50);
 			routeListItemWageCalculationSource1.EmptyBottle19LCount.Returns(25);
@@ -220,6 +233,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var routeListItemWageCalculationSource2 = Substitute.For<IRouteListItemWageCalculationSource>();
 			routeListItemWageCalculationSource2.WageDistrictOfAddress.Returns(district2);
 			routeListItemWageCalculationSource2.Bottle600mlCount.Returns(60);
+			routeListItemWageCalculationSource2.Bottle500mlCount.Returns(55);
 			routeListItemWageCalculationSource2.Bottle1500mlCount.Returns(11);
 			routeListItemWageCalculationSource2.FullBottle19LCount.Returns(135);
 			routeListItemWageCalculationSource2.EmptyBottle19LCount.Returns(101);
@@ -237,6 +251,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var routeListItemWageCalculationSource4 = Substitute.For<IRouteListItemWageCalculationSource>();
 			routeListItemWageCalculationSource4.WageDistrictOfAddress.Returns(district1);
 			routeListItemWageCalculationSource4.Bottle600mlCount.Returns(601);
+			routeListItemWageCalculationSource4.Bottle500mlCount.Returns(25);
 			routeListItemWageCalculationSource4.Bottle1500mlCount.Returns(13);
 			routeListItemWageCalculationSource4.FullBottle19LCount.Returns(15);
 			routeListItemWageCalculationSource4.EmptyBottle19LCount.Returns(11);
@@ -268,7 +283,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var result = percentWageCalculationService.CalculateWage();
 
 			// assert
-			Assert.That(result.Wage, Is.EqualTo(2176 + 33752 + 0 + 1215));
+			Assert.That(result.Wage, Is.EqualTo(2546 + 41287 + 0 + 2140));
 			Assert.That(result.FixedWage, Is.EqualTo(0));
 			Assert.That(result.WageDistrictLevelRate, Is.Null);
 		}
@@ -294,6 +309,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
 			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district1);
 			routeListItemWageCalculationSource1.Bottle600mlCount.Returns(100);
+			routeListItemWageCalculationSource1.Bottle500mlCount.Returns(10);
 			routeListItemWageCalculationSource1.Bottle1500mlCount.Returns(1);
 			routeListItemWageCalculationSource1.FullBottle19LCount.Returns(50);
 			routeListItemWageCalculationSource1.EmptyBottle19LCount.Returns(25);
@@ -308,6 +324,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var routeListItemWageCalculationSource2 = Substitute.For<IRouteListItemWageCalculationSource>();
 			routeListItemWageCalculationSource2.WageDistrictOfAddress.Returns(district2);
 			routeListItemWageCalculationSource2.Bottle600mlCount.Returns(60);
+			routeListItemWageCalculationSource2.Bottle500mlCount.Returns(55);
 			routeListItemWageCalculationSource2.Bottle1500mlCount.Returns(12);
 			routeListItemWageCalculationSource2.FullBottle19LCount.Returns(135);
 			routeListItemWageCalculationSource2.EmptyBottle19LCount.Returns(101);
@@ -325,6 +342,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var routeListItemWageCalculationSource4 = Substitute.For<IRouteListItemWageCalculationSource>();
 			routeListItemWageCalculationSource4.WageDistrictOfAddress.Returns(district1);
 			routeListItemWageCalculationSource4.Bottle600mlCount.Returns(601);
+			routeListItemWageCalculationSource4.Bottle500mlCount.Returns(25);
 			routeListItemWageCalculationSource4.Bottle1500mlCount.Returns(17);
 			routeListItemWageCalculationSource4.FullBottle19LCount.Returns(15);
 			routeListItemWageCalculationSource4.EmptyBottle19LCount.Returns(11);
@@ -356,7 +374,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var result = percentWageCalculationService.CalculateWage();
 
 			// assert
-			Assert.That(result.Wage, Is.EqualTo(1617 + 34187 + 0 + 1418));
+			Assert.That(result.Wage, Is.EqualTo(1997 + 41777 + 0 + 2368));
 			Assert.That(result.FixedWage, Is.EqualTo(0));
 			Assert.That(result.WageDistrictLevelRate, Is.Null);
 		}
@@ -382,6 +400,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
 			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district1);
 			routeListItemWageCalculationSource1.Bottle600mlCount.Returns(100);
+			routeListItemWageCalculationSource1.Bottle500mlCount.Returns(10);
 			routeListItemWageCalculationSource1.Bottle1500mlCount.Returns(33);
 			routeListItemWageCalculationSource1.FullBottle19LCount.Returns(50);
 			routeListItemWageCalculationSource1.EmptyBottle19LCount.Returns(25);
@@ -396,6 +415,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var routeListItemWageCalculationSource2 = Substitute.For<IRouteListItemWageCalculationSource>();
 			routeListItemWageCalculationSource2.WageDistrictOfAddress.Returns(district2);
 			routeListItemWageCalculationSource2.Bottle600mlCount.Returns(60);
+			routeListItemWageCalculationSource2.Bottle500mlCount.Returns(55);
 			routeListItemWageCalculationSource2.Bottle1500mlCount.Returns(20);
 			routeListItemWageCalculationSource2.FullBottle19LCount.Returns(135);
 			routeListItemWageCalculationSource2.EmptyBottle19LCount.Returns(101);
@@ -413,6 +433,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var routeListItemWageCalculationSource4 = Substitute.For<IRouteListItemWageCalculationSource>();
 			routeListItemWageCalculationSource4.WageDistrictOfAddress.Returns(district1);
 			routeListItemWageCalculationSource4.Bottle600mlCount.Returns(601);
+			routeListItemWageCalculationSource4.Bottle500mlCount.Returns(25);
 			routeListItemWageCalculationSource4.Bottle1500mlCount.Returns(1);
 			routeListItemWageCalculationSource4.FullBottle19LCount.Returns(15);
 			routeListItemWageCalculationSource4.EmptyBottle19LCount.Returns(11);
@@ -444,7 +465,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var result = percentWageCalculationService.CalculateWage();
 
 			// assert
-			Assert.That(result.Wage, Is.EqualTo(2924 + 35575 +  + 0 + 908));
+			Assert.That(result.Wage, Is.EqualTo(3314 + 43220 + 0 + 1883));
 			Assert.That(result.FixedWage, Is.EqualTo(0));
 			Assert.That(result.WageDistrictLevelRate, Is.Null);
 		}
@@ -470,6 +491,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
 			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district2);
 			routeListItemWageCalculationSource1.Bottle600mlCount.Returns(100);
+			routeListItemWageCalculationSource1.Bottle500mlCount.Returns(10);
 			routeListItemWageCalculationSource1.Bottle1500mlCount.Returns(1);
 			routeListItemWageCalculationSource1.FullBottle19LCount.Returns(50);
 			routeListItemWageCalculationSource1.EmptyBottle19LCount.Returns(25);
@@ -498,7 +520,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			var result = percentWageCalculationService.CalculateWage();
 
 			// assert
-			Assert.That(result.Wage, Is.EqualTo(1772));
+			Assert.That(result.Wage, Is.EqualTo(2162));
 			Assert.That(result.FixedWage, Is.EqualTo(0));
 			Assert.That(result.WageDistrictLevelRate, Is.Null);
 		}
@@ -606,6 +628,12 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 					},
 					new WageRate {
 						WageRateType = WageRateTypes.Bottle1500ml,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle500ml,
 						ForDriverWithoutForwarder = 0,
 						ForDriverWithForwarder = 0,
 						ForForwarder = 0
@@ -744,6 +772,12 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 					},
 					new WageRate {
 						WageRateType = WageRateTypes.Bottle1500ml,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle500ml,
 						ForDriverWithoutForwarder = 0,
 						ForDriverWithForwarder = 0,
 						ForForwarder = 0
@@ -925,6 +959,12 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 						ForDriverWithoutForwarder = 0,
 						ForDriverWithForwarder = 0,
 						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle500ml,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
 					}
 				}
 			);
@@ -1100,6 +1140,12 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 					},
 					new WageRate {
 						WageRateType = WageRateTypes.Bottle1500ml,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle500ml,
 						ForDriverWithoutForwarder = 0,
 						ForDriverWithForwarder = 0,
 						ForForwarder = 0

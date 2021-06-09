@@ -12,6 +12,7 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using NHibernate.Transform;
 using NHibernate.Criterion;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -91,6 +92,7 @@ namespace Vodovoz.ReportsParameters
 			);
 
 			District districtAlias = null;
+			DistrictsSet districtsSetAlias = null;
 			GeographicGroup geoGroupAlias = null;
 			var districtParameter = filter.CreateParameterSet(
 				"Районы",
@@ -98,8 +100,10 @@ namespace Vodovoz.ReportsParameters
 				new ParametersFactory(UoW, (filters) => {
 					SelectableEntityParameter<District> resultAlias = null;
 
-					var query = UoW.Session.QueryOver<District>(() => districtAlias)
-						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geoGroupAlias);
+					var query = UoW.Session.QueryOver(() => districtAlias)
+						.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
+						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geoGroupAlias)
+						.Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active);
 
 					if(filters != null && filters.Any()) {
 						foreach(var f in filters) {

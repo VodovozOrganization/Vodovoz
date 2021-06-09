@@ -541,6 +541,10 @@ namespace Vodovoz.Domain.Employees
 					var parameterForForwarder = new EmployeeWageParameter {
 						WageParameterItem = new RatesLevelWageParameterItem {
 							WageDistrictLevelRates = defaultLevel
+						},
+						WageParameterItemForOurCars = new RatesLevelWageParameterItem
+						{
+							WageDistrictLevelRates = defaultLevelForOurCar
 						}
 					};
 					ChangeWageParameter(parameterForForwarder, DateTime.Today);
@@ -634,11 +638,11 @@ namespace Vodovoz.Domain.Employees
 
 	public enum DriverType
 	{
-		[Display(Name = "Наш")]
+		[Display(Name = "Управляет ТС компании")]
 		companydriver,
-		[Display(Name = "Раскат")]
+		[Display(Name = "Управляет ТС в раскате")]
 		raskat,
-		[Display(Name = "Частник")]
+		[Display(Name = "Управляет ТС личным")]
 		hireddriver
 	}
 

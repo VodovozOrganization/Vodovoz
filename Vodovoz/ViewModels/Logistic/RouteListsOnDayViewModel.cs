@@ -6,6 +6,7 @@ using System.Text;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
@@ -1230,7 +1231,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.Future();
 
 			GetWorkDriversInfo();
-			DeliverySum();
+			CalculateOnDeliverySum();
 			RoutesOnDay = routesQuery.ToList();
 			RoutesOnDay.ToList().ForEach(rl => rl.UoW = UoW);
 			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
@@ -1344,24 +1345,158 @@ namespace Vodovoz.ViewModels.Logistic
 				? defaultDeliveryDaySchedule
 				: driverWorkSchedule.DaySchedule;
 		}
-		
-		private void DeliverySum()
+
+		private void CalculateOnDeliverySum()
 		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			OrdersCountNode ordersCountNode = null;
+			DeliverySummaryNode resultAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			District districtAlias = null;
+			GeographicGroup geographicGroupAlias = null;
+			Counterparty counterpartyAlias = null;
+
 			ObservableDeliverySummary.Clear();
-			var totalOrders = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+
+			var baseQuery = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 				.GetExecutableQueryOver(UoW.Session)
 				.Where(o => !o.IsContractCloser)
-				.And(o => !o.IsService)
-				.And(o=>o.OrderStatus != OrderStatus.WaitForPayment)
-				.And(o => o.OrderStatus != OrderStatus.NewOrder)
-				.And(o => o.OrderStatus != OrderStatus.Canceled)
-				.OrderBy(x=>x.OrderStatus).Asc.List();
-
-			foreach (var orderGroup in totalOrders.GroupBy(o => o.OrderStatus))
+				.And(o => !o.IsService);
+			if(AddressTypes.Any(x => x.Selected))
 			{
-				var deliverySum = new DeliverySummary(orderGroup.Key, orderGroup.Select(x=>x).ToList());
-				ObservableDeliverySummary.Add(deliverySum);
+				bool deliverySelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Delivery);
+				bool chainStoreSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.ChainStore);
+				bool serviceSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Service);
+
+				//deliverySelected(Доставка) означает МЛ без chainStoreSelected(Сетевой магазин) и serviceSelected(Сервисное обслуживание)
+
+				if(deliverySelected && chainStoreSelected && !serviceSelected)
+				{
+					baseQuery.Where(x => !x.IsService);
+				}
+				else if(deliverySelected && !chainStoreSelected && serviceSelected)
+				{
+					baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseQuery.Where(() => !counterpartyAlias.IsChainStore);
+				}
+				else if(deliverySelected && !chainStoreSelected && !serviceSelected)
+				{
+					baseQuery.Where(x => !x.IsService);
+					baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseQuery.Where(() => !counterpartyAlias.IsChainStore);
+				}
+				else if(!deliverySelected && chainStoreSelected && serviceSelected)
+				{
+					baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseQuery.Where(Restrictions.Or(
+						Restrictions.Where<Order>(x => x.IsService),
+						Restrictions.Where(() => counterpartyAlias.IsChainStore)
+					));
+				}
+				else if(!deliverySelected && chainStoreSelected && !serviceSelected)
+				{
+					baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseQuery.Where(() => counterpartyAlias.IsChainStore);
+				}
+				else if(!deliverySelected && !chainStoreSelected && serviceSelected)
+				{
+					baseQuery.Where(x => x.IsService);
+				}
+
+				var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
+				
+				if(selectedGeographicGroup.Any())
+				{
+					baseQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
+						.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
+						.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
+							selectedGeographicGroup.Select(x => x.Id).ToArray()));
+				}
 			}
+
+			var ordersCount = baseQuery.Clone()
+				.SelectList(list => list
+					.Select(o=>o.OrderStatus).WithAlias(() => ordersCountNode.OrderStatus)
+					.Select(o=>o.Id).WithAlias(() => ordersCountNode.Id)
+				).TransformUsing(Transformers.AliasToBean<OrdersCountNode>()).List<OrdersCountNode>().GroupBy(o=>o.OrderStatus);
+			
+			var deliverySummaryNodes = baseQuery.Clone()
+				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
+				             (nomenclatureAlias.TareVolume == TareVolume.Vol19L))
+				.SelectList(list => list
+					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(() => orderItemAlias.Count).WithAlias(() => resultAlias.Bottles)
+					.Select(() => nomenclatureAlias.TareVolume).WithAlias(() => resultAlias.TareVolume)
+				).TransformUsing(Transformers.AliasToBean<DeliverySummaryNode>()).List<DeliverySummaryNode>();
+
+			var totalCancellations = new DeliverySummary {Name = "Итого отмены"};
+			var totalNotRL = new DeliverySummary {Name = "Итого не в МЛ"};
+			var totalInRL = new DeliverySummary {Name = "Итого в МЛ"};
+			var totalOnTheWay = new DeliverySummary {Name = "Итого в пути"};
+			var totalCompleted = new DeliverySummary {Name = "Итого выполнено"};
+			
+			foreach (var orderGroup in deliverySummaryNodes.GroupBy(o=>o.OrderStatus))
+			{
+				var addressCount = ordersCount.Where(x => x.Key == orderGroup.Key).Sum(x => x.Select(y => y).Count());
+				var deliverySum = new DeliverySummary(orderGroup.Key.GetEnumTitle(), addressCount, orderGroup.Select(x => x).ToList());
+				ObservableDeliverySummary.Add(deliverySum);
+				switch (orderGroup.Key)
+				{
+					case OrderStatus.DeliveryCanceled:
+					case OrderStatus.NotDelivered:
+						totalCancellations.Bottles += deliverySum.Bottles;
+						totalCancellations.AddressCount += deliverySum.AddressCount;
+						break;
+					case OrderStatus.Accepted:
+						totalNotRL.Bottles += deliverySum.Bottles;
+						totalNotRL.AddressCount += deliverySum.AddressCount;
+						break;
+					case OrderStatus.InTravelList:
+					case OrderStatus.OnLoading:
+						totalInRL.Bottles += deliverySum.Bottles;
+						totalInRL.AddressCount += deliverySum.AddressCount;
+						break;
+					case OrderStatus.OnTheWay:
+						totalOnTheWay.Bottles += deliverySum.Bottles;
+						totalOnTheWay.AddressCount += deliverySum.AddressCount;
+						break;
+					case OrderStatus.UnloadingOnStock:
+					case OrderStatus.Shipped:
+					case OrderStatus.Closed:
+						totalCompleted.Bottles += deliverySum.Bottles;
+						totalCompleted.AddressCount += deliverySum.AddressCount;
+						break;
+				}
+			}
+			
+			var totalNoAway = new DeliverySummary
+			{
+				Name = "Итого не уехало", Bottles = totalNotRL.Bottles + totalInRL.Bottles,
+				AddressCount = totalNotRL.AddressCount + totalInRL.AddressCount
+			};
+			var totalLeft = new DeliverySummary
+			{
+				Name = "Итого уехало", Bottles = totalCompleted.Bottles + totalOnTheWay.Bottles,
+				AddressCount = totalCompleted.AddressCount + totalOnTheWay.AddressCount
+			};
+			var totalForDay = new DeliverySummary
+			{
+				Name = "Итого за день", Bottles = totalNoAway.Bottles + totalLeft.Bottles + totalCancellations.Bottles,
+				AddressCount = totalNoAway.AddressCount + totalLeft.AddressCount + totalCancellations.AddressCount
+			};
+			
+			ObservableDeliverySummary.Add(totalCancellations);
+			ObservableDeliverySummary.Add(totalNotRL);
+			ObservableDeliverySummary.Add(totalInRL);
+			ObservableDeliverySummary.Add(totalNoAway);
+			ObservableDeliverySummary.Add(totalOnTheWay);
+			ObservableDeliverySummary.Add(totalCompleted);
+			ObservableDeliverySummary.Add(totalLeft);
+			ObservableDeliverySummary.Add(totalForDay);
 		}
 	}
 }

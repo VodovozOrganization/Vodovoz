@@ -810,7 +810,36 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult($"В адресе: '{Title}' превышена максимально допустимая длина комментария по штрафу ({CommentForFine.Length}/1000)");
 			}
+
+			if (CashierComment?.Length > 255)
+			{
+				yield return new ValidationResult(
+					$"В адресе: '{Title}' превышена максимально допустимая длина комментария кассира ({CashierComment.Length}/255)");
+			}
 		}
+
+		public static RouteListItemStatus[] GetUndeliveryStatuses()
+        {
+        	return new RouteListItemStatus[]
+        		{
+        			RouteListItemStatus.Canceled,
+        			RouteListItemStatus.Overdue
+        		};
+        }
+
+        /// <summary>
+        /// Возвращает все возможные конечные статусы <see cref="RouteListItem"/>, при которых <see cref="RouteListItem"/> не был довезён
+        /// </summary>
+        /// <returns></returns>
+        public static RouteListItemStatus[] GetNotDeliveredStatuses()
+        {
+        	return new RouteListItemStatus[]
+        	{
+        		RouteListItemStatus.Canceled,
+        		RouteListItemStatus.Overdue,
+        		RouteListItemStatus.Transfered
+        	};
+        }
 	}
 
 	public enum RouteListItemStatus

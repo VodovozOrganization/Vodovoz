@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Osm;
+using QS.Osm.Osrm;
 using QS.Project.Services;
 using QS.Report;
 using QS.Tools;
@@ -28,6 +31,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
@@ -419,12 +423,12 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref onLoadTimeFixed, value, () => OnloadTimeFixed);
 		}
 
-		private bool printed;
+		private DateTime? printTime;
 
-		[Display(Name = "МЛ напечатан")]
-		public virtual bool Printed {
-			get => printed;
-			set => SetField(ref printed, value, () => Printed);
+		[Display(Name = "Время печати МЛ")]
+		public virtual DateTime? PrintTime {
+			get => printTime;
+			set => SetField(ref printTime, value);
 		}
 
 		private bool addressesOrderWasChangedAfterPrinted;
@@ -646,7 +650,7 @@ namespace Vodovoz.Domain.Logistic
 				}
 
 				if(Addresses[i].IndexInRoute != i) {
-					if(Printed) {
+					if(PrintTime.HasValue) {
 						AddressesOrderWasChangedAfterPrinted = true;
 					}
 					Addresses[i].IndexInRoute = i;
@@ -1715,6 +1719,10 @@ namespace Vodovoz.Domain.Logistic
 			moneyMovementOperations.ForEach(op => UoW.Save(op));
 
 			UpdateWageOperation();
+
+			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(EmployeeSingletonRepository.GetInstance(), new BaseParametersProvider(),
+				new PremiumRaskatGAZelleParametersProvider(SingletonParametersProvider.Instance), this);
+			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}
 
 		#region Для логистических расчетов
@@ -1925,6 +1933,54 @@ namespace Vodovoz.Domain.Logistic
 							);
 			}
 			return notLoadedNomenclatures;
+		}
+
+		public virtual void RecountMileage()
+		{
+			var pointsToRecalculate = new List<PointOnEarth>();
+			var pointsToBase = new List<PointOnEarth>();
+			var baseLat = (double)GeographicGroups.FirstOrDefault().BaseLatitude.Value;
+			var baseLon = (double)GeographicGroups.FirstOrDefault().BaseLongitude.Value;
+
+			decimal totalDistanceTrack = 0;
+
+			IEnumerable<RouteListItem> completedAddresses = Addresses.Where(x => x.Status == RouteListItemStatus.Completed);
+
+			if(!completedAddresses.Any())
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Для МЛ нет завершенных адресов, невозможно расчитать трек", "");
+				return;
+			}
+
+			if(completedAddresses.Count() > 1)
+			{
+				foreach(RouteListItem address in Addresses.OrderBy(x => x.StatusLastUpdate))
+				{
+					if(address.Status == RouteListItemStatus.Completed)
+					{
+						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.Latitude, (double)address.Order.DeliveryPoint.Longitude));
+					}
+				}
+
+				var recalculatedTrackResponse = OsrmMain.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
+				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
+
+				totalDistanceTrack = recalculatedTrack.TotalDistanceKm;
+			}
+			else
+			{
+				var point = Addresses.First(x => x.Status == RouteListItemStatus.Completed).Order.DeliveryPoint;
+				pointsToRecalculate.Add(new PointOnEarth((double)point.Latitude, (double)point.Longitude));
+			}
+
+			pointsToBase.Add(pointsToRecalculate.Last());
+			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
+			pointsToBase.Add(pointsToRecalculate.First());
+
+			var recalculatedToBaseResponse = OsrmMain.GetRoute(pointsToBase, false, GeometryOverview.Full);
+			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
+
+			RecalculatedDistance = decimal.Round(totalDistanceTrack + recalculatedToBase.TotalDistanceKm);
 		}
 
 		#endregion

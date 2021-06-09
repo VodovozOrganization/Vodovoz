@@ -5,6 +5,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -34,8 +35,13 @@ namespace Vodovoz.Domain.Logistic
 		public int Bottle600mlCount => (int)item.Order.OrderItems
 			.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol600ml)
 			.Sum(i => i.CurrentCount);
+		
 		public int Bottle1500mlCount => (int)item.Order.OrderItems
 			.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol1500ml)
+			.Sum(i => i.CurrentCount);
+		
+		public int Bottle500mlCount => (int)item.Order.OrderItems
+			.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol500ml)
 			.Sum(i => i.CurrentCount);
 
 		public bool ContractCancelation => false;
@@ -122,6 +128,7 @@ namespace Vodovoz.Domain.Logistic
 		public decimal DriverWageSurcharge => item.DriverWageSurcharge;
 
 		public bool IsDelivered => item.IsDelivered() && item.Status != RouteListItemStatus.Transfered;
+		public bool IsValidForWageCalculation => !RouteListItem.GetNotDeliveredStatuses().Contains(item.Status);
 
 		public (TimeSpan, TimeSpan) DeliverySchedule => (item.Order.DeliverySchedule.From, item.Order.DeliverySchedule.To);
 
