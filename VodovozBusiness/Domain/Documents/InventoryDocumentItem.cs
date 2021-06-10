@@ -145,11 +145,11 @@ namespace Vodovoz.Domain.Documents
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Comment?.Length > 255)
-        	{
-        		yield return new ValidationResult(
-        			$"Превышена длина комментария для номенклатуры: {Nomenclature.Name} ({Comment.Length}/255)",
-                    new[] {nameof(Comment)});
-            }
+			{
+				yield return new ValidationResult(
+					$"Превышена длина комментария для номенклатуры: {Nomenclature.Name} ({Comment.Length}/255)",
+					new[] {nameof(Comment)});
+			}
 		}
 
 		#endregion
