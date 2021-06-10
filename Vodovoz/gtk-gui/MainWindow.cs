@@ -491,6 +491,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionAddressesOverpaymentsReport;
 
+	private global::Gtk.RadioAction ActionCarService;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -1271,6 +1273,10 @@ public partial class MainWindow
 		this.ActionAddressesOverpaymentsReport = new global::Gtk.Action("ActionAddressesOverpaymentsReport", global::Mono.Unix.Catalog.GetString("Отчет по переплатам за адрес"), null, null);
 		this.ActionAddressesOverpaymentsReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по переплатам за адрес");
 		w1.Add(this.ActionAddressesOverpaymentsReport, null);
+		this.ActionCarService = new global::Gtk.RadioAction("ActionCarService", global::Mono.Unix.Catalog.GetString("ТрО"), null, "car_events", 0);
+		this.ActionCarService.Group = this.ActionLogistics.Group;
+		this.ActionCarService.ShortLabel = global::Mono.Unix.Catalog.GetString("ТрО");
+		w1.Add(this.ActionCarService, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -1483,7 +1489,7 @@ public partial class MainWindow
 		this.hbox2.Name = "hbox2";
 		this.hbox2.Spacing = 6;
 		// Container child hbox2.Gtk.Box+BoxChild
-		this.UIManager.AddUiFromString(@"<ui><toolbar name='toolbarMain'><toolitem name='ActionOrders' action='ActionOrders'/><toolitem name='ActionServices' action='ActionServices'/><toolitem name='ActionLogistics' action='ActionLogistics'/><toolitem name='ActionStock' action='ActionStock'/><toolitem name='ActionCash' action='ActionCash'/><toolitem name='ActionAccounting' action='ActionAccounting'/><toolitem name='ActionReports' action='ActionReports'/><toolitem name='ActionArchive' action='ActionArchive'/><toolitem name='ActionStaff' action='ActionStaff'/><toolitem name='ActionCRM' action='ActionCRM'/><toolitem name='ActionSuppliers' action='ActionSuppliers'/><toolitem name='ActionCashRequest' action='ActionCashRequest'/><toolitem name='ActionRetail' action='ActionRetail'/></toolbar></ui>");
+		this.UIManager.AddUiFromString(@"<ui><toolbar name='toolbarMain'><toolitem name='ActionOrders' action='ActionOrders'/><toolitem name='ActionServices' action='ActionServices'/><toolitem name='ActionLogistics' action='ActionLogistics'/><toolitem name='ActionStock' action='ActionStock'/><toolitem name='ActionCash' action='ActionCash'/><toolitem name='ActionAccounting' action='ActionAccounting'/><toolitem name='ActionReports' action='ActionReports'/><toolitem name='ActionArchive' action='ActionArchive'/><toolitem name='ActionStaff' action='ActionStaff'/><toolitem name='ActionCRM' action='ActionCRM'/><toolitem name='ActionSuppliers' action='ActionSuppliers'/><toolitem name='ActionCashRequest' action='ActionCashRequest'/><toolitem name='ActionRetail' action='ActionRetail'/><toolitem name='ActionCarService' action='ActionCarService'/></toolbar></ui>");
 		this.toolbarMain = ((global::Gtk.Toolbar)(this.UIManager.GetWidget("/toolbarMain")));
 		this.toolbarMain.Name = "toolbarMain";
 		this.toolbarMain.ShowArrow = false;
@@ -1776,6 +1782,7 @@ public partial class MainWindow
 		this.ActionOrderAnalyticsReport.Activated += new global::System.EventHandler(this.OnActionOrderAnalyticsReportActivated);
 		this.ActionEmployeesReport.Activated += new global::System.EventHandler(this.OnActionEmployeesReportActivated);
 		this.ActionAddressesOverpaymentsReport.Activated += new global::System.EventHandler(this.OnActionAddressesOverpaymentsReportActivated);
+		this.ActionCarService.Activated += new global::System.EventHandler(this.OnActionCarServiceAcivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);

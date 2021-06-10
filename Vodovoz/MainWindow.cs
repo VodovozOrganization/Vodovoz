@@ -2300,5 +2300,10 @@ public partial class MainWindow : Gtk.Window
 		    () => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
 				driverFactory, officeFactory, ServicesConfig.InteractiveService))
 		);
-    }
+	}
+
+	protected void OnActionCarServiceAcivated(object sender, EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.car_service.xml");
+	}
 }
