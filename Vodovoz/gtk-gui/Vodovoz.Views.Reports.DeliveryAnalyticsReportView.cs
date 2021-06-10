@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gamma.GtkWidgets.yTreeView treeviewGeographic;
 
-		private global::Gamma.GtkWidgets.yTreeView treeviewPartCIty;
+		private global::Gamma.GtkWidgets.yTreeView treeviewPartCity;
 
 		private global::Gamma.GtkWidgets.yTreeView treeviewWave;
 
@@ -115,11 +115,11 @@ namespace Vodovoz.Views.Reports
 			w5.RightAttach = ((uint)(2));
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
-			this.treeviewPartCIty = new global::Gamma.GtkWidgets.yTreeView();
-			this.treeviewPartCIty.CanFocus = true;
-			this.treeviewPartCIty.Name = "treeviewPartCIty";
-			this.ytable1.Add(this.treeviewPartCIty);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytable1[this.treeviewPartCIty]));
+			this.treeviewPartCity = new global::Gamma.GtkWidgets.yTreeView();
+			this.treeviewPartCity.CanFocus = true;
+			this.treeviewPartCity.Name = "treeviewPartCIty";
+			this.ytable1.Add(this.treeviewPartCity);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytable1[this.treeviewPartCity]));
 			w6.TopAttach = ((uint)(1));
 			w6.BottomAttach = ((uint)(2));
 			w6.LeftAttach = ((uint)(1));

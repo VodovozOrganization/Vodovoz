@@ -1263,7 +1263,6 @@
     <Compile Include="ViewModels\Logistic\RouteListsOnDayViewModel.cs" />
     <Compile Include="Views\Logistic\RouteListsOnDayView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListsOnDayView.cs" />
-    <Compile Include="ViewModels\Logistic\GeographicGroupNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteColumnTag.cs" />
     <Compile Include="Additions\Logistic\PointMarkerType.cs" />
     <Compile Include="Additions\Logistic\PointMarkerShape.cs" />
