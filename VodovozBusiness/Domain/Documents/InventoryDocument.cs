@@ -226,11 +226,9 @@ namespace Vodovoz.Domain.Documents
 
 			foreach(var item in Items)
 			{
-				if(item.Comment?.Length > 255)
+				foreach(var result in item.Validate(new ValidationContext(item)))
 				{
-					yield return new ValidationResult(
-						$"Превышена длина комментария для номенклатуры: {item.Nomenclature.Name} ({item.Comment.Length}/255)",
-						new[] {nameof(item.Comment)});
+					yield return result;
 				}
 			}
 		}
