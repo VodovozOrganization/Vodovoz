@@ -398,7 +398,6 @@ namespace Vodovoz.ViewWidgets
 		{
 			if(MessageDialogHelper.RunQuestionDialog("Требуется сохранить недовоз. Сохранить?")) {
 				UoW.Save(undelivery);
-				UoW.Commit();
 				var dlg = new OrderDlg(order);
 				MyTab.TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<Order>(order.Id),
