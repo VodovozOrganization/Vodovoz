@@ -123,6 +123,7 @@ using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Reports;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2300,5 +2301,18 @@ public partial class MainWindow : Gtk.Window
 		    () => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
 				driverFactory, officeFactory, ServicesConfig.InteractiveService))
 		);
-    }
+	}
+
+	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
+	{
+		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+		var interactiveService = autofacScope.Resolve<IInteractiveService>();
+
+		tdiMain.AddTab(
+			new DeliveryAnalyticsViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.InteractiveService,
+				null)
+		);
+	}
 }
