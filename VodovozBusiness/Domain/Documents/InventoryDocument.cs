@@ -224,12 +224,6 @@ namespace Vodovoz.Domain.Documents
 				yield return new ValidationResult (String.Format("Дата документа должна быть указана."),
 					new[] { this.GetPropertyName (o => o.TimeStamp) });
 
-			if(Comment?.Length > 65535)
-			{
-				yield return new ValidationResult($"Превышена длина общего комментария инвентаризации ({Comment.Length}/65535)",
-					new []{nameof(Comment)});
-			}
-			
 			foreach(var item in Items)
 			{
 				if(item.Comment?.Length > 255)
