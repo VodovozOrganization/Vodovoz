@@ -63,13 +63,21 @@
                   END) as emplDriverOf,
                   CONCAT_WS('', CONCAT(works_with.last_name, ' '), IF(works_with.name = '', '', CONCAT(LEFT(works_with.name, 1),'.')), IF(works_with.patronymic = '', '', CONCAT(LEFT(works_with.patronymic, 1),'.'))
                   ) as works_withName,
-                  SUM(wmo.money) as moneySum
+                  SUM(IF(rl.`status` = 'Closed', wmo.money, plan.planSum)) as moneySum
               FROM employees empl
               LEFT JOIN employees works_with ON (works_with.id = empl.default_forwarder_id AND empl.category ='driver')
                                              OR (works_with.default_forwarder_id = empl.id AND empl.category ='forwarder')
-              INNER JOIN route_lists rl ON rl.status = 'Closed'  AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
+              INNER JOIN route_lists rl ON rl.status &lt;&gt; 'New'  AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
                                        AND ((empl.category='forwarder' AND rl.forwarder_id = empl.id)
                                         OR (empl.category='driver' AND rl.driver_id = empl.id))
+              LEFT JOIN 
+				  		(
+						  SELECT route_list_id,
+								SUM(rla.driver_wage + rla.driver_wage_surcharge) planSum
+								FROM route_list_addresses rla
+								WHERE rla.status IN ('Completed', 'EnRoute')
+								GROUP BY rla.route_list_id
+						) plan ON plan.route_list_id = rl.id
               LEFT JOIN route_lists frl ON frl.id = (SELECT rl1.id FROM route_lists AS rl1 WHERE empl.id = rl1.driver_id ORDER BY rl1.date limit 1)
           	  LEFT JOIN wages_movement_operations wmo ON wmo.id = IF(empl.category='driver', rl.driver_wages_movement_operations_id, rl.forwarder_wages_movement_operations_id)
               LEFT JOIN cars c ON c.driver_id = empl.id
@@ -89,10 +97,10 @@
                   SUM(bmo.returned) as retCount,
                   COUNT(DISTINCT(DAY(rl.date))) as countWD
               FROM employees empl
-              INNER JOIN route_lists rl ON rl.status = 'Closed'  AND rl.date  &gt;= @start_date AND rl.date  &lt;= @end_date
+              INNER JOIN route_lists rl ON rl.status &lt;&gt; 'New'  AND rl.date  &gt;= @start_date AND rl.date  &lt;= @end_date
                                       AND ((empl.category='forwarder' AND rl.forwarder_id = empl.id)
                                        OR (empl.category='driver' AND rl.driver_id = empl.id))
-              INNER JOIN route_list_addresses rla ON rla.route_list_id = rl.id AND rla.status = 'Completed'
+              INNER JOIN route_list_addresses rla ON rla.route_list_id = rl.id AND rla.status IN ('Completed', 'EnRoute')
               LEFT JOIN bottles_movement_operations bmo ON bmo.order_id = rla.order_id
               WHERE
                   (@employee_id != '' AND empl.id = @employee_id OR @employee_id = '')
