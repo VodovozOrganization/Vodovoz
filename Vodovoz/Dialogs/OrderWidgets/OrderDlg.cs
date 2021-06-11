@@ -2514,7 +2514,7 @@ namespace Vodovoz
 					rlStatus = OrderSingletonRepository.GetInstance().GetAllRLForOrder(uow, Entity).FirstOrDefault()?.Status;
 				var sensitive = rlStatus.HasValue 
 					&& !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
-				GtkScrolledWindow6.Sensitive = sensitive;
+				scrolledWindowManagerComment.Sensitive = sensitive;
 				enumDiverCallType.Sensitive = sensitive;
 			}
 		}

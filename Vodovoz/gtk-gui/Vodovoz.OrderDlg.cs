@@ -168,13 +168,13 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEnumComboBox enumDiverCallType;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow6;
-
-		private global::Gamma.GtkWidgets.yTextView textManagerComments;
-
 		private global::Gtk.Label label25;
 
 		private global::Gtk.Label labelDeliveryDate3;
+
+		private global::Gtk.ScrolledWindow scrolledWindowManagerComment;
+
+		private global::Gamma.GtkWidgets.yTextView textManagerComments;
 
 		private global::Gtk.VBox vbox7;
 
@@ -1309,31 +1309,15 @@ namespace Vodovoz
 			w80.RightAttach = ((uint)(2));
 			w80.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child tblDriverControl.Gtk.Table+TableChild
-			this.GtkScrolledWindow6 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow6.Name = "GtkScrolledWindow6";
-			this.GtkScrolledWindow6.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow6.Gtk.Container+ContainerChild
-			this.textManagerComments = new global::Gamma.GtkWidgets.yTextView();
-			this.textManagerComments.CanFocus = true;
-			this.textManagerComments.Name = "textManagerComments";
-			this.GtkScrolledWindow6.Add(this.textManagerComments);
-			this.tblDriverControl.Add(this.GtkScrolledWindow6);
-			global::Gtk.Table.TableChild w82 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.GtkScrolledWindow6]));
-			w82.TopAttach = ((uint)(1));
-			w82.BottomAttach = ((uint)(2));
-			w82.LeftAttach = ((uint)(1));
-			w82.RightAttach = ((uint)(2));
-			w82.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tblDriverControl.Gtk.Table+TableChild
 			this.label25 = new global::Gtk.Label();
 			this.label25.Name = "label25";
 			this.label25.Xalign = 1F;
 			this.label25.Yalign = 0F;
 			this.label25.LabelProp = global::Mono.Unix.Catalog.GetString("Отзвон водителя:");
 			this.tblDriverControl.Add(this.label25);
-			global::Gtk.Table.TableChild w83 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.label25]));
-			w83.XOptions = ((global::Gtk.AttachOptions)(4));
-			w83.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w81 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.label25]));
+			w81.XOptions = ((global::Gtk.AttachOptions)(4));
+			w81.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblDriverControl.Gtk.Table+TableChild
 			this.labelDeliveryDate3 = new global::Gtk.Label();
 			this.labelDeliveryDate3.WidthRequest = 160;
@@ -1341,10 +1325,26 @@ namespace Vodovoz
 			this.labelDeliveryDate3.Xalign = 1F;
 			this.labelDeliveryDate3.LabelProp = global::Mono.Unix.Catalog.GetString("Номер звонка водителя:");
 			this.tblDriverControl.Add(this.labelDeliveryDate3);
-			global::Gtk.Table.TableChild w84 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.labelDeliveryDate3]));
-			w84.TopAttach = ((uint)(2));
-			w84.BottomAttach = ((uint)(3));
-			w84.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w82 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.labelDeliveryDate3]));
+			w82.TopAttach = ((uint)(2));
+			w82.BottomAttach = ((uint)(3));
+			w82.XOptions = ((global::Gtk.AttachOptions)(4));
+			w82.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tblDriverControl.Gtk.Table+TableChild
+			this.scrolledWindowManagerComment = new global::Gtk.ScrolledWindow();
+			this.scrolledWindowManagerComment.Name = "scrolledWindowManagerComment";
+			this.scrolledWindowManagerComment.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrolledWindowManagerComment.Gtk.Container+ContainerChild
+			this.textManagerComments = new global::Gamma.GtkWidgets.yTextView();
+			this.textManagerComments.CanFocus = true;
+			this.textManagerComments.Name = "textManagerComments";
+			this.scrolledWindowManagerComment.Add(this.textManagerComments);
+			this.tblDriverControl.Add(this.scrolledWindowManagerComment);
+			global::Gtk.Table.TableChild w84 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.scrolledWindowManagerComment]));
+			w84.TopAttach = ((uint)(1));
+			w84.BottomAttach = ((uint)(2));
+			w84.LeftAttach = ((uint)(1));
+			w84.RightAttach = ((uint)(2));
 			w84.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblDriverControl.Gtk.Table+TableChild
 			this.vbox7 = new global::Gtk.VBox();
