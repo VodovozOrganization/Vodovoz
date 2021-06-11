@@ -2131,7 +2131,7 @@ public partial class MainWindow : Gtk.Window
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var interactiveService = autofacScope.Resolve<IInteractiveService>();
 
-		var viewModel = new CarsExploitationReportViewModel(uowFactory, interactiveService, NavigationManager, carEntityAutocompleteSelectorFactory);
+		var viewModel = new CarsExploitationReportViewModel(uowFactory, interactiveService, NavigationManager, new BaseParametersProvider(), carEntityAutocompleteSelectorFactory);
 
 		tdiMain.AddTab(viewModel);
 	}
