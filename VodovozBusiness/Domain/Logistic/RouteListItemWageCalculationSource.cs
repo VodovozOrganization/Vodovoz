@@ -66,7 +66,7 @@ namespace Vodovoz.Domain.Logistic
 		public bool HasFirstOrderForDeliveryPoint {
 			get {
 
-				var sameAddress = item.RouteList.Addresses.Where(a => a.IsDelivered())
+				var sameAddress = item.RouteList.Addresses
 											   .Select(i => i.Order)
 											   .FirstOrDefault(o => o.DeliveryPoint?.Id == item.Order.DeliveryPoint?.Id);
 				if(sameAddress == null) {
