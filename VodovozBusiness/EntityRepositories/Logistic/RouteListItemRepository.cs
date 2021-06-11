@@ -63,7 +63,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			if(routeListItem.Status == RouteListItemStatus.Transfered)
 				return false;
-			RouteListItemStatus[] undeliveryStatus = GetUndeliveryStatuses();
+			RouteListItemStatus[] undeliveryStatus = RouteListItem.GetUndeliveryStatuses();
 			foreach(var status in undeliveryStatus) {
 				if(routeListItem.Status == status)
 					return false;
@@ -76,29 +76,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.And(!Restrictions.In(Projections.Property<RouteListItem>(x => x.Status), undeliveryStatus))
 					.Take(1).List().FirstOrDefault();
 			return anotherRouteListItem != null;
-		}
-
-		public RouteListItemStatus[] GetUndeliveryStatuses()
-		{
-			return new RouteListItemStatus[]
-				{
-					RouteListItemStatus.Canceled,
-					RouteListItemStatus.Overdue
-				};
-		}
-		
-		/// <summary>
-		/// Возвращает все возможные конечные статусы <see cref="RouteListItem"/>, при которых <see cref="RouteListItem"/> не был довезён
-		/// </summary>
-		/// <returns></returns>
-		public static RouteListItemStatus[] GetNotDeliveredStatuses()
-		{
-			return new RouteListItemStatus[]
-			{
-				RouteListItemStatus.Canceled,
-				RouteListItemStatus.Overdue,
-				RouteListItemStatus.Transfered
-			};
 		}
 	}
 }

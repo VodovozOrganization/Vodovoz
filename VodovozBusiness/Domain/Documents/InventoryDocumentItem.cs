@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
@@ -13,7 +14,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "строки инвентаризации",
 		Nominative = "строка инвентаризации")]
 	[HistoryTrace]
-	public class InventoryDocumentItem: PropertyChangedBase, IDomainObject
+	public class InventoryDocumentItem: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
@@ -138,6 +139,16 @@ namespace Vodovoz.Domain.Documents
 				WarehouseChangeOperation.WriteoffWarehouse = null;
 				WarehouseChangeOperation.IncomingWarehouse = warehouse;
 				WarehouseChangeOperation.Amount = Math.Abs(Difference);
+			}
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Comment?.Length > 255)
+			{
+				yield return new ValidationResult(
+					$"Превышена длина комментария для номенклатуры: {Nomenclature.Name} ({Comment.Length}/255)",
+					new[] {nameof(Comment)});
 			}
 		}
 

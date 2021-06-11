@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public FilesViewModel FilesViewModel {
 			get {
 				if(filesViewModel == null) {
-					filesViewModel = new FilesViewModel(filePickerService, UoW);
+					filesViewModel = new FilesViewModel(filePickerService, commonServices.InteractiveService, UoW);
 					filesViewModel.FilesList = NewCommentFiles;
 				}
 

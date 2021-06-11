@@ -316,7 +316,7 @@ namespace Vodovoz.JournalViewModels
 						Projections.Conditional(
 							Restrictions.Or(
 								Restrictions.Eq(Projections.Constant(true), userHaveAccessToRetail),
-								Restrictions.Not(Restrictions.Eq(Projections.Property(() => orderAlias.IsForRetail), true))
+								Restrictions.Not(Restrictions.Eq(Projections.Property(() => counterpartyAlias.IsForRetail), true))
 								),
 							Projections.Constant(true),
 							Projections.Constant(false)
@@ -374,11 +374,6 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Id == -1);
 			}
 
-			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
-			{
-				query.Where(o => o.IsForRetail == FilterViewModel.IsForRetail);
-			}
-
 			if (FilterViewModel.RestrictStartDate != null) {
 				query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
 			}
@@ -414,7 +409,7 @@ namespace Vodovoz.JournalViewModels
 						Projections.Conditional(
 							Restrictions.Or(
 								Restrictions.Eq(Projections.Constant(true), userHaveAccessToRetail),
-								Restrictions.Not(Restrictions.Eq(Projections.Property(() => orderWSDAlias.IsForRetail), true))
+								Restrictions.Not(Restrictions.Eq(Projections.Property(() => counterpartyAlias.IsForRetail), true))
 								),
 							Projections.Constant(true),
 							Projections.Constant(false)
@@ -539,7 +534,7 @@ namespace Vodovoz.JournalViewModels
 						Projections.Conditional(
 							Restrictions.Or(
 								Restrictions.Eq(Projections.Constant(true), userHaveAccessToRetail),
-								Restrictions.Not(Restrictions.Eq(Projections.Property(() => orderWSPAlias.IsForRetail), true))
+								Restrictions.Not(Restrictions.Eq(Projections.Property(() => counterpartyAlias.IsForRetail), true))
 								),
 							Projections.Constant(true),
 							Projections.Constant(false)
@@ -656,7 +651,7 @@ namespace Vodovoz.JournalViewModels
 						Projections.Conditional(
 							Restrictions.Or(
 								Restrictions.Eq(Projections.Constant(true), userHaveAccessToRetail),
-								Restrictions.Not(Restrictions.Eq(Projections.Property(() => orderWSAPAlias.IsForRetail), true))
+								Restrictions.Not(Restrictions.Eq(Projections.Property(() => counterpartyAlias.IsForRetail), true))
 								),
 							Projections.Constant(true),
 							Projections.Constant(false)

@@ -78,7 +78,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                     .Select(() => organizationFromAlias.FullName).WithAlias(() => resultAlias.OrganizationFrom)
                     .Select(() => organizationToAlias.FullName).WithAlias(() => resultAlias.OrganizationTo)
                     .Select(() => organizationCashTransferDocumentAlias.TransferedSum).WithAlias(() => resultAlias.TransferedSum)
-                )
+					.Select(() => organizationCashTransferDocumentAlias.Comment).WithAlias(() => resultAlias.Comment)
+				)
                 .OrderBy(x => x.DocumentDate).Asc
                 .TransformUsing(Transformers.AliasToBean<OrganizationCashTransferDocumentJournalNode>());
 

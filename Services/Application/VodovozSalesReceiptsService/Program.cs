@@ -1,18 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
-using Nini.Config;
 using NLog;
 using QS.Project.DB;
+using VodovozSalesReceiptsService.DTO;
 
 namespace VodovozSalesReceiptsService
 {
 	class Service
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		private const string configFile = "/etc/vodovoz-sales-receipts-service.xml";
+		private const string configFile = "/etc/vodovoz-sales-receipts-service.json";
 
 		//Mysql
 		private static string mysqlServerHostName;
@@ -21,34 +25,85 @@ namespace VodovozSalesReceiptsService
 		private static string mysqlPassword;
 		private static string mysqlDatabase;
 
+		//Service
+		private static string serviceHostName;
+		private static string servicePort;
+
+		//ModulKassa
+		private static string modulKassaBaseAddress;
+
+		//Cashboxes
+		private static IList<CashBox> cashboxes;
+
 		public static void Main(string[] args)
 		{
 			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
 
 			logger.Info("Чтение конфигурационного файла...");
-			IConfig serviceConfig;
-			IConfig kassaConfig;
-			IConfig[] cashboxesConfig;
-			
-			try {
-				XmlConfigSource confFile = new XmlConfigSource(configFile);
-				confFile.Reload();
-				serviceConfig = confFile.Configs["Service"];
-				kassaConfig = confFile.Configs["ModulKassa"];
-				
-				cashboxesConfig = new[] {
-					confFile.Configs["RetailPointSosnovcev"],
-					confFile.Configs["RetailPointVodovozSouth"],
-					confFile.Configs["RetailPointVodovozNorth"]
-				};
 
-				IConfig mysqlConfig = confFile.Configs["Mysql"];
-				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
-				mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
-				mysqlUser = mysqlConfig.GetString("mysql_user");
-				mysqlPassword = mysqlConfig.GetString("mysql_password");
-				mysqlDatabase = mysqlConfig.GetString("mysql_database");
+			const string configValueNotFoundString = "Не удалось прочитать значение параметра \"{0}\" из файла конфигурации";
 
+			try
+			{
+				var builder = new ConfigurationBuilder()
+					.AddJsonFile(configFile, false);
+				var configuration = builder.Build();
+
+				var serviceConfig = configuration.GetSection("Service");
+				serviceHostName = serviceConfig["service_host_name"]
+					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "service_host_name"));
+				servicePort = serviceConfig["service_port"]
+					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "service_port"));
+
+				var modulKassaConfig = configuration.GetSection("ModulKassa");
+				modulKassaBaseAddress = modulKassaConfig["base_address"]
+					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "base_address"));
+
+				var mysqlConfig = configuration.GetSection("MySql");
+				mysqlServerHostName = mysqlConfig["mysql_server_host_name"]
+					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "mysql_server_host_name"));
+				mysqlServerPort = mysqlConfig["mysql_server_port"]
+					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "mysql_server_port"));
+				mysqlUser = mysqlConfig["mysql_user"]
+					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "mysql_user"));
+				mysqlPassword = mysqlConfig["mysql_password"]
+					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "mysql_password"));
+				mysqlDatabase = mysqlConfig["mysql_database"]
+					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "mysql_database"));
+
+				cashboxes = new List<CashBox>();
+				var cashboxesConfig = configuration.GetSection("Cashboxes")?.GetChildren()
+					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "Cashboxes"));
+				foreach(var cashboxConfig in cashboxesConfig)
+				{
+					string stringId = cashboxConfig["id"];
+					if(string.IsNullOrWhiteSpace(stringId) || !int.TryParse(stringId, out int id))
+					{
+						throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "id"));
+					}
+
+					string stringUserName = cashboxConfig["user_name"];
+					if(string.IsNullOrWhiteSpace(stringUserName) || !Guid.TryParse(stringUserName, out Guid userName))
+					{
+						throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "user_name"));
+					}
+
+					var cashBox = new CashBox
+					{
+						Id = id,
+						UserName = userName,
+						RetailPointName = cashboxConfig["retail_point_name"]
+							?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "retail_point_name")),
+						Password = cashboxConfig["password"]
+							?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "password")),
+					};
+					cashboxes.Add(cashBox);
+				}
+				if(!cashboxes.Any())
+				{
+					throw new ConfigurationErrorsException(
+						$"В конфигурационном файле не найдено данных ни для одной кассы ({nameof(CashBox)})");
+				}
 			}
 			catch(Exception ex) {
 				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
@@ -87,7 +142,7 @@ namespace VodovozSalesReceiptsService
 			}
 
 			try {
-				ReceiptServiceStarter.StartService(serviceConfig, kassaConfig, cashboxesConfig);
+				ReceiptServiceStarter.StartService(serviceHostName, servicePort, modulKassaBaseAddress, cashboxes);
 				
 				if(Environment.OSVersion.Platform == PlatformID.Unix) {
 					UnixSignal[] signals = {
@@ -106,7 +161,9 @@ namespace VodovozSalesReceiptsService
 			}
 			finally {
 				if(Environment.OSVersion.Platform == PlatformID.Unix)
+				{
 					Thread.CurrentThread.Abort();
+				}
 				Environment.Exit(0);
 			}
 		}

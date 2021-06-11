@@ -15,5 +15,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
         public string OrganizationTo { get; set; }
 
         public decimal TransferedSum { get; set; }
-    }
+
+		public string Comment { get; set; }
+	}
 }

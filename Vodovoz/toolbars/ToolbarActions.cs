@@ -52,6 +52,7 @@ using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
+using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
@@ -70,7 +71,10 @@ using Action = Gtk.Action;
 using Vodovoz.Old1612ExportTo1c;
 using Vodovoz.JournalFilters.Cash;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.Journals.JournalViewModels.Organization;
 
 public partial class MainWindow : Window
 {
@@ -721,14 +725,28 @@ public partial class MainWindow : Window
 
 	void ActionPremiumJournal_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			PermissionControlledRepresentationJournal.GenerateHashName<PremiumVM>(),
-			() => {
-				Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_fines")
-														  ? Buttons.All
-														  : (Buttons.Add | Buttons.Edit);
-				return new PermissionControlledRepresentationJournal(new PremiumVM(), buttons).CustomTabName("Журнал премий");
-			}
+		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		IPremiumTemplateJournalFactory premiumTemplateJournalFactory = new PremiumTemplateJournalFactory();
+
+		var subdivisionAutocompleteSelectorFactory =
+			new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
+			{
+				return new SubdivisionsJournalViewModel(
+					new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default },
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices,
+					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()
+				);
+			});
+
+		tdiMain.OpenTab(() => new PremiumJournalViewModel(
+			new PremiumJournalFilterViewModel(subdivisionAutocompleteSelectorFactory) { HidenByDefault = true },
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			VodovozGtkServicesConfig.EmployeeService,
+			employeeJournalFactory,
+			premiumTemplateJournalFactory
+			)
 		);
 	}
 

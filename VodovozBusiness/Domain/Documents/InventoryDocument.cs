@@ -223,6 +223,14 @@ namespace Vodovoz.Domain.Documents
 			if(TimeStamp == default(DateTime))
 				yield return new ValidationResult (String.Format("Дата документа должна быть указана."),
 					new[] { this.GetPropertyName (o => o.TimeStamp) });
+
+			foreach(var item in Items)
+			{
+				foreach(var result in item.Validate(new ValidationContext(item)))
+				{
+					yield return result;
+				}
+			}
 		}
 
 		public InventoryDocument ()

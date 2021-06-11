@@ -440,8 +440,8 @@ namespace Vodovoz.Views.Logistic
 			this.vbox9.Spacing = 6;
 			// Container child vbox9.Gtk.Box+BoxChild
 			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
 			this.GtkScrolledWindow3.WidthRequest = 250;
+			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
 			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
 			this.viewDeliverySummary = new global::Gamma.GtkWidgets.yTreeView();

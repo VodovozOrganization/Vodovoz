@@ -108,7 +108,7 @@ namespace VodovozSalesReceiptsService
         private bool ConnectToCashBox(HttpClient httpClient, CashBox cashBox)
         {
             try {
-                logger.Info($"Авторизация и проверка фискального регистратора №{cashBox.Id} ({cashBox.RetailPoint})...");
+                logger.Info($"Авторизация и проверка фискального регистратора №{cashBox.Id} ({cashBox.RetailPointName})...");
                 
                 HttpResponseMessage response = httpClient.GetAsync(fiscalizationStatusAddress).Result;
                 
