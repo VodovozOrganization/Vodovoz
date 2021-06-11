@@ -539,6 +539,7 @@ namespace Vodovoz
 			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
 			SetSensitivityOfPaymentType();
 
+			buttonCopyManagerComment.Clicked += OnButtonCopyManagerCommentClicked;
 			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
 			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
 			enumDiverCallType.Binding.AddBinding(Entity, s => s.DriverCallType, w => w.SelectedItem).InitializeFromSource();
@@ -2267,6 +2268,12 @@ namespace Vodovoz
 			}
 		}
 
+		private void OnButtonCopyManagerCommentClicked(object sender, EventArgs e)
+		{
+			var cb = textManagerComments.GetClipboard(Gdk.Selection.Clipboard);
+			cb.Text = textManagerComments.Buffer.Text;
+		}
+
 		#endregion
 
 		#region Service functions
@@ -2505,7 +2512,10 @@ namespace Vodovoz
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				if(Entity.Id != 0)
 					rlStatus = OrderSingletonRepository.GetInstance().GetAllRLForOrder(uow, Entity).FirstOrDefault()?.Status;
-				tblDriverControl.Sensitive = rlStatus.HasValue && !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
+				var sensitive = rlStatus.HasValue 
+					&& !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
+				scrolledWindowManagerComment.Sensitive = sensitive;
+				enumDiverCallType.Sensitive = sensitive;
 			}
 		}
 
