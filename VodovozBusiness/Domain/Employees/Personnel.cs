@@ -229,6 +229,14 @@ namespace Vodovoz.Domain.Employees
 		{
 			if(String.IsNullOrEmpty(LastName))
 				yield return new ValidationResult("Фамилия должна быть заполнена", new[] { "LastName" });
+
+			var personnels = UoW.Session.QueryOver<Personnel>()
+				.Where(p => p.Name == this.Name && p.LastName == this.LastName && p.Patronymic == this.Patronymic)
+				.WhereNot(p => p.Id == this.Id)
+				.List();
+
+			if(personnels.Count > 0)
+				yield return new ValidationResult("Сотрудник уже существует", new[] { "Duplication" });
 		}
 
 		#endregion
