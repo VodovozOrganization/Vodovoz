@@ -67,8 +67,8 @@ namespace Vodovoz.Domain.Logistic
 			get {
 
 				var sameAddress = item.RouteList.Addresses
-											   .Select(i => i.Order)
-											   .FirstOrDefault(o => o.DeliveryPoint?.Id == item.Order.DeliveryPoint?.Id);
+					.Select(i => i.Order)
+					.FirstOrDefault(o => o.DeliveryPoint?.Id == item.Order.DeliveryPoint?.Id);
 				if(sameAddress == null) {
 					return false;
 				}
