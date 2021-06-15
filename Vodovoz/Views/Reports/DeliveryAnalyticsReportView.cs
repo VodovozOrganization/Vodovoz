@@ -84,8 +84,7 @@ namespace Vodovoz.Views.Reports
 			districtEntry.SetEntityAutocompleteSelectorFactory(ViewModel.DistrictSelectorFactory);
 			districtEntry.Binding.AddBinding(ViewModel, x=>x.District, x=>x.Subject).InitializeFromSource();
 			
-			deliveryDate.Binding.AddBinding(ViewModel, s => s.StartDeliveryDate, w => w.DateOrNull).InitializeFromSource();
-			dayOfWeek.Binding.AddBinding(ViewModel, s=> s.DayOfWeek, x=>x.DateOrNull).InitializeFromSource();
+			deliveryDate.Binding.AddBinding(ViewModel, s => s.StartDeliveryDate, w => w.StartDate).InitializeFromSource();
 		}
 	}
 }
