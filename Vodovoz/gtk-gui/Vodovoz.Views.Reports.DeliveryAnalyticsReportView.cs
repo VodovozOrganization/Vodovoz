@@ -52,7 +52,7 @@ namespace Vodovoz.Views.Reports
 			this.dayOfWeek.WithTime = false;
 			this.dayOfWeek.HideCalendarButton = false;
 			this.dayOfWeek.Date = new global::System.DateTime(0);
-			this.dayOfWeek.IsEditable = false;
+			this.dayOfWeek.IsEditable = true;
 			this.dayOfWeek.AutoSeparation = false;
 			this.ytable1.Add(this.dayOfWeek);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.ytable1[this.dayOfWeek]));
@@ -69,7 +69,7 @@ namespace Vodovoz.Views.Reports
 			this.deliveryDate.WithTime = false;
 			this.deliveryDate.HideCalendarButton = false;
 			this.deliveryDate.Date = new global::System.DateTime(0);
-			this.deliveryDate.IsEditable = false;
+			this.deliveryDate.IsEditable = true;
 			this.deliveryDate.AutoSeparation = false;
 			this.ytable1.Add(this.deliveryDate);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytable1[this.deliveryDate]));

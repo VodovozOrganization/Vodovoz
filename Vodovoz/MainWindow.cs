@@ -2305,14 +2305,16 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
 	{
-		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
-		var interactiveService = autofacScope.Resolve<IInteractiveService>();
+		var _districtSelectorFactory =
+			new DefaultEntityAutocompleteSelectorFactory<District, DistrictJournalViewModel,
+				DistrictJournalFilterViewModel>(ServicesConfig.CommonServices);
 
 		tdiMain.AddTab(
 			new DeliveryAnalyticsViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService,
-				null)
+				NavigationManager,
+				_districtSelectorFactory)
 		);
 	}
 }

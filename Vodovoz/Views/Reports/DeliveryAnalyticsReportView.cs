@@ -2,8 +2,10 @@
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using QS.Dialog;
+using QS.DomainModel.UoW;
 using QS.Utilities;
-using QS.Views.Dialog;
+using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics;
@@ -11,7 +13,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics;
 namespace Vodovoz.Views.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DeliveryAnalyticsReportView : DialogViewBase<DeliveryAnalyticsViewModel>
+	public partial class DeliveryAnalyticsReportView : TabViewBase<DeliveryAnalyticsViewModel>, ISingleUoWDialog
 	{
 		public DeliveryAnalyticsReportView(DeliveryAnalyticsViewModel viewModel) : base (viewModel)
 		{
@@ -19,14 +21,52 @@ namespace Vodovoz.Views.Reports
 			ConfigureReport();
 		}
 
+		public IUnitOfWork UoW { get; set; }
+		
 		protected void OnExportBtnClicked(object sender, EventArgs e)
 		{
+			var parentWindow = GtkHelper.GetParentWindow(this);
+			
+			var csvFilter = new FileFilter();
+			csvFilter.AddPattern("*.csv");
+			csvFilter.Name = "Comma Separated Values File (*.csv)";
+
+			var fileChooserDialog = new FileChooserDialog(
+				"Сохранение выгрузки",
+				parentWindow,
+				FileChooserAction.Save,
+				Stock.Cancel, ResponseType.Cancel, Stock.Save, ResponseType.Accept)
+			{
+				DoOverwriteConfirmation = true, CurrentName = $"Аналитика объемов доставки {DateTime.Today:d}.csv"
+			};
+
+			fileChooserDialog.AddFilter(csvFilter);
+			fileChooserDialog.ShowAll();
+			if((ResponseType)fileChooserDialog.Run() == ResponseType.Accept)
+			{
+				if(String.IsNullOrWhiteSpace(fileChooserDialog.Filename))
+				{
+					fileChooserDialog.Destroy();
+					return;
+				}
+				var fileName = fileChooserDialog.Filename;
+				ViewModel.FileName = fileName.EndsWith(".csv") ? fileName : fileName + ".csv";
+				fileChooserDialog.Destroy();
+				ViewModel.ExportCommand.Execute();
+			}
+			else
+			{
+				fileChooserDialog.Destroy();
+			}
 		}
+		
 		private void ConfigureReport()
 		{
+			UoW = ViewModel.Uow;
+			
 			treeviewPartCity.ColumnsConfig = FluentColumnsConfig<WageDistrictNode>.Create()
             .AddColumn("").AddToggleRenderer(x => x.Selected)
-            .AddColumn("").AddTextRenderer(x => x.WageDistrict.Title).Finish(); 
+            .AddColumn("").AddTextRenderer(x => x.WageDistrict.Name).Finish(); 
 			treeviewPartCity.Binding.AddBinding(ViewModel, x=>x.WageDistrictNodes, x=>x.ItemsDataSource).InitializeFromSource();
 			
 			treeviewGeographic.ColumnsConfig = FluentColumnsConfig<GeographicGroupNode>.Create()
@@ -40,35 +80,12 @@ namespace Vodovoz.Views.Reports
             .AddColumn("").AddTextRenderer(x=>x.WaveNodes.GetEnumTitle())
             .Finish(); 
 			treeviewWave.Binding.AddBinding(ViewModel, x => x.WaveList, x => x.ItemsDataSource).InitializeFromSource();
-      }
-      
-      private void OnLoadReportBtnCLicked(object sender, EventArgs e)
-      {
-         var parentW = GtkHelper.GetParentWindow(this);
-         var csvFilter = new FileFilter();
-         csvFilter.AddPattern("*.csv");
-         csvFilter.Name = "Comma Separated Values File (*.csv)";
-           
-         var param = new object[4];
-         param[0] = "Cancel";
-         param[1] = ResponseType.Cancel;
-         param[2] = "Save";
-         param[3] = ResponseType.Accept;
-
-         var fc = new FileChooserDialog("Save File As", parentW, FileChooserAction.Save, param)
-         {
-            CurrentName = "Аналитика объемов доставки.csv"
-         };
-           
-         fc.AddFilter(csvFilter);
-
-         if (fc.Run() == (int)ResponseType.Accept)
-         {
-            ViewModel.FileName = fc.Filename;
-            ViewModel.ExportCommand.Execute();
-         }
-           
-         fc.Destroy();
-      }
-   }
+			
+			districtEntry.SetEntityAutocompleteSelectorFactory(ViewModel.DistrictSelectorFactory);
+			districtEntry.Binding.AddBinding(ViewModel, x=>x.District, x=>x.Subject).InitializeFromSource();
+			
+			deliveryDate.Binding.AddBinding(ViewModel, s => s.StartDeliveryDate, w => w.DateOrNull).InitializeFromSource();
+			dayOfWeek.Binding.AddBinding(ViewModel, s=> s.DayOfWeek, x=>x.DateOrNull).InitializeFromSource();
+		}
+	}
 }
