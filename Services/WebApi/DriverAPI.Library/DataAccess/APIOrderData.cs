@@ -233,7 +233,7 @@ namespace DriverAPI.Library.DataAccess
 				driver,
 				new APIDriverAction()
 				{
-					ActionType = APIActionType.CompleteOrderClicked,
+					ActionType = ActionDtoType.CompleteOrderClicked,
 					ActionTime = actionTime
 				});
 		}

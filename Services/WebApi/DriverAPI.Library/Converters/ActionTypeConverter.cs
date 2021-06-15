@@ -5,23 +5,23 @@ namespace DriverAPI.Library.Converters
 {
 	public class ActionTypeConverter
 	{
-		public APIActionType ConvertToAPIActionType(DriverMobileAppActionType driverMobileAppActionType)
+		public ActionDtoType ConvertToAPIActionType(DriverMobileAppActionType driverMobileAppActionType)
 		{
-			APIActionType result;
+			ActionDtoType result;
 
 			switch (driverMobileAppActionType)
 			{
 				case DriverMobileAppActionType.OpenOrderInfoPanel:
-					result = APIActionType.OpenOrderInfoPanel;
+					result = ActionDtoType.OpenOrderInfoPanel;
 					break;
 				case DriverMobileAppActionType.OpenOrderDeliveryPanel:
-					result = APIActionType.OpenOrderDeliveryPanel;
+					result = ActionDtoType.OpenOrderDeliveryPanel;
 					break;
 				case DriverMobileAppActionType.OpenOrderReceiptionPanel:
-					result = APIActionType.OpenOrderReceiptionPanel;
+					result = ActionDtoType.OpenOrderReceiptionPanel;
 					break;
 				case DriverMobileAppActionType.CompleteOrderClicked:
-					result = APIActionType.CompleteOrderClicked;
+					result = ActionDtoType.CompleteOrderClicked;
 					break;
 				default:
 					throw new ConverterException(nameof(driverMobileAppActionType), driverMobileAppActionType, $"Значение {driverMobileAppActionType} не поддерживается");
@@ -30,22 +30,22 @@ namespace DriverAPI.Library.Converters
 			return result;
 		}
 
-		public DriverMobileAppActionType ConvertToDriverMobileAppActionType(APIActionType aPIActionType)
+		public DriverMobileAppActionType ConvertToDriverMobileAppActionType(ActionDtoType aPIActionType)
 		{
 			DriverMobileAppActionType result;
 
 			switch (aPIActionType)
 			{
-				case APIActionType.OpenOrderInfoPanel:
+				case ActionDtoType.OpenOrderInfoPanel:
 					result = DriverMobileAppActionType.OpenOrderInfoPanel;
 					break;
-				case APIActionType.OpenOrderDeliveryPanel:
+				case ActionDtoType.OpenOrderDeliveryPanel:
 					result = DriverMobileAppActionType.OpenOrderDeliveryPanel;
 					break;
-				case APIActionType.OpenOrderReceiptionPanel:
+				case ActionDtoType.OpenOrderReceiptionPanel:
 					result = DriverMobileAppActionType.OpenOrderReceiptionPanel;
 					break;
-				case APIActionType.CompleteOrderClicked:
+				case ActionDtoType.CompleteOrderClicked:
 					result = DriverMobileAppActionType.CompleteOrderClicked;
 					break;
 				default:

@@ -11,7 +11,7 @@ namespace DriverAPI.Library.Models
 		public string Counterparty { get; set; }
 		public IEnumerable<string> CounterpartyPhoneNumbers { get; set; }
 		public APIPaymentType PaymentType { get; set; }
-		public APIAddress Address { get; set; }
+		public AddressDto Address { get; set; }
 		public string OrderComment { get; set; }
 		public decimal OrderSum { get; set; }
 		public IEnumerable<APIOrderSaleItem> OrderSaleItems { get; set; }

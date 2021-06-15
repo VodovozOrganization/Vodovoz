@@ -1,6 +1,6 @@
 ﻿namespace DriverAPI.Library.Models
 {
-	public class APIAddress
+	public class AddressDto
 	{
 		public string City { get; set; }
 		public string Street { get; set; }

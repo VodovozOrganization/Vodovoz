@@ -9,6 +9,6 @@ namespace DriverAPI.Library.Models
 		public APIRouteListAddressStatus Status { get; set; }
 		public DateTime DeliveryTime { get; set; }
 		public int FullBottlesCount { get; set; }
-		public APIAddress Address { get; set; }
+		public AddressDto Address { get; set; }
 	}
 }

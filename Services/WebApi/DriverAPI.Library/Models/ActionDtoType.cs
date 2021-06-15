@@ -3,7 +3,7 @@
 namespace DriverAPI.Library.Models
 {
 	[JsonConverter(typeof(JsonStringEnumConverter))]
-	public enum APIActionType
+	public enum ActionDtoType
 	{
 		OpenOrderInfoPanel,
 		OpenOrderDeliveryPanel,

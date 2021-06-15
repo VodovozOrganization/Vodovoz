@@ -4,6 +4,6 @@
 	{
 		public APIRouteListCompletionStatus CompletionStatus { get; set; }
 		public APIIncompletedRouteList IncompletedRouteList { get; set; }
-		public APICompletedRouteList CompletedRouteList { get; set; }
+		public CompletedRouteListDto CompletedRouteList { get; set; }
 	}
 }
