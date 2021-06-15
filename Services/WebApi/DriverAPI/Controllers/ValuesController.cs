@@ -20,6 +20,7 @@ namespace DriverAPI.Controllers
 
 		// GET: GetRouteList 
 		[HttpGet]
+		[AllowAnonymous]
 		[Route("/api/GetCompanyPhoneNumber")]
 		public CompanyNumberResponseModel GetCompanyPhoneNumber()
 		{
