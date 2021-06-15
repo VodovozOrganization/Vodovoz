@@ -5,6 +5,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -63,11 +64,12 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public bool HasFirstOrderForDeliveryPoint {
-			get {
-
-				var sameAddress = item.RouteList.Addresses.Where(a => a.IsDelivered())
-											   .Select(i => i.Order)
-											   .FirstOrDefault(o => o.DeliveryPoint?.Id == item.Order.DeliveryPoint?.Id);
+			get
+			{
+				var sameAddress = item.RouteList.Addresses
+					.Where(i => i.IsValidForWageCalculation())
+					.Select(i => i.Order)
+					.FirstOrDefault(o => o.DeliveryPoint?.Id == item.Order.DeliveryPoint?.Id); 
 				if(sameAddress == null) {
 					return false;
 				}
@@ -126,7 +128,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public decimal DriverWageSurcharge => item.DriverWageSurcharge;
 
-		public bool IsDelivered => item.IsDelivered() && item.Status != RouteListItemStatus.Transfered;
+		public bool IsDelivered => item.IsDelivered();
+		public bool IsValidForWageCalculation => item.IsValidForWageCalculation();
 
 		public (TimeSpan, TimeSpan) DeliverySchedule => (item.Order.DeliverySchedule.From, item.Order.DeliverySchedule.To);
 

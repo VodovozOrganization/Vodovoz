@@ -587,6 +587,11 @@ namespace Vodovoz.Domain.Logistic
 			return Status == RouteListItemStatus.Completed || Status == RouteListItemStatus.EnRoute && routeListUnloaded;
 		}
 
+		public virtual bool IsValidForWageCalculation()
+		{
+			return !GetNotDeliveredStatuses().Contains(Status);
+		}
+
 		public virtual int GetFullBottlesDeliveredCount()
 		{
 			return (int)Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
@@ -817,6 +822,29 @@ namespace Vodovoz.Domain.Logistic
 					$"В адресе: '{Title}' превышена максимально допустимая длина комментария кассира ({CashierComment.Length}/255)");
 			}
 		}
+
+		public static RouteListItemStatus[] GetUndeliveryStatuses()
+        {
+        	return new RouteListItemStatus[]
+        		{
+        			RouteListItemStatus.Canceled,
+        			RouteListItemStatus.Overdue
+        		};
+        }
+
+        /// <summary>
+        /// Возвращает все возможные конечные статусы <see cref="RouteListItem"/>, при которых <see cref="RouteListItem"/> не был довезён
+        /// </summary>
+        /// <returns></returns>
+        public static RouteListItemStatus[] GetNotDeliveredStatuses()
+        {
+        	return new RouteListItemStatus[]
+        	{
+        		RouteListItemStatus.Canceled,
+        		RouteListItemStatus.Overdue,
+        		RouteListItemStatus.Transfered
+        	};
+        }
 	}
 
 	public enum RouteListItemStatus

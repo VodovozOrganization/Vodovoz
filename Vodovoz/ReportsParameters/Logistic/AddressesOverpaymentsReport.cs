@@ -18,17 +18,18 @@ namespace Vodovoz.ReportsParameters.Logistic
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class AddressesOverpaymentsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory _driverSelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory _officeSelectorFactory;
 		private readonly IInteractiveService _interactiveService;
 
 		public AddressesOverpaymentsReport(
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEntityAutocompleteSelectorFactory driverSelectorFactory,
+			IEntityAutocompleteSelectorFactory officeSelectorFactory,
 			IInteractiveService interactiveService)
 		{
-			_interactiveService = interactiveService ??
-						  throw new ArgumentNullException(nameof(interactiveService));
-			_employeeSelectorFactory = employeeSelectorFactory ??
-										   throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_driverSelectorFactory = driverSelectorFactory ?? throw new ArgumentNullException(nameof(driverSelectorFactory));
+			_officeSelectorFactory = officeSelectorFactory ?? throw new ArgumentNullException(nameof(officeSelectorFactory));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
@@ -47,8 +48,10 @@ namespace Vodovoz.ReportsParameters.Logistic
 			comboDriverOf.ItemsEnum = typeof(CarTypeOfUse);
 			comboDriverOf.ChangedByUser += (sender, args) => OnDriverOfSelected();
 
-			entryDriver.SetEntityAutocompleteSelectorFactory(_employeeSelectorFactory);
+			entryDriver.SetEntityAutocompleteSelectorFactory(_driverSelectorFactory);
 			entryDriver.Changed += (sender, args) => OnEmployeeSelected();
+
+			entryLogistician.SetEntityAutocompleteSelectorFactory(_officeSelectorFactory);
 		}
 
 		private void OnButtonRunClicked(object sender, EventArgs e)
@@ -68,6 +71,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 					{"creation_date", DateTime.Now},
 					{"driver_of", comboDriverOf.SelectedItemOrNull},
 					{"employee_id", entryDriver.Subject?.GetIdOrNull()},
+					{"logistician_id", entryLogistician.Subject?.GetIdOrNull()},
 					{"filters", GetSelectedFilters()}
 				}
 			};
@@ -90,18 +94,43 @@ namespace Vodovoz.ReportsParameters.Logistic
 					: ((CarTypeOfUse)comboDriverOf.SelectedItem).GetEnumTitle();
 				filters += driver_of;
 			}
+			var logistician = entryLogistician.GetSubject<Employee>();
+			filters += ", логист: ";
+			if (logistician != null)
+			{
+				filters += $"{logistician.ShortName}";
+			}
+			else
+			{
+				filters += "все";
+			}
 			return filters;
 		}
 
 		private void ShowInfoWindow(object sender, EventArgs args)
 		{
-			var info = "Сокращения отчета:\n" +
+			var info = "Особенности отчета:\n" + 
+			           "<b>Ситуация 1.</b> У водителя не было закрепленных районов доставки на некоторую дату, и он закрыл какой-либо МЛ " +
+			           "в этот день.\n" +
+			           "З/П по адресам этого МЛ начислится как за чужой район, и заказы появятся в данном отчете, в \"закрепленных " +
+			           "районах\" будет пусто.\n" +
+			           "В тот же день водителю добавили районы доставки, в таком случае (у водителя их еще не было), районы активируются " +
+			           "сразу \n" +
+			           "в 00 часов 00 минут того же дня, а не на следующий день. Итог - после повторной генерации отчета \n" +
+			           "у заказов появятся \"закрепленные районы\", которые, к тому же, могут совпасть с \"районом доставки\".\n" +
+			           "<b>Ситуация 2.</b> У некоторого водителя ставка за свой и чужой районы на момент выполнения МЛ может совпадать.\n" +
+			           "В отчет попадают заказы, у которых переплата больше нуля.\n" +
+			           "Затем водителю сделали разницу в ставках за районы. Отчет отобразит заказы, если после изменения ставок ЗП за МЛ " +
+			           "будет пересчитана.\n\n" +
+					  "Сокращения отчета:\n" +
 					  "<b>КТС</b>: категория транспортного средства. \n\tСокращения столбца: " +
-					  "<b>К</b>: транспорт компании , <b>Н</b>: наемный транспорт, <b>Л</b>: ларгус, <b>Ф</b>: фура, <b>Г</b>: газель.\n" +
+					  "<b>К</b>: транспорт компании , <b>Н</b>: наемный транспорт, <b>Л</b>: ларгус, <b>Ф</b>: фура, <b>Г</b>: газель.\n\n" +
 					  "Столбцы отчета:\n" +
 					  "<b>№</b>: порядковый номер\n" +
-					  "<b>№ МЛ</b>: Номер маршрутного листа\n" +
-					  "<b>ФИО</b>: фамилия имя отчество водителя\n" +
+					  "<b>№ МЛ</b>: номер маршрутного листа\n" +
+					  "<b>№ заказа</b>: номер заказа маршрутного листа\n" +
+					  "<b>ФИО водителя</b>: фамилия имя отчество водителя\n" +
+					  "<b>ФИО логиста</b>: фамилия имя отчество логиста, создавшего МЛ\n" +
 					  "<b>КТС</b>: вид транспорта, которым управляет водитель\n" +
 					  "<b>Подразделение</b>: подразделение водителя\n" +
 					  "<b>Адрес</b>: адрес в чужом для водителя районе\n" +

@@ -2,8 +2,8 @@
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
-  <PageHeight>296.926mm</PageHeight>
-  <PageWidth>209.804mm</PageWidth>
+  <PageHeight>209.804mm</PageHeight>
+  <PageWidth>296.926mm</PageWidth>
   <Width>209.804mm</Width>
   <TopMargin>5mm</TopMargin>
   <LeftMargin>5mm</LeftMargin>
@@ -16,7 +16,7 @@
     <ReportItems>
       <Textbox Name="Textbox2">
         <Height>32.00pt</Height>
-        <Width>566.21pt</Width>
+        <Width>816pt</Width>
         <Value>='Отчет по переплатам за адрес\n с ' +Format(CDate({?start_date}), 'dd.MM.yy') +' по '+ Format(CDate({?end_date}),'dd.MM.yy')</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
@@ -32,10 +32,10 @@
       </Textbox>
       <Textbox Name="Textbox3">
         <Height>10.00pt</Height>
-        <Width>195mm</Width>
+        <Width>811pt</Width>
         <Value>="Сформирован " + Format( {?creation_date}, "dd-MM-yyyy в HH:mm")</Value>
         <ZIndex>1</ZIndex>
-        <Left>4.50pt</Left>
+        <Left>5.0pt</Left>
         <Top>32.00pt</Top>
         <Style>
           <BorderStyle />
@@ -48,7 +48,7 @@
       </Textbox>
       <Textbox Name="Textbox4">
         <Height>10pt</Height>
-        <Width>195mm</Width>
+        <Width>811pt</Width>
         <Value>={?filters}</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
@@ -81,31 +81,37 @@
             <Width>22.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.4pt</Width>
+            <Width>42.2pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>43.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>79.5pt</Width>
+            <Width>85.9pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>91.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>21.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.6pt</Width>
+            <Width>50.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>112.2pt</Width>
+            <Width>133.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>39.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>58.2pt</Width>
+            <Width>71.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.6pt</Width>
+            <Width>93.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>68.2pt</Width>
+            <Width>120.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -149,11 +155,47 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>№ заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>ФИО</Value>
+                      <Value>ФИО водителя</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>ФИО логиста</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -260,7 +302,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>Районы водителя на дату МЛ</Value>
+                      <Value>Закрепленные районы</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -337,12 +379,46 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>={order_id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
                       <Value>=Fields!empl_name.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>={logistician_name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -522,7 +598,7 @@
                       <Value>Итого по переплате:</Value>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>6</ColSpan>
+                  <ColSpan>8</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -583,7 +659,9 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	master.emplName as empl_name,
+    master.logisticianName as logistician_name,
 	master.rlId as rl_id,
+    master.oId as order_id,
 	master.driverOf as driver_of,
 	master.subName as sub_name,
 	master.address as address,
@@ -596,13 +674,15 @@ FROM
 	SELECT
 		rla.id as rlaID,
 		rl.id as rlId,
-		(IF(rl.forwarder_id=null,
+        o.id as oId,
+		(IFNULL(IF(rl.forwarder_id=null,
 			(wr_foreign.for_driver_without_forwarder - wr.for_driver_without_forwarder),
 			(wr_foreign.for_driver_with_forwarder - wr.for_driver_with_forwarder))
-		) as overpayment,
+		, 0)) as overpayment,
 		wr.id as wrId,
 		wr_foreign.id as wrfId,
 		GET_PERSON_NAME_WITH_INITIALS(empl.last_name, empl.name, empl.patronymic) as emplName,
+        GET_PERSON_NAME_WITH_INITIALS(logistician.last_name, logistician.name, logistician.patronymic) as logisticianName,
 		(CASE
 			WHEN empl.driver_of ='CompanyLargus' THEN 'КЛ'
 		    WHEN empl.driver_of ='CompanyGAZelle' THEN 'КГ'
@@ -620,6 +700,8 @@ FROM
 	INNER JOIN 
 		employees empl ON rl.driver_id = empl.id AND (empl.driver_of=@driver_of OR @driver_of='')
 												 AND (empl.id=@empl_id OR @empl_id='')
+    INNER JOIN
+        employees logistician on rl.logistican_id = logistician.id  AND (logistician.id=@logistician_id OR @logistician_id='')
 	LEFT JOIN 
 		subdivisions s on empl.subdivision_id = s.id 
 	LEFT JOIN
@@ -643,6 +725,9 @@ FROM
 		wage_rates wr_foreign ON wr_foreign.id = (SELECT sub_wr.id FROM wage_rates sub_wr WHERE sub_wr.wage_district_level_rate_id = IF(rl.status='closed', rla.driver_wage_calculation_methodic_id, wdlr.id)
 																							AND sub_wr.wage_rate_type = 'ForeignAddress')
 	WHERE rla.is_driver_foreign_district=1
+	AND IF(rl.forwarder_id=null, (wr_foreign.for_driver_without_forwarder - wr.for_driver_without_forwarder),
+								 (wr_foreign.for_driver_with_forwarder - wr.for_driver_with_forwarder)) &gt; 0
+	AND (rla.status = 'Completed' OR rla.status = 'EnRoute')
 	GROUP BY rla.id ORDER BY empl.last_name, rla.id
 ) as master
 INNER JOIN
@@ -663,6 +748,7 @@ INNER JOIN
 	LEFT JOIN
 		districts dists ON dists.id = ddp.district_id
 	WHERE rla.is_driver_foreign_district=1
+	AND (rla.status = 'Completed' OR rla.status = 'EnRoute')
 	GROUP BY rla.id
 ) as servant on servant.rlaID = master.rlaID</CommandText>
         <QueryParameters>
@@ -677,6 +763,9 @@ INNER JOIN
           </QueryParameter>
           <QueryParameter Name="@empl_id">
             <Value>={?employee_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@logistician_id">
+            <Value>={?logistician_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -715,6 +804,14 @@ INNER JOIN
         </Field>
         <Field Name="rl_id">
           <DataField>rl_id</DataField>
+          <TypeName>System.UInt64</TypeName>
+        </Field>
+        <Field Name="logistician_name">
+          <DataField>logistician_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
           <TypeName>System.UInt64</TypeName>
         </Field>
       </Fields>
@@ -764,6 +861,13 @@ INNER JOIN
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="logistician_id">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

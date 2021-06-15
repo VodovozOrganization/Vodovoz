@@ -701,14 +701,19 @@ namespace Vodovoz
 
         void AllOrders_Activated(object sender, EventArgs e)
         {
-            var filter = new OrdersFilter(UoW);
-            filter.SetAndRefilterAtOnce(x => x.RestrictCounterparty = Entity);
-            Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete") ? Buttons.All : (Buttons.Add | Buttons.Edit);
-            PermissionControlledRepresentationJournal OrdersDialog = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {
-                Mode = JournalSelectMode.None
-            };
+	        var orderJournalFilter = new OrderJournalFilterViewModel { RestrictCounterparty = Entity };
+	        var orderJournalViewModel = new OrderJournalViewModel(
+		        orderJournalFilter,
+		        UnitOfWorkFactory.GetDefaultFactory,
+		        ServicesConfig.CommonServices,
+		        new EmployeeService(),
+		        nomenclatureSelectorFactory,
+		        counterpartySelectorFactory,
+		        nomenclatureRepository,
+		        userRepository
+	        );
 
-            TabParent.AddTab(OrdersDialog, this, false);
+	        TabParent.AddTab(orderJournalViewModel, this, false);
         }
         
         private void ComplaintViewOnActivated(object sender, EventArgs e)

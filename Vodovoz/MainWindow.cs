@@ -123,6 +123,7 @@ using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Reports;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2282,18 +2283,38 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
     {
-		var filter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
-		var factory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+		var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
+		var officeFilter = new EmployeeFilterViewModel { Category = EmployeeCategory.office, Status = EmployeeStatus.IsWorking };
+		var driverFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
 			() => new EmployeesJournalViewModel(
-				filter,
+				driverFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices));
-
+		var officeFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+			() => new EmployeesJournalViewModel(
+				officeFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices));
 
 		tdiMain.OpenTab(
 		    QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
 		    () => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
-				factory, ServicesConfig.InteractiveService))
+				driverFactory, officeFactory, ServicesConfig.InteractiveService))
 		);
-    }
+	}
+
+	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
+	{
+		var _districtSelectorFactory =
+			new DefaultEntityAutocompleteSelectorFactory<District, DistrictJournalViewModel,
+				DistrictJournalFilterViewModel>(ServicesConfig.CommonServices);
+
+		tdiMain.AddTab(
+			new DeliveryAnalyticsViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.InteractiveService,
+				NavigationManager,
+				_districtSelectorFactory)
+		);
+	}
 }
