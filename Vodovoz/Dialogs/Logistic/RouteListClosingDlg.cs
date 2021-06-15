@@ -825,6 +825,7 @@ namespace Vodovoz
 		{
 			if(!MessageDialogHelper.RunQuestionDialog("Перед печатью необходимо сохранить документ.\nСохранить?"))
 				return;
+			Entity.PrintTime = DateTime.Now;
 			UoW.Save();
 
 			switch(choise) {
