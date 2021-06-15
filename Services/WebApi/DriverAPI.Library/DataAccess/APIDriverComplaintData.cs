@@ -28,7 +28,7 @@ namespace DriverAPI.Library.DataAccess
 		/// Получение популярных причин
 		/// </summary>
 		/// <returns>Перечисление популярных причин</returns>
-		public IEnumerable<APIDriverComplaintReason> GetPinnedComplaintReasons()
+		public IEnumerable<DriverComplaintReasonDto> GetPinnedComplaintReasons()
 		{
 			return complaintsRepository.GetDriverComplaintPopularReasons(unitOfWork)
 				.Select(x => driverComplaintReasonConverter.convertToAPIDriverComplaintReason(x));

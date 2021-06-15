@@ -6,7 +6,7 @@ namespace DriverAPI.Library.Models
 	{
 		public int Id { get; set; }
 		public int OrderId { get; set; }
-		public APIRouteListAddressStatus Status { get; set; }
+		public RouteListAddressDtoStatus Status { get; set; }
 		public DateTime DeliveryTime { get; set; }
 		public int FullBottlesCount { get; set; }
 		public AddressDto Address { get; set; }

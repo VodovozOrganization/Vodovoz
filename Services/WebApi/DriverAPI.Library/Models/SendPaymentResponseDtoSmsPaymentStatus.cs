@@ -1,6 +1,6 @@
 ﻿namespace DriverAPI.Library.Models
 {
-	public enum SendPaymentResponseModelSmsPaymentStatus
+	public enum SendPaymentResponseDtoSmsPaymentStatus
 	{
 		WaitingForPayment = 0,
 		Paid = 1,

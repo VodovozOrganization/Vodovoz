@@ -19,7 +19,7 @@ namespace DriverAPI.Library.DataAccess
 			this.actionTypeConverter = actionTypeConverter ?? throw new ArgumentNullException(nameof(actionTypeConverter));
 		}
 
-		public void RegisterAction(Employee driver, APIDriverAction driverAction)
+		public void RegisterAction(Employee driver, DriverActionDto driverAction)
 		{
 			var record = new DriverMobileAppActionRecord()
 			{
@@ -33,7 +33,7 @@ namespace DriverAPI.Library.DataAccess
 			unitOfWork.Commit();
 		}
 
-		public void RegisterActionsRangeForDriver(Employee driver, IEnumerable<APIDriverAction> driverActions)
+		public void RegisterActionsRangeForDriver(Employee driver, IEnumerable<DriverActionDto> driverActions)
 		{
 			foreach (var action in driverActions)
 			{

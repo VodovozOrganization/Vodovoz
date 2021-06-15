@@ -5,9 +5,9 @@ namespace DriverAPI.Library.Converters
 {
 	public class DriverComplaintReasonConverter
 	{
-		public APIDriverComplaintReason convertToAPIDriverComplaintReason(DriverComplaintReason driverComplaint)
+		public DriverComplaintReasonDto convertToAPIDriverComplaintReason(DriverComplaintReason driverComplaint)
 		{
-			return new APIDriverComplaintReason()
+			return new DriverComplaintReasonDto()
 			{
 				Id = driverComplaint.Id,
 				Name = driverComplaint.Name

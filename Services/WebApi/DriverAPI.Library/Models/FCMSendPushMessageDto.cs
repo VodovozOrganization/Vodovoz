@@ -1,6 +1,6 @@
 ﻿namespace DriverAPI.Library.Models
 {
-	public class FCMSendPushMessageModel
+	public class FCMSendPushMessageDto
 	{
 		public string notificationType { get; set; }
 		public string message { get; set; }

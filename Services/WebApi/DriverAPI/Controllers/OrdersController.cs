@@ -71,7 +71,7 @@ namespace DriverAPI.Controllers
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;
 			var newPaymentType = changeOrderPaymentTypeRequestModel.NewPaymentType;
 
-			IEnumerable<APIPaymentType> availableTypesToChange = aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
+			IEnumerable<PaymentDtoType> availableTypesToChange = aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
 
 			if (!availableTypesToChange.Contains(newPaymentType))
 			{
@@ -80,11 +80,11 @@ namespace DriverAPI.Controllers
 
 			Vodovoz.Domain.Client.PaymentType newVodovozPaymentType;
 
-			if (newPaymentType == APIPaymentType.Terminal)
+			if (newPaymentType == PaymentDtoType.Terminal)
 			{
 				newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.Terminal;
 			}
-			else if (newPaymentType == APIPaymentType.Cash)
+			else if (newPaymentType == PaymentDtoType.Cash)
 			{
 				newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.cash;
 			}

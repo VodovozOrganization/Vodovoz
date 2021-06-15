@@ -1,6 +1,6 @@
 ﻿namespace DriverAPI.Library.Models
 {
-	public enum SendPaymentResponseModelMessageStatus
+	public enum SendPaymentResponseDtoMessageStatus
 	{
 		Ok,
 		Error

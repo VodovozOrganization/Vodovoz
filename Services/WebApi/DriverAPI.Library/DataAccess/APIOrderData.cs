@@ -95,7 +95,7 @@ namespace DriverAPI.Library.DataAccess
 		/// </summary>
 		/// <param name="orderId">Идентификатор заказа</param>
 		/// <returns>IEnumerable APIPaymentType</returns>
-		public IEnumerable<APIPaymentType> GetAvailableToChangePaymentTypes(int orderId)
+		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId)
 		{
 			var vodovozOrder = orderRepository.GetOrder(unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
@@ -108,18 +108,18 @@ namespace DriverAPI.Library.DataAccess
 		/// </summary>
 		/// <param name="order">Заказ программы ДВ</param>
 		/// <returns>IEnumerable APIPaymentType</returns>
-		public IEnumerable<APIPaymentType> GetAvailableToChangePaymentTypes(Vodovoz.Domain.Orders.Order order)
+		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Vodovoz.Domain.Orders.Order order)
 		{
-			var availablePaymentTypes = new List<APIPaymentType>();
+			var availablePaymentTypes = new List<PaymentDtoType>();
 
 			if (order.PaymentType == PaymentType.cash)
 			{
-				availablePaymentTypes.Add(APIPaymentType.Terminal);
+				availablePaymentTypes.Add(PaymentDtoType.Terminal);
 			}
 
 			if (order.PaymentType == PaymentType.Terminal)
 			{
-				availablePaymentTypes.Add(APIPaymentType.Cash);
+				availablePaymentTypes.Add(PaymentDtoType.Cash);
 			}
 
 			return availablePaymentTypes;
@@ -231,7 +231,7 @@ namespace DriverAPI.Library.DataAccess
 
 			driverMobileAppActionRecordData.RegisterAction(
 				driver,
-				new APIDriverAction()
+				new DriverActionDto()
 				{
 					ActionType = ActionDtoType.CompleteOrderClicked,
 					ActionTime = actionTime

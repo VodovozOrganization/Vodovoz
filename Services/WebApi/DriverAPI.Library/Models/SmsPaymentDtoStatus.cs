@@ -3,15 +3,10 @@
 namespace DriverAPI.Library.Models
 {
 	[JsonConverter(typeof(JsonStringEnumConverter))]
-	public enum APIRouteListStatus
+	public enum SmsPaymentDtoStatus
 	{
-		New,
-		Confirmed,
-		InLoading,
-		EnRoute,
-		Delivered,
-		OnClosing,
-		MileageCheck,
-		Closed
+		WaitingForPayment,
+		Paid,
+		Cancelled
 	}
 }

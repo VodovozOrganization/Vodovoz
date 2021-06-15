@@ -24,7 +24,7 @@ namespace DriverAPI.Library.DataAccess
 			this.unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
-		public void RegisterForRouteList(int routeListId, IEnumerable<APITrackCoordinate> trackList)
+		public void RegisterForRouteList(int routeListId, IEnumerable<TrackCoordinateDto> trackList)
 		{
 			var track = trackRepository.GetTrackByRouteListId(unitOfWork, routeListId);
 

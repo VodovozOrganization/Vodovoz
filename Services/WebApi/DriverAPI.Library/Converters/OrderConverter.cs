@@ -49,11 +49,11 @@ namespace DriverAPI.Library.Converters
 			return apiOrder;
 		}
 
-		private (IEnumerable<APIOrderDeliveryItem> orderDeliveryItems, IEnumerable<APIOrderReceptionItem> orderReceptionItems)
+		private (IEnumerable<OrderDeliveryItemDto> orderDeliveryItems, IEnumerable<OrderReceptionItemDto> orderReceptionItems)
 			splitDeliveryItems(IEnumerable<Vodovoz.Domain.Orders.OrderEquipment> orderEquipment)
 		{
-			var deliveryItems = new List<APIOrderDeliveryItem>();
-			var receptionItems = new List<APIOrderReceptionItem>();
+			var deliveryItems = new List<OrderDeliveryItemDto>();
+			var receptionItems = new List<OrderReceptionItemDto>();
 
 			foreach (var transferItem in orderEquipment)
 			{
@@ -70,9 +70,9 @@ namespace DriverAPI.Library.Converters
 			return (deliveryItems, receptionItems);
 		}
 
-		private IEnumerable<APIOrderSaleItem> prepareSaleItemsList(IEnumerable<Vodovoz.Domain.Orders.OrderItem> orderItems)
+		private IEnumerable<OrderSaleItemDto> prepareSaleItemsList(IEnumerable<Vodovoz.Domain.Orders.OrderItem> orderItems)
 		{
-			var result = new List<APIOrderSaleItem>();
+			var result = new List<OrderSaleItemDto>();
 
 			foreach (var saleItem in orderItems)
 			{
@@ -82,9 +82,9 @@ namespace DriverAPI.Library.Converters
 			return result;
 		}
 
-		private APIOrderSaleItem convertToAPIOrderSaleItem(Vodovoz.Domain.Orders.OrderItem saleItem)
+		private OrderSaleItemDto convertToAPIOrderSaleItem(Vodovoz.Domain.Orders.OrderItem saleItem)
 		{
-			var result = new APIOrderSaleItem()
+			var result = new OrderSaleItemDto()
 			{
 				OrderSaleItemId = saleItem.Id,
 				Name = saleItem.Nomenclature.Name,
@@ -95,9 +95,9 @@ namespace DriverAPI.Library.Converters
 			return result;
 		}
 
-		private APIOrderDeliveryItem convertToAPIOrderDeliveryItem(Vodovoz.Domain.Orders.OrderEquipment saleItem)
+		private OrderDeliveryItemDto convertToAPIOrderDeliveryItem(Vodovoz.Domain.Orders.OrderEquipment saleItem)
 		{
-			var result = new APIOrderDeliveryItem()
+			var result = new OrderDeliveryItemDto()
 			{
 				OrderDeliveryItemId = saleItem.Id,
 				Name = saleItem.Nomenclature.Name,
@@ -107,9 +107,9 @@ namespace DriverAPI.Library.Converters
 			return result;
 		}
 
-		private APIOrderReceptionItem convertToAPIOrderReceptionItem(Vodovoz.Domain.Orders.OrderEquipment saleItem)
+		private OrderReceptionItemDto convertToAPIOrderReceptionItem(Vodovoz.Domain.Orders.OrderEquipment saleItem)
 		{
-			var result = new APIOrderReceptionItem()
+			var result = new OrderReceptionItemDto()
 			{
 				OrderReceptionItemId = saleItem.Id,
 				Name = saleItem.Nomenclature.Name,

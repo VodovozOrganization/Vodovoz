@@ -5,7 +5,7 @@ namespace DriverAPI.Library.Converters
 {
 	public class SmsPaymentStatusConverter
 	{
-		public APISmsPaymentStatus? convertToAPIPaymentStatus(SmsPaymentStatus? smsPaymentStatus)
+		public SmsPaymentDtoStatus? convertToAPIPaymentStatus(SmsPaymentStatus? smsPaymentStatus)
 		{
 			if (smsPaymentStatus == null)
 			{
@@ -15,11 +15,11 @@ namespace DriverAPI.Library.Converters
 			switch (smsPaymentStatus)
 			{
 				case SmsPaymentStatus.WaitingForPayment:
-					return APISmsPaymentStatus.WaitingForPayment;
+					return SmsPaymentDtoStatus.WaitingForPayment;
 				case SmsPaymentStatus.Paid:
-					return APISmsPaymentStatus.Paid;
+					return SmsPaymentDtoStatus.Paid;
 				case SmsPaymentStatus.Cancelled:
-					return APISmsPaymentStatus.Cancelled;
+					return SmsPaymentDtoStatus.Cancelled;
 				default:
 					throw new ConverterException(nameof(smsPaymentStatus), smsPaymentStatus, $"Значение {smsPaymentStatus} не поддерживается");
 			}

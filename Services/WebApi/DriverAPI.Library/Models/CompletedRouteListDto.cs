@@ -3,7 +3,7 @@
 	public class CompletedRouteListDto
 	{
 		public int RouteListId { get; set; }
-		public APIRouteListStatus RouteListStatus { get; set; }
+		public RouteListDtoStatus RouteListStatus { get; set; }
 		public decimal CashMoney { get; set; }
 		public decimal TerminalMoney { get; set; }
 		public int TerminalOrdersCount { get; set; }

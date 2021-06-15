@@ -35,7 +35,7 @@ namespace DriverAPI.Library.Converters
 				CompletionStatus = routeListCompletionStatusConverter.convertToAPIRouteListCompletionStatus(routeList.Status)
 			};
 
-			if (result.CompletionStatus == APIRouteListCompletionStatus.Completed)
+			if (result.CompletionStatus == RouteListDtoCompletionStatus.Completed)
 			{
 				result.CompletedRouteList = new CompletedRouteListDto()
 				{
@@ -63,7 +63,7 @@ namespace DriverAPI.Library.Converters
 			}
 			else
 			{
-				if (result.CompletionStatus == APIRouteListCompletionStatus.Incompleted)
+				if (result.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
 				{
 					var routelistAddresses = new List<APIRouteListAddress>();
 

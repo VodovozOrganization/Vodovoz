@@ -45,7 +45,7 @@ namespace DriverAPI.Controllers
 		/// <returns></returns>
 		[HttpPost]
 		[Route("/api/RegisterDriverActions")]
-		public void RegisterDriverActions([FromBody] IEnumerable<APIDriverAction> driverActionModels)
+		public void RegisterDriverActions([FromBody] IEnumerable<DriverActionDto> driverActionModels)
 		{
 			var user = userManager.GetUserAsync(User).Result;
 			var driver = employeeData.GetByAPILogin(user.UserName);
@@ -69,7 +69,7 @@ namespace DriverAPI.Controllers
 
 			driverMobileAppActionRecordData.RegisterAction(
 				driver,
-				new APIDriverAction()
+				new DriverActionDto()
 				{
 					ActionType = routeListAddressCoordinate.ActionType,
 					ActionTime = routeListAddressCoordinate.ActionTime
