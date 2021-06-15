@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DriverAPI.Library.Models
+namespace DriverAPI.Library.DTOs
 {
 	public class IncompletedRouteListDto
 	{

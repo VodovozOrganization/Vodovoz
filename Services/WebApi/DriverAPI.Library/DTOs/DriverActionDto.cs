@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DriverAPI.Library.Models
+namespace DriverAPI.Library.DTOs
 {
 	public class DriverActionDto
 	{

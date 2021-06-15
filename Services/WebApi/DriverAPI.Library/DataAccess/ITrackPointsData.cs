@@ -1,4 +1,4 @@
-﻿using DriverAPI.Library.Models;
+﻿using DriverAPI.Library.DTOs;
 using System.Collections.Generic;
 
 namespace DriverAPI.Library.DataAccess
