@@ -2,7 +2,7 @@
 
 namespace DriverAPI.Library.Models
 {
-	public class APIRouteListAddress
+	public class RouteListAddressDto
 	{
 		public int Id { get; set; }
 		public int OrderId { get; set; }

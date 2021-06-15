@@ -2,7 +2,7 @@
 
 namespace DriverAPI.Library.Models
 {
-	public class APIOrderAdditionalInfo
+	public class OrderAdditionalInfoDto
 	{
 		public IEnumerable<PaymentDtoType> AvailablePaymentTypes { get; set; }
 		public bool CanSendSms { get; set; }

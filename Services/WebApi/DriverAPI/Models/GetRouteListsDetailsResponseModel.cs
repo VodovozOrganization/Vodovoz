@@ -5,7 +5,7 @@ namespace DriverAPI.Models
 {
 	public class GetRouteListsDetailsResponseModel
 	{
-		public IEnumerable<APIRouteList> RouteLists { get; set; }
+		public IEnumerable<RouteListDto> RouteLists { get; set; }
 		public IEnumerable<APIOrder> Orders { get; set; }
 	}
 }

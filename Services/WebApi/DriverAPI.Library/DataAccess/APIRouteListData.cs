@@ -39,7 +39,7 @@ namespace DriverAPI.Library.DataAccess
 		/// </summary>
 		/// <param name="routeListId">Идентификатор МЛ</param>
 		/// <returns>APIRouteList</returns>
-		public APIRouteList Get(int routeListId)
+		public RouteListDto Get(int routeListId)
 		{
 			var routeList = routeListRepository.GetRouteListById(unitOfWork, routeListId)
 				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
@@ -52,10 +52,10 @@ namespace DriverAPI.Library.DataAccess
 		/// </summary>
 		/// <param name="routeListsIds">Список идентификаторов МЛ</param>
 		/// <returns>IEnumerable APIRouteList</returns>
-		public IEnumerable<APIRouteList> Get(int[] routeListsIds)
+		public IEnumerable<RouteListDto> Get(int[] routeListsIds)
 		{
 			var vodovozRouteLists = routeListRepository.GetRouteListsByIds(unitOfWork, routeListsIds);
-			var routeLists = new List<APIRouteList>();
+			var routeLists = new List<RouteListDto>();
 
 			foreach (var routelist in vodovozRouteLists)
 			{

@@ -28,9 +28,9 @@ namespace DriverAPI.Library.Converters
 			this.routeListCompletionStatusConverter = routeListCompletionStatusConverter ?? throw new ArgumentNullException(nameof(routeListCompletionStatusConverter));
 		}
 
-		public APIRouteList convertToAPIRouteList(RouteList routeList)
+		public RouteListDto convertToAPIRouteList(RouteList routeList)
 		{
-			var result = new APIRouteList()
+			var result = new RouteListDto()
 			{
 				CompletionStatus = routeListCompletionStatusConverter.convertToAPIRouteListCompletionStatus(routeList.Status)
 			};
@@ -65,7 +65,7 @@ namespace DriverAPI.Library.Converters
 			{
 				if (result.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
 				{
-					var routelistAddresses = new List<APIRouteListAddress>();
+					var routelistAddresses = new List<RouteListAddressDto>();
 
 					foreach (var address in routeList.Addresses)
 					{
@@ -84,9 +84,9 @@ namespace DriverAPI.Library.Converters
 			return result;
 		}
 
-		private APIRouteListAddress convertToAPIRouteListAddress(RouteListItem routeListAddress)
+		private RouteListAddressDto convertToAPIRouteListAddress(RouteListItem routeListAddress)
 		{
-			return new APIRouteListAddress()
+			return new RouteListAddressDto()
 			{
 				Id = routeListAddress.Id,
 				Status = routeListAddressStatusConverter.convertToAPIRouteListAddressStatus(routeListAddress.Status),
