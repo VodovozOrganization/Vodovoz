@@ -2,7 +2,7 @@
 
 namespace DriverAPI.Library.Models
 {
-	public class APIOrder
+	public class OrderDto
 	{
 		public int OrderId { get; set; }
 		public SmsPaymentDtoStatus? SmsPaymentStatus { get; set; }

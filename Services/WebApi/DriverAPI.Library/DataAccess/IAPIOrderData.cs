@@ -9,8 +9,8 @@ namespace DriverAPI.Library.DataAccess
 {
 	public interface IAPIOrderData
 	{
-		APIOrder Get(int orderId);
-		IEnumerable<APIOrder> Get(int[] orderIds);
+		OrderDto Get(int orderId);
+		IEnumerable<OrderDto> Get(int[] orderIds);
 		OrderAdditionalInfoDto GetAdditionalInfo(int orderId);
 		void ChangeOrderPaymentType(int orderId, PaymentType paymentType);
 		IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Order order);
