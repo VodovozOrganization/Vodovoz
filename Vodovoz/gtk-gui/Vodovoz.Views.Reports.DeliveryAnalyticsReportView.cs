@@ -69,8 +69,6 @@ namespace Vodovoz.Views.Reports
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytable1[this.btnHelp]));
 			w2.TopAttach = ((uint)(6));
 			w2.BottomAttach = ((uint)(7));
-			w2.LeftAttach = ((uint)(1));
-			w2.RightAttach = ((uint)(2));
 			w2.XOptions = ((global::Gtk.AttachOptions)(0));
 			w2.YOptions = ((global::Gtk.AttachOptions)(1));
 			// Container child ytable1.Gtk.Table+TableChild
@@ -107,6 +105,8 @@ namespace Vodovoz.Views.Reports
 			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.ytable1[this.exportBtn]));
 			w5.TopAttach = ((uint)(6));
 			w5.BottomAttach = ((uint)(7));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
