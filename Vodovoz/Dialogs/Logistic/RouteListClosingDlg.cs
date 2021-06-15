@@ -825,7 +825,6 @@ namespace Vodovoz
 		{
 			if(!MessageDialogHelper.RunQuestionDialog("Перед печатью необходимо сохранить документ.\nСохранить?"))
 				return;
-			Entity.PrintTime = DateTime.Now;
 			UoW.Save();
 
 			switch(choise) {
@@ -846,10 +845,18 @@ namespace Vodovoz
 		{
 			{
 				var document = Additions.Logistic.PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
+				var reportDlg = new QSReport.ReportViewDlg(document);
+				reportDlg.ReportPrinted += SavePrintTime;
 				this.TabParent.OpenTab(
 					QS.Dialog.Gtk.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
-					() => new QSReport.ReportViewDlg(document));
+					() => reportDlg);
 			}
+		}
+
+		void SavePrintTime(object sender, EventArgs e)
+		{
+			Entity.PrintTime = DateTime.Now;
+			UoW.Save();
 		}
 
 		void PrintFines()
