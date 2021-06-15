@@ -130,7 +130,7 @@ namespace DriverAPI.Library.DataAccess
 		/// </summary>
 		/// <param name="orderId">Идентификатор заказа</param>
 		/// <returns>APIOrderAdditionalInfo</returns>
-		public APIOrderAdditionalInfo GetAdditionalInfo(int orderId)
+		public OrderAdditionalInfoDto GetAdditionalInfo(int orderId)
 		{
 			var vodovozOrder = orderRepository.GetOrder(unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
@@ -143,9 +143,9 @@ namespace DriverAPI.Library.DataAccess
 		/// </summary>
 		/// <param name="order">Заказ программы ДВ</param>
 		/// <returns>APIOrderAdditionalInfo</returns>
-		public APIOrderAdditionalInfo GetAdditionalInfo(Vodovoz.Domain.Orders.Order order)
+		public OrderAdditionalInfoDto GetAdditionalInfo(Vodovoz.Domain.Orders.Order order)
 		{
-			return new APIOrderAdditionalInfo()
+			return new OrderAdditionalInfoDto()
 			{
 				AvailablePaymentTypes = GetAvailableToChangePaymentTypes(order),
 				CanSendSms = CanSendSmsForPayment(order, aPISmsPaymentData.GetOrderPaymentStatus(order.Id)),

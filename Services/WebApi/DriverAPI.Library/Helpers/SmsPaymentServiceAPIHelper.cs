@@ -23,7 +23,7 @@ namespace DriverAPI.Library.Helpers
 			{
 				if (response.IsSuccessStatusCode)
 				{
-					var result = await response.Content.ReadAsAsync<SendPaymentResponseModel>();
+					var result = await response.Content.ReadAsAsync<SendPaymentResponseDto>();
 
 					if (result.Status == SendPaymentResponseDtoMessageStatus.Ok)
 					{

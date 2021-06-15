@@ -62,7 +62,7 @@ namespace DriverAPI.Controllers
 		/// <returns>APIRouteList или null</returns>
 		[HttpGet]
 		[Route("/api/GetRouteList")]
-		public APIRouteList Get(int routeListId)
+		public RouteListDto Get(int routeListId)
 		{
 			return aPIRouteListData.Get(routeListId);
 		}

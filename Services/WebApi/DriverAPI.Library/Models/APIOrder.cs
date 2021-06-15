@@ -17,6 +17,6 @@ namespace DriverAPI.Library.Models
 		public IEnumerable<OrderSaleItemDto> OrderSaleItems { get; set; }
 		public IEnumerable<OrderDeliveryItemDto> OrderDeliveryItems { get; set; }
 		public IEnumerable<OrderReceptionItemDto> OrderReceptionItems { get; set; }
-		public APIOrderAdditionalInfo OrderAdditionalInfo { get; set; }
+		public OrderAdditionalInfoDto OrderAdditionalInfo { get; set; }
 	}
 }

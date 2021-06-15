@@ -6,6 +6,6 @@ namespace DriverAPI.Library.Models
 	{
 		public int RouteListId { get; set; }
 		public RouteListDtoStatus RouteListStatus { get; set; }
-		public IEnumerable<APIRouteListAddress> RouteListAddresses { get; set; }
+		public IEnumerable<RouteListAddressDto> RouteListAddresses { get; set; }
 	}
 }
