@@ -1,4 +1,4 @@
-﻿using DriverAPI.Library.Models;
+﻿using DriverAPI.Library.DTOs;
 using Vodovoz.Domain.Logistic;
 
 namespace DriverAPI.Library.Converters

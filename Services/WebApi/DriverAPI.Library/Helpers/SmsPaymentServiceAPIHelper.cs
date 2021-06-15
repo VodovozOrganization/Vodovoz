@@ -1,4 +1,4 @@
-﻿using DriverAPI.Library.Models;
+﻿using DriverAPI.Library.DTOs;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Net.Http;

@@ -1,4 +1,4 @@
-﻿namespace DriverAPI.Library.Models
+﻿namespace DriverAPI.Library.DTOs
 {
 	public class RouteListDto
 	{
