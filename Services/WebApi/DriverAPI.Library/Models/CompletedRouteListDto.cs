@@ -1,6 +1,6 @@
 ﻿namespace DriverAPI.Library.Models
 {
-	public class APICompletedRouteList
+	public class CompletedRouteListDto
 	{
 		public int RouteListId { get; set; }
 		public APIRouteListStatus RouteListStatus { get; set; }

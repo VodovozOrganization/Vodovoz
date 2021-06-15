@@ -1,4 +1,4 @@
-﻿namespace DriverAPI.Library.Helpers
+﻿namespace DriverAPI.Library.Models
 {
 	public class SendPaymentResponseModel
 	{

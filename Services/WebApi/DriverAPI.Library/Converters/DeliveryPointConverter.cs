@@ -5,9 +5,9 @@ namespace DriverAPI.Library.Converters
 {
 	public class DeliveryPointConverter
 	{
-		public APIAddress extractAPIAddressFromDeliveryPoint(DeliveryPoint deliveryPoint)
+		public AddressDto extractAPIAddressFromDeliveryPoint(DeliveryPoint deliveryPoint)
 		{
-			return new APIAddress()
+			return new AddressDto()
 			{
 				City = deliveryPoint.City,
 				Street = deliveryPoint.Street,
