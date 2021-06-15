@@ -61,7 +61,7 @@ namespace DriverAPI.Library.DataAccess
 		/// </summary>
 		/// <param name="orderId">Идентификатор заказа</param>
 		/// <returns>APIOrder</returns>
-		public APIOrder Get(int orderId)
+		public OrderDto Get(int orderId)
 		{
 			var order = orderRepository.GetOrder(unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
@@ -74,9 +74,9 @@ namespace DriverAPI.Library.DataAccess
 		/// </summary>
 		/// <param name="orderIds">Список идентификаторов заказов</param>
 		/// <returns>IEnumerable APIOrder</returns>
-		public IEnumerable<APIOrder> Get(int[] orderIds)
+		public IEnumerable<OrderDto> Get(int[] orderIds)
 		{
-			var result = new List<APIOrder>();
+			var result = new List<OrderDto>();
 			var vodovozOrders = orderRepository.GetOrders(unitOfWork, orderIds);
 
 			foreach (var vodovozOrder in vodovozOrders)

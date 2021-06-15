@@ -2,7 +2,7 @@
 
 namespace DriverAPI.Library.Models
 {
-	public class APIIncompletedRouteList
+	public class IncompletedRouteListDto
 	{
 		public int RouteListId { get; set; }
 		public RouteListDtoStatus RouteListStatus { get; set; }

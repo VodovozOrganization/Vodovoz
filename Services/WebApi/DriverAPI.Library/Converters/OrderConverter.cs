@@ -25,11 +25,11 @@ namespace DriverAPI.Library.Converters
 			this.paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
 		}
 
-		public APIOrder convertToAPIOrder(Vodovoz.Domain.Orders.Order vodovozOrder, SmsPaymentStatus? smsPaymentStatus)
+		public OrderDto convertToAPIOrder(Vodovoz.Domain.Orders.Order vodovozOrder, SmsPaymentStatus? smsPaymentStatus)
 		{
 			var pairOfSplitedLists = splitDeliveryItems(vodovozOrder.OrderEquipments);
 
-			var apiOrder = new APIOrder()
+			var apiOrder = new OrderDto()
 			{
 				OrderId = vodovozOrder.Id,
 				SmsPaymentStatus = smsPaymentConverter.convertToAPIPaymentStatus(smsPaymentStatus),

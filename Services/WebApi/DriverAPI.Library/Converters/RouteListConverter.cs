@@ -72,7 +72,7 @@ namespace DriverAPI.Library.Converters
 						routelistAddresses.Add(convertToAPIRouteListAddress(address));
 					}
 
-					result.IncompletedRouteList = new APIIncompletedRouteList()
+					result.IncompletedRouteList = new IncompletedRouteListDto()
 					{
 						RouteListId = routeList.Id,
 						RouteListStatus = routeListStatusConverter.convertToAPIRouteListStatus(routeList.Status),

@@ -36,7 +36,7 @@ namespace DriverAPI.Controllers
 		/// <param name="orderId">Идентификатор заказа</param>
 		[HttpGet]
 		[Route("/api/GetOrder")]
-		public APIOrder Get(int orderId)
+		public OrderDto Get(int orderId)
 		{
 			return aPIOrderData.Get(orderId);
 		}
