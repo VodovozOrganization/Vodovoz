@@ -71,6 +71,8 @@ namespace Vodovoz.Views.Reports
 			w2.BottomAttach = ((uint)(7));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
+			w2.XOptions = ((global::Gtk.AttachOptions)(0));
+			w2.YOptions = ((global::Gtk.AttachOptions)(1));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.deliveryDate = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.deliveryDate.Events = ((global::Gdk.EventMask)(256));
@@ -83,6 +85,7 @@ namespace Vodovoz.Views.Reports
 			w3.BottomAttach = ((uint)(4));
 			w3.LeftAttach = ((uint)(1));
 			w3.RightAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.districtEntry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.districtEntry.Events = ((global::Gdk.EventMask)(256));
@@ -154,6 +157,7 @@ namespace Vodovoz.Views.Reports
 			w10.BottomAttach = ((uint)(3));
 			w10.LeftAttach = ((uint)(1));
 			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.treeviewGeographic = new global::Gamma.GtkWidgets.yTreeView();
 			this.treeviewGeographic.CanFocus = true;
@@ -164,6 +168,7 @@ namespace Vodovoz.Views.Reports
 			w11.BottomAttach = ((uint)(6));
 			w11.LeftAttach = ((uint)(1));
 			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.treeviewPartCity = new global::Gamma.GtkWidgets.yTreeView();
 			this.treeviewPartCity.CanFocus = true;
@@ -174,6 +179,7 @@ namespace Vodovoz.Views.Reports
 			w12.BottomAttach = ((uint)(2));
 			w12.LeftAttach = ((uint)(1));
 			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.treeviewWave = new global::Gamma.GtkWidgets.yTreeView();
 			this.treeviewWave.CanFocus = true;
@@ -184,6 +190,7 @@ namespace Vodovoz.Views.Reports
 			w13.BottomAttach = ((uint)(5));
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(2));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel1.Name = "ylabel1";
