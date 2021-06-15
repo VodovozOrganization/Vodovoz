@@ -50,8 +50,8 @@ namespace DriverAPI.Library.Helpers
 			_apiClient.BaseAddress = new Uri(apiConfiguration["ApiBase"]);
 			_apiClient.DefaultRequestHeaders.Accept.Clear();
 			_apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			_apiClient.DefaultRequestHeaders.Add("Authorization", $"key={apiConfiguration["AccessToken"]}");
-			_apiClient.DefaultRequestHeaders.Add("Sender", $"id={apiConfiguration["AppId"]}");
+			_apiClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"key={apiConfiguration["AccessToken"]}");
+			_apiClient.DefaultRequestHeaders.TryAddWithoutValidation("Sender", $"id={apiConfiguration["AppId"]}");
 
 			sendPushNotificationEndpointURI = apiConfiguration["SendPushNotificationEndpointURI"];
 		}
