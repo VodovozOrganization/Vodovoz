@@ -75,7 +75,7 @@ namespace Vodovoz.ReportsParameters.Logistic
             var selectedMonth = (int) comboMonth.SelectedItem;
             var creationDate = DateTime.Now;
             var endDate = creationDate.Month == selectedMonth && creationDate.Year == selectedYear
-                ? new DateTime(creationDate.Year, creationDate.Month, creationDate.Day - 1, 23,59,59)
+                ? new DateTime(creationDate.Year, creationDate.Month, creationDate.Day, 23,59,59)
                 : new DateTime(selectedYear, selectedMonth, DateTime.DaysInMonth(selectedYear, selectedMonth), 23, 59, 59);
 
             return new ReportInfo
