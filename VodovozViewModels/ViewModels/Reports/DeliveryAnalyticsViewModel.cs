@@ -21,6 +21,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -29,14 +30,26 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 {
 	public class DeliveryAnalyticsViewModel : TabViewModelBase
 	{
+		#region Поля
+		private DateTime? startDeliveryDate;
+		private DateTime? endDeliveryDate;
+		private District _district;
+		
+		private DelegateCommand exportCommand;
+		private DelegateCommand allStatusCommand;
+		private DelegateCommand noneStatusCommand;
+		private DelegateCommand showHelpCommand;
+		
+		private IEnumerable<DeliveryAnalyticsReportNode> _oneWaveMorning;
+		private IEnumerable<DeliveryAnalyticsReportNode> _oneWaveDay;
+		private IEnumerable<DeliveryAnalyticsReportNode> _oneWaveEvening;
+		private IEnumerable<DeliveryAnalyticsReportNode> _twoWave;
+		private IEnumerable<DeliveryAnalyticsReportNode> _threeWave;
+
 		private readonly IInteractiveService _interactiveService;
 		public IEntityAutocompleteSelectorFactory DistrictSelectorFactory;
-		private DateTime? startDeliveryDate = DateTime.Today;
-		private DateTime? endDeliveryDate = DateTime.Today.AddDays(1).AddMinutes(-1);
-		private DateTime? _dayOfWeek;
-		private DelegateCommand exportCommand = null;
-		private bool isLoadingData;
-
+		
+		#endregion
 		public DeliveryAnalyticsViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
@@ -46,7 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			DistrictSelectorFactory = districtSelectorFactory ?? throw new ArgumentNullException(nameof(districtSelectorFactory));
-			if(unitOfWorkFactory == null)
+			if(unitOfWorkFactory is null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
@@ -55,6 +68,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			Title = "Аналитика объёмов доставки";
 
 			WaveList = new GenericObservableList<WaveNode>();
+			WeekDayName = new GenericObservableList<WeekDayNodes>();
 			GeographicGroupNodes =
 				new GenericObservableList<GeographicGroupNode>(Uow.GetAll<GeographicGroup>().Select(x => new GeographicGroupNode(x))
 					.ToList());
@@ -66,13 +80,17 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				var waveNode = new WaveNode {WaveNodes = (WaveNodes) wave, Selected = false};
 				WaveList.Add(waveNode);
 			}
+			
+			foreach(var week in Enum.GetValues(typeof(WeekDayName)))
+			{
+				var weekNode = new WeekDayNodes {WeekNameNode = (WeekDayName) week, Selected = false};
+				WeekDayName.Add(weekNode);
+			}
 		}
 
-		#region Поля и свойства
+		#region Свойства
 
 		public IUnitOfWork Uow;
-
-		private District _district;
 
 		public District District
 		{
@@ -87,7 +105,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			{
 				if(SetField(ref startDeliveryDate, value))
 				{
-					OnPropertyChanged(nameof(HasRunReport));
+					OnPropertyChanged(nameof(HasExportReport));
 				}
 			}
 		}
@@ -98,94 +116,25 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			set => SetField(ref endDeliveryDate, value);
 		}
 
-		public DateTime? DayOfWeek
-		{
-			get => _dayOfWeek;
-			set
-			{
-				if(SetField(ref _dayOfWeek, value))
-				{
-					OnPropertyChanged(nameof(HasRunReport));
-				}
-			}
-		}
-
-		public bool IsLoadingData
-		{
-			get => isLoadingData;
-			set
-			{
-				if(isLoadingData != value)
-				{
-					isLoadingData = value;
-					OnPropertyChanged(nameof(HasRunReport));
-				}
-			}
-		}
-
-		public bool HasRunReport => StartDeliveryDate.HasValue && !IsLoadingData;
+		public bool HasExportReport => StartDeliveryDate.HasValue;
 
 		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; private set; }
 
 		public GenericObservableList<WageDistrictNode> WageDistrictNodes { get; private set; }
 
 		public GenericObservableList<WaveNode> WaveList { get; private set; }
+		
+		public GenericObservableList<WeekDayNodes> WeekDayName { get; set; }
 
 		public string FileName { get; set; }
-
-		public GenericObservableList<DeliveryAnalyticsReportNode> NodesList { get; } =
-			new GenericObservableList<DeliveryAnalyticsReportNode>();
-
-		private IEnumerable<DeliveryAnalyticsReportNode> _oneWaveMorning;
-		private IEnumerable<DeliveryAnalyticsReportNode> _oneWaveDay;
-		private IEnumerable<DeliveryAnalyticsReportNode> _oneWaveEvening;
-		private IEnumerable<DeliveryAnalyticsReportNode> _twoWave;
-		private IEnumerable<DeliveryAnalyticsReportNode> _threeWave;
-		
 		#endregion
 
-		public DelegateCommand ExportCommand => exportCommand ?? (exportCommand = new DelegateCommand(
-			() =>
-			{
-				try
-				{
-					UpdateNodes();
-					if(string.IsNullOrWhiteSpace(FileName))
-					{
-						throw new InvalidOperationException($"Не был заполнен путь выгрузки: {nameof(FileName)}");
-					}
-					var exportString = GetCsvString();
-					try
-					{
-						File.WriteAllText(FileName, exportString, Encoding.UTF8);
-					}
-					catch(IOException)
-					{
-						_interactiveService.ShowMessage(ImportanceLevel.Error,
-							"Не удалось сохранить файл выгрузки. Возможно не закрыт предыдущий файл выгрузки", "Ошибка");
-					}
-				}
-				catch(Exception e)
-				{
-					if (e.FindExceptionTypeInInner<TimeoutException>() != null)
-					{
-						_interactiveService.ShowMessage(
-							ImportanceLevel.Error, "Превышен интервал ожидания выполнения запроса.\n Попробуйте уменьшить период");
-					}
-					else
-					{
-						throw;
-					}
-				}
-			},
-			() => !string.IsNullOrEmpty(FileName)
-		));
-		
 		private void UpdateNodes()
 		{
-			var createDate4 = DateTime.Parse(StartDeliveryDate.Value.ToShortDateString() + " 4:00:00");
-			var createDate12 = DateTime.Parse(StartDeliveryDate.Value.ToShortDateString() + " 12:00:00");
-			var createDate18 = DateTime.Parse(StartDeliveryDate.Value.ToShortDateString() + " 18:00:00");
+			#region Все к базовому запросу
+			var createDate4 = DateTime.Parse(EndDeliveryDate.Value.ToShortDateString() + " 4:00:00");
+			var createDate12 = DateTime.Parse(EndDeliveryDate.Value.ToShortDateString() + " 12:00:00");
+			var createDate18 = DateTime.Parse(EndDeliveryDate.Value.ToShortDateString() + " 18:00:00");
 			
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 			var selectedWages = WageDistrictNodes.Where(x => x.Selected).Select(x => x.WageDistrict);
@@ -232,30 +181,66 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				query.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
 					selectedGeographicGroup.Select(x => x.Id).ToArray()));
 			}
+			#endregion
 
+			#region Разделение запросов по волнам
 			var _oneWaveMorningQuery = query.Clone();
 			var _oneWaveEveningQuery = query.Clone();
 			var _oneWaveDayQuery = query.Clone();
 			var _twoWaveQuery = query.Clone();
 			var _threeWaveQuery = query.Clone();
-			if(selectedWages.Any(x => x.Name == "Город") || !selectedWages.Any())
+
+			_oneWaveMorningQuery.Where(x => deliveryScheduleAlias.From < createDate12.TimeOfDay);
+			_oneWaveDayQuery.Where(x =>
+				deliveryScheduleAlias.From >= createDate12.TimeOfDay && deliveryScheduleAlias.From < createDate18.TimeOfDay);
+			
+			if(!selectedWages.Any() || selectedWages.Count() == 2)
 			{
 				_oneWaveMorningQuery.Where(x => x.CreateDate < createDate4 && deliveryScheduleAlias.From < createDate12.TimeOfDay);
-				_oneWaveDayQuery.Where(x => x.CreateDate < createDate4 && (deliveryScheduleAlias.From >= createDate12.TimeOfDay && deliveryScheduleAlias.From < createDate18.TimeOfDay));
-				_twoWaveQuery.Where(x => x.CreateDate >= createDate4 && x.CreateDate < createDate12 && deliveryScheduleAlias.From < createDate18.TimeOfDay);
+				_oneWaveDayQuery.Where(x =>
+					x.CreateDate < createDate4 && deliveryScheduleAlias.From >= createDate12.TimeOfDay
+					                           && deliveryScheduleAlias.From < createDate18.TimeOfDay);
+				_oneWaveEveningQuery.Where(x => 
+					deliveryScheduleAlias.From >= createDate18.TimeOfDay && wageDistrictAlias.Name == "Пригород");
+				_twoWaveQuery.Where(x =>
+					x.CreateDate >= createDate4 && x.CreateDate < createDate12 && deliveryScheduleAlias.From < createDate18.TimeOfDay &&
+					wageDistrictAlias.Name == "Город");
+				_threeWaveQuery.Where(x =>
+					(x.CreateDate >= createDate12) || (x.CreateDate >= createDate4 && x.CreateDate < createDate12 &&
+					                                   deliveryScheduleAlias.From >= createDate18.TimeOfDay) ||
+					(x.CreateDate < createDate4 && deliveryScheduleAlias.From >= createDate18.TimeOfDay) &&
+					wageDistrictAlias.Name == "Город");
+			}
+			
+			else if(selectedWages.Any(x => x.Name == "Город"))
+			{
+				_oneWaveMorningQuery.Where(x =>
+					x.CreateDate < createDate4 && wageDistrictAlias.Name == "Город");
+				_oneWaveDayQuery.Where(x =>
+					x.CreateDate < createDate4 &&
+					wageDistrictAlias.Name == "Город");
+				_twoWaveQuery.Where(x =>
+					x.CreateDate >= createDate4 && x.CreateDate < createDate12 && deliveryScheduleAlias.From < createDate18.TimeOfDay &&
+					wageDistrictAlias.Name == "Город");
 				_threeWaveQuery.Where(x =>
 					(x.CreateDate >= createDate12) ||
 					(x.CreateDate >= createDate4 && x.CreateDate < createDate12 && deliveryScheduleAlias.From >= createDate18.TimeOfDay) ||
-					(x.CreateDate < createDate4 && deliveryScheduleAlias.From >= createDate18.TimeOfDay));
+					(x.CreateDate < createDate4 && deliveryScheduleAlias.From >= createDate18.TimeOfDay) &&
+					wageDistrictAlias.Name == "Город");
 			}
-			
-			if(selectedWages.Any(x => x.Name == "Пригород") || !selectedWages.Any())
+
+			else if(selectedWages.Any(x => x.Name == "Пригород"))
 			{
-				_oneWaveEveningQuery.Where(x=>deliveryScheduleAlias.From >= createDate18.TimeOfDay);
-				_oneWaveDayQuery.Where(x => deliveryScheduleAlias.From >= createDate12.TimeOfDay && deliveryScheduleAlias.From < createDate18.TimeOfDay);
-				_oneWaveMorningQuery.Where(x => x.CreateDate < createDate12);
+				_oneWaveMorningQuery.Where(x => deliveryScheduleAlias.From < createDate12.TimeOfDay && wageDistrictAlias.Name == "Пригород");
+				_oneWaveDayQuery.Where(x =>
+					deliveryScheduleAlias.From >= createDate12.TimeOfDay && deliveryScheduleAlias.From < createDate18.TimeOfDay &&
+					wageDistrictAlias.Name == "Пригород");
+				_oneWaveEveningQuery.Where(
+					x => deliveryScheduleAlias.From >= createDate18.TimeOfDay && wageDistrictAlias.Name == "Пригород");
 			}
+			#endregion
 			
+			#region Подсчёт заказов и бутылей
 			var bottleSmallCountSubquery = QueryOver.Of(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 				.And(x=>x.Count < 5)
@@ -279,9 +264,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 				.JoinAlias(() => orderAlias.DeliverySchedule, () => deliveryScheduleAlias)
 				.Where(() => orderItemAlias.Count < 5).ToRowCountQuery();
-
-			#region SelectWaves
-
+			#endregion
+			
+			#region Составление волн
 			_oneWaveMorning = _oneWaveMorningQuery
 				.SelectList(list => list
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
@@ -289,7 +274,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					.Select(() => wageDistrictAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
 					.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
-					.Select(() => orderAlias.CreateDate).WithAlias(() => resultAlias.DayOfWeek)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 					.SelectSubQuery(smallCountOrders).WithAlias(() => resultAlias.CountSmallOrdersOneMorning)
 					.SelectSubQuery(bigCountOrders).WithAlias(() => resultAlias.CountBigOrdersOneMorning)
 					.SelectSubQuery(bottleSmallCountSubquery).WithAlias(() => resultAlias.CountSmallOrders19LOneMorning)
@@ -304,7 +289,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					.Select(() => wageDistrictAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
 					.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
-					.Select(() => orderAlias.CreateDate).WithAlias(() => resultAlias.DayOfWeek)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 					.SelectSubQuery(smallCountOrders).WithAlias(() => resultAlias.CountSmallOrdersOneDay)
 					.SelectSubQuery(bigCountOrders).WithAlias(() => resultAlias.CountBigOrdersOneDay)
 					.SelectSubQuery(bottleSmallCountSubquery).WithAlias(() => resultAlias.CountSmallOrders19LOneDay)
@@ -319,7 +304,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					.Select(() => wageDistrictAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
 					.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
-					.Select(() => orderAlias.CreateDate).WithAlias(() => resultAlias.DayOfWeek)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 					.SelectSubQuery(smallCountOrders).WithAlias(() => resultAlias.CountSmallOrdersOneEvening)
 					.SelectSubQuery(bigCountOrders).WithAlias(() => resultAlias.CountBigOrdersOneEvening)
 					.SelectSubQuery(bottleSmallCountSubquery).WithAlias(() => resultAlias.CountSmallOrders19LOneEvening)
@@ -334,11 +319,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					.Select(() => wageDistrictAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
 					.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
-					.Select(() => orderAlias.CreateDate).WithAlias(() => resultAlias.DayOfWeek)
-					.SelectSubQuery(smallCountOrders).WithAlias(() => resultAlias.CountSmallOrdersOneMorning)
-					.SelectSubQuery(bigCountOrders).WithAlias(() => resultAlias.CountBigOrdersOneMorning)
-					.SelectSubQuery(bottleSmallCountSubquery).WithAlias(() => resultAlias.CountSmallOrders19LOneMorning)
-					.SelectSubQuery(bootleBigCountSubquery).WithAlias(() => resultAlias.CountBigOrders19LOneMorning))
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
+					.SelectSubQuery(smallCountOrders).WithAlias(() => resultAlias.CountSmallOrdersTwoDay)
+					.SelectSubQuery(bigCountOrders).WithAlias(() => resultAlias.CountBigOrdersTwoDay)
+					.SelectSubQuery(bottleSmallCountSubquery).WithAlias(() => resultAlias.CountSmallOrders19LTwoDay)
+					.SelectSubQuery(bootleBigCountSubquery).WithAlias(() => resultAlias.CountBigOrders19LTwoDay))
 				.TransformUsing(Transformers.AliasToBean<DeliveryAnalyticsReportNode>())
 				.List<DeliveryAnalyticsReportNode>().Distinct();
 			
@@ -349,11 +334,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					.Select(() => wageDistrictAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
 					.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
-					.Select(() => orderAlias.CreateDate).WithAlias(() => resultAlias.DayOfWeek)
-					.SelectSubQuery(smallCountOrders).WithAlias(() => resultAlias.CountSmallOrdersOneMorning)
-					.SelectSubQuery(bigCountOrders).WithAlias(() => resultAlias.CountBigOrdersOneMorning)
-					.SelectSubQuery(bottleSmallCountSubquery).WithAlias(() => resultAlias.CountSmallOrders19LOneMorning)
-					.SelectSubQuery(bootleBigCountSubquery).WithAlias(() => resultAlias.CountBigOrders19LOneMorning))
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
+					.SelectSubQuery(smallCountOrders).WithAlias(() => resultAlias.CountSmallOrdersThreeDay)
+					.SelectSubQuery(bigCountOrders).WithAlias(() => resultAlias.CountBigOrdersThreeDay)
+					.SelectSubQuery(bottleSmallCountSubquery).WithAlias(() => resultAlias.CountSmallOrders19LThreeDay)
+					.SelectSubQuery(bootleBigCountSubquery).WithAlias(() => resultAlias.CountBigOrders19LThreeDay))
 				.TransformUsing(Transformers.AliasToBean<DeliveryAnalyticsReportNode>())
 				.List<DeliveryAnalyticsReportNode>().Distinct();
 			#endregion
@@ -375,16 +360,126 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			sb.AppendLine("№;Ю/С;Ч;Сектор;Д.н.;Дата;М (.);М б.;К (.);К б;И (.);И б.;М (.);М б.;К (.);К б;И (.);И б.;" +
 			              "М (.);М б.;К (.);К б;И (.);И б.;М (.);М б.;К (.);К б;И (.);И б.;М (.);М б.;К (.);К б;И (.);И б.;" +
 			              "М (.);М б.;К (.);К б;И (.);И б.;М (.);М б.;К (.);К б;В (.);В б.;");
+			
 			var count = 1;
-			foreach(var reportNodes in _oneWaveMorning.Concat(_oneWaveDay).Concat(_oneWaveEvening).Concat(_twoWave).Concat(_threeWave).Distinct()
-				.GroupBy(x => new {x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate})
-				.OrderByDescending(x=>x.Key.GeographicGroupName).ThenBy(x=>x.Key.CityOrSuburb))
+			var selectedDays = WeekDayName.Where(x => x.Selected).Select(x => x.WeekNameNode);
+			var selectedWages = WageDistrictNodes.Where(x => x.Selected).Select(x => x.WageDistrict);
+
+			if(!selectedWages.Any() || selectedWages.Count() == 2)
 			{
-				sb.AppendLine(new DeliveryAnalyticsReportNode(reportNodes, count).ToString());
-				count++;
+				foreach(var reportNodes in _oneWaveMorning.Concat(_oneWaveDay).Concat(_oneWaveEvening).Concat(_twoWave).Concat(_threeWave)
+					.GroupBy(x => new {x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate})
+					.OrderByDescending(x => x.Key.GeographicGroupName).ThenBy(x => x.Key.CityOrSuburb))
+				{
+					if(selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any())
+					{
+						sb.AppendLine(new DeliveryAnalyticsReportNode(reportNodes, count).ToString());
+					}
+
+					count++;
+				}
 			}
+			
+			else if(selectedWages.Any(x => x.Name == "Город"))
+			{
+				foreach(var reportNodes in _oneWaveMorning.Concat(_oneWaveDay).Concat(_twoWave).Concat(_threeWave)
+					.GroupBy(x => new {x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate})
+					.OrderByDescending(x => x.Key.GeographicGroupName).ThenBy(x => x.Key.CityOrSuburb))
+				{
+					if(selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any())
+					{
+						sb.AppendLine(new DeliveryAnalyticsReportNode(reportNodes, count).ToString());
+					}
+
+					count++;
+				}
+			}
+			
+			else if(selectedWages.Any(x => x.Name == "Пригород"))
+			{
+				foreach(var reportNodes in _oneWaveMorning.Concat(_oneWaveDay).Concat(_oneWaveEvening)
+					.GroupBy(x => new {x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate})
+					.OrderByDescending(x => x.Key.GeographicGroupName).ThenBy(x => x.Key.CityOrSuburb))
+				{
+					if(selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any())
+					{
+						sb.AppendLine(new DeliveryAnalyticsReportNode(reportNodes, count).ToString());
+					}
+
+					count++;
+				}
+			}
+
 			return sb.ToString();
 		}
+
+		#region Команды
+		public DelegateCommand ExportCommand => exportCommand ?? (exportCommand = new DelegateCommand(
+			() =>
+			{
+				try
+				{
+					UpdateNodes();
+					if(string.IsNullOrWhiteSpace(FileName))
+					{
+						throw new InvalidOperationException($"Не был заполнен путь выгрузки: {nameof(FileName)}");
+					}
+					var exportString = GetCsvString();
+					try
+					{
+						File.WriteAllText(FileName, exportString, Encoding.UTF8);
+					}
+					catch(IOException)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Error,
+							"Не удалось сохранить файл выгрузки. Возможно не закрыт предыдущий файл выгрузки", "Ошибка");
+					}
+				}
+				catch(Exception e)
+				{
+					if (e.FindExceptionTypeInInner<TimeoutException>() != null)
+					{
+						_interactiveService.ShowMessage(
+							ImportanceLevel.Error, "Превышен интервал ожидания выполнения запроса.\n Попробуйте уменьшить период");
+					}
+					else
+					{
+						throw;
+					}
+				}
+			},
+			() => !string.IsNullOrEmpty(FileName)
+		));
+		
+		public DelegateCommand AllStatusCommand => allStatusCommand ?? (allStatusCommand = new DelegateCommand(
+			() =>
+			{
+				foreach(var day in WeekDayName)
+				{
+					var item = (WeekDayNodes) day;
+					item.Selected = true;
+				}
+			}, () => true
+		));
+		
+		public DelegateCommand NoneStatusCommand => noneStatusCommand ?? (noneStatusCommand = new DelegateCommand(
+			() =>
+			{
+				foreach(var day in WeekDayName)
+				{
+					var item = (WeekDayNodes) day;
+					item.Selected = false;
+				}
+			}, () => true
+		));
+		
+		public DelegateCommand ShowHelpCommand => showHelpCommand ?? (showHelpCommand = new DelegateCommand(
+			() =>
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Info, $"Жду текст от Даши");
+			}, () => true
+		));
+		#endregion
 	}
 
 	public enum WaveNodes

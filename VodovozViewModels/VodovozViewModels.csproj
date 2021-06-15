@@ -162,6 +162,7 @@
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\GeographicGroupNode.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\WageDistrictNode.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\WaveNode.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalytics\WeekDayNodes.cs" />
     <Compile Include="ViewModels\Reports\OrderAnalyticsReportViewModel.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
