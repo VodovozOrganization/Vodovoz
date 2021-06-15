@@ -26,7 +26,8 @@ namespace Vodovoz.Domain.Logistic
 			.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
 			.Sum(i => i.CurrentCount);
 
-		public int EmptyBottle19LCount => item.BottlesReturned;
+		public int EmptyBottle19LCount => item.RouteList.Status == RouteListStatus.Closed 
+			? item.BottlesReturned : item.Order.BottlesReturn ?? 0;
 
 		public int Bottle6LCount => (int)item.Order.OrderItems
 			.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol6L)
