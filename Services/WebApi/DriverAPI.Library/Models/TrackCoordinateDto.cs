@@ -2,7 +2,7 @@
 
 namespace DriverAPI.Library.Models
 {
-	public class APITrackCoordinate
+	public class TrackCoordinateDto
 	{
 		public decimal Latitude { get; set; }
 		public decimal Longitude { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace DriverAPI.Library.Models
 {
-	public class APIOrderReceptionItem
+	public class OrderReceptionItemDto
 	{
 		public int OrderReceptionItemId { get; set; }
 		public string Name { get; set; }

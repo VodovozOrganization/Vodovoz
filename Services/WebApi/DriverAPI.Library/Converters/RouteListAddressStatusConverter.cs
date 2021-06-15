@@ -5,20 +5,20 @@ namespace DriverAPI.Library.Converters
 {
 	public class RouteListAddressStatusConverter
 	{
-		public APIRouteListAddressStatus convertToAPIRouteListAddressStatus(RouteListItemStatus routeListItemStatus)
+		public RouteListAddressDtoStatus convertToAPIRouteListAddressStatus(RouteListItemStatus routeListItemStatus)
 		{
 			switch (routeListItemStatus)
 			{
 				case RouteListItemStatus.EnRoute:
-					return APIRouteListAddressStatus.EnRoute;
+					return RouteListAddressDtoStatus.EnRoute;
 				case RouteListItemStatus.Completed:
-					return APIRouteListAddressStatus.Completed;
+					return RouteListAddressDtoStatus.Completed;
 				case RouteListItemStatus.Canceled:
-					return APIRouteListAddressStatus.Canceled;
+					return RouteListAddressDtoStatus.Canceled;
 				case RouteListItemStatus.Overdue:
-					return APIRouteListAddressStatus.Overdue;
+					return RouteListAddressDtoStatus.Overdue;
 				case RouteListItemStatus.Transfered:
-					return APIRouteListAddressStatus.Transfered;
+					return RouteListAddressDtoStatus.Transfered;
 				default:
 					throw new ConverterException(nameof(routeListItemStatus), routeListItemStatus, $"Значение {routeListItemStatus} не поддерживается");
 			}

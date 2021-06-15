@@ -5,8 +5,8 @@ namespace DriverAPI.Models
 {
 	public class OrderPaymentStatusResponseModel
 	{
-		public IEnumerable<APIPaymentType> AvailablePaymentTypes { get; set; }
+		public IEnumerable<PaymentDtoType> AvailablePaymentTypes { get; set; }
 		public bool CanSendSms { get; set; }
-		public APISmsPaymentStatus? SmsPaymentStatus { get; set; }
+		public SmsPaymentDtoStatus? SmsPaymentStatus { get; set; }
 	}
 }

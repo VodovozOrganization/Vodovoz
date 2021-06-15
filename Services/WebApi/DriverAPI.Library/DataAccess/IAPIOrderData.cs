@@ -13,8 +13,8 @@ namespace DriverAPI.Library.DataAccess
 		IEnumerable<APIOrder> Get(int[] orderIds);
 		APIOrderAdditionalInfo GetAdditionalInfo(int orderId);
 		void ChangeOrderPaymentType(int orderId, PaymentType paymentType);
-		IEnumerable<APIPaymentType> GetAvailableToChangePaymentTypes(Order order);
-		IEnumerable<APIPaymentType> GetAvailableToChangePaymentTypes(int orderId);
+		IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Order order);
+		IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId);
 		void CompleteOrderDelivery(Employee driver, int orderId, int bottlesReturnCount, int rating, int driverComplaintReasonId, string otherDriverComplaintReasonComment, DateTime actionTime);
 	}
 }

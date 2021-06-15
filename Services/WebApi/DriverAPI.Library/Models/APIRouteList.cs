@@ -2,7 +2,7 @@
 {
 	public class APIRouteList
 	{
-		public APIRouteListCompletionStatus CompletionStatus { get; set; }
+		public RouteListDtoCompletionStatus CompletionStatus { get; set; }
 		public APIIncompletedRouteList IncompletedRouteList { get; set; }
 		public CompletedRouteListDto CompletedRouteList { get; set; }
 	}

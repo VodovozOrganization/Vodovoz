@@ -3,10 +3,13 @@
 namespace DriverAPI.Library.Models
 {
 	[JsonConverter(typeof(JsonStringEnumConverter))]
-	public enum APISmsPaymentStatus
+	public enum PaymentDtoType
 	{
-		WaitingForPayment,
-		Paid,
-		Cancelled
+		Cash,
+		Cashless,
+		Terminal,
+		ByCard,
+		ByCardFromSms,
+		Payed
 	}
 }

@@ -3,13 +3,9 @@
 namespace DriverAPI.Library.Models
 {
 	[JsonConverter(typeof(JsonStringEnumConverter))]
-	public enum APIPaymentType
+	public enum RouteListDtoCompletionStatus
 	{
-		Cash,
-		Cashless,
-		Terminal,
-		ByCard,
-		ByCardFromSms,
-		Payed
+		Completed,
+		Incompleted
 	}
 }

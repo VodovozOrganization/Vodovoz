@@ -5,6 +5,6 @@ namespace DriverAPI.Library.DataAccess
 {
 	public interface ITrackPointsData
 	{
-		void RegisterForRouteList(int routeListId, IEnumerable<APITrackCoordinate> trackList);
+		void RegisterForRouteList(int routeListId, IEnumerable<TrackCoordinateDto> trackList);
 	}
 }

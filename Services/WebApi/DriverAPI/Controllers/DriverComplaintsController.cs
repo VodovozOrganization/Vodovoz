@@ -26,7 +26,7 @@ namespace DriverAPI.Controllers
 		[Authorize]
 		[HttpGet]
 		[Route("/api/GetDriverComplaintReasons")]
-		public IEnumerable<APIDriverComplaintReason> GetDriverComplaintReasons()
+		public IEnumerable<DriverComplaintReasonDto> GetDriverComplaintReasons()
 		{
 			return iAPIDriverComplaintData.GetPinnedComplaintReasons();
 		}

@@ -5,7 +5,7 @@ namespace DriverAPI.Library.Converters
 {
 	public class RouteListCompletionStatusConverter
 	{
-		public APIRouteListCompletionStatus convertToAPIRouteListCompletionStatus(RouteListStatus routeListStatus)
+		public RouteListDtoCompletionStatus convertToAPIRouteListCompletionStatus(RouteListStatus routeListStatus)
 		{
 			switch (routeListStatus)
 			{
@@ -13,12 +13,12 @@ namespace DriverAPI.Library.Converters
 				case RouteListStatus.Confirmed:
 				case RouteListStatus.InLoading:
 				case RouteListStatus.EnRoute:
-					return APIRouteListCompletionStatus.Incompleted;
+					return RouteListDtoCompletionStatus.Incompleted;
 				case RouteListStatus.Delivered:
 				case RouteListStatus.OnClosing:
 				case RouteListStatus.MileageCheck:
 				case RouteListStatus.Closed:
-					return APIRouteListCompletionStatus.Completed;
+					return RouteListDtoCompletionStatus.Completed;
 				default:
 					throw new ConverterException(nameof(routeListStatus), routeListStatus, $"Значение {routeListStatus} не поддерживается");
 			}

@@ -5,26 +5,26 @@ namespace DriverAPI.Library.Converters
 {
 	public class RouteListStatusConverter
 	{
-		public APIRouteListStatus convertToAPIRouteListStatus(RouteListStatus routeListStatus)
+		public RouteListDtoStatus convertToAPIRouteListStatus(RouteListStatus routeListStatus)
 		{
 			switch (routeListStatus)
 			{
 				case RouteListStatus.New:
-					return APIRouteListStatus.New;
+					return RouteListDtoStatus.New;
 				case RouteListStatus.Confirmed:
-					return APIRouteListStatus.Confirmed;
+					return RouteListDtoStatus.Confirmed;
 				case RouteListStatus.InLoading:
-					return APIRouteListStatus.InLoading;
+					return RouteListDtoStatus.InLoading;
 				case RouteListStatus.EnRoute:
-					return APIRouteListStatus.EnRoute;
+					return RouteListDtoStatus.EnRoute;
 				case RouteListStatus.Delivered:
-					return APIRouteListStatus.Delivered;
+					return RouteListDtoStatus.Delivered;
 				case RouteListStatus.OnClosing:
-					return APIRouteListStatus.OnClosing;
+					return RouteListDtoStatus.OnClosing;
 				case RouteListStatus.MileageCheck:
-					return APIRouteListStatus.MileageCheck;
+					return RouteListDtoStatus.MileageCheck;
 				case RouteListStatus.Closed:
-					return APIRouteListStatus.Closed;
+					return RouteListDtoStatus.Closed;
 				default:
 					throw new ConverterException(nameof(routeListStatus), routeListStatus, $"Значение {routeListStatus} не поддерживается");
 			}

@@ -3,9 +3,15 @@
 namespace DriverAPI.Library.Models
 {
 	[JsonConverter(typeof(JsonStringEnumConverter))]
-	public enum APIRouteListCompletionStatus
+	public enum RouteListDtoStatus
 	{
-		Completed,
-		Incompleted
+		New,
+		Confirmed,
+		InLoading,
+		EnRoute,
+		Delivered,
+		OnClosing,
+		MileageCheck,
+		Closed
 	}
 }

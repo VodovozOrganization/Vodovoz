@@ -5,6 +5,6 @@ namespace DriverAPI.Library.DataAccess
 {
 	public interface IAPIDriverComplaintData
 	{
-		IEnumerable<APIDriverComplaintReason> GetPinnedComplaintReasons();
+		IEnumerable<DriverComplaintReasonDto> GetPinnedComplaintReasons();
 	}
 }
