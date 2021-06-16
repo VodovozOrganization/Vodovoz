@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace DriverAPI.Library.DataAccess
 {
-	public interface IAPIRouteListData
+	public interface IRouteListModel
 	{
 		RouteListDto Get(int routeListId);
 		IEnumerable<RouteListDto> Get(int[] routeListsIds);

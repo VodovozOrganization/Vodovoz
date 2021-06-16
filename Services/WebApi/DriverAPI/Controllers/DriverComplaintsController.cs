@@ -12,9 +12,9 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class DriverComplaintsController : ControllerBase
 	{
-		private readonly IAPIDriverComplaintData iAPIDriverComplaintData;
+		private readonly IDriverComplaintModel iAPIDriverComplaintData;
 
-		public DriverComplaintsController(IAPIDriverComplaintData iAPIDriverComplaintData)
+		public DriverComplaintsController(IDriverComplaintModel iAPIDriverComplaintData)
 		{
 			this.iAPIDriverComplaintData = iAPIDriverComplaintData ?? throw new ArgumentNullException(nameof(iAPIDriverComplaintData));
 		}

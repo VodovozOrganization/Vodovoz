@@ -2,7 +2,7 @@
 
 namespace DriverAPI.Library.DataAccess
 {
-	public interface IEmployeeData
+	public interface IEmployeeModel
 	{
 		void DisablePushNotifications(Employee driver);
 		void EnablePushNotifications(Employee driver, string token);

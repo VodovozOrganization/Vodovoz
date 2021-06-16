@@ -7,7 +7,7 @@ using Vodovoz.Domain.Orders;
 
 namespace DriverAPI.Library.DataAccess
 {
-	public interface IAPIOrderData
+	public interface IOrderModel
 	{
 		OrderDto Get(int orderId);
 		IEnumerable<OrderDto> Get(int[] orderIds);

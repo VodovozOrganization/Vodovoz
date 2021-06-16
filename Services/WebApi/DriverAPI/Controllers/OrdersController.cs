@@ -15,14 +15,14 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class OrdersController : ControllerBase
 	{
-		private readonly IEmployeeData employeeData;
+		private readonly IEmployeeModel employeeData;
 		private readonly UserManager<IdentityUser> userManager;
-		private readonly IAPIOrderData aPIOrderData;
+		private readonly IOrderModel aPIOrderData;
 
 		public OrdersController(
-			IEmployeeData employeeData,
+			IEmployeeModel employeeData,
 			UserManager<IdentityUser> userManager,
-			IAPIOrderData aPIOrderData)
+			IOrderModel aPIOrderData)
 		{
 			this.employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
 			this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));

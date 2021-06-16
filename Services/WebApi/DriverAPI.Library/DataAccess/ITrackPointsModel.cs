@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DriverAPI.Library.DataAccess
 {
-	public interface ITrackPointsData
+	public interface ITrackPointsModel
 	{
 		void RegisterForRouteList(int routeListId, IEnumerable<TrackCoordinateDto> trackList);
 	}

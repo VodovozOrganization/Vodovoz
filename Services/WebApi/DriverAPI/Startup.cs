@@ -236,13 +236,13 @@ namespace DriverAPI
 			services.AddScoped<IFCMAPIHelper, FCMAPIHelper>();
 
 			// DAL обертки
-			services.AddScoped<ITrackPointsData, TrackPointsData>();
-			services.AddScoped<IDriverMobileAppActionRecordData, DriverMobileAppActionRecordData>();
-			services.AddScoped<IAPIRouteListData, APIRouteListData>();
-			services.AddScoped<IAPIOrderData, APIOrderData>();
-			services.AddScoped<IEmployeeData, EmployeeData>();
-			services.AddScoped<IAPISmsPaymentData, APISmsPaymentData>();
-			services.AddScoped<IAPIDriverComplaintData, APIDriverComplaintData>();
+			services.AddScoped<ITrackPointsModel, TrackPointsModel>();
+			services.AddScoped<IDriverMobileAppActionRecordModel, DriverMobileAppActionRecordModel>();
+			services.AddScoped<IRouteListModel, RouteListModel>();
+			services.AddScoped<IOrderModel, OrderModel>();
+			services.AddScoped<IEmployeeModel, EmployeeModel>();
+			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
+			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
 		}
 	}
 }

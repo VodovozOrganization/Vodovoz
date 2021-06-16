@@ -17,43 +17,43 @@ using Vodovoz.Services;
 
 namespace DriverAPI.Library.DataAccess
 {
-	public class APIOrderData : IAPIOrderData
+	public class OrderModel : IOrderModel
 	{
-		private readonly ILogger<APIOrderData> logger;
-		private readonly IOrderRepository orderRepository;
-		private readonly IRouteListRepository routeListRepository;
-		private readonly OrderConverter orderConverter;
-		private readonly IOrderParametersProvider orderParametersProvider;
-		private readonly IDriverApiParametersProvider webApiParametersProvider;
-		private readonly IComplaintsRepository complaintsRepository;
-		private readonly IAPISmsPaymentData aPISmsPaymentData;
-		private readonly IDriverMobileAppActionRecordData driverMobileAppActionRecordData;
-		private readonly IUnitOfWork unitOfWork;
+		private readonly ILogger<OrderModel> _logger;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IRouteListRepository _routeListRepository;
+		private readonly OrderConverter _orderConverter;
+		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IDriverApiParametersProvider _webApiParametersProvider;
+		private readonly IComplaintsRepository _complaintsRepository;
+		private readonly ISmsPaymentModel _aPISmsPaymentData;
+		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordData;
+		private readonly IUnitOfWork _unitOfWork;
 
-		private const int maxClosingRating = 5;
+		private readonly int _maxClosingRating = 5;
 
-		public APIOrderData(ILogger<APIOrderData> logger,
+		public OrderModel(ILogger<OrderModel> logger,
 			IOrderRepository orderRepository,
 			IRouteListRepository routeListRepository,
 			OrderConverter orderConverter,
 			IOrderParametersProvider orderParametersProvider,
 			IDriverApiParametersProvider webApiParametersProvider,
 			IComplaintsRepository complaintsRepository,
-			IAPISmsPaymentData aPISmsPaymentData,
-			IDriverMobileAppActionRecordData driverMobileAppActionRecordData,
+			ISmsPaymentModel aPISmsPaymentData,
+			IDriverMobileAppActionRecordModel driverMobileAppActionRecordData,
 			IUnitOfWork unitOfWork
 			)
 		{
-			this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			this.orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
-			this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			this.webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
-			this.complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
-			this.aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
-			this.driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
-			this.unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			this._orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			this._routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			this._orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
+			this._orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			this._webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
+			this._complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
+			this._aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
+			this._driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
+			this._unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
 		/// <summary>
@@ -63,10 +63,10 @@ namespace DriverAPI.Library.DataAccess
 		/// <returns>APIOrder</returns>
 		public OrderDto Get(int orderId)
 		{
-			var order = orderRepository.GetOrder(unitOfWork, orderId)
+			var order = _orderRepository.GetOrder(_unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
-			return orderConverter.convertToAPIOrder(order, aPISmsPaymentData.GetOrderPaymentStatus(orderId));
+			return _orderConverter.convertToAPIOrder(order, _aPISmsPaymentData.GetOrderPaymentStatus(orderId));
 		}
 
 		/// <summary>
@@ -77,12 +77,12 @@ namespace DriverAPI.Library.DataAccess
 		public IEnumerable<OrderDto> Get(int[] orderIds)
 		{
 			var result = new List<OrderDto>();
-			var vodovozOrders = orderRepository.GetOrders(unitOfWork, orderIds);
+			var vodovozOrders = _orderRepository.GetOrders(_unitOfWork, orderIds);
 
 			foreach (var vodovozOrder in vodovozOrders)
 			{
-				var smsPaymentStatus = aPISmsPaymentData.GetOrderPaymentStatus(vodovozOrder.Id);
-				var order = orderConverter.convertToAPIOrder(vodovozOrder, smsPaymentStatus);
+				var smsPaymentStatus = _aPISmsPaymentData.GetOrderPaymentStatus(vodovozOrder.Id);
+				var order = _orderConverter.convertToAPIOrder(vodovozOrder, smsPaymentStatus);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
 				result.Add(order);
 			}
@@ -97,7 +97,7 @@ namespace DriverAPI.Library.DataAccess
 		/// <returns>IEnumerable APIPaymentType</returns>
 		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId)
 		{
-			var vodovozOrder = orderRepository.GetOrder(unitOfWork, orderId)
+			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
 			return GetAvailableToChangePaymentTypes(vodovozOrder);
@@ -132,7 +132,7 @@ namespace DriverAPI.Library.DataAccess
 		/// <returns>APIOrderAdditionalInfo</returns>
 		public OrderAdditionalInfoDto GetAdditionalInfo(int orderId)
 		{
-			var vodovozOrder = orderRepository.GetOrder(unitOfWork, orderId)
+			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
 			return GetAdditionalInfo(vodovozOrder);
@@ -148,7 +148,7 @@ namespace DriverAPI.Library.DataAccess
 			return new OrderAdditionalInfoDto()
 			{
 				AvailablePaymentTypes = GetAvailableToChangePaymentTypes(order),
-				CanSendSms = CanSendSmsForPayment(order, aPISmsPaymentData.GetOrderPaymentStatus(order.Id)),
+				CanSendSms = CanSendSmsForPayment(order, _aPISmsPaymentData.GetOrderPaymentStatus(order.Id)),
 			};
 		}
 
@@ -161,18 +161,18 @@ namespace DriverAPI.Library.DataAccess
 		private bool CanSendSmsForPayment(Vodovoz.Domain.Orders.Order order, SmsPaymentStatus? smsPaymentStatus)
 		{
 			return order.PaymentType == PaymentType.ByCard
-				&& order.PaymentByCardFrom.Id == orderParametersProvider.PaymentByCardFromSmsId
+				&& order.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId
 				&& smsPaymentStatus != SmsPaymentStatus.Paid;
 		}
 
 		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType)
 		{
-			var vodovozOrder = orderRepository.GetOrder(unitOfWork, orderId)
+			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
 			vodovozOrder.PaymentType = paymentType;
-			unitOfWork.Save(vodovozOrder);
-			unitOfWork.Commit();
+			_unitOfWork.Save(vodovozOrder);
+			_unitOfWork.Commit();
 		}
 
 		public void CompleteOrderDelivery(
@@ -184,8 +184,8 @@ namespace DriverAPI.Library.DataAccess
 			string otherDriverComplaintReasonComment,
 			DateTime actionTime)
 		{
-			var vodovozOrder = orderRepository.GetOrder(unitOfWork, orderId);
-			var routeList = routeListRepository.GetRouteListByOrder(unitOfWork, vodovozOrder);
+			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
+			var routeList = _routeListRepository.GetRouteListByOrder(_unitOfWork, vodovozOrder);
 			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId).SingleOrDefault();
 
 			routeListAddress.DriverBottlesReturned = bottlesReturnCount;
@@ -193,16 +193,16 @@ namespace DriverAPI.Library.DataAccess
 			if (routeListAddress.Status == RouteListItemStatus.Transfered)
 			{
 				var error = $"Попытка завершения заказа, который был передан: {orderId}";
-				logger.LogWarning(error);
+				_logger.LogWarning(error);
 				throw new InvalidOperationException(error);
 			}
 
-			routeListAddress.UpdateStatus(unitOfWork, RouteListItemStatus.Completed);
+			routeListAddress.UpdateStatus(_unitOfWork, RouteListItemStatus.Completed);
 
-			if (rating < maxClosingRating)
+			if (rating < _maxClosingRating)
 			{
-				var complaintReason = complaintsRepository.GetDriverComplaintReasonById(unitOfWork, driverComplaintReasonId);
-				var complaintSource = complaintsRepository.GetComplaintSourceById(unitOfWork, webApiParametersProvider.ComplaintSourceId);
+				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_unitOfWork, driverComplaintReasonId);
+				var complaintSource = _complaintsRepository.GetComplaintSourceById(_unitOfWork, _webApiParametersProvider.ComplaintSourceId);
 				var reason = complaintReason?.Name ?? otherDriverComplaintReasonComment;
 
 				var complaint = new Complaint
@@ -217,19 +217,19 @@ namespace DriverAPI.Library.DataAccess
 						$"По причине {reason}"
 				};
 
-				unitOfWork.Save(complaint);
+				_unitOfWork.Save(complaint);
 			}
 
 			if (routeList.Status == RouteListStatus.EnRoute && routeList.Addresses.All(a => a.Status != RouteListItemStatus.EnRoute))
 			{
 				routeList.ChangeStatus(RouteListStatus.Delivered);
-				unitOfWork.Save(routeList);
+				_unitOfWork.Save(routeList);
 			}
 
-			unitOfWork.Save(routeListAddress);
-			unitOfWork.Commit();
+			_unitOfWork.Save(routeListAddress);
+			_unitOfWork.Commit();
 
-			driverMobileAppActionRecordData.RegisterAction(
+			_driverMobileAppActionRecordData.RegisterAction(
 				driver,
 				new DriverActionDto()
 				{

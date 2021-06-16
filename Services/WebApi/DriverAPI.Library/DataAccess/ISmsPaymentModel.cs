@@ -2,7 +2,7 @@
 
 namespace DriverAPI.Library.DataAccess
 {
-	public interface IAPISmsPaymentData
+	public interface ISmsPaymentModel
 	{
 		SmsPaymentStatus? GetOrderPaymentStatus(int orderId);
 	}

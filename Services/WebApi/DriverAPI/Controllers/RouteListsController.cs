@@ -16,13 +16,13 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class RouteListsController : ControllerBase
 	{
-		private readonly IAPIRouteListData aPIRouteListData;
-		private readonly IAPIOrderData aPIOrderData;
+		private readonly IRouteListModel aPIRouteListData;
+		private readonly IOrderModel aPIOrderData;
 		private readonly UserManager<IdentityUser> userManager;
 
 		public RouteListsController(
-			IAPIRouteListData aPIRouteListData,
-			IAPIOrderData aPIOrderData,
+			IRouteListModel aPIRouteListData,
+			IOrderModel aPIOrderData,
 			UserManager<IdentityUser> userManager)
 		{
 			this.aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
