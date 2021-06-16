@@ -1,10 +1,10 @@
 ﻿namespace DriverAPI.Models
 {
-	public class ErrorResponseModel
+	public class ErrorResponseDto
 	{
 		public string Error { get; set; }
 
-		public ErrorResponseModel(string message)
+		public ErrorResponseDto(string message)
 		{
 			Error = message;
 		}

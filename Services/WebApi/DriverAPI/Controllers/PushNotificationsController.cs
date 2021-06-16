@@ -40,7 +40,7 @@ namespace DriverAPI.Controllers
 		/// <param name="enablePushNotificationsRequest"></param>
 		[HttpPost]
 		[Route("/api/EnablePushNotifications")]
-		public void EnablePushNotifications([FromBody] EnablePushNotificationsRequestModel enablePushNotificationsRequest)
+		public void EnablePushNotifications([FromBody] EnablePushNotificationsRequestDto enablePushNotificationsRequest)
 		{
 			var user = userManager.GetUserAsync(User).Result;
 			var driver = employeeData.GetByAPILogin(user.UserName);

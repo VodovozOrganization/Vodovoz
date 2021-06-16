@@ -44,7 +44,7 @@ namespace DriverAPI.Controllers
 		// POST: CompleteOrderDelivery / CompleteRouteListAddress
 		[HttpPost]
 		[Route("/api/CompleteOrderDelivery")]
-		public void CompleteOrderDelivery([FromBody] CompletedOrderRequestModel completedOrderRequestModel)
+		public void CompleteOrderDelivery([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
 			var user = userManager.GetUserAsync(User).Result;
 			var driver = employeeData.GetByAPILogin(user.UserName);
@@ -66,7 +66,7 @@ namespace DriverAPI.Controllers
 		/// <param name="changeOrderPaymentTypeRequestModel">Модель данных входящего запроса</param>
 		[HttpPost]
 		[Route("/api/ChangeOrderPaymentType")]
-		public void ChangeOrderPaymentType(ChangeOrderPaymentTypeRequestModel changeOrderPaymentTypeRequestModel)
+		public void ChangeOrderPaymentType(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;
 			var newPaymentType = changeOrderPaymentTypeRequestModel.NewPaymentType;

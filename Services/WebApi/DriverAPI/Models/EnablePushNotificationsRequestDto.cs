@@ -1,6 +1,6 @@
 ﻿namespace DriverAPI.Models
 {
-	public class EnablePushNotificationsRequestModel
+	public class EnablePushNotificationsRequestDto
 	{
 		public string Token { get; set; }
 	}

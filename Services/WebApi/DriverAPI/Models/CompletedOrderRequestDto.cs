@@ -2,7 +2,7 @@
 
 namespace DriverAPI.Models
 {
-	public class CompletedOrderRequestModel
+	public class CompletedOrderRequestDto
 	{
 		public int OrderId { get; set; }
 		public int BottlesReturnCount { get; set; }

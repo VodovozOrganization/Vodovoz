@@ -3,7 +3,7 @@ using System;
 
 namespace DriverAPI.Models
 {
-	public class RouteListAddressCoordinate
+	public class RouteListAddressCoordinateDto
 	{
 		public int RouteListAddressId { get; set; }
 		public decimal Latitude { get; set; }

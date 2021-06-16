@@ -56,7 +56,7 @@ namespace DriverAPI.Controllers
 		// POST: RegisterRouteListAddressCoordinates
 		[HttpPost]
 		[Route("/api/RegisterRouteListAddressCoordinates")]
-		public void RegisterRouteListAddressCoordinate([FromBody] RouteListAddressCoordinate routeListAddressCoordinate)
+		public void RegisterRouteListAddressCoordinate([FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{
 			var user = userManager.GetUserAsync(User).Result;
 			var driver = employeeData.GetByAPILogin(user.UserName);
@@ -83,7 +83,7 @@ namespace DriverAPI.Controllers
 		/// <returns></returns>
 		[HttpPost]
 		[Route("/api/RegisterTrackCoordinates")]
-		public void RegisterTrackCoordinates([FromBody] RegisterTrackCoordinateRequestModel registerTrackCoordinateRequestModel)
+		public void RegisterTrackCoordinates([FromBody] RegisterTrackCoordinateRequestDto registerTrackCoordinateRequestModel)
 		{
 			trackPointsData.RegisterForRouteList(registerTrackCoordinateRequestModel.RouteListId, registerTrackCoordinateRequestModel.TrackList);
 		}

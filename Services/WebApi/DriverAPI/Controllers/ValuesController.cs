@@ -22,9 +22,9 @@ namespace DriverAPI.Controllers
 		[HttpGet]
 		[AllowAnonymous]
 		[Route("/api/GetCompanyPhoneNumber")]
-		public CompanyNumberResponseModel GetCompanyPhoneNumber()
+		public CompanyNumberResponseDto GetCompanyPhoneNumber()
 		{
-			return new CompanyNumberResponseModel()
+			return new CompanyNumberResponseDto()
 			{
 				Number = webApiParametersProvider.CompanyPhoneNumber
 			};

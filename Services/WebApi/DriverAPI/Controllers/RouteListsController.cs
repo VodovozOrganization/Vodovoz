@@ -38,7 +38,7 @@ namespace DriverAPI.Controllers
 		/// <returns>GetRouteListsDetailsResponseModel</returns>
 		[HttpPost]
 		[Route("/api/GetRouteListsDetails")]
-		public GetRouteListsDetailsResponseModel Get([FromBody] int[] routeListsIds)
+		public GetRouteListsDetailsResponseDto Get([FromBody] int[] routeListsIds)
 		{
 			var routeLists = aPIRouteListData.Get(routeListsIds);
 			var ordersIds = routeLists.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
@@ -46,7 +46,7 @@ namespace DriverAPI.Controllers
 
 			var orders = aPIOrderData.Get(ordersIds.ToArray());
 
-			return new GetRouteListsDetailsResponseModel()
+			return new GetRouteListsDetailsResponseDto()
 			{
 				RouteLists = routeLists,
 				Orders = orders

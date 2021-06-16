@@ -21,10 +21,10 @@ namespace DriverAPI.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/api/Register")]
-		public IActionResult Post([FromBody] RegisterRequestModel loginRequestModel)
+		public IActionResult Post([FromBody] RegisterRequestDto loginRequestModel)
 		{
-			var user = new IdentityUser() { UserName = loginRequestModel.username };
-			var result = _userManager.CreateAsync(user, loginRequestModel.password).Result;
+			var user = new IdentityUser() { UserName = loginRequestModel.Username };
+			var result = _userManager.CreateAsync(user, loginRequestModel.Password).Result;
 
 			if (result.Succeeded)
 			{
