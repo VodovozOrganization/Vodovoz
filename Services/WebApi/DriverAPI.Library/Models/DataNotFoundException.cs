@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace DriverAPI.Library.DataAccess
+namespace DriverAPI.Library.Models
 {
 	public class DataNotFoundException : ArgumentOutOfRangeException
 	{

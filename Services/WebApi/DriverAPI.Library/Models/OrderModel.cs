@@ -15,7 +15,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services;
 
-namespace DriverAPI.Library.DataAccess
+namespace DriverAPI.Library.Models
 {
 	public class OrderModel : IOrderModel
 	{

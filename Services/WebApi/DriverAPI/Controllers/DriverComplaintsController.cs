@@ -1,5 +1,5 @@
-﻿using DriverAPI.Library.DataAccess;
-using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.DTOs;
+using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;

@@ -1,5 +1,5 @@
 ﻿using DriverAPI.Library.Converters;
-using DriverAPI.Library.DataAccess;
+using DriverAPI.Library.Models;
 using DriverAPI.Library.Helpers;
 using DriverAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;

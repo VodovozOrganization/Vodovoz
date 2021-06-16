@@ -5,7 +5,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 
-namespace DriverAPI.Library.DataAccess
+namespace DriverAPI.Library.Models
 {
 	public interface IOrderModel
 	{

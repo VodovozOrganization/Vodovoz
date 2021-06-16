@@ -1,9 +1,10 @@
-﻿using QS.DomainModel.UoW;
+﻿using DriverAPI.Library.Models;
+using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
 
-namespace DriverAPI.Library.DataAccess
+namespace DriverAPI.Library.Models
 {
 	public class EmployeeModel : IEmployeeModel
 	{
@@ -12,8 +13,8 @@ namespace DriverAPI.Library.DataAccess
 
 		public EmployeeModel(IUnitOfWork unitOfWork, IEmployeeRepository employeeRepository)
 		{
-			this._unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-			this._employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 		}
 
 		public void EnablePushNotifications(Employee driver, string token)
