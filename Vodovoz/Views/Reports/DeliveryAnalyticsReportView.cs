@@ -101,7 +101,8 @@ namespace Vodovoz.Views.Reports
 
 			btnAllDay.Clicked += OnButtonStatusAllClicked;
 			btnUnAllDay.Clicked += OnButtonStatusNoneClicked;
-			btnHelp.Clicked += OnButtonHelpShowClicked;
+			btnHelp.Visible = false;
+			// btnHelp.Clicked += OnButtonHelpShowClicked;
 		}
 		
 		protected void OnButtonStatusAllClicked(object sender, EventArgs e)
