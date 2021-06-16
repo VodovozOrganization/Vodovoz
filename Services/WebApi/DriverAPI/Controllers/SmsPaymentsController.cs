@@ -40,12 +40,12 @@ namespace DriverAPI.Controllers
 		/// <returns>OrderPaymentStatusResponseModel или null</returns>
 		[HttpGet]
 		[Route("/api/GetOrderSmsPaymentStatus")]
-		public OrderPaymentStatusResponseModel GetOrderSmsPaymentStatus(int orderId)
+		public OrderPaymentStatusResponseDto GetOrderSmsPaymentStatus(int orderId)
 		{
 			var additionalInfo = aPIOrderData.GetAdditionalInfo(orderId)
 				?? throw new Exception($"Не удалось получить информацию о заказе {orderId}");
 
-			var response = new OrderPaymentStatusResponseModel()
+			var response = new OrderPaymentStatusResponseDto()
 			{
 				AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
 				CanSendSms = additionalInfo.CanSendSms,
@@ -63,7 +63,7 @@ namespace DriverAPI.Controllers
 		/// <param name="payBySmsRequestModel"></param>
 		[HttpPost]
 		[Route("/api/PayBySms")]
-		public void PayBySms(PayBySmsRequestModel payBySmsRequestModel)
+		public void PayBySms(PayBySmsRequestDto payBySmsRequestModel)
 		{
 			smsPaymentServiceAPIHelper.SendPayment(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber).Wait();
 		}

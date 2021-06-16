@@ -39,11 +39,11 @@ namespace DriverAPI.Controllers
 
 		[HttpPost]
 		[Route("/api/Authenticate")]
-		public async Task<TokenResponseModel> Post([FromBody] LoginRequestModel loginRequestModel)
+		public async Task<TokenResponseDto> Post([FromBody] LoginRequestDto loginRequestModel)
 		{
-			if (await IsValidCredentials(loginRequestModel.username, loginRequestModel.password))
+			if (await IsValidCredentials(loginRequestModel.Username, loginRequestModel.Password))
 			{
-				return await GenerateToken(loginRequestModel.username);
+				return await GenerateToken(loginRequestModel.Username);
 			}
 			else
 			{
@@ -57,7 +57,7 @@ namespace DriverAPI.Controllers
 			return await _userManager.CheckPasswordAsync(user, password);
 		}
 
-		private async Task<TokenResponseModel> GenerateToken(string username)
+		private async Task<TokenResponseDto> GenerateToken(string username)
 		{
 			var user = await _userManager.FindByNameAsync(username);
 			var roles = from ur in _context.UserRoles
@@ -85,9 +85,9 @@ namespace DriverAPI.Controllers
 						SecurityAlgorithms.HmacSha256)),
 				new JwtPayload(claims));
 
-			var output = new TokenResponseModel()
+			var output = new TokenResponseDto()
 			{
-				Access_Token = new JwtSecurityTokenHandler().WriteToken(token),
+				AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
 				UserName = username
 			};
 

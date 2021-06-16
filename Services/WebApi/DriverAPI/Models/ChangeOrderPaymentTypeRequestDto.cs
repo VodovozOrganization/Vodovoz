@@ -3,7 +3,7 @@ using System;
 
 namespace DriverAPI.Models
 {
-	public class ChangeOrderPaymentTypeRequestModel
+	public class ChangeOrderPaymentTypeRequestDto
 	{
 		public int OrderId { get; set; }
 		public PaymentDtoType NewPaymentType { get; set; }

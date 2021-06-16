@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DriverAPI.Models
 {
-	public class RegisterTrackCoordinateRequestModel
+	public class RegisterTrackCoordinateRequestDto
 	{
 		public int RouteListId { get; set; }
 		public IEnumerable<TrackCoordinateDto> TrackList { get; set; }

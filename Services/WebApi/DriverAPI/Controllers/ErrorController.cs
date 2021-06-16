@@ -19,7 +19,7 @@ namespace DriverAPI.Controllers
 
 		[HttpGet]
 		[Route("/api/error")]
-		public ErrorResponseModel Error()
+		public ErrorResponseDto Error()
 		{
 			var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
 			var exception = context?.Error;
@@ -36,7 +36,7 @@ namespace DriverAPI.Controllers
 
 			Response.StatusCode = code;
 
-			return new ErrorResponseModel(exception.Message);
+			return new ErrorResponseDto(exception.Message);
 		}
 	}
 }
