@@ -16,16 +16,16 @@ namespace DriverAPI.Controllers
 	{
 		private readonly ILogger<PushNotificationsController> logger;
 		private readonly UserManager<IdentityUser> userManager;
-		private readonly IAPIRouteListData aPIRouteListData;
+		private readonly IRouteListModel aPIRouteListData;
 		private readonly IFCMAPIHelper iFCMAPIHelper;
-		private readonly IEmployeeData employeeData;
+		private readonly IEmployeeModel employeeData;
 
 		public PushNotificationsController(
 			ILogger<PushNotificationsController> logger,
 			UserManager<IdentityUser> userManager,
-			IAPIRouteListData aPIRouteListData,
+			IRouteListModel aPIRouteListData,
 			IFCMAPIHelper iFCMAPIHelper,
-			IEmployeeData employeeData)
+			IEmployeeModel employeeData)
 		{
 			this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));

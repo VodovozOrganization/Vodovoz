@@ -8,15 +8,15 @@ using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Library.DataAccess
 {
-	public class DriverMobileAppActionRecordData : IDriverMobileAppActionRecordData
+	public class DriverMobileAppActionRecordModel : IDriverMobileAppActionRecordModel
 	{
-		private readonly IUnitOfWork unitOfWork;
-		private readonly ActionTypeConverter actionTypeConverter;
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly ActionTypeConverter _actionTypeConverter;
 
-		public DriverMobileAppActionRecordData(IUnitOfWork unitOfWork, ActionTypeConverter actionTypeConverter)
+		public DriverMobileAppActionRecordModel(IUnitOfWork unitOfWork, ActionTypeConverter actionTypeConverter)
 		{
-			this.unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-			this.actionTypeConverter = actionTypeConverter ?? throw new ArgumentNullException(nameof(actionTypeConverter));
+			this._unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			this._actionTypeConverter = actionTypeConverter ?? throw new ArgumentNullException(nameof(actionTypeConverter));
 		}
 
 		public void RegisterAction(Employee driver, DriverActionDto driverAction)
@@ -24,13 +24,13 @@ namespace DriverAPI.Library.DataAccess
 			var record = new DriverMobileAppActionRecord()
 			{
 				Driver = driver,
-				Action = actionTypeConverter.ConvertToDriverMobileAppActionType(driverAction.ActionType),
+				Action = _actionTypeConverter.ConvertToDriverMobileAppActionType(driverAction.ActionType),
 				ActionDatetime = driverAction.ActionTime,
 				RecievedDatetime = DateTime.Now
 			};
 
-			unitOfWork.Save(record);
-			unitOfWork.Commit();
+			_unitOfWork.Save(record);
+			_unitOfWork.Commit();
 		}
 
 		public void RegisterActionsRangeForDriver(Employee driver, IEnumerable<DriverActionDto> driverActions)
@@ -40,15 +40,15 @@ namespace DriverAPI.Library.DataAccess
 				var record = new DriverMobileAppActionRecord()
 				{
 					Driver = driver,
-					Action = actionTypeConverter.ConvertToDriverMobileAppActionType(action.ActionType),
+					Action = _actionTypeConverter.ConvertToDriverMobileAppActionType(action.ActionType),
 					ActionDatetime = action.ActionTime,
 					RecievedDatetime = DateTime.Now
 				};
 
-				unitOfWork.Save(record);
+				_unitOfWork.Save(record);
 			}
 
-			unitOfWork.Commit();
+			_unitOfWork.Commit();
 		}
 	}
 }

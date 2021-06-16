@@ -15,16 +15,16 @@ namespace DriverAPI.Controllers
 	public class SmsPaymentsController : ControllerBase
 	{
 		private readonly ILogger<SmsPaymentsController> logger;
-		private readonly IAPISmsPaymentData aPISmsPaymentData;
+		private readonly ISmsPaymentModel aPISmsPaymentData;
 		private readonly SmsPaymentStatusConverter smsPaymentConverter;
 		private readonly ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper;
-		private readonly IAPIOrderData aPIOrderData;
+		private readonly IOrderModel aPIOrderData;
 
 		public SmsPaymentsController(ILogger<SmsPaymentsController> logger,
-			IAPISmsPaymentData aPISmsPaymentData,
+			ISmsPaymentModel aPISmsPaymentData,
 			SmsPaymentStatusConverter smsPaymentConverter,
 			ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
-			IAPIOrderData aPIOrderData)
+			IOrderModel aPIOrderData)
 		{
 			this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			this.aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));

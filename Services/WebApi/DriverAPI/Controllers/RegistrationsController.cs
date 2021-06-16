@@ -17,18 +17,18 @@ namespace DriverAPI.Controllers
 	{
 		private readonly ILogger<RegistrationsController> logger;
 		private readonly UserManager<IdentityUser> userManager;
-		private readonly IEmployeeData employeeData;
-		private readonly IDriverMobileAppActionRecordData driverMobileAppActionRecordData;
-		private readonly IAPIRouteListData aPIRouteListData;
-		private readonly ITrackPointsData trackPointsData;
+		private readonly IEmployeeModel employeeData;
+		private readonly IDriverMobileAppActionRecordModel driverMobileAppActionRecordData;
+		private readonly IRouteListModel aPIRouteListData;
+		private readonly ITrackPointsModel trackPointsData;
 
 		public RegistrationsController(
 			ILogger<RegistrationsController> logger,
 			UserManager<IdentityUser> userManager,
-			IEmployeeData employeeData,
-			IDriverMobileAppActionRecordData driverMobileAppActionRecordData,
-			IAPIRouteListData aPIRouteListData,
-			ITrackPointsData trackPointsData)
+			IEmployeeModel employeeData,
+			IDriverMobileAppActionRecordModel driverMobileAppActionRecordData,
+			IRouteListModel aPIRouteListData,
+			ITrackPointsModel trackPointsData)
 		{
 			this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
