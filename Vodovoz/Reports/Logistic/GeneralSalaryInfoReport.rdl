@@ -63,7 +63,7 @@
                   END) as emplDriverOf,
                   CONCAT_WS('', CONCAT(works_with.last_name, ' '), IF(works_with.name = '', '', CONCAT(LEFT(works_with.name, 1),'.')), IF(works_with.patronymic = '', '', CONCAT(LEFT(works_with.patronymic, 1),'.'))
                   ) as works_withName,
-                  SUM(IF(rl.`status` = 'Closed', wmo.money, plan.planSum)) as moneySum
+                  SUM(IF(rl.`status` = 'Closed', wmo.money, IF(empl.category='driver', plan.planDriverSum, plan.planForwarderSum))) AS moneySum
               FROM employees empl
               LEFT JOIN employees works_with ON (works_with.id = empl.default_forwarder_id AND empl.category ='driver')
                                              OR (works_with.default_forwarder_id = empl.id AND empl.category ='forwarder')
@@ -72,8 +72,9 @@
                                         OR (empl.category='driver' AND rl.driver_id = empl.id))
               LEFT JOIN 
 				  		(
-						  SELECT route_list_id,
-								SUM(rla.driver_wage + rla.driver_wage_surcharge) planSum
+						  SELECT rla.route_list_id,
+								SUM(rla.driver_wage + rla.driver_wage_surcharge) AS planDriverSum,
+								SUM(rla.forwarder_wage) AS planForwarderSum
 								FROM route_list_addresses rla
 								WHERE rla.status IN ('Completed', 'EnRoute')
 								GROUP BY rla.route_list_id
@@ -93,8 +94,8 @@
               SELECT
                   empl.id as emplID,
                   COUNT(rla.id) as addrCount,
-                  SUM(bmo.delivered) as delCount,
-                  SUM(bmo.returned) as retCount,
+                  SUM(IF(rl.status = 'Closed', bmo.delivered, orderBottles.count)) AS delCount,
+                  SUM(IF(rl.status = 'Closed', bmo.returned, o.bottles_return)) AS retCount,
                   COUNT(DISTINCT(DAY(rl.date))) as countWD
               FROM employees empl
               INNER JOIN route_lists rl ON rl.status &lt;&gt; 'New'  AND rl.date  &gt;= @start_date AND rl.date  &lt;= @end_date
@@ -102,6 +103,12 @@
                                        OR (empl.category='driver' AND rl.driver_id = empl.id))
               INNER JOIN route_list_addresses rla ON rla.route_list_id = rl.id AND rla.status IN ('Completed', 'EnRoute')
               LEFT JOIN bottles_movement_operations bmo ON bmo.order_id = rla.order_id
+              LEFT JOIN orders o ON o.id = rla.order_id
+              LEFT JOIN (SELECT oi.order_id, SUM(oi.count) AS count
+                  FROM order_items oi INNER JOIN nomenclature n ON n.id = oi.nomenclature_id
+                  WHERE n.category = 'water' AND n.is_disposable_tare = FALSE
+                  GROUP BY oi.order_id
+              ) AS orderBottles ON orderBottles.order_id = o.id
               WHERE
                   (@employee_id != '' AND empl.id = @employee_id OR @employee_id = '')
               AND (@employee_category = '' AND (empl.category='driver' OR empl.category='forwarder') OR empl.category=@employee_category)
@@ -1008,6 +1015,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>

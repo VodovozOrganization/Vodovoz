@@ -117,6 +117,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Views.Reports;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Reports;
 
 namespace Vodovoz
 {
@@ -265,10 +266,11 @@ namespace Vodovoz
                 .RegisterWidgetForWidgetViewModel<NomenclaturePlanFilterViewModel, NomenclaturePlanFilterView>()
                 .RegisterWidgetForWidgetViewModel<OrganizationCashTransferDocumentFilterViewModel, OrganizationCashTransferDocumentFilterView>()
 				.RegisterWidgetForWidgetViewModel<PremiumJournalFilterViewModel, PremiumJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<DeliveryAnalyticsViewModel, DeliveryAnalyticsReportView>()
 				.RegisterWidgetForWidgetViewModel<CarEventFilterViewModel, CarEventFilterView>()
-;
+				;
 
-            DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
+			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 
 		static void ConfigureJournalColumnsConfigs()

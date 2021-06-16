@@ -1265,7 +1265,6 @@
     <Compile Include="ViewModels\Logistic\RouteListsOnDayViewModel.cs" />
     <Compile Include="Views\Logistic\RouteListsOnDayView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListsOnDayView.cs" />
-    <Compile Include="ViewModels\Logistic\GeographicGroupNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteColumnTag.cs" />
     <Compile Include="Additions\Logistic\PointMarkerType.cs" />
     <Compile Include="Additions\Logistic\PointMarkerShape.cs" />
@@ -1627,6 +1626,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.CarsExploitationReportView.cs" />
     <Compile Include="Views\Employees\PremiumTemplateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumTemplateView.cs" />
+    <Compile Include="Views\Reports\DeliveryAnalyticsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.DeliveryAnalyticsReportView.cs" />
     <Compile Include="Views\Logistic\CarEventTypeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarEventTypeView.cs" />
     <Compile Include="Views\Logistic\CarEventView.cs" />
