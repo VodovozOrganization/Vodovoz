@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 
-namespace DriverAPI.Library.DataAccess
+namespace DriverAPI.Library.Models
 {
 	public interface IDriverMobileAppActionRecordModel
 	{

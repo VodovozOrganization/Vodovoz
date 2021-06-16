@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
 
-namespace DriverAPI.Library.DataAccess
+namespace DriverAPI.Library.Models
 {
 	public class DriverMobileAppActionRecordModel : IDriverMobileAppActionRecordModel
 	{

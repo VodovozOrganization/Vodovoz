@@ -1,4 +1,4 @@
-﻿using DriverAPI.Library.DataAccess;
+﻿using DriverAPI.Library.Models;
 using DriverAPI.Library.DTOs;
 using DriverAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;

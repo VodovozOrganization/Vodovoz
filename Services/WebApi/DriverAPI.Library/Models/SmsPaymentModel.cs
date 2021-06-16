@@ -3,7 +3,7 @@ using System;
 using Vodovoz.Domain;
 using Vodovoz.EntityRepositories.Orders;
 
-namespace DriverAPI.Library.DataAccess
+namespace DriverAPI.Library.Models
 {
 	public class SmsPaymentModel : ISmsPaymentModel
 	{

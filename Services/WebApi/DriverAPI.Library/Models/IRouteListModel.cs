@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DriverAPI.Library.DataAccess
+namespace DriverAPI.Library.Models
 {
 	public interface IRouteListModel
 	{

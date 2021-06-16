@@ -8,7 +8,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 
-namespace DriverAPI.Library.DataAccess
+namespace DriverAPI.Library.Models
 {
 	public class RouteListModel : IRouteListModel
 	{

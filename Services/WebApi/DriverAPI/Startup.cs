@@ -1,5 +1,5 @@
 ﻿using DriverAPI.Data;
-using DriverAPI.Library.DataAccess;
+using DriverAPI.Library.Models;
 using DriverAPI.Library.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;

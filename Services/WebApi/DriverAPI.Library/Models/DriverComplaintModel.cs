@@ -1,12 +1,13 @@
 ﻿using DriverAPI.Library.Converters;
 using DriverAPI.Library.DTOs;
+using DriverAPI.Library.Models;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.EntityRepositories.Complaints;
 
-namespace DriverAPI.Library.DataAccess
+namespace DriverAPI.Library.Models
 {
 	public class DriverComplaintModel : IDriverComplaintModel
 	{
