@@ -59,7 +59,7 @@ namespace DriverAPI
 			// Подключение к БД
 
 			services.AddDbContext<ApplicationDbContext>(options =>
-										options.UseMySQL(	Configuration.GetConnectionString("DefaultConnection")));
+				options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
 			services.AddDatabaseDeveloperPageExceptionFilter();
 
 			// Конфигурация Nhibernate

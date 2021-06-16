@@ -1,7 +1,7 @@
 ﻿using DriverAPI.Library.Converters;
 using DriverAPI.Library.DataAccess;
 using DriverAPI.Library.Helpers;
-using DriverAPI.Models;
+using DriverAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

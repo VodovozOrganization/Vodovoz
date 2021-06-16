@@ -1,7 +1,7 @@
 ﻿using DriverAPI.Library.DTOs;
 using System.Collections.Generic;
 
-namespace DriverAPI.Models
+namespace DriverAPI.DTOs
 {
 	public class GetRouteListsDetailsResponseDto
 	{

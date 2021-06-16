@@ -1,4 +1,4 @@
-﻿using DriverAPI.Models;
+﻿using DriverAPI.DTOs;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
