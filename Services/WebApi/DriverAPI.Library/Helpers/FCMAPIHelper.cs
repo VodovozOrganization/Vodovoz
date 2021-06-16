@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using DriverAPI.Library.DTOs;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -8,7 +9,7 @@ namespace DriverAPI.Library.Helpers
 {
 	public class FCMAPIHelper : IFCMAPIHelper
 	{
-		private string sendPushNotificationEndpointURI;
+		private string _sendPushNotificationEndpointURI;
 		private HttpClient _apiClient;
 
 		public FCMAPIHelper(IConfiguration configuration)
@@ -18,10 +19,10 @@ namespace DriverAPI.Library.Helpers
 
 		public async Task SendPushNotification(string pushNotificationClientToken, string sender, string message)
 		{
-			var request = new FCMSendPushRequestModel()
+			var request = new FCMSendPushRequestDto()
 			{
 				to = pushNotificationClientToken,
-				data = new FCMSendPushMessageModel()
+				data = new FCMSendPushMessageDto()
 				{
 					notificationType = "orderPaymentStatusChange",
 					sender = sender,
@@ -29,7 +30,7 @@ namespace DriverAPI.Library.Helpers
 				}
 			};
 
-			using (HttpResponseMessage response = await _apiClient.PostAsJsonAsync(sendPushNotificationEndpointURI, request))
+			using (HttpResponseMessage response = await _apiClient.PostAsJsonAsync(_sendPushNotificationEndpointURI, request))
 			{
 				if (response.IsSuccessStatusCode)
 				{
@@ -53,7 +54,7 @@ namespace DriverAPI.Library.Helpers
 			_apiClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"key={apiConfiguration["AccessToken"]}");
 			_apiClient.DefaultRequestHeaders.TryAddWithoutValidation("Sender", $"id={apiConfiguration["AppId"]}");
 
-			sendPushNotificationEndpointURI = apiConfiguration["SendPushNotificationEndpointURI"];
+			_sendPushNotificationEndpointURI = apiConfiguration["SendPushNotificationEndpointURI"];
 		}
 	}
 }
