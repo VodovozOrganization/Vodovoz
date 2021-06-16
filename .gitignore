@@ -2,6 +2,8 @@
 *.userprefs
 *.usertasks
 *.DotSettings.user
+*.csproj.user
+*.pubxml.user
 *~
 
 #Rider
