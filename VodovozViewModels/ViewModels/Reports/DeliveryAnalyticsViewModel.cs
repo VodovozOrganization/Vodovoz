@@ -196,10 +196,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			
 			if(!selectedWages.Any() || selectedWages.Count() == 2)
 			{
-				_oneWaveMorningQuery.Where(x => x.CreateDate < createDate4 && deliveryScheduleAlias.From < createDate12.TimeOfDay);
+				_oneWaveMorningQuery.Where(x =>
+					(x.CreateDate < createDate4 && deliveryScheduleAlias.From < createDate12.TimeOfDay) ||
+					deliveryScheduleAlias.From < createDate12.TimeOfDay);
 				_oneWaveDayQuery.Where(x =>
-					x.CreateDate < createDate4 && deliveryScheduleAlias.From >= createDate12.TimeOfDay
-					                           && deliveryScheduleAlias.From < createDate18.TimeOfDay);
+					(x.CreateDate < createDate4 && deliveryScheduleAlias.From >= createDate12.TimeOfDay
+					                            && deliveryScheduleAlias.From < createDate18.TimeOfDay) ||
+					deliveryScheduleAlias.From >= createDate12.TimeOfDay && deliveryScheduleAlias.From < createDate18.TimeOfDay);
 				_oneWaveEveningQuery.Where(x => 
 					deliveryScheduleAlias.From >= createDate18.TimeOfDay && wageDistrictAlias.Name == "Пригород");
 				_twoWaveQuery.Where(x =>

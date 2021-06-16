@@ -144,6 +144,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 			       CountBigOrders19LFinal.ToString("N0") + ";" + SumSmallAndBigOrdersFinal + ";" +
 			       SumSmallAndBigOrders19LFinal.ToString("N0") + ";";
 		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is DeliveryAnalyticsReportNode node && Id == node.Id && DistrictName == node.DistrictName;
+		}
+
+		public override int GetHashCode()
+		{
+			int hashCode = Id.GetHashCode();
+			hashCode = 31 * hashCode + DistrictName.GetHashCode();
+			return hashCode;
+		}
 	}
 	
 	public sealed class DeliveryAnalyticsReportNodeMap : ClassMap<DeliveryAnalyticsReportNode>
