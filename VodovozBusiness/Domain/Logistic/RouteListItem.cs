@@ -587,11 +587,6 @@ namespace Vodovoz.Domain.Logistic
 			return Status == RouteListItemStatus.Completed || Status == RouteListItemStatus.EnRoute && routeListUnloaded;
 		}
 
-		public virtual bool IsValidForWageCalculation()
-		{
-			return !GetNotDeliveredStatuses().Contains(Status);
-		}
-
 		public virtual int GetFullBottlesDeliveredCount()
 		{
 			return (int)Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
