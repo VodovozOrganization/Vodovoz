@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DriverAPI.Models
+namespace DriverAPI.DTOs
 {
 	public class CompletedOrderRequestDto
 	{

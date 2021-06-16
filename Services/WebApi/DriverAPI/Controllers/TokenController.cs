@@ -1,5 +1,5 @@
 ﻿using DriverAPI.Data;
-using DriverAPI.Models;
+using DriverAPI.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;

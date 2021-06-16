@@ -1,4 +1,4 @@
-﻿namespace DriverAPI.Models
+﻿namespace DriverAPI.DTOs
 {
 	public class TokenResponseDto
 	{
