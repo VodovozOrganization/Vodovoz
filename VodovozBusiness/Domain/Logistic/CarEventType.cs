@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using System.Collections.Generic;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +12,7 @@ namespace Vodovoz.Domain.Logistic
 	[EntityPermission]
 	[HistoryTrace]
 
-	public class CarEventType : PropertyChangedBase, IDomainObject
+	public class CarEventType : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private string _name;
 		private string _shortName;
@@ -22,7 +23,6 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int Id { get; set; }
 
-		[Required(ErrorMessage = "Название должно быть заполнено.")]
 		[Display(Name = "Название ")]
 		public virtual string Name
 		{
@@ -30,7 +30,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _name, value);
 		}
 
-		[Required(ErrorMessage = "Сокращённое название должно быть заполнено.")]
 		[Display(Name = "Сокращенное название")]
 		public virtual string ShortName
 		{
@@ -52,6 +51,25 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _isArchive, value);
 		}
 
+		#endregion
+
+		#region IValidatableObject implementation
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(string.IsNullOrEmpty(Name))
+			{
+				yield return new ValidationResult("Название должно быть заполнено.",
+					new[] { nameof(CarEventType) });
+			}
+
+			if(string.IsNullOrEmpty(ShortName))
+			{
+				yield return new ValidationResult("Сокращённое название должно быть заполнено.",
+					new[] { nameof(CarEventType) });
+			}
+		}
+		
 		#endregion
 	}
 }

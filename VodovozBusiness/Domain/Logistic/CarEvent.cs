@@ -43,7 +43,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _author, value);
 		}
 
-		[Required(ErrorMessage = "Вид события ТС должен быть указан.")]
 		[Display(Name = "Вид события ТС")]
 		public virtual CarEventType CarEventType
 		{
@@ -51,7 +50,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _carEventType, value);
 		}
 
-		[Required(ErrorMessage = "Автомобиль должен быть указан.")]
 		[Display(Name = "Автомобиль")]
 		public virtual Car Car
 		{
@@ -66,7 +64,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _driver, value);
 		}
 
-		[Required(ErrorMessage = "Дата начала события ТС должна быть указана.")]
 		[Display(Name = "Дата начала события ТС")]
 		public virtual DateTime StartDate
 		{
@@ -74,7 +71,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _startDate, value);
 		}
 
-		[Required(ErrorMessage = "Дата окончания события ТС должна быть указана.")]
 		[Display(Name = "Дата окончания события ТС")]
 		public virtual DateTime EndDate
 		{
@@ -100,9 +96,21 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(CarEventType == null)
+			{
+				yield return new ValidationResult("Вид события ТС должен быть указан.",
+					new[] { nameof(CarEventType) });
+			}
+
+			if(Car == null)
+			{
+				yield return new ValidationResult("Автомобиль должен быть указан.",
+					new[] { nameof(Car) });
+			}
+
 			if(StartDate == default(DateTime))
 			{
-				yield return new ValidationResult(String.Format("Дата начала события должна быть указана."),
+				yield return new ValidationResult("Дата начала события должна быть указана.",
 					new[] { nameof(StartDate) });
 			}
 
@@ -118,7 +126,7 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(StartDate), nameof(EndDate) });
 			}
 
-			if(CarEventType.NeedComment && string.IsNullOrEmpty(Comment))
+			if(CarEventType != null && CarEventType.NeedComment && string.IsNullOrEmpty(Comment))
 			{
 				yield return new ValidationResult("Комментарий должен быть заполнен.",
 						new[] { nameof(Comment) });

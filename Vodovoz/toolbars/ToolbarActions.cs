@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using Dialogs.Employees;
 using Gtk;
@@ -46,7 +47,9 @@ using QS.Project.Journal;
 using QS.Project.Repositories;
 using QS.Project.Services.GtkUI;
 using Vodovoz.Additions;
+using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
@@ -76,7 +79,6 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Vodovoz.ViewModels.TempAdapters;
 
 public partial class MainWindow : Window
 {
@@ -1053,17 +1055,36 @@ public partial class MainWindow : Window
 
 	void ActionCarEventsJournalActivated(object sender, System.EventArgs e)
 	{
-		ICarJournalFactory carJournalFactory = new CarJournalFactory();
-		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
+		IEntityAutocompleteSelectorFactory carAutocompleteSelectorFactory
+			= new EntityAutocompleteSelectorFactory<CarJournalViewModel>(typeof(Car), () =>
+				{
+					var carFilter = new CarJournalFilterViewModel
+					{
+						RestrictedCarTypesOfUse = new List<CarTypeOfUse>(
+							new[] { CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle })
+					};
+					return new CarJournalViewModel(carFilter, UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices);
+				}
+			);
 
-		var filter = new CarEventFilterViewModel(carJournalFactory, carEventTypeJournalFactory) {HidenByDefault = true};
+		var carEventTypeAutocompleteSelectorFactory =
+			new EntityAutocompleteSelectorFactory<CarEventTypeJournalViewModel>(typeof(CarEventType), () =>
+			{
+				return new CarEventTypeJournalViewModel(
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices
+				);
+			});
+
+		var carEventFilter = new CarEventFilterViewModel(carAutocompleteSelectorFactory, carEventTypeAutocompleteSelectorFactory) {HidenByDefault = true};
 
 		tdiMain.OpenTab(() => new CarEventJournalViewModel(
-			filter,
+			carEventFilter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			carJournalFactory,
-			carEventTypeJournalFactory)
+			carAutocompleteSelectorFactory,
+			carEventTypeAutocompleteSelectorFactory)
 		);
 	}
 }

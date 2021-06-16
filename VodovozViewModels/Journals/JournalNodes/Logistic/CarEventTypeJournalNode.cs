@@ -5,6 +5,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 {
 	public class CarEventTypeJournalNode : JournalEntityNodeBase<CarEventType>
 	{
+		public override string Title => Name;
 		public string Name { get; set; }
 		public string ShortName { get; set; }
 		public bool NeedComment { get; set; }
