@@ -11,5 +11,7 @@
 		public string RoomType { get; set; }
 		public string DeliveryPointCategory { get; set; }
 		public string Entrance { get; set; }
+		public decimal Latitude { get; set; }
+		public decimal Longitude { get; set; }
 	}
 }

@@ -17,7 +17,9 @@ namespace DriverAPI.Library.Converters
 				Apartment = deliveryPoint.Room,
 				DeliveryPointCategory = deliveryPoint.Category?.Name,
 				EntranceType = deliveryPoint.EntranceType.ToString(),
-				RoomType = deliveryPoint.RoomType.ToString()
+				RoomType = deliveryPoint.RoomType.ToString(),
+				Latitude = deliveryPoint.Latitude ?? 0,
+				Longitude = deliveryPoint.Longitude ?? 0
 			};
 		}
 	}
