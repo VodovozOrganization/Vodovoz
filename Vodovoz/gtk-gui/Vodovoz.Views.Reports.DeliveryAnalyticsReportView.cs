@@ -88,7 +88,7 @@ namespace Vodovoz.Views.Reports
 			this.districtEntry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.districtEntry.Events = ((global::Gdk.EventMask)(256));
 			this.districtEntry.Name = "districtEntry";
-			this.districtEntry.CanEditReference = true;
+			this.districtEntry.CanEditReference = false;
 			this.ytable1.Add(this.districtEntry);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytable1[this.districtEntry]));
 			w4.LeftAttach = ((uint)(1));
