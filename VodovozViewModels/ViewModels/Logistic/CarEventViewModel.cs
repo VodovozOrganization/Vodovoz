@@ -9,6 +9,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -16,11 +17,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	{
 		private DelegateCommand _changeDriverCommand;
 		public CarEventViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory carSelectorFactory, IEntityAutocompleteSelectorFactory carEventTypeSelectorFactory)
+			ICarJournalFactory carJournalFactory, ICarEventTypeJournalFactory carEventTypeJournalFactory)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			CarSelectorFactory = carSelectorFactory ?? throw new ArgumentNullException(nameof(carSelectorFactory));
-			CarEventTypeSelectorFactory = carEventTypeSelectorFactory ?? throw new ArgumentNullException(nameof(carEventTypeSelectorFactory));
+			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
+			CarEventTypeSelectorFactory = carEventTypeJournalFactory.CreateCarEventTypeAutocompleteSelectorFactory();
 
 			TabName = "Событие ТС";
 

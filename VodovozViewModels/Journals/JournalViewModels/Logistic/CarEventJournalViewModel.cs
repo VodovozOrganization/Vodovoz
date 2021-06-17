@@ -4,13 +4,13 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -19,17 +19,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	public class CarEventJournalViewModel : FilterableSingleEntityJournalViewModelBase<CarEvent, CarEventViewModel, CarEventJournalNode,
 		CarEventFilterViewModel>
 	{
-		private readonly IEntityAutocompleteSelectorFactory _carSelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory _carEventTypeSelectorFactory;
+		private readonly ICarJournalFactory _carJournalFactory;
+		private readonly ICarEventTypeJournalFactory _carEventTypeJournalFactory;
 
 		public CarEventJournalViewModel(CarEventFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, IEntityAutocompleteSelectorFactory carSelectorFactory, IEntityAutocompleteSelectorFactory carEventTypeSelectorFactory)
+			ICommonServices commonServices, ICarJournalFactory carJournalFactory, ICarEventTypeJournalFactory carEventTypeJournalFactory)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал событий ТС";
 
-			_carSelectorFactory = carSelectorFactory ?? throw new ArgumentNullException(nameof(carSelectorFactory));
-			_carEventTypeSelectorFactory = carEventTypeSelectorFactory ?? throw new ArgumentNullException(nameof(carEventTypeSelectorFactory));
+			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
+			_carEventTypeJournalFactory = carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory));
 
 			UpdateOnChanges(typeof(CarEvent));
 		}
@@ -134,9 +134,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		};
 
 		protected override Func<CarEventViewModel> CreateDialogFunction =>
-			() => new CarEventViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _carSelectorFactory, _carEventTypeSelectorFactory);
+			() => new CarEventViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _carJournalFactory, _carEventTypeJournalFactory);
 
 		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
-			node => new CarEventViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _carSelectorFactory, _carEventTypeSelectorFactory);
+			node => new CarEventViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _carJournalFactory, _carEventTypeJournalFactory);
 	}
 }

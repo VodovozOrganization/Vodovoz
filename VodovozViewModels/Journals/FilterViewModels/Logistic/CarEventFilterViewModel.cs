@@ -4,6 +4,7 @@ using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
@@ -19,11 +20,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private Car _car;
 		private Employee _driver;
 		private CarEventType _carEventType;
-
-		public CarEventFilterViewModel(IEntityAutocompleteSelectorFactory carSelectorFactory, IEntityAutocompleteSelectorFactory carEventTypeSelectorFactory)
+		public CarEventFilterViewModel(ICarJournalFactory carJournalFactory, ICarEventTypeJournalFactory carEventTypeJournalFactory)
 		{
-			CarSelectorFactory = carSelectorFactory?? throw new ArgumentNullException(nameof(carSelectorFactory));
-			CarEventTypeSelectorFactory = carEventTypeSelectorFactory ?? throw new ArgumentNullException(nameof(carEventTypeSelectorFactory));
+			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
+			CarEventTypeSelectorFactory = carEventTypeJournalFactory.CreateCarEventTypeAutocompleteSelectorFactory();
 		}
 
 		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }

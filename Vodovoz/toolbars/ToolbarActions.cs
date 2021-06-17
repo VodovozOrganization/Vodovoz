@@ -78,6 +78,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 public partial class MainWindow : Window
@@ -1055,36 +1056,17 @@ public partial class MainWindow : Window
 
 	void ActionCarEventsJournalActivated(object sender, System.EventArgs e)
 	{
-		IEntityAutocompleteSelectorFactory carAutocompleteSelectorFactory
-			= new EntityAutocompleteSelectorFactory<CarJournalViewModel>(typeof(Car), () =>
-				{
-					var carFilter = new CarJournalFilterViewModel
-					{
-						RestrictedCarTypesOfUse = new List<CarTypeOfUse>(
-							new[] { CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle })
-					};
-					return new CarJournalViewModel(carFilter, UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices);
-				}
-			);
+		ICarJournalFactory carJournalFactory = new CarJournalFactory();
+		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
 
-		var carEventTypeAutocompleteSelectorFactory =
-			new EntityAutocompleteSelectorFactory<CarEventTypeJournalViewModel>(typeof(CarEventType), () =>
-			{
-				return new CarEventTypeJournalViewModel(
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices
-				);
-			});
-
-		var carEventFilter = new CarEventFilterViewModel(carAutocompleteSelectorFactory, carEventTypeAutocompleteSelectorFactory) {HidenByDefault = true};
+		var carEventFilter = new CarEventFilterViewModel(carJournalFactory, carEventTypeJournalFactory) { HidenByDefault = true };
 
 		tdiMain.OpenTab(() => new CarEventJournalViewModel(
 			carEventFilter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			carAutocompleteSelectorFactory,
-			carEventTypeAutocompleteSelectorFactory)
+			carJournalFactory,
+			carEventTypeJournalFactory)
 		);
 	}
 }
