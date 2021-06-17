@@ -1570,8 +1570,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
     <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
-    <Compile Include="ReportsParameters\Logistic\CarsExploitationReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.CarsExploitationReport.cs" />
     <Compile Include="Views\Logistic\DriverCarKindView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverCarKindView.cs" />
     <Compile Include="Filters\GtkViews\DriverCarKindJournalFilterView.cs" />
@@ -2025,9 +2023,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Cash\CashFlowDetailIncomeReturn.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\CarsExploitationReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\CarsExploitationReport.xlsx">
