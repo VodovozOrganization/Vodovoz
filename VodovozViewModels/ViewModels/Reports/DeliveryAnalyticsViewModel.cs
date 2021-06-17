@@ -9,7 +9,6 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using Org.BouncyCastle.Math.EC.Rfc7748;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
