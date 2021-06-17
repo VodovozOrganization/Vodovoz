@@ -67,11 +67,11 @@ namespace DriverAPI.Library.Converters
 				{
 					var routelistAddresses = new List<RouteListAddressDto>();
 
-					foreach (var address in routeList.Addresses)
+					foreach (var address in routeList.Addresses.OrderBy(address => address.IndexInRoute))
 					{
 						routelistAddresses.Add(convertToAPIRouteListAddress(address));
 					}
-
+					
 					result.IncompletedRouteList = new IncompletedRouteListDto()
 					{
 						RouteListId = routeList.Id,
