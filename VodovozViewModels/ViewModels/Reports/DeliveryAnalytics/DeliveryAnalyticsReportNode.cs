@@ -147,23 +147,23 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 
 		public override string ToString()
 		{
-			return Id + ";" + GeographicGroupName + ";" + CityOrSuburb + ";" + DistrictName + ";" +
+			return ";" + GeographicGroupName + ";" + CityOrSuburb + ";" + DistrictName + ";" +
 			       CultureInfo.CurrentCulture.DateTimeFormat.GetDayName(DayOfWeek.DayOfWeek) + ";" + DeliveryDate.ToShortDateString() +  ";"
-			       + NullCountSmallOrdersOneMorning + ";" + CountSmallOrders19LOneMorning.ToString("N0") + ";" +
+			       + CountSmallOrdersOneMorning + ";" + CountSmallOrders19LOneMorning.ToString("N0") + ";" +
 			       CountBigOrdersOneMorning + ";" + CountBigOrders19LOneMorning.ToString("N0") + ";" + SumSmallAndBigOrdersOneMorning +
-			       ";" + SumSmallAndBigOrders19LOneMorning.ToString("N0") + ";" + NullCountSmallOrdersOneDay + ";" +
+			       ";" + SumSmallAndBigOrders19LOneMorning.ToString("N0") + ";" + CountSmallOrdersOneDay + ";" +
 			       CountSmallOrders19LOneDay.ToString("N0") + ";" +  CountBigOrdersOneDay + ";" + 
 			       CountBigOrders19LOneDay.ToString("N0") + ";" + SumSmallAndBigOrdersOneDay + ";" +
-			       SumSmallAndBigOrders19LOneDay.ToString("N0") + ";" + NullCountSmallOrdersOneEvening + ";" +
+			       SumSmallAndBigOrders19LOneDay.ToString("N0") + ";" + CountSmallOrdersOneEvening + ";" +
 			       CountSmallOrders19LOneEvening.ToString("N0") + ";" +  CountBigOrdersOneEvening + ";" + 
 			       CountBigOrders19LOneEvening.ToString("N0") + ";" + SumSmallAndBigOrdersOneEvening + ";" +  
 			       SumSmallAndBigOrders19LOneEvening.ToString("N0") + ";" + CountSmallOrdersOneFinal + ";" +
 			       CountSmallOrders19LOneFinal.ToString("N0") + ";" +  CountBigOrdersOneFinal + ";" + 
 			       CountBigOrders19LOneFinal.ToString("N0") + ";" + SumSmallAndBigOrdersOneFinal + ";" +
-			       SumSmallAndBigOrders19LOneFinal.ToString("N0") + ";" + NullCountSmallOrdersTwoDay + ";" +
+			       SumSmallAndBigOrders19LOneFinal.ToString("N0") + ";" + CountSmallOrdersTwoDay + ";" +
 			       CountSmallOrders19LTwoDay.ToString("N0") + ";" +  CountBigOrdersTwoDay + ";" + 
 			       CountBigOrders19LTwoDay.ToString("N0") + ";" + SumSmallAndBigOrdersTwoDay + ";" +
-			       SumSmallAndBigOrders19LTwoDay.ToString("N0") + ";" + NullCountSmallOrdersThreeDay + ";" +
+			       SumSmallAndBigOrders19LTwoDay.ToString("N0") + ";" + CountSmallOrdersThreeDay + ";" +
 			       CountSmallOrders19LThreeDay.ToString("N0") + ";" + CountBigOrdersThreeDay + ";" + 
 			       CountBigOrders19LThreeDay.ToString("N0") + ";" + SumSmallAndBigOrdersThreeDay + ";" +
 			       SumSmallAndBigOrders19LThreeDay.ToString("N0") + ";" + CountSmallOrdersFinal + ";" +
