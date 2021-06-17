@@ -90,7 +90,8 @@ namespace DriverAPI.Library.Converters
 			{
 				Id = routeListAddress.Id,
 				Status = routeListAddressStatusConverter.convertToAPIRouteListAddressStatus(routeListAddress.Status),
-				DeliveryTime = routeListAddress.Order.DeliveryDate ?? DateTime.MinValue,
+				DeliveryIntervalStart = routeListAddress.Order.DeliveryDate + routeListAddress.Order.DeliverySchedule.From ?? DateTime.MinValue,
+				DeliveryIntervalEnd = routeListAddress.Order.DeliveryDate + routeListAddress.Order.DeliverySchedule.To ?? DateTime.MinValue,
 				OrderId = routeListAddress.Order.Id,
 				FullBottlesCount = routeListAddress.Order.BottlesReturn ?? 0,
 				Address = deliveryPointConverter.extractAPIAddressFromDeliveryPoint(routeListAddress.Order.DeliveryPoint)
