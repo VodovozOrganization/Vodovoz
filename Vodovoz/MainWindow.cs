@@ -2322,4 +2322,9 @@ public partial class MainWindow : Gtk.Window
 				districtSelectorFactory)
 		);
 	}
+	
+	protected void OnActionCarServiceAcivated(object sender, EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.car_service.xml");
+	}
 }
