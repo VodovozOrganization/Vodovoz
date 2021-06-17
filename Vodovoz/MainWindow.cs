@@ -2305,16 +2305,21 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
 	{
-		var _districtSelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<District, DistrictJournalViewModel,
-				DistrictJournalFilterViewModel>(ServicesConfig.CommonServices);
-
+		var districtSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () => {
+			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
+			return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+				EnableDeleteButton = true,
+				EnableAddButton = true,
+				EnableEditButton = true
+			};
+		});
+		
 		tdiMain.AddTab(
 			new DeliveryAnalyticsViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService,
 				NavigationManager,
-				_districtSelectorFactory)
+				districtSelectorFactory)
 		);
 	}
 }
