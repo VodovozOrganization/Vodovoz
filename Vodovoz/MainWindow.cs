@@ -2300,5 +2300,25 @@ public partial class MainWindow : Gtk.Window
 		    () => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
 				driverFactory, officeFactory, ServicesConfig.InteractiveService))
 		);
-    }
+	}
+
+	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
+	{
+		var districtSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () => {
+			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
+			return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+				EnableDeleteButton = true,
+				EnableAddButton = true,
+				EnableEditButton = true
+			};
+		});
+		
+		tdiMain.AddTab(
+			new DeliveryAnalyticsViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.InteractiveService,
+				NavigationManager,
+				districtSelectorFactory)
+		);
+	}
 }
