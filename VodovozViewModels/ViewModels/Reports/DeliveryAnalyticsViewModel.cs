@@ -269,8 +269,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			Order orderAlias2 = null;
 			var bigCountOrders = QueryOver.Of(() => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.Order, () => orderAlias2)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-				.Select(Projections.Sum(() => orderItemAlias.Count))
 				.Where(Restrictions.Ge(Projections.Sum(() => orderItemAlias.Count), 5))
 				.Select(Projections.CountDistinct(() => orderAlias2.Id));
 
@@ -283,10 +284,25 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			var notNullSmallCountOrders = QueryOver.Of(() => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Order, () => orderAlias2)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-				.Select(Projections.Sum(() => orderItemAlias.Count))
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.Where(Restrictions.Lt(Projections.Sum(() => orderItemAlias.Count), 5))
 				.Select(Projections.CountDistinct(() => orderAlias2.Id));
-
+			
+			var ordersWith19L = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Order, () => orderAlias2)
+				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Select(Projections.Distinct(Projections.Property(() => orderAlias2.Id)));
+			
+			var notNullSmallCountOrdersWithoutWater = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Order, () => orderAlias2)
+				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category != NomenclatureCategory.water || nomenclatureAlias.TareVolume != TareVolume.Vol19L)
+				.WithSubquery.WhereNotExists(ordersWith19L)
+				.Select(Projections.CountDistinct(() => orderAlias2.Id));
 			#endregion
 
 			#region Составление волн
@@ -307,6 +323,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersOneMorning)
 						.SelectSubQuery(notNullSmallCountOrders).WithAlias(() => resultAlias.NotNullCountSmallOrdersOneMorning)
+						.SelectSubQuery(notNullSmallCountOrdersWithoutWater).WithAlias(() => resultAlias.NotNullCountSmallOrdersOneMorningWithoutWater)
 						.SelectSubQuery(bottleSmallCountSubquery).WithAlias(() => resultAlias.CountSmallOrders19LOneMorning)
 						.SelectSubQuery(bigCountOrders).WithAlias(() => resultAlias.CountBigOrdersOneMorning)
 						.SelectSubQuery(bootleBigCountSubquery).WithAlias(() => resultAlias.CountBigOrders19LOneMorning))
@@ -322,7 +339,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersOneDay)
-						.SelectSubQuery(notNullSmallCountOrders).WithAlias(() => resultAlias.NotNullCountSmallOrdersOneMorning)
+						.SelectSubQuery(notNullSmallCountOrders).WithAlias(() => resultAlias.NotNullCountSmallOrdersOneDay)
+						.SelectSubQuery(notNullSmallCountOrdersWithoutWater).WithAlias(() => resultAlias.NotNullCountSmallOrdersOneDayWithoutWater)
 						.SelectSubQuery(bottleSmallCountSubquery).WithAlias(() => resultAlias.CountSmallOrders19LOneDay)
 						.SelectSubQuery(bigCountOrders).WithAlias(() => resultAlias.CountBigOrdersOneDay)
 						.SelectSubQuery(bootleBigCountSubquery).WithAlias(() => resultAlias.CountBigOrders19LOneDay))
@@ -338,7 +356,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersOneEvening)
-						.SelectSubQuery(notNullSmallCountOrders).WithAlias(() => resultAlias.NotNullCountSmallOrdersOneMorning)
+						.SelectSubQuery(notNullSmallCountOrders).WithAlias(() => resultAlias.NotNullCountSmallOrdersOneEvening)
+						.SelectSubQuery(notNullSmallCountOrdersWithoutWater).WithAlias(() => resultAlias.NotNullCountSmallOrdersOneEveningWithoutWater)
 						.SelectSubQuery(bottleSmallCountSubquery).WithAlias(() => resultAlias.CountSmallOrders19LOneEvening)
 						.SelectSubQuery(bigCountOrders).WithAlias(() => resultAlias.CountBigOrdersOneEvening)
 						.SelectSubQuery(bootleBigCountSubquery).WithAlias(() => resultAlias.CountBigOrders19LOneEvening))
@@ -359,7 +378,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersTwoDay)
-						.SelectSubQuery(notNullSmallCountOrders).WithAlias(() => resultAlias.NotNullCountSmallOrdersOneMorning)
+						.SelectSubQuery(notNullSmallCountOrders).WithAlias(() => resultAlias.NotNullCountSmallOrdersTwoDay)
+						.SelectSubQuery(notNullSmallCountOrdersWithoutWater).WithAlias(() => resultAlias.NotNullCountSmallOrdersTwoDayWithoutWater)
 						.SelectSubQuery(bottleSmallCountSubquery).WithAlias(() => resultAlias.CountSmallOrders19LTwoDay)
 						.SelectSubQuery(bigCountOrders).WithAlias(() => resultAlias.CountBigOrdersTwoDay)
 						.SelectSubQuery(bootleBigCountSubquery).WithAlias(() => resultAlias.CountBigOrders19LTwoDay))
@@ -380,7 +400,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersThreeDay)
-						.SelectSubQuery(notNullSmallCountOrders).WithAlias(() => resultAlias.NotNullCountSmallOrdersOneMorning)
+						.SelectSubQuery(notNullSmallCountOrders).WithAlias(() => resultAlias.NotNullCountSmallOrdersThreeDay)
+						.SelectSubQuery(notNullSmallCountOrdersWithoutWater).WithAlias(() => resultAlias.NotNullCountSmallOrdersThreeDayWithoutWater)
 						.SelectSubQuery(bottleSmallCountSubquery).WithAlias(() => resultAlias.CountSmallOrders19LThreeDay)
 						.SelectSubQuery(bigCountOrders).WithAlias(() => resultAlias.CountBigOrdersThreeDay)
 						.SelectSubQuery(bootleBigCountSubquery).WithAlias(() => resultAlias.CountBigOrders19LThreeDay))
