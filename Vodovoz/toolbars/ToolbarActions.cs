@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using Dialogs.Employees;
 using Gtk;
@@ -46,7 +47,9 @@ using QS.Project.Journal;
 using QS.Project.Repositories;
 using QS.Project.Services.GtkUI;
 using Vodovoz.Additions;
+using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
@@ -75,6 +78,8 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 public partial class MainWindow : Window
 {
@@ -139,6 +144,9 @@ public partial class MainWindow : Window
 	//Suppliers
 	Action ActionNewRequestToSupplier;
 	Action ActionJournalOfRequestsToSuppliers;
+
+	//ТрО
+	private Action ActionCarEventsJournal;
 
 	public void BuildToolbarActions()
 	{
@@ -216,6 +224,9 @@ public partial class MainWindow : Window
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
 		ActionExportImportNomenclatureCatalog = new Action("ActionExportImportNomenclatureCatalog", "Выгрузка/Загрузка каталога номенклатур", null, "table");
 
+		//ТрО
+		ActionCarEventsJournal = new Action("ActionCarEventsJournal", "Журнал событий ТС", null, "table");
+
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup("ToolbarActions");
@@ -282,6 +293,17 @@ public partial class MainWindow : Window
 		w1.Add(ActionNewRequestToSupplier, null);
 		w1.Add(ActionJournalOfRequestsToSuppliers, null);
 		w1.Add(ActionExportImportNomenclatureCatalog, null);
+
+		//ТрО
+		w1.Add(ActionCarEventsJournal, null);
+		w1.Add(ActionCarProxiesJournal, null);
+		w1.Add(ActionRouteListMileageCheck, null);
+		w1.Add(ActionWayBillReport, null);
+		w1.Add(ActionFinesJournal, null);
+		w1.Add(ActionWarehouseDocuments, null);
+		w1.Add(ActionWarehouseStock, null);
+		w1.Add(ActionCar, null);
+
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
@@ -347,6 +369,9 @@ public partial class MainWindow : Window
 		ActionJournalOfRequestsToSuppliers.Activated += ActionJournalOfRequestsToSuppliers_Activated;
 		ActionExportImportNomenclatureCatalog.Activated += ActionExportImportNomenclatureCatalog_Activated;
 
+		//ТрО
+		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
+		
 		#endregion
 	}
 
@@ -1027,5 +1052,21 @@ public partial class MainWindow : Window
 		var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
 		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,
 			EmployeeSingletonRepository.GetInstance(), new EntityDeleteWorker(), true, true));
+	}
+
+	void ActionCarEventsJournalActivated(object sender, System.EventArgs e)
+	{
+		ICarJournalFactory carJournalFactory = new CarJournalFactory();
+		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
+
+		var carEventFilter = new CarEventFilterViewModel(carJournalFactory, carEventTypeJournalFactory) { HidenByDefault = true };
+
+		tdiMain.OpenTab(() => new CarEventJournalViewModel(
+			carEventFilter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			carJournalFactory,
+			carEventTypeJournalFactory)
+		);
 	}
 }

@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace
                 {
                     foreach (var searchValue in Search.SearchValues)
                     {
-                        result = result.Where(n => n.PropertyName.Contains(searchValue));
+                        result = result.Where(n => n.PropertyName.IndexOf(searchValue, StringComparison.CurrentCultureIgnoreCase) > -1);
                     }
                 }
 
