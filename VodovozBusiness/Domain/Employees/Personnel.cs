@@ -230,21 +230,13 @@ namespace Vodovoz.Domain.Employees
 			if(String.IsNullOrEmpty(LastName))
 				yield return new ValidationResult("Фамилия должна быть заполнена", new[] { "LastName" });
 
-			var employees = UoW.Session.QueryOver<Employee>()
-				.Where(e => e.Name == this.Name && e.LastName == this.LastName && e.Patronymic == this.Patronymic)
-				.WhereNot(e => e.Id == this.Id)
+			var personnels = UoW.Session.QueryOver<Personnel>()
+				.Where(p => p.Name == this.Name && p.LastName == this.LastName && p.Patronymic == this.Patronymic)
+				.WhereNot(p => p.Id == this.Id)
 				.List();
 
-			if(employees.Count > 0)
+			if(personnels.Count > 0)
 				yield return new ValidationResult("Сотрудник уже существует", new[] { "Duplication" });
-
-			List<EmployeeDocument> mainDocuments = GetMainDocuments();
-			if(mainDocuments.Count <= 0)
-				yield return new ValidationResult(String.Format("У сотрудника должен присутствовать главный документ"),
-							new[] { this.GetPropertyName(x => x.Documents) });
-			if(mainDocuments.Count > 1)
-				yield return new ValidationResult(String.Format("Сотрудник может иметь только один главный документ"),
-							new[] { this.GetPropertyName(x => x.Documents) });
 		}
 
 		#endregion

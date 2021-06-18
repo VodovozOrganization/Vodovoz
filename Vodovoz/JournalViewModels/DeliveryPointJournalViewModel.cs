@@ -124,6 +124,7 @@ namespace Vodovoz.JournalViewModels
 
 	public class DeliveryPointJournalNode : JournalEntityNodeBase<DeliveryPoint>
 	{
+		public override string Title => CompiledAddress;
 		public string CompiledAddress { get; set; }
 		public string LogisticsArea { get; set; }
 		public string Address1c { get; set; }

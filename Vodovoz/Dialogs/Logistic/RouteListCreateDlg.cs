@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
 using NLog;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
@@ -17,6 +18,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -215,10 +217,7 @@ namespace Vodovoz
 
 		void PrintSelectedDocument(RouteListPrintableDocuments choise)
 		{
-			TabParent.OpenTab(
-				QS.Dialog.Gtk.TdiTabBase.GenerateHashName<DocumentsPrinterDlg>(),
-				() => CreateDocumentsPrinterDlg(choise)
-			);
+			TabParent.AddSlaveTab(this, CreateDocumentsPrinterDlg(choise));
 		}
 
 		DocumentsPrinterDlg CreateDocumentsPrinterDlg(RouteListPrintableDocuments choise)
@@ -230,9 +229,9 @@ namespace Vodovoz
 
 		void Dlg_DocumentsPrinted(object sender, EventArgs e)
 		{
-			if(!Entity.Printed && e is EndPrintArgs printArgs) {
+			if(e is EndPrintArgs printArgs) {
 				if(printArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle())) {
-					Entity.Printed = true;
+					Entity.PrintTime = DateTime.Now;
 					Save();
 				}
 			}
@@ -308,6 +307,21 @@ namespace Vodovoz
 			buttonAccept.Sensitive = isSensetive;
 		}
 
+		public void OnPrintTimeButtonClicked(object sender, EventArgs e)
+		{
+			if(Entity.PrintTime.HasValue)
+			{
+				 ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					$"Дата печати {Entity.PrintTime.Value.Date.ToShortDateString()} " +
+					$"\nВремя печати {Entity.PrintTime.Value.ToShortTimeString()}",
+					$"№ МЛ: {Entity.Id}");
+			}
+			else
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, "МЛ не печатался ранее");
+			}
+		}
+
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
 			try {
@@ -356,7 +370,7 @@ namespace Vodovoz
 
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, callTaskWorker);
 					//Строим маршрут для МЛ.
-					if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
+					if(!Entity.PrintTime.HasValue || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
 						var newRoute = optimizer.RebuidOneRoute(Entity);
 						if(newRoute != null) {
