@@ -1083,6 +1083,40 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Шаблон комментария").AddTextRenderer(node => node.Reason)
 					.AddColumn("Сумма премии").AddNumericRenderer(node => node.PremiumMoney)
 					.Finish()
+				);
+
+			//CarEventTypeJournalViewModel
+			TreeViewColumnsConfigFactory.Register<CarEventTypeJournalViewModel>(
+				() => FluentColumnsConfig<CarEventTypeJournalNode>.Create()
+					.AddColumn("Номер").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Сокращённое\nназвание").AddTextRenderer(node => node.ShortName)
+					.AddColumn("Комментарий\nобязателен")
+						.AddToggleRenderer(node => node.NeedComment)
+						.Editing(false)
+					.AddColumn("В архиве")
+					.AddToggleRenderer(node => node.IsArchive)
+						.Editing(false)
+						.XAlign(0f)
+					.Finish()
+				);
+
+			//CarEventJournalViewModel
+			TreeViewColumnsConfigFactory.Register<CarEventJournalViewModel>(
+				() => FluentColumnsConfig<CarEventJournalNode>.Create()
+					.AddColumn("Номер").AddNumericRenderer(node => node.Id)
+					.AddColumn("Дата и время создания").AddTextRenderer(node => node.CreateDate.ToString("g"))
+					.AddColumn("Событие").AddTextRenderer(node => node.CarEventTypeShortName)
+					.AddColumn("Порядковый\nномер ТС").AddNumericRenderer(node => node.CarOrderNumber)
+					.AddColumn("Гос.номер ТС").AddTextRenderer(node => node.CarRegistrationNumber)
+					.AddColumn("Тип авто").AddTextRenderer(node => node.CarTypeOfUseString)
+					.AddColumn("Подразделение").AddTextRenderer(node => node.Subdivision)
+					.AddColumn("Водитель").AddTextRenderer(node => node.DriverFullName)
+					.AddColumn("Дата начала").AddTextRenderer(node => node.StartDate.ToString("d"))
+					.AddColumn("Дата окончания").AddTextRenderer(node => node.EndDate.ToString("d"))
+					.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
+					.AddColumn("Автор").AddTextRenderer(node => node.AuthorFullName)
+					.Finish()
 			);
 		}
 	}

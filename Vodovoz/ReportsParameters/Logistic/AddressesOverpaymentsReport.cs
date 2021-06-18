@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gamma.Utilities;
-using Gtk;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
@@ -138,19 +137,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 					  "<b>Район адреса</b>\n" +
 					  "<b>Закрепленные районы</b>: закрепленные за водителем районы на дату МЛ\n" +
 					  "<b>Комментарий</b>: комментарий к адресу из диалога Разбор МЛ";
-			var label = new Label { Markup = info };
-			label.SetPadding(10, 10);
-			var vbox = new VBox { label };
 
-			var messageWindow = new Window(WindowType.Toplevel)
-			{
-				Resizable = false,
-				Title = "Информация",
-				WindowPosition = WindowPosition.Center,
-				Modal = true
-			};
-			messageWindow.Add(vbox);
-			messageWindow.ShowAll();
+			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
 		}
 
 		private void OnDriverOfSelected()
