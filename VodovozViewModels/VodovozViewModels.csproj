@@ -356,6 +356,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
+    <PackageReference Include="ClosedXML.Report" Version="0.2.1" />
     <PackageReference Include="CsvHelper" Version="15.0.10" />
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
