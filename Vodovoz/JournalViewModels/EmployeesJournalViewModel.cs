@@ -135,6 +135,7 @@ namespace Vodovoz.JournalViewModels
 				if (selectedNode != null)
 				{
 					var employee = UoW.GetById<Employee>(selectedNode.Id);
+					UoW.Session.Refresh(employee);
 
 					if (employee.User == null)
 					{
