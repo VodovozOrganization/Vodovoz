@@ -318,22 +318,7 @@ namespace Vodovoz
 					message += $"\n{i + 1}\t| {item.PrintingTime.ToShortDateString()}" +
 					           $" {item.PrintingTime.ToShortTimeString()}\t\t| {item.DocumentType.GetEnumShortTitle()}";
 				}
-				
-				var label = new Label { Markup = message, Selectable = true };
-				label.SetPadding(10, 10);
-				var btn = new Button { Label = "Закрыть" };
-				var vbox = new VBox { label, btn };
-				var messageWindow = new Window(WindowType.Toplevel)
-				{
-					Resizable = false,
-					Title = $"История печати МЛ №: {Entity.Id}",
-					WindowPosition = WindowPosition.Center,
-					Modal = true
-				};
-				messageWindow.Add(vbox);
-				btn.Clicked += (o, args) => { messageWindow.Destroy(); };
-				messageWindow.ShowAll();
-				label.SelectRegion(0, 0);
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, message, $"История печати МЛ №: {Entity.Id}");
 			}
 			else
 			{
