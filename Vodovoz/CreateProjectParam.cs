@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using Autofac;
@@ -102,6 +102,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.JournalFilters.Proposal;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.Views.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -116,6 +117,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Views.Reports;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Reports;
 
 namespace Vodovoz
 {
@@ -207,7 +209,10 @@ namespace Vodovoz
                 .RegisterWidgetForTabViewModel<DeliveryPointResponsiblePersonTypeViewModel, DeliveryPointResponsiblePersonTypeView>()
                 .RegisterWidgetForTabViewModel<NomenclaturePlanViewModel, NomenclaturePlanView>()
                 .RegisterWidgetForTabViewModel<OrganizationCashTransferDocumentViewModel, OrganizationCashTransferDocumentView>()
-                ;
+				.RegisterWidgetForTabViewModel<PremiumViewModel, PremiumView>()
+				.RegisterWidgetForTabViewModel<PremiumRaskatGAZelleViewModel, PremiumRaskatGAZelleView>()
+				.RegisterWidgetForTabViewModel<PremiumTemplateViewModel, PremiumTemplateView>()
+;
 
             //Регистрация виджетов
             ViewModelWidgetResolver.Instance
@@ -258,9 +263,11 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<OrderAnalyticsReportViewModel, OrderAnalyticsReportView>()
                 .RegisterWidgetForWidgetViewModel<NomenclaturePlanFilterViewModel, NomenclaturePlanFilterView>()
                 .RegisterWidgetForWidgetViewModel<OrganizationCashTransferDocumentFilterViewModel, OrganizationCashTransferDocumentFilterView>()
-                ;
+				.RegisterWidgetForWidgetViewModel<PremiumJournalFilterViewModel, PremiumJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<DeliveryAnalyticsViewModel, DeliveryAnalyticsReportView>()
+				;
 
-            DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
+			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 
 		static void ConfigureJournalColumnsConfigs()

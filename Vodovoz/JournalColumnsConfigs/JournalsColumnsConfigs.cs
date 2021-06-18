@@ -1061,6 +1061,29 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
 					.Finish()
             );
+
+			//PremiumJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PremiumJournalViewModel>(
+				() => FluentColumnsConfig<PremiumJournalNode>.Create()
+					.AddColumn("Номер").AddNumericRenderer(node => node.Id)
+					.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
+					.AddColumn("Тип").AddTextRenderer(node => node.ViewType)
+						.WrapMode(WrapMode.WordChar)
+						.WrapWidth(100)
+					.AddColumn("Сотрудники").AddTextRenderer(node => node.EmployeesName)
+					.AddColumn("Сумма премии").AddNumericRenderer(node => node.PremiumSum)
+					.AddColumn("Причина премии").AddTextRenderer(node => node.PremiumReason)
+					.Finish()
+			);
+
+			//PremiumTemplateJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PremiumTemplateJournalViewModel>(
+				() => FluentColumnsConfig<PremiumTemplateJournalNode>.Create()
+					.AddColumn("Номер").AddNumericRenderer(node => node.Id)
+					.AddColumn("Шаблон комментария").AddTextRenderer(node => node.Reason)
+					.AddColumn("Сумма премии").AddNumericRenderer(node => node.PremiumMoney)
+					.Finish()
+			);
 		}
 	}
 }

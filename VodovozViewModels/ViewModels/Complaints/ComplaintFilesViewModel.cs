@@ -55,7 +55,8 @@ namespace Vodovoz.ViewModels.Complaints
 						if (complaintFile.FileStorageId.Length > 45) {
 							CommonServices.InteractiveService.ShowMessage(
 								ImportanceLevel.Warning, 
-								"Слишком длинное имя файла. Оно не должно превышать 45 символов.");
+								"Слишком длинное имя файла.\n" +
+								"Оно не должно превышать 45 символов, включая расширение (.txt, .png и т.д.).");
 							return;
 						}
 						

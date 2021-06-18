@@ -713,7 +713,7 @@ namespace Vodovoz
 		        userRepository
 	        );
 
-	        TabParent.OpenTab(() => orderJournalViewModel);
+	        TabParent.AddTab(orderJournalViewModel, this, false);
         }
         
         private void ComplaintViewOnActivated(object sender, EventArgs e)
