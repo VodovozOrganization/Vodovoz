@@ -2243,7 +2243,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<NomenclaturePlanReport>(),
-            () => new QSReport.ReportViewDlg(new NomenclaturePlanReport())
+            () => new QSReport.ReportViewDlg(new NomenclaturePlanReport(ServicesConfig.InteractiveService))
         );
     }
 
@@ -2275,7 +2275,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
-            () => new QSReport.ReportViewDlg(new EmployeesReport())
+            () => new QSReport.ReportViewDlg(new EmployeesReport(ServicesConfig.InteractiveService))
         );
     }
 
