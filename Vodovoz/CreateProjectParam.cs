@@ -212,6 +212,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PremiumViewModel, PremiumView>()
 				.RegisterWidgetForTabViewModel<PremiumRaskatGAZelleViewModel, PremiumRaskatGAZelleView>()
 				.RegisterWidgetForTabViewModel<PremiumTemplateViewModel, PremiumTemplateView>()
+				.RegisterWidgetForTabViewModel<CarEventTypeViewModel, CarEventTypeView>()
+				.RegisterWidgetForTabViewModel<CarEventViewModel, CarEventView>()
 ;
 
             //Регистрация виджетов
@@ -261,10 +263,12 @@ namespace Vodovoz
                 .RegisterWidgetForWidgetViewModel<EmployeePostViewModel, EmployeePostView>()
                 .RegisterWidgetForWidgetViewModel<WarehouseViewModel, WarehouseView>()
 				.RegisterWidgetForWidgetViewModel<OrderAnalyticsReportViewModel, OrderAnalyticsReportView>()
-                .RegisterWidgetForWidgetViewModel<NomenclaturePlanFilterViewModel, NomenclaturePlanFilterView>()
+				.RegisterWidgetForWidgetViewModel<CarsExploitationReportViewModel, CarsExploitationReportView>()
+				.RegisterWidgetForWidgetViewModel<NomenclaturePlanFilterViewModel, NomenclaturePlanFilterView>()
                 .RegisterWidgetForWidgetViewModel<OrganizationCashTransferDocumentFilterViewModel, OrganizationCashTransferDocumentFilterView>()
 				.RegisterWidgetForWidgetViewModel<PremiumJournalFilterViewModel, PremiumJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryAnalyticsViewModel, DeliveryAnalyticsReportView>()
+				.RegisterWidgetForWidgetViewModel<CarEventFilterViewModel, CarEventFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

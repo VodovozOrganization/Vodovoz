@@ -387,6 +387,7 @@
     <EmbeddedResource Include="toolbars\retail.xml">
       <LogicalName>retail.xml</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="icons\toolbar\car_service.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
@@ -1570,8 +1571,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
     <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
-    <Compile Include="ReportsParameters\Logistic\CarsExploitationReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.CarsExploitationReport.cs" />
     <Compile Include="Views\Logistic\DriverCarKindView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverCarKindView.cs" />
     <Compile Include="Filters\GtkViews\DriverCarKindJournalFilterView.cs" />
@@ -1626,6 +1625,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumTemplateView.cs" />
     <Compile Include="Views\Reports\DeliveryAnalyticsReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.DeliveryAnalyticsReportView.cs" />
+    <Compile Include="Views\Logistic\CarEventTypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarEventTypeView.cs" />
+    <Compile Include="Views\Logistic\CarEventView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarEventView.cs" />
+    <Compile Include="Filters\GtkViews\CarEventFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2027,8 +2032,8 @@
     <None Include="Reports\Cash\CashFlowDetailIncomeReturn.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Logistic\CarsExploitationReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="Reports\Logistic\CarsExploitationReport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\DriversToDistrictsAssignmentReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -2523,6 +2528,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="toolbars\car_service.xml" />
     <None Include="Reports\Logistic\GeneralSalaryInfoReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

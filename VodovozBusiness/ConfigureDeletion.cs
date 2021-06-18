@@ -568,6 +568,10 @@ namespace Vodovoz
 						.AddRemoveFromDependence<District>(x => x.GeographicGroup)
 						;
 
+			DeleteConfig.AddHibernateDeleteInfo<CarEventType>();
+
+			DeleteConfig.AddHibernateDeleteInfo<CarEvent>();
+
 			#region Формирование МЛ
 
 			DeleteConfig.AddHibernateDeleteInfo<AtWorkDriverDistrictPriority>();
