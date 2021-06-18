@@ -581,10 +581,12 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal CalculateTotalCash() => IsDelivered() ? AddressCashSum : 0;
 
+		public virtual bool RouteListIsUnloaded() =>
+			new[] { RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(RouteList.Status);
+		
 		public virtual bool IsDelivered()
 		{
-			var routeListUnloaded = new[] { RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(RouteList.Status);
-			return Status == RouteListItemStatus.Completed || Status == RouteListItemStatus.EnRoute && routeListUnloaded;
+			return Status == RouteListItemStatus.Completed || Status == RouteListItemStatus.EnRoute && RouteListIsUnloaded();
 		}
 
 		public virtual bool IsValidForWageCalculation()
