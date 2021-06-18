@@ -8,6 +8,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
@@ -46,7 +47,14 @@ namespace Vodovoz.JournalViewModels
 					new GtkInteractiveService()),
 				EmailServiceSetting.GetEmailService());
 
-			UpdateOnChanges(typeof(Employee));
+			NotifyConfiguration.Enable();
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Employee>(OnEmployeeChanged);
+		}
+		
+		private void OnEmployeeChanged(EntityChangeEvent[] changeEvents)
+		{
+			UoW.Session.Clear();
+			Refresh();
 		}
 
 		private readonly IAuthorizationService authorizationService;
@@ -134,30 +142,27 @@ namespace Vodovoz.JournalViewModels
 				var selectedNode = selectedNodes.FirstOrDefault();
 				if (selectedNode != null)
 				{
-					using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Сброс пароля пользователю"))
+					var employee = UoW.GetById<Employee>(selectedNode.Id);
+
+					if(employee.User == null)
 					{
-						var employee = uow.GetById<Employee>(selectedNode.Id);
-
-						if(employee.User == null)
-						{
-							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-								"К сотруднику не привязан пользователь!");
+						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+							"К сотруднику не привязан пользователь!");
 
 							return;
-						}
+					}
 
-						if(string.IsNullOrEmpty(employee.User.Login))
-						{
-							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-								"У пользователя не заполнен логин!");
+					if(string.IsNullOrEmpty(employee.User.Login))
+					{
+						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+							"У пользователя не заполнен логин!");
 
-							return;
-						}
+						return;
+					}
 
-						if(commonServices.InteractiveService.Question("Вы уверены?"))
-						{
-							ResetPasswordForEmployee(employee);
-						}
+					if(commonServices.InteractiveService.Question("Вы уверены?"))
+					{
+						ResetPasswordForEmployee(employee);
 					}
 				}
 			});
