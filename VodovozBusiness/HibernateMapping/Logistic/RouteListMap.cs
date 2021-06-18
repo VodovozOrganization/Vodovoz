@@ -31,7 +31,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OnLoadGate).Column("on_load_gate");
 			Map(x => x.OnloadTimeFixed).Column("on_load_time_fixed");
 			Map(x => x.PlanedDistance).Column("plan_distance");
-			Map(x => x.PrintTime).Column("print_time");
 			Map(x => x.AddressesOrderWasChangedAfterPrinted).Column("addresses_order_was_changed_after_printed");
 			Map(x => x.RecalculatedDistance).Column("recalculated_distance");
 			Map(x => x.MileageComment).Column("mileage_comment");
@@ -60,6 +59,7 @@ namespace Vodovoz.HibernateMapping
 			HasMany(x => x.Addresses).Cascade.AllDeleteOrphan ().Inverse ()
 				.KeyColumn ("route_list_id").OrderBy("order_in_route");
 			HasMany(x => x.FuelDocuments).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
+			HasMany(x => x.PrintsHistory).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
 			HasManyToMany(x => x.GeographicGroups).Table("geographic_groups_to_entities")
 			                                      .ParentKeyColumn("route_list_id")
 												  .ChildKeyColumn("geographic_group_id")

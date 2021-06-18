@@ -231,7 +231,7 @@ namespace Vodovoz
 		{
 			if(e is EndPrintArgs printArgs) {
 				if(printArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle())) {
-					Entity.PrintTime = DateTime.Now;
+					Entity.AddPrintHistory();
 					Save();
 				}
 			}
@@ -309,12 +309,31 @@ namespace Vodovoz
 
 		public void OnPrintTimeButtonClicked(object sender, EventArgs e)
 		{
-			if(Entity.PrintTime.HasValue)
+			if(Entity.PrintsHistory?.Count > 0)
 			{
-				 ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info,
-					$"Дата печати {Entity.PrintTime.Value.Date.ToShortDateString()} " +
-					$"\nВремя печати {Entity.PrintTime.Value.ToShortTimeString()}",
-					$"№ МЛ: {Entity.Id}");
+				var message = "<b>№\t| Дата и время печати\t| Тип документа</b>";
+				for(var i = 0; i < Entity.PrintsHistory.Count; i++)
+				{
+					var item = Entity.PrintsHistory[i];
+					message += $"\n{i + 1}\t| {item.PrintingTime.ToShortDateString()}" +
+					           $" {item.PrintingTime.ToShortTimeString()}\t\t| {item.DocumentType.GetEnumShortTitle()}";
+				}
+				
+				var label = new Label { Markup = message, Selectable = true };
+				label.SetPadding(10, 10);
+				var btn = new Button { Label = "Закрыть" };
+				var vbox = new VBox { label, btn };
+				var messageWindow = new Window(WindowType.Toplevel)
+				{
+					Resizable = false,
+					Title = $"История печати МЛ №: {Entity.Id}",
+					WindowPosition = WindowPosition.Center,
+					Modal = true
+				};
+				messageWindow.Add(vbox);
+				btn.Clicked += (o, args) => { messageWindow.Destroy(); };
+				messageWindow.ShowAll();
+				label.SelectRegion(0, 0);
 			}
 			else
 			{
@@ -370,7 +389,7 @@ namespace Vodovoz
 
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, callTaskWorker);
 					//Строим маршрут для МЛ.
-					if(!Entity.PrintTime.HasValue || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
+					if(Entity.PrintsHistory?.Count == 0 || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
 						var newRoute = optimizer.RebuidOneRoute(Entity);
 						if(newRoute != null) {

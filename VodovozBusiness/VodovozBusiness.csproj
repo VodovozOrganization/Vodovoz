@@ -59,6 +59,7 @@
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
     <Compile Include="Domain\Cash\OrganizationCashTransferDocument.cs" />
     <Compile Include="Domain\Client\CounterpartyFile.cs" />
+    <Compile Include="Domain\Documents\DocumentsPrintHistory.cs" />
     <Compile Include="Domain\Documents\WayBillDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocumentItem.cs" />
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />
@@ -150,6 +151,7 @@
     <Compile Include="HibernateMapping\Counterparty\CounterpartyFileMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DocumentsPrintHistoryMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverDiscrepancyDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverDiscrepancyDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentItemMap.cs" />

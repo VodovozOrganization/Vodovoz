@@ -7,11 +7,8 @@ using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
-using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Osrm;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Parameters;
@@ -855,7 +852,7 @@ namespace Vodovoz
 
 		void SavePrintTime(object sender, EventArgs e)
 		{
-			Entity.PrintTime = DateTime.Now;
+			Entity.AddPrintHistory();
 			UoW.Save();
 		}
 
