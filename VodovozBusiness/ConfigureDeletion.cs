@@ -1046,6 +1046,8 @@ namespace Vodovoz
 				.AddDeleteCascadeDependence(x => x.OrganisationCashMovementOperationFrom)
 				.AddDeleteCascadeDependence(x => x.OrganisationCashMovementOperationTo);
 
+			DeleteConfig.AddHibernateDeleteInfo<PremiumTemplate>();
+
 			#endregion
 
 			#region Топливо

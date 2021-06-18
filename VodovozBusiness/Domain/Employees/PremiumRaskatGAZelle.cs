@@ -22,5 +22,6 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref routeList, value);
 		}
 
+		public override string Title => $"Автопремия для раскатных газелей №{Id} от {Date:d} ({RouteList.Title})";
 	}
 }

@@ -123,6 +123,7 @@ using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Reports;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2279,4 +2280,46 @@ public partial class MainWindow : Gtk.Window
             () => new QSReport.ReportViewDlg(new EmployeesReport())
         );
     }
+
+    protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
+    {
+		var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
+		var officeFilter = new EmployeeFilterViewModel { Category = EmployeeCategory.office, Status = EmployeeStatus.IsWorking };
+		var driverFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+			() => new EmployeesJournalViewModel(
+				driverFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices));
+		var officeFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+			() => new EmployeesJournalViewModel(
+				officeFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices));
+
+		tdiMain.OpenTab(
+		    QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
+		    () => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
+				driverFactory, officeFactory, ServicesConfig.InteractiveService))
+		);
+	}
+
+	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
+	{
+		var districtSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () => {
+			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
+			return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+				EnableDeleteButton = true,
+				EnableAddButton = true,
+				EnableEditButton = true
+			};
+		});
+		
+		tdiMain.AddTab(
+			new DeliveryAnalyticsViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.InteractiveService,
+				NavigationManager,
+				districtSelectorFactory)
+		);
+	}
 }
