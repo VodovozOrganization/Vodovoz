@@ -1946,13 +1946,30 @@ namespace Vodovoz
 		protected void OnReferenceDeliveryPointChanged(object sender, EventArgs e)
 		{
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
-			if(Entity.DeliveryPoint != null) {
+			
+			if(Entity.DeliveryPoint != null) 
+			{
 				UpdateProxyInfo();
 				Entity.SetProxyForOrder();
 			}
-			
+
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+			{
 				OnFormOrderActions();
+			}
+
+			if(Entity.DeliveryPoint != null)
+			{
+				TryAddVodovozLeaflet(new NomenclatureParametersProvider());
+			}
+			else
+			{
+				if(vodovozLeaflet != null)
+				{
+					Entity.ObservableOrderEquipments.Remove(Entity.ObservableOrderEquipments.SingleOrDefault(
+						x => x.Nomenclature.Id == vodovozLeaflet.Id));
+				}
+			}
 		}
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
