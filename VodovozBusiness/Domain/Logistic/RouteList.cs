@@ -486,9 +486,9 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref notFullyLoaded, value, () => NotFullyLoaded);
 		}
 
-		private IList<DocumentsPrintHistory> _printsHistory = new List<DocumentsPrintHistory>();
+		private IList<DocumentPrintHistory> _printsHistory = new List<DocumentPrintHistory>();
 		[Display(Name = "История печати маршрутного листа")]
-		public virtual IList<DocumentsPrintHistory> PrintsHistory
+		public virtual IList<DocumentPrintHistory> PrintsHistory
 		{
 			get => _printsHistory;
 			set => SetField(ref _printsHistory, value);
@@ -1165,7 +1165,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void AddPrintHistory()
 		{
-			var newHistory = new DocumentsPrintHistory
+			var newHistory = new DocumentPrintHistory
 			{
 				PrintingTime = DateTime.Now,
 				DocumentType = PrintAsClosed() ? PrintedDocumentType.ClosedRouteList : PrintedDocumentType.RouteList,

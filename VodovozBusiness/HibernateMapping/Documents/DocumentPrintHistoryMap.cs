@@ -3,9 +3,9 @@ using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.HibernateMapping.Documents
 {
-	public class DocumentsPrintHistoryMap : ClassMap<DocumentsPrintHistory>
+	public class DocumentPrintHistoryMap : ClassMap<DocumentPrintHistory>
 	{
-		public DocumentsPrintHistoryMap()
+		public DocumentPrintHistoryMap()
 		{
 			Table("documents_print_history");
 

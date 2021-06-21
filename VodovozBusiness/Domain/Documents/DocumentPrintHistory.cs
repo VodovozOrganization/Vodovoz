@@ -8,7 +8,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "истории печати документов",
 		Nominative = "история печати документов")]
-	public class DocumentsPrintHistory : PropertyChangedBase, IDomainObject
+	public class DocumentPrintHistory : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; }
 
