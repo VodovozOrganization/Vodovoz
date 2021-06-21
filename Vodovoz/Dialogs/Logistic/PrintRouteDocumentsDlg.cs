@@ -58,14 +58,13 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Время печати")
 					.AddTextRenderer(x => 
 					(x.Document as RouteListPrintableDocs).routeList.PrintsHistory != null &&
-					(x.Document as RouteListPrintableDocs).routeList.PrintsHistory.Count > 0 ?
+					(x.Document as RouteListPrintableDocs).routeList.PrintsHistory.Any() ?
 						(x.Document as RouteListPrintableDocs).routeList.PrintsHistory.LastOrDefault().PrintingTime.ToString()
 						: "МЛ не распечатан")
 				.AddColumn("")
 				.RowCells()
 					.AddSetter<CellRendererText>((c, n) => 
-					c.Foreground = (n.Document as RouteListPrintableDocs).routeList.PrintsHistory != null &&
-					               (n.Document as RouteListPrintableDocs).routeList.PrintsHistory.Count > 0 ? "grey" : "black")
+					c.Foreground = (n.Document as RouteListPrintableDocs).routeList.PrintsHistory?.Any() ?? false ? "grey" : "black")
 				.Finish();
 
 			geograficGroup.UoW = uow;

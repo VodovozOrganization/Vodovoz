@@ -309,7 +309,7 @@ namespace Vodovoz
 
 		public void OnPrintTimeButtonClicked(object sender, EventArgs e)
 		{
-			if(Entity.PrintsHistory?.Count > 0)
+			if(Entity.PrintsHistory?.Any() ?? false)
 			{
 				var message = "<b>№\t| Дата и время печати\t| Тип документа</b>";
 				for(var i = 0; i < Entity.PrintsHistory.Count; i++)
@@ -374,7 +374,7 @@ namespace Vodovoz
 
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, callTaskWorker);
 					//Строим маршрут для МЛ.
-					if(Entity.PrintsHistory?.Count == 0 || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
+					if((!Entity.PrintsHistory?.Any() ?? true) || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
 						var newRoute = optimizer.RebuidOneRoute(Entity);
 						if(newRoute != null) {

@@ -651,7 +651,7 @@ namespace Vodovoz.Domain.Logistic
 				}
 
 				if(Addresses[i].IndexInRoute != i) {
-					if(PrintsHistory?.Count > 0) {
+					if(PrintsHistory?.Any() ?? false) {
 						AddressesOrderWasChangedAfterPrinted = true;
 					}
 					Addresses[i].IndexInRoute = i;
