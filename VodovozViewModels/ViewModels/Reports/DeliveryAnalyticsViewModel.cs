@@ -254,16 +254,16 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			var bottleSmallCountSubquery = QueryOver.Of(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-				.And(x => x.Count < 5)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Where(Restrictions.Lt(Projections.Sum(() => orderItemAlias.Count), 5))
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var bootleBigCountSubquery = QueryOver.Of(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-				.And(x => x.Count >= 5)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Where(Restrictions.Ge(Projections.Sum(() => orderItemAlias.Count), 5))
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			Order orderAlias2 = null;
@@ -478,14 +478,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			}
 			
 			
-			foreach(var node in nodesCsv.OrderByDescending(x => x.GeographicGroupName)
+			foreach(var groupNode in nodesCsv.OrderByDescending(x => x.GeographicGroupName)
 				.ThenBy(x=>x.CityOrSuburb)
 				.ThenBy(x=>x.DistrictName)
 				.ThenBy(x=>x.DayOfWeek)
-				.ThenBy(x => x.DeliveryDate))
+				.ThenBy(x => x.DeliveryDate)
+				.GroupBy(x=>x.DistrictName))
 			{
-				sb.AppendLine(count.ToString() + node);
-				count++;
+				sb.AppendLine(count.ToString() + new DeliveryAnalyticsReportNode(groupNode, count));
+					count++;
 			}
 			return sb.ToString();
 		}
