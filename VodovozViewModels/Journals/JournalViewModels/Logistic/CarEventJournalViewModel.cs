@@ -6,8 +6,11 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -31,31 +34,41 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_carEventTypeJournalFactory = carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory));
 
-			UpdateOnChanges(typeof(CarEvent));
+			UpdateOnChanges(
+				typeof(CarEvent),
+				typeof(CarEventType)
+				);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<CarEvent>> ItemsSourceQueryFunction => (uow) =>
 		{
 			CarEvent carEventAlias = null;
 			CarEventType carEventTypeAlias = null;
-			Subdivision subdivisionAlias = null;
 			Employee authorAlias = null;
 			Employee driverAlias = null;
 			Car carAlias = null;
+			GeographicGroup geographicGroupAlias = null;
 			CarEventJournalNode resultAlias = null;
 
-			var authorProjection = CustomProjections.Concat_WS(
-				" ",
-				() => authorAlias.LastName,
-				() => authorAlias.Name,
-				() => authorAlias.Patronymic
+			var authorProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
+				NHibernateUtil.String,
+				Projections.Property(() => authorAlias.LastName),
+				Projections.Property(() => authorAlias.Name),
+				Projections.Property(() => authorAlias.Patronymic)
 			);
 
-			var driverProjection = CustomProjections.Concat_WS(
-				" ",
-				() => driverAlias.LastName,
-				() => driverAlias.Name,
-				() => driverAlias.Patronymic
+			var driverProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
+				NHibernateUtil.String,
+				Projections.Property(() => driverAlias.LastName),
+				Projections.Property(() => driverAlias.Name),
+				Projections.Property(() => driverAlias.Patronymic)
+			);
+
+			var geographicGroupsProjection = CustomProjections.GroupConcat(
+				() => geographicGroupAlias.Name,
+				orderByExpression: () => geographicGroupAlias.Name, separator: ", "
 			);
 
 			var itemsQuery = uow.Session.QueryOver(() => carEventAlias);
@@ -63,7 +76,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			itemsQuery.Left.JoinAlias(x => x.Author, () => authorAlias);
 			itemsQuery.Left.JoinAlias(x => x.Driver, () => driverAlias);
 			itemsQuery.Left.JoinAlias(x => x.Car, () => carAlias);
-			itemsQuery.Left.JoinAlias(() => driverAlias.Subdivision, () => subdivisionAlias);
+			itemsQuery.Left.JoinAlias(() => carAlias.GeographicGroups, () => geographicGroupAlias);
 
 			if(FilterViewModel.CarEventType != null)
 			{
@@ -72,8 +85,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(FilterViewModel.CreateEventDateFrom != null && FilterViewModel.CreateEventDateTo != null)
 			{
-				itemsQuery.Where(x => x.CreateDate >= FilterViewModel.CreateEventDateFrom &&
-									  x.CreateDate <= FilterViewModel.CreateEventDateTo);
+				itemsQuery.Where(x => x.CreateDate >= FilterViewModel.CreateEventDateFrom.Value.Date.Add(new TimeSpan(0, 0, 0, 0)) &&
+									  x.CreateDate <= FilterViewModel.CreateEventDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 			}
 
 			if(FilterViewModel.StartEventDateFrom != null && FilterViewModel.StartEventDateTo != null)
@@ -115,18 +128,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			itemsQuery
 				.SelectList(list => list
-					.Select(() => carEventAlias.Id).WithAlias(() => resultAlias.Id)
+					.SelectGroup(() => carEventAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => carEventAlias.CreateDate).WithAlias(() => resultAlias.CreateDate)
 					.Select(() => carEventAlias.StartDate).WithAlias(() => resultAlias.StartDate)
 					.Select(() => carEventAlias.EndDate).WithAlias(() => resultAlias.EndDate)
 					.Select(() => carEventAlias.Comment).WithAlias(() => resultAlias.Comment)
-					.Select(() => carEventTypeAlias.ShortName).WithAlias(() => resultAlias.CarEventTypeShortName)
+					.Select(() => carEventTypeAlias.Name).WithAlias(() => resultAlias.CarEventTypeName)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegistrationNumber)
 					.Select(() => carAlias.OrderNumber).WithAlias(() => resultAlias.CarOrderNumber)
 					.Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
-					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.Subdivision)
+					.Select(() => carAlias.IsRaskat).WithAlias(() => resultAlias.IsRaskat)
+					.Select(() => carAlias.RaskatType).WithAlias(() => resultAlias.CarRaskatType)
 					.Select(authorProjection).WithAlias(() => resultAlias.AuthorFullName)
 					.Select(driverProjection).WithAlias(() => resultAlias.DriverFullName)
+					.Select(geographicGroupsProjection).WithAlias(() => resultAlias.GeographicGroups)
 				)
 				.TransformUsing(Transformers.AliasToBean<CarEventJournalNode>());
 

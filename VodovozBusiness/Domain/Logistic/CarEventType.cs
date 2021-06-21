@@ -68,6 +68,18 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult("Сокращённое название должно быть заполнено.",
 					new[] { nameof(CarEventType) });
 			}
+
+			if(Name?.Length > 255)
+			{
+				yield return new ValidationResult("Превышена максимальная длина названия.",
+					new[] { nameof(Name) });
+			}
+
+			if(ShortName?.Length > 255)
+			{
+				yield return new ValidationResult("Превышена максимальная длина сокращённого названия.",
+					new[] { nameof(ShortName) });
+			}
 		}
 		
 		#endregion
