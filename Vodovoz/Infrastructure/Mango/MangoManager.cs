@@ -353,6 +353,11 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void ForwardCall(string to_extension, ForwardingMethod method)
 		{
+			if(CurrentTalk == null)
+			{
+				return;
+			}
+			
 			mangoController.ForwardCall(CurrentTalk.CallId, Convert.ToString(this.extension), to_extension, method);
 		}
 
