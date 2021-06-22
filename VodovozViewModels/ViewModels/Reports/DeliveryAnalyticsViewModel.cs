@@ -439,61 +439,62 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			   || !selectedWaves.Any())
 			{
 				foreach(var reportNodes in _oneWaveMorning.Concat(_oneWaveDay).Concat(_oneWaveEvening)
-					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb ,x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
+					.GroupBy(x => new {x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
 				{
 					var weekDayName = (WeekDayName) Enum.Parse(typeof(WeekDayName), reportNodes.Key.Date.DayOfWeek.ToString());
 					if((selectedDays.Contains(weekDayName) || !selectedDays.Any())
-					   && (selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
+					   && (selectedWages.Any(x => x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
 					{
 						nodesCsv.Add(new DeliveryAnalyticsReportNode(reportNodes, count));
 					}
 				}
 			}
-			
+
 			if(selectedWaves.Any(x => x == WaveNodes.SecondWave)
-			        || !selectedWaves.Any())
+			   || !selectedWaves.Any())
 			{
 				foreach(var reportNodes in _twoWave
-					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb ,x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
+					.GroupBy(x => new {x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
 				{
 					var weekDayName = (WeekDayName) Enum.Parse(typeof(WeekDayName), reportNodes.Key.Date.DayOfWeek.ToString());
 					if((selectedDays.Contains(weekDayName) || !selectedDays.Any())
-					   && (selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
+					   && (selectedWages.Any(x => x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
 					{
 						nodesCsv.Add(new DeliveryAnalyticsReportNode(reportNodes, count));
 					}
 				}
 			}
-			
+
 			if(selectedWaves.Any(x => x == WaveNodes.ThirdWave)
-			        || !selectedWaves.Any())
+			   || !selectedWaves.Any())
 			{
 				foreach(var reportNodes in _threeWave
-					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb ,x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
+					.GroupBy(x => new {x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
 				{
 					var weekDayName = (WeekDayName) Enum.Parse(typeof(WeekDayName), reportNodes.Key.Date.DayOfWeek.ToString());
 					if((selectedDays.Contains(weekDayName) || !selectedDays.Any())
-					   && (selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
+					   && (selectedWages.Any(x => x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
 					{
 						nodesCsv.Add(new DeliveryAnalyticsReportNode(reportNodes, count));
 					}
 				}
 			}
-			
+
 			foreach(var groupNode in nodesCsv.OrderByDescending(x => x.GeographicGroupName)
-				.ThenBy(x=>x.CityOrSuburb)
-				.ThenBy(x=>x.DistrictName)
-				.ThenBy(x => ((int)x.DayOfWeek.DayOfWeek + 6) % 7)
+				.ThenBy(x => x.CityOrSuburb)
+				.ThenBy(x => x.DistrictName)
+				.ThenBy(x => ((int) x.DayOfWeek.DayOfWeek + 6) % 7)
 				.ThenBy(x => x.DeliveryDate)
-				.GroupBy(x=> new
-				{
-					x.DistrictName, x.DayOfWeek
-				}
+				.GroupBy(x => new
+					{
+						x.DistrictName, x.DayOfWeek
+					}
 				))
 			{
 				sb.AppendLine(count.ToString() + new DeliveryAnalyticsReportNode(groupNode, count));
-					count++;
+				count++;
 			}
+
 			return sb.ToString();
 		}
 
