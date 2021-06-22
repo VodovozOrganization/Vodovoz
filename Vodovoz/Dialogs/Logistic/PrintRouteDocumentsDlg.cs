@@ -56,10 +56,15 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Часть города")
 					.AddTextRenderer(x => string.Join(", ", (x.Document as RouteListPrintableDocs).routeList.GeographicGroups.Select(g => g.Name)))
 				.AddColumn("Время печати")
-					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.PrintTime.HasValue ? (x.Document as RouteListPrintableDocs).routeList.PrintTime.Value.ToString(): "МЛ не распечатан")
+					.AddTextRenderer(x => 
+					(x.Document as RouteListPrintableDocs).routeList.PrintsHistory != null &&
+					(x.Document as RouteListPrintableDocs).routeList.PrintsHistory.Any() ?
+						(x.Document as RouteListPrintableDocs).routeList.PrintsHistory.LastOrDefault().PrintingTime.ToString()
+						: "МЛ не распечатан")
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRendererText>((c, n) => c.Foreground = (n.Document as RouteListPrintableDocs).routeList.PrintTime.HasValue ? "grey" : "black")
+					.AddSetter<CellRendererText>((c, n) => 
+					c.Foreground = (n.Document as RouteListPrintableDocs).routeList.PrintsHistory?.Any() ?? false ? "grey" : "black")
 				.Finish();
 
 			geograficGroup.UoW = uow;
@@ -217,6 +222,12 @@ namespace Vodovoz.Dialogs.Logistic
 							rlDocTypesToPrint.ToArray(),
 							oDocTypesToPrint
 						);
+						printer.DocumentsPrinted += (o, args) =>
+						{
+							rlPrintableDoc.routeList.AddPrintHistory();
+							uow.Save(rlPrintableDoc.routeList);
+							uow.Commit();
+						};
 						printer.PrintingCanceled += (s, ea) => {
 							cancelPrinting = true;
 						};

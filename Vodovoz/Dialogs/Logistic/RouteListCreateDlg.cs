@@ -231,7 +231,7 @@ namespace Vodovoz
 		{
 			if(e is EndPrintArgs printArgs) {
 				if(printArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle())) {
-					Entity.PrintTime = DateTime.Now;
+					Entity.AddPrintHistory();
 					Save();
 				}
 			}
@@ -309,12 +309,16 @@ namespace Vodovoz
 
 		public void OnPrintTimeButtonClicked(object sender, EventArgs e)
 		{
-			if(Entity.PrintTime.HasValue)
+			if(Entity.PrintsHistory?.Any() ?? false)
 			{
-				 ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info,
-					$"Дата печати {Entity.PrintTime.Value.Date.ToShortDateString()} " +
-					$"\nВремя печати {Entity.PrintTime.Value.ToShortTimeString()}",
-					$"№ МЛ: {Entity.Id}");
+				var message = "<b>№\t| Дата и время печати\t| Тип документа</b>";
+				for(var i = 0; i < Entity.PrintsHistory.Count; i++)
+				{
+					var item = Entity.PrintsHistory[i];
+					message += $"\n{i + 1}\t| {item.PrintingTime.ToShortDateString()}" +
+					           $" {item.PrintingTime.ToShortTimeString()}\t\t| {item.DocumentType.GetEnumShortTitle()}";
+				}
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, message, $"История печати МЛ №: {Entity.Id}");
 			}
 			else
 			{
@@ -370,7 +374,7 @@ namespace Vodovoz
 
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, callTaskWorker);
 					//Строим маршрут для МЛ.
-					if(!Entity.PrintTime.HasValue || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
+					if((!Entity.PrintsHistory?.Any() ?? true) || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
 						var newRoute = optimizer.RebuidOneRoute(Entity);
 						if(newRoute != null) {

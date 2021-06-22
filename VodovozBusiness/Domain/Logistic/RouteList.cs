@@ -17,6 +17,7 @@ using QS.Validation;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -423,14 +424,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref onLoadTimeFixed, value, () => OnloadTimeFixed);
 		}
 
-		private DateTime? printTime;
-
-		[Display(Name = "Время печати МЛ")]
-		public virtual DateTime? PrintTime {
-			get => printTime;
-			set => SetField(ref printTime, value);
-		}
-
 		private bool addressesOrderWasChangedAfterPrinted;
 		[Display(Name = "Был изменен порядок адресов после печати")]
 		public virtual bool AddressesOrderWasChangedAfterPrinted {
@@ -491,6 +484,14 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool? NotFullyLoaded {
 			get => notFullyLoaded;
 			set => SetField(ref notFullyLoaded, value, () => NotFullyLoaded);
+		}
+
+		private IList<DocumentPrintHistory> _printsHistory = new List<DocumentPrintHistory>();
+		[Display(Name = "История печати маршрутного листа")]
+		public virtual IList<DocumentPrintHistory> PrintsHistory
+		{
+			get => _printsHistory;
+			set => SetField(ref _printsHistory, value);
 		}
 
 		#endregion
@@ -650,7 +651,7 @@ namespace Vodovoz.Domain.Logistic
 				}
 
 				if(Addresses[i].IndexInRoute != i) {
-					if(PrintTime.HasValue) {
+					if(PrintsHistory?.Any() ?? false) {
 						AddressesOrderWasChangedAfterPrinted = true;
 					}
 					Addresses[i].IndexInRoute = i;
@@ -1161,6 +1162,24 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 		}
+
+		public virtual void AddPrintHistory()
+		{
+			var newHistory = new DocumentPrintHistory
+			{
+				PrintingTime = DateTime.Now,
+				DocumentType = PrintAsClosed() ? PrintedDocumentType.ClosedRouteList : PrintedDocumentType.RouteList,
+				RouteList = this
+			};
+			_printsHistory.Add(newHistory);
+		}
+		
+		/// <summary>
+		/// Указывает, находится ли МЛ в таком статусе, что его надо печатать как ClosedRouteList.rdl
+		/// </summary>
+		public virtual bool PrintAsClosed() =>
+			new[] { RouteListStatus.Delivered, RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }
+				.Contains(Status);
 
 		#endregion
 
