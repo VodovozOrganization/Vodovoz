@@ -899,7 +899,10 @@ public partial class MainWindow : Gtk.Window
                         subdivisionRepository,
                         employeeSelectorFactory,
                         counterpartySelectorFactory
-                    ),
+                    )
+                    {
+	                    HidenByDefault = true
+                    },
                     filePickerService,
                     subdivisionRepository,
                     new GtkReportViewOpener(),
