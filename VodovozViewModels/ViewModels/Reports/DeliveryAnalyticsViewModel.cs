@@ -441,8 +441,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				foreach(var reportNodes in _oneWaveMorning.Concat(_oneWaveDay).Concat(_oneWaveEvening)
 					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb ,x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
 				{
-					if(selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any()
-					&& selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any())
+					if((selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any())
+					&& (selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
 					{
 						nodesCsv.Add(new DeliveryAnalyticsReportNode(reportNodes, count));
 					}
@@ -455,8 +455,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				foreach(var reportNodes in _twoWave
 					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb ,x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
 				{
-					if(selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any()
-						&& selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any())
+					if((selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any())
+						&& (selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
 					{
 						nodesCsv.Add(new DeliveryAnalyticsReportNode(reportNodes, count));
 					}
@@ -469,8 +469,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				foreach(var reportNodes in _threeWave
 					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb ,x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
 				{
-					if(selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any()
-						&& selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any())
+					if((selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any())
+						&& (selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
 					{
 						nodesCsv.Add(new DeliveryAnalyticsReportNode(reportNodes, count));
 					}
@@ -481,9 +481,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			foreach(var groupNode in nodesCsv.OrderByDescending(x => x.GeographicGroupName)
 				.ThenBy(x=>x.CityOrSuburb)
 				.ThenBy(x=>x.DistrictName)
-				.ThenBy(x=>x.DayOfWeek)
+				.ThenBy(x=>x.DayOfWeek.DayOfWeek)
 				.ThenBy(x => x.DeliveryDate)
-				.GroupBy(x=>x.DistrictName))
+				.GroupBy(x=> new
+				{
+					x.DistrictName, x.DayOfWeek
+				}
+				))
 			{
 				sb.AppendLine(count.ToString() + new DeliveryAnalyticsReportNode(groupNode, count));
 					count++;
