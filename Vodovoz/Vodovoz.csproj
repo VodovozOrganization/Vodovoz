@@ -2035,6 +2035,9 @@
     <None Include="Reports\Logistic\CarsExploitationReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\Logistic\DeliveryTimeGrouped.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Reports\Logistic\DriversToDistrictsAssignmentReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
