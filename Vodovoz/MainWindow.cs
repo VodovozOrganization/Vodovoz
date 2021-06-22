@@ -966,7 +966,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EquipmentReport>(),
-            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport())
+            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport(ServicesConfig.InteractiveService))
         );
     }
 
