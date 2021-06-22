@@ -71,13 +71,13 @@ namespace Vodovoz.Domain.Logistic
 
 			if(Name?.Length > 255)
 			{
-				yield return new ValidationResult("Превышена максимальная длина названия.",
+				yield return new ValidationResult($"Превышена максимально допустимая длина названия ({Name.Length}/255).",
 					new[] { nameof(Name) });
 			}
 
 			if(ShortName?.Length > 255)
 			{
-				yield return new ValidationResult("Превышена максимальная длина сокращённого названия.",
+				yield return new ValidationResult($"Превышена максимально допустимая длина сокращённого названия ({ShortName.Length}/255).",
 					new[] { nameof(ShortName) });
 			}
 		}
