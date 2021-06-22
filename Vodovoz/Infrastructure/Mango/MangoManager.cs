@@ -353,7 +353,7 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void ForwardCall(string to_extension, ForwardingMethod method)
 		{
-			if(CurrentCall == null)
+			if(CurrentTalk == null)
 			{
 				return;
 			}
