@@ -441,8 +441,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				foreach(var reportNodes in _oneWaveMorning.Concat(_oneWaveDay).Concat(_oneWaveEvening)
 					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb ,x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
 				{
-					if((selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any())
-					&& (selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
+					var weekDayName = (WeekDayName) Enum.Parse(typeof(WeekDayName), reportNodes.Key.Date.DayOfWeek.ToString());
+					if((selectedDays.Contains(weekDayName) || !selectedDays.Any())
+					   && (selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
 					{
 						nodesCsv.Add(new DeliveryAnalyticsReportNode(reportNodes, count));
 					}
@@ -455,8 +456,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				foreach(var reportNodes in _twoWave
 					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb ,x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
 				{
-					if((selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any())
-						&& (selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
+					var weekDayName = (WeekDayName) Enum.Parse(typeof(WeekDayName), reportNodes.Key.Date.DayOfWeek.ToString());
+					if((selectedDays.Contains(weekDayName) || !selectedDays.Any())
+					   && (selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
 					{
 						nodesCsv.Add(new DeliveryAnalyticsReportNode(reportNodes, count));
 					}
@@ -469,8 +471,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				foreach(var reportNodes in _threeWave
 					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb ,x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
 				{
-					if((selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any())
-						&& (selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
+					var weekDayName = (WeekDayName) Enum.Parse(typeof(WeekDayName), reportNodes.Key.Date.DayOfWeek.ToString());
+					if((selectedDays.Contains(weekDayName) || !selectedDays.Any())
+					   && (selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
 					{
 						nodesCsv.Add(new DeliveryAnalyticsReportNode(reportNodes, count));
 					}
