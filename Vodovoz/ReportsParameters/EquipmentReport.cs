@@ -209,7 +209,7 @@ namespace Vodovoz.Reports
 			}
 			else
 			{
-				MessageDialogHelper.RunWarningDialog("Заполните дату.");
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
 			}
 		}
 
