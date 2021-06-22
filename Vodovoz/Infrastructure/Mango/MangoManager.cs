@@ -315,8 +315,15 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void AddCounterpartyToCall(int clientId)
 		{
+			if(CurrentCall == null)
+			{
+				return;
+			}
+			
 			CurrentCall.AddClientId(clientId);
-			if(CurrentPage == null) {
+			
+			if(CurrentPage == null) 
+			{
 				CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager>(null, this);
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
 			}
