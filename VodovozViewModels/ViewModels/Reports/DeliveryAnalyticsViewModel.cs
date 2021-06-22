@@ -439,7 +439,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			   || !selectedWaves.Any())
 			{
 				foreach(var reportNodes in _oneWaveMorning.Concat(_oneWaveDay).Concat(_oneWaveEvening)
-					.GroupBy(x => new {x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
+					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate }))
 				{
 					var weekDayName = (WeekDayName) Enum.Parse(typeof(WeekDayName), reportNodes.Key.Date.DayOfWeek.ToString());
 					if((selectedDays.Contains(weekDayName) || !selectedDays.Any())
@@ -454,7 +454,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			   || !selectedWaves.Any())
 			{
 				foreach(var reportNodes in _twoWave
-					.GroupBy(x => new {x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
+					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate }))
 				{
 					var weekDayName = (WeekDayName) Enum.Parse(typeof(WeekDayName), reportNodes.Key.Date.DayOfWeek.ToString());
 					if((selectedDays.Contains(weekDayName) || !selectedDays.Any())
@@ -469,7 +469,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			   || !selectedWaves.Any())
 			{
 				foreach(var reportNodes in _threeWave
-					.GroupBy(x => new {x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
+					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate }))
 				{
 					var weekDayName = (WeekDayName) Enum.Parse(typeof(WeekDayName), reportNodes.Key.Date.DayOfWeek.ToString());
 					if((selectedDays.Contains(weekDayName) || !selectedDays.Any())
@@ -480,7 +480,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				}
 			}
 
-			foreach(var groupNode in nodesCsv.OrderByDescending(x => x.GeographicGroupName)
+			foreach(var groupNode in nodesCsv
+				.OrderByDescending(x => x.GeographicGroupName)
 				.ThenBy(x => x.CityOrSuburb)
 				.ThenBy(x => x.DistrictName)
 				.ThenBy(x => ((int) x.DayOfWeek.DayOfWeek + 6) % 7)
