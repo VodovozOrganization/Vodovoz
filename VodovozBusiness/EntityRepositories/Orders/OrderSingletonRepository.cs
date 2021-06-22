@@ -4,6 +4,7 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Spatial.Criterion.Lambda;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -860,6 +861,12 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SingleOrDefault<int>();
 
 			return subqueryAdded - subqueryRemoved - subqueryReserved > 0;
+		}
+		public IList<VodovozOrder> GetOrdersById(IUnitOfWork UoW, IEnumerable<int> OrderIds)
+		{
+			VodovozOrder orderAlias = null;
+			return UoW.Session.QueryOver(() => orderAlias)
+				.WhereRestrictionOn(() => orderAlias.Id).IsIn(OrderIds.ToList()).List();
 		}
 	}
 }

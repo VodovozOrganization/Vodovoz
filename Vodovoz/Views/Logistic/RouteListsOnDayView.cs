@@ -25,6 +25,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
 using System.Drawing;
 using Gamma.Utilities;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -46,6 +47,7 @@ namespace Vodovoz.Views.Logistic
 		private readonly GMapOverlay driverAddressesOverlay = new GMapOverlay("driverAddresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
 		private readonly GMapOverlay routeOverlay = new GMapOverlay("route");
+		private readonly GMapOverlay undeliveredOverlay = new GMapOverlay("undelivered");
 		private GMapPolygon brokenSelection;
 		private List<GMapMarker> selectedMarkers = new List<GMapMarker>();
 		Pixbuf[] pixbufMarkers;
@@ -77,6 +79,7 @@ namespace Vodovoz.Views.Logistic
 			gmapWidget.Overlays.Add(routeOverlay);
 			gmapWidget.Overlays.Add(addressesOverlay);
 			gmapWidget.Overlays.Add(driverAddressesOverlay);
+			gmapWidget.Overlays.Add(undeliveredOverlay);
 			gmapWidget.Overlays.Add(selectionOverlay);
 			gmapWidget.DisableAltForSelection = true;
 			gmapWidget.OnSelectionChange += GmapWidget_OnSelectionChange;
@@ -514,13 +517,59 @@ namespace Vodovoz.Views.Logistic
 					addressesWithoutCoordinats++;
 			}
 
+			if(ViewModel.UndeliveredOrdersOnDay != null)
+			{
+				var undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay.Where(x =>
+					x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department);
+				if(undeliveryOrderNodes.Any())
+				{
+				var undeliveredOrdersOnDay = OrderSingletonRepository.GetInstance()
+					.GetOrdersById(ViewModel.UoW, undeliveryOrderNodes.Select(x => x.OrderId));
+				
+					var undeliveredOrdersRouteLists = OrderSingletonRepository.GetInstance()
+						.GetAllRouteListsForOrders(ViewModel.UoW, undeliveredOrdersOnDay.Select(x => x));
+					//добавляем маркеры адресов заказов
+					foreach(var undeliveryOrder in undeliveredOrdersOnDay)
+					{
+						IEnumerable<int> orderRls;
+						if(!undeliveredOrdersRouteLists.TryGetValue(undeliveryOrder.Id, out orderRls))
+						{
+							orderRls = new List<int>();
+						}
+
+						var route = ViewModel.RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == undeliveryOrder.Id));
+
+						if(!orderRls.Any())
+						{
+							addressesWithoutRoutes++;
+							bottlesWithoutRL += undeliveryOrder.Total19LBottlesToDeliver;
+						}
+
+						if(undeliveryOrder.DeliveryPoint.Latitude.HasValue && undeliveryOrder.DeliveryPoint.Longitude.HasValue)
+						{
+
+							FillTypeAndShapeMarker(undeliveryOrder, route, orderRls, out PointMarkerShape shape, out PointMarkerType type, true);
+
+							if(selectedMarkers.FirstOrDefault(m => (m.Tag as Order)?.Id == undeliveryOrder.Id) != null)
+								type = PointMarkerType.white;
+
+							var addressMarker = FillAddressMarker(undeliveryOrder, type, shape, addressesOverlay, route);
+
+							undeliveredOverlay.Markers.Add(addressMarker);
+						}
+						else
+							addressesWithoutCoordinats++;
+					}
+				}
+			}
+
 			UpdateOrdersInfo();
 			logger.Info("Ок.");
 		}
 
-		private void FillTypeAndShapeMarker(Order order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type)
+		private void FillTypeAndShapeMarker(Order order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type, bool overdueOrder = false)
 		{
-			shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver);
+			shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver, overdueOrder);
 			type = PointMarkerType.black;
 
 			if(!orderRlsIds.Any()) {

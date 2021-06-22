@@ -2538,6 +2538,38 @@
     <None Include="Reports\Logistic\AddressesOverpaymentsReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <EmbeddedResource Include="icons\map\points\overdue\black.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\black_and_red.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\blue.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color10.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color11.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color12.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color13.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color14.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color15.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color16.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color17.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color18.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color2.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color20.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color21.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color22.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color23.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color24.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color3.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color4.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color5.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color6.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color7.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color8.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\color9.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\gray.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\green.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\orange.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\purple.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\red.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\white.png" />
+    <EmbeddedResource Include="icons\map\points\overdue\marker_shadow.png" />
     <Content Include="Reports\Payments\PaymentsDelayNetwork.rdl" />
     <Content Include="Reports\Prodaction\ProducedProdaction.rdl" />
   </ItemGroup>
