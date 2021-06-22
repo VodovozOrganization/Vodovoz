@@ -480,11 +480,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				}
 			}
 			
-			
 			foreach(var groupNode in nodesCsv.OrderByDescending(x => x.GeographicGroupName)
 				.ThenBy(x=>x.CityOrSuburb)
 				.ThenBy(x=>x.DistrictName)
-				.ThenBy(x=>x.DayOfWeek.DayOfWeek)
+				.ThenBy(x => ((int)x.DayOfWeek.DayOfWeek + 6) % 7)
 				.ThenBy(x => x.DeliveryDate)
 				.GroupBy(x=> new
 				{
