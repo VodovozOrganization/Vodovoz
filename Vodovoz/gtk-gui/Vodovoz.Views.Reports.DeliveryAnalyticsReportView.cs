@@ -42,6 +42,8 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gamma.GtkWidgets.yLabel ylabel6;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelProgressReport;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -51,7 +53,7 @@ namespace Vodovoz.Views.Reports
 			// Container child Vodovoz.Views.Reports.DeliveryAnalyticsReportView.Gtk.Container+ContainerChild
 			this.ytable1 = new global::Gamma.GtkWidgets.yTable();
 			this.ytable1.Name = "ytable1";
-			this.ytable1.NRows = ((uint)(7));
+			this.ytable1.NRows = ((uint)(8));
 			this.ytable1.NColumns = ((uint)(2));
 			this.ytable1.RowSpacing = ((uint)(6));
 			this.ytable1.ColumnSpacing = ((uint)(6));
@@ -70,7 +72,7 @@ namespace Vodovoz.Views.Reports
 			w2.TopAttach = ((uint)(6));
 			w2.BottomAttach = ((uint)(7));
 			w2.XOptions = ((global::Gtk.AttachOptions)(0));
-			w2.YOptions = ((global::Gtk.AttachOptions)(1));
+			w2.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.deliveryDate = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.deliveryDate.Events = ((global::Gdk.EventMask)(256));
@@ -79,11 +81,10 @@ namespace Vodovoz.Views.Reports
 			this.deliveryDate.EndDate = new global::System.DateTime(0);
 			this.ytable1.Add(this.deliveryDate);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytable1[this.deliveryDate]));
-			w3.TopAttach = ((uint)(3));
-			w3.BottomAttach = ((uint)(4));
 			w3.LeftAttach = ((uint)(1));
 			w3.RightAttach = ((uint)(2));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.districtEntry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.districtEntry.Events = ((global::Gdk.EventMask)(256));
@@ -91,6 +92,8 @@ namespace Vodovoz.Views.Reports
 			this.districtEntry.CanEditReference = false;
 			this.ytable1.Add(this.districtEntry);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytable1[this.districtEntry]));
+			w4.TopAttach = ((uint)(1));
+			w4.BottomAttach = ((uint)(2));
 			w4.LeftAttach = ((uint)(1));
 			w4.RightAttach = ((uint)(2));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -153,11 +156,12 @@ namespace Vodovoz.Views.Reports
 			w9.Fill = false;
 			this.ytable1.Add(this.hbox3);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytable1[this.hbox3]));
-			w10.TopAttach = ((uint)(2));
-			w10.BottomAttach = ((uint)(3));
+			w10.TopAttach = ((uint)(3));
+			w10.BottomAttach = ((uint)(4));
 			w10.LeftAttach = ((uint)(1));
 			w10.RightAttach = ((uint)(2));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.treeviewGeographic = new global::Gamma.GtkWidgets.yTreeView();
 			this.treeviewGeographic.CanFocus = true;
@@ -169,17 +173,19 @@ namespace Vodovoz.Views.Reports
 			w11.LeftAttach = ((uint)(1));
 			w11.RightAttach = ((uint)(2));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.treeviewPartCity = new global::Gamma.GtkWidgets.yTreeView();
 			this.treeviewPartCity.CanFocus = true;
 			this.treeviewPartCity.Name = "treeviewPartCity";
 			this.ytable1.Add(this.treeviewPartCity);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.ytable1[this.treeviewPartCity]));
-			w12.TopAttach = ((uint)(1));
-			w12.BottomAttach = ((uint)(2));
+			w12.TopAttach = ((uint)(2));
+			w12.BottomAttach = ((uint)(3));
 			w12.LeftAttach = ((uint)(1));
 			w12.RightAttach = ((uint)(2));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.treeviewWave = new global::Gamma.GtkWidgets.yTreeView();
 			this.treeviewWave.CanFocus = true;
@@ -191,6 +197,7 @@ namespace Vodovoz.Views.Reports
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(2));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel1.Name = "ylabel1";
@@ -198,6 +205,8 @@ namespace Vodovoz.Views.Reports
 			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Район:");
 			this.ytable1.Add(this.ylabel1);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabel1]));
+			w14.TopAttach = ((uint)(1));
+			w14.BottomAttach = ((uint)(2));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
@@ -207,8 +216,8 @@ namespace Vodovoz.Views.Reports
 			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Часть:");
 			this.ytable1.Add(this.ylabel2);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabel2]));
-			w15.TopAttach = ((uint)(1));
-			w15.BottomAttach = ((uint)(2));
+			w15.TopAttach = ((uint)(2));
+			w15.BottomAttach = ((uint)(3));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
@@ -218,8 +227,8 @@ namespace Vodovoz.Views.Reports
 			this.ylabel3.LabelProp = global::Mono.Unix.Catalog.GetString("День недели:");
 			this.ytable1.Add(this.ylabel3);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabel3]));
-			w16.TopAttach = ((uint)(2));
-			w16.BottomAttach = ((uint)(3));
+			w16.TopAttach = ((uint)(3));
+			w16.BottomAttach = ((uint)(4));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
@@ -229,8 +238,6 @@ namespace Vodovoz.Views.Reports
 			this.ylabel4.LabelProp = global::Mono.Unix.Catalog.GetString("Дата доставки:");
 			this.ytable1.Add(this.ylabel4);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabel4]));
-			w17.TopAttach = ((uint)(3));
-			w17.BottomAttach = ((uint)(4));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
@@ -255,6 +262,16 @@ namespace Vodovoz.Views.Reports
 			w19.BottomAttach = ((uint)(6));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.ylabelProgressReport = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelProgressReport.Name = "ylabelProgressReport";
+			this.ytable1.Add(this.ylabelProgressReport);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelProgressReport]));
+			w20.TopAttach = ((uint)(7));
+			w20.BottomAttach = ((uint)(8));
+			w20.RightAttach = ((uint)(2));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.ytable1);
 			if ((this.Child != null))
 			{

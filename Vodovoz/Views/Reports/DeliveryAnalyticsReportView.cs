@@ -25,6 +25,7 @@ namespace Vodovoz.Views.Reports
 		
 		protected void OnExportBtnClicked(object sender, EventArgs e)
 		{
+			ViewModel.Progress = ViewModel.LoadingData;
 			var parentWindow = GtkHelper.GetParentWindow(this);
 			
 			var csvFilter = new FileFilter();
@@ -103,6 +104,8 @@ namespace Vodovoz.Views.Reports
 			btnUnAllDay.Clicked += OnButtonStatusNoneClicked;
 			btnHelp.Visible = false;
 			// btnHelp.Clicked += OnButtonHelpShowClicked;
+
+			ylabelProgressReport.Binding.AddBinding(ViewModel, s => s.Progress, w => w.Text).InitializeFromSource();
 		}
 		
 		protected void OnButtonStatusAllClicked(object sender, EventArgs e)

@@ -32,14 +32,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 	public class DeliveryAnalyticsViewModel : TabViewModelBase
 	{
 		#region Поля
-		private DateTime? startDeliveryDate;
-		private DateTime? endDeliveryDate;
+		private DateTime? _startDeliveryDate;
+		private DateTime? _endDeliveryDate;
 		private District _district;
-		
-		private DelegateCommand exportCommand;
-		private DelegateCommand allStatusCommand;
-		private DelegateCommand noneStatusCommand;
-		private DelegateCommand showHelpCommand;
+		private bool _isLoadingData;
+		private string _progress = string.Empty;
+		private const string _dataLoaded = "Выгрузка завершена.";
+		private const string _error = "Произошла ошибка.";
+
+		private DelegateCommand _exportCommand;
+		private DelegateCommand _allStatusCommand;
+		private DelegateCommand _noneStatusCommand;
+		private DelegateCommand _showHelpCommand;
 		
 		private IEnumerable<DeliveryAnalyticsReportNode> _oneWaveMorning;
 		private IEnumerable<DeliveryAnalyticsReportNode> _oneWaveDay;
@@ -49,7 +53,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		private readonly IInteractiveService _interactiveService;
 		public IEntityAutocompleteSelectorFactory DistrictSelectorFactory;
-		
+		public string LoadingData = "Идет выгрузка данных...";
+
+
 		#endregion
 		public DeliveryAnalyticsViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -70,22 +76,34 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			WaveList = new GenericObservableList<WaveNode>();
 			WeekDayName = new GenericObservableList<WeekDayNodes>();
-			GeographicGroupNodes =
-				new GenericObservableList<GeographicGroupNode>(Uow.GetAll<GeographicGroup>().Select(x => new GeographicGroupNode(x))
-					.ToList());
-			WageDistrictNodes =
-				new GenericObservableList<WageDistrictNode>(Uow.GetAll<WageDistrict>().Select(x => new WageDistrictNode(x)).ToList());
+			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>();
+
+			WageDistrictNodes = new GenericObservableList<WageDistrictNode>();
+
+			foreach(var wage in Uow.GetAll<WageDistrict>().Select(x => x).ToList())
+			{
+				var wageNode = new WageDistrictNode(wage);
+				wageNode.Selected = true;
+				WageDistrictNodes.Add(wageNode);
+			}
+
+			foreach(var geographic in Uow.GetAll<GeographicGroup>().Select(x => x).ToList())
+			{
+				var geographicNode = new GeographicGroupNode(geographic);
+				geographicNode.Selected = true;
+				GeographicGroupNodes.Add(geographicNode);
+			}
 
 			foreach(var wave in Enum.GetValues(typeof(WaveNodes)))
 			{
-				var waveNode = new WaveNode {WaveNodes = (WaveNodes) wave, Selected = false};
+				var waveNode = new WaveNode {WaveNodes = (WaveNodes) wave, Selected = true};
 				WaveList.Add(waveNode);
 			}
 			
 			foreach(var week in Enum.GetValues(typeof(WeekDayName)))
 			{
 				if((WeekDayName)week == Domain.Sale.WeekDayName.Today) continue;
-				var weekNode = new WeekDayNodes {WeekNameNode = (WeekDayName) week, Selected = false};
+				var weekNode = new WeekDayNodes {WeekNameNode = (WeekDayName) week, Selected = true};
 				WeekDayName.Add(weekNode);
 			}
 		}
@@ -102,10 +120,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		public DateTime? StartDeliveryDate
 		{
-			get => startDeliveryDate;
+			get => _startDeliveryDate;
 			set
 			{
-				if(SetField(ref startDeliveryDate, value))
+				if(SetField(ref _startDeliveryDate, value))
 				{
 					OnPropertyChanged(nameof(HasExportReport));
 				}
@@ -114,8 +132,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		public DateTime? EndDeliveryDate
 		{
-			get => endDeliveryDate;
-			set => SetField(ref endDeliveryDate, value);
+			get => _endDeliveryDate;
+			set => SetField(ref _endDeliveryDate, value);
 		}
 
 		public bool HasExportReport => StartDeliveryDate.HasValue;
@@ -129,6 +147,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		public GenericObservableList<WeekDayNodes> WeekDayName { get; set; }
 
 		public string FileName { get; set; }
+
+		public string Progress
+		{
+			get => _progress;
+			set => SetField(ref _progress, value);
+		}
 		#endregion
 
 		private void UpdateNodes()
@@ -499,7 +523,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		}
 
 		#region Команды
-		public DelegateCommand ExportCommand => exportCommand ?? (exportCommand = new DelegateCommand(
+		public DelegateCommand ExportCommand => _exportCommand ?? (_exportCommand = new DelegateCommand(
 			() =>
 			{
 				try
@@ -513,9 +537,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					try
 					{
 						File.WriteAllText(FileName, exportString, Encoding.UTF8);
+						Progress = _dataLoaded;
 					}
 					catch(IOException)
 					{
+						Progress = _error;
 						_interactiveService.ShowMessage(ImportanceLevel.Error,
 							"Не удалось сохранить файл выгрузки. Возможно не закрыт предыдущий файл выгрузки", "Ошибка");
 					}
@@ -524,11 +550,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				{
 					if (e.FindExceptionTypeInInner<TimeoutException>() != null)
 					{
+						Progress = _error;
 						_interactiveService.ShowMessage(
 							ImportanceLevel.Error, "Превышен интервал ожидания выполнения запроса.\n Попробуйте уменьшить период");
 					}
 					else
 					{
+						Progress = _error;
 						throw;
 					}
 				}
@@ -536,7 +564,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			() => !string.IsNullOrEmpty(FileName)
 		));
 		
-		public DelegateCommand AllStatusCommand => allStatusCommand ?? (allStatusCommand = new DelegateCommand(
+		public DelegateCommand AllStatusCommand => _allStatusCommand ?? (_allStatusCommand = new DelegateCommand(
 			() =>
 			{
 				foreach(var day in WeekDayName)
@@ -547,7 +575,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			}, () => true
 		));
 		
-		public DelegateCommand NoneStatusCommand => noneStatusCommand ?? (noneStatusCommand = new DelegateCommand(
+		public DelegateCommand NoneStatusCommand => _noneStatusCommand ?? (_noneStatusCommand = new DelegateCommand(
 			() =>
 			{
 				foreach(var day in WeekDayName)
@@ -558,7 +586,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			}, () => true
 		));
 		
-		public DelegateCommand ShowHelpCommand => showHelpCommand ?? (showHelpCommand = new DelegateCommand(
+		public DelegateCommand ShowHelpCommand => _showHelpCommand ?? (_showHelpCommand = new DelegateCommand(
 			() =>
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Info, $"Жду текст от Даши");
