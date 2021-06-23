@@ -18,6 +18,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Repository.Store;
@@ -29,9 +30,10 @@ namespace Vodovoz
 	public partial class ReturnsReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
-		private readonly ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
-		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository();
-		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
+		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private readonly IRouteListRepository _routeListRepository;
+		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
+		private readonly ICarUnloadRepository _carUnloadRepository;
 
 		public IList<ReceptionItemNode> Items => ReceptionReturnsList;
 
@@ -39,7 +41,12 @@ namespace Vodovoz
 
 		public ReturnsReceptionView()
 		{
-			this.Build();
+			_terminalNomenclatureProvider = new BaseParametersProvider();
+			_routeListRepository = new RouteListRepository();
+			_carLoadDocumentRepository = new CarLoadDocumentRepository(_routeListRepository);
+			_carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
+
+			Build();
 
 			ytreeReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<ReceptionItemNode>()
 				.AddColumn("Номенклатура").AddTextRenderer(node => node.Name)
@@ -80,7 +87,7 @@ namespace Vodovoz
 			get => warehouse;
 			set {
 				warehouse = value;
-				FillListReturnsFromRoute(terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+				FillListReturnsFromRoute(_terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
 			}
 		}
 
@@ -92,7 +99,7 @@ namespace Vodovoz
 					return;
 				routeList = value;
 				if(routeList != null) {
-					FillListReturnsFromRoute(terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+					FillListReturnsFromRoute(_terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
 				} else {
 					ReceptionReturnsList.Clear();
 				}
@@ -129,8 +136,9 @@ namespace Vodovoz
 			var cashSubdivision = new SubdivisionRepository().GetCashSubdivisions(uow);
 			if(cashSubdivision.Contains(Warehouse.OwningSubdivision)) {
 				
-				loadedTerminalAmount = (int)carLoadDocumentRepository.LoadedTerminalAmount(UoW, RouteList.Id, terminalId);
-				var unloadedTerminalAmount = (int)carUnloadRepository.UnloadedTerminalAmount(UoW, RouteList.Id, terminalId);
+				loadedTerminalAmount = (int)_carLoadDocumentRepository.LoadedTerminalAmount(UoW, RouteList.Id, terminalId);
+
+				var unloadedTerminalAmount = (int)_carUnloadRepository.UnloadedTerminalAmount(UoW, RouteList.Id, terminalId);
 
 				if (loadedTerminalAmount > 0)
                 {

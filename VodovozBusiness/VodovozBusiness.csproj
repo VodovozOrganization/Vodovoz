@@ -20,7 +20,8 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType></DebugType>
+    <DebugType>
+    </DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
@@ -59,6 +60,7 @@
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
     <Compile Include="Domain\Cash\OrganizationCashTransferDocument.cs" />
     <Compile Include="Domain\Client\CounterpartyFile.cs" />
+    <Compile Include="Domain\Documents\DriverTerminalTransferDocument.cs" />
     <Compile Include="Domain\Documents\DocumentPrintHistory.cs" />
     <Compile Include="Domain\Documents\WayBillDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocumentItem.cs" />
@@ -159,6 +161,7 @@
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverNomenclatureTransferItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DriverTerminalTransferDocumentMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureFixedPriceMap.cs" />
