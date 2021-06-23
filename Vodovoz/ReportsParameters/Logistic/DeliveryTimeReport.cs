@@ -70,7 +70,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			return new ReportInfo
 			{
-				Identifier = comboboxReportType.Active == 0 ? "Logistic.DeliveryTime" : "Logistic.DeliveryTimeGrouped",
+				Identifier = comboboxReportType.Active == 0 ? "Logistic.DeliveryTimeGrouped" : "Logistic.DeliveryTime",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "beforeTime", ytimeDelivery.Text },
