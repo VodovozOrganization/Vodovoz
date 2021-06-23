@@ -131,6 +131,12 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult("Комментарий должен быть заполнен.",
 						new[] { nameof(Comment) });
 			}
+
+			if(Comment?.Length > 255)
+			{
+				yield return new ValidationResult($"Превышена максимально допустимая длина комментария ({Comment.Length}/255).",
+					new[] { nameof(Comment) });
+			}
 		}
 
 		#endregion
