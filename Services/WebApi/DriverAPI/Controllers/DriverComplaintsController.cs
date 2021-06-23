@@ -23,7 +23,6 @@ namespace DriverAPI.Controllers
 		/// Эндпоинт получения популярных причин
 		/// </summary>
 		/// <returns>Список популярных причин</returns>
-		[Authorize]
 		[HttpGet]
 		[Route("/api/GetDriverComplaintReasons")]
 		public IEnumerable<DriverComplaintReasonDto> GetDriverComplaintReasons()
