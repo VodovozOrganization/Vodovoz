@@ -21,8 +21,9 @@ namespace DriverAPI.Controllers
 		private readonly IConfiguration _configuration;
 		private readonly ApplicationDbContext _context;
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly double tokenLifetime;
-		private readonly string securityKey;
+		private readonly double _tokenLifetime;
+		private readonly string _securityKey;
+		private bool _loginCaseSensitive;
 
 		public TokenController(
 			IConfiguration configuration,
@@ -33,8 +34,9 @@ namespace DriverAPI.Controllers
 			_context = context;
 			_userManager = userManager;
 
-			tokenLifetime = _configuration.GetValue<double>("Security:Token:Lifetime");
-			securityKey = _configuration.GetValue<string>("Security:Token:Key");
+			_tokenLifetime = _configuration.GetValue<double>("Security:Token:Lifetime");
+			_securityKey = _configuration.GetValue<string>("Security:Token:Key");
+			_loginCaseSensitive = _configuration.GetValue("Security:User:LoginCaseSensitive", false);
 		}
 
 		[HttpPost]
@@ -54,7 +56,11 @@ namespace DriverAPI.Controllers
 		private async Task<bool> IsValidCredentials(string username, string password)
 		{
 			var user = await _userManager.FindByNameAsync(username);
-			return await _userManager.CheckPasswordAsync(user, password);
+			if(!_loginCaseSensitive || user.UserName == username)
+			{
+				return await _userManager.CheckPasswordAsync(user, password);
+			}
+			return await new ValueTask<bool>(false);
 		}
 
 		private async Task<TokenResponseDto> GenerateToken(string username)
@@ -70,7 +76,7 @@ namespace DriverAPI.Controllers
 				new Claim(ClaimTypes.Name, username),
 				new Claim(ClaimTypes.NameIdentifier, user.Id),
 				new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
-				new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddMinutes(tokenLifetime)).ToUnixTimeSeconds().ToString())
+				new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddMinutes(_tokenLifetime)).ToUnixTimeSeconds().ToString())
 			};
 
 			foreach (var role in roles)
@@ -81,7 +87,7 @@ namespace DriverAPI.Controllers
 			var token = new JwtSecurityToken(
 				new JwtHeader(
 					new SigningCredentials(
-						new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey)),
+						new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_securityKey)),
 						SecurityAlgorithms.HmacSha256)),
 				new JwtPayload(claims));
 
