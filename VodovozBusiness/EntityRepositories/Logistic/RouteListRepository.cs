@@ -20,6 +20,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Repositories;
+using Vodovoz.NhibernateExtensions;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -368,8 +369,10 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 
+			var transferedCount = TerminalTransferedCountToRouteList(uow, routeList);
+
 			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
-			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal) && transferedCount == 0;
 
 			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
 									.JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
@@ -406,8 +409,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return null;
 		}
-
-
 
 		public IList<GoodsInRouteListResult> AllGoodsLoaded(IUnitOfWork uow, RouteList routeList, CarLoadDocument excludeDoc = null)
 		{
@@ -477,6 +478,35 @@ namespace Vodovoz.EntityRepositories.Logistic
 							NomenclatureId = nomenclatureId,
 							Amount = items.Sum(x => x.Amount)
 						});
+		}
+
+		public decimal TerminalTransferedCountToRouteList(IUnitOfWork unitOfWork, RouteList routeList)
+		{
+			if(unitOfWork == null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWork));
+			}
+
+			if(routeList == null)
+			{
+				throw new ArgumentNullException(nameof(routeList));
+			}
+
+			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+
+			var termanalTransferDocumentItems = unitOfWork.Session.Query<DriverTerminalTransferDocument>()
+				.Where(dttd => dttd.RouteListTo.Id == routeList.Id
+							|| dttd.RouteListFrom.Id == routeList.Id)
+				.ToList();
+
+			if(termanalTransferDocumentItems.Any())
+			{
+				return termanalTransferDocumentItems.Sum(dttd =>
+					dttd.RouteListTo.Id == routeList.Id ? 1 :
+					dttd.RouteListFrom.Id == routeList.Id ? -1 : 0);
+			}
+
+			return 0;
 		}
 
 		public IEnumerable<GoodsInRouteListResult> AllGoodsTransferredFrom(IUnitOfWork uow, RouteList routeList)

@@ -45,6 +45,7 @@ using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
+using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz
 {
@@ -473,7 +474,9 @@ namespace Vodovoz
 							Entity.Id, 
 							RouteListAddressesTransferringDlg.OpenParameter.Receiver,
 							employeeNomenclatureMovementRepository,
-							terminalNomenclatureProvider
+							terminalNomenclatureProvider,
+							new EmployeeService(),
+							ServicesConfig.CommonServices
 						)
 					);
 					break;
@@ -490,7 +493,9 @@ namespace Vodovoz
 							Entity.Id, 
 							RouteListAddressesTransferringDlg.OpenParameter.Sender,
 							employeeNomenclatureMovementRepository,
-							terminalNomenclatureProvider
+							terminalNomenclatureProvider,
+							new EmployeeService(),
+							ServicesConfig.CommonServices
 						)
 					);
 					break;

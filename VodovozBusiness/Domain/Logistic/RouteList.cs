@@ -68,7 +68,7 @@ namespace Vodovoz.Domain.Logistic
 			new CashDistributionCommonOrganisationProvider(
 				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
 
-		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository();
+		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository(new RouteListRepository());
 		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
 		private readonly ICashRepository cashRepository = new EntityRepositories.Cash.CashRepository(); 
 		
@@ -696,12 +696,25 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool ShipIfCan(IUnitOfWork uow, CallTaskWorker callTaskWorker)
 		{
-			var inLoaded = new RouteListRepository().AllGoodsLoaded(uow, this);
-			var goods = new RouteListRepository().GetGoodsAndEquipsInRL(uow, this);
+			var routeListRepository = new RouteListRepository();
+
+			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+
+			var terminalsTransferedToThisRL = routeListRepository.TerminalTransferedCountToRouteList(uow, this);
+
+			var inLoaded = routeListRepository.AllGoodsLoaded(uow, this);
+			var goods = routeListRepository.GetGoodsAndEquipsInRL(uow, this);
 
 			bool closed = true;
 			foreach(var good in goods) {
 				var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);
+
+				if(good.NomenclatureId == terminalId 
+					&& (loaded?.Amount ?? 0) + terminalsTransferedToThisRL == good.Amount)
+				{
+					continue;
+				}
+
 				if(loaded == null || loaded.Amount < good.Amount) {
 					closed = false;
 					break;
