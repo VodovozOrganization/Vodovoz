@@ -22,6 +22,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 		#region Колонки адресов
 		public int NullCountSmallOrdersOneMorning { get; set; }
 		public int NotNullCountSmallOrdersOneMorning { get; set; }
+		public int NotNullCountSmallOrdersOneMorningWithoutWater { get; set; }
 		public int CountSmallOrdersOneMorning { get; set; }
 		public decimal CountSmallOrders19LOneMorning { get; set; }
 		public int CountBigOrdersOneMorning { get; set; }
@@ -30,6 +31,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 		public decimal SumSmallAndBigOrders19LOneMorning { get; set; }
 		public int NullCountSmallOrdersOneDay { get; set; }
 		public int NotNullCountSmallOrdersOneDay { get; set; }
+		
+		public int NotNullCountSmallOrdersOneDayWithoutWater { get; set; }
 		public int CountSmallOrdersOneDay { get; set; }
 		public decimal CountSmallOrders19LOneDay { get; set; }
 		public int CountBigOrdersOneDay { get; set; }
@@ -38,6 +41,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 		public decimal SumSmallAndBigOrders19LOneDay { get; set; }
 		public int NullCountSmallOrdersOneEvening { get; set; }
 		public int NotNullCountSmallOrdersOneEvening { get; set; }
+		public int NotNullCountSmallOrdersOneEveningWithoutWater { get; set; }
 		public int CountSmallOrdersOneEvening { get; set; }
 		public decimal CountSmallOrders19LOneEvening { get; set; }
 		public int CountBigOrdersOneEvening { get; set; }
@@ -52,6 +56,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 		public decimal SumSmallAndBigOrders19LOneFinal { get; set; }
 		public int NullCountSmallOrdersTwoDay { get; set; }
 		public int NotNullCountSmallOrdersTwoDay { get; set; }
+		public int NotNullCountSmallOrdersTwoDayWithoutWater { get; set; }
 		public int CountSmallOrdersTwoDay { get; set; }
 		public decimal CountSmallOrders19LTwoDay { get; set; }
 		public int CountBigOrdersTwoDay { get; set; }
@@ -60,6 +65,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 		public decimal SumSmallAndBigOrders19LTwoDay { get; set; }
 		public int NullCountSmallOrdersThreeDay { get; set; }
 		public int NotNullCountSmallOrdersThreeDay { get; set; }
+		public int NotNullCountSmallOrdersThreeDayWithoutWater { get; set; }
 		public int CountSmallOrdersThreeDay { get; set; }
 		public decimal CountSmallOrders19LThreeDay { get; set; }
 		public int CountBigOrdersThreeDay { get; set; }
@@ -87,7 +93,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 			
 			NullCountSmallOrdersOneMorning = nodes.Sum(x => x.NullCountSmallOrdersOneMorning);
 			NotNullCountSmallOrdersOneMorning = nodes.Sum(x => x.NotNullCountSmallOrdersOneMorning);
-			CountSmallOrdersOneMorning = NullCountSmallOrdersOneMorning + NotNullCountSmallOrdersOneMorning;
+			NotNullCountSmallOrdersOneMorningWithoutWater = nodes.Sum(x => x.NotNullCountSmallOrdersOneMorningWithoutWater);
+			CountSmallOrdersOneMorning = NullCountSmallOrdersOneMorning + NotNullCountSmallOrdersOneMorning +
+			                             NotNullCountSmallOrdersOneMorningWithoutWater;
 			CountSmallOrders19LOneMorning = nodes.Sum(x => x.CountSmallOrders19LOneMorning);
 			CountBigOrdersOneMorning = nodes.Sum(x => x.CountBigOrdersOneMorning);
 			CountBigOrders19LOneMorning = nodes.Sum(x => x.CountBigOrders19LOneMorning);
@@ -96,7 +104,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 			
 			NullCountSmallOrdersOneDay = nodes.Sum(x => x.NullCountSmallOrdersOneDay);
 			NotNullCountSmallOrdersOneDay = nodes.Sum(x => x.NotNullCountSmallOrdersOneDay);
-			CountSmallOrdersOneDay = NullCountSmallOrdersOneDay + NotNullCountSmallOrdersOneDay;
+			NotNullCountSmallOrdersOneDayWithoutWater = nodes.Sum(x => x.NotNullCountSmallOrdersOneDayWithoutWater);
+			CountSmallOrdersOneDay = NullCountSmallOrdersOneDay + NotNullCountSmallOrdersOneDay + NotNullCountSmallOrdersOneDayWithoutWater;
 			CountSmallOrders19LOneDay = nodes.Sum(x => x.CountSmallOrders19LOneDay);
 			CountBigOrdersOneDay = nodes.Sum(x => x.CountBigOrdersOneDay);
 			CountBigOrders19LOneDay = nodes.Sum(x => x.CountBigOrders19LOneDay);
@@ -105,7 +114,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 			
 			NullCountSmallOrdersOneEvening = nodes.Sum(x => x.NullCountSmallOrdersOneEvening);
 			NotNullCountSmallOrdersOneEvening = nodes.Sum(x => x.NotNullCountSmallOrdersOneEvening);
-			CountSmallOrdersOneEvening = NullCountSmallOrdersOneEvening + NotNullCountSmallOrdersOneEvening;
+			NotNullCountSmallOrdersOneEveningWithoutWater = nodes.Sum(x => x.NotNullCountSmallOrdersOneEveningWithoutWater);
+			CountSmallOrdersOneEvening = NullCountSmallOrdersOneEvening + NotNullCountSmallOrdersOneEvening +
+			                             NotNullCountSmallOrdersOneEveningWithoutWater;
 			CountSmallOrders19LOneEvening = nodes.Sum(x => x.CountSmallOrders19LOneEvening);
 			CountBigOrdersOneEvening = nodes.Sum(x => x.CountBigOrdersOneEvening);
 			CountBigOrders19LOneEvening = nodes.Sum(x => x.CountBigOrders19LOneEvening);
@@ -121,7 +132,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 			
 			NullCountSmallOrdersTwoDay = nodes.Sum(x => x.NullCountSmallOrdersTwoDay);
 			NotNullCountSmallOrdersTwoDay = nodes.Sum(x => x.NotNullCountSmallOrdersTwoDay);
-			CountSmallOrdersTwoDay = NotNullCountSmallOrdersTwoDay + NullCountSmallOrdersTwoDay;
+			NotNullCountSmallOrdersTwoDayWithoutWater = nodes.Sum(x => x.NotNullCountSmallOrdersTwoDayWithoutWater);
+			CountSmallOrdersTwoDay = NotNullCountSmallOrdersTwoDay + NullCountSmallOrdersTwoDay + NotNullCountSmallOrdersTwoDayWithoutWater;
 			CountSmallOrders19LTwoDay = nodes.Sum(x => x.CountSmallOrders19LTwoDay);
 			CountBigOrdersTwoDay = nodes.Sum(x => x.CountBigOrdersTwoDay);
 			CountBigOrders19LTwoDay = nodes.Sum(x => x.CountBigOrders19LTwoDay);
@@ -130,7 +142,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 			
 			NullCountSmallOrdersThreeDay = nodes.Sum(x => x.NullCountSmallOrdersThreeDay);
 			NotNullCountSmallOrdersThreeDay = nodes.Sum(x => x.NotNullCountSmallOrdersThreeDay);
-			CountSmallOrdersThreeDay = NotNullCountSmallOrdersTwoDay + NullCountSmallOrdersThreeDay;
+			NotNullCountSmallOrdersThreeDayWithoutWater = nodes.Sum(x => x.NotNullCountSmallOrdersThreeDayWithoutWater);
+			CountSmallOrdersThreeDay = NotNullCountSmallOrdersThreeDay + NullCountSmallOrdersThreeDay + NotNullCountSmallOrdersThreeDayWithoutWater;
 			CountSmallOrders19LThreeDay = nodes.Sum(x => x.CountSmallOrders19LThreeDay);
 			CountBigOrdersThreeDay = nodes.Sum(x => x.CountBigOrdersThreeDay);
 			CountBigOrders19LThreeDay = nodes.Sum(x => x.CountBigOrders19LThreeDay);
@@ -147,23 +160,23 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 
 		public override string ToString()
 		{
-			return Id + ";" + GeographicGroupName + ";" + CityOrSuburb + ";" + DistrictName + ";" +
+			return ";" + GeographicGroupName + ";" + CityOrSuburb + ";" + DistrictName + ";" +
 			       CultureInfo.CurrentCulture.DateTimeFormat.GetDayName(DayOfWeek.DayOfWeek) + ";" + DeliveryDate.ToShortDateString() +  ";"
-			       + NullCountSmallOrdersOneMorning + ";" + CountSmallOrders19LOneMorning.ToString("N0") + ";" +
+			       + CountSmallOrdersOneMorning + ";" + CountSmallOrders19LOneMorning.ToString("N0") + ";" +
 			       CountBigOrdersOneMorning + ";" + CountBigOrders19LOneMorning.ToString("N0") + ";" + SumSmallAndBigOrdersOneMorning +
-			       ";" + SumSmallAndBigOrders19LOneMorning.ToString("N0") + ";" + NullCountSmallOrdersOneDay + ";" +
+			       ";" + SumSmallAndBigOrders19LOneMorning.ToString("N0") + ";" + CountSmallOrdersOneDay + ";" +
 			       CountSmallOrders19LOneDay.ToString("N0") + ";" +  CountBigOrdersOneDay + ";" + 
 			       CountBigOrders19LOneDay.ToString("N0") + ";" + SumSmallAndBigOrdersOneDay + ";" +
-			       SumSmallAndBigOrders19LOneDay.ToString("N0") + ";" + NullCountSmallOrdersOneEvening + ";" +
+			       SumSmallAndBigOrders19LOneDay.ToString("N0") + ";" + CountSmallOrdersOneEvening + ";" +
 			       CountSmallOrders19LOneEvening.ToString("N0") + ";" +  CountBigOrdersOneEvening + ";" + 
 			       CountBigOrders19LOneEvening.ToString("N0") + ";" + SumSmallAndBigOrdersOneEvening + ";" +  
 			       SumSmallAndBigOrders19LOneEvening.ToString("N0") + ";" + CountSmallOrdersOneFinal + ";" +
 			       CountSmallOrders19LOneFinal.ToString("N0") + ";" +  CountBigOrdersOneFinal + ";" + 
 			       CountBigOrders19LOneFinal.ToString("N0") + ";" + SumSmallAndBigOrdersOneFinal + ";" +
-			       SumSmallAndBigOrders19LOneFinal.ToString("N0") + ";" + NullCountSmallOrdersTwoDay + ";" +
+			       SumSmallAndBigOrders19LOneFinal.ToString("N0") + ";" + CountSmallOrdersTwoDay + ";" +
 			       CountSmallOrders19LTwoDay.ToString("N0") + ";" +  CountBigOrdersTwoDay + ";" + 
 			       CountBigOrders19LTwoDay.ToString("N0") + ";" + SumSmallAndBigOrdersTwoDay + ";" +
-			       SumSmallAndBigOrders19LTwoDay.ToString("N0") + ";" + NullCountSmallOrdersThreeDay + ";" +
+			       SumSmallAndBigOrders19LTwoDay.ToString("N0") + ";" + CountSmallOrdersThreeDay + ";" +
 			       CountSmallOrders19LThreeDay.ToString("N0") + ";" + CountBigOrdersThreeDay + ";" + 
 			       CountBigOrders19LThreeDay.ToString("N0") + ";" + SumSmallAndBigOrdersThreeDay + ";" +
 			       SumSmallAndBigOrders19LThreeDay.ToString("N0") + ";" + CountSmallOrdersFinal + ";" +
@@ -181,91 +194,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 		{
 			int hashCode = Id.GetHashCode();;
 			return hashCode;
-		}
-	}
-	
-	public sealed class DeliveryAnalyticsReportNodeMap : ClassMap<DeliveryAnalyticsReportNode>
-	{
-		public DeliveryAnalyticsReportNodeMap()
-		{
-			Map(x => x.Id).Index(0).Name("Номер");
-			Map(x => x.GeographicGroupName).Index(1).Name("Сектор");
-			Map(x => x.CityOrSuburb).Index(2).Name("Город/Пригород");
-			Map(x => x.DistrictName).Index(3).Name("Район");
-			Map(x => x.DayOfWeek).Index(4).Name("День недели").TypeConverter<DayOfWeekTimeConverter>();
-			Map(x => x.DeliveryDate).Index(5).Name("Дата доставки").TypeConverter<DeliveryDateTimeConverter>();
-
-			#region Колонки адресов
-
-			Map(x => x.NullCountSmallOrdersOneMorning).Index(6).Name("М (.)");
-			Map(x => x.CountSmallOrders19LOneMorning).Index(7).Name("М б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.CountBigOrdersOneMorning).Index(8).Name("К (.)");
-			Map(x => x.CountBigOrders19LOneMorning).Index(9).Name("К б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.SumSmallAndBigOrdersOneMorning).Index(10).Name("И (.)");
-			Map(x => x.SumSmallAndBigOrders19LOneMorning).Index(11).Name("И б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.NullCountSmallOrdersOneDay).Index(12).Name("М (.)");
-			Map(x => x.CountSmallOrders19LOneDay).Index(13).Name("М б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.CountBigOrdersOneDay).Index(14).Name("К (.)");
-			Map(x => x.CountBigOrders19LOneDay).Index(15).Name("К б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.SumSmallAndBigOrdersOneDay).Index(16).Name("И (.)");
-			Map(x => x.SumSmallAndBigOrders19LOneDay).Index(17).Name("И б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.NullCountSmallOrdersOneEvening).Index(18).Name("М (.)");
-			Map(x => x.CountSmallOrders19LOneEvening).Index(19).Name("М б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.CountBigOrdersOneEvening).Index(20).Name("К (.)");
-			Map(x => x.CountBigOrders19LOneEvening).Index(21).Name("К б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.SumSmallAndBigOrdersOneEvening).Index(22).Name("И (.)");
-			Map(x => x.SumSmallAndBigOrders19LOneEvening).Index(23).Name("И б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.CountSmallOrdersOneFinal).Index(24).Name("М (.)");
-			Map(x => x.CountSmallOrders19LOneFinal).Index(25).Name("М б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.CountBigOrdersOneFinal).Index(26).Name("К (.)");
-			Map(x => x.CountBigOrders19LOneFinal).Index(27).Name("К б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.SumSmallAndBigOrdersOneFinal).Index(28).Name("В (.)");
-			Map(x => x.SumSmallAndBigOrders19LOneFinal).Index(29).Name("В б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.NullCountSmallOrdersTwoDay).Index(30).Name("М (.)");
-			Map(x => x.CountSmallOrders19LTwoDay).Index(31).Name("М б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.CountBigOrdersTwoDay).Index(32).Name("К (.)");
-			Map(x => x.CountBigOrders19LTwoDay).Index(33).Name("К б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.SumSmallAndBigOrdersTwoDay).Index(34).Name("И (.)");
-			Map(x => x.SumSmallAndBigOrders19LTwoDay).Index(35).Name("И б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.NullCountSmallOrdersTwoDay).Index(36).Name("М (.)");
-			Map(x => x.CountSmallOrders19LTwoDay).Index(37).Name("М б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.CountBigOrdersTwoDay).Index(38).Name("К (.)");
-			Map(x => x.CountBigOrders19LTwoDay).Index(39).Name("К б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.SumSmallAndBigOrdersTwoDay).Index(40).Name("И (.)");
-			Map(x => x.SumSmallAndBigOrders19LTwoDay).Index(41).Name("И б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.NullCountSmallOrdersThreeDay).Index(42).Name("М (.)");
-			Map(x => x.CountSmallOrders19LThreeDay).Index(43).Name("М б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.CountBigOrdersThreeDay).Index(44).Name("К (.)");
-			Map(x => x.CountBigOrders19LThreeDay).Index(45).Name("К б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.SumSmallAndBigOrdersThreeDay).Index(46).Name("И (.)");
-			Map(x => x.SumSmallAndBigOrders19LThreeDay).Index(47).Name("И б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.CountSmallOrdersFinal).Index(48).Name("М (.)");
-			Map(x => x.CountSmallOrders19LFinal).Index(49).Name("М б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.CountBigOrdersFinal).Index(50).Name("К (.)");
-			Map(x => x.CountBigOrders19LFinal).Index(51).Name("К б.").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.SumSmallAndBigOrdersFinal).Index(52).Name("В (.)");
-			Map(x => x.SumSmallAndBigOrders19LFinal).Index(53).Name("В б.").Default(0).TypeConverter<DecimalConverter>();
-			#endregion
-		}
-	}
-	
-	public class DayOfWeekTimeConverter : DefaultTypeConverter
-	{
-		public override string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
-		{
-			if (value is DateTime d) {
-				return d.Day.ToString();
-			}
-
-			return string.Empty;
-		}
-	}
-	
-	public class DecimalConverter : DefaultTypeConverter
-	{
-		public override string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
-		{
-			return decimal.Round((decimal)value, 2).ToString("N0");
 		}
 	}
 }
