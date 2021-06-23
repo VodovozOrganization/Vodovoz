@@ -541,7 +541,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					}
 					catch(IOException)
 					{
-						Progress = _dataLoaded;
+						Progress = _error;
 						_interactiveService.ShowMessage(ImportanceLevel.Error,
 							"Не удалось сохранить файл выгрузки. Возможно не закрыт предыдущий файл выгрузки", "Ошибка");
 					}
