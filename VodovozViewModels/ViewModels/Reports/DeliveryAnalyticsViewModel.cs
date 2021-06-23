@@ -35,7 +35,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		private DateTime? startDeliveryDate;
 		private DateTime? endDeliveryDate;
 		private District _district;
-		
+		private bool isLoadingData;
+		private string _progress = string.Empty;
+		private const string _dataLoaded = "Выгрузка завершена.";
+		private const string _error = "Произошла ошибка.";
+
 		private DelegateCommand exportCommand;
 		private DelegateCommand allStatusCommand;
 		private DelegateCommand noneStatusCommand;
@@ -49,7 +53,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		private readonly IInteractiveService _interactiveService;
 		public IEntityAutocompleteSelectorFactory DistrictSelectorFactory;
-		
+		public string LoadingData = "Идет выгрузка данных...";
+
+
 		#endregion
 		public DeliveryAnalyticsViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -70,22 +76,34 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			WaveList = new GenericObservableList<WaveNode>();
 			WeekDayName = new GenericObservableList<WeekDayNodes>();
-			GeographicGroupNodes =
-				new GenericObservableList<GeographicGroupNode>(Uow.GetAll<GeographicGroup>().Select(x => new GeographicGroupNode(x))
-					.ToList());
-			WageDistrictNodes =
-				new GenericObservableList<WageDistrictNode>(Uow.GetAll<WageDistrict>().Select(x => new WageDistrictNode(x)).ToList());
+			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>();
+
+			WageDistrictNodes = new GenericObservableList<WageDistrictNode>();
+
+			foreach(var wage in Uow.GetAll<WageDistrict>().Select(x => x).ToList())
+			{
+				var wageNode = new WageDistrictNode(wage);
+				wageNode.Selected = true;
+				WageDistrictNodes.Add(wageNode);
+			}
+
+			foreach(var geographic in Uow.GetAll<GeographicGroup>().Select(x => x).ToList())
+			{
+				var geographicNode = new GeographicGroupNode(geographic);
+				geographicNode.Selected = true;
+				GeographicGroupNodes.Add(geographicNode);
+			}
 
 			foreach(var wave in Enum.GetValues(typeof(WaveNodes)))
 			{
-				var waveNode = new WaveNode {WaveNodes = (WaveNodes) wave, Selected = false};
+				var waveNode = new WaveNode {WaveNodes = (WaveNodes) wave, Selected = true};
 				WaveList.Add(waveNode);
 			}
 			
 			foreach(var week in Enum.GetValues(typeof(WeekDayName)))
 			{
 				if((WeekDayName)week == Domain.Sale.WeekDayName.Today) continue;
-				var weekNode = new WeekDayNodes {WeekNameNode = (WeekDayName) week, Selected = false};
+				var weekNode = new WeekDayNodes {WeekNameNode = (WeekDayName) week, Selected = true};
 				WeekDayName.Add(weekNode);
 			}
 		}
@@ -129,6 +147,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		public GenericObservableList<WeekDayNodes> WeekDayName { get; set; }
 
 		public string FileName { get; set; }
+
+		public string Progress
+		{
+			get => _progress;
+			set => SetField(ref _progress, value);
+		}
 		#endregion
 
 		private void UpdateNodes()
@@ -513,9 +537,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					try
 					{
 						File.WriteAllText(FileName, exportString, Encoding.UTF8);
+						Progress = _dataLoaded;
 					}
 					catch(IOException)
 					{
+						Progress = _dataLoaded;
 						_interactiveService.ShowMessage(ImportanceLevel.Error,
 							"Не удалось сохранить файл выгрузки. Возможно не закрыт предыдущий файл выгрузки", "Ошибка");
 					}
@@ -524,11 +550,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				{
 					if (e.FindExceptionTypeInInner<TimeoutException>() != null)
 					{
+						Progress = _error;
 						_interactiveService.ShowMessage(
 							ImportanceLevel.Error, "Превышен интервал ожидания выполнения запроса.\n Попробуйте уменьшить период");
 					}
 					else
 					{
+						Progress = _error;
 						throw;
 					}
 				}
