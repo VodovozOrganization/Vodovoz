@@ -42,7 +42,7 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gamma.GtkWidgets.yLabel ylabel6;
 
-		private global::Gamma.GtkWidgets.yLabel ylabel7;
+		private global::Gamma.GtkWidgets.yLabel ylabelProgressReport;
 
 		protected virtual void Build()
 		{
@@ -263,10 +263,10 @@ namespace Vodovoz.Views.Reports
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
-			this.ylabel7 = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel7.Name = "ylabel7";
-			this.ytable1.Add(this.ylabel7);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabel7]));
+			this.ylabelProgressReport = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelProgressReport.Name = "ylabelProgressReport";
+			this.ytable1.Add(this.ylabelProgressReport);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelProgressReport]));
 			w20.TopAttach = ((uint)(7));
 			w20.BottomAttach = ((uint)(8));
 			w20.RightAttach = ((uint)(2));

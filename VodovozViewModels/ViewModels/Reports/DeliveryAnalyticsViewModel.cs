@@ -32,18 +32,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 	public class DeliveryAnalyticsViewModel : TabViewModelBase
 	{
 		#region Поля
-		private DateTime? startDeliveryDate;
-		private DateTime? endDeliveryDate;
+		private DateTime? _startDeliveryDate;
+		private DateTime? _endDeliveryDate;
 		private District _district;
-		private bool isLoadingData;
+		private bool _isLoadingData;
 		private string _progress = string.Empty;
 		private const string _dataLoaded = "Выгрузка завершена.";
 		private const string _error = "Произошла ошибка.";
 
-		private DelegateCommand exportCommand;
-		private DelegateCommand allStatusCommand;
-		private DelegateCommand noneStatusCommand;
-		private DelegateCommand showHelpCommand;
+		private DelegateCommand _exportCommand;
+		private DelegateCommand _allStatusCommand;
+		private DelegateCommand _noneStatusCommand;
+		private DelegateCommand _showHelpCommand;
 		
 		private IEnumerable<DeliveryAnalyticsReportNode> _oneWaveMorning;
 		private IEnumerable<DeliveryAnalyticsReportNode> _oneWaveDay;
@@ -120,10 +120,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		public DateTime? StartDeliveryDate
 		{
-			get => startDeliveryDate;
+			get => _startDeliveryDate;
 			set
 			{
-				if(SetField(ref startDeliveryDate, value))
+				if(SetField(ref _startDeliveryDate, value))
 				{
 					OnPropertyChanged(nameof(HasExportReport));
 				}
@@ -132,8 +132,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		public DateTime? EndDeliveryDate
 		{
-			get => endDeliveryDate;
-			set => SetField(ref endDeliveryDate, value);
+			get => _endDeliveryDate;
+			set => SetField(ref _endDeliveryDate, value);
 		}
 
 		public bool HasExportReport => StartDeliveryDate.HasValue;
@@ -523,7 +523,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		}
 
 		#region Команды
-		public DelegateCommand ExportCommand => exportCommand ?? (exportCommand = new DelegateCommand(
+		public DelegateCommand ExportCommand => _exportCommand ?? (_exportCommand = new DelegateCommand(
 			() =>
 			{
 				try
@@ -564,7 +564,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			() => !string.IsNullOrEmpty(FileName)
 		));
 		
-		public DelegateCommand AllStatusCommand => allStatusCommand ?? (allStatusCommand = new DelegateCommand(
+		public DelegateCommand AllStatusCommand => _allStatusCommand ?? (_allStatusCommand = new DelegateCommand(
 			() =>
 			{
 				foreach(var day in WeekDayName)
@@ -575,7 +575,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			}, () => true
 		));
 		
-		public DelegateCommand NoneStatusCommand => noneStatusCommand ?? (noneStatusCommand = new DelegateCommand(
+		public DelegateCommand NoneStatusCommand => _noneStatusCommand ?? (_noneStatusCommand = new DelegateCommand(
 			() =>
 			{
 				foreach(var day in WeekDayName)
@@ -586,7 +586,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			}, () => true
 		));
 		
-		public DelegateCommand ShowHelpCommand => showHelpCommand ?? (showHelpCommand = new DelegateCommand(
+		public DelegateCommand ShowHelpCommand => _showHelpCommand ?? (_showHelpCommand = new DelegateCommand(
 			() =>
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Info, $"Жду текст от Даши");

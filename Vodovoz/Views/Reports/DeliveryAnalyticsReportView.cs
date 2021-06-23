@@ -105,7 +105,7 @@ namespace Vodovoz.Views.Reports
 			btnHelp.Visible = false;
 			// btnHelp.Clicked += OnButtonHelpShowClicked;
 
-			ylabel7.Binding.AddBinding(ViewModel, s => s.Progress, w => w.Text).InitializeFromSource();
+			ylabelProgressReport.Binding.AddBinding(ViewModel, s => s.Progress, w => w.Text).InitializeFromSource();
 		}
 		
 		protected void OnButtonStatusAllClicked(object sender, EventArgs e)
