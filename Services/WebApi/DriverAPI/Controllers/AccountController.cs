@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers
 {
@@ -21,18 +23,19 @@ namespace DriverAPI.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/api/Register")]
-		public IActionResult Post([FromBody] RegisterRequestDto loginRequestModel)
+		public async Task Post([FromBody] RegisterRequestDto loginRequestModel)
 		{
 			var user = new IdentityUser() { UserName = loginRequestModel.Username };
-			var result = _userManager.CreateAsync(user, loginRequestModel.Password).Result;
+			var result = await _userManager.CreateAsync(user, loginRequestModel.Password);
 
-			if (result.Succeeded)
+			if(!result.Succeeded)
 			{
-				return Ok();
-			}
-			else
-			{
-				return BadRequest();
+				if(result.Errors.Any(e => e.Code == "DuplicateUserName"))
+				{
+					throw new ArgumentException("Имя пользователя уже занято");
+				}
+
+				throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 			}
 		}
 	}
