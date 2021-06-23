@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace DriverAPI.Controllers
 {
@@ -10,14 +11,20 @@ namespace DriverAPI.Controllers
 	[ApiController]
 	public class ErrorController : ControllerBase
 	{
-		private readonly ILogger<ErrorController> logger;
+		private readonly ILogger<ErrorController> _logger;
 
 		public ErrorController(ILogger<ErrorController> logger)
 		{
-			this.logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
+		[HttpDelete]
 		[HttpGet]
+		[HttpHead]
+		[HttpOptions]
+		[HttpPatch]
+		[HttpPost]
+		[HttpPut]
 		[Route("/api/error")]
 		public ErrorResponseDto Error()
 		{
@@ -27,11 +34,16 @@ namespace DriverAPI.Controllers
 
 			if (exception != null)
 			{
-				logger.LogError(exception, exception.Message);
+				_logger.LogError(exception, exception.Message);
 			}
 			else
 			{
-				exception = new System.Exception("Вызван обработчик ошибок без ошибки");
+				exception = new Exception("Вызван обработчик ошибок без ошибки");
+			}
+
+			if(exception is UnauthorizedAccessException)
+			{
+				code = 403;
 			}
 
 			Response.StatusCode = code;
