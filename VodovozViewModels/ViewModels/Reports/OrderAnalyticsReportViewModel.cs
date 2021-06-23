@@ -437,4 +437,12 @@ namespace Vodovoz.ViewModels.Reports
 	        return string.Empty;
         }
     }
+    
+    public class DecimalConverter : DefaultTypeConverter
+    {
+	    public override string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
+	    {
+		    return decimal.Round((decimal)value, 2).ToString("N0");
+	    }
+    }
 }
