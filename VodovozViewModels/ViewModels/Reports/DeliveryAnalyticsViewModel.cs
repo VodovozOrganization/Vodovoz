@@ -254,16 +254,16 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			var bottleSmallCountSubquery = QueryOver.Of(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-				.And(x => x.Count < 5)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Where(Restrictions.Lt(Projections.Sum(() => orderItemAlias.Count), 5))
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var bootleBigCountSubquery = QueryOver.Of(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-				.And(x => x.Count >= 5)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Where(Restrictions.Ge(Projections.Sum(() => orderItemAlias.Count), 5))
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			Order orderAlias2 = null;
@@ -439,54 +439,63 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			   || !selectedWaves.Any())
 			{
 				foreach(var reportNodes in _oneWaveMorning.Concat(_oneWaveDay).Concat(_oneWaveEvening)
-					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb ,x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
+					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate }))
 				{
-					if(selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any()
-					&& selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any())
+					var weekDayName = (WeekDayName) Enum.Parse(typeof(WeekDayName), reportNodes.Key.Date.DayOfWeek.ToString());
+					if((selectedDays.Contains(weekDayName) || !selectedDays.Any())
+					   && (selectedWages.Any(x => x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
 					{
 						nodesCsv.Add(new DeliveryAnalyticsReportNode(reportNodes, count));
 					}
 				}
 			}
-			
+
 			if(selectedWaves.Any(x => x == WaveNodes.SecondWave)
-			        || !selectedWaves.Any())
+			   || !selectedWaves.Any())
 			{
 				foreach(var reportNodes in _twoWave
-					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb ,x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
+					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate }))
 				{
-					if(selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any()
-						&& selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any())
+					var weekDayName = (WeekDayName) Enum.Parse(typeof(WeekDayName), reportNodes.Key.Date.DayOfWeek.ToString());
+					if((selectedDays.Contains(weekDayName) || !selectedDays.Any())
+					   && (selectedWages.Any(x => x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
 					{
 						nodesCsv.Add(new DeliveryAnalyticsReportNode(reportNodes, count));
 					}
 				}
 			}
-			
+
 			if(selectedWaves.Any(x => x == WaveNodes.ThirdWave)
-			        || !selectedWaves.Any())
+			   || !selectedWaves.Any())
 			{
 				foreach(var reportNodes in _threeWave
-					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb ,x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate}))
+					.GroupBy(x => new { x.GeographicGroupName, x.CityOrSuburb, x.DistrictName, x.DayOfWeek.Date, x.DeliveryDate }))
 				{
-					if(selectedDays.Contains((WeekDayName) reportNodes.Key.Date.DayOfWeek) || !selectedDays.Any()
-						&& selectedWages.Any(x=>x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any())
+					var weekDayName = (WeekDayName) Enum.Parse(typeof(WeekDayName), reportNodes.Key.Date.DayOfWeek.ToString());
+					if((selectedDays.Contains(weekDayName) || !selectedDays.Any())
+					   && (selectedWages.Any(x => x.Name == reportNodes.Key.CityOrSuburb) || !selectedWages.Any()))
 					{
 						nodesCsv.Add(new DeliveryAnalyticsReportNode(reportNodes, count));
 					}
 				}
 			}
-			
-			
-			foreach(var node in nodesCsv.OrderByDescending(x => x.GeographicGroupName)
-				.ThenBy(x=>x.CityOrSuburb)
-				.ThenBy(x=>x.DistrictName)
-				.ThenBy(x=>x.DayOfWeek)
-				.ThenBy(x => x.DeliveryDate))
+
+			foreach(var groupNode in nodesCsv
+				.OrderByDescending(x => x.GeographicGroupName)
+				.ThenBy(x => x.CityOrSuburb)
+				.ThenBy(x => x.DistrictName)
+				.ThenBy(x => ((int) x.DayOfWeek.DayOfWeek + 6) % 7)
+				.ThenBy(x => x.DeliveryDate)
+				.GroupBy(x => new
+					{
+						x.DistrictName, x.DayOfWeek
+					}
+				))
 			{
-				sb.AppendLine(count.ToString() + node);
+				sb.AppendLine(count.ToString() + new DeliveryAnalyticsReportNode(groupNode, count));
 				count++;
 			}
+
 			return sb.ToString();
 		}
 
