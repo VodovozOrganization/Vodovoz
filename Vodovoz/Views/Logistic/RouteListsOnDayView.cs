@@ -502,9 +502,17 @@ namespace Vodovoz.Views.Logistic
 					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
-				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
+				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue)
+				{
+					bool overdueOrder = false;
+					var undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay.Where(x =>
+						x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department);
+					if(undeliveryOrderNodes.Any(x=>x.NewOrderId == order.Id))
+					{
+						overdueOrder = true;
+					}
 
-					FillTypeAndShapeMarker(order, route, orderRls, out PointMarkerShape shape, out PointMarkerType type);
+					FillTypeAndShapeMarker(order, route, orderRls, out PointMarkerShape shape, out PointMarkerType type, overdueOrder);
 
 					if(selectedMarkers.FirstOrDefault(m => (m.Tag as Order)?.Id == order.Id) != null)
 						type = PointMarkerType.white;
@@ -516,53 +524,7 @@ namespace Vodovoz.Views.Logistic
 				else
 					addressesWithoutCoordinats++;
 			}
-
-			if(ViewModel.UndeliveredOrdersOnDay != null)
-			{
-				var undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay.Where(x =>
-					x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department);
-				if(undeliveryOrderNodes.Any())
-				{
-				var undeliveredOrdersOnDay = OrderSingletonRepository.GetInstance()
-					.GetOrdersById(ViewModel.UoW, undeliveryOrderNodes.Select(x => x.OrderId));
-				
-					var undeliveredOrdersRouteLists = OrderSingletonRepository.GetInstance()
-						.GetAllRouteListsForOrders(ViewModel.UoW, undeliveredOrdersOnDay.Select(x => x));
-					//добавляем маркеры адресов заказов
-					foreach(var undeliveryOrder in undeliveredOrdersOnDay)
-					{
-						IEnumerable<int> orderRls;
-						if(!undeliveredOrdersRouteLists.TryGetValue(undeliveryOrder.Id, out orderRls))
-						{
-							orderRls = new List<int>();
-						}
-
-						var route = ViewModel.RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == undeliveryOrder.Id));
-
-						if(!orderRls.Any())
-						{
-							addressesWithoutRoutes++;
-							bottlesWithoutRL += undeliveryOrder.Total19LBottlesToDeliver;
-						}
-
-						if(undeliveryOrder.DeliveryPoint.Latitude.HasValue && undeliveryOrder.DeliveryPoint.Longitude.HasValue)
-						{
-
-							FillTypeAndShapeMarker(undeliveryOrder, route, orderRls, out PointMarkerShape shape, out PointMarkerType type, true);
-
-							if(selectedMarkers.FirstOrDefault(m => (m.Tag as Order)?.Id == undeliveryOrder.Id) != null)
-								type = PointMarkerType.white;
-
-							var addressMarker = FillAddressMarker(undeliveryOrder, type, shape, addressesOverlay, route);
-
-							undeliveredOverlay.Markers.Add(addressMarker);
-						}
-						else
-							addressesWithoutCoordinats++;
-					}
-				}
-			}
-
+			
 			UpdateOrdersInfo();
 			logger.Info("Ок.");
 		}

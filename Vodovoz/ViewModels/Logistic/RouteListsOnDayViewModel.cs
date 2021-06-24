@@ -1236,11 +1236,13 @@ namespace Vodovoz.ViewModels.Logistic
 
 				UndeliveredOrder undeliveredOrderAlias = null;
 				Order orderAlias = null;
+				Order orderAlias2 = null;
 			
 				UndeliveryOrderNode resultAlias = null;
 				UndeliveredOrdersOnDay = QueryOver.Of<GuiltyInUndelivery>()
 					.Left.JoinAlias(x => x.UndeliveredOrder, () => undeliveredOrderAlias)
 					.Left.JoinAlias(() => undeliveredOrderAlias.OldOrder, () => orderAlias)
+					.Left.JoinAlias(() => undeliveredOrderAlias.NewOrder, () => orderAlias2)
 					.Where(() => orderAlias.DeliveryDate == DateForRouting.Date && !orderAlias.SelfDelivery)
 					.Where(() => orderAlias.DeliverySchedule != null)
 					.Where(() => orderAlias.DeliveryPoint != null)
@@ -1248,7 +1250,8 @@ namespace Vodovoz.ViewModels.Logistic
 					.GetExecutableQueryOver(UoW.Session)
 					.SelectList(list => list
 						.Select(x=>x.GuiltySide).WithAlias(() => resultAlias.GuiltySide)
-						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OldOrderId)
+						.Select(() => orderAlias2.Id).WithAlias(() => resultAlias.NewOrderId)
 						.Select(() => orderAlias.DeliveryPoint).WithAlias(() => resultAlias.DeliveryPoint)
 						.Select(() => orderAlias.BottlesReturn).WithAlias(() => resultAlias.Bottles))
 					.TransformUsing(Transformers.AliasToBean<UndeliveryOrderNode>()).List<UndeliveryOrderNode>();

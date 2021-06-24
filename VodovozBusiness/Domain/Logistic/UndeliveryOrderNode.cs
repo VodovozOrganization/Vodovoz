@@ -6,11 +6,18 @@ namespace Vodovoz.Domain.Logistic
 {
 	public class UndeliveryOrderNode
 	{
-		private int _orderId;
-		public int OrderId
+		private int _oldOrderId;
+		public int OldOrderId
 		{
-			get => _orderId;
-			set => _orderId = value;
+			get => _oldOrderId;
+			set => _oldOrderId = value;
+		}
+		
+		private int _newOrderId;
+		public int NewOrderId
+		{
+			get => _newOrderId;
+			set => _newOrderId = value;
 		}
 
 		private GuiltyTypes _guiltyTypes;
