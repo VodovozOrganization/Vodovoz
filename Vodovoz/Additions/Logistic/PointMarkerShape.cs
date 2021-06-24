@@ -15,7 +15,15 @@
 		star,
 		//без формы
 		custom,
-		//Недовоз
-		overdue
+		// < 6 бутылей
+		overduecircle,
+		// 6 - 10 бутылей
+		overduetriangle,
+		// 10 - 20 бутылей
+		overduesquare,
+		// 20 - 40 бутылей
+		overduecross,
+		// > 40 бутылей
+		overduestar
 	}
 }

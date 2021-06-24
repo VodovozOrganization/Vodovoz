@@ -882,7 +882,17 @@ namespace Vodovoz.ViewModels.Logistic
 		public PointMarkerShape GetMarkerShapeFromBottleQuantity(int bottlesCount, bool overdueOrder = false)
 		{
 			if(overdueOrder)
-				return PointMarkerShape.overdue;
+			{
+				if(bottlesCount < 6)
+					return PointMarkerShape.overduetriangle;
+				if(bottlesCount < 10)
+					return PointMarkerShape.overduecircle;
+				if(bottlesCount < 20)
+					return PointMarkerShape.overduesquare;
+				if(bottlesCount < 40)
+					return PointMarkerShape.overduecross;
+				return PointMarkerShape.overduestar;
+			}
 			if(bottlesCount < 6)
 				return PointMarkerShape.triangle;
 			if(bottlesCount < 10)
@@ -1243,17 +1253,17 @@ namespace Vodovoz.ViewModels.Logistic
 					.Left.JoinAlias(x => x.UndeliveredOrder, () => undeliveredOrderAlias)
 					.Left.JoinAlias(() => undeliveredOrderAlias.OldOrder, () => orderAlias)
 					.Left.JoinAlias(() => undeliveredOrderAlias.NewOrder, () => orderAlias2)
-					.Where(() => orderAlias.DeliveryDate == DateForRouting.Date && !orderAlias.SelfDelivery)
-					.Where(() => orderAlias.DeliverySchedule != null)
-					.Where(() => orderAlias.DeliveryPoint != null)
-					.And(() => orderAlias.DeliverySchedule.Id != closingDocumentDeliveryScheduleId)
+					.Where(() => orderAlias2.DeliveryDate == DateForRouting.Date && !orderAlias2.SelfDelivery)
+					.Where(() => orderAlias2.DeliverySchedule != null)
+					.Where(() => orderAlias2.DeliveryPoint != null)
+					.And(() => orderAlias2.DeliverySchedule.Id != closingDocumentDeliveryScheduleId)
 					.GetExecutableQueryOver(UoW.Session)
 					.SelectList(list => list
 						.Select(x=>x.GuiltySide).WithAlias(() => resultAlias.GuiltySide)
 						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OldOrderId)
 						.Select(() => orderAlias2.Id).WithAlias(() => resultAlias.NewOrderId)
-						.Select(() => orderAlias.DeliveryPoint).WithAlias(() => resultAlias.DeliveryPoint)
-						.Select(() => orderAlias.BottlesReturn).WithAlias(() => resultAlias.Bottles))
+						.Select(() => orderAlias2.DeliveryPoint).WithAlias(() => resultAlias.DeliveryPoint)
+						.Select(() => orderAlias2.BottlesReturn).WithAlias(() => resultAlias.Bottles))
 					.TransformUsing(Transformers.AliasToBean<UndeliveryOrderNode>()).List<UndeliveryOrderNode>();
 			}
 
