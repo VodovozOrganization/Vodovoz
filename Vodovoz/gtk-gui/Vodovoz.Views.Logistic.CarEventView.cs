@@ -118,7 +118,7 @@ namespace Vodovoz.Views.Logistic
 			this.entityviewmodelentryCarEventType = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityviewmodelentryCarEventType.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryCarEventType.Name = "entityviewmodelentryCarEventType";
-			this.entityviewmodelentryCarEventType.CanEditReference = false;
+			this.entityviewmodelentryCarEventType.CanEditReference = true;
 			this.table1.Add(this.entityviewmodelentryCarEventType);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.entityviewmodelentryCarEventType]));
 			w7.TopAttach = ((uint)(4));

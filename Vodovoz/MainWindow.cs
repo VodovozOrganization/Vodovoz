@@ -2328,4 +2328,12 @@ public partial class MainWindow : Gtk.Window
 	{
 		SwitchToUI("Vodovoz.toolbars.car_service.xml");
 	}
+
+	protected void OnActionCarEventTypeActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new CarEventTypeJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
+	}
 }

@@ -89,7 +89,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public override string ToString()
 		{
-			return $"Событие ТС №{Id} {CarEventType.ShortName}";
+			return $"Событие ТС №{Id} {CarEventType.Name}";
 		}
 
 		#region IValidatableObject implementation
