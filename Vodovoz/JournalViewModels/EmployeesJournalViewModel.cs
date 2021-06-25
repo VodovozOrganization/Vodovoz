@@ -134,27 +134,30 @@ namespace Vodovoz.JournalViewModels
 				var selectedNode = selectedNodes.FirstOrDefault();
 				if (selectedNode != null)
 				{
-					var employee = UoW.GetById<Employee>(selectedNode.Id);
+					using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Сброс пароля пользователю"))
+					{
+						var employee = uow.GetById<Employee>(selectedNode.Id);
 
-					if (employee.User == null)
-					{
-						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-							"К сотруднику не привязан пользователь!");
-						
-						return;
-					}
-					
-					if (string.IsNullOrEmpty(employee.User.Login))
-					{
-						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-							"У пользователя не заполнен логин!");
-						
-						return;
-					}
+						if(employee.User == null)
+						{
+							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+								"К сотруднику не привязан пользователь!");
 
-					if (commonServices.InteractiveService.Question("Вы уверены?"))
-					{
-						ResetPasswordForEmployee(employee);
+							return;
+						}
+
+						if(string.IsNullOrEmpty(employee.User.Login))
+						{
+							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+								"У пользователя не заполнен логин!");
+
+							return;
+						}
+
+						if(commonServices.InteractiveService.Question("Вы уверены?"))
+						{
+							ResetPasswordForEmployee(employee);
+						}
 					}
 				}
 			});
