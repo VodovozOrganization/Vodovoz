@@ -171,7 +171,6 @@
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverNomenclatureTransferItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverTerminalTransferDocumentMap.cs" />
-    <Compile Include="HibernateMapping\DriverAppActionRecordMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureFixedPriceMap.cs" />
