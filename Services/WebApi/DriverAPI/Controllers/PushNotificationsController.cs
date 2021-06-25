@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers
 {
@@ -66,10 +67,10 @@ namespace DriverAPI.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/api/NotifyOfSmsPaymentStatusChanged")]
-		public void NotifyOfSmsPaymentStatusChanged([FromBody] int orderId)
+		public async Task NotifyOfSmsPaymentStatusChanged([FromBody] int orderId)
 		{
 			var token = aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
-			iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", "Обновлен статус платежа").Wait();
+			await iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", "Обновлен статус платежа");
 		}
 	}
 }
