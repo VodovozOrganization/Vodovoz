@@ -103,7 +103,7 @@ Iif(
                 <TableCell >
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>Дата заказа</Value>
+                      <Value>Дата доставки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -266,7 +266,7 @@ Iif(
                 <TableCell >
                   <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>={create_date}</Value>
+                      <Value>={delivery_date}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -275,6 +275,7 @@ Iif(
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >dd.MM.yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -439,7 +440,7 @@ Iif(
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
-    orders.create_date,
+    orders.delivery_date,
     GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.name, employees.patronymic) AS employee_fullname,
     counterparty.full_name AS client_name,
     delivery_points.compiled_address_short AS address,
@@ -672,8 +673,8 @@ GROUP BY orders.id
           <DataField>both_numbers</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="create_date">
-          <DataField>create_date</DataField>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="employee_fullname">
