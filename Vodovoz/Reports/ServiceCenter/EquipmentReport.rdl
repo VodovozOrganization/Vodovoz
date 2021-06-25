@@ -51,25 +51,31 @@ Iif(
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>38.8pt</Width>
+            <Width>50.9pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>59.6pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>75.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>129.1pt</Width>
+            <Width>112.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>126.4pt</Width>
+            <Width>110.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>122.8pt</Width>
+            <Width>110.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>117.8pt</Width>
+            <Width>103.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.7pt</Width>
+            <Width>56.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>226.5pt</Width>
+            <Width>139.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -82,6 +88,40 @@ Iif(
                     <Textbox Name="Textbox3">
                       <Value>='№ зак.'+'\n'+'Еж.ном.'</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Дата доставки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Автор заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -218,6 +258,39 @@ Iif(
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>={delivery_date}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format >dd.MM.yyyy</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>={employee_fullname}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
@@ -367,6 +440,8 @@ Iif(
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
+    orders.delivery_date,
+    GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.name, employees.patronymic) AS employee_fullname,
     counterparty.full_name AS client_name,
     delivery_points.compiled_address_short AS address,
     CONCAT_WS(
@@ -596,6 +671,14 @@ GROUP BY orders.id
         </Field>
         <Field Name="both_numbers">
           <DataField>both_numbers</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="employee_fullname">
+          <DataField>employee_fullname</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
