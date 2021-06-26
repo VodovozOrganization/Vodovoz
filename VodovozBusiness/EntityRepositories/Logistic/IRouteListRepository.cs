@@ -41,5 +41,6 @@ namespace Vodovoz.EntityRepositories.Logistic
         /// <returns></returns>
         bool IsTerminalRequired(IUnitOfWork uow, int routeListId);
 		decimal TerminalTransferedCountToRouteList(IUnitOfWork unitOfWork, RouteList routeList);
+		IList<DocumentPrintHistory> GetPrintsHistory(IUnitOfWork uow, RouteList routeList);
 	}
 }
