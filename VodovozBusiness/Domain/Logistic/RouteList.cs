@@ -2221,7 +2221,7 @@ namespace Vodovoz.Domain.Logistic
 		IRouteListWageCalculationSource ForwarderWageCalculationSrc => new RouteListWageCalculationSource(this, EmployeeCategory.forwarder);
 
 		private string CreateWageCalculationDetailsTextForAddress(RouteListItemWageCalculationDetails addressWageDetails, RouteListItem address,
-			EmployeeCategory employeeCategory)
+			EmployeeCategory employeeCategory, string carOwner)
 		{
 			if(addressWageDetails == null)
 			{
@@ -2229,18 +2229,18 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			string addressDetailsText =
-				$"{ addressWageDetails.RouteListItemWageCalculationName }, адрес №{ address.Id }, заказ №{ address.Order.Id }" +
+				$"{ addressWageDetails.RouteListItemWageCalculationName } ({ carOwner }), адрес №{ address.Id }, заказ №{ address.Order.Id }" +
 				$", категория \"{ employeeCategory.GetEnumTitle() }\":\n";
 
-			var wagreRateTypeTitles = Enum.GetValues(typeof(WageRateTypes)).OfType<WageRateTypes>().Select(w => w.GetEnumTitle());
+			var wageRateTypeTitles = Enum.GetValues(typeof(WageRateTypes)).OfType<WageRateTypes>().Select(w => w.GetEnumTitle());
 
 			addressDetailsText += string.Join("\n",
 				addressWageDetails.WageCalculationDetailsList
-					.Where(d => d.Count > 0 || !wagreRateTypeTitles.Contains(d.Name))
+					.Where(d => d.Count > 0 || !wageRateTypeTitles.Contains(d.Name))
 					.Select(d =>
 					{
 						var s = $"- {d.Name}";
-						if(wagreRateTypeTitles.Contains(d.Name))
+						if(wageRateTypeTitles.Contains(d.Name))
 						{
 							if(d.Name == WageRateTypes.PackOfBottles600ml.GetEnumTitle())
 							{
@@ -2275,10 +2275,12 @@ namespace Vodovoz.Domain.Logistic
 
 			string resultText = "";
 
+			string carOwner = DriverWageCalculationSrc.DriverOfOurCar ? "автомобиль компании" : "автомобиль водителя";
+
 			if(routeListDriverWageCalculationService is RouteListWageCalculationService service
 			   && service.GetWageCalculationService is RouteListFixedWageCalculationService)
 			{
-				resultText +=  $"Расчёт ЗП с фиксированной суммой за МЛ = { routeListDriverWageCalculationService.CalculateWage().FixedWage } руб.";
+				resultText +=  $"Расчёт ЗП с фиксированной суммой за МЛ ({ carOwner }) = { routeListDriverWageCalculationService.CalculateWage().FixedWage } руб.";
 				return resultText;
 			}
 
@@ -2298,8 +2300,8 @@ namespace Vodovoz.Domain.Logistic
 					addressWageDetailsList.Add(forwarderAddressWageDetails);
 				}
 
-				resultText += CreateWageCalculationDetailsTextForAddress(driverAddressWageDetails, address, EmployeeCategory.driver) +
-							  CreateWageCalculationDetailsTextForAddress(forwarderAddressWageDetails, address, EmployeeCategory.forwarder);
+				resultText += CreateWageCalculationDetailsTextForAddress(driverAddressWageDetails, address, EmployeeCategory.driver, carOwner) +
+							  CreateWageCalculationDetailsTextForAddress(forwarderAddressWageDetails, address, EmployeeCategory.forwarder, carOwner);
 			}
 
 			var routeListSum = addressWageDetailsList.Sum(a => a.WageCalculationDetailsList.Sum(d =>
