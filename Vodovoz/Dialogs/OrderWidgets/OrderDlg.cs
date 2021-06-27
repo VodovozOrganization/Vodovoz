@@ -1,4 +1,4 @@
-using EmailService;
+﻿using EmailService;
 using fyiReporting.RDL;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -393,10 +393,7 @@ namespace Vodovoz
 			Entity.ObservableOrderEquipments.ElementRemoved += ObservableOrderEquipmentsOnElementRemoved;
 
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
-			if (!Entity.IsForRetail)
-            {
-				enumSignatureType.AddEnumToHideList(new object[] { OrderSignatureType.SignatureTranscript });
-            }
+
 			enumSignatureType.Binding.AddBinding(Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource();
 
 			labelCreationDateValue.Binding.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
@@ -440,7 +437,7 @@ namespace Vodovoz
 			entryTrifle.ValidationMode = ValidationType.numeric;
 			entryTrifle.Binding.AddBinding(Entity, e => e.Trifle, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			ylabelContract.Binding.AddFuncBinding(Entity, e => e.Contract != null ? e.Contract.Title + " (" + e.Contract.Organization.FullName + ")" : string.Empty, w => w.Text).InitializeFromSource();
+			ylabelContract.Binding.AddFuncBinding(Entity, e => e.Contract != null && e.Contract.Organization != null ? e.Contract.Title + " (" + e.Contract.Organization.FullName + ")" : string.Empty, w => w.Text).InitializeFromSource();
 
 			OldFieldsConfigure();
 
@@ -467,7 +464,7 @@ namespace Vodovoz
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
 
-			referenceDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.AllQuery();
+			referenceDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.NotArchiveQuery();
 			referenceDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule>(e => e.Name);
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
@@ -542,6 +539,7 @@ namespace Vodovoz
 			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
 			SetSensitivityOfPaymentType();
 
+			buttonCopyManagerComment.Clicked += OnButtonCopyManagerCommentClicked;
 			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
 			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
 			enumDiverCallType.Binding.AddBinding(Entity, s => s.DriverCallType, w => w.SelectedItem).InitializeFromSource();
@@ -610,13 +608,33 @@ namespace Vodovoz
 
 			Entity.PropertyChanged += (sender, args) =>
 			{
-				if(args.PropertyName == nameof(Order.OrderStatus)) {
-					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderStatus));
-				} 
-				else if(args.PropertyName == nameof(Order.Contract)) {
-					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
-					OnContractChanged();
-				} 
+				switch(args.PropertyName)
+				{
+					case nameof(Order.OrderStatus):
+						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderStatus));
+						break;
+					case nameof(Order.Contract):
+						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
+						OnContractChanged();
+						break;
+					case nameof(Order.Client):
+						var signatureTranscriptType = new object[] { OrderSignatureType.SignatureTranscript };
+						if(Entity.Client?.IsForRetail ?? false)
+						{
+							while(enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
+							{
+								enumSignatureType.RemoveEnumFromHideList(signatureTranscriptType);
+							}
+						}
+						else
+						{
+							if(!enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
+							{
+								enumSignatureType.AddEnumToHideList(signatureTranscriptType);
+							}
+						}
+						break;
+				}
 			};
 			OnContractChanged();
 			
@@ -1731,6 +1749,7 @@ namespace Vodovoz
 						continue;
 				}
 			}
+			Entity?.RecalculateItemsPrice();
 		}
 		#endregion
 
@@ -1784,14 +1803,6 @@ namespace Vodovoz
 		#region Изменение диалога
 
 		/// <summary>
-		/// Ширина первой колонки списка товаров или оборудования
-		/// (создано для хранения ширины колонки до автосайза ячейки по 
-		/// содержимому, чтобы отобразить по правильному положению ввод 
-		/// количества при добавлении нового товара)
-		/// </summary>
-		int treeAnyGoodsFirstColWidth;
-
-		/// <summary>
 		/// Активирует редактирование ячейки количества
 		/// </summary>
 		private void EditGoodsCountCellOnAdd(yTreeView treeView)
@@ -1803,7 +1814,7 @@ namespace Vodovoz
 				treeView.Model.IterNthChild(out TreeIter iter, index);
 				path = treeView.Model.GetPath(iter);
 
-				var column = treeView.ColumnsConfig.ConfiguredColumns.FirstOrDefault(x => (x.tag as string) == "Count")?.TreeViewColumn;
+				var column = treeView.ColumnsConfig.GetColumnsByTag("Count").FirstOrDefault();
 				if(column == null) {
 					return;
 				}
@@ -1817,15 +1828,6 @@ namespace Vodovoz
 				return;
 			}
 
-		}
-
-		void TreeAnyGoods_ExposeEvent(object o, ExposeEventArgs args)
-		{
-			var newColWidth = ((yTreeView)o).Columns.First().Width;
-			if(treeAnyGoodsFirstColWidth != newColWidth) {
-				EditGoodsCountCellOnAdd((yTreeView)o);
-				((yTreeView)o).ExposeEvent -= TreeAnyGoods_ExposeEvent;
-			}
 		}
 
 		#endregion
@@ -1927,19 +1929,26 @@ namespace Vodovoz
 		protected void OnReferenceDeliveryPointChanged(object sender, EventArgs e)
 		{
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
-			if(Entity.DeliveryPoint != null) {
+			
+			if(Entity.DeliveryPoint != null) 
+			{
 				UpdateProxyInfo();
 				Entity.SetProxyForOrder();
 			}
-			
+
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+			{
 				OnFormOrderActions();
-			
-			if (Entity.DeliveryPoint != null) {
+			}
+
+			if(Entity.DeliveryPoint != null)
+			{
 				TryAddVodovozLeaflet(new NomenclatureParametersProvider());
 			}
-			else {
-				if (vodovozLeaflet != null) {
+			else
+			{
+				if(vodovozLeaflet != null)
+				{
 					Entity.ObservableOrderEquipments.Remove(Entity.ObservableOrderEquipments.SingleOrDefault(
 						x => x.Nomenclature.Id == vodovozLeaflet.Id));
 				}
@@ -2259,6 +2268,12 @@ namespace Vodovoz
 			}
 		}
 
+		private void OnButtonCopyManagerCommentClicked(object sender, EventArgs e)
+		{
+			var cb = textManagerComments.GetClipboard(Gdk.Selection.Clipboard);
+			cb.Text = textManagerComments.Buffer.Text;
+		}
+
 		#endregion
 
 		#region Service functions
@@ -2312,12 +2327,15 @@ namespace Vodovoz
 				OnFormOrderActions();
 			}
 
-			treeAnyGoodsFirstColWidth = treeItems.Columns.First(x => x.Title == "Номенклатура").Width;
-			treeItems.ExposeEvent += TreeAnyGoods_ExposeEvent;
-			//Выполнение в случае если размер не поменяется
-			EditGoodsCountCellOnAdd(treeItems);
+			treeItems.SizeAllocated += TreeItemsOnAdded;
 		}
-		
+
+		private void TreeItemsOnAdded(object o, SizeAllocatedArgs args)
+		{
+			EditGoodsCountCellOnAdd(treeItems);
+			treeItems.SizeAllocated -= TreeItemsOnAdded;
+		}
+
 		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			HboxReturnTareReasonCategoriesShow();
@@ -2497,7 +2515,10 @@ namespace Vodovoz
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				if(Entity.Id != 0)
 					rlStatus = OrderSingletonRepository.GetInstance().GetAllRLForOrder(uow, Entity).FirstOrDefault()?.Status;
-				tblDriverControl.Sensitive = rlStatus.HasValue && !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
+				var sensitive = rlStatus.HasValue 
+					&& !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
+				scrolledWindowManagerComment.Sensitive = sensitive;
+				enumDiverCallType.Sensitive = sensitive;
 			}
 		}
 

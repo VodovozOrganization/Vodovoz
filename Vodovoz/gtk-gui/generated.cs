@@ -56,6 +56,8 @@ namespace Stetic
 				w1.Add("phone-ring", w22);
 				global::Gtk.IconSet w23 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.phone-talk.png"));
 				w1.Add("phone-talk", w23);
+				global::Gtk.IconSet w24 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.toolbar.car_service.png"));
+				w1.Add("car_events", w24);
 				w1.AddDefault();
 			}
 		}

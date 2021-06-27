@@ -7,6 +7,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -547,11 +548,12 @@ namespace Vodovoz.EntityRepositories.Orders
 					OrderStatus.Canceled
 				};
 		}
-		
+
 		public IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(
 			IUnitOfWork uow,
 			IOrderParametersProvider orderParametersProvider,
 			IOrganizationParametersProvider organizationParametersProvider,
+			ISalesReceiptsParametersProvider salesReceiptsParametersProvider,
 			DateTime? startDate = null)
 		{
 			#region Aliases Restrictions Projections
@@ -559,9 +561,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			var paymentByCardFromNotToSendSalesReceipts = orderParametersProvider.PaymentsByCardFromNotToSendSalesReceipts;
 			var vodovozSouthOrganizationId = organizationParametersProvider.VodovozSouthOrganizationId;
 
-			ReceiptForOrderNode resultAlias = null;
 			ExtendedReceiptForOrderNode extendedReceiptForOrderNodeAlias = null;
-			
+
 			OrderItem orderItemAlias = null;
 			VodovozOrder orderAlias = null;
 			CashReceipt cashReceiptAlias = null;
@@ -592,7 +593,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var orderDeliveredStatuses = Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
 				new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock }.ToArray());
-			
+
 			var orderPaymentTypesRestriction = Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
 				new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.ToArray());
 
@@ -628,7 +629,9 @@ namespace Vodovoz.EntityRepositories.Orders
 					.Add(() => !cashReceiptAlias.Sent));
 
 			if(startDate.HasValue)
+			{
 				alwaysSendOrdersQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
+			}
 
 			var alwaysSendOrders = alwaysSendOrdersQuery
 				.SelectList(list => list
@@ -639,71 +642,81 @@ namespace Vodovoz.EntityRepositories.Orders
 					.Select(() => cashReceiptAlias.Sent).WithAlias(() => extendedReceiptForOrderNodeAlias.WasSent))
 				.TransformUsing(Transformers.AliasToBean<ExtendedReceiptForOrderNode>())
 				.Future<ExtendedReceiptForOrderNode>();
-			
-			#endregion
 
-			#region UniqueOrderSumSendOrders
-
-			var uniqueOrderSumSendOrdersQuery = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
-				.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
-				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
-				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
-				.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
-				.Where(Restrictions.Not(alwaysSendOrdersRestriction))
-				.And(paidByCardRestriction)
-				.And(orderDeliveredStatuses)
-				.And(orderSumRestriction)
-				.And(orderPaymentTypesRestriction);
-
-			if(startDate.HasValue) {
-				uniqueOrderSumSendOrdersQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
-			}
-
-			var notUniqueOrderSumSendOrdersTemp = uniqueOrderSumSendOrdersQuery
-				.SelectList(list => list
-					.SelectGroup(() => orderAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.OrderId)
-					.Select(() => orderAlias.PaymentType).WithAlias(() => extendedReceiptForOrderNodeAlias.PaymentType)
-					.Select(orderSumProjection).WithAlias(() => extendedReceiptForOrderNodeAlias.OrderSum)
-					.Select(CustomProjections.Date(() => orderAlias.DeliveryDate)).WithAlias(() => extendedReceiptForOrderNodeAlias.DeliveryDate)
-					.Select(() => cashReceiptAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.ReceiptId)
-					.Select(() => cashReceiptAlias.Sent).WithAlias(() => extendedReceiptForOrderNodeAlias.WasSent))
-				.TransformUsing(Transformers.AliasToBean<ExtendedReceiptForOrderNode>())
-				.Future<ExtendedReceiptForOrderNode>();
-
-			var notUniqueOrderSumSendOrders = notUniqueOrderSumSendOrdersTemp.Where(x =>
-				x.PaymentType != PaymentType.cash
-				|| x.PaymentType == PaymentType.cash && x.OrderSum < 20000).ToList();
-			
-			var alreadySentOrders = new List<ExtendedReceiptForOrderNode>(notUniqueOrderSumSendOrders.Where(x => x.WasSent.HasValue && x.WasSent.Value));
-			var uniqueOrderSumSendNodes = new List<ExtendedReceiptForOrderNode>();
-
-			foreach(var node in notUniqueOrderSumSendOrders.Where(x => !x.WasSent.HasValue || !x.WasSent.Value)) {
-				if(alreadySentOrders.All(x => x.OrderSum != node.OrderSum || x.DeliveryDate != node.DeliveryDate) 
-					&& uniqueOrderSumSendNodes.All(x => x.OrderSum != node.OrderSum || x.DeliveryDate != node.DeliveryDate)) 
-				{
-					uniqueOrderSumSendNodes.Add(node);
-				}
-			}
-			var uniqueOrderSumSendOrderNodes = uniqueOrderSumSendNodes.Select(x => new ReceiptForOrderNode
-				{ OrderId = x.OrderId, ReceiptId = x.ReceiptId, WasSent = x.WasSent });
-
-			#endregion
-
-			//Здесь и выше фильтрация идёт не на уровне запроса, т.к. не NHibernate упорно не хочет клась сложное условие в HAVING
-			var alwaysSendOrderNodes = alwaysSendOrders
+			//Здесь фильтрация идёт не на уровне запроса, т.к. не NHibernate упорно не хочет клась сложное условие в HAVING
+			var result = alwaysSendOrders
 				.Where(x =>
 					x.PaymentType != PaymentType.cash
 					|| x.PaymentType == PaymentType.cash && x.OrderSum < 20000)
-				.Select(x => new ReceiptForOrderNode {
+				.Select(x => new ReceiptForOrderNode
+				{
 					OrderId = x.OrderId,
 					ReceiptId = x.ReceiptId,
 					WasSent = x.WasSent
 				});
 
-			return alwaysSendOrderNodes.Union(uniqueOrderSumSendOrderNodes);
+			#endregion
+
+			#region UniqueOrderSumOrders
+
+			if(salesReceiptsParametersProvider.SendUniqueOrderSumOrders)
+			{
+				var uniqueOrderSumSendOrdersQuery = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
+					.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
+					.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+					.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
+					.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+					.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
+					.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
+					.Where(Restrictions.Not(alwaysSendOrdersRestriction))
+					.And(paidByCardRestriction)
+					.And(orderDeliveredStatuses)
+					.And(orderSumRestriction)
+					.And(orderPaymentTypesRestriction);
+
+				if(startDate.HasValue)
+				{
+					uniqueOrderSumSendOrdersQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
+				}
+
+				var notUniqueOrderSumSendOrdersTemp = uniqueOrderSumSendOrdersQuery
+					.SelectList(list => list
+						.SelectGroup(() => orderAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.OrderId)
+						.Select(() => orderAlias.PaymentType).WithAlias(() => extendedReceiptForOrderNodeAlias.PaymentType)
+						.Select(orderSumProjection).WithAlias(() => extendedReceiptForOrderNodeAlias.OrderSum)
+						.Select(CustomProjections.Date(() => orderAlias.DeliveryDate))
+						.WithAlias(() => extendedReceiptForOrderNodeAlias.DeliveryDate)
+						.Select(() => cashReceiptAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.ReceiptId)
+						.Select(() => cashReceiptAlias.Sent).WithAlias(() => extendedReceiptForOrderNodeAlias.WasSent))
+					.TransformUsing(Transformers.AliasToBean<ExtendedReceiptForOrderNode>())
+					.Future<ExtendedReceiptForOrderNode>();
+
+				var notUniqueOrderSumSendOrders = notUniqueOrderSumSendOrdersTemp.Where(x =>
+					x.PaymentType != PaymentType.cash
+					|| x.PaymentType == PaymentType.cash && x.OrderSum < 20000).ToList();
+
+				var alreadySentOrders =
+					new List<ExtendedReceiptForOrderNode>(notUniqueOrderSumSendOrders.Where(x => x.WasSent.HasValue && x.WasSent.Value));
+				var uniqueOrderSumSendNodes = new List<ExtendedReceiptForOrderNode>();
+
+				foreach(var node in notUniqueOrderSumSendOrders.Where(x => !x.WasSent.HasValue || !x.WasSent.Value))
+				{
+					if(alreadySentOrders.All(x => x.OrderSum != node.OrderSum || x.DeliveryDate != node.DeliveryDate)
+						&& uniqueOrderSumSendNodes.All(x => x.OrderSum != node.OrderSum || x.DeliveryDate != node.DeliveryDate))
+					{
+						uniqueOrderSumSendNodes.Add(node);
+					}
+				}
+				var uniqueOrderSumSendOrderNodes = uniqueOrderSumSendNodes.Select(x => new ReceiptForOrderNode
+					{ OrderId = x.OrderId, ReceiptId = x.ReceiptId, WasSent = x.WasSent });
+
+				result = result.Union(uniqueOrderSumSendOrderNodes);
+			}
+			
+			#endregion
+
+			return result;
 		}
 
 		public SmsPaymentStatus? GetOrderPaymentStatus(IUnitOfWork uow, int orderId)

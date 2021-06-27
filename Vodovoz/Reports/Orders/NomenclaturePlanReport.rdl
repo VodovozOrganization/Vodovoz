@@ -35,7 +35,7 @@ FROM order_items i
 	LEFT JOIN (
 		SELECT 
 			i.nomenclature_id AS nom_id,
-			SUM(i.count) / @call_center_employees_count AS sold_avg
+			ROUND(SUM(i.count) / @call_center_employees_count, 2) AS sold_avg
 		FROM employees e
 		INNER JOIN orders o ON o.author_employee_id = e.id
 		INNER JOIN order_items i ON i.order_id = o.id

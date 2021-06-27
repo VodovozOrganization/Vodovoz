@@ -105,6 +105,8 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
+using QS.Services;
+using Vodovoz.ViewModels.Reports;
 using MySql.Data.MySqlClient;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -114,9 +116,14 @@ using QS.BaseParameters.Views;
 using QS.ChangePassword.Views;
 using QS.Project.Repositories;
 using QS.ViewModels;
+using Vodovoz.ReportsParameters.Employees;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Reports;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -236,7 +243,8 @@ public partial class MainWindow : Gtk.Window
 
         bool userIsSalesRepresentative;
 
-        using (var uow = UnitOfWorkFactory.CreateWithoutRoot()){
+        using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+        {
             userIsSalesRepresentative = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
             && !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
         }
@@ -257,7 +265,7 @@ public partial class MainWindow : Gtk.Window
 
         // Отчеты в Продажи
 
-        ActionOrderCreationDateReport.Visible = 
+        ActionOrderCreationDateReport.Visible =
             ActionPlanImplementationReport.Visible =
             ActionSetBillsReport.Visible = !userIsSalesRepresentative;
 
@@ -890,8 +898,12 @@ public partial class MainWindow : Gtk.Window
                     new ComplaintFilterViewModel(
                         ServicesConfig.CommonServices,
                         subdivisionRepository,
-                        employeeSelectorFactory
-                    ),
+                        employeeSelectorFactory,
+                        counterpartySelectorFactory
+                    )
+                    {
+	                    HidenByDefault = true
+                    },
                     filePickerService,
                     subdivisionRepository,
                     new GtkReportViewOpener(),
@@ -955,7 +967,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EquipmentReport>(),
-            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport())
+            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport(ServicesConfig.InteractiveService))
         );
     }
 
@@ -1021,7 +1033,7 @@ public partial class MainWindow : Gtk.Window
 
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
-            () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory, 
+            () => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory,
                 employeeSelectorFactory, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
     }
 
@@ -1067,10 +1079,10 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionDeliveryTimeReportActivated(object sender, EventArgs e)
     {
-        tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport>(),
-            () => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport())
-        );
+	    tdiMain.OpenTab(QSReport.ReportViewDlg.GenerateHashName<DeliveryTimeReport>(),
+		    () => new QSReport.ReportViewDlg(
+			    new DeliveryTimeReport(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService))
+	    );
     }
 
     protected void OnActionOrdersByDistrict(object sender, EventArgs e)
@@ -1352,14 +1364,6 @@ public partial class MainWindow : Gtk.Window
         tdiMain.OpenTab(
             TdiTabBase.GenerateHashName<ExportToSiteDlg>(),
             () => new ExportToSiteDlg()
-        );
-    }
-
-    protected void OnActionSendedBillsActivated(object sender, EventArgs e)
-    {
-        tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<SendedEmailsReport>(),
-            () => new QSReport.ReportViewDlg(new SendedEmailsReport())
         );
     }
 
@@ -1823,9 +1827,14 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
     {
+        var employeeFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+            () => new EmployeesJournalViewModel(
+                new EmployeeFilterViewModel(),
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices));
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
-            () => new QSReport.ReportViewDlg(new ReturnedTareReport())
+            () => new QSReport.ReportViewDlg(new ReturnedTareReport(employeeFactory))
         );
     }
 
@@ -2024,7 +2033,8 @@ public partial class MainWindow : Gtk.Window
                     new ComplaintFilterViewModel(
                         ServicesConfig.CommonServices,
                         subdivisionRepository,
-                        employeeSelectorFactory
+                        employeeSelectorFactory,
+                        counterpartySelectorFactory
                     )
                     { IsForRetail = true },
                     filePickerService,
@@ -2104,33 +2114,31 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionCarsExploitationReportActivated(object sender, EventArgs e)
     {
-        IEntityAutocompleteSelectorFactory carEntityAutocompleteSelectorFactory
-            = new EntityAutocompleteSelectorFactory<CarJournalViewModel>(typeof(Car),
-                () =>
-                {
-                    var filter = new CarJournalFilterViewModel
-                    {
-                        IncludeArchive = false,
-                        VisitingMasters = AllYesNo.No,
-                        RestrictedCarTypesOfUse = new List<CarTypeOfUse>(
-                            new[] { CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.DriverCar })
-                    };
-                    filter.SetFilterSensitivity(false);
-                    filter.CanChangeRaskat = true;
-                    return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-                        ServicesConfig.CommonServices);
-                }
-            );
+		IEntityAutocompleteSelectorFactory carEntityAutocompleteSelectorFactory
+			= new EntityAutocompleteSelectorFactory<CarJournalViewModel>(typeof(Car),
+				() =>
+				{
+					var filter = new CarJournalFilterViewModel
+					{
+						IncludeArchive = false,
+						VisitingMasters = AllYesNo.No,
+						RestrictedCarTypesOfUse = new List<CarTypeOfUse>(
+							new[] { CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.DriverCar })
+					};
+					filter.SetFilterSensitivity(false);
+					filter.CanChangeRaskat = true;
+					return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices);
+				}
+			);
 
-        tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<CarsExploitationReport>(),
-            () => new QSReport.ReportViewDlg(new CarsExploitationReport(
-                UnitOfWorkFactory.GetDefaultFactory,
-                carEntityAutocompleteSelectorFactory,
-                new BaseParametersProvider(),
-                ServicesConfig.InteractiveService))
-        );
-    }
+		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+		var interactiveService = autofacScope.Resolve<IInteractiveService>();
+
+		var viewModel = new CarsExploitationReportViewModel(uowFactory, interactiveService, NavigationManager, new BaseParametersProvider(), carEntityAutocompleteSelectorFactory);
+
+		tdiMain.AddTab(viewModel);
+	}
 
     protected void OnActionDriverCarKindActivated(object sender, EventArgs e)
     {
@@ -2150,6 +2158,18 @@ public partial class MainWindow : Gtk.Window
         var dlg = new RecalculateDriverWageDlg();
         tdiMain.AddTab(dlg);
 	}
+    
+    protected void OnActionDriversInfoExportActivated(object sender, EventArgs e)
+    {
+        var wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+        tdiMain.AddTab(
+            new DriversInfoExportViewModel(
+                wageParameterService,
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.InteractiveService,
+                null)
+        );
+    }
 
     protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
     {
@@ -2187,7 +2207,7 @@ public partial class MainWindow : Gtk.Window
     }
 
     string[] GetTabsColors() =>
-        new[] {"#F81919", "#009F6B", "#1F8BFF", "#FF9F00", "#FA7A7A", "#B46034", "#99B6FF", "#8F2BE1", "#00CC44"};
+        new[] { "#F81919", "#009F6B", "#1F8BFF", "#FF9F00", "#FA7A7A", "#B46034", "#99B6FF", "#8F2BE1", "#00CC44" };
 
     protected void OnHighlightTabsWithColorToggled(object sender, EventArgs e)
     {
@@ -2227,8 +2247,94 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<NomenclaturePlanReport>(),
-            () => new QSReport.ReportViewDlg(new NomenclaturePlanReport())
+            () => new QSReport.ReportViewDlg(new NomenclaturePlanReport(ServicesConfig.InteractiveService))
         );
-    
     }
+
+    protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
+    {
+        var factory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+            () => new EmployeesJournalViewModel(
+                new EmployeeFilterViewModel(),
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices));
+        
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
+            () => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(
+                factory, ServicesConfig.InteractiveService))
+        );
+    }
+
+    protected void OnActionOrderAnalyticsReportActivated(object sender, EventArgs e)
+    {
+        var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+        var interactiveService = autofacScope.Resolve<IInteractiveService>();
+
+        NavigationManager.OpenViewModel<OrderAnalyticsReportViewModel, INavigationManager, IUnitOfWorkFactory, IInteractiveService>(
+            null, NavigationManager, uowFactory, interactiveService);
+    }
+    
+    protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
+    {
+        tdiMain.OpenTab(
+            QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
+            () => new QSReport.ReportViewDlg(new EmployeesReport(ServicesConfig.InteractiveService))
+        );
+    }
+
+    protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
+    {
+		var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
+		var officeFilter = new EmployeeFilterViewModel { Category = EmployeeCategory.office, Status = EmployeeStatus.IsWorking };
+		var driverFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+			() => new EmployeesJournalViewModel(
+				driverFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices));
+		var officeFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+			() => new EmployeesJournalViewModel(
+				officeFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices));
+
+		tdiMain.OpenTab(
+		    QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
+		    () => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
+				driverFactory, officeFactory, ServicesConfig.InteractiveService))
+		);
+	}
+
+	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
+	{
+		var districtSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () => {
+			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
+			return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+				EnableDeleteButton = true,
+				EnableAddButton = true,
+				EnableEditButton = true
+			};
+		});
+		
+		tdiMain.AddTab(
+			new DeliveryAnalyticsViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.InteractiveService,
+				NavigationManager,
+				districtSelectorFactory)
+		);
+	}
+	
+	protected void OnActionCarServiceAcivated(object sender, EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.car_service.xml");
+	}
+
+	protected void OnActionCarEventTypeActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new CarEventTypeJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
+	}
 }

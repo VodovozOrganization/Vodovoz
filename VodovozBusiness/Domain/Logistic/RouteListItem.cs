@@ -32,6 +32,14 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int Id { get; set; }
 
+		DateTime version;
+		[Display(Name = "Версия")]
+		public virtual DateTime Version
+		{
+			get => version;
+			set => SetField(ref version, value);
+		}
+
 		Orders.Order order;
 
 		[Display(Name = "Заказ")]
@@ -330,6 +338,15 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref fines, value);
 		}
 
+		private bool isDriverForeignDistrict;
+
+		[Display(Name = "Чужой район для водителя")]
+		public virtual bool IsDriverForeignDistrict
+		{
+			get => isDriverForeignDistrict;
+			set => SetField(ref isDriverForeignDistrict, value);
+		}
+
 		GenericObservableList<Fine> observableFines;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Fine> ObservableFines {
@@ -507,22 +524,21 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.Shipped, callTaskWorker);
-					Order.TimeDelivered = DateTime.Now;
+					if(Order.TimeDelivered == null) {
+						Order.TimeDelivered = DateTime.Now;
+					}
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
-					Order.TimeDelivered = null;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 			}
@@ -540,22 +556,21 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatus(OrderStatus.DeliveryCanceled);
-					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatus(OrderStatus.Shipped);
-					Order.TimeDelivered = DateTime.Now;
+					if(Order.TimeDelivered == null) {
+						Order.TimeDelivered = DateTime.Now;
+					}
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatus(OrderStatus.OnTheWay);
-					Order.TimeDelivered = null;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatus(OrderStatus.NotDelivered);
-					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 			}
@@ -566,10 +581,17 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal CalculateTotalCash() => IsDelivered() ? AddressCashSum : 0;
 
+		public virtual bool RouteListIsUnloaded() =>
+			new[] { RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(RouteList.Status);
+		
 		public virtual bool IsDelivered()
 		{
-			var routeListUnloaded = new[] { RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(RouteList.Status);
-			return Status == RouteListItemStatus.Completed || Status == RouteListItemStatus.EnRoute && routeListUnloaded;
+			return Status == RouteListItemStatus.Completed || Status == RouteListItemStatus.EnRoute && RouteListIsUnloaded();
+		}
+
+		public virtual bool IsValidForWageCalculation()
+		{
+			return !GetNotDeliveredStatuses().Contains(Status);
 		}
 
 		public virtual int GetFullBottlesDeliveredCount()
@@ -795,7 +817,36 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult($"В адресе: '{Title}' превышена максимально допустимая длина комментария по штрафу ({CommentForFine.Length}/1000)");
 			}
+
+			if (CashierComment?.Length > 255)
+			{
+				yield return new ValidationResult(
+					$"В адресе: '{Title}' превышена максимально допустимая длина комментария кассира ({CashierComment.Length}/255)");
+			}
 		}
+
+		public static RouteListItemStatus[] GetUndeliveryStatuses()
+        {
+        	return new RouteListItemStatus[]
+        		{
+        			RouteListItemStatus.Canceled,
+        			RouteListItemStatus.Overdue
+        		};
+        }
+
+        /// <summary>
+        /// Возвращает все возможные конечные статусы <see cref="RouteListItem"/>, при которых <see cref="RouteListItem"/> не был довезён
+        /// </summary>
+        /// <returns></returns>
+        public static RouteListItemStatus[] GetNotDeliveredStatuses()
+        {
+        	return new RouteListItemStatus[]
+        	{
+        		RouteListItemStatus.Canceled,
+        		RouteListItemStatus.Overdue,
+        		RouteListItemStatus.Transfered
+        	};
+        }
 	}
 
 	public enum RouteListItemStatus

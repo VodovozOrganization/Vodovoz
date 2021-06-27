@@ -55,14 +55,10 @@ namespace Vodovoz.Additions.Logistic
 			string documentName = "RouteList";
 			bool isClosed = false;
 
-			switch(routeList.Status) {
-				case RouteListStatus.Delivered:
-				case RouteListStatus.OnClosing:
-				case RouteListStatus.MileageCheck:
-				case RouteListStatus.Closed:
-					documentName = "ClosedRouteList";
-					isClosed = true;
-					break;
+			if(routeList.PrintAsClosed())
+			{
+				documentName = "ClosedRouteList"; 
+				isClosed = true;
 			}
 
 			string RdlText = String.Empty;

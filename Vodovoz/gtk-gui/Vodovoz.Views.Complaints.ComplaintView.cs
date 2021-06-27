@@ -292,7 +292,7 @@ namespace Vodovoz.Views.Complaints
 			this.entryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entryCounterparty.Name = "entryCounterparty";
-			this.entryCounterparty.CanEditReference = false;
+			this.entryCounterparty.CanEditReference = true;
 			this.tableFields.Add(this.entryCounterparty);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tableFields[this.entryCounterparty]));
 			w19.TopAttach = ((uint)(2));
@@ -305,7 +305,7 @@ namespace Vodovoz.Views.Complaints
 			this.entryOrder = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryOrder.Events = ((global::Gdk.EventMask)(256));
 			this.entryOrder.Name = "entryOrder";
-			this.entryOrder.CanEditReference = false;
+			this.entryOrder.CanEditReference = true;
 			this.tableFields.Add(this.entryOrder);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tableFields[this.entryOrder]));
 			w20.TopAttach = ((uint)(2));

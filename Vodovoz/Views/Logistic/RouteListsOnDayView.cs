@@ -24,6 +24,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
 using System.Drawing;
+using Gamma.Utilities;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -229,8 +230,16 @@ namespace Vodovoz.Views.Logistic
 			enumCmbDeliveryType.ItemsEnum = typeof(DeliveryScheduleFilterType);
 			enumCmbDeliveryType.Binding.AddBinding(ViewModel, vm => vm.DeliveryScheduleType, w => w.SelectedItem).InitializeFromSource();
 			enumCmbDeliveryType.ChangedByUser += (sender, e) => FillItems();
+			
+			ytextWorkDriversInfo.Binding.AddBinding(ViewModel, vm => vm.CanTake, w => w.Buffer.Text).InitializeFromSource(); 
+			viewDeliverySummary.ColumnsConfig = FluentColumnsConfig<DeliverySummary>
+				.Create()
+				.AddColumn("Статус").AddTextRenderer(x => x.Name)
+				.AddColumn("Адреса").AddTextRenderer(x=>x.AddressCount.ToString()).XAlign(0.5f)
+				.AddColumn("Бутыли").AddTextRenderer(x=>x.Bottles.ToString("N0")).XAlign(0.5f)
+				.Finish();
 
-			ytextWorkDriversInfo.Binding.AddBinding(ViewModel, vm => vm.CanTake, w => w.Buffer.Text).InitializeFromSource();
+			viewDeliverySummary.Binding.AddBinding(ViewModel, vm => vm.ObservableDeliverySummary, w => w.ItemsDataSource).InitializeFromSource();
 		}
 
 		void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
@@ -446,7 +455,8 @@ namespace Vodovoz.Views.Logistic
 		{
 			addressesOverlay.Clear();
 			TurnOffCheckShowOnlyDriverOrders();
-
+			
+			
 			logger.Info("Загружаем заказы на {0:d}...", ViewModel.DateForRouting);
 			ViewModel.InitializeData();
 			UpdateRoutesPixBuf();

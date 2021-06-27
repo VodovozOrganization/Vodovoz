@@ -46,6 +46,7 @@ using Vodovoz.Domain.StoredResources;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.ViewModels.Cash;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.Views.Users;
 using VodovozInfrastructure.Configuration;
@@ -144,7 +145,11 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString())
                     .SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<DeliverySchedule>.Create().Dialog<DeliveryScheduleDlg>().DefaultTableView()
-                    .SearchColumn("Название", x => x.Name).SearchColumn("Время доставки", x => x.DeliveryTime).End(),
+                    .SearchColumn("Название", x => x.Name)
+                    .SearchColumn("Время доставки", x => x.DeliveryTime)
+                    .Column("Архивный?", x => x.IsArchive ? "Да" : string.Empty)
+                    .OrderAsc(x => x.IsArchive).OrderAsc(x => x.From).OrderAsc(x => x.To)
+                    .End(),
                 OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView()
                     .SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<EquipmentType>.Create().Dialog<EquipmentTypeDlg>().DefaultTableView()
@@ -209,8 +214,9 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w => w.Name)
                     .Column("В архиве", w => w.IsArchive ? "Да" : "").End(),
                 OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().DefaultTableView()
-                    .Column("Название", w => w.Name).End()
-            };
+                    .Column("Название", w => w.Name).End(),
+                OrmObjectMapping<CarEventType>.Create().Dialog<CarEventTypeViewModel>()
+			};
 
             #region Складские документы
 
@@ -312,6 +318,7 @@ namespace Vodovoz.Configuration
                 .Column("< 6л б.", x => x.Water6LCount)
                 .Column("< 1,5л б.", x => x.Water1500mlCount)
                 .Column("< 0,6л б.", x => x.Water600mlCount)
+                .Column("< 0,5л б.", x => x.Water500mlCount)
                 .Column("Минимальная сумма заказа", x => x.OrderMinSumEShopGoods.ToString())
                 .SearchColumn("Описание правила", x => x.Title)
                 .End();

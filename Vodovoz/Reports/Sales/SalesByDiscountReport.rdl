@@ -48,7 +48,7 @@
           <TableColumn>
             <Width>53.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>53.0pt</Width>
           </TableColumn>
           <TableColumn>
@@ -108,7 +108,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
                       <Value>Дата доставки</Value>
@@ -369,7 +369,7 @@
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox19">
                           <Value>={delivery_date}</Value>
@@ -726,7 +726,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1040,7 +1041,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
@@ -1088,6 +1089,7 @@ WHERE
          (order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
         OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
     )
+AND order_status not in ('Canceled', 'DeliveryCanceled', 'NotDelivered')
 GROUP BY
     order_items.id</CommandText>
         <QueryParameters>
@@ -1108,7 +1110,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="create_date">
           <DataField>create_date</DataField>
           <TypeName>System.DateTime</TypeName>

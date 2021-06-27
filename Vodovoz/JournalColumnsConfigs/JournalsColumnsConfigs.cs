@@ -1048,6 +1048,76 @@ namespace Vodovoz.JournalColumnsConfigs
                         .AddTextRenderer(node => node.PlanMonth.ToString())
                     .Finish()
             );
+
+            //OrganizationCashTransferDocumentJournalViewModel
+            TreeViewColumnsConfigFactory.Register<OrganizationCashTransferDocumentJournalViewModel>(
+                () => FluentColumnsConfig<OrganizationCashTransferDocumentJournalNode>.Create()
+                    .AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+                    .AddColumn("Дата создания").AddTextRenderer(node => node.DocumentDate.ToString("d"))
+                    .AddColumn("Автор").AddTextRenderer(node => node.Author)
+                    .AddColumn("Орг.откуда").AddTextRenderer(node => node.OrganizationFrom)
+                    .AddColumn("Орг.куда").AddTextRenderer(node => node.OrganizationTo)
+                    .AddColumn("Сумма").AddTextRenderer(node => node.TransferedSum.ToString())
+					.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
+					.Finish()
+            );
+
+			//PremiumJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PremiumJournalViewModel>(
+				() => FluentColumnsConfig<PremiumJournalNode>.Create()
+					.AddColumn("Номер").AddNumericRenderer(node => node.Id)
+					.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
+					.AddColumn("Тип").AddTextRenderer(node => node.ViewType)
+						.WrapMode(WrapMode.WordChar)
+						.WrapWidth(100)
+					.AddColumn("Сотрудники").AddTextRenderer(node => node.EmployeesName)
+					.AddColumn("Сумма премии").AddNumericRenderer(node => node.PremiumSum)
+					.AddColumn("Причина премии").AddTextRenderer(node => node.PremiumReason)
+					.Finish()
+			);
+
+			//PremiumTemplateJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PremiumTemplateJournalViewModel>(
+				() => FluentColumnsConfig<PremiumTemplateJournalNode>.Create()
+					.AddColumn("Номер").AddNumericRenderer(node => node.Id)
+					.AddColumn("Шаблон комментария").AddTextRenderer(node => node.Reason)
+					.AddColumn("Сумма премии").AddNumericRenderer(node => node.PremiumMoney)
+					.Finish()
+				);
+
+			//CarEventTypeJournalViewModel
+			TreeViewColumnsConfigFactory.Register<CarEventTypeJournalViewModel>(
+				() => FluentColumnsConfig<CarEventTypeJournalNode>.Create()
+					.AddColumn("Номер").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Сокращённое\nназвание").AddTextRenderer(node => node.ShortName).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Комментарий\nобязателен")
+						.AddToggleRenderer(node => node.NeedComment)
+						.Editing(false)
+					.AddColumn("В архиве")
+					.AddToggleRenderer(node => node.IsArchive)
+						.Editing(false)
+						.XAlign(0f)
+					.Finish()
+				);
+
+			//CarEventJournalViewModel
+			TreeViewColumnsConfigFactory.Register<CarEventJournalViewModel>(
+				() => FluentColumnsConfig<CarEventJournalNode>.Create()
+					.AddColumn("Номер").AddNumericRenderer(node => node.Id)
+					.AddColumn("Дата и время создания").AddTextRenderer(node => node.CreateDate.ToString("g"))
+					.AddColumn("Событие").AddTextRenderer(node => node.CarEventTypeName).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Порядковый\nномер ТС").AddNumericRenderer(node => node.CarOrderNumber)
+					.AddColumn("Гос.номер ТС").AddTextRenderer(node => node.CarRegistrationNumber)
+					.AddColumn("Тип авто").AddTextRenderer(node => node.CarTypeOfUseString)
+					.AddColumn("Часть города").AddTextRenderer(node => node.GeographicGroups)
+					.AddColumn("Водитель").AddTextRenderer(node => node.DriverFullName)
+					.AddColumn("Дата начала").AddTextRenderer(node => node.StartDate.ToString("d"))
+					.AddColumn("Дата окончания").AddTextRenderer(node => node.EndDate.ToString("d"))
+					.AddColumn("Комментарий").AddTextRenderer(node => node.Comment).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Автор").AddTextRenderer(node => node.AuthorFullName)
+					.Finish()
+			);
 		}
 	}
 }

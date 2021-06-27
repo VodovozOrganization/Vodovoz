@@ -61,7 +61,7 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
-using Vodovoz.ViewModels.Organization;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
@@ -91,11 +91,6 @@ using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Retail;
-using Vodovoz.Domain.Permissions.Warehouse;
-using Vodovoz.NhibernateExtensions;
-using Vodovoz.Tools;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.ViewModels;
@@ -106,6 +101,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.JournalFilters.Proposal;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.Views.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -118,8 +114,9 @@ using Vodovoz.Views.Retail;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Employees;
-using Vodovoz.Views.Permissions;
+using Vodovoz.Views.Reports;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Reports;
 
 namespace Vodovoz
 {
@@ -203,6 +200,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ReturnTareReasonViewModel, ReturnTareReasonView>()
 				.RegisterWidgetForTabViewModel<PaymentByCardViewModel, PaymentByCardView>()
 				.RegisterWidgetForTabViewModel<RouteListAnalysisViewModel, RouteListAnalysisView>()
+				.RegisterWidgetForTabViewModel<DriversInfoExportViewModel, DriversInfoExportView>()
 				.RegisterWidgetForTabViewModel<LateArrivalReasonViewModel, LateArrivalReasonView>()
 				.RegisterWidgetForTabViewModel<NomenclatureViewModel, NomenclatureView>()
 				.RegisterWidgetForTabViewModel<FinancialDistrictsSetViewModel, FinancialDistrictsSetView>()
@@ -213,7 +211,13 @@ namespace Vodovoz
                 .RegisterWidgetForTabViewModel<SalesChannelViewModel, SalesChannelView>()
                 .RegisterWidgetForTabViewModel<DeliveryPointResponsiblePersonTypeViewModel, DeliveryPointResponsiblePersonTypeView>()
                 .RegisterWidgetForTabViewModel<NomenclaturePlanViewModel, NomenclaturePlanView>()
-                ;
+                .RegisterWidgetForTabViewModel<OrganizationCashTransferDocumentViewModel, OrganizationCashTransferDocumentView>()
+				.RegisterWidgetForTabViewModel<PremiumViewModel, PremiumView>()
+				.RegisterWidgetForTabViewModel<PremiumRaskatGAZelleViewModel, PremiumRaskatGAZelleView>()
+				.RegisterWidgetForTabViewModel<PremiumTemplateViewModel, PremiumTemplateView>()
+				.RegisterWidgetForTabViewModel<CarEventTypeViewModel, CarEventTypeView>()
+				.RegisterWidgetForTabViewModel<CarEventViewModel, CarEventView>()
+;
 
             //Регистрация виджетов
             ViewModelWidgetResolver.Instance
@@ -261,10 +265,16 @@ namespace Vodovoz
                 .RegisterWidgetForWidgetViewModel<SalesChannelJournalFilterViewModel, SalesChannelJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<EmployeePostViewModel, EmployeePostView>()
                 .RegisterWidgetForWidgetViewModel<WarehouseViewModel, WarehouseView>()
-                .RegisterWidgetForWidgetViewModel<NomenclaturePlanFilterViewModel, NomenclaturePlanFilterView>()
-                ;
+				.RegisterWidgetForWidgetViewModel<OrderAnalyticsReportViewModel, OrderAnalyticsReportView>()
+				.RegisterWidgetForWidgetViewModel<CarsExploitationReportViewModel, CarsExploitationReportView>()
+				.RegisterWidgetForWidgetViewModel<NomenclaturePlanFilterViewModel, NomenclaturePlanFilterView>()
+                .RegisterWidgetForWidgetViewModel<OrganizationCashTransferDocumentFilterViewModel, OrganizationCashTransferDocumentFilterView>()
+				.RegisterWidgetForWidgetViewModel<PremiumJournalFilterViewModel, PremiumJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<DeliveryAnalyticsViewModel, DeliveryAnalyticsReportView>()
+				.RegisterWidgetForWidgetViewModel<CarEventFilterViewModel, CarEventFilterView>()
+				;
 
-            DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
+			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 
 		static void ConfigureJournalColumnsConfigs()

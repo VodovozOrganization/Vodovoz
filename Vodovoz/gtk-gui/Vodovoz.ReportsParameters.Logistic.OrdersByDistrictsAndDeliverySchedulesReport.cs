@@ -4,13 +4,19 @@ namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class OrdersByDistrictsAndDeliverySchedulesReport
 	{
-		private global::Gtk.Table table1;
+		private global::Gtk.VBox vbox1;
 
-		private global::Gtk.Button buttonRun;
+		private global::Gtk.Table table1;
 
 		private global::Gamma.GtkWidgets.yLabel lblDate;
 
-		private global::QS.Widgets.GtkUI.DatePicker pkrDate;
+		private global::Gamma.GtkWidgets.yLabel lblGeographicGroup;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox lstGeographicGroup;
+
+		private global::QSWidgetLib.DatePeriodPicker pkrDate;
+
+		private global::Gtk.Button buttonRun;
 
 		protected virtual void Build()
 		{
@@ -19,53 +25,84 @@ namespace Vodovoz.ReportsParameters.Logistic
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ReportsParameters.Logistic.OrdersByDistrictsAndDeliverySchedulesReport";
 			// Container child Vodovoz.ReportsParameters.Logistic.OrdersByDistrictsAndDeliverySchedulesReport.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
+			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1.Name = "vbox1";
+			this.vbox1.Spacing = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			this.table1.BorderWidth = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
+			this.lblDate = new global::Gamma.GtkWidgets.yLabel();
+			this.lblDate.Name = "lblDate";
+			this.lblDate.Xalign = 1F;
+			this.lblDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
+			this.table1.Add(this.lblDate);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.lblDate]));
+			w1.XOptions = ((global::Gtk.AttachOptions)(4));
+			w1.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.lblGeographicGroup = new global::Gamma.GtkWidgets.yLabel();
+			this.lblGeographicGroup.Name = "lblGeographicGroup";
+			this.lblGeographicGroup.Xalign = 1F;
+			this.lblGeographicGroup.LabelProp = global::Mono.Unix.Catalog.GetString("Часть города:");
+			this.table1.Add(this.lblGeographicGroup);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.lblGeographicGroup]));
+			w2.TopAttach = ((uint)(1));
+			w2.BottomAttach = ((uint)(2));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.lstGeographicGroup = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.lstGeographicGroup.Name = "lstGeographicGroup";
+			this.lstGeographicGroup.AddIfNotExist = false;
+			this.lstGeographicGroup.DefaultFirst = false;
+			this.lstGeographicGroup.ShowSpecialStateAll = true;
+			this.lstGeographicGroup.ShowSpecialStateNot = false;
+			this.table1.Add(this.lstGeographicGroup);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.lstGeographicGroup]));
+			w3.TopAttach = ((uint)(1));
+			w3.BottomAttach = ((uint)(2));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.pkrDate = new global::QSWidgetLib.DatePeriodPicker();
+			this.pkrDate.Events = ((global::Gdk.EventMask)(256));
+			this.pkrDate.Name = "pkrDate";
+			this.pkrDate.StartDate = new global::System.DateTime(0);
+			this.pkrDate.EndDate = new global::System.DateTime(0);
+			this.table1.Add(this.pkrDate);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.pkrDate]));
+			w4.LeftAttach = ((uint)(1));
+			w4.RightAttach = ((uint)(2));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.vbox1.Add(this.table1);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonRun = new global::Gtk.Button();
 			this.buttonRun.CanFocus = true;
 			this.buttonRun.Name = "buttonRun";
 			this.buttonRun.UseUnderline = true;
 			this.buttonRun.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
-			this.table1.Add(this.buttonRun);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonRun]));
-			w1.TopAttach = ((uint)(3));
-			w1.BottomAttach = ((uint)(4));
-			w1.RightAttach = ((uint)(2));
-			w1.XOptions = ((global::Gtk.AttachOptions)(0));
-			w1.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.lblDate = new global::Gamma.GtkWidgets.yLabel();
-			this.lblDate.Name = "lblDate";
-			this.lblDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
-			this.table1.Add(this.lblDate);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.lblDate]));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.pkrDate = new global::QS.Widgets.GtkUI.DatePicker();
-			this.pkrDate.Events = ((global::Gdk.EventMask)(256));
-			this.pkrDate.Name = "pkrDate";
-			this.pkrDate.WithTime = false;
-			this.pkrDate.HideCalendarButton = false;
-			this.pkrDate.Date = new global::System.DateTime(0);
-			this.pkrDate.IsEditable = true;
-			this.pkrDate.AutoSeparation = false;
-			this.table1.Add(this.pkrDate);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.pkrDate]));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.Add(this.table1);
+			this.vbox1.Add(this.buttonRun);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonRun]));
+			w6.PackType = ((global::Gtk.PackType)(1));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
+			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.pkrDate.DateChangedByUser += new global::System.EventHandler(this.OnPkrDateDateChangedByUser);
 			this.buttonRun.Clicked += new global::System.EventHandler(this.OnButtonRunClicked);
 		}
 	}

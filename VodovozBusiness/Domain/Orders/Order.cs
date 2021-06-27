@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using fyiReporting.RDL;
 using Gamma.Utilities;
+using NHibernate;
 using NHibernate.Exceptions;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -166,9 +167,6 @@ namespace Vodovoz.Domain.Orders
 
 					InteractiveService.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
 					return;
-				}
-				if (value != null && (client != null || Id == 0)) {
-					IsForRetail = value.IsForRetail;
 				}
 				var oldClient = client;
 				if(SetField(ref client, value, () => Client)) {
@@ -364,13 +362,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref shipped, value, () => Shipped);
 		}
 
-		PaymentType paymentType;
+		PaymentType _paymentType;
 
 		[Display(Name = "Форма оплаты")]
 		public virtual PaymentType PaymentType {
-			get => paymentType;
+			get => _paymentType;
 			set {
-				if(value != paymentType && SetField(ref paymentType, value, () => PaymentType)) {
+				if(value != _paymentType && SetField(ref _paymentType, value, () => PaymentType)) {
 					switch (PaymentType) {
 						case PaymentType.cash:
 						case PaymentType.barter:
@@ -481,12 +479,12 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref tareNonReturnReason, value, () => TareNonReturnReason);
 		}
 
-		PaymentFrom paymentByCardFrom;
+		PaymentFrom _paymentByCardFrom;
 		[Display(Name = "Место, откуда проведена оплата")]
 		public virtual PaymentFrom PaymentByCardFrom {
-			get => paymentByCardFrom;
+			get => _paymentByCardFrom;
 			set {
-				if(SetField(ref paymentByCardFrom, value, () => PaymentByCardFrom)) {
+				if(SetField(ref _paymentByCardFrom, value, () => PaymentByCardFrom)) {
 					UpdateContract();
 				}
 			}
@@ -585,14 +583,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsBottleStock {
 			get => isBottleStock;
 			set => SetField(ref isBottleStock, value, () => IsBottleStock);
-		}
-
-		private bool isForRetail;
-		[Display(Name = "Для розницы")]
-		public virtual bool IsForRetail
-		{
-			get => isForRetail;
-			set => SetField(ref isForRetail, value, () => IsForRetail);
 		}
 
         private bool isSelfDeliveryPaid;
@@ -895,7 +885,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			var order = new Order {
 				client = service.Counterparty,
-				IsForRetail = service.Counterparty.IsForRetail,
 				DeliveryPoint = service.DeliveryPoint,
 				DeliveryDate = service.ServiceStartDate,
 				PaymentType = service.Payment,
@@ -910,6 +899,10 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(DeliveryDate == null || DeliveryDate == default(DateTime))
+				yield return new ValidationResult("В заказе не указана дата доставки.",
+					new[] { this.GetPropertyName(o => o.DeliveryDate) });
+
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
 				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Client != null) {
@@ -922,9 +915,6 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 
-					if(DeliveryDate == null || DeliveryDate == default(DateTime))
-						yield return new ValidationResult("В заказе не указана дата доставки.",
-							new[] { this.GetPropertyName(o => o.DeliveryDate) });
 					if(!SelfDelivery && DeliverySchedule == null)
 						yield return new ValidationResult("В заказе не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
@@ -1062,9 +1052,6 @@ namespace Vodovoz.Domain.Orders
             if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
-			if(DeliveryDate == null || DeliveryDate == default(DateTime))
-				yield return new ValidationResult("В заказе не указана дата доставки.",
-					new[] { this.GetPropertyName(o => o.DeliveryDate) });
 			if(!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult("В заказе необходимо заполнить точку доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
@@ -1302,11 +1289,24 @@ namespace Vodovoz.Domain.Orders
 		private IOrganizationProvider orderOrganizationProvider;
 		private CounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
-		
+
+		/// <summary>
+		/// <b>Не должен вызываться при создании сущности NHibernate'ом</b>
+		/// </summary>
 		private void UpdateContract(bool onPaymentTypeChanged = false)
 		{
-			if(!NHibernate.NHibernateUtil.IsInitialized(Client)
-			   || !NHibernate.NHibernateUtil.IsInitialized(Contract)) {
+			//Если Initialize вызывается при создании сущности NHibernate'ом,
+			//то почему-то не загружаются OrderItems и OrderDocuments (А возможно и вообще все коллекции Order)
+			if(!NHibernateUtil.IsInitialized(Client))
+			{
+				NHibernateUtil.Initialize(Client);
+			}
+			if(!NHibernateUtil.IsInitialized(Contract))
+			{
+				NHibernateUtil.Initialize(Contract);
+			}
+			if(!NHibernateUtil.IsInitialized(Client) || !NHibernateUtil.IsInitialized(Contract))
+			{
 				return;
 			}
 			
@@ -2072,7 +2072,19 @@ namespace Vodovoz.Domain.Orders
 				};
 				AddOrderItem(newItem);
 			}
+
 			RecalculateItemsPrice();
+
+			//Перенос скидки на доставку
+			var deliveryOrderItemFrom = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
+			var deliveryOrderItemTo = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
+			if (deliveryOrderItemFrom != null && deliveryOrderItemTo != null)
+			{
+				deliveryOrderItemTo.IsDiscountInMoney = deliveryOrderItemFrom.IsDiscountInMoney;
+				deliveryOrderItemTo.DiscountMoney = deliveryOrderItemFrom.DiscountMoney;
+				deliveryOrderItemTo.Discount = deliveryOrderItemFrom.Discount;
+				deliveryOrderItemTo.DiscountReason = deliveryOrderItemFrom.DiscountReason ?? deliveryOrderItemFrom.OriginalDiscountReason;
+			}
 		}
 
 		/// <summary>

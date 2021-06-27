@@ -6,7 +6,7 @@ using QS.Views.GtkUI;
 using QSOrmProject;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Representations;
-using Vodovoz.ViewModels.Organization;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Views.Organization
 {

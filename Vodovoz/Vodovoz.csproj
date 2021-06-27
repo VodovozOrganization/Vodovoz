@@ -387,6 +387,7 @@
     <EmbeddedResource Include="toolbars\retail.xml">
       <LogicalName>retail.xml</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="icons\toolbar\car_service.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
@@ -399,8 +400,13 @@
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
+    <Compile Include="Filters\GtkViews\PremiumJournalFilterView.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PremiumJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.OrderChangesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.OrganizationCashTransferDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumRaskatGAZelleView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.NomenclaturePlanView.cs" />
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
@@ -481,6 +487,7 @@
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
+    <Compile Include="TempAdapters\PremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
     <Compile Include="TempAdapters\EquipmentRepositoryForViews.cs" />
@@ -499,6 +506,9 @@
     <Compile Include="JournalViewModels\RouteListWorkingJournalViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonCategoryViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
+    <Compile Include="Views\Cash\OrganizationCashTransferDocumentView.cs" />
+    <Compile Include="Views\Employees\PremiumRaskatGAZelleView.cs" />
+    <Compile Include="Views\Employees\PremiumView.cs" />
     <Compile Include="Views\Orders\NomenclaturePlanView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointView.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
@@ -611,6 +621,8 @@
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderReturnsView.cs" />
     <Compile Include="Commons\OrderPopupMenu.cs" />
+    <Compile Include="Views\Logistic\DriversInfoExportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversInfoExportView.cs" />
     <Compile Include="JournalViewers\RouteListKeepingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListKeepingView.cs" />
     <Compile Include="Dialogs\Logistic\RouteListKeepingDlg.cs" />
@@ -977,8 +989,6 @@
     <Compile Include="ServiceDialogs\ExportCounterpartiesTo1C.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ExportCounterpartiesTo1cDlg.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportCounterpariesData.cs" />
-    <Compile Include="ReportsParameters\SendedEmailsReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SendedEmailsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.DefectiveItemsReport.cs" />
     <Compile Include="ReportsParameters\Store\DefectiveItemsReport.cs" />
     <Compile Include="DriverTerminal\DriverTerminalWindow.cs" />
@@ -1254,7 +1264,6 @@
     <Compile Include="ViewModels\Logistic\RouteListsOnDayViewModel.cs" />
     <Compile Include="Views\Logistic\RouteListsOnDayView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListsOnDayView.cs" />
-    <Compile Include="ViewModels\Logistic\GeographicGroupNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteColumnTag.cs" />
     <Compile Include="Additions\Logistic\PointMarkerType.cs" />
     <Compile Include="Additions\Logistic\PointMarkerShape.cs" />
@@ -1560,8 +1569,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
     <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
-    <Compile Include="ReportsParameters\Logistic\CarsExploitationReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.CarsExploitationReport.cs" />
     <Compile Include="Views\Logistic\DriverCarKindView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverCarKindView.cs" />
     <Compile Include="Filters\GtkViews\DriverCarKindJournalFilterView.cs" />
@@ -1602,6 +1609,28 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclaturePlanFilterView.cs" />
     <Compile Include="ReportsParameters\Orders\NomenclaturePlanReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.NomenclaturePlanReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\GeneralSalaryInfoReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.GeneralSalaryInfoReport.cs" />
+    <Compile Include="Views\Reports\OrderAnalyticsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.OrderAnalyticsReportView.cs" />
+    <Compile Include="Filters\GtkViews\OrganizationCashTransferDocumentFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrganizationCashTransferDocumentFilterView.cs" />
+    <Compile Include="ReportsParameters\Employees\EmployeesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Employees.EmployeesReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\AddressesOverpaymentsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.AddressesOverpaymentsReport.cs" />
+    <Compile Include="Views\Reports\CarsExploitationReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.CarsExploitationReportView.cs" />
+    <Compile Include="Views\Employees\PremiumTemplateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumTemplateView.cs" />
+    <Compile Include="Views\Reports\DeliveryAnalyticsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.DeliveryAnalyticsReportView.cs" />
+    <Compile Include="Views\Logistic\CarEventTypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarEventTypeView.cs" />
+    <Compile Include="Views\Logistic\CarEventView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarEventView.cs" />
+    <Compile Include="Filters\GtkViews\CarEventFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1901,6 +1930,8 @@
     <Folder Include="ReportsParameters\Retail\" />
     <Folder Include="Reports\Retail\" />
     <Folder Include="Views\Permissions\" />
+    <Folder Include="Views\Reports\" />
+    <Folder Include="ReportsParameters\Employees\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2002,10 +2033,16 @@
     <None Include="Reports\Cash\CashFlowDetailIncomeReturn.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Logistic\CarsExploitationReport.rdl">
+    <None Include="Reports\Logistic\CarsExploitationReport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\DeliveryTimeGrouped.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\DriversToDistrictsAssignmentReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\NomenclaturePlanReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Orders\OrderChangesReport.rdl">
@@ -2286,9 +2323,6 @@
     <None Include="Reports\Orders\UndeliveriesWithComments.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Orders\SendedBillsReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Reports\Store\DefectiveItemsReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -2471,19 +2505,19 @@
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
-    <PackageReference Include="Google.Protobuf" Version="3.15.8" />
+    <PackageReference Include="Google.Protobuf" Version="3.17.3" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
-    <PackageReference Include="MySql.Data" Version="8.0.24" />
-    <PackageReference Include="NetTopologySuite" Version="2.2.0" />
+    <PackageReference Include="MySql.Data" Version="8.0.25" />
+    <PackageReference Include="NetTopologySuite" Version="2.3.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
     <PackageReference Include="NHibernate" Version="5.3.8" />
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-    <PackageReference Include="NLog" Version="4.7.9" />
+    <PackageReference Include="NLog" Version="4.7.10" />
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
@@ -2498,6 +2532,16 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="toolbars\car_service.xml" />
+    <None Include="Reports\Logistic\GeneralSalaryInfoReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Employees\EmployeesReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\AddressesOverpaymentsReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="Reports\Payments\PaymentsDelayNetwork.rdl" />
     <Content Include="Reports\Prodaction\ProducedProdaction.rdl" />
   </ItemGroup>

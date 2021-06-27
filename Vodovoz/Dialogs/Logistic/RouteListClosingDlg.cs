@@ -45,6 +45,7 @@ using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
+using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz
 {
@@ -470,7 +471,9 @@ namespace Vodovoz
 							Entity.Id, 
 							RouteListAddressesTransferringDlg.OpenParameter.Receiver,
 							employeeNomenclatureMovementRepository,
-							terminalNomenclatureProvider
+							terminalNomenclatureProvider,
+							new EmployeeService(),
+							ServicesConfig.CommonServices
 						)
 					);
 					break;
@@ -487,7 +490,9 @@ namespace Vodovoz
 							Entity.Id, 
 							RouteListAddressesTransferringDlg.OpenParameter.Sender,
 							employeeNomenclatureMovementRepository,
-							terminalNomenclatureProvider
+							terminalNomenclatureProvider,
+							new EmployeeService(),
+							ServicesConfig.CommonServices
 						)
 					);
 					break;
@@ -592,8 +597,6 @@ namespace Vodovoz
 			Entity.CalculateWages(wageParameterService);
 			decimal driverWage = Entity.GetDriversTotalWage();
 			decimal forwarderWage = Entity.GetForwardersTotalWage();
-			decimal acceptedDriverWage = Entity.DriverWageOperation?.Money ?? 0;
-			decimal acceptedForwarderWage = Entity.ForwarderWageOperation?.Money ?? 0;
 
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = string.Format(
@@ -625,12 +628,9 @@ namespace Vodovoz
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = string.Format(
-				"ЗП вод.: <b>{0}</b> {4}" + "  " + "ЗП эксп.: <b>{2}</b> {4}" + " " + 
-				"Подтв.: ЗП вод.: <b>{1}</b> {4}" + "  " + "ЗП эксп.: <b>{3}</b> {4}",
+				"ЗП вод.: <b>{0}</b> {2}" + "  " + "ЗП эксп.: <b>{1}</b> {2}",
 				driverWage,
-				acceptedDriverWage,
 				forwarderWage,
-				acceptedForwarderWage,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelEmptyBottlesFommula.Markup = string.Format("Тара: <b>{0}</b><sub>(выгружено на склад)</sub> - <b>{1}</b><sub>(по документам)</sub> =",
@@ -786,6 +786,11 @@ namespace Vodovoz
 				return;
 			}
 
+			if(Entity.Car.IsRaskat)
+			{
+				Entity.RecountMileage();
+			}
+
 			Entity.UpdateMovementOperations();
 
 			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
@@ -842,10 +847,18 @@ namespace Vodovoz
 		{
 			{
 				var document = Additions.Logistic.PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
+				var reportDlg = new QSReport.ReportViewDlg(document);
+				reportDlg.ReportPrinted += SavePrintTime;
 				this.TabParent.OpenTab(
 					QS.Dialog.Gtk.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
-					() => new QSReport.ReportViewDlg(document));
+					() => reportDlg);
 			}
+		}
+
+		void SavePrintTime(object sender, EventArgs e)
+		{
+			Entity.AddPrintHistory();
+			UoW.Save();
 		}
 
 		void PrintFines()

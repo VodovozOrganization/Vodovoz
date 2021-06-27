@@ -27,7 +27,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			Gdk.Color gr = new Gdk.Color(223, 223, 223);
 			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
 				.AddColumn("Виновный")
-					.AddTextRenderer(n => n[0].ToString())
+					.AddTextRenderer(n => n[0] != null ? n[0].ToString() : "")
 					.WrapWidth(150).WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Кол-во")
 					.AddTextRenderer(n => n[1].ToString())

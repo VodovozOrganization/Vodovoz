@@ -568,6 +568,10 @@ namespace Vodovoz
 						.AddRemoveFromDependence<District>(x => x.GeographicGroup)
 						;
 
+			DeleteConfig.AddHibernateDeleteInfo<CarEventType>();
+
+			DeleteConfig.AddHibernateDeleteInfo<CarEvent>();
+
 			#region Формирование МЛ
 
 			DeleteConfig.AddHibernateDeleteInfo<AtWorkDriverDistrictPriority>();
@@ -1041,6 +1045,12 @@ namespace Vodovoz
 			
 			DeleteConfig.AddHibernateDeleteInfo<CashRequestSumItem>()
 				.AddDeleteDependence<Expense>(x => x.CashRequestSumItem);
+
+			DeleteConfig.AddHibernateDeleteInfo<OrganizationCashTransferDocument>()
+				.AddDeleteCascadeDependence(x => x.OrganisationCashMovementOperationFrom)
+				.AddDeleteCascadeDependence(x => x.OrganisationCashMovementOperationTo);
+
+			DeleteConfig.AddHibernateDeleteInfo<PremiumTemplate>();
 
 			#endregion
 

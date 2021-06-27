@@ -20,7 +20,8 @@ namespace Vodovoz.PermissionExtensions
 			return typeOfEntity.IsSubclassOf(typeof(Document))
 			       || typeOfEntity == typeof(Income)
 			       || typeOfEntity == typeof(Expense)
-			       || typeOfEntity == typeof(AdvanceReport);
+			       || typeOfEntity == typeof(AdvanceReport)
+			       || typeOfEntity == typeof(OrganizationCashTransferDocument);
 
 		}
 	}

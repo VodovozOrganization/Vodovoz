@@ -1139,33 +1139,44 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="ForwarderWage">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
     route_lists.date 										AS date,
     route_lists.id 											AS route_list_number,
-    SUM(bottles_movement_operations.returned)				AS empty_bottles,
-    SUM(bottles_movement_operations.delivered) 				AS full_bottles,
-    SUM(route_list_addresses.forwarder_wage)				AS wage,
-    COUNT(IF(route_list_addresses.status = 'Overdue'
-			OR route_list_addresses.status = 'Canceled', 
-		NULL,
-		route_list_addresses.id)
-		) 													AS addresses_count
+    SUM(rla.bottles_returned)				                AS empty_bottles,
+    IFNULL(
+        ROUND(
+            Sum(
+                (
+                    Select SUM(IFNULL(oi.actual_count, oi.count))
+                    From order_items oi
+                    Join nomenclature n on oi.nomenclature_id = n.id
+                                       and n.tare_volume = 'Vol19L'
+                                       and n.category = 'water'
+                    Where oi.order_id = rla.order_id
+                )
+            ), 
+        0), 
+    0)  		                                            AS full_bottles,
+    SUM(rla.forwarder_wage)				                    AS wage,
+    COUNT(IF(rla.status = 'Overdue'
+                 OR rla.status = 'Canceled',
+             NULL,
+             rla.id)
+        ) 													AS addresses_count
 FROM
     route_lists
         LEFT JOIN
-    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-        LEFT JOIN
-    bottles_movement_operations ON bottles_movement_operations.order_id = route_list_addresses.order_id
+    route_list_addresses rla ON rla.route_list_id = route_lists.id  
 WHERE
-    route_lists.forwarder_id = @forwarder_id
-    	AND route_list_addresses.status != 'Transfered'
-        AND date &gt;= @start_date
-        AND date &lt;= @end_date
-        AND (route_lists.status = 'NotDelivered'
-        OR route_lists.status = 'MileageCheck'
-        OR route_lists.status = 'Closed')
+        route_lists.forwarder_id = @forwarder_id
+  AND rla.status != 'Transfered'
+  AND date &gt;= @start_date
+  AND date &lt;= @end_date
+  AND (route_lists.status = 'NotDelivered'
+    OR route_lists.status = 'MileageCheck'
+    OR route_lists.status = 'Closed')
 GROUP BY route_lists.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="forwarder_id">
@@ -1179,7 +1190,7 @@ GROUP BY route_lists.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
