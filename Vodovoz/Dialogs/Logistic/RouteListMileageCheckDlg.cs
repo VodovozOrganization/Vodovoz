@@ -150,6 +150,14 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			var validationContext = new Dictionary<object, object> {
+				{ nameof(IRouteListItemRepository), new EntityRepositories.Logistic.RouteListItemRepository() }
+			};
+			var valid = new QSValidator<RouteList>(Entity, validationContext);
+			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
+				return false;
+			}
+		
 			if(Entity.Status > RouteListStatus.OnClosing) {
 				if(Entity.FuelOperationHaveDiscrepancy()) {
 					if(!MessageDialogHelper.RunQuestionDialog("Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений. Продолжить сохранение?")) {
