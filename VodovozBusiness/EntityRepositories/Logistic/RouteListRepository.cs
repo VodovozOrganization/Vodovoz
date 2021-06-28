@@ -709,6 +709,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return uow.Session.QueryOver(() => routeListAlias)
 							  .Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
 							  .Where(() => routeListItemAlias.Order.Id == order.Id)
+							  .Fetch(SelectMode.ChildFetch, routeList => routeList.Addresses)
 							  .List()
 							  .FirstOrDefault();
 		}
