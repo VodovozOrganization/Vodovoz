@@ -263,7 +263,6 @@
     <Compile Include="Journals\JournalViewModels\HistoryTrace\HistoryTraceObjectJournalViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Employees\UserJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\UserJournalViewModel.cs" />
-    <Compile Include="ViewModels\Users\UserViewModel.cs" />
     <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyFilesViewModel.cs" />
     <Compile Include="Journals\JournalNodes\EmployeePostJournalNode.cs" />
@@ -274,6 +273,7 @@
     <Compile Include="ViewModels\Warehouses\WarehouseViewModel.cs" />
     <Compile Include="ViewModels\Reports\CarsExploitationReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalyticsViewModel.cs" />
+    <Compile Include="Dialogs\Users\UserViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />
@@ -307,6 +307,7 @@
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="ViewModels\Payments\" />
     <Folder Include="ViewModels\Counterparty\" />
+    <Folder Include="Dialogs\Users\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
