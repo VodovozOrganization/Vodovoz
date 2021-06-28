@@ -100,7 +100,7 @@ parallel 'Gtk 2.12.45': {
 			//}
 		}
 	}
-}, 'Gtk 2.12.45':{
+}, 'Gtk 2.12.21':{
 	stage('For Vod7'){
 		node() {
 			def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
