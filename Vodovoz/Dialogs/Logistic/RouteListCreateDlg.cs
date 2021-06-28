@@ -47,6 +47,7 @@ namespace Vodovoz
 		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
 		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private IRouteListRepository _routeListRepository = new RouteListRepository();
 
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
@@ -307,14 +308,15 @@ namespace Vodovoz
 			buttonAccept.Sensitive = isSensetive;
 		}
 
-		public void OnPrintTimeButtonClicked(object sender, EventArgs e)
+		private void OnPrintTimeButtonClicked(object sender, EventArgs e)
 		{
-			if(Entity.PrintsHistory?.Any() ?? false)
+			var history = _routeListRepository.GetPrintsHistory(UoW, Entity);
+			if(history?.Any() ?? false)
 			{
 				var message = "<b>№\t| Дата и время печати\t| Тип документа</b>";
-				for(var i = 0; i < Entity.PrintsHistory.Count; i++)
+				for(var i = 0; i < history.Count; i++)
 				{
-					var item = Entity.PrintsHistory[i];
+					var item = history[i];
 					message += $"\n{i + 1}\t| {item.PrintingTime.ToShortDateString()}" +
 					           $" {item.PrintingTime.ToShortTimeString()}\t\t| {item.DocumentType.GetEnumShortTitle()}";
 				}
