@@ -15,7 +15,7 @@ namespace Vodovoz.Views.Orders
 		void Configure()
 		{
 			ybtnSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			ybtnCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
+			ybtnCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
 			yentryReturnTareReasonName.Binding.AddBinding(ViewModel.Entity, vm => vm.Name, w => w.Text).InitializeFromSource();
 			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, vm => vm.IsArchive, w => w.Active).InitializeFromSource();

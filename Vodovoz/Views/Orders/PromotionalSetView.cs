@@ -44,7 +44,7 @@ namespace Vodovoz.Views.Orders
 
 			ybuttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			ybuttonSave.Binding.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive).InitializeFromSource();
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 
 			yEnumButtonAddAction.ItemsEnum = typeof(PromotionalSetActionType);
 			yEnumButtonAddAction.EnumItemClicked += (sender, e) => { ViewModel.AddActionCommand.Execute((PromotionalSetActionType)e.ItemEnum); };

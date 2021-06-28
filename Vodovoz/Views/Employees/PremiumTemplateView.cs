@@ -18,7 +18,7 @@ namespace Vodovoz.Views.Employees
 			yspinbuttonPremiumMoney.Binding.AddBinding(ViewModel.Entity, e => e.PremiumMoney, w => w.ValueAsDecimal).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
 		}
 
 	}

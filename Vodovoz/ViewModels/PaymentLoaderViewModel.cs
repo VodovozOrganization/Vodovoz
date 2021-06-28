@@ -110,7 +110,7 @@ namespace Vodovoz.ViewModels
 
 					UoW.Commit();
 					UpdateProgress?.Invoke("Сохранение закончено...", progress = 0);
-					Close(false, CloseSource.Self);
+					Close(true, CloseSource.Self);
 				},
 				payments => payments.Count > 0
 			);
