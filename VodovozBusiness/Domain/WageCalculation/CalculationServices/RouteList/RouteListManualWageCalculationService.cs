@@ -22,5 +22,15 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			return new RouteListItemWageResult();
 		}
+
+		public RouteListItemWageCalculationDetails GetWageCalculationDetailsForRouteListItem(IRouteListItemWageCalculationSource source)
+		{
+			RouteListItemWageCalculationDetails addressWageDetails = new RouteListItemWageCalculationDetails()
+			{
+				RouteListItemWageCalculationName = wageParameterItem.Title
+			};
+
+			return addressWageDetails;
+		}
 	}
 }

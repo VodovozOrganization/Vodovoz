@@ -345,6 +345,7 @@ namespace Vodovoz.Additions.Logistic
 		}
 	}
 
+	[Flags]
 	public enum RouteListPrintableDocuments
 	{
 		[Display(Name = "Все")]

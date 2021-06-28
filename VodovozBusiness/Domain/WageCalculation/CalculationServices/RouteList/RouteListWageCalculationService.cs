@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
@@ -49,9 +50,17 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			return calculationService.CalculateWageForRouteListItem(source);
 		}
 
+
 		public RouteListWageResult CalculateWage()
 		{
 			return calculationService.CalculateWage();
 		}
+
+		public RouteListItemWageCalculationDetails GetWageCalculationDetailsForRouteListItem(IRouteListItemWageCalculationSource source)
+		{
+			return calculationService.GetWageCalculationDetailsForRouteListItem(source);
+		}
+
+		public IRouteListWageCalculationService GetWageCalculationService => calculationService;
 	}
 }

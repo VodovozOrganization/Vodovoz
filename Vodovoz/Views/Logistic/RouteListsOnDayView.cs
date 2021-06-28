@@ -47,7 +47,6 @@ namespace Vodovoz.Views.Logistic
 		private readonly GMapOverlay driverAddressesOverlay = new GMapOverlay("driverAddresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
 		private readonly GMapOverlay routeOverlay = new GMapOverlay("route");
-		private readonly GMapOverlay undeliveredOverlay = new GMapOverlay("undelivered");
 		private GMapPolygon brokenSelection;
 		private List<GMapMarker> selectedMarkers = new List<GMapMarker>();
 		Pixbuf[] pixbufMarkers;
@@ -507,7 +506,7 @@ namespace Vodovoz.Views.Logistic
 					bool overdueOrder = false;
 					var undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay.Where(x =>
 						x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department);
-					if(undeliveryOrderNodes.Any(x=>x.NewOrderId == order.Id))
+					if(undeliveryOrderNodes.Any(x => x.NewOrderId == order.Id))
 					{
 						overdueOrder = true;
 					}

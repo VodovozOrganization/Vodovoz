@@ -1571,6 +1571,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
     <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
+    <Compile Include="ReportsParameters\Logistic\CarsExploitationReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.CarsExploitationReport.cs" />
     <Compile Include="Views\Logistic\DriverCarKindView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverCarKindView.cs" />
     <Compile Include="Filters\GtkViews\DriverCarKindJournalFilterView.cs" />
@@ -2030,6 +2032,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Cash\CashFlowDetailIncomeReturn.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\CarsExploitationReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\CarsExploitationReport.xlsx">
@@ -2726,6 +2731,9 @@
     <EmbeddedResource Include="icons\map\points\overduetriangle\red_stripes.png" />
     <EmbeddedResource Include="icons\map\points\overduetriangle\white.png" />
     <EmbeddedResource Include="icons\map\points\overduetriangle\yellow_stripes.png" />
+    <None Include="Reports\Logistic\DeliveryAnalyticsReport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Content Include="Reports\Payments\PaymentsDelayNetwork.rdl" />
     <Content Include="Reports\Prodaction\ProducedProdaction.rdl" />
   </ItemGroup>
