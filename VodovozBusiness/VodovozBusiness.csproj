@@ -105,6 +105,7 @@
     <Compile Include="Domain\Logistic\DriverCarKind.cs" />
     <Compile Include="Domain\Logistic\OrdersCountNode.cs" />
     <Compile Include="Domain\Logistic\CarEventType.cs" />
+    <Compile Include="Domain\Logistic\UndeliveryOrderNode.cs" />
     <Compile Include="Domain\Operations\OrganisationCashMovementOperation.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceController.cs" />
     <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
