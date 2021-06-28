@@ -86,7 +86,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>='№ зак.'+'\n'+'Еж.ном.'</Value>
+                      <Value>='№ зак.'</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -249,7 +249,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>={both_numbers}</Value>
+                      <Value>={order_id}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -259,6 +259,8 @@ Iif(
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -275,7 +277,9 @@ Iif(
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >dd.MM.yyyy</Format>
+                        <Format>dd.MM.yyyy</Format>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -292,6 +296,8 @@ Iif(
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -310,6 +316,8 @@ Iif(
                         <BorderWidth />
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -328,6 +336,8 @@ Iif(
                         <BorderWidth />
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -347,6 +357,8 @@ Iif(
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -366,6 +378,8 @@ Iif(
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -382,6 +396,8 @@ Iif(
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -401,6 +417,8 @@ Iif(
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -477,7 +495,6 @@ Iif(
         ) AS from_client,
     orders.order_status AS status,
     orders.daily_number_1c AS dailynum,
-    CONCAT_WS('\n', orders.id, orders.daily_number_1c) AS both_numbers,
     IF(nomenclature.category != 'water', GROUP_CONCAT(DISTINCT CONCAT_WS(' ', nomenclature.name, '-', FORMAT(order_items.count, measurement_units.digits), 'шт.') SEPARATOR ',\n'), '') AS nomenclatures,
     GROUP_CONCAT(DISTINCT gg.name SEPARATOR ', ')
 FROM
@@ -667,10 +684,6 @@ GROUP BY orders.id
         </Field>
         <Field Name="nomenclatures">
           <DataField>nomenclatures</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="both_numbers">
-          <DataField>both_numbers</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="delivery_date">
