@@ -22,10 +22,5 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			GeographicGroup = geographicGroup ?? throw new ArgumentNullException(nameof(geographicGroup));
 		}
-
-		public override string ToString()
-		{
-			return geographicGroup.Name;
-		}
 	}
 }

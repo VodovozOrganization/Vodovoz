@@ -22,10 +22,5 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 		{
 			WageDistrict = wageDistrict ?? throw new ArgumentNullException(nameof(wageDistrict));
 		}
-
-		public override string ToString()
-		{
-			return _wageDistrict.Name;
-		}
 	}
 }

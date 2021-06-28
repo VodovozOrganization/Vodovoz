@@ -2541,9 +2541,6 @@
     <None Include="Reports\Logistic\AddressesOverpaymentsReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Logistic\DeliveryAnalyticsReport.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <Content Include="Reports\Payments\PaymentsDelayNetwork.rdl" />
     <Content Include="Reports\Prodaction\ProducedProdaction.rdl" />
   </ItemGroup>
