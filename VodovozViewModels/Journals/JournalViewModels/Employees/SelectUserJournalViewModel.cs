@@ -12,9 +12,9 @@ using Vodovoz.ViewModels;
 
 namespace Vodovoz.Journals
 {
-    public class UserJournalViewModel : FilterableSingleEntityJournalViewModelBase<User, UserViewModel, UserJournalNode, UserJournalFilterViewModel>
+    public class SelectUserJournalViewModel : FilterableSingleEntityJournalViewModelBase<User, UserViewModel, UserJournalNode, UserJournalFilterViewModel>
     {
-        public UserJournalViewModel(UserJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+        public SelectUserJournalViewModel(UserJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал пользователей";

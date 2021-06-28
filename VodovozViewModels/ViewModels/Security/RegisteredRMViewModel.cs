@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.ViewModels.Security
         public DelegateCommand AddUserCommand => addUserCommand ?? (addUserCommand = new DelegateCommand(
             () => {
                 var userFilterViewModel = new UserJournalFilterViewModel();
-                var userJournalViewModel = new UserJournalViewModel(
+                var userJournalViewModel = new SelectUserJournalViewModel(
                         userFilterViewModel,
                         UnitOfWorkFactory,
                         ServicesConfig.CommonServices)

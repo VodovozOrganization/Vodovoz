@@ -31,7 +31,7 @@ namespace Vodovoz.Views.Users
 			ycheckIsAdmin.Binding.AddBinding(ViewModel.Entity, e => e.IsAdmin, w => w.Active).InitializeFromSource();
 			ycheckUserDisabled.Binding.AddBinding(ViewModel.Entity, e => e.Deactivated, w => w.Active).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Description, w => w.Buffer.Text).InitializeFromSource();
-			ylabelIdValue.Binding.AddBinding(ViewModel.Entity, e => e.Id, w => w.LabelProp).InitializeFromSource();
+			ylabelIdValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.Id.ToString(), w => w.LabelProp).InitializeFromSource();
 			ylabelDisplayName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.LabelProp).InitializeFromSource();
 			ylabelLogin.Binding.AddBinding(ViewModel.Entity, e => e.Login, w => w.LabelProp).InitializeFromSource();
 

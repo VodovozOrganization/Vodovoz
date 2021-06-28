@@ -124,6 +124,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1433,11 +1434,16 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionUsersActivated(object sender, EventArgs e)
     {
+		/*
         UsersDialog usersDlg = new UsersDialog(ServicesConfig.InteractiveService);
         usersDlg.Show();
         usersDlg.Run();
         usersDlg.Destroy();
-    }
+		*/
+
+		var journal = new UsersJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(journal);
+	}
 
     protected void OnActionGeographicGroupsActivated(object sender, EventArgs e)
     {

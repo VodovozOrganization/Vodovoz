@@ -55,7 +55,7 @@ namespace Vodovoz.Dialogs
             comboAction.ItemsEnum = typeof(EntityChangeOperation);
 
             entryUser.SetEntityAutocompleteSelectorFactory(
-                new DefaultEntityAutocompleteSelectorFactory<User, UserJournalViewModel, UserJournalFilterViewModel>(ServicesConfig.CommonServices));
+                new DefaultEntityAutocompleteSelectorFactory<User, SelectUserJournalViewModel, UserJournalFilterViewModel>(ServicesConfig.CommonServices));
 
             entryUser.ChangedByUser += (sender, e) => UpdateJournal();
 
