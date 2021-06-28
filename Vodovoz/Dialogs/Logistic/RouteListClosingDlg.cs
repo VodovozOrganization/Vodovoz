@@ -292,6 +292,9 @@ namespace Vodovoz
 			CalculateTotal();
 
 			UpdateSensitivity();
+
+			notebook1.ShowTabs = false;
+			notebook1.Page = 0;
 		}
 
 		private void UpdateSensitivity()
@@ -1226,6 +1229,27 @@ namespace Vodovoz
 				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
 			} else {
 				MessageDialogHelper.RunInfoDialog("Сумма по кассе соответствует сумме МЛ.");
+			}
+		}
+
+		#endregion
+
+		#region Toggle buttons
+
+		protected void OnToggleClosingToggled(object sender, EventArgs e)
+		{
+			if(toggleClosing.Active)
+			{
+				notebook1.CurrentPage = 0;
+			}
+		}
+
+		protected void OnToggleWageToggled(object sender, EventArgs e)
+		{
+			if(toggleWageDetails.Active)
+			{
+				notebook1.CurrentPage = 1;
+				textWageDetails.Buffer.Text = Entity.GetWageCalculationDetails(wageParameterService);
 			}
 		}
 
