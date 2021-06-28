@@ -78,7 +78,6 @@ namespace Vodovoz.Views.Logistic
 			gmapWidget.Overlays.Add(routeOverlay);
 			gmapWidget.Overlays.Add(addressesOverlay);
 			gmapWidget.Overlays.Add(driverAddressesOverlay);
-			gmapWidget.Overlays.Add(undeliveredOverlay);
 			gmapWidget.Overlays.Add(selectionOverlay);
 			gmapWidget.DisableAltForSelection = true;
 			gmapWidget.OnSelectionChange += GmapWidget_OnSelectionChange;
