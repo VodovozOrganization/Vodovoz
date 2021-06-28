@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using Gamma.Utilities;
+using QS.DomainModel.Entity;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
@@ -15,6 +16,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 		public virtual WeekDayName WeekNameNode {
 			get => _weekNameNode;
 			set => SetField(ref _weekNameNode, value);
+		}
+
+		public override string ToString()
+		{
+			return _weekNameNode.GetEnumTitle();
 		}
 	}
 }
