@@ -485,7 +485,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				.ThenBy(x => x.DeliveryDate)
 				.GroupBy(x => new
 				{
-					x.DistrictName, x.DayOfWeek
+					x.DistrictName,
+					x.DayOfWeek
 				}
 				))
 			{

@@ -15,18 +15,18 @@ namespace Vodovoz.Views.Reports
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DeliveryAnalyticsReportView : TabViewBase<DeliveryAnalyticsViewModel>, ISingleUoWDialog
 	{
-		public DeliveryAnalyticsReportView(DeliveryAnalyticsViewModel viewModel) : base (viewModel)
+		public DeliveryAnalyticsReportView(DeliveryAnalyticsViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			ConfigureReport();
 		}
 
 		public IUnitOfWork UoW { get; set; }
-		
+
 		protected void OnExportBtnClicked(object sender, EventArgs e)
 		{
 			var parentWindow = GtkHelper.GetParentWindow(this);
-			
+
 			var excelFilter = new FileFilter();
 			const string extension = ".xlsx";
 			excelFilter.Name = $"Документ Microsoft Excel ({extension})";
@@ -39,9 +39,10 @@ namespace Vodovoz.Views.Reports
 				FileChooserAction.Save,
 				Stock.Cancel, ResponseType.Cancel, Stock.Save, ResponseType.Accept)
 			{
-				DoOverwriteConfirmation = true, CurrentName = $"{Tab.TabName} " +
-				                                              $"с {ViewModel.StartDeliveryDate.Value.ToShortDateString()} " +
-				                                              $"по {ViewModel.EndDeliveryDate.Value.ToShortDateString()}.xlsx"
+				DoOverwriteConfirmation = true,
+				CurrentName = $"{Tab.TabName} " +
+				$"с {ViewModel.StartDeliveryDate.Value.ToShortDateString()} " +
+				$"по {ViewModel.EndDeliveryDate.Value.ToShortDateString()}.xlsx"
 			};
 
 			fileChooserDialog.AddFilter(excelFilter);
@@ -63,29 +64,29 @@ namespace Vodovoz.Views.Reports
 				fileChooserDialog.Destroy();
 			}
 		}
-		
+
 		private void ConfigureReport()
 		{
 			UoW = ViewModel.Uow;
-			
+
 			treeviewPartCity.ColumnsConfig = FluentColumnsConfig<WageDistrictNode>.Create()
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.AddColumn("").AddTextRenderer(x => x.WageDistrict.Name)
-				.Finish(); 
-			treeviewPartCity.Binding.AddBinding(ViewModel, x=>x.WageDistrictNodes, x=>x.ItemsDataSource).InitializeFromSource();
+				.Finish();
+			treeviewPartCity.Binding.AddBinding(ViewModel, x => x.WageDistrictNodes, x => x.ItemsDataSource).InitializeFromSource();
 			treeviewPartCity.HeadersVisible = false;
-			
+
 			treeviewGeographic.ColumnsConfig = FluentColumnsConfig<GeographicGroupNode>.Create()
-				.AddColumn("").AddToggleRenderer(x=>x.Selected)
-				.AddColumn("").AddTextRenderer(x=>x.GeographicGroup.Name)
-				.Finish(); 
-			treeviewGeographic.Binding.AddBinding(ViewModel, x=>x.GeographicGroupNodes, x=>x.ItemsDataSource).InitializeFromSource();
+				.AddColumn("").AddToggleRenderer(x => x.Selected)
+				.AddColumn("").AddTextRenderer(x => x.GeographicGroup.Name)
+				.Finish();
+			treeviewGeographic.Binding.AddBinding(ViewModel, x => x.GeographicGroupNodes, x => x.ItemsDataSource).InitializeFromSource();
 			treeviewGeographic.HeadersVisible = false;
-			
+
 			treeviewWave.ColumnsConfig = FluentColumnsConfig<WaveNode>.Create()
-				.AddColumn("").AddToggleRenderer(x=>x.Selected)
-				.AddColumn("").AddTextRenderer(x=>x.WaveNodes.GetEnumTitle())
-				.Finish(); 
+				.AddColumn("").AddToggleRenderer(x => x.Selected)
+				.AddColumn("").AddTextRenderer(x => x.WaveNodes.GetEnumTitle())
+				.Finish();
 			treeviewWave.Binding.AddBinding(ViewModel, x => x.WaveList, x => x.ItemsDataSource).InitializeFromSource();
 			treeviewWave.HeadersVisible = false;
 
@@ -97,11 +98,11 @@ namespace Vodovoz.Views.Reports
 			treeviewWeekDay.HeadersVisible = false;
 
 			districtEntry.SetEntityAutocompleteSelectorFactory(ViewModel.DistrictSelectorFactory);
-			districtEntry.Binding.AddBinding(ViewModel, x=>x.District, x=>x.Subject).InitializeFromSource();
-			
+			districtEntry.Binding.AddBinding(ViewModel, x => x.District, x => x.Subject).InitializeFromSource();
+
 			deliveryDate.Binding.AddBinding(ViewModel, s => s.StartDeliveryDate, w => w.StartDateOrNull);
 			deliveryDate.Binding.AddBinding(ViewModel, s => s.EndDeliveryDate, w => w.EndDateOrNull);
-			
+
 			exportBtn.Binding.AddBinding(ViewModel, vm => vm.HasExportReport, w => w.Sensitive).InitializeFromSource();
 
 			btnAllDay.Clicked += OnButtonStatusAllClicked;
@@ -109,7 +110,7 @@ namespace Vodovoz.Views.Reports
 			btnHelp.Visible = false;
 			// btnHelp.Clicked += OnButtonHelpShowClicked;
 		}
-		
+
 		protected void OnButtonStatusAllClicked(object sender, EventArgs e)
 		{
 			ViewModel.AllStatusCommand.Execute();
