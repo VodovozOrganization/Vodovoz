@@ -12,7 +12,11 @@ namespace Vodovoz.Reports
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodpicker;
 
-		private global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget geograficGroup;
+		private global::Gtk.VSeparator vseparator1;
+
+		private global::Gtk.Button buttonHelp;
+
+		private global::Gtk.VBox vboxParameters;
 
 		private global::Gtk.Button buttonCreateReport;
 
@@ -33,7 +37,7 @@ namespace Vodovoz.Reports
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel1.Name = "ylabel1";
-			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
+			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата доставки:");
 			this.hbox1.Add(this.ylabel1);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabel1]));
 			w1.Position = 0;
@@ -48,21 +52,39 @@ namespace Vodovoz.Reports
 			this.hbox1.Add(this.dateperiodpicker);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.dateperiodpicker]));
 			w2.Position = 1;
-			this.vbox2.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
-			w3.Position = 0;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.hbox1.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vseparator1]));
+			w3.Position = 2;
 			w3.Expand = false;
 			w3.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonHelp = new global::Gtk.Button();
+			this.buttonHelp.CanFocus = true;
+			this.buttonHelp.Name = "buttonHelp";
+			this.buttonHelp.UseUnderline = true;
+			global::Gtk.Image w4 = new global::Gtk.Image();
+			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.buttonHelp.Image = w4;
+			this.hbox1.Add(this.buttonHelp);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonHelp]));
+			w5.Position = 3;
+			w5.Expand = false;
+			w5.Fill = false;
+			this.vbox2.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.geograficGroup = new global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget();
-			this.geograficGroup.Events = ((global::Gdk.EventMask)(256));
-			this.geograficGroup.Name = "geograficGroup";
-			this.geograficGroup.Label = "";
-			this.vbox2.Add(this.geograficGroup);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.geograficGroup]));
-			w4.Position = 1;
-			w4.Expand = false;
-			w4.Fill = false;
+			this.vboxParameters = new global::Gtk.VBox();
+			this.vboxParameters.Name = "vboxParameters";
+			this.vboxParameters.Spacing = 6;
+			this.vbox2.Add(this.vboxParameters);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vboxParameters]));
+			w7.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -70,11 +92,11 @@ namespace Vodovoz.Reports
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox2.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateReport]));
-			w5.PackType = ((global::Gtk.PackType)(1));
-			w5.Position = 2;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateReport]));
+			w8.PackType = ((global::Gtk.PackType)(1));
+			w8.Position = 2;
+			w8.Expand = false;
+			w8.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

@@ -1803,14 +1803,6 @@ namespace Vodovoz
 		#region Изменение диалога
 
 		/// <summary>
-		/// Ширина первой колонки списка товаров или оборудования
-		/// (создано для хранения ширины колонки до автосайза ячейки по 
-		/// содержимому, чтобы отобразить по правильному положению ввод 
-		/// количества при добавлении нового товара)
-		/// </summary>
-		int treeAnyGoodsFirstColWidth;
-
-		/// <summary>
 		/// Активирует редактирование ячейки количества
 		/// </summary>
 		private void EditGoodsCountCellOnAdd(yTreeView treeView)
@@ -1822,7 +1814,7 @@ namespace Vodovoz
 				treeView.Model.IterNthChild(out TreeIter iter, index);
 				path = treeView.Model.GetPath(iter);
 
-				var column = treeView.ColumnsConfig.ConfiguredColumns.FirstOrDefault(x => (x.tag as string) == "Count")?.TreeViewColumn;
+				var column = treeView.ColumnsConfig.GetColumnsByTag("Count").FirstOrDefault();
 				if(column == null) {
 					return;
 				}
@@ -1836,15 +1828,6 @@ namespace Vodovoz
 				return;
 			}
 
-		}
-
-		void TreeAnyGoods_ExposeEvent(object o, ExposeEventArgs args)
-		{
-			var newColWidth = ((yTreeView)o).Columns.First().Width;
-			if(treeAnyGoodsFirstColWidth != newColWidth) {
-				EditGoodsCountCellOnAdd((yTreeView)o);
-				((yTreeView)o).ExposeEvent -= TreeAnyGoods_ExposeEvent;
-			}
 		}
 
 		#endregion
@@ -1946,13 +1929,30 @@ namespace Vodovoz
 		protected void OnReferenceDeliveryPointChanged(object sender, EventArgs e)
 		{
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
-			if(Entity.DeliveryPoint != null) {
+			
+			if(Entity.DeliveryPoint != null) 
+			{
 				UpdateProxyInfo();
 				Entity.SetProxyForOrder();
 			}
-			
+
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+			{
 				OnFormOrderActions();
+			}
+
+			if(Entity.DeliveryPoint != null)
+			{
+				TryAddVodovozLeaflet(new NomenclatureParametersProvider());
+			}
+			else
+			{
+				if(vodovozLeaflet != null)
+				{
+					Entity.ObservableOrderEquipments.Remove(Entity.ObservableOrderEquipments.SingleOrDefault(
+						x => x.Nomenclature.Id == vodovozLeaflet.Id));
+				}
+			}
 		}
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
@@ -2327,12 +2327,15 @@ namespace Vodovoz
 				OnFormOrderActions();
 			}
 
-			treeAnyGoodsFirstColWidth = treeItems.Columns.First(x => x.Title == "Номенклатура").Width;
-			treeItems.ExposeEvent += TreeAnyGoods_ExposeEvent;
-			//Выполнение в случае если размер не поменяется
-			EditGoodsCountCellOnAdd(treeItems);
+			treeItems.SizeAllocated += TreeItemsOnAdded;
 		}
-		
+
+		private void TreeItemsOnAdded(object o, SizeAllocatedArgs args)
+		{
+			EditGoodsCountCellOnAdd(treeItems);
+			treeItems.SizeAllocated -= TreeItemsOnAdded;
+		}
+
 		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			HboxReturnTareReasonCategoriesShow();

@@ -18,7 +18,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		public CarEventTypeJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: base(unitOfWorkFactory, commonServices)
 		{
-			TabName = "Журнал видов событий ТС";
+			TabName = "Виды событий ТС";
 
 			UpdateOnChanges(typeof(CarEventType));
 		}

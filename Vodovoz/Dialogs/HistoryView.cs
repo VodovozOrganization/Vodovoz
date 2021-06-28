@@ -142,7 +142,7 @@ namespace Vodovoz.Dialogs
 				.Where(mc => mc.MappedClass.Name == fieldChange.Entity.EntityClassName)
 				.Select(mc => mc.MappedClass).FirstOrDefault();
 
-			return !persistentClassType?.GetProperty(fieldChange.Path).GetCustomAttributes(false).Contains(restrictedToShowPropertyAttribute) ?? false;
+			return !persistentClassType?.GetProperty(fieldChange.Path)?.GetCustomAttributes(false).Contains(restrictedToShowPropertyAttribute) ?? false;
 		}
 
         void UpdateJournal(bool nextPage = false)

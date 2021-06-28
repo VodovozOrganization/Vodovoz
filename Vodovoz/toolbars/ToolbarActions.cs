@@ -477,12 +477,15 @@ public partial class MainWindow : Window
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e) {
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider();
+		var employeeService = new EmployeeService();
 		
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListAddressesTransferringDlg>(),
 			() => new RouteListAddressesTransferringDlg(
 				employeeNomenclatureMovementRepository,
-				terminalNomenclatureProvider
+				terminalNomenclatureProvider,
+				employeeService,
+				ServicesConfig.CommonServices
 			)
 		);
 	}

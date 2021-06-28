@@ -899,7 +899,10 @@ public partial class MainWindow : Gtk.Window
                         subdivisionRepository,
                         employeeSelectorFactory,
                         counterpartySelectorFactory
-                    ),
+                    )
+                    {
+	                    HidenByDefault = true
+                    },
                     filePickerService,
                     subdivisionRepository,
                     new GtkReportViewOpener(),
@@ -963,7 +966,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EquipmentReport>(),
-            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport())
+            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport(ServicesConfig.InteractiveService))
         );
     }
 
@@ -2324,5 +2327,13 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionCarServiceAcivated(object sender, EventArgs e)
 	{
 		SwitchToUI("Vodovoz.toolbars.car_service.xml");
+	}
+
+	protected void OnActionCarEventTypeActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new CarEventTypeJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
 	}
 }
