@@ -190,7 +190,14 @@ namespace DriverAPI.Library.Models
 
 			routeListAddress.DriverBottlesReturned = bottlesReturnCount;
 
-			if (routeListAddress.Status == RouteListItemStatus.Transfered)
+			if(vodovozOrder == null)
+			{
+				var error = $"Попытка завершения несуществующего заказа: {orderId}";
+				_logger.LogWarning(error);
+				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+			}
+
+			if(routeListAddress.Status == RouteListItemStatus.Transfered)
 			{
 				var error = $"Попытка завершения заказа, который был передан: {orderId}";
 				_logger.LogWarning(error);
