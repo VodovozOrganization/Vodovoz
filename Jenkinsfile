@@ -1,6 +1,6 @@
 parallel 'Gtk 2.12.45': {
 	stage('For Vod3, Vod1'){
-		node('Vodovoz') {
+		node() {
 			def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
 
 			//stage('Gtk.DataBindings') {		
