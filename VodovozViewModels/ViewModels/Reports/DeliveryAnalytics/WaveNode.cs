@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using Gamma.Utilities;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 {
@@ -14,6 +15,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 		public virtual WaveNodes WaveNodes {
 			get => _waveNode;
 			set => SetField(ref _waveNode, value);
+		}
+
+		public override string ToString()
+		{
+			return _waveNode.GetEnumTitle();
 		}
 	}
 }

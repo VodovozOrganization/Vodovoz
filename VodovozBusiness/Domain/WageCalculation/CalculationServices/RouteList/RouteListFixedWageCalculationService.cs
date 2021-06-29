@@ -27,5 +27,10 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			return new RouteListItemWageResult();
 		}
+
+		public RouteListItemWageCalculationDetails GetWageCalculationDetailsForRouteListItem(IRouteListItemWageCalculationSource source)
+		{
+			throw new InvalidOperationException("Нельзя получить детализацию расчёта ЗП за один адрес при типе расчёта за весь МЛ по фиксированной ставке");
+		}
 	}
 }

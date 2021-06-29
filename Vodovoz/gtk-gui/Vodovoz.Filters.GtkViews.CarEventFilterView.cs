@@ -68,7 +68,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.entityviewmodelentryCarEventType = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityviewmodelentryCarEventType.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryCarEventType.Name = "entityviewmodelentryCarEventType";
-			this.entityviewmodelentryCarEventType.CanEditReference = false;
+			this.entityviewmodelentryCarEventType.CanEditReference = true;
 			this.table1.Add(this.entityviewmodelentryCarEventType);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entityviewmodelentryCarEventType]));
 			w2.TopAttach = ((uint)(1));
