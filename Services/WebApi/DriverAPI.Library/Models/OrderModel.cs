@@ -220,6 +220,9 @@ namespace DriverAPI.Library.Models
 					DriverRating = rating,
 					DeliveryPoint = vodovozOrder.DeliveryPoint,
 					CreationDate = actionTime,
+					ChangedDate = actionTime,
+					CreatedBy = driver,
+					ChangedBy = driver,
 					ComplaintText = $"Заказ номер {orderId}\n" +
 						$"По причине {reason}"
 				};
