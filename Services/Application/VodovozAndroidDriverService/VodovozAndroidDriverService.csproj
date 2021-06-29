@@ -19,8 +19,6 @@
     <WarningLevel>4</WarningLevel>
     <ExternalConsole>true</ExternalConsole>
     <PlatformTarget>x86</PlatformTarget>
-    <IntermediateOutputPath>
-    </IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <Optimize>true</Optimize>
