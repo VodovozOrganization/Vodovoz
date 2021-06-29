@@ -46,7 +46,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly IRouteListItemRepository routeListItemRepository;
 		private readonly ISubdivisionService subdivisionService;
 		private readonly IReportViewOpener reportViewOpener;
-		private readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkDlgOpener;
+		private readonly IGtkTabsOpener gtkDlgOpener;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
 
@@ -72,7 +72,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
 			IReportViewOpener reportViewOpener,
-			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener,
+			IGtkTabsOpener gtkDialogsOpener,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)

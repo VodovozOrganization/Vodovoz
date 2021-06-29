@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
@@ -10,9 +9,10 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.JournalFilters;
 using Vodovoz.Repositories;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using IUndeliveredOrdersInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IUndeliveredOrdersInfoProvider;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -49,7 +49,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public void Refresh()
 		{
-			var undeliveredOrdersFilter = (InfoProvider as IUndeliveredOrdersInfoProvider).UndeliveredOrdersFilter;
+			var undeliveredOrdersFilter = (InfoProvider as IUndeliveredOrdersInfoProvider)?.UndeliveredOrdersFilterViewModel;
 
 			guilties = new List<object[]>(GetGuilties(undeliveredOrdersFilter));
 
@@ -58,7 +58,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		#endregion
 
-		private void DrawRefreshed(UndeliveredOrdersFilter undeliveredOrdersFilter)
+		private void DrawRefreshed(UndeliveredOrdersFilterViewModel undeliveredOrdersFilter)
 		{
 			lblCaption.Markup = "<u><b>Сводка по недовозам\nСписок виновных:</b></u>";
 
@@ -73,7 +73,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		#region Queries
 
-		public IList<object[]> GetGuilties(UndeliveredOrdersFilter filter)
+		public IList<object[]> GetGuilties(UndeliveredOrdersFilterViewModel filter)
 		{
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -86,6 +86,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			DeliveryPoint undeliveredOrderDeliveryPointAlias = null;
 			Subdivision subdivisionAlias = null;
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
+			Employee authorAlias = null;
 
 			var subquery19LWatterQty = QueryOver.Of<OrderItem>(() => orderItemAlias)
 												.Where(() => orderItemAlias.Order.Id == oldOrderAlias.Id)
@@ -94,13 +95,14 @@ namespace Vodovoz.SidePanel.InfoViews
 												.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var query = InfoProvider.UoW.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
-						   .Left.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
-						   .Left.JoinAlias(u => u.NewOrder, () => newOrderAlias)
-						   .Left.JoinAlias(() => oldOrderAlias.Client, () => counterpartyAlias)
-						   .Left.JoinAlias(() => oldOrderAlias.Author, () => oldOrderAuthorAlias)
-						   .Left.JoinAlias(() => oldOrderAlias.DeliveryPoint, () => undeliveredOrderDeliveryPointAlias)
-						   .Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
-						   .Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias);
+				.Left.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
+				.Left.JoinAlias(u => u.NewOrder, () => newOrderAlias)
+				.Left.JoinAlias(() => oldOrderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => oldOrderAlias.Author, () => oldOrderAuthorAlias)
+				.Left.JoinAlias(() => oldOrderAlias.DeliveryPoint, () => undeliveredOrderDeliveryPointAlias)
+				.Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
+				.Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias)
+				.Left.JoinAlias(u => u.Author, () => authorAlias);
 
 			if(filter?.RestrictDriver != null) {
 				var oldOrderIds = UndeliveredOrdersRepository.GetListOfUndeliveryIdsForDriver(InfoProvider.UoW, filter.RestrictDriver);
@@ -134,7 +136,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			if(filter?.RestrictGuiltySide != null)
 				query.Where(() => guiltyInUndeliveryAlias.GuiltySide == filter.RestrictGuiltySide);
 
-			if(filter != null && filter.IsProblematicCasesChkActive)
+			if(filter != null && filter.RestrictIsProblematicCases)
 				query.Where(() => !guiltyInUndeliveryAlias.GuiltySide.IsIn(filter.ExcludingGuiltiesForProblematicCases));
 
 			if(filter?.RestrictGuiltyDepartment != null)
@@ -155,6 +157,12 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			if(filter?.RestrictUndeliveryAuthor != null)
 				query.Where(u => u.Author == filter.RestrictUndeliveryAuthor);
+
+
+			if(filter?.RestrictAuthorSubdivision != null)
+			{
+				query.Where(() => authorAlias.Subdivision.Id == filter.RestrictAuthorSubdivision.Id);
+			}
 
 			int position = 0;
 			var result = query.SelectList(list => list

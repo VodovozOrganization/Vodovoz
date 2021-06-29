@@ -80,6 +80,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.TempAdapters;
 
 public partial class MainWindow : Window
 {
@@ -1003,14 +1006,46 @@ public partial class MainWindow : Window
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<UndeliveriesView>(),
-			() => {
-				var view = new UndeliveriesView {
-					ButtonMode = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_undeliveries") ? ReferenceButtonMode.CanAll : ReferenceButtonMode.CanAdd
-				};
-				return view;
-			}
+		IDeliveryPointJournalFactory deliveryPointJournalFactory = new DeliveryPointJournalFactory();
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
+		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
+		IOrderSelectorFactory orderSelectorFactory = new OrderSelectorFactory();
+
+		IJournalFilter driverJournalFilter = new EmployeeFilterViewModel()
+		{
+			RestrictCategory = EmployeeCategory.driver,
+			Status = EmployeeStatus.IsWorking
+		};
+		IEmployeeJournalFactory driverJournalFactory = new EmployeeJournalFactory(driverJournalFilter);
+
+		IJournalFilter subdivisionJournalFilter = new SubdivisionFilterViewModel()
+		{
+			SubdivisionType = SubdivisionType.Default
+		};
+		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+
+		IJournalFilter authorJournalFilter = new EmployeeFilterViewModel()
+		{
+			RestrictCategory = EmployeeCategory.office,
+			Status = EmployeeStatus.IsWorking
+		};
+		IEmployeeJournalFactory authorJournalFactory = new EmployeeJournalFactory(authorJournalFilter);
+
+		var undeliveredOrdersEventFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, orderSelectorFactory,
+			driverJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory, authorJournalFactory)
+		{
+			HidenByDefault = true
+		};
+
+		tdiMain.OpenTab(() => new UndeliveredOrdersJournalViewModel(
+			undeliveredOrdersEventFilter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			new GtkTabsOpener(),
+			driverJournalFactory,
+			VodovozGtkServicesConfig.EmployeeService,
+			undeliveriesViewOpener,
+			orderSelectorFactory)
 		);
 	}
 
