@@ -51,7 +51,7 @@ parallel 'Gtk 2.12.45': {
 			//stage('QSProjects') {
 				checkout changelog: false, poll: false, scm:([
 					$class: 'GitSCM',
-					branches: [[name: '*/master']],
+					branches: [[name: '*/VodovozTempBranch']],
 					doGenerateSubmoduleConfigurations: false,
 					extensions:
 						[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
