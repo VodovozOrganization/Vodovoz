@@ -126,7 +126,6 @@ namespace Vodovoz
 			PerformanceHelper.StartMeasurement();
 
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
-			this.HasChanges = true;
 
 			TabName = string.Format("Закрытие маршрутного листа №{0}", Entity.Id);
 			PerformanceHelper.AddTimePoint("Создан UoW");
