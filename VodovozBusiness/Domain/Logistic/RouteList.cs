@@ -1269,6 +1269,12 @@ namespace Vodovoz.Domain.Logistic
 			if(Car == null)
 				yield return new ValidationResult("На заполнен автомобиль.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car) });
+
+			if(MileageComment?.Length > 500)
+			{
+				yield return new ValidationResult($"Превышена длина комментария к километражу ({MileageComment.Length}/500)",
+					new[] { nameof(MileageComment) });
+			}
 		}
 
 		#endregion
