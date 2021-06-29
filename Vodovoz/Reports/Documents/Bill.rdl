@@ -1519,12 +1519,12 @@ WHERE o.id = @order_id
         <DataSetName>Order</DataSetName>
       </List>
       <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>15.75pt</Height>
-        <Width>213.27pt</Width>
+        <Height>17.26pt</Height>
+        <Width>500.69pt</Width>
         <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({bill_date}, 'Order') + ' ' +{?special_contract_number}</Value>
         <ZIndex>1</ZIndex>
-        <Left>39.2pt</Left>
-        <Top>204.7pt</Top>
+        <Left>39.20pt</Left>
+        <Top>204.70pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
