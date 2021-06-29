@@ -224,6 +224,11 @@ namespace Vodovoz.Dialogs.Logistic
 						);
 						printer.DocumentsPrinted += (o, args) =>
 						{
+							if(!rlDocTypesToPrint.Contains(RouteListPrintableDocuments.RouteList | RouteListPrintableDocuments.All))
+							{
+								return;
+							}
+
 							rlPrintableDoc.routeList.AddPrintHistory();
 							uow.Save(rlPrintableDoc.routeList);
 							uow.Commit();

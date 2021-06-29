@@ -509,6 +509,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return 0;
 		}
 
+		public IList<DocumentPrintHistory> GetPrintsHistory(IUnitOfWork uow, RouteList routeList)
+		{
+			var types = new[] {PrintedDocumentType.RouteList, PrintedDocumentType.ClosedRouteList};
+			return uow.Session.Query<DocumentPrintHistory>()
+				.Where(dph => types.Contains(dph.DocumentType) && dph.RouteList.Id == routeList.Id).ToList();
+		}
+
 		public IEnumerable<GoodsInRouteListResult> AllGoodsTransferredFrom(IUnitOfWork uow, RouteList routeList)
 		{
 			if(routeList == null) throw new ArgumentNullException(nameof(routeList));
@@ -702,6 +709,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return uow.Session.QueryOver(() => routeListAlias)
 							  .Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
 							  .Where(() => routeListItemAlias.Order.Id == order.Id)
+							  .Fetch(SelectMode.ChildFetch, routeList => routeList.Addresses)
 							  .List()
 							  .FirstOrDefault();
 		}

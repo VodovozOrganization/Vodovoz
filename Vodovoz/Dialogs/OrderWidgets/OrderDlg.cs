@@ -107,6 +107,7 @@ namespace Vodovoz
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
+		private int _treeItemsNomenclatureColumnWidth;
 
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
@@ -747,6 +748,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => Entity.OrderItems.IndexOf(node) + 1)
 				.AddColumn("Номенклатура")
+					.SetTag(nameof(Nomenclature))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
 				.AddColumn(!orderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
@@ -2326,14 +2328,17 @@ namespace Vodovoz
 				Entity.CheckAndSetOrderIsService();
 				OnFormOrderActions();
 			}
-
-			treeItems.SizeAllocated += TreeItemsOnAdded;
+			_treeItemsNomenclatureColumnWidth = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Nomenclature)).First().Width;
+			treeItems.ExposeEvent += TreeItemsOnExposeEvent;
 		}
 
-		private void TreeItemsOnAdded(object o, SizeAllocatedArgs args)
+		private void TreeItemsOnExposeEvent(object o, ExposeEventArgs args)
 		{
-			EditGoodsCountCellOnAdd(treeItems);
-			treeItems.SizeAllocated -= TreeItemsOnAdded;
+			if(_treeItemsNomenclatureColumnWidth != ((yTreeView)o).ColumnsConfig.GetColumnsByTag(nameof(Nomenclature)).First().Width)
+			{
+				EditGoodsCountCellOnAdd((yTreeView)o);
+				treeItems.ExposeEvent -= TreeItemsOnExposeEvent;
+			}
 		}
 
 		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
