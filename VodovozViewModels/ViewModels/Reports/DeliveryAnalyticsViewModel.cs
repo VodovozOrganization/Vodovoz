@@ -38,6 +38,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		private DateTime? _endDeliveryDate;
 		private District _district;
 
+		private bool _isLoadingData;
+		private string _progress = string.Empty;
+		private const string _dataLoaded = "Выгрузка завершена.";
+		private const string _error = "Произошла ошибка.";
+
 		private DelegateCommand _exportCommand;
 		private DelegateCommand _allStatusCommand;
 		private DelegateCommand _noneStatusCommand;
@@ -51,6 +56,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		private readonly IInteractiveService _interactiveService;
 		public IEntityAutocompleteSelectorFactory DistrictSelectorFactory;
+		public string LoadingData = "Идет выгрузка данных...";
+
 
 		#endregion
 		public DeliveryAnalyticsViewModel(
@@ -72,11 +79,23 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			WaveList = new GenericObservableList<WaveNode>();
 			WeekDayName = new GenericObservableList<WeekDayNodes>();
-			GeographicGroupNodes =
-				new GenericObservableList<GeographicGroupNode>(Uow.GetAll<GeographicGroup>().Select(x => new GeographicGroupNode(x))
-					.ToList());
-			WageDistrictNodes =
-				new GenericObservableList<WageDistrictNode>(Uow.GetAll<WageDistrict>().Select(x => new WageDistrictNode(x)).ToList());
+			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>();
+
+			WageDistrictNodes = new GenericObservableList<WageDistrictNode>();
+
+			foreach(var wage in Uow.GetAll<WageDistrict>().Select(x => x).ToList())
+			{
+				var wageNode = new WageDistrictNode(wage);
+				wageNode.Selected = true;
+				WageDistrictNodes.Add(wageNode);
+			}
+
+			foreach(var geographic in Uow.GetAll<GeographicGroup>().Select(x => x).ToList())
+			{
+				var geographicNode = new GeographicGroupNode(geographic);
+				geographicNode.Selected = true;
+				GeographicGroupNodes.Add(geographicNode);
+			}
 
 			foreach(var wave in Enum.GetValues(typeof(WaveNodes)))
 			{
@@ -131,6 +150,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		public GenericObservableList<WeekDayNodes> WeekDayName { get; set; }
 
 		public string FileName { get; set; }
+
+		public string Progress
+		{
+			get => _progress;
+			set => SetField(ref _progress, value);
+		}
 		#endregion
 
 		#region Методы
@@ -580,6 +605,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					}
 					catch(IOException)
 					{
+						Progress = _error;
 						_interactiveService.ShowMessage(ImportanceLevel.Error,
 							"Не удалось сохранить файл выгрузки. Возможно не закрыт предыдущий файл выгрузки", "Ошибка");
 					}
@@ -588,11 +614,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				{
 					if(e.FindExceptionTypeInInner<TimeoutException>() != null)
 					{
+						Progress = _error;
 						_interactiveService.ShowMessage(
 							ImportanceLevel.Error, "Превышен интервал ожидания выполнения запроса.\n Попробуйте уменьшить период");
 					}
 					else
 					{
+						Progress = _error;
 						throw;
 					}
 				}
