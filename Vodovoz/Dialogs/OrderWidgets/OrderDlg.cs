@@ -2326,14 +2326,14 @@ namespace Vodovoz
 				Entity.CheckAndSetOrderIsService();
 				OnFormOrderActions();
 			}
-
-			treeItems.SizeAllocated += TreeItemsOnAdded;
+			//HACK нет возможности реализовать подписку в ConfigureDlg
+			treeItems.SizeAllocated -= TreeItemsOnSizeAllocated;
+			treeItems.SizeAllocated += TreeItemsOnSizeAllocated;
 		}
 
-		private void TreeItemsOnAdded(object o, SizeAllocatedArgs args)
+		private void TreeItemsOnSizeAllocated(object o, SizeAllocatedArgs args)
 		{
 			EditGoodsCountCellOnAdd(treeItems);
-			treeItems.SizeAllocated -= TreeItemsOnAdded;
 		}
 
 		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
