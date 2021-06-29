@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using Gamma.Binding;
@@ -46,6 +46,7 @@ using Vodovoz.Domain.StoredResources;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.ViewModels.Cash;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.Views.Users;
 using VodovozInfrastructure.Configuration;
@@ -213,8 +214,9 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w => w.Name)
                     .Column("В архиве", w => w.IsArchive ? "Да" : "").End(),
                 OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().DefaultTableView()
-                    .Column("Название", w => w.Name).End()
-            };
+                    .Column("Название", w => w.Name).End(),
+                OrmObjectMapping<CarEventType>.Create().Dialog<CarEventTypeViewModel>()
+			};
 
             #region Складские документы
 

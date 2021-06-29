@@ -55,6 +55,13 @@ namespace Vodovoz.ReportsParameters.Logistic
 				.Finish();
 			ytreeRouteListTypeOfUse.ItemsDataSource = Enum.GetValues(typeof(RouteListTypeOfUse)).Cast<RouteListTypeOfUse>()
 				.Select(x => new SelectableParameter { RouteListTypeOfUse = x, IsSelected = x == RouteListTypeOfUse.Logistics}).ToList();
+
+			new List<string>() {
+				"Группировка по водителям, без нумерации",
+				"Без группировки, с нумерацией"
+			}.ForEach(comboboxReportType.AppendText);
+
+			comboboxReportType.Active = 0;
 		}
 
 		private void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
@@ -63,7 +70,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			return new ReportInfo
 			{
-				Identifier = "Logistic.DeliveryTime",
+				Identifier = comboboxReportType.Active == 0 ? "Logistic.DeliveryTimeGrouped" : "Logistic.DeliveryTime",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "beforeTime", ytimeDelivery.Text },

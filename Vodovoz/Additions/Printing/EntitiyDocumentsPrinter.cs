@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
 using Gtk;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
@@ -131,19 +130,7 @@ namespace Vodovoz.Additions.Printing
 			MultiDocPrinter = new MultipleDocumentPrinter {
 				PrintableDocuments = new GenericObservableList<SelectablePrintDocument>(DocumentsToPrint)
 			};
-			MultiDocPrinter.DocumentsPrinted += (o, args) => {
-				//если среди распечатанных документов есть МЛ, то выставляем его соответствующий признак в true
-				if(args is EndPrintArgs endPrintArgs && endPrintArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle())) {
-					using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-						var rl = uow.GetById<RouteList>(currentRouteList.Id);
-						rl.PrintTime = DateTime.Now;
-						uow.Save(rl);
-						uow.Commit();
-					}
-					uow?.Session?.Refresh(currentRouteList);
-				}
-				DocumentsPrinted?.Invoke(o, args);
-			};
+			MultiDocPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
 			MultiDocPrinter.PrintingCanceled += (o, args) => PrintingCanceled?.Invoke(o, args);
 		}
 

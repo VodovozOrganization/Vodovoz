@@ -5,7 +5,6 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
-using QSProjectsLib;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Employees;
@@ -130,7 +129,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private void OnObservableItemsListContentChanged(object sender, EventArgs e)
 		{
 			decimal sum = Entity.Items.Sum(x => x.Money);
-			EmployeesSum = $"Итого по сотрудникам: {CurrencyWorks.GetShortCurrencyString(sum)}";
+			EmployeesSum = $"Итого по сотрудникам: {sum:N2} ₽";
 		}
 
 		#endregion

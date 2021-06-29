@@ -1,36 +1,166 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate.Transform;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
+using QS.Services;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.ReportsParameters;
+using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.Reports
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class EquipmentReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		GenericObservableList<GeographicGroup> geographicGroups;
+		private SelectableParametersReportFilter filter;
+		private readonly IInteractiveService _interactiveService;
 
-		public EquipmentReport()
+		public EquipmentReport(IInteractiveService interactiveService)
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			filter = new SelectableParametersReportFilter(UoW);
 			ConfigureDlg();
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 
 		void ConfigureDlg()
 		{
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			geograficGroup.UoW = UoW;
-			geograficGroup.Label = "Часть города:";
-			geographicGroups = new GenericObservableList<GeographicGroup>();
-			geograficGroup.Items = geographicGroups;
-			foreach(var gg in UoW.Session.QueryOver<GeographicGroup>().List())
-				geographicGroups.Add(gg);
+			buttonHelp.Clicked += ShowInfoWindow;
+
+			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
+
+			filter.CreateParameterSet(
+				"Части города",
+				"geographic_group",
+				new ParametersFactory(UoW, (filters) =>
+				{
+					SelectableEntityParameter<GeographicGroup> resultAlias = null;
+					var query = UoW.Session.QueryOver<GeographicGroup>();
+
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+					);
+
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<GeographicGroup>>());
+
+					return query.List<SelectableParameter>();
+				})
+			);
+
+			filter.CreateParameterSet(
+				"Подразделения",
+				"subdivision",
+				new ParametersFactory(UoW, (filters) =>
+				{
+					SelectableEntityParameter<Subdivision> resultAlias = null;
+					var query = UoW.Session.QueryOver<Subdivision>();
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+						);
+
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Subdivision>>());
+
+					return query.List<SelectableParameter>();
+				})
+			);
+
+			filter.CreateParameterSet(
+				"Авторы заказов",
+				"order_author",
+				new ParametersFactory(UoW, (filters) =>
+				{
+					SelectableEntityParameter<Employee> resultAlias = null;
+					var query = UoW.Session.QueryOver<Employee>();
+
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					IProjection authorProjection = Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?2, ?1, ?3)"),
+						NHibernateUtil.String,
+						Projections.Property<Employee>(x => x.Name),
+						Projections.Property<Employee>(x => x.LastName),
+						Projections.Property<Employee>(x => x.Patronymic)
+					);
+
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(authorProjection).WithAlias(() => resultAlias.EntityTitle)
+						);
+
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
+
+					var paremetersSet = query.List<SelectableParameter>();
+
+					return paremetersSet;
+				})
+			);
+
+			filter.CreateParameterSet(
+				"Контрагенты",
+				"counterparty",
+				new ParametersFactory(UoW, (filters) =>
+				{
+					SelectableEntityParameter<Counterparty> resultAlias = null;
+					var query = UoW.Session.QueryOver<Counterparty>()
+						.Where(x => !x.IsArchive);
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(x => x.FullName).WithAlias(() => resultAlias.EntityTitle)
+					);
+
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Counterparty>>());
+
+					return query.List<SelectableParameter>();
+				})
+			);
+
+			var viewModel = new SelectableParameterReportFilterViewModel(filter);
+			var filterWidget = new SelectableParameterReportFilterView(viewModel);
+			vboxParameters.Add(filterWidget);
+			filterWidget.Show();
 		}
 
 		#region IParametersWidget implementation
@@ -48,16 +178,22 @@ namespace Vodovoz.Reports
 
 		private ReportInfo GetReportInfo()
 		{
-			var repInfo = new ReportInfo {
-				Identifier = "ServiceCenter.EquipmentReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDate },
-					{ "end_date", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
-					{ "geographic_groups", GetResultIds(geographicGroups.Select(g => g.Id)) }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDateOrNull }
 			};
-			return repInfo;
+
+			foreach(var item in filter.GetParameters())
+			{
+				parameters.Add(item.Key, item.Value);
+			}
+
+			return new ReportInfo
+			{
+				Identifier = "ServiceCenter.EquipmentReport",
+				Parameters = parameters
+			};
 		}
 
 		void OnUpdate(bool hide = false)
@@ -67,14 +203,27 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
-			string errorString = string.Empty;
-			if(dateperiodpicker.StartDateOrNull == null)
-				errorString += "Не заполнена дата\n";
-			if(!string.IsNullOrWhiteSpace(errorString)) {
-				MessageDialogHelper.RunErrorDialog(errorString);
-				return;
+			if(dateperiodpicker.StartDate != default(DateTime))
+			{
+				OnUpdate(true);
 			}
-			OnUpdate(true);
+			else
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
+			}
+		}
+
+		private void ShowInfoWindow(object sender, EventArgs e)
+		{
+			var info = "В отчёт выводятся заказы, в которых присутствует ТМЦ типа \"Оборудование\" в таблице \"Оборудование\".\n" +
+					   "Фильтры:\n" +
+					   "Дата доставки - дата доставки заказа;\n" +
+					   "Части города - часть города точки доставки;\n" +
+					   "Подразделения - подразделение автора заказа;\n" +
+					   "Авторы заказов - ФИО автора заказа;\n" +
+			           "Контрагенты - клиент.";
+
+			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
 		}
 	}
 }

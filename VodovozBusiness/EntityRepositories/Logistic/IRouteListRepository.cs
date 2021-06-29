@@ -40,5 +40,7 @@ namespace Vodovoz.EntityRepositories.Logistic
         /// <param name="routeListId">Идентификатор МЛ</param>
         /// <returns></returns>
         bool IsTerminalRequired(IUnitOfWork uow, int routeListId);
-    }
+		decimal TerminalTransferedCountToRouteList(IUnitOfWork unitOfWork, RouteList routeList);
+		IList<DocumentPrintHistory> GetPrintsHistory(IUnitOfWork uow, RouteList routeList);
+	}
 }

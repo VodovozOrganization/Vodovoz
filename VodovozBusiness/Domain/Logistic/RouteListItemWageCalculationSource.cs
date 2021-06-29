@@ -26,7 +26,8 @@ namespace Vodovoz.Domain.Logistic
 			.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
 			.Sum(i => i.CurrentCount);
 
-		public int EmptyBottle19LCount => item.BottlesReturned;
+		public int EmptyBottle19LCount => item.RouteListIsUnloaded() || item.RouteList.Status == RouteListStatus.MileageCheck
+			? item.BottlesReturned : item.Order.BottlesReturn ?? 0;
 
 		public int Bottle6LCount => (int)item.Order.OrderItems
 			.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol6L)
@@ -64,11 +65,12 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public bool HasFirstOrderForDeliveryPoint {
-			get {
-
-				var sameAddress = item.RouteList.Addresses.Where(a => a.IsDelivered())
-											   .Select(i => i.Order)
-											   .FirstOrDefault(o => o.DeliveryPoint?.Id == item.Order.DeliveryPoint?.Id);
+			get
+			{
+				var sameAddress = item.RouteList.Addresses
+					.Where(i => i.IsValidForWageCalculation())
+					.Select(i => i.Order)
+					.FirstOrDefault(o => o.DeliveryPoint?.Id == item.Order.DeliveryPoint?.Id); 
 				if(sameAddress == null) {
 					return false;
 				}
@@ -127,8 +129,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public decimal DriverWageSurcharge => item.DriverWageSurcharge;
 
-		public bool IsDelivered => item.IsDelivered() && item.Status != RouteListItemStatus.Transfered;
-		public bool IsValidForWageCalculation => !RouteListItem.GetNotDeliveredStatuses().Contains(item.Status);
+		public bool IsDelivered => item.IsDelivered();
+		public bool IsValidForWageCalculation => item.IsValidForWageCalculation();
 
 		public (TimeSpan, TimeSpan) DeliverySchedule => (item.Order.DeliverySchedule.From, item.Order.DeliverySchedule.To);
 
