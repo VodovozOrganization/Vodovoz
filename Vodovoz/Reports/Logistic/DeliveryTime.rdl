@@ -2,8 +2,8 @@
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -12,11 +12,11 @@
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <Width>7.5in</Width>
-  <TopMargin>.25in</TopMargin>
-  <LeftMargin>.25in</LeftMargin>
-  <RightMargin>.25in</RightMargin>
-  <BottomMargin>.25in</BottomMargin>
+  <Width>297mm</Width>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
       <Query>
@@ -129,16 +129,16 @@ ORDER BY driver_name, max_time
             <Width>23.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>79.9pt</Width>
+            <Width>99.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>41.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>182.2pt</Width>
+            <Width>291.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>209.8pt</Width>
+            <Width>317.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>39.9pt</Width>
@@ -279,6 +279,7 @@ ORDER BY driver_name, max_time
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -323,6 +324,7 @@ ORDER BY driver_name, max_time
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -366,7 +368,7 @@ ORDER BY driver_name, max_time
                   <ReportItems>
                     <Textbox Name="max_time">
                       <Value>=Fields!delivery_schedule.Value</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -393,8 +395,8 @@ ORDER BY driver_name, max_time
         <Width>265.00pt</Width>
         <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
         <ZIndex>1</ZIndex>
-        <Left>312.6pt</Left>
-        <Top>25pt</Top>
+        <Left>543.7pt</Left>
+        <Top>25.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -406,8 +408,8 @@ ORDER BY driver_name, max_time
       <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Top>3.60pt</Top>
         <Left>0.00pt</Left>
-        <Width>575.98pt</Width>
-        <Height>19.27pt</Height>
+        <Width>811.62pt</Width>
+        <Height>17.04pt</Height>
         <Value>Время доставки</Value>
         <Style>
           <FontSize>15pt</FontSize>

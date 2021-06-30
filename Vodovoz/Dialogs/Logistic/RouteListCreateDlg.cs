@@ -47,6 +47,7 @@ namespace Vodovoz
 		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
 		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private IRouteListRepository _routeListRepository = new RouteListRepository();
 
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
@@ -231,7 +232,7 @@ namespace Vodovoz
 		{
 			if(e is EndPrintArgs printArgs) {
 				if(printArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle())) {
-					Entity.PrintTime = DateTime.Now;
+					Entity.AddPrintHistory();
 					Save();
 				}
 			}
@@ -307,14 +308,19 @@ namespace Vodovoz
 			buttonAccept.Sensitive = isSensetive;
 		}
 
-		public void OnPrintTimeButtonClicked(object sender, EventArgs e)
+		private void OnPrintTimeButtonClicked(object sender, EventArgs e)
 		{
-			if(Entity.PrintTime.HasValue)
+			var history = _routeListRepository.GetPrintsHistory(UoW, Entity);
+			if(history?.Any() ?? false)
 			{
-				 ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info,
-					$"Дата печати {Entity.PrintTime.Value.Date.ToShortDateString()} " +
-					$"\nВремя печати {Entity.PrintTime.Value.ToShortTimeString()}",
-					$"№ МЛ: {Entity.Id}");
+				var message = "<b>№\t| Дата и время печати\t| Тип документа</b>";
+				for(var i = 0; i < history.Count; i++)
+				{
+					var item = history[i];
+					message += $"\n{i + 1}\t| {item.PrintingTime.ToShortDateString()}" +
+					           $" {item.PrintingTime.ToShortTimeString()}\t\t| {item.DocumentType.GetEnumShortTitle()}";
+				}
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, message, $"История печати МЛ №: {Entity.Id}");
 			}
 			else
 			{
@@ -370,7 +376,7 @@ namespace Vodovoz
 
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, callTaskWorker);
 					//Строим маршрут для МЛ.
-					if(!Entity.PrintTime.HasValue || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
+					if((!Entity.PrintsHistory?.Any() ?? true) || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
 						var newRoute = optimizer.RebuidOneRoute(Entity);
 						if(newRoute != null) {

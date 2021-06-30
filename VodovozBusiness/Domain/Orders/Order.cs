@@ -2649,13 +2649,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			var payment = paymentItems.Select(x => x.Payment).FirstOrDefault();
 
-			if (payment == null)
+			if(payment == null)
+			{
 				return;
+			}
+
+			var newPayment = payment.CreatePaymentForReturnMoneyToClientBalance(paymentSum, Id);
 			
-			var newPayment = payment.CreatePaymentForReturnMoneyToClientBalance(paymentSum, this.Id);
-			newPayment.CreateIncomeOperation();
-			
-			UoW.Save(newPayment.CashlessMovementOperation);
 			UoW.Save(newPayment);
 		}
 

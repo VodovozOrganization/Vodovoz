@@ -12,9 +12,11 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using QS.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -23,19 +25,22 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
 using Vodovoz.ViewModel;
 using GC = System.GC;
 
 namespace Vodovoz
 {
-	public partial class RouteListAddressesTransferringDlg : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
+	public partial class RouteListAddressesTransferringDlg : TdiTabBase, ISingleUoWDialog
 	{
-		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
-		private readonly IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository;
-		private readonly ITerminalNomenclatureProvider terminalNomenclatureProvider;
+		private readonly WageParameterService _wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
+		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private readonly IEmployeeService _employeeService;
+		private readonly ICommonServices _commonServices;
 
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceFrom { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceTo { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
@@ -50,13 +55,17 @@ namespace Vodovoz
 		#region Конструкторы
 
 		public RouteListAddressesTransferringDlg(IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository, 
-		                                         ITerminalNomenclatureProvider terminalNomenclatureProvider)
+		                                         ITerminalNomenclatureProvider terminalNomenclatureProvider,
+												 IEmployeeService employeeService,
+												 ICommonServices commonServices)
 		{
-			this.Build();
-			this.employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository ??
-			                                              throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
-			this.terminalNomenclatureProvider = terminalNomenclatureProvider ??
-			                              throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
+			Build();
+			_employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository
+				?? throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
+			_terminalNomenclatureProvider = terminalNomenclatureProvider
+				?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			TabName = "Перенос адресов маршрутных листов";
 			ConfigureDlg();
 		}
@@ -65,10 +74,14 @@ namespace Vodovoz
 			int routeListId,
 			OpenParameter param,
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
-			ITerminalNomenclatureProvider terminalNomenclatureProvider) : this(employeeNomenclatureMovementRepository, terminalNomenclatureProvider)
+			ITerminalNomenclatureProvider terminalNomenclatureProvider,
+			IEmployeeService employeeService,
+			ICommonServices commonServices) : this(employeeNomenclatureMovementRepository, terminalNomenclatureProvider, employeeService, commonServices)
 		{
 			var rl = UoW.GetById<RouteList>(routeListId);
-			switch(param) {
+
+			switch(param)
+			{
 				case OpenParameter.Sender:
 					yentryreferenceRLFrom.Subject = rl;
 					break;
@@ -77,6 +90,7 @@ namespace Vodovoz
 					break;
 			}
 		}
+
 		#endregion
 
 		#region Методы
@@ -94,6 +108,7 @@ namespace Vodovoz
 					DateTime.Today.AddDays(1)
 				)
 			);
+
 			var vmFrom = new RouteListsVM(filterFrom);
 			GC.KeepAlive(vmFrom);
 			yentryreferenceRLFrom.RepresentationModel = vmFrom;
@@ -113,6 +128,7 @@ namespace Vodovoz
 					DateTime.Today.AddDays(1)
 				)
 			);
+
 			var vmTo = new RouteListsVM(filterTo);
 			yentryreferenceRLTo.RepresentationModel = vmTo;
 			yentryreferenceRLTo.JournalButtons = QS.Project.Dialogs.GtkUI.Buttons.Add | QS.Project.Dialogs.GtkUI.Buttons.Edit;
@@ -162,10 +178,14 @@ namespace Vodovoz
 				.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 				.AddColumn("Бутыли").AddTextRenderer(node => node.BottlesCount)
 				.AddColumn("Статус").AddEnumRenderer(node => node.Status);
+
 			if(isRightPanel)
+			{
 				config.AddColumn("Нужна загрузка").AddToggleRenderer(node => node.NeedToReload)
 					  .AddSetter((c, n) => c.Sensitive = n.WasTransfered);
+			}
 			else
+			{
 				config.AddColumn("Нужна загрузка")
 					  .AddToggleRenderer(x => x.LeftNeedToReload).Radio()
 					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
@@ -175,6 +195,7 @@ namespace Vodovoz
 					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
 					  .AddTextRenderer(x => "Нет")
 					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered);
+			}
 
 			return config.AddColumn("Нужен терминал").AddToggleRenderer(x => x.NeedTerminal).Editing(false)
 			             .AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
@@ -202,7 +223,8 @@ namespace Vodovoz
 
 		void YentryreferenceRLFrom_Changed(object sender, EventArgs e)
 		{
-			if(yentryreferenceRLFrom.Subject == null) {
+			if(yentryreferenceRLFrom.Subject == null)
+			{
 				ytreeviewRLFrom.ItemsDataSource = null;
 				return;
 			}
@@ -210,17 +232,21 @@ namespace Vodovoz
 			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
 			RouteList routeListTo = yentryreferenceRLTo.Subject as RouteList;
 
-			if(DomainHelper.EqualDomainObjects(routeListFrom, routeListTo)) {
+			if(DomainHelper.EqualDomainObjects(routeListFrom, routeListTo))
+			{
 				yentryreferenceRLFrom.Subject = null;
 				MessageDialogHelper.RunErrorDialog("Вы дурачёк?", "Вы не можете забирать адреса из того же МЛ, в который собираетесь передавать.");
 				return;
 			}
 
-			if(TabParent != null) {
+			if(TabParent != null)
+			{
 				var tab = TabParent.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeListFrom.Id));
 
-				if(!(tab is RouteListClosingDlg)) {
-					if(tab != null) {
+				if(!(tab is RouteListClosingDlg))
+				{
+					if(tab != null)
+					{
 						MessageDialogHelper.RunErrorDialog("Маршрутный лист уже открыт в другой вкладке");
 						yentryreferenceRLFrom.Subject = null;
 						return;
@@ -232,7 +258,10 @@ namespace Vodovoz
 
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
 			foreach(var item in routeListFrom.Addresses)
+			{
 				items.Add(new RouteListItemNode { RouteListItem = item });
+			}
+
 			ytreeviewRLFrom.ItemsDataSource = items;
 
 			FillObservableDriverBalance(ObservableDriverBalanceFrom, routeListFrom);
@@ -240,7 +269,8 @@ namespace Vodovoz
 
 		void YentryreferenceRLTo_Changed(object sender, EventArgs e)
 		{
-			if(yentryreferenceRLTo.Subject == null) {
+			if(yentryreferenceRLTo.Subject == null)
+			{
 				ytreeviewRLTo.ItemsDataSource = null;
 				return;
 			}
@@ -248,16 +278,20 @@ namespace Vodovoz
 			RouteList routeListTo = yentryreferenceRLTo.Subject as RouteList;
 			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
 
-			if(DomainHelper.EqualDomainObjects(routeListFrom, routeListTo)) {
+			if(DomainHelper.EqualDomainObjects(routeListFrom, routeListTo))
+			{
 				yentryreferenceRLTo.Subject = null;
 				MessageDialogHelper.RunErrorDialog("Вы дурачёк?", "Вы не можете передавать адреса в тот же МЛ, из которого забираете.");
 				return;
 			}
 
-			if(TabParent != null) {
+			if(TabParent != null)
+			{
 				var tab = TabParent.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeListTo.Id));
-				if(!(tab is RouteListClosingDlg)) {
-					if(tab != null) {
+				if(!(tab is RouteListClosingDlg))
+				{
+					if(tab != null)
+					{
 						MessageDialogHelper.RunErrorDialog("Маршрутный лист уже открыт в другой вкладке");
 						yentryreferenceRLTo.Subject = null;
 						return;
@@ -268,12 +302,14 @@ namespace Vodovoz
 			CheckSensitivities();
 
 			routeListTo.UoW = UoW;
-
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
-			foreach(var item in routeListTo.Addresses)
-				items.Add(new RouteListItemNode { RouteListItem = item });
-			ytreeviewRLTo.ItemsDataSource = items;
 
+			foreach(var item in routeListTo.Addresses)
+			{
+				items.Add(new RouteListItemNode { RouteListItem = item });
+			}
+
+			ytreeviewRLTo.ItemsDataSource = items;
 			FillObservableDriverBalance(ObservableDriverBalanceTo, routeListTo);
 		}
 
@@ -283,13 +319,16 @@ namespace Vodovoz
 			YentryreferenceRLTo_Changed(null, null);
 		}
 
-		private void FillObservableDriverBalance(GenericObservableList<EmployeeBalanceNode> observableDriverBalance, RouteList routeList) {
+		private void FillObservableDriverBalance(GenericObservableList<EmployeeBalanceNode> observableDriverBalance, RouteList routeList)
+		{
 			observableDriverBalance.Clear();
 
-			var driverTerminalBalance = employeeNomenclatureMovementRepository.GetTerminalFromDriverBalance(UoW,
-				routeList.Driver.Id, terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+			var driverTerminalBalance = _employeeNomenclatureMovementRepository.GetTerminalFromDriverBalance(UoW,
+				routeList.Driver.Id,
+				_terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
 
-			if (driverTerminalBalance != null) {
+			if (driverTerminalBalance != null)
+			{
 				observableDriverBalance.Add(driverTerminalBalance);
 			}
 		}
@@ -297,51 +336,62 @@ namespace Vodovoz
 		protected void OnButtonTransferClicked(object sender, EventArgs e)
 		{
 			//Дополнительные проверки
-			RouteList routeListTo = yentryreferenceRLTo.Subject as RouteList;
-			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+			var routeListTo = yentryreferenceRLTo.Subject as RouteList;
+			var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
 			var messages = new List<string>();
 
 			if(routeListTo == null || routeListFrom == null || routeListTo.Id == routeListFrom.Id)
+			{
 				return;
+			}
 
 			List<RouteListItemNode> needReloadNotSet = new List<RouteListItemNode>();
 			List<RouteListItemNode> needReloadSetAndRlEnRoute = new List<RouteListItemNode>();
 
-			foreach(var row in ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>()) {
+			foreach(var row in ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>())
+			{
 				RouteListItem item = row?.RouteListItem;
-				logger.Debug("Проверка адреса с номером {0}", item?.Id.ToString() ?? "Неправильный адрес");
+				_logger.Debug("Проверка адреса с номером {0}", item?.Id.ToString() ?? "Неправильный адрес");
 
 				if(item == null || item.Status == RouteListItemStatus.Transfered)
+				{
 					continue;
+				}
 
-				if(!row.LeftNeedToReload && !row.LeftNotNeedToReload) {
+				if(!row.LeftNeedToReload && !row.LeftNotNeedToReload)
+				{
 					needReloadNotSet.Add(row);
 					continue;
 				}
 
-				if(row.LeftNeedToReload && routeListTo.Status >= RouteListStatus.EnRoute) {
+				if(row.LeftNeedToReload && routeListTo.Status >= RouteListStatus.EnRoute)
+				{
 					needReloadSetAndRlEnRoute.Add(row);
 					continue;
 				}
 
-				RouteListItem newItem = new RouteListItem(routeListTo, item.Order, item.Status) {
+				RouteListItem newItem = new RouteListItem(routeListTo, item.Order, item.Status)
+				{
 					WasTransfered = true,
 					NeedToReload = row.LeftNeedToReload,
 					WithForwarder = routeListTo.Forwarder != null
 				};
+
 				routeListTo.ObservableAddresses.Add(newItem);
 
 				item.TransferedTo = newItem;
 
 				//Пересчёт зарплаты после изменения МЛ
-				routeListFrom.CalculateWages(wageParameterService);
-				routeListTo.CalculateWages(wageParameterService);
+				routeListFrom.CalculateWages(_wageParameterService);
+				routeListTo.CalculateWages(_wageParameterService);
 				
 				item.RecalculateTotalCash();
 				newItem.RecalculateTotalCash();
 
 				if(routeListTo.ClosingFilled)
-					newItem.FirstFillClosing(UoW, wageParameterService);
+				{
+					newItem.FirstFillClosing(UoW, _wageParameterService);
+				}
 
 				UoW.Save(item);
 				UoW.Save(newItem);
@@ -349,11 +399,13 @@ namespace Vodovoz
 			
 			UpdateTranferDocuments(routeListFrom, routeListTo);
 
-			if(routeListFrom.Status == RouteListStatus.Closed) {
+			if(routeListFrom.Status == RouteListStatus.Closed)
+			{
 				messages.AddRange(routeListFrom.UpdateMovementOperations());
 			}
 
-			if(routeListTo.Status == RouteListStatus.Closed) {
+			if(routeListTo.Status == RouteListStatus.Closed)
+			{
 				messages.AddRange(routeListTo.UpdateMovementOperations());
 			}
 
@@ -363,17 +415,22 @@ namespace Vodovoz
 			UoW.Commit();
 
 			if(needReloadNotSet.Count > 0)
+			{
 				MessageDialogHelper.RunWarningDialog("Для следующих адресов не была указана необходимость загрузки, поэтому они не были перенесены:\n * " +
-													String.Join("\n * ", needReloadNotSet.Select(x => x.Address))
+													string.Join("\n * ", needReloadNotSet.Select(x => x.Address))
 												   );
+			}
 
 			if(needReloadSetAndRlEnRoute.Count > 0)
-				MessageDialogHelper.RunWarningDialog("Для следующих адресов была указана необходимость загрузки при переносе в МЛ со статусом \"В пути\" и выше , поэтому они не были перенесены:\n * " +
-													String.Join("\n * ", needReloadSetAndRlEnRoute.Select(x => x.Address))
-												   );
+			{
+                MessageDialogHelper.RunWarningDialog("Для следующих адресов была указана необходимость загрузки при переносе в МЛ со статусом \"В пути\" и выше , поэтому они не были перенесены:\n * " +
+					string.Join("\n * ", needReloadSetAndRlEnRoute.Select(x => x.Address)));
+            }
 
 			if(messages.Count > 0)
-				MessageDialogHelper.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
+			{
+                MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
+            }
 
 			UpdateNodes();
 			CheckSensitivities();
@@ -395,9 +452,11 @@ namespace Vodovoz
 				.Select(x => x.RouteListItem)
 				.ToList();
 			
-			foreach(var address in toRevert) {
-				if(address.Status == RouteListItemStatus.Transfered) {
-					MessageDialogHelper.RunWarningDialog(String.Format("Адрес {0} сам перенесен в МЛ №{1}. Отмена этого переноса не возможна. Сначала нужно отменить перенос в {1} МЛ.", address?.Order?.DeliveryPoint.ShortAddress, address.TransferedTo?.RouteList.Id));
+			foreach(var address in toRevert)
+			{
+				if(address.Status == RouteListItemStatus.Transfered)
+				{
+					MessageDialogHelper.RunWarningDialog(string.Format("Адрес {0} сам перенесен в МЛ №{1}. Отмена этого переноса не возможна. Сначала нужно отменить перенос в {1} МЛ.", address?.Order?.DeliveryPoint.ShortAddress, address.TransferedTo?.RouteList.Id));
 					continue;
 				}
 
@@ -407,22 +466,27 @@ namespace Vodovoz
 						?.FirstOrDefault(x => x.TransferedTo != null && x.TransferedTo.Id == address.Id)
 					?? new RouteListItemRepository().GetTransferedFrom(UoW, address);
 
-				if(pastPlace != null) {
+				if(pastPlace != null)
+				{
 					pastPlace.SetStatusWithoutOrderChange(address.Status);
 					pastPlace.DriverBottlesReturned = address.DriverBottlesReturned;
 					pastPlace.TransferedTo = null;
+
 					if(pastPlace.RouteList.ClosingFilled)
-						pastPlace.FirstFillClosing(UoW, wageParameterService);
-					
+					{
+						pastPlace.FirstFillClosing(UoW, _wageParameterService);
+					}
+
 					UpdateTranferDocuments(pastPlace.RouteList, address.RouteList);
 					UoW.Save(pastPlace);
 				}
-				address.RouteList.ObservableAddresses.Remove(address);
 
+				address.RouteList.ObservableAddresses.Remove(address);
 				UoW.Save(address.RouteList);
 			}
 
-			foreach (var routeListItem in toRevert) {
+			foreach (var routeListItem in toRevert)
+			{
 				routeListItem.RecalculateTotalCash();
 			}
 
@@ -446,19 +510,22 @@ namespace Vodovoz
 
 		#region Команды
 
-		private DelegateCommand transferTerminal = null;
-		public DelegateCommand TransferTerminal => transferTerminal ?? (transferTerminal = new DelegateCommand(
+		private DelegateCommand _transferTerminal = null;
+		public DelegateCommand TransferTerminal => _transferTerminal ?? (_transferTerminal = new DelegateCommand(
 			() => {
 				var selectedNode = (yTreeViewDriverBalanceFrom.GetSelectedObject() as EmployeeBalanceNode);
 
-				if (selectedNode != null) {
-					if (selectedNode.Amount == 0) {
+				if (selectedNode != null)
+				{
+					if (selectedNode.Amount == 0)
+					{
 						MessageDialogHelper.RunErrorDialog("Вы не можете передавать терминал, т.к. его нет на балансе у водителя.", "Ошибка");
 						return;
 					}
 					
-					if (ObservableDriverBalanceTo.Any(x => 
-						x.NomenclatureId == terminalNomenclatureProvider.GetNomenclatureIdForTerminal && x.Amount > 0)) {
+					if (ObservableDriverBalanceTo.Any(x => x.NomenclatureId == _terminalNomenclatureProvider.GetNomenclatureIdForTerminal 
+														&& x.Amount > 0))
+					{
 						MessageDialogHelper.RunErrorDialog("У водителя уже есть терминал для оплаты.", "Ошибка");
 						return;
 					}
@@ -467,20 +534,35 @@ namespace Vodovoz
 					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
 					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
 					
-					var operationFrom = new EmployeeNomenclatureMovementOperation {
+					var operationFrom = new EmployeeNomenclatureMovementOperation
+					{
 						Employee = routeListFrom.Driver,
 						Nomenclature = terminal,
 						Amount = -1,
 						OperationTime = DateTime.Now
 					};
 					
-					var operationTo = new EmployeeNomenclatureMovementOperation {
+					var operationTo = new EmployeeNomenclatureMovementOperation
+					{
 						Employee = routeListTo.Driver,
 						Nomenclature = terminal,
 						Amount = 1,
 						OperationTime = DateTime.Now
 					};
-					
+
+					var driverTerminalTransferDocument = new DriverTerminalTransferDocument()
+					{
+						Author = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId),
+						CreateDate = DateTime.Now,
+						DriverFrom = routeListFrom.Driver,
+						DriverTo = routeListTo.Driver,
+						RouteListFrom = routeListFrom,
+						RouteListTo = routeListTo,
+						EmployeeNomenclatureMovementOperationFrom = operationFrom,
+						EmployeeNomenclatureMovementOperationTo = operationTo
+					};
+
+					UoW.Save(driverTerminalTransferDocument);
 					UoW.Save(operationFrom);
 					UoW.Save(operationTo);
 					UoW.Commit();
@@ -492,8 +574,8 @@ namespace Vodovoz
 			() => yentryreferenceRLFrom.Subject != null && yentryreferenceRLTo.Subject != null
 		));
 		
-		private DelegateCommand revertTerminal = null;
-		public DelegateCommand RevertTerminal => revertTerminal ?? (revertTerminal = new DelegateCommand(
+		private DelegateCommand _revertTerminal = null;
+		public DelegateCommand RevertTerminal => _revertTerminal ?? (_revertTerminal = new DelegateCommand(
 			() => {
 				var selectedNode = (yTreeViewDriverBalanceTo.GetSelectedObject() as EmployeeBalanceNode);
 
@@ -505,35 +587,48 @@ namespace Vodovoz
 					}
 					
 					if (ObservableDriverBalanceFrom.Any(x => 
-						x.NomenclatureId == terminalNomenclatureProvider.GetNomenclatureIdForTerminal && x.Amount > 0)) {
+						x.NomenclatureId == _terminalNomenclatureProvider.GetNomenclatureIdForTerminal && x.Amount > 0)) {
 						MessageDialogHelper.RunErrorDialog("У водителя уже есть терминал для оплаты.", "Ошибка");
 						return;
 					}
 
 					var terminal = UoW.GetById<Nomenclature>(selectedNode.NomenclatureId);
-					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
-					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
+					var routeListFrom = yentryreferenceRLTo.Subject as RouteList;
+					var routeListTo = yentryreferenceRLFrom.Subject as RouteList;
 
-					var operationTo = new EmployeeNomenclatureMovementOperation {
-						Employee = routeListTo.Driver,
+					var operationFrom = new EmployeeNomenclatureMovementOperation {
+						Employee = routeListFrom.Driver,
 						Nomenclature = terminal,
 						Amount = -1,
 						OperationTime = DateTime.Now
 					};
 					
-					var operationFrom = new EmployeeNomenclatureMovementOperation {
-						Employee = routeListFrom.Driver,
+					var operationTo = new EmployeeNomenclatureMovementOperation {
+						Employee = routeListTo.Driver,
 						Nomenclature = terminal,
 						Amount = 1,
 						OperationTime = DateTime.Now
 					};
 
-					UoW.Save(operationTo);
+					var driverTerminalTransferDocument = new DriverTerminalTransferDocument()
+					{
+						Author = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId),
+						CreateDate = DateTime.Now,
+						DriverFrom = routeListFrom.Driver,
+						DriverTo = routeListTo.Driver,
+						RouteListFrom = routeListFrom,
+						RouteListTo = routeListTo,
+						EmployeeNomenclatureMovementOperationFrom = operationFrom,
+						EmployeeNomenclatureMovementOperationTo = operationTo
+					};
+
+					UoW.Save(driverTerminalTransferDocument);
 					UoW.Save(operationFrom);
+					UoW.Save(operationTo);
 					UoW.Commit();
 
-					FillObservableDriverBalance(ObservableDriverBalanceTo, routeListTo);
-					FillObservableDriverBalance(ObservableDriverBalanceFrom, routeListFrom);
+					FillObservableDriverBalance(ObservableDriverBalanceTo, routeListFrom);
+					FillObservableDriverBalance(ObservableDriverBalanceFrom, routeListTo);
 				}
 			},
 			() => yentryreferenceRLFrom.Subject != null && yentryreferenceRLTo.Subject != null
@@ -549,10 +644,13 @@ namespace Vodovoz
 		public string Address => RouteListItem.Order.DeliveryPoint?.ShortAddress ?? "Нет адреса";
 		public RouteListItemStatus Status => RouteListItem.Status;
 
-		public bool NeedToReload {
+		public bool NeedToReload
+		{
 			get => RouteListItem.NeedToReload;
-			set {
-				if(RouteListItem.WasTransfered) {
+			set
+			{
+				if(RouteListItem.WasTransfered)
+				{
 					RouteListItem.NeedToReload = value;
 					RouteListItem.RouteList.UoW.Save(RouteListItem);
 					RouteListItem.RouteList.UoW.Commit();
@@ -560,23 +658,31 @@ namespace Vodovoz
 			}
 		}
 
-		bool leftNeedToReload;
-		public bool LeftNeedToReload {
-			get => leftNeedToReload;
-			set {
-				leftNeedToReload = value;
+		bool _leftNeedToReload;
+		public bool LeftNeedToReload
+		{
+			get => _leftNeedToReload;
+			set
+			{
+				_leftNeedToReload = value;
 				if(value)
-					leftNotNeedToReload = false;
+				{
+					_leftNotNeedToReload = false;
+				}
 			}
 		}
 
-		bool leftNotNeedToReload;
-		public bool LeftNotNeedToReload {
-			get => leftNotNeedToReload;
-			set {
-				leftNotNeedToReload = value;
+		bool _leftNotNeedToReload;
+		public bool LeftNotNeedToReload
+		{
+			get => _leftNotNeedToReload;
+			set
+			{
+				_leftNotNeedToReload = value;
 				if(value)
-					leftNeedToReload = false;
+				{
+					_leftNeedToReload = false;
+				}
 			}
 		}
 

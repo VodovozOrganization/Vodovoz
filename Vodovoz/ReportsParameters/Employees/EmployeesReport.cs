@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Gtk;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
+using QS.Services;
 using QSReport;
 using Vodovoz.Domain.Employees;
 
@@ -12,12 +13,15 @@ namespace Vodovoz.ReportsParameters.Employees
     [System.ComponentModel.ToolboxItem(true)]
     public partial class EmployeesReport : SingleUoWWidgetBase, IParametersWidget
     {
-        public EmployeesReport()
+		private readonly IInteractiveService _interactiveService;
+
+		public EmployeesReport(IInteractiveService interactiveService)
         {
             this.Build();
             UoW = UnitOfWorkFactory.CreateWithoutRoot();
             Configure();
-        }
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+		}
 
         public string Title => "Отчет по сотрудникам";
         public event EventHandler<LoadReportEventArgs> LoadReport;
@@ -111,19 +115,8 @@ namespace Vodovoz.ReportsParameters.Employees
                        "<b>Фильтры периодов</b>: не обязательны для выбора и не конфликтуют между собой. " +
                        "<b>Периоды по дате расчета и увольнения</b>: учитываются, если выбраны соответствующие статусы\n" +
                        "<b>В отчет не попадают</b>: водители управляющие фурой компании, являющиеся разовыми, являющиеся мастерами\n";
-            var label = new Label {Markup = info};
-            label.SetPadding(10, 10);
-            var vbox = new VBox {label};
 
-            var messageWindow = new Window(WindowType.Toplevel)
-            {
-                Resizable = false,
-                Title = "Информация",
-                WindowPosition = WindowPosition.Center,
-                Modal = true
-            };
-            messageWindow.Add(vbox);
-            messageWindow.ShowAll();
+			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
         }
     }
 }

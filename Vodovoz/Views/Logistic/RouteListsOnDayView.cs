@@ -25,6 +25,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
 using System.Drawing;
 using Gamma.Utilities;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -499,9 +500,17 @@ namespace Vodovoz.Views.Logistic
 					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
-				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
+				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue)
+				{
+					bool overdueOrder = false;
+					var undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay.Where(x =>
+						x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department);
+					if(undeliveryOrderNodes.Any(x => x.NewOrderId == order.Id))
+					{
+						overdueOrder = true;
+					}
 
-					FillTypeAndShapeMarker(order, route, orderRls, out PointMarkerShape shape, out PointMarkerType type);
+					FillTypeAndShapeMarker(order, route, orderRls, out PointMarkerShape shape, out PointMarkerType type, overdueOrder);
 
 					if(selectedMarkers.FirstOrDefault(m => (m.Tag as Order)?.Id == order.Id) != null)
 						type = PointMarkerType.white;
@@ -513,14 +522,14 @@ namespace Vodovoz.Views.Logistic
 				else
 					addressesWithoutCoordinats++;
 			}
-
+			
 			UpdateOrdersInfo();
 			logger.Info("Ок.");
 		}
 
-		private void FillTypeAndShapeMarker(Order order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type)
+		private void FillTypeAndShapeMarker(Order order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type, bool overdueOrder = false)
 		{
-			shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver);
+			shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver, overdueOrder);
 			type = PointMarkerType.black;
 
 			if(!orderRlsIds.Any()) {
