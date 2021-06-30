@@ -70,7 +70,6 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
-			HasChanges = true;
 			if(!editing) {
 				MessageDialogHelper.RunWarningDialog("Не достаточно прав. Обратитесь к руководителю.");
 				HasChanges = false;
