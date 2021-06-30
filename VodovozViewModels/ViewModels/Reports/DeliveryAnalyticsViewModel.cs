@@ -99,14 +99,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			foreach(var wave in Enum.GetValues(typeof(WaveNodes)))
 			{
-				var waveNode = new WaveNode { WaveNodes = (WaveNodes)wave, Selected = false };
+				var waveNode = new WaveNode { WaveNodes = (WaveNodes)wave, Selected = true };
 				WaveList.Add(waveNode);
 			}
 
 			foreach(var week in Enum.GetValues(typeof(WeekDayName)))
 			{
 				if((WeekDayName)week == Domain.Sale.WeekDayName.Today) continue;
-				var weekNode = new WeekDayNodes { WeekNameNode = (WeekDayName)week, Selected = false };
+				var weekNode = new WeekDayNodes { WeekNameNode = (WeekDayName)week, Selected = true };
 				WeekDayName.Add(weekNode);
 			}
 		}
