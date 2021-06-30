@@ -91,7 +91,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private void CreateCancelCommand()
 		{
 			CancelCommand = new DelegateCommand(
-				() => Close(false, QS.Navigation.CloseSource.Cancel),
+				() => Close(true, QS.Navigation.CloseSource.Cancel),
 				() => true
 			);
 		}

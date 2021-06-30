@@ -44,7 +44,7 @@ namespace Vodovoz.Views.Logistic
 			ytextviewCommnet.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
 		}
 	}
 }

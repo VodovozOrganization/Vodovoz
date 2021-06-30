@@ -100,7 +100,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 Entity.AccountableEmployee = accountableEmployee;
                 Entity.Sum = Sum;
                 Entity.Comment = Comment;
-                Close(false, CloseSource.Self);
+                Close(true, CloseSource.Self);
                 EntityAccepted?.Invoke(this, new CashRequestSumItemAcceptedEventArgs(Entity));
             },
             () => true
@@ -109,7 +109,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         private DelegateCommand cancelCommand;
         public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
             () => {
-                Close(false, CloseSource.Cancel);
+                Close(true, CloseSource.Cancel);
             },
             () => true
         ));

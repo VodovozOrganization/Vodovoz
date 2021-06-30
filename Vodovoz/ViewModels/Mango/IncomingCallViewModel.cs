@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Mango
 		public void DeclineCall()
 		{
 			MangoManager.HangUp();
-			Close(false, CloseSource.Self);
+			Close(true, CloseSource.Self);
 		}
 
 		#endregion

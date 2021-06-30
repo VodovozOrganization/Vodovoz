@@ -33,7 +33,7 @@ namespace Vodovoz.Views
 
             btnUpload.Clicked += (sender, e) => ViewModel.SaveCommand.Execute(ViewModel.ObservablePayments);
             btnUpload.Binding.AddBinding(ViewModel, v => v.IsNotAutoMatchingMode, w => w.Sensitive).InitializeFromSource();
-            btnCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
+            btnCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
             btnCancel.Binding.AddBinding(ViewModel, v => v.IsNotAutoMatchingMode, w => w.Sensitive).InitializeFromSource();
 
             ViewModel.UpdateProgress += UpdateProgress;

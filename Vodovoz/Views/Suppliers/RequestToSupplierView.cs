@@ -126,7 +126,7 @@ namespace Vodovoz.Views.Suppliers
 			btnTransfer.Binding.AddBinding(ViewModel, s => s.AreNomenclatureNodesSelected, w => w.Sensitive).InitializeFromSource();
 
 			btnSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			btnCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
+			btnCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 		}
 
 		void UpdateSensitivitiesOnSelectionChanged(object sender, System.EventArgs e)
