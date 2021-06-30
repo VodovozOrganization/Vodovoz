@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Warehouse
             comboOwner.Binding.AddBinding(ViewModel.Entity, e => e.OwningSubdivision, w => w.SelectedItem).InitializeFromSource();
 
             btnSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-            btnCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+            btnCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
         }
     }
 }

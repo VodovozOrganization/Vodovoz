@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
@@ -42,9 +43,6 @@ namespace Vodovoz
 		private ICarUnloadRepository CarUnloadRepository => CarUnloadSingletonRepository.GetInstance();
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 		IList<Equipment> alreadyUnloadedEquipment;
-
-		public override bool HasChanges => true;
-
 		private WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 		private CallTaskWorker callTaskWorker;
 
@@ -173,6 +171,12 @@ namespace Vodovoz
 			} else {
 				Entity.CanEdit = true;
 			}
+
+			spnTareToReturn.ValueChanged += (sender, e) => HasChanges = true;
+			((GenericObservableList<ReceptionItemNode>)returnsreceptionview.Items).ListContentChanged += (sender, e) => HasChanges = true;
+			((GenericObservableList<ReceptionNonSerialEquipmentItemNode>)nonserialequipmentreceptionview1.Items).ListContentChanged +=
+				(sender, e) => HasChanges = true;
+			((GenericObservableList<DefectiveItemNode>)defectiveitemsreceptionview1.Items).ListContentChanged += (sender, e) => HasChanges = true;
 		}
 
 		public override bool Save()

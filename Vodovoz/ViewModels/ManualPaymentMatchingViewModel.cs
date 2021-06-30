@@ -323,7 +323,7 @@ namespace Vodovoz.ViewModels
 		{
 			CloseViewModelCommand = new DelegateCommand(
 				() => {
-					Close(false, QS.Navigation.CloseSource.Cancel);
+					Close(true, QS.Navigation.CloseSource.Cancel);
 				},
 				() => true
 			);

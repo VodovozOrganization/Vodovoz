@@ -140,7 +140,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private DelegateCommand cancelCommand;
 		public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
-			() =>Close(false, CloseSource.Cancel),
+			() =>Close(true, CloseSource.Cancel),
 			() => true
 		));
 

@@ -167,7 +167,7 @@ namespace Vodovoz.Dialogs.Cash
 			ybtnDeleteSumm.Binding.AddBinding(ViewModel, vm => vm.CanDeleteSum, w => w.Visible).InitializeFromSource();
 			ybtnEditSum.Visible = false;
 			buttonSave.Clicked += (sender, args) => ViewModel.AfterSaveCommand.Execute();
-			buttonCancel.Clicked += (s, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (s, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 
 			ycheckPossibilityNotToReconcilePayments.Binding.AddBinding(ViewModel.Entity, e => e.PossibilityNotToReconcilePayments, w => w.Active).InitializeFromSource();
 			ycheckPossibilityNotToReconcilePayments.Binding.AddBinding(ViewModel, vm => vm.CanConfirmPossibilityNotToReconcilePayments, w => w.Visible).InitializeFromSource();

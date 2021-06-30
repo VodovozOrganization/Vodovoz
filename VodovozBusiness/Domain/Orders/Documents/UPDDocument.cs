@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Domain.Client;
@@ -8,6 +9,8 @@ namespace Vodovoz.Domain.Orders.Documents
 {
 	public class UPDDocument : PrintableOrderDocument, IPrintableRDLDocument, ISignableDocument
 	{
+		private static readonly DateTime _edition2017LastDate = Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
+
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.UPD;
 		#endregion
@@ -15,9 +18,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo()
 		{
+			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
 			return new ReportInfo {
 				Title = String.Format("УПД {0} от {1:d}", Order.Id, Order.DeliveryDate),
-				Identifier = "Documents.UPD",
+				Identifier = identifier,
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },
 					{ "special", false },

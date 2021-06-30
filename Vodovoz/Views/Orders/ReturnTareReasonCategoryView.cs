@@ -18,7 +18,7 @@ namespace Vodovoz.Views.Orders
 		void Configure()
 		{
 			ybtnSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			ybtnCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
+			ybtnCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 			ybtnAddReason.Clicked += (sender, e) => ViewModel.AddReasonCommand.Execute();
 			ybtnRemoveReason.Clicked += (sender, e) => ViewModel.RemoveReasonCommand.Execute();
 
