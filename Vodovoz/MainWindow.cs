@@ -125,6 +125,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
+using Vodovoz.EntityRepositories.Permissions;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1434,14 +1435,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionUsersActivated(object sender, EventArgs e)
     {
-		/*
-        UsersDialog usersDlg = new UsersDialog(ServicesConfig.InteractiveService);
-        usersDlg.Show();
-        usersDlg.Run();
-        usersDlg.Destroy();
-		*/
-
-		var journal = new UsersJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		var journal = new UsersJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, new PermissionRepository(), ServicesConfig.CommonServices);
 		tdiMain.AddTab(journal);
 	}
 
@@ -1988,8 +1982,9 @@ public partial class MainWindow : Gtk.Window
             new RegisteredRMJournalViewModel(
                 new RegisteredRMJournalFilterViewModel(),
                 UnitOfWorkFactory.GetDefaultFactory,
-                ServicesConfig.CommonServices
-            )
+				new PermissionRepository(),
+				ServicesConfig.CommonServices
+			)
         );
     }
 

@@ -2,6 +2,7 @@
 using Vodovoz.ViewModels;
 using QS.Widgets.GtkUI;
 using Vodovoz.Core.Permissions;
+using Vodovoz.ViewWidgets.Permissions;
 
 namespace Vodovoz.Views.Users
 {
@@ -17,7 +18,7 @@ namespace Vodovoz.Views.Users
 
 		private void ConfigureDialog()
 		{
-			var presetPermissionWidget = new UserPresetPermissionWidget();
+			var presetPermissionWidget = new PresetPermissionsView(ViewModel.PresetPermissionsViewModel);
 			var documentPermissionWidget = new UserEntityPermissionWidget();
 			var specialDocumentPermissionWidget = new SubdivisionForUserEntityPermissionWidget();
 
@@ -32,11 +33,10 @@ namespace Vodovoz.Views.Users
 			ycheckUserDisabled.Binding.AddBinding(ViewModel.Entity, e => e.Deactivated, w => w.Active).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Description, w => w.Buffer.Text).InitializeFromSource();
 			ylabelIdValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.Id.ToString(), w => w.LabelProp).InitializeFromSource();
-			ylabelDisplayName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.LabelProp).InitializeFromSource();
-			ylabelLogin.Binding.AddBinding(ViewModel.Entity, e => e.Login, w => w.LabelProp).InitializeFromSource();
+			yentryDisplayName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			yentryLogin.Binding.AddBinding(ViewModel.Entity, e => e.Login, w => w.Text).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => {
-				presetPermissionWidget.Save();
 				documentPermissionWidget.Save();
 				specialDocumentPermissionWidget.Save();
 				ViewModel.SaveCommand.Execute();
@@ -44,18 +44,15 @@ namespace Vodovoz.Views.Users
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
 
-			ybuttonPresetPrivileges.Sensitive = false;
 			ybuttonDocumentPrivileges.Sensitive = false;
 			ybuttonWarehousePrivileges.Sensitive = false;
 			ybuttonSpecialDocumentPrivileges.Sensitive = false;
 
+			vboxPresetPrivileges.Add(presetPermissionWidget);
+			presetPermissionWidget.Show();
+
 			if(ViewModel.Entity.Id != 0)
 			{
-				presetPermissionWidget.ConfigureDlg(ViewModel.UoW, ViewModel.Entity);
-				vboxPresetPrivileges.Add(presetPermissionWidget);
-				presetPermissionWidget.Show();
-				ybuttonPresetPrivileges.Sensitive = true;
-
 				documentPermissionWidget.ConfigureDlg(ViewModel.UoW, ViewModel.Entity);
 				vboxDocumentPrivileges.Add(documentPermissionWidget);
 				documentPermissionWidget.Show();

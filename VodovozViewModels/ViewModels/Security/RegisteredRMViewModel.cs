@@ -9,6 +9,7 @@ using QS.ViewModels;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Security;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Journals;
 using Vodovoz.Journals.FilterViewModels.Employees;
 
@@ -16,10 +17,11 @@ namespace Vodovoz.ViewModels.ViewModels.Security
 {
     public class RegisteredRMViewModel : EntityTabViewModelBase<RegisteredRM>
     {
-        public RegisteredRMViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigation = null)
+        public RegisteredRMViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IPermissionRepository permissionRepository, INavigationManager navigation = null)
             : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
-        }
+			_permissionRepository = permissionRepository ?? throw new System.ArgumentNullException(nameof(permissionRepository));
+		}
 
         private DelegateCommand addUserCommand;
         public DelegateCommand AddUserCommand => addUserCommand ?? (addUserCommand = new DelegateCommand(
@@ -28,7 +30,8 @@ namespace Vodovoz.ViewModels.ViewModels.Security
                 var userJournalViewModel = new SelectUserJournalViewModel(
                         userFilterViewModel,
                         UnitOfWorkFactory,
-                        ServicesConfig.CommonServices)
+						_permissionRepository,
+						ServicesConfig.CommonServices)
                 {
                     SelectionMode = JournalSelectionMode.Single,
                 };
@@ -49,7 +52,9 @@ namespace Vodovoz.ViewModels.ViewModels.Security
         ));
 
         private DelegateCommand<User> removeUserCommand;
-        public DelegateCommand<User> RemoveUserCommand => removeUserCommand ?? (removeUserCommand = new DelegateCommand<User>(
+		private readonly IPermissionRepository _permissionRepository;
+
+		public DelegateCommand<User> RemoveUserCommand => removeUserCommand ?? (removeUserCommand = new DelegateCommand<User>(
             (user) => {
                 if (user != null)
                 {

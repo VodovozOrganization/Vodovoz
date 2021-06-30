@@ -6,15 +6,19 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.JournalNodes;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 {
 	public class UsersJournalViewModel : SingleEntityJournalViewModelBase<User, UserViewModel, UserJournalNode>
 	{
-		public UsersJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false) : base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+		private readonly IPermissionRepository _permissionRepository;
+
+		public UsersJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, IPermissionRepository permissionRepository, ICommonServices commonServices, bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false) : base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
 			TabName = "Журнал пользователей";
+			_permissionRepository = permissionRepository ?? throw new ArgumentNullException(nameof(permissionRepository));
 		}
 
 		protected override void CreateNodeActions()
@@ -52,12 +56,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 		protected override Func<UserViewModel> CreateDialogFunction => () => new UserViewModel(
 			   EntityUoWBuilder.ForCreate(),
 			   UnitOfWorkFactory,
+			   _permissionRepository,
 			   commonServices
 		   );
 
 		protected override Func<UserJournalNode, UserViewModel> OpenDialogFunction => (node) => new UserViewModel(
 			   EntityUoWBuilder.ForOpen(node.Id),
 			   UnitOfWorkFactory,
+			   _permissionRepository,
 			   commonServices);
 	}
 }

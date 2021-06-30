@@ -6,6 +6,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels;
@@ -14,11 +15,14 @@ namespace Vodovoz.Journals
 {
     public class SelectUserJournalViewModel : FilterableSingleEntityJournalViewModelBase<User, UserViewModel, UserJournalNode, UserJournalFilterViewModel>
     {
-        public SelectUserJournalViewModel(UserJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+		private readonly IPermissionRepository _permissionRepository;
+
+		public SelectUserJournalViewModel(UserJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, IPermissionRepository permissionRepository, ICommonServices commonServices)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал пользователей";
-        }
+			_permissionRepository = permissionRepository ?? throw new ArgumentNullException(nameof(permissionRepository));
+		}
 
         protected override void CreateNodeActions()
         {
@@ -52,12 +56,14 @@ namespace Vodovoz.Journals
         protected override Func<UserViewModel> CreateDialogFunction => () => new UserViewModel(
 			   EntityUoWBuilder.ForCreate(),
 			   UnitOfWorkFactory,
+			   _permissionRepository,
 			   commonServices
 		   );
 
 		protected override Func<UserJournalNode, UserViewModel> OpenDialogFunction => (node) => new UserViewModel(
 			   EntityUoWBuilder.ForOpen(node.Id),
 			   UnitOfWorkFactory,
+			   _permissionRepository,
 			   commonServices);
     }
 }

@@ -5,14 +5,31 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using QS.Commands;
+using Vodovoz.ViewModels.Permissions;
+using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz.ViewModels
 {
     public class UserViewModel : EntityTabViewModelBase<User>
     {
-        public UserViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigation = null) 
+        public UserViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, IPermissionRepository permissionRepository, ICommonServices commonServices, INavigationManager navigation = null) 
             : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
+			_permissionRepository = permissionRepository ?? throw new System.ArgumentNullException(nameof(permissionRepository));
+		}
+
+		private PresetUserPermissionsViewModel _presetUserPermissionsViewModel;
+		public PresetUserPermissionsViewModel PresetPermissionsViewModel
+		{
+			get
+			{
+				if(_presetUserPermissionsViewModel == null)
+				{
+					_presetUserPermissionsViewModel = new PresetUserPermissionsViewModel(UoW, _permissionRepository, Entity);
+				}
+
+				return _presetUserPermissionsViewModel;
+			}
 		}
 
 		private DelegateCommand _saveCommand;
@@ -23,7 +40,9 @@ namespace Vodovoz.ViewModels
 				if(_saveCommand == null)
 				{
 					_saveCommand = new DelegateCommand(() => {
+						PresetPermissionsViewModel.SaveCommand.Execute();
 						UoW.Save();
+						Close(false, CloseSource.Save);
 					});
 				}
 				return _saveCommand;
@@ -31,6 +50,8 @@ namespace Vodovoz.ViewModels
 		}
 
 		private DelegateCommand _cancelCommand;
+		private readonly IPermissionRepository _permissionRepository;
+
 		public DelegateCommand CancelCommand
 		{
 			get
