@@ -121,8 +121,10 @@ using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
 
 public partial class MainWindow : Gtk.Window
@@ -460,8 +462,15 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionDiscountReasonsActivated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(DiscountReason));
-        tdiMain.AddTab(refWin);
+	    tdiMain.OpenTab(
+		    () =>
+		    {
+			    return new DiscountReasonJournalViewModel(
+				    UnitOfWorkFactory.GetDefaultFactory,
+				    ServicesConfig.CommonServices
+			    );
+		    }
+	    );
     }
 
     protected void OnActionColorsActivated(object sender, EventArgs e)
@@ -1490,9 +1499,13 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionFirstClientsActivated(object sender, EventArgs e)
     {
+	    var districtSelectorFactory =
+		    new DefaultEntityAutocompleteSelectorFactory<District, DistrictJournalViewModel, DistrictJournalFilterViewModel>
+		    (ServicesConfig.CommonServices);
+	    
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
-            () => new QSReport.ReportViewDlg(new FirstClientsReport())
+            () => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory))
         );
     }
 

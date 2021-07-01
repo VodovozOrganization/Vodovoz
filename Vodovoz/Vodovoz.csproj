@@ -1633,6 +1633,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarEventView.cs" />
     <Compile Include="Filters\GtkViews\CarEventFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventFilterView.cs" />
+    <Compile Include="Views\Orders\DiscountReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.DiscountReasonView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

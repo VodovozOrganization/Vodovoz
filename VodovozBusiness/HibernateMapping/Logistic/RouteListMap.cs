@@ -20,6 +20,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Date).Column ("date");
 			Map(x => x.Status).Column ("status").CustomType<RouteListStatusStringType> ();
 			Map(x => x.ClosingDate).Column("closing_date");
+			Map(x => x.FirstClosingDate).Column("first_closing_date");
 			Map(x => x.ClosingComment).Column("closing_comment");
 			Map(x => x.LogisticiansComment).Column("logisticians_comment");
 			Map(x => x.ClosingFilled).Column("closing_filled");
