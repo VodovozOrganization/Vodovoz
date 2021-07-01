@@ -210,6 +210,14 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref closingDate, value, () => ClosingDate);
 		}
 
+		private DateTime? _firstClosingDate;
+		[Display(Name = "Дата первого закрытия")]
+		[HistoryDateOnly]
+		public virtual DateTime? FirstClosingDate {
+			get => _firstClosingDate;
+			set => SetField(ref _firstClosingDate, value);
+		}
+
 		string closingComment;
 
 		[Display(Name = "Комментарий")]
@@ -1120,10 +1128,17 @@ namespace Vodovoz.Domain.Logistic
 
 		private void UpdateClosedInformation()
 		{
-			if(Status == RouteListStatus.Closed) {
+			if(Status == RouteListStatus.Closed)
+			{
 				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 				ClosingDate = DateTime.Now;
-			} else {
+				if(FirstClosingDate == null)
+				{
+					FirstClosingDate = DateTime.Now;
+				}
+			}
+			else
+			{
 				ClosedBy = null;
 				ClosingDate = null;
 			}
