@@ -1,12 +1,11 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -23,36 +22,31 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		public override bool Save(bool close)
 		{
-			if(Entity.Id != 0 && Entity.IsArchive == false)
-			{// вывод из архива существующей сущности
-				return base.Save(close);
-			}
-
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				var active = uow.Session.QueryOver<DiscountReason>()
-					.Where(dr => dr.IsArchive == false && dr.Name == Entity.Name).SingleOrDefault();
-				if(active != null && Entity.IsArchive == false)
+				var matchedNames = uow.Session.QueryOver<DiscountReason>()
+					.Where(dr => dr.Id != Entity.Id)
+					.And(dr=> dr.Name == Entity.Name).List();
+				var active = matchedNames.FirstOrDefault(dr => !dr.IsArchive);
+				if(active != null)
 				{
 					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Уже существует основание для скидки с таким названием.\n" +
-						"Создание нового основания невозможно.\n" +
+						"Сохранение текущего основания невозможно.\n" +
 						"Существующее основание:\n" +
 						$"Код: {active.Id}\n" +
 						$"Название: {active.Name}");
 					return false;
 				}
 
-				var archived = uow.Session.QueryOver<DiscountReason>()
-					.Where(dr => dr.IsArchive && dr.Name == Entity.Name).SingleOrDefault();
-				if(archived != null && Entity.IsArchive == false)
+				var archived = matchedNames.FirstOrDefault(dr => dr.IsArchive);
+				if(archived != null)
 				{
 					if(CommonServices.InteractiveService.Question(
 						"Уже существует основание для скидки с таким названием.\n" +
-						"Создание нового основания невозможно.\n" +
+						"Сохранение текущего основания невозможно.\n" +
 						"Разархивировать существующее основание?"))
 					{
-						uow.Delete(Entity);
 						archived.IsArchive = false;
 						uow.Save(archived);
 						uow.Commit();
@@ -61,7 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 							$"Код: {archived.Id}\n" +
 							$"Название: {archived.Name}\n");
 					}
-
+					base.Close(false, CloseSource.Cancel);
 					return false;
 				}
 			}
