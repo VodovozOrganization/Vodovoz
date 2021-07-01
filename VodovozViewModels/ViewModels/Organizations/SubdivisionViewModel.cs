@@ -6,6 +6,7 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.ViewModels.Permissions;
@@ -51,8 +52,9 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			PresetSubdivisionPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, permissionRepository, Entity);
-			WarehousePermissionsVM =
-				new WarehousePermissionsViewModel(UoW, PermissionResult ,Entity);
+			var _warehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, Entity);
+			WarehousePermissionsVM = new WarehousePermissionsViewModel(UoW, _warehousePermissionModel);
+			WarehousePermissionsVM.CanEdit = PermissionResult.CanUpdate;
 			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			ConfigureEntityChangingRelations();
 			CreateCommands();

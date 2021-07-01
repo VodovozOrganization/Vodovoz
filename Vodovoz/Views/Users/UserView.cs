@@ -3,12 +3,16 @@ using Vodovoz.ViewModels;
 using QS.Widgets.GtkUI;
 using Vodovoz.Core.Permissions;
 using Vodovoz.ViewWidgets.Permissions;
+using Vodovoz.Core;
+using Gtk;
 
 namespace Vodovoz.Views.Users
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class UserView : TabViewBase<UserViewModel>
 	{
+		ViewModelWidgetResolver _widgetResolver = ViewModelWidgetResolver.Instance;
+
 		public UserView(UserViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
@@ -28,6 +32,25 @@ namespace Vodovoz.Views.Users
 			ybuttonResetPassword.Visible = false;
 			PasswordWarning.Visible = false;
 			ycheckRequirePasswordChange.Visible = false;
+
+			buttonUserInfo.Active = true;
+			buttonUserInfo.Toggled += (s, e) => notebook.CurrentPage = 0;
+
+			ybuttonPresetPrivileges.Active = false;
+			ybuttonPresetPrivileges.Toggled += (s, e) => notebook.CurrentPage = 1;
+
+			ybuttonWarehousePrivileges.Active = false;
+			ybuttonWarehousePrivileges.Toggled += (s, e) => notebook.CurrentPage = 2;
+
+			ybuttonDocumentPrivileges.Active = false;
+			ybuttonDocumentPrivileges.Toggled += (s, e) => notebook.CurrentPage = 3;
+
+			ybuttonSpecialDocumentPrivileges.Active = false;
+			ybuttonSpecialDocumentPrivileges.Toggled += (s, e) => notebook.CurrentPage = 4;
+
+			notebook.ShowTabs = false;
+
+			ytextviewComment.WrapMode = WrapMode.Word;
 
 			ycheckIsAdmin.Binding.AddBinding(ViewModel.Entity, e => e.IsAdmin, w => w.Active).InitializeFromSource();
 			ycheckUserDisabled.Binding.AddBinding(ViewModel.Entity, e => e.Deactivated, w => w.Active).InitializeFromSource();
@@ -50,6 +73,10 @@ namespace Vodovoz.Views.Users
 
 			vboxPresetPrivileges.Add(presetPermissionWidget);
 			presetPermissionWidget.Show();
+
+			var warehousePermissionsView = _widgetResolver.Resolve(ViewModel.WarehousePermissionsViewModel);
+			vboxWarehousePrivileges.Add(warehousePermissionsView);
+			warehousePermissionsView.Show();
 
 			if(ViewModel.Entity.Id != 0)
 			{

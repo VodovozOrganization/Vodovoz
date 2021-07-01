@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Domain.Security;
 
 namespace Vodovoz.Domain.Employees
 {
-	public class User: QS.Project.Domain.UserBase
+	public class User: QS.Project.Domain.UserBase, IValidatableObject
 	{
 		public virtual string WarehouseAccess { get; set; }
 
@@ -25,6 +26,15 @@ namespace Vodovoz.Domain.Employees
 		{
 			get => registeredRMs;
 			set => SetField(ref registeredRMs, value);
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			var regex = new Regex(@"^[A-Za-z\d.,_-]+\Z");
+			if(!regex.IsMatch(Login))
+			{
+				yield return new ValidationResult("Логин может состоять только из букв английского алфавита, нижнего подчеркивания, дефиса, точки и запятой", new[] { nameof(Login) });
+			}
 		}
 	}
 }

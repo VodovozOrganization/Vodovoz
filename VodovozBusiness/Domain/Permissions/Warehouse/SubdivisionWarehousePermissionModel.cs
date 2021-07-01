@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
@@ -7,12 +7,12 @@ namespace Vodovoz.Domain.Permissions.Warehouse
 {
     public class SubdivisionWarehousePermissionModel : WarehousePermissionModel
     {
-        private IUnitOfWork unitOfWork;
-        private Subdivision subdivision;
+        private IUnitOfWork _uow;
+        private Subdivision _subdivision;
         public SubdivisionWarehousePermissionModel(IUnitOfWork unitOfWork, Subdivision subdivision)
         {
-            this.unitOfWork = unitOfWork;
-            this.subdivision = subdivision;
+            this._uow = unitOfWork;
+            this._subdivision = subdivision;
             AllPermission = GetEnumerator().ToList();
         }
 
@@ -25,18 +25,18 @@ namespace Vodovoz.Domain.Permissions.Warehouse
             {
                 var subdivisionWarehousePermission = new SubdivisionWarehousePermission
                 {
-                    Subdivision = subdivision,
+                    Subdivision = _subdivision,
                     TypePermissions = TypePermissions.Subdivision,
                     Warehouse = warehouse,
                     ValuePermission = permissionValue,
                     WarehousePermissionType = warehousePermission
                 };
-                unitOfWork.Save(subdivisionWarehousePermission);
+                _uow.Save(subdivisionWarehousePermission);
             }
             else
             {
                 findPermission.ValuePermission = permissionValue;
-                unitOfWork.Save(findPermission);
+                _uow.Save(findPermission);
             }
         }
 
@@ -44,11 +44,11 @@ namespace Vodovoz.Domain.Permissions.Warehouse
         {
             var permissionForDelete = AllPermission.SingleOrDefault(x => x.Warehouse == warehouse && x.WarehousePermissionType == warehousePermission);
             if (permissionForDelete != null)
-                unitOfWork.TryDelete(permissionForDelete);
+                _uow.TryDelete(permissionForDelete);
         }
 
-        public override IEnumerable<WarehousePermission> GetEnumerator() => unitOfWork.Session
-            .QueryOver<SubdivisionWarehousePermission>().Where(x => x.Subdivision.Id == subdivision.Id)
+        public override IEnumerable<WarehousePermission> GetEnumerator() => _uow.Session
+            .QueryOver<SubdivisionWarehousePermission>().Where(x => x.Subdivision.Id == _subdivision.Id)
             .List();
 
         public override List<WarehousePermission> AllPermission { get; set; }

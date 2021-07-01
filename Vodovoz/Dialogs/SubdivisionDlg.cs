@@ -15,6 +15,7 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Views.Permissions;
+using Vodovoz.Domain.Permissions.Warehouse;
 
 namespace Vodovoz
 {
@@ -162,8 +163,9 @@ namespace Vodovoz
 	        {
 		        if (vboxSubdivision.Children.Length < 1)
 		        {
-			        warehousePermissionsViewModel = new WarehousePermissionsViewModel(UoW, permissionResult, Entity);
-			        vboxSubdivision.Add(new WarehousePermissionView(warehousePermissionsViewModel));
+					var _warehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, Entity);
+			        warehousePermissionsViewModel = new WarehousePermissionsViewModel(UoW, _warehousePermissionModel);
+					vboxSubdivision.Add(new WarehousePermissionView(warehousePermissionsViewModel));
 			        vboxSubdivision.ShowAll();
 			        vboxSubdivision.Visible = QSMain.User.Admin;
 		        }

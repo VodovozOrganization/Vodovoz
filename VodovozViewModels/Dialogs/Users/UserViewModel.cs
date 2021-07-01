@@ -7,6 +7,7 @@ using Vodovoz.Domain.Employees;
 using QS.Commands;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.Domain.Permissions.Warehouse;
 
 namespace Vodovoz.ViewModels
 {
@@ -32,6 +33,21 @@ namespace Vodovoz.ViewModels
 			}
 		}
 
+		private WarehousePermissionsViewModel _warehousePermissionsViewModel;
+		public WarehousePermissionsViewModel WarehousePermissionsViewModel
+		{
+			get
+			{
+				if(_warehousePermissionsViewModel == null)
+				{
+					var model = new UserWarehousePermissionModel(UoW, Entity);
+					_warehousePermissionsViewModel = new WarehousePermissionsViewModel(UoW, model);
+				}
+
+				return _warehousePermissionsViewModel;
+			}
+		}
+
 		private DelegateCommand _saveCommand;
 		public DelegateCommand SaveCommand
 		{
@@ -40,6 +56,11 @@ namespace Vodovoz.ViewModels
 				if(_saveCommand == null)
 				{
 					_saveCommand = new DelegateCommand(() => {
+						if(!Validate())
+						{
+							return;
+						}
+
 						PresetPermissionsViewModel.SaveCommand.Execute();
 						UoW.Save();
 						Close(false, CloseSource.Save);
