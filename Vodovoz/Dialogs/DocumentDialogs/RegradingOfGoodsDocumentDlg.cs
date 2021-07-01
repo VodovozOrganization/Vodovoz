@@ -3,9 +3,8 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using Vodovoz.Additions.Store;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Permissions;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
@@ -28,35 +27,39 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.RegradingOfGoodsEdit);
+			
+			var storeDocument = new StoreDocumentHelper();
+			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.RegradingOfGoodsEdit);
 
-			ConfigureDlg();
+			ConfigureDlg(storeDocument);
 		}
 
 		public RegradingOfGoodsDocumentDlg (int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsDocument> (id);
-			ConfigureDlg ();
+			
+			var storeDocument = new StoreDocumentHelper();
+			ConfigureDlg (storeDocument);
 		}
 
 		public RegradingOfGoodsDocumentDlg (RegradingOfGoodsDocument sub) : this (sub.Id)
 		{
 		}
 
-		void ConfigureDlg ()
+		void ConfigureDlg (StoreDocumentHelper storeDocument)
 		{
-			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.RegradingOfGoodsEdit, Entity.Warehouse)) {
+			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissions.RegradingOfGoodsEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
 
-			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.RegradingOfGoodsEdit, Entity.Warehouse);
+			var editing = storeDocument.CanEditDocument(WarehousePermissions.RegradingOfGoodsEdit, Entity.Warehouse);
 			yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
 			regradingofgoodsitemsview.Sensitive = editing;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.RegradingOfGoodsEdit);
+			yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissions.RegradingOfGoodsEdit);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 

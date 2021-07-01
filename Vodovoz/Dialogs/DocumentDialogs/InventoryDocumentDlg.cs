@@ -5,7 +5,6 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Additions.Store;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Employees;
@@ -28,6 +27,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using Vodovoz.Domain.Employees;
 using QS.Tdi;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Parameters;
 
 namespace Vodovoz
@@ -52,30 +52,32 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.InventoryEdit);
+			var storeDocument = new StoreDocumentHelper();
+			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.InventoryEdit);
 
-			ConfigureDlg ();
+			ConfigureDlg (storeDocument);
 		}
 
 		public InventoryDocumentDlg (int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<InventoryDocument> (id);
-			ConfigureDlg ();
+			var storeDocument = new StoreDocumentHelper();
+			ConfigureDlg (storeDocument);
 		}
 
 		public InventoryDocumentDlg (InventoryDocument sub) : this (sub.Id)
 		{
 		}
 
-		void ConfigureDlg ()
+		void ConfigureDlg (StoreDocumentHelper storeDocument)
 		{
-			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.InventoryEdit, Entity.Warehouse)) {
+			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissions.InventoryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
 
-			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.InventoryEdit, Entity.Warehouse);
+			var editing = storeDocument.CanEditDocument(WarehousePermissions.InventoryEdit, Entity.Warehouse);
 			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
 
 			ytreeviewItems.Sensitive =
@@ -85,7 +87,7 @@ namespace Vodovoz
 				buttonDeleteFine.Sensitive = editing;
 
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
-			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.InventoryEdit);
+			yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissions.InventoryEdit);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();

@@ -12,11 +12,11 @@ using QS.Services;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.DataService;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
@@ -52,7 +52,9 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.SelfDeliveryEdit);
+			
+			var storeDocument = new StoreDocumentHelper();
+			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.SelfDeliveryEdit);
 			var validationResult = CheckPermission(EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
@@ -67,7 +69,7 @@ namespace Vodovoz
 			}
 
 			canEditDocument = true;
-			ConfigureDlg();
+			ConfigureDlg(storeDocument);
 		}
 
 		public SelfDeliveryDocumentDlg(int id)
@@ -81,8 +83,9 @@ namespace Vodovoz
 				return;
 			}
 			canEditDocument = validationResult.CanUpdate;
-
-			ConfigureDlg();
+			
+			var storeDocument = new StoreDocumentHelper();
+			ConfigureDlg(storeDocument);
 		}
 
 		public SelfDeliveryDocumentDlg(SelfDeliveryDocument sub) : this(sub.Id)
@@ -97,11 +100,11 @@ namespace Vodovoz
 
 		private bool canEditDocument;
 
-		void ConfigureDlg()
+		void ConfigureDlg(StoreDocumentHelper storeDocument)
 		{
 			var validationResult = CheckPermission(EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
 
-			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse)) {
+			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
@@ -110,12 +113,12 @@ namespace Vodovoz
 			vbxMain.Sensitive = canEditDocument;
 			buttonCancel.Sensitive = true;
 
-			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse);
+			var editing = storeDocument.CanEditDocument(WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse);
 			yentryrefOrder.IsEditable = lstWarehouse.Sensitive = ytextviewCommnet.Editable = editing && canEditDocument;
 			selfdeliverydocumentitemsview1.Sensitive = hbxTareToReturn.Sensitive = editing && canEditDocument;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			lstWarehouse.ItemsList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.SelfDeliveryEdit);
+			lstWarehouse.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissions.SelfDeliveryEdit);
 			lstWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			lstWarehouse.ItemSelected += OnWarehouseSelected;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();

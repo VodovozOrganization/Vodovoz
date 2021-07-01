@@ -9,6 +9,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Domain;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.HumanResources;
 
@@ -106,7 +107,6 @@ namespace Vodovoz
 			get => subdivisionType;
 			set => SetField(ref subdivisionType, value, () => SubdivisionType);
 		}
-
 		#endregion
 
 		#region Геттеры и методы

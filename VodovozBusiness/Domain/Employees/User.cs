@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Domain.Security;
 
 namespace Vodovoz.Domain.Employees

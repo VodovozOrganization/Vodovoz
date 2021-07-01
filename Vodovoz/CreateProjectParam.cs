@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using Autofac;
@@ -42,7 +42,6 @@ using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Footers.Views;
 using Vodovoz.Infrastructure.Mango;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalColumnsConfigs;
@@ -139,7 +138,11 @@ namespace Vodovoz
 					new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access")
 			};
 
-			WarehousePermissionService.WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory();
+			WarehousePermissionService warehousePermissionService = new WarehousePermissionService
+			{
+				WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory()
+			};
+
 		}
 
 		static void ConfigureViewModelWidgetResolver()

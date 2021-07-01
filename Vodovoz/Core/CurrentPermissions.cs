@@ -1,31 +1,41 @@
-﻿using QS.DomainModel.UoW;
-using QSOrmProject.Permissions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSProjectsLib;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Core
 {
-	public static class CurrentPermissions
+	public class CurrentPermissions
 	{
-		static PermissionMatrix<WarehousePermissions, Warehouse> warehouse;
+		private List<WarehousePermission> permissions;
 
-		public static PermissionMatrix<WarehousePermissions, Warehouse> Warehouse{
-			get{
-				if (warehouse == null)
+		public List<WarehousePermission> Warehouse
+		{
+			get
+			{
+				if (permissions == null)
 					Load();
-				return warehouse;
+				return permissions;
 			}
 		}
 
-		private static void Load()
+		public CurrentPermissions()
 		{
-			using(var uow = UnitOfWorkFactory.CreateForRoot<User>(QSMain.User.Id))
+			
+		}
+		
+		private void Load()
+		{
+			var userId = ServicesConfig.UserService.CurrentUserId;
+			using(var uow = UnitOfWorkFactory.CreateForRoot<User>(userId))
 			{
-				warehouse = new PermissionMatrix<WarehousePermissions, Domain.Store.Warehouse>();
-				warehouse.Init();
-				warehouse.ParseJson(uow.Root.WarehouseAccess);
+				var employee = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(uow);
+				var subdivision = employee.Subdivision;
+				permissions = uow.Session.QueryOver<WarehousePermission>().Where(x=>(x.Subdivision.Id == subdivision.Id || x.User.Id == userId) && x.ValuePermission == true).List().ToList();
 			}
 		}
 	}

@@ -116,6 +116,15 @@
     <Compile Include="Domain\Orders\SelectedNomenclaturePlan.cs" />
     <Compile Include="Domain\Organizations\Organization.cs" />
     <Compile Include="Domain\Payments\PaymentsFromYookassaParser.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\SubdivisionWarehousePermissionModel.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\UserWarehousePermissionModel.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\WarehousePermissionModel.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\IWarehousePermissionValidator.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\IWarehousePermissionValidatorFactory.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\SubdivisionWarehousePermission.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\UserWarehousePermission.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\WarehousePermission.cs" />
+    <Compile Include="Domain\Permissions\Warehouse\WarehousePermissionValidator.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposalStatus.cs" />
     <Compile Include="Domain\Retail\SalesChannel.cs" />
@@ -182,6 +191,7 @@
     <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
+    <Compile Include="HibernateMapping\Permissions\WarehousePermissionMap.cs" />
     <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
