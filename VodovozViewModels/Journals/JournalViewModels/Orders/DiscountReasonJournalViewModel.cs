@@ -15,18 +15,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	public class DiscountReasonJournalViewModel
 		: SingleEntityJournalViewModelBase<DiscountReason, DiscountReasonViewModel, DiscountReasonJournalNode>
 	{
-		private IOrderRepository _orderRepository;
-
 		public DiscountReasonJournalViewModel(
-			IOrderRepository orderRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
 			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog,	hideJournalForCreateDialog)
 		{
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(_orderRepository));
-
 			TabName = "Журнал оснований для скидки";
 
 			UpdateOnChanges(typeof(DiscountReason));
@@ -63,14 +58,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 		protected override Func<DiscountReasonViewModel> CreateDialogFunction =>
 			() => new DiscountReasonViewModel(
-				_orderRepository,
 				EntityUoWBuilder.ForCreate(),
 				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 				commonServices);
 
 		protected override Func<DiscountReasonJournalNode, DiscountReasonViewModel> OpenDialogFunction =>
 			(node) => new DiscountReasonViewModel(
-				_orderRepository,
 				EntityUoWBuilder.ForOpen(node.Id),
 				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 				commonServices);

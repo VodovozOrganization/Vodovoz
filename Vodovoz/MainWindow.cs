@@ -465,7 +465,6 @@ public partial class MainWindow : Gtk.Window
 		    () =>
 		    {
 			    return new DiscountReasonJournalViewModel(
-				    OrderSingletonRepository.GetInstance(),
 				    UnitOfWorkFactory.GetDefaultFactory,
 				    ServicesConfig.CommonServices
 			    );

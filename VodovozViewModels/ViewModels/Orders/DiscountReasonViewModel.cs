@@ -12,16 +12,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 {
 	public class DiscountReasonViewModel : EntityTabViewModelBase<DiscountReason>
 	{
-		private readonly IOrderRepository _orderRepository;
-
 		public DiscountReasonViewModel(
-			IOrderRepository orderRepository,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			TabName = UoWGeneric.IsNew ? "Новое основание для скидки" : $"Основание для скидки \"{Entity.Name}\"";
 		}
 
@@ -31,39 +27,43 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			{// вывод из архива существующей сущности
 				return base.Save(close);
 			}
-			var all = _orderRepository.GetDiscountReasons(UoW);
-			var activeList = all.Where(dr => dr.IsArchive == false && dr.Name == Entity.Name).ToList();
-			if(activeList.Any() && Entity.IsArchive == false)
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				var active = activeList.First();
-				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					"Уже существует основание для скидки с таким названием.\n" +
-					"Создание нового основания невозможно.\n" +
-					"Существующее основание:\n" +
-					$"Код: {active.Id}\n" +
-					$"Название: {active.Name}");
-				return false;
-			}
-			
-			var archivedList = all.Where(dr => dr.IsArchive && dr.Name == Entity.Name).ToList();
-			if(archivedList.Any() && Entity.IsArchive == false)
-			{
-				var archived = archivedList.First();
-				if(CommonServices.InteractiveService.Question(
-					"Уже существует основание для скидки с таким названием.\n" +
-					"Создание нового основания невозможно.\n" +
-					"Разархивировать существующее основание?"))
+				var active = uow.Session.QueryOver<DiscountReason>()
+					.Where(dr => dr.IsArchive == false && dr.Name == Entity.Name).SingleOrDefault();
+				if(active != null && Entity.IsArchive == false)
 				{
-					UoWGeneric.Delete(UoWGeneric.Root);
-					archived.IsArchive = false;
-					UoWGeneric.Save(archived);
-					UoWGeneric.Commit();
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-						"Разархивировано основание для скидки:\n" +
-						$"Код: {archived.Id}\n" +
-						$"Название: {archived.Name}\n");
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Уже существует основание для скидки с таким названием.\n" +
+						"Создание нового основания невозможно.\n" +
+						"Существующее основание:\n" +
+						$"Код: {active.Id}\n" +
+						$"Название: {active.Name}");
+					return false;
 				}
-				return false;
+
+				var archived = uow.Session.QueryOver<DiscountReason>()
+					.Where(dr => dr.IsArchive && dr.Name == Entity.Name).SingleOrDefault();
+				if(archived != null && Entity.IsArchive == false)
+				{
+					if(CommonServices.InteractiveService.Question(
+						"Уже существует основание для скидки с таким названием.\n" +
+						"Создание нового основания невозможно.\n" +
+						"Разархивировать существующее основание?"))
+					{
+						uow.Delete(Entity);
+						archived.IsArchive = false;
+						uow.Save(archived);
+						uow.Commit();
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+							"Разархивировано основание для скидки:\n" +
+							$"Код: {archived.Id}\n" +
+							$"Название: {archived.Name}\n");
+					}
+
+					return false;
+				}
 			}
 			return base.Save(close);
 		}
