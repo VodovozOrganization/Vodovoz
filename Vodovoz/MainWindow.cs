@@ -1498,9 +1498,13 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionFirstClientsActivated(object sender, EventArgs e)
     {
+	    var districtSelectorFactory =
+		    new DefaultEntityAutocompleteSelectorFactory<District, DistrictJournalViewModel, DistrictJournalFilterViewModel>
+		    (ServicesConfig.CommonServices);
+	    
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
-            () => new QSReport.ReportViewDlg(new FirstClientsReport())
+            () => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory))
         );
     }
 
