@@ -1235,7 +1235,7 @@ WHERE o.id = @order_id
             <Width>36.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>34.7pt</Width>
+            <Width>40.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>30.2pt</Width>
@@ -1253,7 +1253,7 @@ WHERE o.id = @order_id
             <Width>49.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>62.4pt</Width>
+            <Width>57.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
