@@ -12,8 +12,9 @@ namespace Vodovoz.Domain.Orders
 	public class DiscountReason : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
-
 		private string _name;
+		private bool _isArchive;
+
 		[Display(Name = "Название")]
 		public virtual string Name 
 		{
@@ -21,7 +22,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _name, value);
 		}
 		
-		private bool _isArchive;
 		[Display(Name = "В архиве")]
 		public virtual bool IsArchive {
 			get => _isArchive;

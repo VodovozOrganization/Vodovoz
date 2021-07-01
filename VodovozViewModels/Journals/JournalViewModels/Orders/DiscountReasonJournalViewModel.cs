@@ -16,18 +16,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		: SingleEntityJournalViewModelBase<DiscountReason, DiscountReasonViewModel, DiscountReasonJournalNode>
 	{
 		private IOrderRepository _orderRepository;
-		
+
 		public DiscountReasonJournalViewModel(
 			IOrderRepository orderRepository,
-			IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false) : base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			bool hideJournalForOpenDialog = false,
+			bool hideJournalForCreateDialog = false)
+			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog,	hideJournalForCreateDialog)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(_orderRepository));
-			
+
 			TabName = "Журнал оснований для скидки";
 
 			UpdateOnChanges(typeof(DiscountReason));
 		}
-		
+
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
@@ -36,7 +40,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			CreateDefaultAddActions();
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<DiscountReason>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IUnitOfWork, IQueryOver<DiscountReason>> ItemsSourceQueryFunction => (uow) =>
+		{
 			DiscountReason drAlias = null;
 			DiscountReasonJournalNode drNodeAlias = null;
 
@@ -49,7 +54,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			var result = query.SelectList(list => list
 					.Select(dr => dr.Id).WithAlias(() => drNodeAlias.Id)
 					.Select(dr => dr.Name).WithAlias(() => drNodeAlias.Name)
-					.Select(dr => dr.IsArchive).WithAlias(()=> drNodeAlias.IsArchive))
+					.Select(dr => dr.IsArchive).WithAlias(() => drNodeAlias.IsArchive))
 				.OrderBy(dr => dr.IsArchive).Asc
 				.OrderBy(dr => dr.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<DiscountReasonJournalNode>());
@@ -62,12 +67,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				EntityUoWBuilder.ForCreate(),
 				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 				commonServices);
-		
-		protected override Func<DiscountReasonJournalNode, DiscountReasonViewModel> OpenDialogFunction => 
+
+		protected override Func<DiscountReasonJournalNode, DiscountReasonViewModel> OpenDialogFunction =>
 			(node) => new DiscountReasonViewModel(
 				_orderRepository,
 				EntityUoWBuilder.ForOpen(node.Id),
 				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-				commonServices); 
+				commonServices);
 	}
 }
