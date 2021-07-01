@@ -121,8 +121,10 @@ using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
 
 public partial class MainWindow : Gtk.Window
@@ -459,8 +461,16 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionDiscountReasonsActivated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(DiscountReason));
-        tdiMain.AddTab(refWin);
+	    tdiMain.OpenTab(
+		    () =>
+		    {
+			    return new DiscountReasonJournalViewModel(
+				    OrderSingletonRepository.GetInstance(),
+				    UnitOfWorkFactory.GetDefaultFactory,
+				    ServicesConfig.CommonServices
+			    );
+		    }
+	    );
     }
 
     protected void OnActionColorsActivated(object sender, EventArgs e)
