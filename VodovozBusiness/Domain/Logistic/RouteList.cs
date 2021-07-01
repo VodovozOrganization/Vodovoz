@@ -1132,7 +1132,7 @@ namespace Vodovoz.Domain.Logistic
 			{
 				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 				ClosingDate = DateTime.Now;
-				if(FirstClosingDate == null)
+				if(!FirstClosingDate.HasValue)
 				{
 					FirstClosingDate = DateTime.Now;
 				}
