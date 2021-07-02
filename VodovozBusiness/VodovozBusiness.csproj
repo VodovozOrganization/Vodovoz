@@ -940,6 +940,7 @@
     <Compile Include="HibernateMapping\Employees\EmployeePostMap.cs" />
     <Compile Include="Services\IOrderPaymentSettings.cs" />
     <Compile Include="Parameters\OrderPaymentSettings.cs" />
+    <Compile Include="Domain\Logistic\Districts.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
