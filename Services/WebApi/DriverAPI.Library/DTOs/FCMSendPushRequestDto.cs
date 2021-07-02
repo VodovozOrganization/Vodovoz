@@ -1,8 +1,12 @@
-﻿namespace DriverAPI.Library.DTOs
+﻿using System.Text.Json.Serialization;
+
+namespace DriverAPI.Library.DTOs
 {
 	public class FCMSendPushRequestDto
 	{
-		public string to { get; set; }
-		public FCMSendPushMessageDto data { get; set; }
+		[JsonPropertyName("to")]
+		public string To { get; set; }
+		[JsonPropertyName("notification")]
+		public FCMSendPushMessageDto Notification { get; set; }
 	}
 }
