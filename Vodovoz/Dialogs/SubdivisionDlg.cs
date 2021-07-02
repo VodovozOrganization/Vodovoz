@@ -61,6 +61,7 @@ namespace Vodovoz
 			yenumcomboType.Binding.AddBinding(Entity, e => e.SubdivisionType, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboType.Sensitive = false;
 
+			buttonSave.Clicked += SaveBtnClicked;
 			subdivisionsVM = new SubdivisionsVM(UoW, Entity);
 			repTreeChildSubdivisions.RepresentationModel = subdivisionsVM;
 			repTreeChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionVMNode>(subdivisionsVM.Result, x => x.Parent, x => x.Children);
@@ -103,10 +104,14 @@ namespace Vodovoz
 
 		#region implemented abstract members of OrmGtkDialogBase
 
+		public void SaveBtnClicked(object sender, EventArgs e)
+		{
+			Save();
+		}
 		public override bool Save()
 		{
 			var valid = new QSValidator<Subdivision>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			if(valid.RunDlgIfNotValid())
 				return false;
 
 			UoWGeneric.Save();
@@ -165,6 +170,7 @@ namespace Vodovoz
 		        {
 					var _warehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, Entity);
 			        warehousePermissionsViewModel = new WarehousePermissionsViewModel(UoW, _warehousePermissionModel);
+			        warehousePermissionsViewModel.CanEdit = permissionResult.CanUpdate;
 					vboxSubdivision.Add(new WarehousePermissionView(warehousePermissionsViewModel));
 			        vboxSubdivision.ShowAll();
 			        vboxSubdivision.Visible = QSMain.User.Admin;

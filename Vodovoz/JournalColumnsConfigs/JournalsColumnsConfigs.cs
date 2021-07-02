@@ -55,6 +55,15 @@ namespace Vodovoz.JournalColumnsConfigs
                     .AddColumn("")
                     .Finish()
             );
+            
+            TreeViewColumnsConfigFactory.Register<DiscountReasonJournalViewModel>(
+	            () => FluentColumnsConfig<DiscountReasonJournalNode>.Create()
+		            .AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+		            .AddColumn("Название").AddTextRenderer(node => node.Name)
+		            .AddColumn("В архиве?").AddTextRenderer(node => node.IsArchive ? "Да" : "")
+		            .AddColumn("")
+		            .Finish()
+            );
 
 			//DistrictsSetJournalViewModel
 			TreeViewColumnsConfigFactory.Register<DistrictsSetJournalViewModel>(
