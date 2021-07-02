@@ -1237,7 +1237,6 @@
     <Compile Include="Infrastructure\Services\GtkTaskCreationInteractive.cs" />
     <Compile Include="ViewWidgets\TaskCreationDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.TaskCreationDialog.cs" />
-    <Compile Include="ReportsParameters\PlanImplementationReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PlanImplementationReport.cs" />
     <Compile Include="Views\WageCalculation\WageDistrictLevelRateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictLevelRateView.cs" />
@@ -1635,6 +1634,7 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventFilterView.cs" />
     <Compile Include="Views\Orders\DiscountReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.DiscountReasonView.cs" />
+    <Compile Include="ReportsParameters\Sales\PlanImplementationReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
