@@ -17,16 +17,15 @@ namespace DriverAPI.Library.Helpers
 			InitializeClient(configuration);
 		}
 
-		public async Task SendPushNotification(string pushNotificationClientToken, string sender, string message)
+		public async Task SendPushNotification(string pushNotificationClientToken, string title, string body)
 		{
 			var request = new FCMSendPushRequestDto()
 			{
-				to = pushNotificationClientToken,
-				data = new FCMSendPushMessageDto()
+				To = pushNotificationClientToken,
+				Notification = new FCMSendPushMessageDto()
 				{
-					notificationType = "orderPaymentStatusChange",
-					sender = sender,
-					message = message
+					Title = title,
+					Body = body
 				}
 			};
 
@@ -51,8 +50,7 @@ namespace DriverAPI.Library.Helpers
 			_apiClient.BaseAddress = new Uri(apiConfiguration["ApiBase"]);
 			_apiClient.DefaultRequestHeaders.Accept.Clear();
 			_apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			_apiClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"key={apiConfiguration["AccessToken"]}");
-			_apiClient.DefaultRequestHeaders.TryAddWithoutValidation("Sender", $"id={apiConfiguration["AppId"]}");
+			_apiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("key", "=" + apiConfiguration["AccessToken"]);
 
 			_sendPushNotificationEndpointURI = apiConfiguration["SendPushNotificationEndpointURI"];
 		}
