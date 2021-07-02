@@ -72,6 +72,8 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		private IReadOnlyList<int> _excludedLeaflets = new List<int> { 47998 };
+
 		#endregion
 
 		#region Платная доставка
@@ -2111,7 +2113,8 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(OrderEquipment orderEquipment in order.OrderEquipments) {
 				
-				if (orderEquipment.Nomenclature.Id == VodovozLeafletId) {
+				if (orderEquipment.Nomenclature.Id == VodovozLeafletId || _excludedLeaflets.Contains(orderEquipment.Nomenclature.Id)) 
+				{
 					continue;
 				}
 				
