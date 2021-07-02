@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Services;
 
@@ -29,7 +29,9 @@ namespace Vodovoz.Parameters
 
         public int VodovozLeafletId => parametersProvider.GetIntValue("vodovoz_leaflet_id");
 
-        #region Получение номенклатур воды
+		public int LuckyPizzaLeafletId => parametersProvider.GetIntValue("lucky_pizza_leaflet_id");
+
+		#region Получение номенклатур воды
 
 		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
 		{
