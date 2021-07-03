@@ -42,6 +42,7 @@ namespace Vodovoz.ViewModels
 				{
 					var model = new UserWarehousePermissionModel(UoW, Entity);
 					_warehousePermissionsViewModel = new WarehousePermissionsViewModel(UoW, model);
+					_warehousePermissionsViewModel.CanEdit = true;
 				}
 
 				return _warehousePermissionsViewModel;
@@ -60,7 +61,7 @@ namespace Vodovoz.ViewModels
 						{
 							return;
 						}
-
+						_warehousePermissionsViewModel.SaveWarehousePermissions();
 						PresetPermissionsViewModel.SaveCommand.Execute();
 						UoW.Save();
 						Close(false, CloseSource.Save);

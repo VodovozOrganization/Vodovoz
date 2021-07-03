@@ -67,16 +67,17 @@ namespace Vodovoz.Views.Users
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
 
-			ybuttonDocumentPrivileges.Sensitive = false;
-			ybuttonWarehousePrivileges.Sensitive = false;
-			ybuttonSpecialDocumentPrivileges.Sensitive = false;
+			
 
 			vboxPresetPrivileges.Add(presetPermissionWidget);
 			presetPermissionWidget.Show();
 
 			var warehousePermissionsView = _widgetResolver.Resolve(ViewModel.WarehousePermissionsViewModel);
 			vboxWarehousePrivileges.Add(warehousePermissionsView);
-			warehousePermissionsView.Show();
+			warehousePermissionsView.ShowAll();
+
+			ybuttonDocumentPrivileges.Sensitive = false;
+			ybuttonSpecialDocumentPrivileges.Sensitive = false;
 
 			if(ViewModel.Entity.Id != 0)
 			{
