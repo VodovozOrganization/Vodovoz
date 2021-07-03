@@ -61,7 +61,6 @@ namespace Vodovoz
 			yenumcomboType.Binding.AddBinding(Entity, e => e.SubdivisionType, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboType.Sensitive = false;
 
-			buttonSave.Clicked += SaveBtnClicked;
 			subdivisionsVM = new SubdivisionsVM(UoW, Entity);
 			repTreeChildSubdivisions.RepresentationModel = subdivisionsVM;
 			repTreeChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionVMNode>(subdivisionsVM.Result, x => x.Parent, x => x.Children);
@@ -101,13 +100,10 @@ namespace Vodovoz
 					s.GeographicGroup = Entity.GeographicGroup;
 				}
 		}
+		public override bool HasChanges => true;
 
 		#region implemented abstract members of OrmGtkDialogBase
 
-		public void SaveBtnClicked(object sender, EventArgs e)
-		{
-			Save();
-		}
 		public override bool Save()
 		{
 			var valid = new QSValidator<Subdivision>(UoWGeneric.Root);
