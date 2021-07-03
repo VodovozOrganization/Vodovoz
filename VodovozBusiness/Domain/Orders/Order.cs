@@ -57,18 +57,33 @@ namespace Vodovoz.Domain.Orders
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
 
-		#region Листовка Водовоза
+		private int _vodovozLeafletId;
+		private int _luckyPizzaLeafletId;
 
-		private int vodovozLeafletId;
+		#region Листовки
+
 		private int VodovozLeafletId
 		{
 			get
 			{
-				if (vodovozLeafletId == default(int)) {
-					vodovozLeafletId = new NomenclatureParametersProvider().VodovozLeafletId;
+				if (_vodovozLeafletId == default(int)) {
+					_vodovozLeafletId = new NomenclatureParametersProvider().VodovozLeafletId;
 				}
 
-				return vodovozLeafletId;
+				return _vodovozLeafletId;
+			}
+		}
+
+		private int LuckyPizzaLeafletId
+		{
+			get
+			{
+				if(_luckyPizzaLeafletId == default(int))
+				{
+					_luckyPizzaLeafletId = new NomenclatureParametersProvider().LuckyPizzaLeafletId;
+				}
+
+				return _luckyPizzaLeafletId;
 			}
 		}
 
@@ -2109,9 +2124,10 @@ namespace Vodovoz.Domain.Orders
 			if(Id > 0)
 				throw new InvalidOperationException("Копирование списка оборудования из другого заказа недопустимо, если этот заказ не новый.");
 
-			foreach(OrderEquipment orderEquipment in order.OrderEquipments) {
-				
-				if (orderEquipment.Nomenclature.Id == VodovozLeafletId) {
+			foreach(OrderEquipment orderEquipment in order.OrderEquipments)
+			{
+				if (orderEquipment.Nomenclature.Id == VodovozLeafletId || orderEquipment.Nomenclature.Id == LuckyPizzaLeafletId) 
+				{
 					continue;
 				}
 				
