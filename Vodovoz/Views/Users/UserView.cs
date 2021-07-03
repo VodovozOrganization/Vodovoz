@@ -90,6 +90,8 @@ namespace Vodovoz.Views.Users
 				specialDocumentPermissionWidget.Show();
 				ybuttonSpecialDocumentPrivileges.Sensitive = true;
 			}
+
+
 		}
 	}
 }
