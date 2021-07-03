@@ -1551,8 +1551,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.HistoryView.cs" />
     <Compile Include="JournalViewers\UserJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.UserJournalFilterView.cs" />
-    <Compile Include="Views\UserView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.UserView.cs" />
     <Compile Include="Dialogs\Cash\CashRequestView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashRequestView.cs" />
     <Compile Include="Filters\GtkViews\CashRequestJournalFilterView.cs" />
@@ -1633,6 +1631,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarEventView.cs" />
     <Compile Include="Filters\GtkViews\CarEventFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventFilterView.cs" />
+    <Compile Include="Views\Users\UserView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Users.UserView.cs" />
     <Compile Include="Views\Orders\DiscountReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.DiscountReasonView.cs" />
   </ItemGroup>

@@ -32,6 +32,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -870,8 +871,24 @@ namespace Vodovoz.JournalColumnsConfigs
 			);
 
 
+			//SelectUserJournalViewModel
+			TreeViewColumnsConfigFactory.Register<SelectUserJournalViewModel>(
+				() => FluentColumnsConfig<UserJournalNode>.Create()
+					.AddColumn("Код")
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Имя")
+						.AddTextRenderer(node => node.Name)
+					.AddColumn("Логин")
+						.AddTextRenderer(node => node.Login)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) =>
+							c.ForegroundGdk = n.Deactivated ? colorDarkGrey : colorBlack)
+					.Finish()
+			);
+
 			//UserJournalViewModel
-			TreeViewColumnsConfigFactory.Register<UserJournalViewModel>(
+			TreeViewColumnsConfigFactory.Register<UsersJournalViewModel>(
 				() => FluentColumnsConfig<UserJournalNode>.Create()
 					.AddColumn("Код")
 						.AddTextRenderer(node => node.Id.ToString())
