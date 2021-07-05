@@ -77,5 +77,10 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.Take(1).List().FirstOrDefault();
 			return anotherRouteListItem != null;
 		}
+
+        public RouteListItem GetRouteListItemById(IUnitOfWork uow, int routeListAddressId)
+        {
+			return uow.GetById<RouteListItem>(routeListAddressId);
+        }
 	}
 }
