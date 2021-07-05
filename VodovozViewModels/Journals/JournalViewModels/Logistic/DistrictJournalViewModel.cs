@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
@@ -16,19 +17,15 @@ namespace Vodovoz.Journals.JournalViewModels
 {
     public sealed class DistrictJournalViewModel: FilterableSingleEntityJournalViewModelBase<District, DistrictViewModel, DistrictJournalNode, DistrictJournalFilterViewModel>
     {
-        public DistrictJournalViewModel(DistrictJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(
-            filterViewModel, unitOfWorkFactory, commonServices)
+        public DistrictJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
+	        DistrictJournalFilterViewModel filterViewModel,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        ICommonServices commonServices) 
+	        : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал районов";
-            
-            EnableAddButton = false;
-            EnableDeleteButton = false;
-            EnableEditButton = false;
         }
-
-        public bool EnableAddButton { get; set; }
-        public bool EnableDeleteButton { get; set; }
-        public bool EnableEditButton { get; set; }
 
         protected override Func<IUnitOfWork, IQueryOver<District>> ItemsSourceQueryFunction => uow => {
             DistrictJournalNode districtJournalNode = null;
@@ -65,23 +62,23 @@ namespace Vodovoz.Journals.JournalViewModels
 
             return result;
         };
-        protected override Func<DistrictViewModel> CreateDialogFunction => () => 
-            new DistrictViewModel(EntityUoWBuilder.ForCreate(), QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices);
 
-        protected override Func<DistrictJournalNode, DistrictViewModel> OpenDialogFunction => node => 
-            new DistrictViewModel(EntityUoWBuilder.ForOpen(node.Id), QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices);
-
-        protected override void CreateNodeActions()
+        protected override void InitializeJournalActionsViewModel()
         {
-            NodeActionsList.Clear();
-            CreateDefaultSelectAction();
-            
-            if(EnableAddButton)
-                CreateDefaultAddActions();
-            if(EnableEditButton)
-                CreateDefaultEditAction();
-            if(EnableDeleteButton)
-                CreateDefaultDeleteAction();
+	        EntitiesJournalActionsViewModel.Initialize(SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+		        true, false, false, false);
         }
+
+        protected override Func<DistrictViewModel> CreateDialogFunction => () => 
+            new DistrictViewModel(
+	            EntityUoWBuilder.ForCreate(),
+	            UnitOfWorkFactory,
+	            CommonServices);
+
+        protected override Func<JournalEntityNodeBase, DistrictViewModel> OpenDialogFunction => node => 
+            new DistrictViewModel(
+	            EntityUoWBuilder.ForOpen(node.Id),
+	            UnitOfWorkFactory,
+	            CommonServices);
     }
 }

@@ -9,6 +9,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.FilterViewModels.Organization;
@@ -19,18 +20,17 @@ namespace Vodovoz.Journals.JournalViewModels.Organization
 {
 	public class SubdivisionsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Subdivision, SubdivisionViewModel, SubdivisionJournalNode, SubdivisionFilterViewModel>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 
 		public SubdivisionsJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			SubdivisionFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			TabName = "Выбор подразделения";
 		}
 
@@ -76,8 +76,20 @@ namespace Vodovoz.Journals.JournalViewModels.Organization
 
 		};
 
-		protected override Func<SubdivisionViewModel> CreateDialogFunction => () => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, employeeSelectorFactory, new PermissionRepository());
+		protected override Func<SubdivisionViewModel> CreateDialogFunction => 
+			() => new SubdivisionViewModel(
+				EntityUoWBuilder.ForCreate(),
+				UnitOfWorkFactory,
+				CommonServices,
+				employeeSelectorFactory,
+				new PermissionRepository());
 
-		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction => (node) => new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, employeeSelectorFactory, new PermissionRepository());
+		protected override Func<JournalEntityNodeBase, SubdivisionViewModel> OpenDialogFunction => 
+			node => new SubdivisionViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				UnitOfWorkFactory,
+				CommonServices,
+				employeeSelectorFactory,
+				new PermissionRepository());
 	}
 }

@@ -9,6 +9,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.FilterViewModels.Goods;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.ViewModels;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.JournalSelector;
@@ -127,11 +128,14 @@ namespace Vodovoz.Filters.ViewModels
 				if(deliveryPointVM == null) {
 					deliveryPointVM =
 						new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
-							() => new DeliveryPointJournalViewModel(DeliveryPointJournalFilterViewModel,
-							UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
-							{
-								SelectionMode = JournalSelectionMode.Single
-							});
+							() => new DeliveryPointJournalViewModel(
+								new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+								DeliveryPointJournalFilterViewModel,
+								UnitOfWorkFactory.GetDefaultFactory, 
+								ServicesConfig.CommonServices)
+								{
+									SelectionMode = JournalSelectionMode.Single
+								});
 				}
 				return deliveryPointVM;
 			}
@@ -155,7 +159,8 @@ namespace Vodovoz.Filters.ViewModels
 				if(nomenclatureVM == null) {
 					nomenclatureVM =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartyVM,
+							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(),
+							new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService), CounterpartyVM,
 							new NomenclatureRepository(new NomenclatureParametersProvider()), UserSingletonRepository.GetInstance());
 				}
 				return nomenclatureVM;

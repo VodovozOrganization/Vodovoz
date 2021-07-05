@@ -10,6 +10,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services.Interactive;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
@@ -29,13 +30,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             CashRequestJournalFilterViewModel
         >
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
         private readonly IFileChooserProvider fileChooserProvider;
         private readonly IEmployeeRepository employeeRepository;
         private readonly CashRepository cashRepository;
         private readonly ConsoleInteractiveService consoleInteractiveService;
         
         public CashRequestJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
             CashRequestJournalFilterViewModel filterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
@@ -43,9 +44,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             IEmployeeRepository employeeRepository,
             CashRepository cashRepository,
             ConsoleInteractiveService consoleInteractiveService
-        ) : base(filterViewModel, unitOfWorkFactory, commonServices)
+        ) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
-            this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
             this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
             this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
             this.cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
@@ -61,6 +61,38 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             );
         }
 
+        private void ConfigureDeleteAction()
+        {
+	        EntitiesJournalActionsViewModel.CanDeleteFunc =
+		        () =>
+		        {
+			        var selectedNodes = SelectedItems.OfType<CashRequestJournalNode>().ToList();
+
+			        if(selectedNodes.Count != 1) {
+				        return false;
+			        }
+
+			        CashRequestJournalNode selectedNode = selectedNodes.First();
+
+			        if (selectedNode.State != CashRequest.States.New){
+				        return false;
+			        }
+
+			        if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+				        return false;
+			        }
+                    
+			        var config = EntityConfigs[selectedNode.EntityType];
+			        return config.PermissionResult.CanDelete;
+		        };
+        }
+
+        protected override void InitializeJournalActionsViewModel()
+        {
+	        base.InitializeJournalActionsViewModel();
+	        ConfigureDeleteAction();
+        }
+        
         protected override Func<IUnitOfWork, IQueryOver<CashRequest>> ItemsSourceQueryFunction => (uow) =>
         {
             CashRequest cashRequestAlias = null;
@@ -90,21 +122,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 }
             }
 
-            var userId = commonServices.UserService.CurrentUserId;
+            var userId = CommonServices.UserService.CurrentUserId;
             var currentEmployee = employeeRepository.GetEmployeesForUser(uow, userId).First();
             var currentEmployeeId = currentEmployee.Id;
 
-            if (!commonServices.UserService.GetCurrentUser(UoW).IsAdmin)
+            if (!CommonServices.UserService.GetCurrentUser(UoW).IsAdmin)
             {
-                if (!commonServices.PermissionService
+                if (!CommonServices.PermissionService
                         .ValidateUserPresetPermission("role_financier_cash_request", userId)
-                    && !commonServices.PermissionService
+                    && !CommonServices.PermissionService
                         .ValidateUserPresetPermission("role_coordinator_cash_request", userId)
-                    && !commonServices.PermissionService
+                    && !CommonServices.PermissionService
                         .ValidateUserPresetPermission("role_сashier", userId)
                     )
                 {
-                    if (commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests"))
+                    if (CommonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests"))
                     {
                         result.Where(() => authorAlias.Subdivision.Id == currentEmployee.Subdivision.Id);
                     }
@@ -160,74 +192,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             return result;
         };
 
-        protected override void CreateNodeActions()
-        {
-            NodeActionsList.Clear();
-            CreateDefaultSelectAction();
-            CreateDefaultAddActions();
-            CreateDefaultEditAction();
-            CreateDeleteAction();
-        }
-        
-        void CreateDeleteAction()
-        {
-            var deleteAction = new JournalAction("Удалить",
-                (selected) => {
-                    
-                    var selectedNodes = selected.OfType<CashRequestJournalNode>();
-
-                    if(selectedNodes == null || selectedNodes.Count() != 1) {
-                        return false;
-                    }
-
-                    CashRequestJournalNode selectedNode = selectedNodes.First();
-
-                    if (selectedNode.State != CashRequest.States.New){
-                        return false;
-                    }
-                    
-                    
-                    if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
-                        return false;
-                    }
-                    
-                    var config = EntityConfigs[selectedNode.EntityType];
-                    return config.PermissionResult.CanDelete;
-                },
-                (selected) => true,
-                (selected) => {
-                    var selectedNodes = selected.OfType<CashRequestJournalNode>();
-                    if(selectedNodes == null || selectedNodes.Count() != 1) {
-                        return;
-                    }
-                    CashRequestJournalNode selectedNode = selectedNodes.First();
-                    if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
-                        return;
-                    }
-                    var config = EntityConfigs[selectedNode.EntityType];
-                    if(config.PermissionResult.CanDelete) {
-                        DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
-                    }
-                },
-               "Delete"
-            );
-            NodeActionsList.Add(deleteAction);
-        }
-
         protected override Func<CashRequestViewModel> CreateDialogFunction => () => new CashRequestViewModel( 
             EntityUoWBuilder.ForCreate(),
-            unitOfWorkFactory,
-            commonServices,
+            UnitOfWorkFactory,
+            CommonServices,
             fileChooserProvider,
             employeeRepository,
             cashRepository,
             consoleInteractiveService
         );
-        protected override Func<CashRequestJournalNode, CashRequestViewModel> OpenDialogFunction =>
+        protected override Func<JournalEntityNodeBase, CashRequestViewModel> OpenDialogFunction =>
             node => new CashRequestViewModel(
                 EntityUoWBuilder.ForOpen(node.Id),
-                unitOfWorkFactory,
-                commonServices,
+                UnitOfWorkFactory,
+                CommonServices,
                 fileChooserProvider,
                 employeeRepository,
                 cashRepository,

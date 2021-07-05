@@ -7,6 +7,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
@@ -18,25 +19,25 @@ namespace Vodovoz.JournalViewModels
 {
 	public class PromotionalSetsJournalViewModel : SingleEntityJournalViewModelBase<PromotionalSet, PromotionalSetViewModel, PromotionalSetJournalNode>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly IEmployeeService employeeService;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		
-		public PromotionalSetsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
-		                                       ICommonServices commonServices,
-		                                       IEmployeeService employeeService,
-		                                       IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-		                                       IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-		                                       INomenclatureRepository nomenclatureRepository,
-		                                       IUserRepository userRepository,
-		                                       bool hideJournalForOpenDialog = false, 
-		                                       bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+		public PromotionalSetsJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IEmployeeService employeeService,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository,
+			bool hideJournalForOpenDialog = false, 
+			bool hideJournalForCreateDialog = false)
+			: base(journalActionsViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -75,8 +76,8 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<PromotionalSetViewModel> CreateDialogFunction => () => new PromotionalSetViewModel(
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
-			commonServices,
+			UnitOfWorkFactory,
+			CommonServices,
 			employeeService,
 			counterpartySelectorFactory,
 			nomenclatureSelectorFactory,
@@ -84,10 +85,10 @@ namespace Vodovoz.JournalViewModels
 			userRepository
 		);
 
-		protected override Func<PromotionalSetJournalNode, PromotionalSetViewModel> OpenDialogFunction => node => new PromotionalSetViewModel(
+		protected override Func<JournalEntityNodeBase, PromotionalSetViewModel> OpenDialogFunction => node => new PromotionalSetViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
-			commonServices,
+			UnitOfWorkFactory,
+			CommonServices,
 			employeeService,
 			counterpartySelectorFactory,
 			nomenclatureSelectorFactory,
@@ -95,12 +96,11 @@ namespace Vodovoz.JournalViewModels
 			userRepository
 	   	);
 
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
+			EntitiesJournalActionsViewModel.Initialize(
+				SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+				true, true, true, false);
 		}
 	}
 }

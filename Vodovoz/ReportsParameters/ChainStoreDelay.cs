@@ -9,6 +9,7 @@ using QSReport;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ReportsParameters
@@ -32,7 +33,14 @@ namespace Vodovoz.ReportsParameters
 							Status = EmployeeStatus.IsWorking,
 							Category = EmployeeCategory.office
 						};
-						return new EmployeesJournalViewModel(employeeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+						var journalActions = 
+							new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+						
+						return new EmployeesJournalViewModel(
+							journalActions,
+							employeeFilter,
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices);
 					})
 			);
 			
@@ -44,7 +52,14 @@ namespace Vodovoz.ReportsParameters
 							Status = EmployeeStatus.IsWorking,
 							Category = EmployeeCategory.office
 						};
-						return new EmployeesJournalViewModel(employeeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+						var journalActions = 
+							new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+						
+						return new EmployeesJournalViewModel(
+							journalActions,
+							employeeFilter,
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices);
 					})
 			);
 			ydatepicker.Date = DateTime.Now;

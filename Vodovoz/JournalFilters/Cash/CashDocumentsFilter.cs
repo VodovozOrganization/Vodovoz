@@ -14,6 +14,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using VodovozInfrastructure.Interfaces;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.ViewModels.Cash;
@@ -44,6 +45,7 @@ namespace Vodovoz
 			};
 			
 			var commonServices = ServicesConfig.CommonServices;
+			var journalActions = new EntitiesJournalActionsViewModel(commonServices.InteractiveService);
 			IFileChooserProvider chooserIncomeProvider = new FileChooser("Приход " + DateTime.Now + ".csv");
 			IFileChooserProvider chooserExpenseProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
 			
@@ -53,6 +55,7 @@ namespace Vodovoz
 					{
 						var incomeCategoryJournalViewModel =
 							new SimpleEntityJournalViewModel<IncomeCategory, IncomeCategoryViewModel>(
+								journalActions,
 								x => x.Name,
 								() => new IncomeCategoryViewModel(
 									EntityUoWBuilder.ForCreate(),
@@ -84,6 +87,7 @@ namespace Vodovoz
 					{
 						var expenseCategoryJournalViewModel =
 							new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
+								journalActions,
 								x => x.Name,
 								() => new ExpenseCategoryViewModel(
 									EntityUoWBuilder.ForCreate(),

@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -28,21 +27,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ExpenseCategoryJournalFilterViewModel
         >
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
         private readonly IFileChooserProvider fileChooserProvider;
 
         public ExpenseCategoryJournalViewModel(
+	        ExpenseCategoryJournalActionsViewModel journalActionsViewModel,
             ExpenseCategoryJournalFilterViewModel filterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             IFileChooserProvider fileChooserProvider
-            ) : base(filterViewModel, unitOfWorkFactory, commonServices)
+            ) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
-            this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
             this.fileChooserProvider =
                 fileChooserProvider ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-            
-            
+            journalActionsViewModel?.SetExportDataAction(ExportData);
+
             TabName = "Категории расхода";
             
             UpdateOnChanges(
@@ -56,8 +54,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
             var query = uow.Session.QueryOver<ExpenseCategory>();
 
-           
-            
             ExpenseCategory level1Alias = null;
             ExpenseCategory level2Alias = null;
             ExpenseCategory level3Alias = null;
@@ -123,50 +119,56 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
         protected override Func<ExpenseCategoryViewModel> CreateDialogFunction => () => new ExpenseCategoryViewModel(
             EntityUoWBuilder.ForCreate(),
-            unitOfWorkFactory,
-            commonServices,
+            UnitOfWorkFactory,
+            CommonServices,
             fileChooserProvider,
             FilterViewModel
+        );
 
+        protected override Func<JournalEntityNodeBase, ExpenseCategoryViewModel> OpenDialogFunction => node => new ExpenseCategoryViewModel(
+	        EntityUoWBuilder.ForOpen(node.Id),
+	        UnitOfWorkFactory,
+	        CommonServices,
+	        fileChooserProvider,
+	        FilterViewModel
         );
-        protected override Func<ExpenseCategoryJournalNode, ExpenseCategoryViewModel> OpenDialogFunction => node => new ExpenseCategoryViewModel(
-            EntityUoWBuilder.ForOpen(node.Id),
-            unitOfWorkFactory,
-            commonServices,
-            fileChooserProvider,
-            FilterViewModel
-        );
-        
+
+        private void ExportData()
+        {
+	        StringBuilder CSVbuilder = new StringBuilder();
+	        
+	        foreach (ExpenseCategoryJournalNode expenseCategoryJournalNode in Items)
+	        {
+		        CSVbuilder.Append(expenseCategoryJournalNode.Level1 + ", ");
+		        CSVbuilder.Append(expenseCategoryJournalNode.Level2 + ", ");
+		        CSVbuilder.Append(expenseCategoryJournalNode.Level3 + ", ");
+		        CSVbuilder.Append(expenseCategoryJournalNode.Level4 + ", ");
+		        CSVbuilder.Append(expenseCategoryJournalNode.Level5 + ", ");
+		        CSVbuilder.Append(expenseCategoryJournalNode.Subdivision + "\n");
+	        }
+
+	        var fileChooserPath = fileChooserProvider.GetExportFilePath();
+	        var res = CSVbuilder.ToString();
+
+	        if(fileChooserPath == "")
+	        {
+		        return;
+	        }
+	        
+	        Stream fileStream = new FileStream(fileChooserPath, FileMode.Create);
+	        
+	        using (StreamWriter writer = new StreamWriter(fileStream, Encoding.GetEncoding("Windows-1251")))  
+	        {  
+		        writer.Write("\"sep=,\"\n");
+		        writer.Write(res);
+	        }
+	        
+	        fileChooserProvider.CloseWindow();
+        }
+
         protected override void CreatePopupActions()
         {
             base.CreatePopupActions();
-            NodeActionsList.Add(new JournalAction("Экспорт", x => true, x => true, selectedItems => {
-                var selectedNodes = selectedItems.Cast<ExpenseCategoryJournalNode>();
-                StringBuilder CSVbuilder = new StringBuilder();
-                foreach (ExpenseCategoryJournalNode expenseCategoryJournalNode in Items)
-                {
-                    CSVbuilder.Append(expenseCategoryJournalNode.Level1 + ", ");
-                    CSVbuilder.Append(expenseCategoryJournalNode.Level2 + ", ");
-                    CSVbuilder.Append(expenseCategoryJournalNode.Level3 + ", ");
-                    CSVbuilder.Append(expenseCategoryJournalNode.Level4 + ", ");
-                    CSVbuilder.Append(expenseCategoryJournalNode.Level5 + ", ");
-                    CSVbuilder.Append(expenseCategoryJournalNode.Subdivision + "\n");
-                }
-
-                var fileChooserPath = fileChooserProvider.GetExportFilePath();
-                var res = CSVbuilder.ToString();
-
-                if (fileChooserPath == "") return;
-                Stream fileStream = new FileStream(fileChooserPath, FileMode.Create);
-                using (StreamWriter writer = new StreamWriter(fileStream, System.Text.Encoding.GetEncoding("Windows-1251")))  
-                {  
-                    writer.Write("\"sep=,\"\n");
-                    writer.Write(res.ToString());
-                }                 
-                fileChooserProvider.CloseWindow();
-
-            }));
-
             PopupActionsList.Add(new JournalAction("Архивировать", x => true, x => true, selectedItems => {
                 var selectedNodes = selectedItems.Cast<ExpenseCategoryJournalNode>();
                 var selectedNode = selectedNodes.FirstOrDefault();

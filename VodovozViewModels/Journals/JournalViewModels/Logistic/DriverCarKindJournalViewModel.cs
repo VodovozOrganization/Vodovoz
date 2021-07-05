@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -16,10 +17,11 @@ namespace Vodovoz.Journals.JournalViewModels
         <DriverCarKind, DriverCarKindViewModel, DriverCarKindNode, DriverCarKindJournalFilterViewModel>
     {
         public DriverCarKindJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
             DriverCarKindJournalFilterViewModel filterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+            : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Виды наёмных автомобилей";
             UpdateOnChanges(typeof(DriverCarKind));
@@ -55,13 +57,13 @@ namespace Vodovoz.Journals.JournalViewModels
         protected override Func<DriverCarKindViewModel> CreateDialogFunction => () => new DriverCarKindViewModel(
             EntityUoWBuilder.ForCreate(),
             UnitOfWorkFactory,
-            commonServices
+            CommonServices
         );
 
-        protected override Func<DriverCarKindNode, DriverCarKindViewModel> OpenDialogFunction => node => new DriverCarKindViewModel(
+        protected override Func<JournalEntityNodeBase, DriverCarKindViewModel> OpenDialogFunction => node => new DriverCarKindViewModel(
             EntityUoWBuilder.ForOpen(node.Id),
             UnitOfWorkFactory,
-            commonServices
+            CommonServices
         );
     }
 }

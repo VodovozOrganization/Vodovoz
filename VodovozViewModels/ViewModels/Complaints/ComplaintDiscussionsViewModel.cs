@@ -113,7 +113,9 @@ namespace Vodovoz.ViewModels.Complaints
 				() => {
 					var filter = new SubdivisionFilterViewModel();
 					filter.ExcludedSubdivisions = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray();
+					var journalActions = new EntitiesJournalActionsViewModel(CommonServices.InteractiveService);
 					var subdivisionSelector = new SubdivisionsJournalViewModel(
+						journalActions,
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,

@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels;
@@ -14,12 +15,12 @@ namespace Vodovoz.Journals.JournalViewModels
 	public class PhoneTypeJournalViewModel : SingleEntityJournalViewModelBase<PhoneType, PhoneTypeViewModel, PhoneTypeJournalNode>
 	{
 		public PhoneTypeJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			IPhoneRepository phoneRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices)
-			: base(unitOfWorkFactory, commonServices)
+			: base(journalActionsViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 
 			TabName = "Типы телефонов";
@@ -27,7 +28,6 @@ namespace Vodovoz.Journals.JournalViewModels
 			UpdateOnChanges(typeof(PhoneType));
 		}
 
-		IUnitOfWorkFactory unitOfWorkFactory;
 		IPhoneRepository phoneRepository;
 
 		protected override Func<IUnitOfWork, IQueryOver<PhoneType>> ItemsSourceQueryFunction => (uow) => {
@@ -55,25 +55,23 @@ namespace Vodovoz.Journals.JournalViewModels
 		protected override Func<PhoneTypeViewModel> CreateDialogFunction => () => new PhoneTypeViewModel(
 			phoneRepository,
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
-			commonServices
+			UnitOfWorkFactory,
+			CommonServices
 		);
 
-		protected override Func<PhoneTypeJournalNode, PhoneTypeViewModel> OpenDialogFunction => node => new PhoneTypeViewModel(
+		protected override Func<JournalEntityNodeBase, PhoneTypeViewModel> OpenDialogFunction => node => new PhoneTypeViewModel(
 			phoneRepository,
 			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
-			commonServices
+			UnitOfWorkFactory,
+			CommonServices
 		);
 
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
+			EntitiesJournalActionsViewModel.Initialize(
+				SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+				true, true, true, false);
 		}
-
 	}
 
 	public class PhoneTypeJournalNode : JournalEntityNodeBase<PhoneType>

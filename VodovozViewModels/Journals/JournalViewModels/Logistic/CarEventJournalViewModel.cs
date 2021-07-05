@@ -8,6 +8,7 @@ using QS.Services;
 using System;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
@@ -25,9 +26,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly ICarJournalFactory _carJournalFactory;
 		private readonly ICarEventTypeJournalFactory _carEventTypeJournalFactory;
 
-		public CarEventJournalViewModel(CarEventFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, ICarJournalFactory carJournalFactory, ICarEventTypeJournalFactory carEventTypeJournalFactory)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+		public CarEventJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			CarEventFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ICarJournalFactory carJournalFactory,
+			ICarEventTypeJournalFactory carEventTypeJournalFactory)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал событий ТС";
 
@@ -149,9 +155,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		};
 
 		protected override Func<CarEventViewModel> CreateDialogFunction =>
-			() => new CarEventViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _carJournalFactory, _carEventTypeJournalFactory);
+			() => new CarEventViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices, _carJournalFactory, _carEventTypeJournalFactory);
 
-		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
-			node => new CarEventViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _carJournalFactory, _carEventTypeJournalFactory);
+		protected override Func<JournalEntityNodeBase, CarEventViewModel> OpenDialogFunction =>
+			node => new CarEventViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices, _carJournalFactory, _carEventTypeJournalFactory);
 	}
 }

@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.TempAdapters
@@ -16,15 +14,19 @@ namespace Vodovoz.TempAdapters
 	{
 		public IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses)
 		{
-			OrderForMovDocJournalFilterViewModel orderFilterVM = new OrderForMovDocJournalFilterViewModel();
-			orderFilterVM.IsOnlineStoreOrders = IsOnlineStoreOrders;
-			orderFilterVM.OrderStatuses = orderStatuses;
+			OrderForMovDocJournalFilterViewModel orderFilterVM = new OrderForMovDocJournalFilterViewModel
+			{
+				IsOnlineStoreOrders = IsOnlineStoreOrders, OrderStatuses = orderStatuses
+			};
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 			OrderForMovDocJournalViewModel vm = new OrderForMovDocJournalViewModel(
+				journalActions,
 				orderFilterVM,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
-			) {
+			) 
+			{
 				SelectionMode = JournalSelectionMode.Multiple
 			};
 

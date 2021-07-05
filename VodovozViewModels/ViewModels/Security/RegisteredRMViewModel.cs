@@ -3,7 +3,6 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using System.Linq;
@@ -16,7 +15,11 @@ namespace Vodovoz.ViewModels.ViewModels.Security
 {
     public class RegisteredRMViewModel : EntityTabViewModelBase<RegisteredRM>
     {
-        public RegisteredRMViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigation = null)
+        public RegisteredRMViewModel(
+	        IEntityUoWBuilder uowBuilder,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        ICommonServices commonServices,
+	        INavigationManager navigation = null)
             : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
         }
@@ -25,10 +28,12 @@ namespace Vodovoz.ViewModels.ViewModels.Security
         public DelegateCommand AddUserCommand => addUserCommand ?? (addUserCommand = new DelegateCommand(
             () => {
                 var userFilterViewModel = new UserJournalFilterViewModel();
+                var journalActions = new EntitiesJournalActionsViewModel(CommonServices.InteractiveService);
                 var userJournalViewModel = new UserJournalViewModel(
-                        userFilterViewModel,
-                        UnitOfWorkFactory,
-                        ServicesConfig.CommonServices)
+	                journalActions,
+                    userFilterViewModel,
+                    UnitOfWorkFactory,
+                    CommonServices)
                 {
                     SelectionMode = JournalSelectionMode.Single,
                 };
@@ -50,12 +55,12 @@ namespace Vodovoz.ViewModels.ViewModels.Security
 
         private DelegateCommand<User> removeUserCommand;
         public DelegateCommand<User> RemoveUserCommand => removeUserCommand ?? (removeUserCommand = new DelegateCommand<User>(
-            (user) => {
+            user => {
                 if (user != null)
                 {
                     Entity.ObservableUsers.Remove(user);
                 }
-            }, (user) => true
+            }, user => true
         ));
     }
 }

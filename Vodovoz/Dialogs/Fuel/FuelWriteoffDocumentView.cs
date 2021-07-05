@@ -4,6 +4,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.ViewModels;
 using QS.Views.GtkUI;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
@@ -43,6 +44,7 @@ namespace Vodovoz.Dialogs.Fuel
 			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
 				() => {
 					var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
+						new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
 						x => x.Name,
 						() => new ExpenseCategoryViewModel(
 							EntityUoWBuilder.ForCreate(),
@@ -59,7 +61,7 @@ namespace Vodovoz.Dialogs.Fuel
 							ViewModel.expenseCategoryJournalFilterViewModel
 						),
 						UnitOfWorkFactory.GetDefaultFactory,
-						QS.Project.Services.ServicesConfig.CommonServices
+						ServicesConfig.CommonServices
 					) {
 						SelectionMode = JournalSelectionMode.Single
 					};

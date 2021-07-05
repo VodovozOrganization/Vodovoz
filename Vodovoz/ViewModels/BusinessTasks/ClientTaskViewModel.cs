@@ -16,10 +16,10 @@ using QS.DomainModel.UoW;
 using QS.Services;
 using Vodovoz.Dialogs.Phones;
 using Vodovoz.Parameters;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Repositories.Client;
@@ -146,8 +146,15 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			EmployeeSelectorFactory = 
 				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee), 
 					() => { 
-						var filter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.office };
-						return new EmployeesJournalViewModel(filter, UnitOfWorkFactory, CommonServices);
+						var filter = new EmployeeFilterViewModel
+						{
+							Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.office
+						};
+						
+						var journalActions = 
+							new EmployeesJournalActionsViewModel(CommonServices.InteractiveService, UnitOfWorkFactory);
+						
+						return new EmployeesJournalViewModel(journalActions, filter, UnitOfWorkFactory, CommonServices);
 					});
 
 			DeliveryPointFactory = CreateDeliveryPointFactory();
@@ -156,14 +163,18 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private IEntityAutocompleteSelectorFactory CreateDeliveryPointFactory()
 		{
 			return new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
-					() => {
-						var filter = new DeliveryPointJournalFilterViewModel();
+				() => {
+					var filter = new DeliveryPointJournalFilterViewModel();
 
-						if(Entity.Counterparty != null)
-							filter.Counterparty = Entity.Counterparty;
+					if(Entity.Counterparty != null)
+					{
+						filter.Counterparty = Entity.Counterparty;
+					}
+					var journalActions = new EntitiesJournalActionsViewModel(CommonServices.InteractiveService);
 
-						return new DeliveryPointJournalViewModel(filter, UnitOfWorkFactory, CommonServices);
-					});
+					return new DeliveryPointJournalViewModel(journalActions, filter, UnitOfWorkFactory, CommonServices);
+				}
+			);
 		}
 
 		private PhonesViewModel CreatePhonesViewModel()

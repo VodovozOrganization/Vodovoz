@@ -1269,7 +1269,6 @@
     <Compile Include="Additions\Logistic\PointMarkerShape.cs" />
     <Compile Include="ViewModels\FuelDocuments\FuelDocumentViewModel.cs" />
     <Compile Include="JournalViewModels\EmployeesJournalViewModel.cs" />
-    <Compile Include="JournalNodes\EmployeeJournalNode.cs" />
     <Compile Include="JournalViewModels\IAdditionalJournalRestriction.cs" />
     <Compile Include="JournalViewModels\NomenclaturesForOrderJournalRestriction.cs" />
     <Compile Include="ViewWidgets\AdvancedWageParameterViews\BottlesCountAdvancedWageParameterWidget.cs" />
@@ -1633,6 +1632,22 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarEventView.cs" />
     <Compile Include="Filters\GtkViews\CarEventFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventFilterView.cs" />
+    <Compile Include="ViewWidgets\JournalActions\DebtorsJournalActionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.JournalActions.DebtorsJournalActionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.JournalActions.EmployeesJournalActionsView.cs" />
+    <Compile Include="ViewWidgets\JournalActions\PaymentsJournalActionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.JournalActions.PaymentsJournalActionsView.cs" />
+    <Compile Include="ViewWidgets\JournalActions\DistrictsSetJournalActionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.JournalActions.DistrictsSetJournalActionsView.cs" />
+    <Compile Include="ViewWidgets\JournalActions\FinancialDistrictsSetJournalActionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.JournalActions.FinancialDistrictsSetJournalActionsView.cs" />
+    <Compile Include="ViewWidgets\JournalActions\ExpenseCategoryJournalActionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.JournalActions.ExpenseCategoryJournalActionsView.cs" />
+    <Compile Include="ViewWidgets\JournalActions\IncomeCategoryJournalActionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.JournalActions.IncomeCategoryJournalActionsView.cs" />
+    <Compile Include="ViewWidgets\JournalActions\EmployeesJournalActionsView.cs" />
+    <Compile Include="ViewWidgets\JournalActions\ComplaintsJournalActionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.JournalActions.ComplaintsJournalActionsView.cs" />
     <Compile Include="Views\Orders\DiscountReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.DiscountReasonView.cs" />
   </ItemGroup>
@@ -1935,6 +1950,7 @@
     <Folder Include="Reports\Retail\" />
     <Folder Include="Views\Reports\" />
     <Folder Include="ReportsParameters\Employees\" />
+    <Folder Include="ViewWidgets\JournalActions\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

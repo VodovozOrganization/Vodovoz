@@ -35,6 +35,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Journal;
+using QS.ViewModels;
 using Vodovoz.Parameters;
 
 namespace Vodovoz
@@ -356,11 +357,20 @@ namespace Vodovoz
 			var deliveryPointFilter = new DeliveryPointJournalFilterViewModel {
 				Counterparty = client
 			};
-			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
-							() => new DeliveryPointJournalViewModel(deliveryPointFilter,
-							UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
-								SelectionMode = JournalSelectionMode.Single
-							}));
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(
+				new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(
+					typeof(DeliveryPoint),
+					() => new DeliveryPointJournalViewModel(
+						journalActions,
+						deliveryPointFilter,
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices) 
+					{
+						SelectionMode = JournalSelectionMode.Single
+					}
+				)
+			);
 			entityVMEntryDeliveryPoint.Binding.AddBinding(orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 		}
 

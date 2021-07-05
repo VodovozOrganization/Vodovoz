@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Core;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -20,10 +21,11 @@ namespace Vodovoz.JournalViewModels
         : SingleEntityJournalViewModelBase<Warehouse, WarehouseViewModel, WarehouseJournalNode>
     {
         public WarehouseJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             ISubdivisionRepository subdivisionRepository)
-                : base(unitOfWorkFactory, commonServices)
+                : base(journalActionsViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал складов";
             this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -37,12 +39,10 @@ namespace Vodovoz.JournalViewModels
         private readonly ISubdivisionRepository subdivisionRepository;
         private WarehousePermissions[] warehousePermissions;
 
-        protected override void CreateNodeActions()
+        protected override void InitializeJournalActionsViewModel()
         {
-            NodeActionsList.Clear();
-            CreateDefaultSelectAction();
-            CreateDefaultEditAction();
-            CreateDefaultAddActions();
+	        EntitiesJournalActionsViewModel.Initialize(SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+		        true, true, true, false);
         }
 
         protected override Func<IUnitOfWork, IQueryOver<Warehouse>> ItemsSourceQueryFunction => (uow) => {
@@ -72,15 +72,15 @@ namespace Vodovoz.JournalViewModels
 
         protected override Func<WarehouseViewModel> CreateDialogFunction => () => new WarehouseViewModel(
             EntityUoWBuilder.ForCreate(),
-            QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-            commonServices,
+            UnitOfWorkFactory,
+            CommonServices,
             subdivisionRepository
         );
 
-        protected override Func<WarehouseJournalNode, WarehouseViewModel> OpenDialogFunction => node => new WarehouseViewModel(
+        protected override Func<JournalEntityNodeBase, WarehouseViewModel> OpenDialogFunction => node => new WarehouseViewModel(
             EntityUoWBuilder.ForOpen(node.Id),
-            QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-            commonServices,
+            UnitOfWorkFactory,
+            CommonServices,
             subdivisionRepository
         );
     }

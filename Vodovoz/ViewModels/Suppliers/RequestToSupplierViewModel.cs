@@ -237,10 +237,14 @@ namespace Vodovoz.ViewModels.Suppliers
 													  .Where(i => !i.Transfered)
 													  .Select(i => i.Nomenclature.Id)
 													  .Distinct();
-					var filter = new NomenclatureFilterViewModel() {
+					var filter = new NomenclatureFilterViewModel
+					{
 						HidenByDefault = true
 					};
+					var journalActions = new EntitiesJournalActionsViewModel(CommonServices.InteractiveService);
+					
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+						journalActions,
 						filter,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,

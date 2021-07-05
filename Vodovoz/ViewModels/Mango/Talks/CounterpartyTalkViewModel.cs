@@ -8,6 +8,7 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
+using QS.ViewModels;
 using QSReport;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
@@ -22,6 +23,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
@@ -152,17 +154,29 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
-					ServicesConfig.CommonServices);
+				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+					() =>
+					{
+						var employeeFilter = new EmployeeFilterViewModel();
+						
+						var employeesJournalActions = 
+							new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+						
+						return new EmployeesJournalViewModel(
+							employeesJournalActions,
+							employeeFilter,
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices);
+					});
 
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
 					CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-					.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-					nomenclatureRepository, UserSingletonRepository.GetInstance());
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+					new NomenclatureFilterViewModel(), new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+					counterpartySelectorFactory, nomenclatureRepository, UserSingletonRepository.GetInstance());
 
 			ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 

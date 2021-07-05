@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.JournalViewModels;
@@ -14,7 +15,10 @@ namespace Vodovoz.TempAdapters
 
         public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
         {
+	        var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+	        
             var warehouseJournal = new WarehouseJournalViewModel(
+	            journalActions,
                 UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices,
                 new SubdivisionRepository()

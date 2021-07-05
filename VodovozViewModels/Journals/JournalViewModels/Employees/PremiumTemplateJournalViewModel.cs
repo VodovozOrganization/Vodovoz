@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -15,8 +16,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 	public class PremiumTemplateJournalViewModel : SingleEntityJournalViewModelBase<PremiumTemplate, PremiumTemplateViewModel,
 		PremiumTemplateJournalNode>
 	{
-		public PremiumTemplateJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(unitOfWorkFactory, commonServices)
+		public PremiumTemplateJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+			: base(journalActionsViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал шаблонов премий";
 
@@ -47,8 +51,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		};
 
 		protected override Func<PremiumTemplateViewModel> CreateDialogFunction => () =>
-			new PremiumTemplateViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
-		protected override Func<PremiumTemplateJournalNode, PremiumTemplateViewModel> OpenDialogFunction =>
-			(node) => new PremiumTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
+			new PremiumTemplateViewModel(
+				EntityUoWBuilder.ForCreate(),
+				UnitOfWorkFactory,
+				CommonServices);
+		
+		protected override Func<JournalEntityNodeBase, PremiumTemplateViewModel> OpenDialogFunction =>
+			node => new PremiumTemplateViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				UnitOfWorkFactory,
+				CommonServices);
 	}
 }

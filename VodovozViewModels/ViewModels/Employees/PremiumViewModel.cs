@@ -23,8 +23,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DelegateCommand _divideAtAllCommand;
 		private DelegateCommand _getReasonFromTemplateCommand;
 
-		public PremiumViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory uowFactory, ICommonServices commonServices,
-			IEmployeeService employeeService, IEmployeeJournalFactory employeeJournalFactory, IPremiumTemplateJournalFactory premiumTemplateJournalFactory)
+		public PremiumViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory uowFactory,
+			ICommonServices commonServices,
+			IEmployeeService employeeService,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IPremiumTemplateJournalFactory premiumTemplateJournalFactory)
 			: base(uowBuilder, uowFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -33,7 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			CanEdit = (Entity.Id == 0 && PermissionResult.CanCreate) || (Entity.Id != 0 && PermissionResult.CanUpdate);
 			Entity.ObservableItems.ListContentChanged += OnObservableItemsListContentChanged;
-			EmployeeAutocompleteSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			EmployeeJournalFactory = employeeJournalFactory;
 			PremiumTemplateAutocompleteSelectorFactory = premiumTemplateJournalFactory.CreatePremiumTemplateAutocompleteSelectorFactory();
 		}
 
@@ -44,7 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		}
 
 		public bool CanEdit { get; private set; }
-		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; }
+		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public IEntityAutocompleteSelectorFactory PremiumTemplateAutocompleteSelectorFactory { get; }
 
 		#region Commands
@@ -52,9 +57,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public DelegateCommand AddEmployeeCommand => _addEmployeeCommand ?? (_addEmployeeCommand =
 			new DelegateCommand(() =>
 				{
-					var selectorEmployee = EmployeeAutocompleteSelectorFactory.CreateAutocompleteSelector();
+					var selectorEmployee = 
+						EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory().CreateAutocompleteSelector();
 					selectorEmployee.OnEntitySelectedResult += OnEmployeeAdd;
-					this.TabParent.AddSlaveTab(this, selectorEmployee);
+					TabParent.AddSlaveTab(this, selectorEmployee);
 				},
 				() => CanEdit
 				));

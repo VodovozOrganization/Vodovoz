@@ -42,11 +42,13 @@ using Vodovoz.Domain.Retail;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
+using QS.ViewModels;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -93,8 +95,20 @@ namespace Vodovoz
 		        if (employeeSelectorFactory is null)
 		        {
 			        employeeSelectorFactory =
-				        new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
-					        ServicesConfig.CommonServices);
+				        new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+					        () =>
+					        {
+						        var employeeFilter = new EmployeeFilterViewModel();
+						
+						        var employeesJournalActions = 
+							        new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+						
+						        return new EmployeesJournalViewModel(
+							        employeesJournalActions,
+							        employeeFilter,
+							        UnitOfWorkFactory.GetDefaultFactory,
+							        ServicesConfig.CommonServices);
+					        });
 		        }
 		        return employeeSelectorFactory;
 	        }
@@ -219,7 +233,8 @@ namespace Vodovoz
                 if(nomenclatureSelectorFactory == null) {
                     nomenclatureSelectorFactory =
                         new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-                            ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
+                            ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), 
+                            new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),CounterpartySelectorFactory,
                             NomenclatureRepository, userRepository);
                 }
                 return nomenclatureSelectorFactory;
@@ -701,8 +716,14 @@ namespace Vodovoz
 
         void AllOrders_Activated(object sender, EventArgs e)
         {
-	        var orderJournalFilter = new OrderJournalFilterViewModel { RestrictCounterparty = Entity };
+	        var orderJournalFilter = new OrderJournalFilterViewModel
+	        {
+		        RestrictCounterparty = Entity
+	        };
+	        var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+	        
 	        var orderJournalViewModel = new OrderJournalViewModel(
+		        journalActions,
 		        orderJournalFilter,
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
@@ -718,10 +739,13 @@ namespace Vodovoz
         
         private void ComplaintViewOnActivated(object sender, EventArgs e)
         {
-	        var filter = new ComplaintFilterViewModel(ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
+	        var filter = new ComplaintFilterViewModel(ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory,
+		        CounterpartySelectorFactory);
 	        filter.SetAndRefilterAtOnce(x=> x.Counterparty = Entity);
+	        var journalActions = new ComplaintsJournalActionsViewModel(ServicesConfig.InteractiveService, new GtkReportViewOpener());
 	        
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
+		        journalActions,
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
 		        UndeliveriesViewOpener,
@@ -734,7 +758,6 @@ namespace Vodovoz
 		        filter,
 		        FilePickerService,
 		        SubdivisionRepository,
-		        new GtkReportViewOpener(),
 		        new GtkTabsOpener(),
 		        NomenclatureRepository,
 		        userRepository

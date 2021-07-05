@@ -1,11 +1,13 @@
 ﻿using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.ViewModels;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
@@ -40,13 +42,26 @@ namespace Vodovoz.Dialogs.Cash
 			#region SubdivisionEntityviewmodelentry
 			//Это создается тут, а не в ExpenseCategoryViewModel потому что EmployeesJournalViewModel и EmployeeFilterViewModel нет в ViewModels
 			var employeeSelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory
-					<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
+				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+					() =>
+					{
+						var employeeFilter = new EmployeeFilterViewModel();
+
+						var employeesJournalActions =
+							new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+
+						return new EmployeesJournalViewModel(
+							employeesJournalActions,
+							employeeFilter,
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices);
+					});
 
 			var filter = new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default };
-
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () => new SubdivisionsJournalViewModel(
+					journalActions,
 					filter,
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,

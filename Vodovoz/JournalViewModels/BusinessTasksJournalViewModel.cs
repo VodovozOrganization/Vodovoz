@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -10,6 +9,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.BusinessTasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -32,7 +32,6 @@ namespace Vodovoz.JournalViewModels
 	public class BusinessTasksJournalViewModel : FilterableMultipleEntityJournalViewModelBase<BusinessTaskJournalNode, CallTaskFilterViewModel>
 	{
 		readonly BusinessTasksJournalFooterViewModel footerViewModel;
-		readonly ICommonServices commonServices;
 
 		readonly IEmployeeRepository employeeRepository;
 		readonly IBottlesRepository bottleRepository;
@@ -45,6 +44,7 @@ namespace Vodovoz.JournalViewModels
 		public BusinessTasksJournalActionsViewModel actionsViewModel { get; set; }
 
 		public BusinessTasksJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			CallTaskFilterViewModel filterViewModel,
 			BusinessTasksJournalFooterViewModel footerViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -56,7 +56,7 @@ namespace Vodovoz.JournalViewModels
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал задач для обзвона";
 			this.employeeRepository = employeeRepository;
@@ -67,7 +67,6 @@ namespace Vodovoz.JournalViewModels
 			this.counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
 			this.counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			this.footerViewModel = footerViewModel;
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			actionsViewModel = new BusinessTasksJournalActionsViewModel();
 
@@ -310,10 +309,10 @@ namespace Vodovoz.JournalViewModels
 						organizationProvider,
 						counterpartyContractRepository,
 						counterpartyContractFactory,
-						commonServices
+						CommonServices
 					),
 					//функция диалога открытия документа
-					(BusinessTaskJournalNode node) => new ClientTaskViewModel(
+					node => new ClientTaskViewModel(
 						employeeRepository,
 						bottleRepository,
 						callTaskRepository,
@@ -323,12 +322,10 @@ namespace Vodovoz.JournalViewModels
 						organizationProvider,
 						counterpartyContractRepository,
 						counterpartyContractFactory,
-						commonServices
+						CommonServices
 					),
 					//функция идентификации документа 
-					(BusinessTaskJournalNode node) => {
-						return node.EntityType == typeof(ClientTask);
-					},
+					node => node.EntityType == typeof(ClientTask),
 					"Клиентская задача",
 					new JournalParametersForDocument { HideJournalForCreateDialog = true, HideJournalForOpenDialog = true })
 				.AddDocumentConfiguration(
@@ -337,19 +334,17 @@ namespace Vodovoz.JournalViewModels
 						employeeRepository,
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices
+						CommonServices
 					),
 					//функция диалога открытия документа
-					(BusinessTaskJournalNode node) => new PaymentTaskViewModel(
+					node => new PaymentTaskViewModel(
 						employeeRepository,
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices
+						CommonServices
 					),
 					//функция идентификации документа 
-					(BusinessTaskJournalNode node) => {
-						return node.EntityType == typeof(PaymentTask);
-					},
+					node => node.EntityType == typeof(PaymentTask),
 					"Задача по платежам",
 					new JournalParametersForDocument { HideJournalForCreateDialog = true, HideJournalForOpenDialog = true });
 
@@ -401,7 +396,7 @@ namespace Vodovoz.JournalViewModels
 			NodeActionsList.Clear();
 			//CreateDefaultAddActions2();
 			//CreateDefaultEditAction2();
-			CreateDefaultDeleteAction();
+			//CreateDefaultDeleteAction();
 		}
 
 		public void ChangeAssignedEmployee(object[] selectedObjs, Employee employee)
@@ -465,7 +460,7 @@ namespace Vodovoz.JournalViewModels
 
 
 		/*
-		public void ChangeEnitity(BusinessTaskJournalNode[] tasks)
+		public void ChangeEntity(BusinessTaskJournalNode[] tasks)
 		{
 			tasks.ToList().ForEach((taskNode) => {
 				Type task = taskNode.EntityType;

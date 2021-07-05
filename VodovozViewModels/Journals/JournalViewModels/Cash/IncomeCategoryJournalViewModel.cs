@@ -10,6 +10,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -26,18 +27,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             IncomeCategoryJournalFilterViewModel
         >
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
         private readonly IFileChooserProvider fileChooserProvider;
+        
         public IncomeCategoryJournalViewModel(
+	        IncomeCategoryJournalActionsViewModel journalActionsViewModel,
             IncomeCategoryJournalFilterViewModel journalFilterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             IFileChooserProvider fileChooserProvider
-        ) : base(journalFilterViewModel, unitOfWorkFactory, commonServices)
+        ) : base(journalActionsViewModel, journalFilterViewModel, unitOfWorkFactory, commonServices)
         {
-            this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
             this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
-
+            journalActionsViewModel?.SetExportDataAction(ExportData);
+            
             TabName = "Категории прихода";
             
             UpdateOnChanges(
@@ -122,53 +124,57 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         
         protected override Func<IncomeCategoryViewModel> CreateDialogFunction => () => new IncomeCategoryViewModel(
             EntityUoWBuilder.ForCreate(),
-            unitOfWorkFactory,
-            commonServices,
+            UnitOfWorkFactory,
+            CommonServices,
             fileChooserProvider,
             FilterViewModel
         );
-        protected override Func<IncomeCategoryJournalNode, IncomeCategoryViewModel> OpenDialogFunction =>
+        
+        protected override Func<JournalEntityNodeBase, IncomeCategoryViewModel> OpenDialogFunction =>
             node => new IncomeCategoryViewModel(
-                EntityUoWBuilder.ForOpen(node.Id), 
-                unitOfWorkFactory, 
-                commonServices, 
+                EntityUoWBuilder.ForOpen(node.Id),
+                UnitOfWorkFactory, 
+                CommonServices, 
                 fileChooserProvider, 
                 FilterViewModel
         );
 
+        private void ExportData()
+        {
+	        StringBuilder CSVbuilder = new StringBuilder();
+	        
+	        foreach (IncomeCategoryJournalNode incomeCategoryJournalNode in Items)
+	        {
+		        CSVbuilder.Append(incomeCategoryJournalNode.Level1 + ", ");
+		        CSVbuilder.Append(incomeCategoryJournalNode.Level2 + ", ");
+		        CSVbuilder.Append(incomeCategoryJournalNode.Level3 + ", ");
+		        CSVbuilder.Append(incomeCategoryJournalNode.Level4 + ", ");
+		        CSVbuilder.Append(incomeCategoryJournalNode.Level5 + ", ");
+		        CSVbuilder.Append(incomeCategoryJournalNode.Subdivision + "\n");
+	        }
+
+	        var fileChooserPath = fileChooserProvider.GetExportFilePath();
+	        var res = CSVbuilder.ToString();
+	        
+	        if(fileChooserPath == "")
+	        {
+		        return;
+	        }
+	        
+	        Stream fileStream = new FileStream(fileChooserPath, FileMode.Create);
+	        
+	        using (StreamWriter writer = new StreamWriter(fileStream, Encoding.GetEncoding("Windows-1251")))  
+	        {  
+		        writer.Write("\"sep=,\"\n");
+		        writer.Write(res);
+	        }               
+	        fileChooserProvider.CloseWindow(); 
+        }
+
         protected override void CreatePopupActions()
         {
             base.CreatePopupActions();
-            NodeActionsList.Add(new JournalAction(
-                "Экспорт", 
-                x => true, 
-                x => true, 
-                selectedItems => {
-                    var selectedNodes = selectedItems.Cast<IncomeCategoryJournalNode>();
-                    StringBuilder CSVbuilder = new StringBuilder();
-                    foreach (IncomeCategoryJournalNode incomeCategoryJournalNode in Items)
-                    {
-                        CSVbuilder.Append(incomeCategoryJournalNode.Level1 + ", ");
-                        CSVbuilder.Append(incomeCategoryJournalNode.Level2 + ", ");
-                        CSVbuilder.Append(incomeCategoryJournalNode.Level3 + ", ");
-                        CSVbuilder.Append(incomeCategoryJournalNode.Level4 + ", ");
-                        CSVbuilder.Append(incomeCategoryJournalNode.Level5 + ", ");
-                        CSVbuilder.Append(incomeCategoryJournalNode.Subdivision + "\n");
-                    }
-
-                    var fileChooserPath = fileChooserProvider.GetExportFilePath();
-                    var res = CSVbuilder.ToString();
-                    if (fileChooserPath == "") return;
-                    Stream fileStream = new FileStream(fileChooserPath, FileMode.Create);
-                    using (StreamWriter writer = new StreamWriter(fileStream, System.Text.Encoding.GetEncoding("Windows-1251")))  
-                    {  
-                        writer.Write("\"sep=,\"\n");
-                        writer.Write(res.ToString());
-                    }               
-                    fileChooserProvider.CloseWindow(); 
-                })
-            );
-
+            
             PopupActionsList.Add(new JournalAction(
                 "Архивировать",
                 x => true, 

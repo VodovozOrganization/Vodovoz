@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gtk;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.Journal.GtkUI;
-using QS.Project.Filter;
 using QS.RepresentationModel;
 using QS.Tdi;
-using QS.Tdi.Gtk;
 using QS.ViewModels;
 using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.Core
 {
-	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IWidgetResolver
+	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IWidgetResolver, IJournalActionsResolver
 	{
 		private static ViewModelWidgetResolver instance;
 		public static ViewModelWidgetResolver Instance {
@@ -121,6 +120,23 @@ namespace Vodovoz.Core
 
 			var widgetCtorInfo = viewModelWidgets[filterType].GetConstructor(new[] { filterType });
 			Widget widget = (Widget)widgetCtorInfo.Invoke(new object[] { viewModel });
+			return widget;
+		}
+		
+		public Widget Resolve(JournalActionsViewModel journalActionsViewModel)
+		{
+			if(journalActionsViewModel == null)
+			{
+				return null;
+			}
+
+			Type journalActionsType = journalActionsViewModel.GetType();
+			if(!viewModelWidgets.ContainsKey(journalActionsType)) {
+				throw new WidgetResolveException($"Не настроено сопоставление для {journalActionsType.Name}");
+			}
+
+			var widgetCtorInfo = viewModelWidgets[journalActionsType].GetConstructor(new[] { journalActionsType });
+			Widget widget = (Widget)widgetCtorInfo.Invoke(new object[] { journalActionsViewModel });
 			return widget;
 		}
 

@@ -1,7 +1,5 @@
 using System;
-using System.Linq;
 using NHibernate;
-using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
@@ -9,12 +7,12 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Goods;
@@ -22,7 +20,7 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
-    public class WaterJournalViewModel: SingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, WaterJournalNode>
+	public class WaterJournalViewModel: SingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, WaterJournalNode>
 	{
 		private readonly IEmployeeService employeeService;
 		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
@@ -31,6 +29,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUserRepository userRepository;
 
 		public WaterJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
@@ -38,7 +37,7 @@ namespace Vodovoz.JournalViewModels
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
-		) : base(unitOfWorkFactory, commonServices) 
+		) : base(journalActionsViewModel, unitOfWorkFactory, commonServices) 
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
@@ -56,13 +55,11 @@ namespace Vodovoz.JournalViewModels
 				typeof(OrderItem)
 			);
 		}
-		
-		protected override void CreateNodeActions()
+
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultEditAction();
-			CreateDefaultDeleteAction();
+			EntitiesJournalActionsViewModel.Initialize(
+				SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected, true, false);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) => {
@@ -98,9 +95,8 @@ namespace Vodovoz.JournalViewModels
 		protected override Func<NomenclatureViewModel> CreateDialogFunction => () => 
 			throw new NotSupportedException("Не поддерживается создание номенклатуры воды из текущего журнала");
 
-		protected override Func<WaterJournalNode, NomenclatureViewModel> OpenDialogFunction =>
-			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
-				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
-				userRepository);
+		protected override Func<JournalEntityNodeBase, NomenclatureViewModel> OpenDialogFunction =>
+			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices,
+				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository, userRepository);
 	}
 }

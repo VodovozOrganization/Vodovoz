@@ -13,7 +13,9 @@ using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
 using QS.Project.Journal.EntitySelector;
+using QS.ViewModels;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
 
@@ -65,16 +67,29 @@ namespace Vodovoz.JournalFilters
 			
 			//Подразделение
 			var employeeSelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory
-					<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
+				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+					() =>
+					{
+						var employeeFilter = new EmployeeFilterViewModel();
+						
+						var employeesJournalActions = 
+							new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+						
+						return new EmployeesJournalViewModel(
+							employeesJournalActions,
+							employeeFilter,
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices);
+					});
 
 			var filter = new SubdivisionFilterViewModel() {SubdivisionType = SubdivisionType.Default};
-
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 			
 			AuthorSubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 					typeof(Subdivision),
 					() => new SubdivisionsJournalViewModel(
+						journalActions,
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,

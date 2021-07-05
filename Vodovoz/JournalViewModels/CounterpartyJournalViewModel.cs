@@ -12,8 +12,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
-using QS.Tdi;
-using QS.Navigation;
+using QS.ViewModels;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -21,7 +20,11 @@ namespace Vodovoz.JournalViewModels
 	{
 		private bool userHaveAccessToRetail = false;
 
-		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public CounterpartyJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			CounterpartyJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал контрагентов";
 
@@ -36,88 +39,34 @@ namespace Vodovoz.JournalViewModels
 			);
 		}
 
-        protected override void CreateNodeActions()
+        protected override void InitializeJournalActionsViewModel()
         {
-			NodeActionsList.Clear();
-			CreateCustomSelectAction();
-			CreateDefaultAddActions();
-			CreateCustomEditAction();
-			CreateDefaultDeleteAction();
-		}
+	        base.InitializeJournalActionsViewModel();
+	        ConfigureSelectAction();
+	        ConfigureEditAction();
+        }
+        
+        private void ConfigureSelectAction()
+        {
+	        EntitiesJournalActionsViewModel.CanSelectFunc =
+		        () => SelectedItems.Any() && SelectedItems.All(x => (x as CounterpartyJournalNode).Sensitive);
+	        
+	        EntitiesJournalActionsViewModel.SelectAction =
+		        () =>
+		        {
+			        if(SelectedItems.All(x => (x as CounterpartyJournalNode).Sensitive))
+			        {
+				        OnItemsSelected();
+			        }
+		        };
+        }
+        
+        private void ConfigureEditAction()
+        {
+	        EntitiesJournalActionsViewModel.IsEditVisible = SelectedItems.All(x => (x as CounterpartyJournalNode).Sensitive);
+        }
 
-		private void CreateCustomEditAction()
-		{
-			var editAction = new JournalAction("Изменить",
-				(selected) => {
-					var selectedNodes = selected.OfType<CounterpartyJournalNode>();
-					if (selectedNodes == null || selectedNodes.Count() != 1)
-					{
-						return false;
-					}
-					CounterpartyJournalNode selectedNode = selectedNodes.First();
-					if (!EntityConfigs.ContainsKey(selectedNode.EntityType))
-					{
-						return false;
-					}
-					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanUpdate;
-				},
-				(selected) => selected.All(x => (x as CounterpartyJournalNode).Sensitive),
-				(selected) => {
-					if (!selected.All(x => (x as CounterpartyJournalNode).Sensitive))
-					{
-						return;
-					}
-					var selectedNodes = selected.OfType<CounterpartyJournalNode>();
-					if (selectedNodes == null || selectedNodes.Count() != 1)
-					{
-						return;
-					}
-					CounterpartyJournalNode selectedNode = selectedNodes.First();
-					if (!EntityConfigs.ContainsKey(selectedNode.EntityType))
-					{
-						return;
-					}
-					var config = EntityConfigs[selectedNode.EntityType];
-					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-					if (foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
-					{
-						HideJournal(TabParent);
-					}
-				}
-			);
-			if (SelectionMode == JournalSelectionMode.None)
-			{
-				RowActivatedAction = editAction;
-			}
-			NodeActionsList.Add(editAction);
-		}
-
-		protected virtual void CreateCustomSelectAction()
-		{
-			var selectAction = new JournalAction("Выбрать",
-				(selected) => selected.Any() && selected.All(x => (x as CounterpartyJournalNode).Sensitive),
-				(selected) => SelectionMode != JournalSelectionMode.None,
-				(selected) => { if (selected.All(x => (x as CounterpartyJournalNode).Sensitive)) { OnItemsSelected(selected); } }
-			);
-			if (SelectionMode == JournalSelectionMode.Single || SelectionMode == JournalSelectionMode.Multiple)
-			{
-				RowActivatedAction = selectAction;
-			}
-			NodeActionsList.Add(selectAction);
-		}
-
-		private void HideJournal(ITdiTabParent parenTab)
-		{
-			if (TabParent is ITdiSliderTab slider)
-			{
-				slider.IsHideJournal = true;
-			}
-		}
-
-		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {
+        protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {
 			CounterpartyJournalNode resultAlias = null;
 			Counterparty counterpartyAlias = null;
 			Counterparty counterpartyAliasForSubquery = null;
@@ -242,6 +191,6 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<CounterpartyDlg> CreateDialogFunction => () => new CounterpartyDlg();
 
-		protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
+		protected override Func<JournalEntityNodeBase, CounterpartyDlg> OpenDialogFunction => node => new CounterpartyDlg(node.Id);
 	}
 }

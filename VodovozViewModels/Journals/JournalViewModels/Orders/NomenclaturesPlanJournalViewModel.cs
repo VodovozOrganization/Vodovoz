@@ -7,6 +7,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -16,21 +17,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
     public class NomenclaturesPlanJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclaturePlanViewModel, NomenclaturePlanJournalNode, NomenclaturePlanFilterViewModel>
     {
-        public NomenclaturesPlanJournalViewModel(NomenclaturePlanFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public NomenclaturesPlanJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
+	        NomenclaturePlanFilterViewModel filterViewModel,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        ICommonServices commonServices)
+            : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал План продаж для КЦ";
             UpdateOnChanges(typeof(Nomenclature));
         }
 
-        protected override void CreateNodeActions()
+        protected override void InitializeJournalActionsViewModel()
         {
-            NodeActionsList.Clear();
+	        bool canEdit = 
+		        ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_save_callcenter_motivation_report_filter");
 
-            bool canEdit = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_save_callcenter_motivation_report_filter");
-            
-            if (canEdit)
-                CreateDefaultEditAction();
+	        EntitiesJournalActionsViewModel.Initialize(
+		        SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+		        true, true, canEdit);
         }
 
         protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) =>
@@ -80,10 +85,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
             return itemsQuery;
         };
 
-        protected override Func<NomenclaturePlanViewModel> CreateDialogFunction => () => throw new InvalidOperationException("Нельзя создавать номенклатуры из данного журнала");
+        protected override Func<NomenclaturePlanViewModel> CreateDialogFunction => 
+	        () => throw new InvalidOperationException("Нельзя создавать номенклатуры из данного журнала");
 
-        protected override Func<NomenclaturePlanJournalNode, NomenclaturePlanViewModel> OpenDialogFunction =>
-            node => new NomenclaturePlanViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
-
+        protected override Func<JournalEntityNodeBase, NomenclaturePlanViewModel> OpenDialogFunction =>
+            node => new NomenclaturePlanViewModel(
+	            EntityUoWBuilder.ForOpen(node.Id),
+	            UnitOfWorkFactory,
+	            CommonServices);
     }
 }

@@ -4,6 +4,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using VodovozInfrastructure.Interfaces;
@@ -20,8 +21,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			ExpenseCategoryJournalFilterViewModel journalFilterViewModel
 			) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			var journalActionsViewModel = new ExpenseCategoryJournalActionsViewModel(CommonServices.InteractiveService);
 			ExpenseCategoryAutocompleteSelectorFactory = 
-				new ExpenseCategoryAutoCompleteSelectorFactory(commonServices, journalFilterViewModel, fileChooserProvider);
+				new ExpenseCategoryAutoCompleteSelectorFactory(
+					journalActionsViewModel,
+					commonServices,
+					journalFilterViewModel,
+					fileChooserProvider);
 			
 			if(uowBuilder.IsNewEntity)
 				TabName = "Создание новой категории расхода";

@@ -5,6 +5,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using QS.ViewModels;
 using Vodovoz.Domain.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -14,8 +15,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Retail
 {
     public class SalesChannelJournalViewModel : FilterableSingleEntityJournalViewModelBase<SalesChannel, SalesChannelViewModel, SalesChannelJournalNode, SalesChannelJournalFilterViewModel>
     {
-        public SalesChannelJournalViewModel(SalesChannelJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public SalesChannelJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
+			SalesChannelJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+            : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал каналов сбыта";
 
@@ -47,11 +52,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Retail
         protected override Func<SalesChannelViewModel> CreateDialogFunction => () => new SalesChannelViewModel(
                EntityUoWBuilder.ForCreate(),
                UnitOfWorkFactory,
-               commonServices);
+               CommonServices);
 
-        protected override Func<SalesChannelJournalNode, SalesChannelViewModel> OpenDialogFunction => (node) => new SalesChannelViewModel(
+        protected override Func<JournalEntityNodeBase, SalesChannelViewModel> OpenDialogFunction => node => new SalesChannelViewModel(
                EntityUoWBuilder.ForOpen(node.Id),
                UnitOfWorkFactory,
-               commonServices);
+               CommonServices);
     }
 }

@@ -17,6 +17,7 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
@@ -105,6 +106,7 @@ namespace Vodovoz
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices,
 					nomenclatureFilter,
+					new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
 					counterpartySelectorFactory,
 					nomenclatureRepository,
 					UserSingletonRepository.GetInstance()

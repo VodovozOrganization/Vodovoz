@@ -7,6 +7,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -18,16 +19,21 @@ namespace Vodovoz.JournalViewModels
 {
 	public class OrderForMovDocJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderForMovDocJournalNode, OrderForMovDocJournalFilterViewModel>
 	{
-		public OrderForMovDocJournalViewModel(OrderForMovDocJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public OrderForMovDocJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			OrderForMovDocJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал заказов";
 			filterViewModel.SetAndRefilterAtOnce(x => x.IsOnlineStoreOrders = true);
 		}
 
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
+			EntitiesJournalActionsViewModel.Initialize(
+				SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+				true, false, false, false);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
@@ -106,6 +112,6 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<OrderDlg> CreateDialogFunction => () => new OrderDlg();
 
-		protected override Func<OrderForMovDocJournalNode, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
+		protected override Func<JournalEntityNodeBase, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
 	}
 }

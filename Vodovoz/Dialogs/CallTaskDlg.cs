@@ -23,6 +23,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using QS.Project.Services;
 using QS.Project.Journal;
+using QS.ViewModels;
 
 namespace Vodovoz.Dialogs
 {
@@ -102,11 +103,19 @@ namespace Vodovoz.Dialogs
 
 			EmployeeyEntryreferencevm.Binding.AddBinding(Entity, s => s.AssignedEmployee, w => w.Subject).InitializeFromSource();
 
-			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
-							() => new DeliveryPointJournalViewModel(DeliveryPointJournalFilterViewModel,
-							UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
-								SelectionMode = JournalSelectionMode.Single
-							}));
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(
+				new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(
+					typeof(DeliveryPoint),
+					() => new DeliveryPointJournalViewModel(
+						new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+						DeliveryPointJournalFilterViewModel,
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices) 
+					{
+						SelectionMode = JournalSelectionMode.Single
+					}
+				)
+			);
 			entityVMEntryDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
 			entityVMEntryCounterparty.SetEntityAutocompleteSelectorFactory(

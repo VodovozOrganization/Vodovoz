@@ -6,6 +6,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.ViewModels.WageCalculation;
@@ -14,12 +15,11 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 {
 	public class WageDistrictsJournalViewModel : SingleEntityJournalViewModelBase<WageDistrict, WageDistrictViewModel, WageDistrictJournalNode>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-
-		public WageDistrictsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
+		public WageDistrictsJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices) : base(journalActionsViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-
 			TabName = "Журнал групп зарплатных районов";
 
 			var threadLoader = DataLoader as ThreadDataLoader<WageDistrictJournalNode>;
@@ -31,14 +31,14 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 
 		protected override Func<WageDistrictViewModel> CreateDialogFunction => () => new WageDistrictViewModel(
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
-			commonServices
+			UnitOfWorkFactory,
+			CommonServices
 		);
 
-		protected override Func<WageDistrictJournalNode, WageDistrictViewModel> OpenDialogFunction => n => new WageDistrictViewModel(
+		protected override Func<JournalEntityNodeBase, WageDistrictViewModel> OpenDialogFunction => n => new WageDistrictViewModel(
 			EntityUoWBuilder.ForOpen(n.Id),
-			unitOfWorkFactory,
-			commonServices
+			UnitOfWorkFactory,
+			CommonServices
 		);
 
 		protected override Func<IUnitOfWork, IQueryOver<WageDistrict>> ItemsSourceQueryFunction => (uow) => {

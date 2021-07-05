@@ -1,11 +1,11 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
@@ -45,10 +45,16 @@ namespace Vodovoz.Dialogs.Cash
 				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
 					() =>
 					{
-						var employeeFilter = new EmployeeFilterViewModel{
+						var employeeFilter = new EmployeeFilterViewModel
+						{
 							Status = EmployeeStatus.IsWorking,
 						};
+						
+						var journalActions = 
+							new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+						
 						return new EmployeesJournalViewModel(
+							journalActions,
 							employeeFilter,
 							UnitOfWorkFactory.GetDefaultFactory, 
 							ServicesConfig.CommonServices);

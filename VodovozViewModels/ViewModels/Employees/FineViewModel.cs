@@ -205,9 +205,11 @@ namespace Vodovoz.ViewModels.Employees
 		{
 			SelectReasonTemplateCommand = new DelegateCommand(
 				() => {
-					var fineTemplatesJournalViewModel = new SimpleEntityJournalViewModel<FineTemplate, FineTemplateViewModel>(x => x.Reason,
+					var fineTemplatesJournalViewModel = new SimpleEntityJournalViewModel<FineTemplate, FineTemplateViewModel>(
+						new EntitiesJournalActionsViewModel(CommonServices.InteractiveService),
+						x => x.Reason,
 						() => new FineTemplateViewModel(EntityUoWBuilder.ForCreate(), uowFactory, CommonServices),
-						(node) => new FineTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), uowFactory, CommonServices),
+						node => new FineTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), uowFactory, CommonServices),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices
 					);

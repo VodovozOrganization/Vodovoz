@@ -11,6 +11,7 @@ using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.ViewModels;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -30,7 +31,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes;
 
 namespace Vodovoz.JournalViewModels
 {
-    public class RouteListWorkingJournalViewModel : FilterableSingleEntityJournalViewModelBase<RouteList, TdiTabBase, RouteListJournalNode, RouteListJournalFilterViewModel>
+	public class RouteListWorkingJournalViewModel : FilterableSingleEntityJournalViewModelBase<RouteList, TdiTabBase, RouteListJournalNode, RouteListJournalFilterViewModel>
     {
         private readonly IRouteListRepository routeListRepository;
         private readonly FuelRepository fuelRepository;
@@ -39,6 +40,7 @@ namespace Vodovoz.JournalViewModels
         private readonly SubdivisionRepository subdivisionRepository;
 
         public RouteListWorkingJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
             RouteListJournalFilterViewModel filterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
@@ -47,7 +49,7 @@ namespace Vodovoz.JournalViewModels
             CallTaskRepository callTaskRepository,
             BaseParametersProvider baseParametersProvider,
             SubdivisionRepository subdivisionRepository) :
-            base(filterViewModel, unitOfWorkFactory, commonServices)
+            base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Работа кассы с МЛ";
 
@@ -243,9 +245,10 @@ namespace Vodovoz.JournalViewModels
 
         #endregion
 
-        protected override Func<RouteListJournalNode, TdiTabBase> OpenDialogFunction => (node) =>
+        protected override Func<JournalEntityNodeBase, TdiTabBase> OpenDialogFunction => node =>
         {
-            switch (node.StatusEnum)
+	        var n = node as RouteListJournalNode;
+            switch (n.StatusEnum)
             {
                 case RouteListStatus.New:
                 case RouteListStatus.Confirmed:
@@ -279,7 +282,7 @@ namespace Vodovoz.JournalViewModels
                     OrderSingletonRepository.GetInstance(),
                     EmployeeSingletonRepository.GetInstance(),
                     baseParametersProvider,
-                    commonServices.UserService,
+                    CommonServices.UserService,
                     SingletonErrorReporter.Instance);
 
             PopupActionsList.Add(new JournalAction(
@@ -341,7 +344,7 @@ namespace Vodovoz.JournalViewModels
                             DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
                             () => new FuelDocumentViewModel(
                                 RouteList,
-                                commonServices,
+                                CommonServices,
                                 subdivisionRepository,
                                 EmployeeSingletonRepository.GetInstance(),
                                 fuelRepository,
@@ -388,11 +391,11 @@ namespace Vodovoz.JournalViewModels
             ));
         }
 
-
-        protected override void CreateNodeActions()
+        protected override void InitializeJournalActionsViewModel()
         {
-            NodeActionsList.Clear();
-            CreateDefaultEditAction();
+	        EntitiesJournalActionsViewModel.Initialize(
+		        SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+		        false, false, true, false);
         }
     }
 }

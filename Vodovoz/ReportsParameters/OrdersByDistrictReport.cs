@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
+using QS.ViewModels;
 using QSReport;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
@@ -20,14 +21,17 @@ namespace Vodovoz.ReportsParameters
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-			entryDistrict.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () => {
-				var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
-				return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
-					EnableDeleteButton = false,
-					EnableAddButton = false,
-					EnableEditButton = false
-				};
-			}));
+			entryDistrict.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(
+				typeof(District), () =>
+					{
+						var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.CommonServices.InteractiveService);
+						var filter = new DistrictJournalFilterViewModel
+						{
+							Status = DistrictsSetStatus.Active
+						};
+						return new DistrictJournalViewModel(
+							journalActions, filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+					}));
 		}
 
 		#region IParametersWidget implementation

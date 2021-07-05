@@ -14,6 +14,7 @@ using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -254,9 +255,18 @@ namespace Vodovoz
 				x => x.RestrictOnlySelfDelivery = false,
 				x => x.RestrictHideService = true
 			);
-			
 
-			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter,UnitOfWorkFactory.GetDefaultFactory,ServicesConfig.CommonServices){SelectionMode = JournalSelectionMode.Multiple};
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+			
+			var orderSelectDialog = 
+				new OrderForRouteListJournalViewModel(
+					journalActions,
+					filter,
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices)
+				{
+					SelectionMode = JournalSelectionMode.Multiple
+				};
 			
 			//Selected Callback
 			orderSelectDialog.OnEntitySelectedResult += (sender, ea) =>
@@ -281,9 +291,16 @@ namespace Vodovoz
 		protected void AddOrdersFromRegion()
 		{
 			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active, OnlyWithBorders = true };
-			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
-				SelectionMode = JournalSelectionMode.Single, EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+			var journalViewModel = new DistrictJournalViewModel(
+				journalActions,
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices) 
+			{
+				SelectionMode = JournalSelectionMode.Single,
 			};
+			
 			journalViewModel.OnEntitySelectedResult += (o, args) => {
 				var selectedDistrict = args.SelectedNodes.FirstOrDefault();
 				if(selectedDistrict != null) {

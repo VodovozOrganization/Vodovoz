@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -9,6 +8,7 @@ using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -22,10 +22,11 @@ namespace Vodovoz.JournalViewModels
 	public class NomenclatureStockBalanceJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, NomenclatureStockJournalNode, NomenclatureStockFilterViewModel>
 	{
 		public NomenclatureStockBalanceJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			NomenclatureStockFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Складские остатки";
 
@@ -38,30 +39,29 @@ namespace Vodovoz.JournalViewModels
 			);
 		}
 
-		protected override List<IJournalAction> NodeActionsList { get; set; }
-
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList = new List<IJournalAction>();
-			CreateDefaultSelectAction();
+			EntitiesJournalActionsViewModel.Initialize(
+				SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+				true, false, false, false);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) => {
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits measurementUnitsAlias = null;
 			NomenclatureStockJournalNode resultAlias = null;
-			WarehouseMovementOperation incomeWarehouseOPerationAlias = null;
-			WarehouseMovementOperation writeoffWarehouseOperationAlias = null;
+			WarehouseMovementOperation incomeWarehouseOperationAlias = null;
+			WarehouseMovementOperation writeOffWarehouseOperationAlias = null;
 
 			#region Операции прихода на склад
 
-			var incomeSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => incomeWarehouseOPerationAlias)
-				.Where(() => incomeWarehouseOPerationAlias.Nomenclature.Id == nomenclatureAlias.Id);
+			var incomeSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => incomeWarehouseOperationAlias)
+				.Where(() => incomeWarehouseOperationAlias.Nomenclature.Id == nomenclatureAlias.Id);
 
 			if(FilterViewModel != null && FilterViewModel.Warehouse != null) {
 				incomeSubQuery.Where(
 					Restrictions.Eq(
-						Projections.Property(() => incomeWarehouseOPerationAlias.IncomingWarehouse),
+						Projections.Property(() => incomeWarehouseOperationAlias.IncomingWarehouse),
 						FilterViewModel.Warehouse
 					)
 				);
@@ -69,24 +69,24 @@ namespace Vodovoz.JournalViewModels
 				//если не выбрано склада считаем общий баланс по всем складам
 				incomeSubQuery.Where(
 					Restrictions.IsNotNull(
-						Projections.Property(() => incomeWarehouseOPerationAlias.IncomingWarehouse)
+						Projections.Property(() => incomeWarehouseOperationAlias.IncomingWarehouse)
 					)
 				);
 			}
 
-			incomeSubQuery.Select(Projections.Sum(Projections.Property(() => incomeWarehouseOPerationAlias.Amount)));
+			incomeSubQuery.Select(Projections.Sum(Projections.Property(() => incomeWarehouseOperationAlias.Amount)));
 
 			#endregion Операции прихода на склад
 
 			#region Операции списания со склада
 
-			var writeoffSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => writeoffWarehouseOperationAlias)
-				.Where(() => writeoffWarehouseOperationAlias.Nomenclature.Id == nomenclatureAlias.Id);
+			var writeoffSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => writeOffWarehouseOperationAlias)
+				.Where(() => writeOffWarehouseOperationAlias.Nomenclature.Id == nomenclatureAlias.Id);
 
 			if(FilterViewModel != null && FilterViewModel.Warehouse != null) {
 				writeoffSubQuery.Where(
 					Restrictions.Eq(
-						Projections.Property(() => writeoffWarehouseOperationAlias.WriteoffWarehouse),
+						Projections.Property(() => writeOffWarehouseOperationAlias.WriteoffWarehouse),
 						FilterViewModel.Warehouse
 					)
 				);
@@ -94,12 +94,12 @@ namespace Vodovoz.JournalViewModels
 				//если не выбрано склада считаем общий баланс по всем складам
 				writeoffSubQuery.Where(
 					Restrictions.IsNotNull(
-						Projections.Property(() => writeoffWarehouseOperationAlias.WriteoffWarehouse)
+						Projections.Property(() => writeOffWarehouseOperationAlias.WriteoffWarehouse)
 					)
 				);
 			}
 
-			writeoffSubQuery.Select(Projections.Sum(Projections.Property(() => writeoffWarehouseOperationAlias.Amount)));
+			writeoffSubQuery.Select(Projections.Sum(Projections.Property(() => writeOffWarehouseOperationAlias.Amount)));
 
 			#endregion Операции списания со склада
 
@@ -158,8 +158,10 @@ namespace Vodovoz.JournalViewModels
 			return queryStock;
 		};
 
-		protected override Func<NomenclatureViewModel> CreateDialogFunction => () => throw new InvalidOperationException("Нельзя создавать номенклатуры из данного журнала");
+		protected override Func<NomenclatureViewModel> CreateDialogFunction => 
+			() => throw new InvalidOperationException("Нельзя создавать номенклатуры из данного журнала");
 
-		protected override Func<NomenclatureStockJournalNode, NomenclatureViewModel> OpenDialogFunction => (node) => throw new InvalidOperationException("Нельзя изменять номенклатуры из данного журнала");
+		protected override Func<JournalEntityNodeBase, NomenclatureViewModel> OpenDialogFunction =>
+			node => throw new InvalidOperationException("Нельзя изменять номенклатуры из данного журнала");
 	}
 }

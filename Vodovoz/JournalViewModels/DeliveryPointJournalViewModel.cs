@@ -4,10 +4,10 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.Deletion;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 
@@ -15,58 +15,51 @@ namespace Vodovoz.JournalViewModels
 {
 	public class DeliveryPointJournalViewModel : FilterableSingleEntityJournalViewModelBase<DeliveryPoint, DeliveryPointDlg, DeliveryPointJournalNode, DeliveryPointJournalFilterViewModel>
 	{
-		public DeliveryPointJournalViewModel(DeliveryPointJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) 
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+		public DeliveryPointJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			DeliveryPointJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices) 
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал точек доставки";
+			
 			UpdateOnChanges(
 				typeof(Counterparty),
 				typeof(DeliveryPoint)
 			);
 		}
 
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultEditAction();
-			CreateDeleteAction();
+			EntitiesJournalActionsViewModel.Initialize(
+				SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected, true,false);
+			ConfigureDeleteAction();
 		}
 
-		protected void CreateDeleteAction()
+		private void ConfigureDeleteAction()
 		{
-			var deleteAction = new JournalAction("Удалить",
-				(selected) => {
-					var selectedNodes = selected.OfType<DeliveryPointJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
+			EntitiesJournalActionsViewModel.CanDeleteFunc =
+				() =>
+				{
+					var selectedNodes = SelectedItems.OfType<DeliveryPointJournalNode>().ToList();
+					
+					if(selectedNodes.Count != 1) 
+					{
 						return false;
 					}
+					
 					DeliveryPointJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+					
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) 
+					{
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
+					
 					return config.PermissionResult.CanDelete 
-						&& commonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
-				},
-				(selected) => true,
-				(selected) => {
-					var selectedNodes = selected.OfType<DeliveryPointJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
-						return;
-					}
-					DeliveryPointJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
-						return;
-					}
-					var config = EntityConfigs[selectedNode.EntityType];
-					if(config.PermissionResult.CanDelete) {
-						DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
-					}
-				},
-				"Delete"
-			);
-			NodeActionsList.Add(deleteAction);
+					       && CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
+				};
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<DeliveryPoint>> ItemsSourceQueryFunction => (uow) => {
@@ -119,7 +112,7 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<DeliveryPointDlg> CreateDialogFunction => () => { throw new NotImplementedException(); };
 
-		protected override Func<DeliveryPointJournalNode, DeliveryPointDlg> OpenDialogFunction => (node) => new DeliveryPointDlg(node.Id);
+		protected override Func<JournalEntityNodeBase, DeliveryPointDlg> OpenDialogFunction => node => new DeliveryPointDlg(node.Id);
 	}
 
 	public class DeliveryPointJournalNode : JournalEntityNodeBase<DeliveryPoint>

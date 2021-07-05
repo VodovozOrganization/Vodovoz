@@ -8,6 +8,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Operations;
@@ -23,6 +24,7 @@ namespace Vodovoz.JournalViewModels
 		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 
 		public ResidueJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			ResidueFilterViewModel filterViewModel,
 			IEmployeeService employeeService,
 			IRepresentationEntityPicker representationEntityPicker,
@@ -33,7 +35,7 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory
 		) 
-		: base(filterViewModel, unitOfWorkFactory, commonServices)
+		: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			TabName = "Журнал остатков";
@@ -42,8 +44,6 @@ namespace Vodovoz.JournalViewModels
 			this.moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
 			this.depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
 			this.bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			SetOrder(x => x.Date, true);
 			UpdateOnChanges(
@@ -56,8 +56,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly IMoneyRepository moneyRepository;
 		private readonly IDepositRepository depositRepository;
 		private readonly IBottlesRepository bottlesRepository;
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly ICommonServices commonServices;
 
 		protected override Func<IUnitOfWork, IQueryOver<Residue>> ItemsSourceQueryFunction => (uow) => {
 			Counterparty counterpartyAlias = null;
@@ -119,25 +117,25 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<ResidueViewModel> CreateDialogFunction => () => new ResidueViewModel(
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
+			UnitOfWorkFactory,
 			employeeService, 
 			representationEntityPicker, 
 			bottlesRepository, 
 			depositRepository, 
 			moneyRepository, 
-			commonServices,
+			CommonServices,
 			employeeSelectorFactory
 		);
 
-		protected override Func<ResidueJournalNode, ResidueViewModel> OpenDialogFunction => (node) => new ResidueViewModel(
+		protected override Func<JournalEntityNodeBase, ResidueViewModel> OpenDialogFunction => node => new ResidueViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
+			UnitOfWorkFactory,
 			employeeService, 
 			representationEntityPicker, 
 			bottlesRepository, 
 			depositRepository, 
 			moneyRepository, 
-			commonServices,
+			CommonServices,
 			employeeSelectorFactory
 		);
 	}

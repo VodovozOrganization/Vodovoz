@@ -11,6 +11,7 @@ using QS.Widgets;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ReportsParameters.Logistic
@@ -26,11 +27,19 @@ namespace Vodovoz.ReportsParameters.Logistic
 				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
 					() =>
 					{
-						var employeeFilter = new EmployeeFilterViewModel{
+						var employeeFilter = new EmployeeFilterViewModel
+						{
 							Status = EmployeeStatus.IsWorking,
 							Category = EmployeeCategory.driver
 						};
-						return new EmployeesJournalViewModel(employeeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+						var journalActions = 
+							new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+						
+						return new EmployeesJournalViewModel(
+							journalActions,
+							employeeFilter,
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices);
 					})
 				);
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(

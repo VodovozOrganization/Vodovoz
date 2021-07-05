@@ -5,11 +5,11 @@ using QSReport;
 using QS.Dialog.GtkUI;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
 using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ReportsParameters
@@ -31,10 +31,15 @@ namespace Vodovoz.ReportsParameters
 			timeMinuteEntry.Text = DateTime.Now.Minute.ToString("00.##");
 			
 			entryDriver.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee), () => {
-				var filter = new EmployeeFilterViewModel();
-				filter.Status = EmployeeStatus.IsWorking;
-				filter.Category = EmployeeCategory.driver;
-				return new EmployeesJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+				var filter = new EmployeeFilterViewModel
+				{
+					Status = EmployeeStatus.IsWorking, Category = EmployeeCategory.driver
+				};
+				
+				var journalActions = 
+					new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+				
+				return new EmployeesJournalViewModel(journalActions, filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			}));
 
 			entryCar.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory

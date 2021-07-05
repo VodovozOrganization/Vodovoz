@@ -9,6 +9,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Employees;
@@ -24,21 +25,20 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
-		private readonly ICommonServices commonServices;
 
 		public FinesJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			FineFilterViewModel filterViewModel,
 			IUndeliveriesViewOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices
-		) : base(filterViewModel, unitOfWorkFactory,  commonServices)
+		) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory,  commonServices)
 		{
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			TabName = "Журнал штрафов";
 		}
@@ -113,20 +113,20 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 
 		protected override Func<FineViewModel> CreateDialogFunction => () => new FineViewModel(
 			EntityUoWBuilder.ForCreate(),
-			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			UnitOfWorkFactory,
 			undeliveryViewOpener,
 			employeeService,
 			employeeSelectorFactory,
-			commonServices
+			CommonServices
 		);
 
-		protected override Func<FineJournalNode, FineViewModel> OpenDialogFunction => (node) => new FineViewModel(
+		protected override Func<JournalEntityNodeBase, FineViewModel> OpenDialogFunction => (node) => new FineViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			UnitOfWorkFactory,
 			undeliveryViewOpener,
 			employeeService,
 			employeeSelectorFactory,
-			commonServices
+			CommonServices
 		);
 	}
 }

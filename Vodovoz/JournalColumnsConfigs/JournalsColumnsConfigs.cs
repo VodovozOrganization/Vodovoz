@@ -23,6 +23,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using WrapMode = Pango.WrapMode;
 using Vodovoz.Journals;
+using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
@@ -31,7 +32,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
-using Vodovoz.ViewModels.ViewModels.Orders;
+using DebtorJournalNode = Vodovoz.ViewModels.Journals.Nodes.DebtorJournalNode;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -167,7 +168,7 @@ namespace Vodovoz.JournalColumnsConfigs
 
 			//DebtorsJournalViewModel
 			TreeViewColumnsConfigFactory.Register<DebtorsJournalViewModel>(
-				() => FluentColumnsConfig<Representations.DebtorJournalNode>.Create()
+				() => FluentColumnsConfig<DebtorJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(x => x.AddressId > 0 ? x.AddressId.ToString() : x.ClientId.ToString())
 					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
 					.AddColumn("Адрес").AddTextRenderer(node => String.IsNullOrWhiteSpace(node.AddressName) ? "Самовывоз" : node.AddressName)
@@ -178,7 +179,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Долг по таре (по клиенту)").AddNumericRenderer(node => node.DebtByClient)
 					.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidueExist)
 					.AddColumn("Резерв").AddNumericRenderer(node => node.Reserve)
-					.RowCells().AddSetter<CellRendererText>((CellRendererText c, Representations.DebtorJournalNode n) => c.Foreground = n.RowColor)
+					.RowCells().AddSetter<CellRendererText>((CellRendererText c, DebtorJournalNode n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
 

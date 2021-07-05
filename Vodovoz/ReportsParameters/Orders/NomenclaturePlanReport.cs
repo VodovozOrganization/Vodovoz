@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -382,7 +383,8 @@ namespace Vodovoz.ReportsParameters.Orders
 		private void ButtonNomenclaturePlan_Clicked(object sender, EventArgs e)
         {
             MainClass.MainWin.TdiMain.OpenTab(() => new NomenclaturesPlanJournalViewModel(
-                new NomenclaturePlanFilterViewModel() { HidenByDefault = true },
+	            new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+                new NomenclaturePlanFilterViewModel { HidenByDefault = true },
                 UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices)
             );

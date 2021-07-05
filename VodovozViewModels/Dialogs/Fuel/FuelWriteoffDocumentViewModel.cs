@@ -24,11 +24,9 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
 	public class FuelWriteoffDocumentViewModel : EntityTabViewModelBase<FuelWriteoffDocument>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly IEmployeeService employeeService;
 		private readonly IFuelRepository fuelRepository;
 		private readonly ISubdivisionRepository subdivisionRepository;
-		private readonly ICommonServices commonServices;
 		private readonly IEmployeeJournalFactory employeeJournalFactory;
 		private readonly IReportViewOpener reportViewOpener;
 		public readonly IFileChooserProvider fileChooserProvider;
@@ -48,11 +46,9 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		) 
 		: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			this.expenseCategoryJournalFilterViewModel = expenseCategoryJournalFilterViewModel ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFilterViewModel));
@@ -164,11 +160,13 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		{
 			AddWriteoffItemCommand = new DelegateCommand(
 				() => {
-					var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(x => x.Name,
-						() => new FuelTypeViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices),
-						(node) => new FuelTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices),
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						commonServices
+					var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(
+						new EntitiesJournalActionsViewModel(CommonServices.InteractiveService),
+						x => x.Name,
+						() => new FuelTypeViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices),
+						node => new FuelTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices),
+						UnitOfWorkFactory,
+						CommonServices
 					);
 					fuelTypeJournalViewModel.SetRestriction(() => {
 						return Restrictions.Not(Restrictions.In(Projections.Id(), Entity.ObservableFuelWriteoffDocumentItems.Select(x => x.FuelType.Id).ToArray()));

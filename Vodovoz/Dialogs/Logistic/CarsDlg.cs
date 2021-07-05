@@ -15,6 +15,8 @@ using QS.Project.Services;
 using Vodovoz.EntityRepositories.Logistic;
 using QS.Dialog.GtkUI;
 using QS.Project.Journal.EntitySelector;
+using QS.ViewModels;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
@@ -81,10 +83,15 @@ namespace Vodovoz
 				RestrictCategory = EmployeeCategory.driver,
 				Status = EmployeeStatus.IsWorking
 			};
+			
 			entryDriver.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
 					typeof(Employee),
-					() => new EmployeesJournalViewModel(employeeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices))
+					() => new EmployeesJournalViewModel(
+						new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory),
+						employeeFilter,
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices))
 				);
 			entryDriver.Changed += OnEntryDriverChanged;
 			entryDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();

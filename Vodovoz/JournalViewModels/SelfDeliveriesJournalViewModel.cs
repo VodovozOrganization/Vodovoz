@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NHibernate;
@@ -7,14 +6,13 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
-using QS.Permissions;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using QSProjectsLib;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
@@ -25,7 +23,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
@@ -42,25 +39,27 @@ namespace Vodovoz.Representations
 		private readonly bool userCanChangePayTypeToByCard;
 
         public SelfDeliveriesJournalViewModel(
-        OrderJournalFilterViewModel filterViewModel, 
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
+			OrderJournalFilterViewModel filterViewModel, 
             IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
             CallTaskWorker callTaskWorker,
             OrderPaymentSettings orderPaymentSettings) 
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
             this.callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
             this.orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
+            
             TabName = "Журнал самовывозов";
 			SetOrder(x => x.Date, true);
+			
 			UpdateOnChanges(
 				typeof(VodovozOrder),
 				typeof(OrderItem)
 			);
+			
 			userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 		}
-
-		
 
         protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
 			SelfDeliveryJournalNode resultAlias = null;
@@ -182,13 +181,11 @@ namespace Vodovoz.Representations
 			return result;
 		};
 
-		public override IEnumerable<IJournalAction> NodeActions => new List<IJournalAction>();	
-		
 		//Действие при дабл клике
 		protected override Func<OrderDlg> CreateDialogFunction => () => throw new ApplicationException();
 
 		//FIXME отделить от GTK
-		protected override Func<SelfDeliveryJournalNode, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
+		protected override Func<JournalEntityNodeBase, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
 
 		public override string FooterInfo {
 			get {
@@ -225,7 +222,7 @@ namespace Vodovoz.Representations
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						MainClass.MainWin.TdiMain.OpenTab(
+						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<VodovozOrder>(selectedNode.Id),
 							() => new OrderDlg(selectedNode.Id)
 						);
@@ -265,40 +262,40 @@ namespace Vodovoz.Representations
 								new PaymentByCardViewModel(
 									EntityUoWBuilder.ForOpen(selectedNode.Id),
                                     UnitOfWorkFactory,
-									commonServices,
+									CommonServices,
                                     callTaskWorker,
                                     orderPaymentSettings), 
 								this
 							);
 					}
-					
 				)
 			);
-			
 		}
 		
-
 		//FIXME отделить от GTK
 		void CreateSelfDeliveryCashInvoices(int orderId)
 		{
 			var order = UoW.GetById<VodovozOrder>(orderId);
 
-			if(order.SelfDeliveryIsFullyPaid(new CashRepository())) {
-				MessageDialogHelper.RunInfoDialog("Заказ уже оплачен полностью");
+			if(order.SelfDeliveryIsFullyPaid(new CashRepository())) 
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Заказ уже оплачен полностью");
 				return;
 			}
 
-			if(order.OrderSum > 0 && !order.SelfDeliveryIsFullyIncomePaid()) {
-				MainClass.MainWin.TdiMain.OpenTab(
+			if(order.OrderSum > 0 && !order.SelfDeliveryIsFullyIncomePaid()) 
+			{
+				TabParent.OpenTab(
 					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Income>(orderId),
-					() => new CashIncomeSelfDeliveryDlg(order, PermissionsSettings.PermissionService)
+					() => new CashIncomeSelfDeliveryDlg(order, CommonServices.PermissionService)
 				);
 			}
 
-			if(order.OrderSumReturn > 0 && !order.SelfDeliveryIsFullyExpenseReturned()) {
-				MainClass.MainWin.TdiMain.OpenTab(
+			if(order.OrderSumReturn > 0 && !order.SelfDeliveryIsFullyExpenseReturned()) 
+			{
+				TabParent.OpenTab(
 					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Expense>(orderId),
-					() => new CashExpenseSelfDeliveryDlg(order, PermissionsSettings.PermissionService)
+					() => new CashExpenseSelfDeliveryDlg(order, CommonServices.PermissionService)
 				);
 			}
 		}

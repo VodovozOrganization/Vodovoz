@@ -17,6 +17,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
@@ -149,10 +150,12 @@ namespace Vodovoz
 				ExcludedIds = CategoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
 				HidenByDefault = true
 			};
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 			
 			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
 				() => {
 					var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
+						journalActions,
 						x => x.Name,
 						() => new ExpenseCategoryViewModel(
 							EntityUoWBuilder.ForCreate(),

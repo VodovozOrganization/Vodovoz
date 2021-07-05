@@ -18,21 +18,32 @@ using Vodovoz.Domain.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using System.Threading.Tasks;
 using System.Threading;
+using Vodovoz.Journals.JournalActionsViewModels;
+using Vodovoz.ViewModels.Journals.Nodes;
 
 namespace Vodovoz.Representations
 {
 	public class DebtorsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Order, CallTaskDlg, DebtorJournalNode, DebtorsJournalFilterViewModel>
 	{
-
-		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEmployeeRepository employeeRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		private readonly DebtorsJournalActionsViewModel _actionsViewModel;
+		
+		public DebtorsJournalViewModel(
+			DebtorsJournalActionsViewModel journalActionsViewModel,
+			DebtorsJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IEmployeeRepository employeeRepository) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			_actionsViewModel = journalActionsViewModel;
+			
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
 			this.employeeRepository = employeeRepository;
 			DataLoader.ItemsListUpdated += UpdateFooterInfo;
+			
+			InitializeJournalActionsViewModel();
 		}
 
 		IEmployeeRepository employeeRepository { get; set; }
@@ -409,35 +420,25 @@ namespace Vodovoz.Representations
 				var selectedNode = selectedNodes.FirstOrDefault();
 				if(selectedNode != null)
 					CreateTask(selectedNodes.ToArray());
-			}
+				}
 			));
-
 		}
 
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-
-			NodeActionsList.Add(new JournalAction("Создать задачи", x => true, x => true, selectedItems => CreateTask(selectedItems.AsEnumerable().OfType<DebtorJournalNode>().ToArray())));
-
-			NodeActionsList.Add(new JournalAction("Акт по бутылям и залогам", x => true, x => true, selectedItems => {
-				var selectedNodes = selectedItems.Cast<DebtorJournalNode>();
-				var selectedNode = selectedNodes.FirstOrDefault();
-				if(selectedNode != null) {
-					OpenReport(selectedNode.ClientId, selectedNode.AddressId);
-				}
-			}));
-
-			NodeActionsList.Add(new JournalAction("Печатная форма", x => true, x => true, selectedItems => {
-				OpenPrintingForm();
-			}));
+			_actionsViewModel?.Initialize(SelectionMode, OpenReport, OpenPrintingForm, CreateTask);
 		}
 
 		protected override Func<CallTaskDlg> CreateDialogFunction => () => new CallTaskDlg();
 
-		protected override Func<DebtorJournalNode, CallTaskDlg> OpenDialogFunction => (node) =>
+		protected override Func<JournalEntityNodeBase, CallTaskDlg> OpenDialogFunction => node =>
 		{
-			return new CallTaskDlg(node.ClientId, node.AddressId);
+			if(node is DebtorJournalNode n)
+			{
+				return new CallTaskDlg(n.ClientId, n.AddressId);
+			}
+
+			return new CallTaskDlg();
 		};
 
 		public void OpenReport(int counterpartyId, int deliveryPointId = -1)
@@ -505,36 +506,9 @@ namespace Vodovoz.Representations
 				newTaskCount++;
 				UoW.Save(task);
 			}
-			commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Создано задач: {newTaskCount.ToString()}");
+			CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Создано задач: {newTaskCount.ToString()}");
 			UoW.Commit();
 			return newTaskCount;
 		}
-	}
-
-	public class DebtorJournalNode : JournalEntityNodeBase<Domain.Orders.Order>
-	{
-		public int AddressId { get; set; }
-
-		public string AddressName { get; set; }
-
-		public int ClientId { get; set; }
-
-		public string ClientName { get; set; }
-
-		public PersonType OPF { get; set; }
-
-		public int DebtByAddress { get; set; }
-
-		public int DebtByClient { get; set; }
-
-		public int Reserve { get; set; }
-
-		public string RowColor { get; set; } = "black";
-
-		public DateTime? LastOrderDate { get; set; }
-
-		public int? LastOrderBottles { get; set; }
-
-		public string IsResidueExist { get; set; } = "нет";
 	}
 }

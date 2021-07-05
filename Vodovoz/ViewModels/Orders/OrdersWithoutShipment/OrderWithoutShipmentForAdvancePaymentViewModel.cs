@@ -112,8 +112,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					x => x.SelectSaleCategory = SaleCategory.forSale,
 					x => x.RestrictArchive = false
 				);
+				var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 				NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+					journalActions,
 					nomenclatureFilter,
 					UnitOfWorkFactory,
 					ServicesConfig.CommonServices,

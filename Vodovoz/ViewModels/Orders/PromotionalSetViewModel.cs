@@ -132,8 +132,9 @@ namespace Vodovoz.ViewModels.Orders
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
 					x => x.SelectCategory = NomenclatureCategory.water,
 					x => x.SelectSaleCategory = SaleCategory.forSale);
+				var journalActons = new EntitiesJournalActionsViewModel(CommonServices.InteractiveService);
 
-				var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory, 
+				var nomenJournalViewModel = new NomenclaturesJournalViewModel(journalActons, nomenFilter, UnitOfWorkFactory, 
 					CommonServices, employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory,
 					nomenclatureRepository, userRepository) {
 					SelectionMode = JournalSelectionMode.Single

@@ -9,19 +9,20 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.JournalNodes;
 using NHibernate;
+using QS.ViewModels;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class LateArrivalReasonsJournalViewModel : SingleEntityJournalViewModelBase<LateArrivalReason, LateArrivalReasonViewModel, LateArrivalReasonsJournalNode>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-
-		public LateArrivalReasonsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+		public LateArrivalReasonsJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			bool hideJournalForOpenDialog = false,
+			bool hideJournalForCreateDialog = false)
+			: base(journalActionsViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-
 			TabName = "Причины опозданий водителей";
 
 			var threadLoader = DataLoader as ThreadDataLoader<LateArrivalReasonsJournalNode>;
@@ -29,6 +30,13 @@ namespace Vodovoz.JournalViewModels
 			threadLoader.MergeInOrderBy(x => x.Id, false);
 
 			UpdateOnChanges(typeof(LateArrivalReason));
+		}
+
+		protected override void InitializeJournalActionsViewModel()
+		{
+			EntitiesJournalActionsViewModel.Initialize(
+				SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+				true,true, true, false);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<LateArrivalReason>> ItemsSourceQueryFunction => (uow) => {
@@ -53,23 +61,15 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<LateArrivalReasonViewModel> CreateDialogFunction => () => new LateArrivalReasonViewModel(
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
-			commonServices
+			UnitOfWorkFactory,
+			CommonServices
 		);
 
-		protected override Func<LateArrivalReasonsJournalNode, LateArrivalReasonViewModel> OpenDialogFunction => node => new LateArrivalReasonViewModel(
-			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
-			commonServices
+		protected override Func<JournalEntityNodeBase, LateArrivalReasonViewModel> OpenDialogFunction => 
+			node => new LateArrivalReasonViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				UnitOfWorkFactory,
+				CommonServices
 	   	);
-
-		protected override void CreateNodeActions()
-		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
-
-		}
 	}
 }

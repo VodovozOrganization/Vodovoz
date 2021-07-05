@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
@@ -10,14 +11,18 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
 {
     public class EmployeePostsJournalFactory : IEntityAutocompleteSelectorFactory
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
-        private readonly ICommonServices commonServices;
+	    private readonly EntitiesJournalActionsViewModel _journalActionsViewModel;
+	    private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+        private readonly ICommonServices _commonServices;
 
-        public EmployeePostsJournalFactory(IUnitOfWorkFactory unitOfWorkFactory,
+        public EmployeePostsJournalFactory(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
+		    IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices)
         {
-            this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-            this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+            _journalActionsViewModel = journalActionsViewModel ?? throw new ArgumentNullException(nameof(journalActionsViewModel));
+            _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+            _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
         }
 
         public Type EntityType => typeof(EmployeePost);
@@ -25,9 +30,12 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
 
         public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
         {
-            var journal = new EmployeePostsJournalViewModel(unitOfWorkFactory, commonServices);
-            journal.SelectionMode = JournalSelectionMode.Single;
-            return journal;
+	        var journal = new EmployeePostsJournalViewModel(_journalActionsViewModel, _unitOfWorkFactory, _commonServices)
+	        {
+		        SelectionMode = JournalSelectionMode.Single
+	        };
+	        
+	        return journal;
         }
 
         public IEntitySelector CreateSelector(bool multipleSelect = false)

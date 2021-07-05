@@ -13,6 +13,7 @@ using QS.Project.DB;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Utilities;
+using QS.ViewModels;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
@@ -48,7 +49,11 @@ namespace Vodovoz.Dialogs
 
             needToHideProperties = !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_see_history_view_restricted_properties");
 
-            historyTracePropertyJournalViewModel = new HistoryTracePropertyJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices.InteractiveService);
+            historyTracePropertyJournalViewModel = 
+	            new HistoryTracePropertyJournalViewModel(
+		            new JournalActionsViewModel(),
+		            UnitOfWorkFactory.GetDefaultFactory,
+		            ServicesConfig.CommonServices.InteractiveService);
 
             UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -61,7 +66,8 @@ namespace Vodovoz.Dialogs
 
             entryObject3.SetNodeAutocompleteSelectorFactory(
                 new NodeAutocompleteSelectorFactory<HistoryTraceObjectJournalViewModel>(typeof(HistoryTraceObjectNode),
-                () => new HistoryTraceObjectJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices.InteractiveService)));
+                () => new HistoryTraceObjectJournalViewModel(
+	                new JournalActionsViewModel(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices.InteractiveService)));
 
             entryObject3.ChangedByUser += OnObjectChangedByUser;
 

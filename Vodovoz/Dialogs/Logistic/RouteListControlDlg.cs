@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using NLog;
@@ -10,6 +9,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Validation;
+using QS.ViewModels;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -70,7 +70,8 @@ namespace Vodovoz.Dialogs.Logistic
 				if(nomenclatureSelectorFactory == null) {
 					nomenclatureSelectorFactory =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
+							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), 
+							new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService), CounterpartySelectorFactory,
 							NomenclatureRepository, userRepository);
 				}
 				return nomenclatureSelectorFactory;

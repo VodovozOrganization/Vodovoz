@@ -11,13 +11,19 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
+using QS.ViewModels;
 using Vodovoz.Domain.Retail;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class RetailCounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, RetailCounterpartyJournalNode, CounterpartyJournalFilterViewModel>
 	{
-		public RetailCounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public RetailCounterpartyJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			CounterpartyJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал контрагентов";
 			UpdateOnChanges(
@@ -50,7 +56,11 @@ namespace Vodovoz.JournalViewModels
 				if (FilterViewModel.SalesChannels.Any(x => x.Selected))
 				{
 					query.Left.JoinAlias(c => c.SalesChannels, () => salesChannelAlias);
-					query.Where(() => salesChannelAlias.Id.IsIn(FilterViewModel.SalesChannels.Where(x => x.Selected).Select(x => x.Id).ToArray()));
+					query.Where(() => salesChannelAlias.Id
+						.IsIn(FilterViewModel.SalesChannels
+						.Where(x => x.Selected)
+						.Select(x => x.Id)
+						.ToArray()));
                 }
 			}
 
@@ -99,9 +109,7 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
 				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias);
-
-
-
+			
 			var searchHealperNew = new TempAdapters.SearchHelper(Search);
 
 			var idParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Id, TempAdapters.SearchParametrType.Id);
@@ -146,6 +154,6 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<CounterpartyDlg> CreateDialogFunction => () => new CounterpartyDlg();
 
-		protected override Func<RetailCounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
+		protected override Func<JournalEntityNodeBase, CounterpartyDlg> OpenDialogFunction => node => new CounterpartyDlg(node.Id);
 	}
 }

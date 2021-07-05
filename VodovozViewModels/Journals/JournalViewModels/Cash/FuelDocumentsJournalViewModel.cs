@@ -7,6 +7,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -23,7 +24,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
     public class FuelDocumentsJournalViewModel : MultipleEntityJournalViewModelBase<FuelDocumentJournalNode>
     {
-	    private readonly ICommonServices commonServices;
 	    private readonly IEmployeeService employeeService;
 	    private readonly ISubdivisionRepository subdivisionRepository;
 	    private readonly IFuelRepository fuelRepository;
@@ -36,6 +36,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	    private readonly ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel;
 
 	    public FuelDocumentsJournalViewModel(
+		    EntitiesJournalActionsViewModel journalActionsViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             IEmployeeService employeeService,
@@ -47,11 +48,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ICarJournalFactory carJournalFactory,
             IReportViewOpener reportViewOpener,
             IFileChooserProvider fileChooserProvider,
-            ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel
-            ) :
-            base(unitOfWorkFactory, commonServices)
+            ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel)
+		    : base(journalActionsViewModel, unitOfWorkFactory, commonServices)
         {
-	        this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 	        this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 	        this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 	        this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -62,7 +61,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	        this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 	        this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
 	        this.expenseCategoryJournalFilterViewModel = expenseCategoryJournalFilterViewModel ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFilterViewModel));
-	        
 
 	        TabName = "Журнал учета топлива";
 
@@ -149,10 +147,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    subdivisionRepository,
 					    fuelRepository,
 					    counterpartyJournalFactory,
-					    commonServices
+					    CommonServices
 				    ),
 				    //функция диалога открытия документа
-				    (FuelDocumentJournalNode node) => new FuelIncomeInvoiceViewModel(
+				    node => new FuelIncomeInvoiceViewModel(
 					    EntityUoWBuilder.ForOpen(node.Id),
 					    UnitOfWorkFactory,
 					    employeeService,
@@ -160,12 +158,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    subdivisionRepository,
 					    fuelRepository,
 					    counterpartyJournalFactory,
-					    commonServices
+					    CommonServices
 				    ),
 				    //функция идентификации документа 
-				    (FuelDocumentJournalNode node) => {
-					    return node.EntityType == typeof(FuelIncomeInvoice);
-				    },
+				    node=> node.EntityType == typeof(FuelIncomeInvoice),
 				    "Входящая накладная"
 			    );
 
@@ -228,27 +224,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    employeeService,
 					    subdivisionRepository,
 					    fuelRepository,
-					    commonServices,
+					    CommonServices,
 					    employeeJournalFactory,
 					    carJournalFactory,
 					    reportViewOpener
 				    ),
 				    //функция диалога открытия документа
-				    (FuelDocumentJournalNode node) => new FuelTransferDocumentViewModel(
+				    node => new FuelTransferDocumentViewModel(
 					    EntityUoWBuilder.ForOpen(node.Id),
 					    UnitOfWorkFactory,
 					    employeeService,
 					    subdivisionRepository,
 					    fuelRepository,
-					    commonServices,
+					    CommonServices,
 					    employeeJournalFactory,
 					    carJournalFactory,
 					    reportViewOpener
 				    ),
 				    //функция идентификации документа 
-				    (FuelDocumentJournalNode node) => {
-					    return node.EntityType == typeof(FuelTransferDocument);
-				    },
+				    node => node.EntityType == typeof(FuelTransferDocument),
 				    "Перемещение"
 			    );
 
@@ -320,29 +314,27 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    employeeService,
 					    fuelRepository,
 					    subdivisionRepository,
-					    commonServices,
+					    CommonServices,
 					    employeeJournalFactory,
 					    reportViewOpener,
 					    fileChooserProvider,
 					    expenseCategoryJournalFilterViewModel
 				    ),
 				    //функция диалога открытия документа
-				    (FuelDocumentJournalNode node) => new FuelWriteoffDocumentViewModel(
+				    node => new FuelWriteoffDocumentViewModel(
 					    EntityUoWBuilder.ForOpen(node.Id),
 					    UnitOfWorkFactory,
 					    employeeService,
 					    fuelRepository,
 					    subdivisionRepository,
-					    commonServices,
+					    CommonServices,
 					    employeeJournalFactory,
 					    reportViewOpener,
 					    fileChooserProvider,
 					    expenseCategoryJournalFilterViewModel
 				    ),
 				    //функция идентификации документа 
-				    (FuelDocumentJournalNode node) => {
-					    return node.EntityType == typeof(FuelWriteoffDocument);
-				    },
+				    node => node.EntityType == typeof(FuelWriteoffDocument),
 				    "Акт выдачи топлива"
 			    );
 

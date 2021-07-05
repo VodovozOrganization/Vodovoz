@@ -5,8 +5,8 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
@@ -16,23 +16,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		: SingleEntityJournalViewModelBase<DiscountReason, DiscountReasonViewModel, DiscountReasonJournalNode>
 	{
 		public DiscountReasonJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog,	hideJournalForCreateDialog)
+			: base(journalActionsViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog,	hideJournalForCreateDialog)
 		{
 			TabName = "Журнал оснований для скидки";
 
 			UpdateOnChanges(typeof(DiscountReason));
 		}
 
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultEditAction();
-			CreateDefaultAddActions();
+			EntitiesJournalActionsViewModel.Initialize(SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+				true, true, true, false);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<DiscountReason>> ItemsSourceQueryFunction => (uow) =>
@@ -59,13 +58,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		protected override Func<DiscountReasonViewModel> CreateDialogFunction =>
 			() => new DiscountReasonViewModel(
 				EntityUoWBuilder.ForCreate(),
-				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-				commonServices);
+				UnitOfWorkFactory,
+				CommonServices);
 
-		protected override Func<DiscountReasonJournalNode, DiscountReasonViewModel> OpenDialogFunction =>
+		protected override Func<JournalEntityNodeBase, DiscountReasonViewModel> OpenDialogFunction =>
 			(node) => new DiscountReasonViewModel(
 				EntityUoWBuilder.ForOpen(node.Id),
-				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-				commonServices);
+				UnitOfWorkFactory,
+				CommonServices);
 	}
 }

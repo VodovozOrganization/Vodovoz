@@ -17,6 +17,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Resolve;
+using QS.Views.GtkUI;
 using QS.Views.Resolve;
 using QS.Widgets.GtkUI;
 using QSProjectsLib;
@@ -92,6 +93,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.ViewModels;
@@ -102,6 +104,10 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.JournalFilters.Proposal;
+using Vodovoz.Journals.JournalActionsViewModels;
+using Vodovoz.Parameters;
+using Vodovoz.Representations;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.Views.Proposal;
@@ -118,6 +124,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Views.Reports;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewWidgets.JournalActions;
 
 namespace Vodovoz
 {
@@ -269,10 +276,21 @@ namespace Vodovoz
                 .RegisterWidgetForWidgetViewModel<OrganizationCashTransferDocumentFilterViewModel, OrganizationCashTransferDocumentFilterView>()
 				.RegisterWidgetForWidgetViewModel<PremiumJournalFilterViewModel, PremiumJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryAnalyticsViewModel, DeliveryAnalyticsReportView>()
+				.RegisterWidgetForWidgetViewModel<EntitiesJournalActionsViewModel, EntitiesJournalActionsView>()
+				.RegisterWidgetForWidgetViewModel<JournalActionsViewModel, JournalActionsView>()
+				.RegisterWidgetForWidgetViewModel<DebtorsJournalActionsViewModel, DebtorsJournalActionsView>()
+				.RegisterWidgetForWidgetViewModel<EmployeesJournalActionsViewModel, EmployeesJournalActionsView>()
+				.RegisterWidgetForWidgetViewModel<PaymentsJournalActionsViewModel, PaymentsJournalActionsView>()
+				.RegisterWidgetForWidgetViewModel<DistrictsSetJournalActionsViewModel, DistrictsSetJournalActionsView>()
+				.RegisterWidgetForWidgetViewModel<FinancialDistrictsSetJournalActionsViewModel, FinancialDistrictsSetJournalActionsView>()
+				.RegisterWidgetForWidgetViewModel<ExpenseCategoryJournalActionsViewModel, ExpenseCategoryJournalActionsView>()
+				.RegisterWidgetForWidgetViewModel<IncomeCategoryJournalActionsViewModel, IncomeCategoryJournalActionsView>()
+				.RegisterWidgetForWidgetViewModel<ComplaintsJournalActionsViewModel, ComplaintsJournalActionsView>()
 				.RegisterWidgetForWidgetViewModel<CarEventFilterViewModel, CarEventFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
+			DialogHelper.JournalActionsResolver = ViewModelWidgetResolver.Instance;
 		}
 
 		static void ConfigureJournalColumnsConfigs()
@@ -368,12 +386,23 @@ namespace Vodovoz
 			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
 			#endregion
+			
+			#region Providers
+
+			builder.RegisterType<NomenclatureParametersProvider>().As<INomenclatureParametersProvider>();
+
+			#endregion
+			
 			#region Интерфейсы репозиториев
+			
 			builder.RegisterType<SubdivisionRepository>().As<ISubdivisionRepository>();
 			builder.Register(c => EmployeeSingletonRepository.GetInstance()).As<IEmployeeRepository>();
 			builder.RegisterType<WarehouseRepository>().As<IWarehouseRepository>();
 			builder.Register(c => UserSingletonRepository.GetInstance()).As<IUserRepository>();
+			builder.RegisterType<NomenclatureRepository>().As<INomenclatureRepository>();
+			
 			#endregion
+
 			#region Mango
 			builder.RegisterType<MangoManager>().AsSelf();
 			#endregion
@@ -399,18 +428,23 @@ namespace Vodovoz
 			#endregion
 
 			#region ViewModels
+			
 			builder.Register(x => new AutofacViewModelResolver(AppDIContainer)).As<IViewModelResolver>();
 			builder.RegisterAssemblyTypes(
 					System.Reflection.Assembly.GetAssembly(typeof(InternalTalkViewModel)),
 				 	System.Reflection.Assembly.GetAssembly(typeof(ComplaintViewModel)))
 				.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
 				.AsSelf();
+			builder.Register(x => new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService)).AsSelf();
+			
 			#endregion
 
 			#region Repository
+			
 			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyContractRepository)))
 				.Where(t => t.Name.EndsWith("Repository"))
 				.AsSelf();
+			
 			#endregion
 
 			AppDIContainer = builder.Build();

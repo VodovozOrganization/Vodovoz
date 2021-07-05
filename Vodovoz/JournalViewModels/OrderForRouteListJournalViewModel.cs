@@ -23,6 +23,7 @@ using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepo
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
+using QS.ViewModels;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.JournalViewModels
@@ -30,10 +31,11 @@ namespace Vodovoz.JournalViewModels
     public class OrderForRouteListJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderForRouteListJournalNode, OrderJournalFilterViewModel>
 	{
 		public OrderForRouteListJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			OrderJournalFilterViewModel filterViewModel, 
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices
-			) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал заказов";
 
@@ -388,6 +390,6 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => GetOrdersQuery;
 		protected override Func<OrderDlg> CreateDialogFunction => () => new OrderDlg ();
-		protected override Func<OrderForRouteListJournalNode, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
+		protected override Func<JournalEntityNodeBase, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
 	}
 }

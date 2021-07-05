@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
@@ -34,8 +35,7 @@ namespace Vodovoz.Journals.JournalViewModels
 {
 	public class ComplaintsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<ComplaintJournalNode, ComplaintFilterViewModel>, IComplaintsInfoProvider
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly ICommonServices commonServices;
+		private readonly ComplaintsJournalActionsViewModel _journalActionsViewModel;
 		private readonly IUndeliveriesViewOpener undeliveriesViewOpener;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
@@ -45,7 +45,6 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IRouteListItemRepository routeListItemRepository;
 		private readonly ISubdivisionService subdivisionService;
-		private readonly IReportViewOpener reportViewOpener;
 		private readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkDlgOpener;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
@@ -59,6 +58,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		public ComplaintFilterViewModel ComplaintsFilterViewModel => FilterViewModel;
 
 		public ComplaintsJournalViewModel(
+			ComplaintsJournalActionsViewModel journalActionsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IUndeliveriesViewOpener undeliveriesViewOpener,
@@ -71,14 +71,11 @@ namespace Vodovoz.Journals.JournalViewModels
 			ComplaintFilterViewModel filterViewModel,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
-			IReportViewOpener reportViewOpener,
 			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.undeliveriesViewOpener = undeliveriesViewOpener ?? throw new ArgumentNullException(nameof(undeliveriesViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
@@ -88,10 +85,10 @@ namespace Vodovoz.Journals.JournalViewModels
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			this.subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
-			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			this.gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_journalActionsViewModel = journalActionsViewModel;
 
 			TabName = "Журнал рекламаций";
 
@@ -141,7 +138,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				typeof(RouteList),
 				typeof(RouteListItem)
 			);
-			this.DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
+			DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
 
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 		}
@@ -397,22 +394,22 @@ namespace Vodovoz.Journals.JournalViewModels
 					//функция диалога создания документа
 					() => new CreateComplaintViewModel(
 						EntityUoWBuilder.ForCreate(),
-						unitOfWorkFactory,
+						UnitOfWorkFactory,
 						employeeService,
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						subdivisionRepository,
-						commonServices,
+						CommonServices,
 						nomenclatureSelectorFactory,
 						nomenclatureRepository,
 						userRepository,
                         filePickerService
 					),
 					//функция диалога открытия документа
-					(ComplaintJournalNode node) => new ComplaintViewModel(
+					node => new ComplaintViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
-						unitOfWorkFactory,
-						commonServices,
+						UnitOfWorkFactory,
+						CommonServices,
 						undeliveriesViewOpener,
 						employeeService,
 						employeeSelectorFactory,
@@ -424,28 +421,26 @@ namespace Vodovoz.Journals.JournalViewModels
 						userRepository
 					),
 					//функция идентификации документа 
-					(ComplaintJournalNode node) => {
-						return node.EntityType == typeof(Complaint);
-					},
+					node => node.EntityType == typeof(Complaint),
 					"Клиентская рекламация",
-					new JournalParametersForDocument() { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
 				)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
 					() => new CreateInnerComplaintViewModel(
 						EntityUoWBuilder.ForCreate(),
-						unitOfWorkFactory,
+						UnitOfWorkFactory,
 						employeeService,
 						subdivisionRepository,
-						commonServices,
+						CommonServices,
 						employeeSelectorFactory,
                         filePickerService
 					),
 					//функция диалога открытия документа
-					(ComplaintJournalNode node) => new ComplaintViewModel(
+					node => new ComplaintViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
-						unitOfWorkFactory,
-						commonServices,
+						UnitOfWorkFactory,
+						CommonServices,
 						undeliveriesViewOpener,
 						employeeService,
 						employeeSelectorFactory,
@@ -457,11 +452,9 @@ namespace Vodovoz.Journals.JournalViewModels
 						userRepository
 					),
 					//функция идентификации документа 
-					(ComplaintJournalNode node) => {
-						return node.EntityType == typeof(Complaint);
-					},
+					node => node.EntityType == typeof(Complaint),
 					"Внутренняя рекламация",
-					new JournalParametersForDocument() { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
 				);
 
 			//завершение конфигурации
@@ -534,8 +527,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						if(currentComplaintId.HasValue) {
 							currentComplaintVM = new ComplaintViewModel(
 								EntityUoWBuilder.ForOpen(currentComplaintId.Value),
-								unitOfWorkFactory,
-								commonServices,
+								UnitOfWorkFactory,
+								CommonServices,
 								undeliveriesViewOpener,
 								employeeService,
 								employeeSelectorFactory,
@@ -563,8 +556,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						if(currentComplaintId.HasValue) {
 							currentComplaintVM = new ComplaintViewModel(
 								EntityUoWBuilder.ForOpen(currentComplaintId.Value),
-								unitOfWorkFactory,
-								commonServices,
+								UnitOfWorkFactory,
+								CommonServices,
 								undeliveriesViewOpener,
 								employeeService,
 								employeeSelectorFactory,
@@ -586,11 +579,10 @@ namespace Vodovoz.Journals.JournalViewModels
 			);
 		}
 
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			base.CreateNodeActions();
-			NodeActionsList.Add(new JournalAction("Открыть печатную форму", x => true, x => true,
-				selectedItems => reportViewOpener.OpenReportInSlaveTab(this, FilterViewModel.GetReportInfo())));
+			base.InitializeJournalActionsViewModel();
+			_journalActionsViewModel.SetReportInfoFunc(FilterViewModel.GetReportInfo);
 		}
 	}
 }

@@ -1,15 +1,14 @@
 ﻿using System;
 using Gamma.Widgets;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.ViewModels;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
 
@@ -43,17 +42,24 @@ namespace Vodovoz.Views.Complaints
 
 			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
 				var filter = new OrderJournalFilterViewModel();
-				if(ViewModel.Entity.Counterparty != null) {
+				
+				if(ViewModel.Entity.Counterparty != null) 
+				{
 					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
 				}
-				return new OrderJournalViewModel(filter, 
-												UnitOfWorkFactory.GetDefaultFactory, 
-												ServicesConfig.CommonServices,
-												ViewModel.EmployeeService,
-												ViewModel.NomenclatureSelectorFactory,
-												ViewModel.CounterpartySelectorFactory,
-												ViewModel.NomenclatureRepository,
-												ViewModel.UserRepository);
+
+				var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+				
+				return new OrderJournalViewModel(
+					journalActions,
+					filter, 
+					UnitOfWorkFactory.GetDefaultFactory, 
+					ServicesConfig.CommonServices,
+					ViewModel.EmployeeService,
+					ViewModel.NomenclatureSelectorFactory,
+					ViewModel.CounterpartySelectorFactory,
+					ViewModel.NomenclatureRepository,
+					ViewModel.UserRepository);
 			});
 
 			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);

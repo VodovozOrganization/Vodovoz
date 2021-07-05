@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using QS.ViewModels;
 using Vodovoz.Journal;
 using Vodovoz.JournalNodes;
 
@@ -15,8 +16,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace
 {
     public class HistoryTraceObjectJournalViewModel : JournalViewModelBase, INodeAutocompleteSelector
     {
-        public HistoryTraceObjectJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService, INavigationManager navigation = null)
-            : base(unitOfWorkFactory, interactiveService, navigation)
+        public HistoryTraceObjectJournalViewModel(
+	        JournalActionsViewModel journalActionsViewModel,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        IInteractiveService interactiveService,
+	        INavigationManager navigation = null)
+            : base(journalActionsViewModel, unitOfWorkFactory, interactiveService, navigation)
         {
             TabName = "Журнал объектов изменений";
 
@@ -30,15 +35,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace
             };
         }
 
-        protected override void CreateNodeActions()
+        public Func<CancellationToken, IList<HistoryTraceObjectNode>> GetItems => token => 
         {
-            NodeActionsList.Clear();
-            CreateDefaultSelectAction();
-        }
-
-        public Func<CancellationToken, IList<HistoryTraceObjectNode>> GetItems => (token) => {
-
-            var result = HistoryMain.TraceClasses.OrderBy(x => x.DisplayName)?
+	        var result = HistoryMain.TraceClasses.OrderBy(x => x.DisplayName)?
                 .Select(x => 
                 new HistoryTraceObjectNode(x.ObjectType, x.DisplayName)
                 {

@@ -6,6 +6,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.ViewModels.WageCalculation;
@@ -14,11 +15,11 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 {
 	public class WageDistrictLevelRatesJournalViewModel : SingleEntityJournalViewModelBase<WageDistrictLevelRates, WageDistrictLevelRatesViewModel, WageDistrictLevelRatesJournalNode>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-
-		public WageDistrictLevelRatesJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
+		public WageDistrictLevelRatesJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices) : base(journalActionsViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			TabName = "Журнал ставок по уровням";
 
 			var threadLoader = DataLoader as ThreadDataLoader<WageDistrictLevelRatesJournalNode>;
@@ -56,16 +57,16 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 		protected override Func<WageDistrictLevelRatesViewModel> CreateDialogFunction => () => new WageDistrictLevelRatesViewModel(
 			this,
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
-			commonServices,
+			UnitOfWorkFactory,
+			CommonServices,
 			UoW
 	   );
 
-		protected override Func<WageDistrictLevelRatesJournalNode, WageDistrictLevelRatesViewModel> OpenDialogFunction => n => new WageDistrictLevelRatesViewModel(
+		protected override Func<JournalEntityNodeBase, WageDistrictLevelRatesViewModel> OpenDialogFunction => n => new WageDistrictLevelRatesViewModel(
 			this,
 			EntityUoWBuilder.ForOpen(n.Id),
-			unitOfWorkFactory,
-			commonServices,
+			UnitOfWorkFactory,
+			CommonServices,
 			UoW
 	   );
 	}

@@ -2,7 +2,6 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
-using Gdk;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -14,6 +13,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Utilities;
+using QS.ViewModels;
 using QS.Views.GtkUI;
 using QSOrmProject;
 using Vodovoz.Additions.Logistic;
@@ -213,6 +213,7 @@ namespace Vodovoz.Views.Logistic
 			btnAddAcceptBefore.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null, w => w.Sensitive).InitializeFromSource();
 			btnAddAcceptBefore.Clicked += (sender, args) => {
 				var acceptBeforeTimeViewModel = new SimpleEntityJournalViewModel<AcceptBefore, AcceptBeforeViewModel>(
+					new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
 					x => x.Name,
 					() => new AcceptBeforeViewModel(
 						EntityUoWBuilder.ForCreate(),

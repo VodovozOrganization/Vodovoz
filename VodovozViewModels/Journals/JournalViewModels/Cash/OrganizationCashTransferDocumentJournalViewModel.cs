@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
@@ -20,8 +21,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
     public class OrganizationCashTransferDocumentJournalViewModel : FilterableSingleEntityJournalViewModelBase<OrganizationCashTransferDocument, OrganizationCashTransferDocumentViewModel, OrganizationCashTransferDocumentJournalNode, OrganizationCashTransferDocumentFilterViewModel>
     {
         private readonly IEntityExtendedPermissionValidator entityExtendedPermissionValidator;
-        public OrganizationCashTransferDocumentJournalViewModel(OrganizationCashTransferDocumentFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEntityExtendedPermissionValidator entityExtendedPermissionValidator)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public OrganizationCashTransferDocumentJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
+	        OrganizationCashTransferDocumentFilterViewModel filterViewModel,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        ICommonServices commonServices,
+	        IEntityExtendedPermissionValidator entityExtendedPermissionValidator)
+            : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
             this.entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
             TabName = "Журнал перемещения д/с для юр.лиц";
@@ -87,9 +93,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         };
 
         protected override Func<OrganizationCashTransferDocumentViewModel> CreateDialogFunction =>
-            () => new OrganizationCashTransferDocumentViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, entityExtendedPermissionValidator);
+            () => new OrganizationCashTransferDocumentViewModel(
+	            EntityUoWBuilder.ForCreate(),
+	            UnitOfWorkFactory,
+	            CommonServices,
+	            entityExtendedPermissionValidator);
 
-        protected override Func<OrganizationCashTransferDocumentJournalNode, OrganizationCashTransferDocumentViewModel> OpenDialogFunction =>
-            node => new OrganizationCashTransferDocumentViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, entityExtendedPermissionValidator);
+        protected override Func<JournalEntityNodeBase, OrganizationCashTransferDocumentViewModel> OpenDialogFunction =>
+            node => new OrganizationCashTransferDocumentViewModel(
+	            EntityUoWBuilder.ForOpen(node.Id),
+	            UnitOfWorkFactory,
+	            CommonServices,
+	            entityExtendedPermissionValidator);
     }
 }

@@ -4,7 +4,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Gamma.Utilities;
-using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -36,6 +35,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -218,14 +218,20 @@ namespace Vodovoz.ViewModels.Logistic
 						x => x.RestrictCategory = EmployeeCategory.driver,
 						x => x.Status = EmployeeStatus.IsWorking
 					);
+					var journalActions = 
+						new EmployeesJournalActionsViewModel(commonServices.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+					
 					var drvJournalViewModel = new EmployeesJournalViewModel(
+						journalActions,
 						drvFilter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
-					) {
+					) 
+					{
 						SelectionMode = JournalSelectionMode.Multiple,
 						TabName = "Водители"
 					};
+					
 					drvJournalViewModel.OnEntitySelectedResult += (sender, e) => {
 						var selectedNodes = e.SelectedNodes;
 						var onlyNew = selectedNodes.Where(x => ObservableDriversOnDay.All(y => y.Employee.Id != x.Id)).ToList();
@@ -306,13 +312,20 @@ namespace Vodovoz.ViewModels.Logistic
 						x => x.RestrictCategory = EmployeeCategory.forwarder,
 						x => x.Status = EmployeeStatus.IsWorking
 					);
+					
+					var journalActions = 
+						new EmployeesJournalActionsViewModel(commonServices.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+					
 					var fwdJournalViewModel = new EmployeesJournalViewModel(
+						journalActions,
 						fwdFilter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
-					) {
+					) 
+					{
 						SelectionMode = JournalSelectionMode.Multiple
 					};
+					
 					fwdJournalViewModel.OnEntitySelectedResult += (sender, e) => {
 						var selectedNodes = e.SelectedNodes;
 						foreach(var n in selectedNodes) {

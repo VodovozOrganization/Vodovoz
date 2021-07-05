@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -22,27 +23,33 @@ namespace Vodovoz.TempAdapters
 	{
 		public IEntitySelector CreateNomenclatureSelectorForWarehouse(Warehouse warehouse, IEnumerable<int> excludedNomenclatures)
 		{
-			NomenclatureStockFilterViewModel nomenclatureStockFilter = new NomenclatureStockFilterViewModel(new WarehouseRepository());
-			nomenclatureStockFilter.ExcludedNomenclatureIds = excludedNomenclatures;
-			nomenclatureStockFilter.RestrictWarehouse = warehouse;
+			NomenclatureStockFilterViewModel nomenclatureStockFilter = new NomenclatureStockFilterViewModel(new WarehouseRepository())
+			{
+				ExcludedNomenclatureIds = excludedNomenclatures, RestrictWarehouse = warehouse
+			};
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
+				journalActions,
 				nomenclatureStockFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
-			);
+			)
+			{
+				SelectionMode = JournalSelectionMode.Multiple
+			};
 
-			vm.SelectionMode = JournalSelectionMode.Multiple;
 
 			return vm;
 		}
 		
 		public IEntitySelector CreateNomenclatureSelector(IEnumerable<int> excludedNomenclatures)
 		{
-			NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();
-			nomenclatureFilter.RestrictArchive = true;
-			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
-			
+			NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel
+			{
+				RestrictArchive = true, AvailableCategories = Nomenclature.GetCategoriesForGoods()
+			};
+
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 			
 			var counterpartySelectorFactory =
@@ -50,11 +57,14 @@ namespace Vodovoz.TempAdapters
 					ServicesConfig.CommonServices);
 			
 			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository,
-					UserSingletonRepository.GetInstance());
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+					nomenclatureFilter, new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+					counterpartySelectorFactory, nomenclatureRepository, UserSingletonRepository.GetInstance());
+			
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
+				journalActions,
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
@@ -63,9 +73,10 @@ namespace Vodovoz.TempAdapters
 				counterpartySelectorFactory,
 				nomenclatureRepository,
 				UserSingletonRepository.GetInstance()
-			);
-
-			vm.SelectionMode = JournalSelectionMode.Multiple;
+			)
+			{
+				SelectionMode = JournalSelectionMode.Multiple
+			};
 
 			return vm;
 		}
@@ -84,11 +95,14 @@ namespace Vodovoz.TempAdapters
 					ServicesConfig.CommonServices);
 			
 			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository,
-					UserSingletonRepository.GetInstance());
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+					nomenclatureFilter, new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+					counterpartySelectorFactory, nomenclatureRepository, UserSingletonRepository.GetInstance());
+			
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
+				journalActions,
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
@@ -97,9 +111,10 @@ namespace Vodovoz.TempAdapters
 				counterpartySelectorFactory,
 				nomenclatureRepository,
 				UserSingletonRepository.GetInstance()
-			);
-
-			vm.SelectionMode = JournalSelectionMode.Multiple;
+			)
+			{
+				SelectionMode = JournalSelectionMode.Multiple
+			};
 
 			return vm;
 		}

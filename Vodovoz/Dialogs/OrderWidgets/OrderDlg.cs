@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
+using QS.ViewModels;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -144,7 +145,8 @@ namespace Vodovoz
 				if(nomenclatureSelectorFactory == null) {
 					nomenclatureSelectorFactory =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
+							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), 
+							new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService), CounterpartySelectorFactory,
 							NomenclatureRepository, userRepository);
 				}
 				return nomenclatureSelectorFactory;
@@ -457,10 +459,22 @@ namespace Vodovoz
 			enumTax.AddEnumToHideList(hideTaxTypeEnums);
 			enumTax.ChangedByUser += (sender, args) => { Entity.Client.TaxType = (TaxType)enumTax.SelectedItem; };
 
-			var counterpartyFilter = new CounterpartyJournalFilterViewModel() { IsForRetail = this.IsForRetail, RestrictIncludeArchive = false };
+			var counterpartyFilter = new CounterpartyJournalFilterViewModel
+			{
+				IsForRetail = this.IsForRetail, RestrictIncludeArchive = false
+			};
+			var counterpartyJournalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+			
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(typeof(Counterparty), 
-				() => new CounterpartyJournalViewModel(counterpartyFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices))
+				new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(
+					typeof(Counterparty), 
+					() => new CounterpartyJournalViewModel(
+						counterpartyJournalActions,
+						counterpartyFilter,
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices
+					)
+				)
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
@@ -1518,8 +1532,10 @@ namespace Vodovoz
 				x => x.RestrictCategory = NomenclatureCategory.master,
 				x => x.RestrictArchive = false
 			);
+			var nomenclaturesJournalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+				nomenclaturesJournalActions,
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
@@ -1528,11 +1544,13 @@ namespace Vodovoz
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
 				userRepository
-			) {
+			)
+			{
 				SelectionMode = JournalSelectionMode.Single,
+				AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices),
+				TabName = "Выезд мастера",
 			};
-			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-			journalViewModel.TabName = "Выезд мастера";
+			
 			journalViewModel.OnEntitySelectedResult += (s, ea) => {
 				var selectedNode = ea.SelectedNodes.FirstOrDefault();
 				if(selectedNode == null)
@@ -1558,8 +1576,10 @@ namespace Vodovoz
 				x => x.SelectSaleCategory = SaleCategory.forSale,
 				x => x.RestrictArchive = false
 			);
+			var nomenclaturesJournalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+				nomenclaturesJournalActions,
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
@@ -1568,11 +1588,12 @@ namespace Vodovoz
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
 				userRepository
-			) {
+			)
+			{
 				SelectionMode = JournalSelectionMode.Single,
+				AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices),
+				TabName = "Номенклатура на продажу",
 			};
-			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-			journalViewModel.TabName = "Номенклатура на продажу";
 			journalViewModel.OnEntitySelectedResult += (s, ea) => {
 				var selectedNode = ea.SelectedNodes.FirstOrDefault();
 				if(selectedNode == null)

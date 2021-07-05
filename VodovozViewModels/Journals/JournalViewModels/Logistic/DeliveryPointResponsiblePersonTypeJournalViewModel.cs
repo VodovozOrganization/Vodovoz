@@ -5,6 +5,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
@@ -17,8 +18,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
     /// </summary>
     public class DeliveryPointResponsiblePersonTypeJournalViewModel : FilterableSingleEntityJournalViewModelBase<DeliveryPointResponsiblePersonType, DeliveryPointResponsiblePersonTypeViewModel, DeliveryPointResponsiblePersonTypeJournalNode, DeliveryPointResponsiblePersonTypeJournalFilterViewModel>
     {
-        public DeliveryPointResponsiblePersonTypeJournalViewModel(DeliveryPointResponsiblePersonTypeJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public DeliveryPointResponsiblePersonTypeJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
+	        DeliveryPointResponsiblePersonTypeJournalFilterViewModel filterViewModel,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        ICommonServices commonServices)
+            : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал типов ответственного за точку доставки лица";
 
@@ -47,14 +52,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
             return result;
         };
 
-        protected override Func<DeliveryPointResponsiblePersonTypeViewModel> CreateDialogFunction => () => new DeliveryPointResponsiblePersonTypeViewModel(
+        protected override Func<DeliveryPointResponsiblePersonTypeViewModel> CreateDialogFunction => 
+	        () => new DeliveryPointResponsiblePersonTypeViewModel(
                EntityUoWBuilder.ForCreate(),
                UnitOfWorkFactory,
-               commonServices);
+               CommonServices);
 
-        protected override Func<DeliveryPointResponsiblePersonTypeJournalNode, DeliveryPointResponsiblePersonTypeViewModel> OpenDialogFunction => (node) => new DeliveryPointResponsiblePersonTypeViewModel(
+        protected override Func<JournalEntityNodeBase, DeliveryPointResponsiblePersonTypeViewModel> OpenDialogFunction => 
+	        node => new DeliveryPointResponsiblePersonTypeViewModel(
                EntityUoWBuilder.ForOpen(node.Id),
                UnitOfWorkFactory,
-               commonServices);
+               CommonServices);
     }
 }

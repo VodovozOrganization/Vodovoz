@@ -19,27 +19,34 @@ using Vodovoz.Additions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalNodes;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Tools;
+using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class EmployeesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Employee, EmployeeDlg, EmployeeJournalNode, EmployeeFilterViewModel>
 	{
+		private readonly EmployeesJournalActionsViewModel _journalActionsViewModel;
+		
 		public EmployeesJournalViewModel(
+			EmployeesJournalActionsViewModel journalActionsViewModel,
 			EmployeeFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices
 		) : base(
+			journalActionsViewModel,
 			filterViewModel,
 			unitOfWorkFactory,
 			commonServices
 		)
 		{
-			this.TabName = "Журнал сотрудников";
+			_journalActionsViewModel = journalActionsViewModel;
+			
+			TabName = "Журнал сотрудников";
 			var instantSmsService = InstantSmsServiceSetting.GetInstantSmsService();
 		
-			this.authorizationService = new AuthorizationService(
+			authorizationService = new AuthorizationService(
 				new PasswordGenerator(),
 				new MySQLUserRepository(
 					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
@@ -47,6 +54,7 @@ namespace Vodovoz.JournalViewModels
 				EmailServiceSetting.GetEmailService());
 
 			UpdateOnChanges(typeof(Employee));
+			SetResetPasswordAction();
 		}
 
 		private readonly IAuthorizationService authorizationService;
@@ -109,14 +117,18 @@ namespace Vodovoz.JournalViewModels
 		{
             if (string.IsNullOrWhiteSpace(employee.Email))
             {
-				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					"Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
 				return;
             }
+            
 			if (authorizationService.ResetPasswordToGenerated(employee.User.Login, employee.Email))
 			{
-				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Email с паролем отправлена успешно");
-			} else {
-				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Ошибка при отправке Email");
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Email с паролем отправлена успешно");
+			} 
+			else 
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Ошибка при отправке Email");
 			}
 		}
 
@@ -134,41 +146,42 @@ namespace Vodovoz.JournalViewModels
 				var selectedNode = selectedNodes.FirstOrDefault();
 				if (selectedNode != null)
 				{
-					using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Сброс пароля пользователю"))
+					var employee = UoW.GetById<Employee>(selectedNode.Id);
+
+					if (employee.User == null)
 					{
-						var employee = uow.GetById<Employee>(selectedNode.Id);
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+							"К сотруднику не привязан пользователь!");
+						
+						return;
+					}
+					
+					if (string.IsNullOrEmpty(employee.User.Login))
+					{
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+							"У пользователя не заполнен логин!");
+						
+						return;
+					}
 
-						if(employee.User == null)
-						{
-							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-								"К сотруднику не привязан пользователь!");
-
-							return;
-						}
-
-						if(string.IsNullOrEmpty(employee.User.Login))
-						{
-							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-								"У пользователя не заполнен логин!");
-
-							return;
-						}
-
-						if(commonServices.InteractiveService.Question("Вы уверены?"))
-						{
-							ResetPasswordForEmployee(employee);
-						}
+					if (CommonServices.InteractiveService.Question("Вы уверены?"))
+					{
+						ResetPasswordForEmployee(employee);
 					}
 				}
 			});
 			
 			PopupActionsList.Add(resetPassAction);
-			NodeActionsList.Add(resetPassAction);
+		}
+
+		private void SetResetPasswordAction()
+		{
+			_journalActionsViewModel?.SetResetPasswordForEmployeeAction(ResetPasswordForEmployee);
 		}
 
 		protected override Func<EmployeeDlg> CreateDialogFunction => () => new EmployeeDlg();
 
-		protected override Func<EmployeeJournalNode, EmployeeDlg> OpenDialogFunction => 
+		protected override Func<JournalEntityNodeBase, EmployeeDlg> OpenDialogFunction => 
 			n => new EmployeeDlg(n.Id);
 	}
 }

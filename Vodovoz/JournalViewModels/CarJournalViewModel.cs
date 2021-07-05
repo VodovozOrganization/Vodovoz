@@ -7,6 +7,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -17,7 +18,11 @@ namespace Vodovoz.JournalViewModels
 {
 	public class CarJournalViewModel : FilterableSingleEntityJournalViewModelBase<Car, CarsDlg, CarJournalNode, CarJournalFilterViewModel>
 	{
-		public CarJournalViewModel(CarJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public CarJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			CarJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал автомобилей";
 			UpdateOnChanges(
@@ -103,6 +108,6 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<CarsDlg> CreateDialogFunction => () => new CarsDlg();
 
-		protected override Func<CarJournalNode, CarsDlg> OpenDialogFunction => (node) => new CarsDlg(node.Id);
+		protected override Func<JournalEntityNodeBase, CarsDlg> OpenDialogFunction => node => new CarsDlg(node.Id);
 	}
 }

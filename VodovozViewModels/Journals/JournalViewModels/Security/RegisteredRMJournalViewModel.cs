@@ -6,6 +6,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using QS.ViewModels;
 using Vodovoz.Domain.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -15,8 +16,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Security
 {
     public class RegisteredRMJournalViewModel : FilterableSingleEntityJournalViewModelBase<RegisteredRM, RegisteredRMViewModel, RegisteredRMJournalNode, RegisteredRMJournalFilterViewModel>
     {
-        public RegisteredRMJournalViewModel(RegisteredRMJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public RegisteredRMJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
+	        RegisteredRMJournalFilterViewModel filterViewModel,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        ICommonServices commonServices)
+            : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал зарегистрированных RM";
 
@@ -53,12 +58,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Security
         protected override Func<RegisteredRMViewModel> CreateDialogFunction => () => new RegisteredRMViewModel(
                EntityUoWBuilder.ForCreate(),
                UnitOfWorkFactory,
-               commonServices
+               CommonServices
            );
 
-        protected override Func<RegisteredRMJournalNode, RegisteredRMViewModel> OpenDialogFunction => (node) => new RegisteredRMViewModel(
+        protected override Func<JournalEntityNodeBase, RegisteredRMViewModel> OpenDialogFunction => node => new RegisteredRMViewModel(
                EntityUoWBuilder.ForOpen(node.Id),
                UnitOfWorkFactory,
-               commonServices);
+               CommonServices);
     }
 }

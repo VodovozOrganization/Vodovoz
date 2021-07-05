@@ -5,6 +5,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using QS.ViewModels;
 using Vodovoz.Domain.Store;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
@@ -14,8 +15,12 @@ namespace Vodovoz.Journals
 {
     public class MovementWagonJournalViewModel : FilterableSingleEntityJournalViewModelBase<MovementWagon, MovementWagonViewModel, MovementWagonJournalNode, MovementWagonJournalFilterViewModel>
     {
-        public MovementWagonJournalViewModel(MovementWagonJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) 
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public MovementWagonJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
+	        MovementWagonJournalFilterViewModel filterViewModel,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        ICommonServices commonServices) 
+            : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал фур";
         }
@@ -43,13 +48,13 @@ namespace Vodovoz.Journals
         protected override Func<MovementWagonViewModel> CreateDialogFunction => () => new MovementWagonViewModel(
                EntityUoWBuilder.ForCreate(),
                UnitOfWorkFactory,
-               commonServices
+               CommonServices
            );
 
-        protected override Func<MovementWagonJournalNode, MovementWagonViewModel> OpenDialogFunction => (node) => new MovementWagonViewModel(
+        protected override Func<JournalEntityNodeBase, MovementWagonViewModel> OpenDialogFunction => node => new MovementWagonViewModel(
                EntityUoWBuilder.ForOpen(node.Id),
                UnitOfWorkFactory,
-               commonServices
+               CommonServices
            );
     }
 }

@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
+using QS.ViewModels;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -37,8 +38,10 @@ namespace Vodovoz.ReportsParameters
 						var employeeAutoCompleteSelectorFactory =
 							new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
 								ServicesConfig.CommonServices);
-
+						var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+						
 						return new SubdivisionsJournalViewModel(
+							journalActions,
 							filter,
 							unitOfWorkFactory,
 							ServicesConfig.CommonServices,

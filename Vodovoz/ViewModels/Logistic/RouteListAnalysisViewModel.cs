@@ -12,13 +12,13 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Domain.Orders;
 using QS.Commands;
-using QS.Dialog;
 using QS.Project.Journal;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.JournalViewers;
 using Vodovoz.Repositories;
@@ -32,7 +32,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 		private readonly IEmployeeService employeeService;
-		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly WageParameterService wageParameterService = 
+			new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
 		#region Properties
 
@@ -66,27 +67,58 @@ namespace Vodovoz.ViewModels.Logistic
 				             "диалог разбора МЛ, так как некого указывать в качестве логиста.", "Невозможно открыть разбор МЛ");
 			}
 			
-			employeeSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(commonServices);
-			
+			employeeSelectorFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+				() =>
+				{
+					var employeeFilter = new EmployeeFilterViewModel();
+						
+					var employeesJournalActions = 
+						new EmployeesJournalActionsViewModel(CommonServices.InteractiveService, UnitOfWorkFactory);
+						
+					return new EmployeesJournalViewModel(
+						employeesJournalActions,
+						employeeFilter,
+						UnitOfWorkFactory,
+						CommonServices);
+				});
+
 			LogisticanSelectorFactory =
 				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
 					() => {
-						var filter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.office };
-						return new EmployeesJournalViewModel(filter, UnitOfWorkFactory, CommonServices);
+						var filter = new EmployeeFilterViewModel
+						{
+							Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.office
+						};
+						var journalActions = 
+							new EmployeesJournalActionsViewModel(CommonServices.InteractiveService, UnitOfWorkFactory);
+						
+						return new EmployeesJournalViewModel(journalActions, filter, UnitOfWorkFactory, CommonServices);
 					});
 
 			DriverSelectorFactory =
 				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
 					() => {
-						var filter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.driver };
-						return new EmployeesJournalViewModel(filter, UnitOfWorkFactory, CommonServices);
+						var filter = new EmployeeFilterViewModel
+						{
+							Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.driver
+						};
+						var journalActions = 
+							new EmployeesJournalActionsViewModel(CommonServices.InteractiveService, UnitOfWorkFactory);
+						
+						return new EmployeesJournalViewModel(journalActions, filter, UnitOfWorkFactory, CommonServices);
 					});
 
 			ForwarderSelectorFactory =
 				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
 					() => {
-						var filter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.forwarder };
-						return new EmployeesJournalViewModel(filter, UnitOfWorkFactory, CommonServices);
+						var filter = new EmployeeFilterViewModel
+						{
+							Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.forwarder
+						};
+						var journalActions = 
+							new EmployeesJournalActionsViewModel(CommonServices.InteractiveService, UnitOfWorkFactory);
+
+						return new EmployeesJournalViewModel(journalActions, filter, UnitOfWorkFactory, CommonServices);
 					});
 
 			TabName = $"Диалог разбора {Entity.Title}";
@@ -178,7 +210,9 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				var fineFilter = new FineFilterViewModel();
 				fineFilter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
+				var journalActions = new EntitiesJournalActionsViewModel(CommonServices.InteractiveService);
 				var fineJournalViewModel = new FinesJournalViewModel(
+					journalActions,
 					fineFilter,
 					undeliveryViewOpener,
 					employeeService,
@@ -229,15 +263,19 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				var fineFilter = new FineFilterViewModel();
 				fineFilter.FindFinesWithIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
+				var journalActions = new EntitiesJournalActionsViewModel(CommonServices.InteractiveService);
 				var fineJournalViewModel = new FinesJournalViewModel(
+					journalActions,
 					fineFilter,
 					undeliveryViewOpener,
 					employeeService,
 					employeeSelectorFactory,
 					UnitOfWorkFactory,
 					CommonServices
-				);
-				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
+				)
+				{
+					SelectionMode = JournalSelectionMode.Single
+				};
 				fineJournalViewModel.OnEntitySelectedResult +=
 					(sender, e) =>
 					{

@@ -6,7 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
-using QS.Tdi;
+using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Proposal;
 using Vodovoz.Infrastructure.Services;
@@ -23,17 +23,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Proposal
                                                    ApplicationDevelopmentProposalsJournalFilterViewModel>
     {
 	    private readonly IEmployeeService employeeService;
-	    private readonly IUnitOfWorkFactory uowFactory;
 	    private readonly bool canChangeProposalsStatus;
 
 	    public ApplicationDevelopmentProposalsJournalViewModel(
+		    EntitiesJournalActionsViewModel journalActionsViewModel,
 		    ApplicationDevelopmentProposalsJournalFilterViewModel filterViewModel,
 		    IEmployeeService employeeService,
 		    IUnitOfWorkFactory uowFactory,
-		    ICommonServices commonServices) : base(filterViewModel, uowFactory, commonServices)
+		    ICommonServices commonServices) : base(journalActionsViewModel, filterViewModel, uowFactory, commonServices)
 	    {
 		    this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-		    this.uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		    canChangeProposalsStatus =
 			    commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_app_development_proposal");
 
@@ -76,44 +75,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Proposal
 			() => new ApplicationDevelopmentProposalViewModel(
 				employeeService,
 				EntityUoWBuilder.ForCreate(),
-				uowFactory,
-				commonServices);
+				UnitOfWorkFactory,
+				CommonServices);
 
-		protected override Func<ApplicationDevelopmentProposalsJournalNode, ApplicationDevelopmentProposalViewModel> OpenDialogFunction => 
+		protected override Func<JournalEntityNodeBase, ApplicationDevelopmentProposalViewModel> OpenDialogFunction => 
 			node => new ApplicationDevelopmentProposalViewModel(
 				employeeService,
 				EntityUoWBuilder.ForOpen(node.Id),
-				uowFactory,
-				commonServices);
+				UnitOfWorkFactory,
+				CommonServices);
 
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultAddAction();
-			CreateDefaultEditAction();
-			CreateDefaultDeleteAction();
+			EntitiesJournalActionsViewModel.Initialize(
+				SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected, false);
 		}
-
-		private void CreateDefaultAddAction()
-		{
-			var entityConfig = EntityConfigs.First().Value;
-			var addAction = new JournalAction("Добавить",
-				selected => entityConfig.PermissionResult.CanCreate,
-				selected => entityConfig.PermissionResult.CanCreate,
-				selected => {
-					var docConfig = entityConfig.EntityDocumentConfigurations.First();
-					ITdiTab tab = docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction();
-
-					TabParent.OpenTab(() => tab, this);
-					if(docConfig.JournalParameters.HideJournalForCreateDialog) {
-						if(TabParent is ITdiSliderTab slider) {
-							slider.IsHideJournal = true;
-						}
-					}
-				},
-				"Insert");
-			NodeActionsList.Add(addAction);
-		}
+		
 		protected override void CreatePopupActions()
 		{
 			PopupActionsList.Add(

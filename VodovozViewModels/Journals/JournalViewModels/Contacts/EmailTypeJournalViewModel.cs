@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels;
@@ -15,19 +16,18 @@ namespace Vodovoz.Journals.JournalViewModels
 	{
 		public EmailTypeJournalViewModel
 		(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			IEmailRepository emailRepository,
 			IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(unitOfWorkFactory, commonServices)
+			: base(journalActionsViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
 			TabName = "Типы e-mail адресов";
 			UpdateOnChanges(typeof(EmailType));
 		}
 
 		IEmailRepository emailRepository;
-		IUnitOfWorkFactory unitOfWorkFactory;
 
 		protected override Func<IUnitOfWork, IQueryOver<EmailType>> ItemsSourceQueryFunction => (uow) => {
 
@@ -54,23 +54,22 @@ namespace Vodovoz.Journals.JournalViewModels
 		protected override Func<EmailTypeViewModel> CreateDialogFunction => () => new EmailTypeViewModel(
 			emailRepository,
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
-			commonServices
+			UnitOfWorkFactory,
+			CommonServices
 		);
 
-		protected override Func<EmailTypeJournalNode, EmailTypeViewModel> OpenDialogFunction => node => new EmailTypeViewModel(
+		protected override Func<JournalEntityNodeBase, EmailTypeViewModel> OpenDialogFunction => node => new EmailTypeViewModel(
 			emailRepository,
 			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
-			commonServices
+			UnitOfWorkFactory,
+			CommonServices
 		);
 
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
+			EntitiesJournalActionsViewModel.Initialize(
+				SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+				true, true, true, false);
 		}
 	}
 

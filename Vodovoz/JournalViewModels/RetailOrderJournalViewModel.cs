@@ -25,6 +25,7 @@ using QS.Project.Journal.DataLoader;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using QS.ViewModels;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
@@ -33,7 +34,6 @@ namespace Vodovoz.JournalViewModels
 {
 	public class RetailOrderJournalViewModel : FilterableMultipleEntityJournalViewModelBase<RetailOrderJournalNode, OrderJournalFilterViewModel>
 	{
-		private readonly ICommonServices commonServices;
 		private readonly IEmployeeService employeeService;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
@@ -41,6 +41,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 
 		public RetailOrderJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			OrderJournalFilterViewModel filterViewModel, 
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
@@ -48,9 +49,9 @@ namespace Vodovoz.JournalViewModels
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUserRepository userRepository)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -270,9 +271,9 @@ namespace Vodovoz.JournalViewModels
 					//функция диалога создания документа
 					() => new OrderDlg() { IsForRetail = FilterViewModel.IsForRetail },
 					//функция диалога открытия документа
-					(RetailOrderJournalNode node) => new OrderDlg(node.Id),
+					node => new OrderDlg(node.Id),
 					//функция идентификации документа 
-					(RetailOrderJournalNode node) => node.EntityType == typeof(VodovozOrder),
+					node => node.EntityType == typeof(VodovozOrder),
 					"Заказ",
 					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
 				);
@@ -363,16 +364,16 @@ namespace Vodovoz.JournalViewModels
 					() => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices
+						CommonServices
 					),
 					//функция диалога открытия документа
-					(RetailOrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
+					node => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices
+						CommonServices
 					),
 					//функция идентификации документа 
-					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
+					node => node.EntityType == typeof(OrderWithoutShipmentForDebt),
 					"Счет без отгрузки на долг",
 					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
 				);
@@ -492,16 +493,16 @@ namespace Vodovoz.JournalViewModels
 					() => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices
+						CommonServices
 					),
 					//функция диалога открытия документа
-					(RetailOrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
+					node => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices
+						CommonServices
 					),
 					//функция идентификации документа 
-					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
+					node => node.EntityType == typeof(OrderWithoutShipmentForPayment),
 					"Счет без отгрузки на постоплату",
 					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
 				);
@@ -611,7 +612,7 @@ namespace Vodovoz.JournalViewModels
 					() => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices,
+						CommonServices,
 						employeeService,
 						nomenclatureSelectorFactory,
 						counterpartySelectorFactory,
@@ -619,10 +620,10 @@ namespace Vodovoz.JournalViewModels
 						userRepository
 					),
 					//функция диалога открытия документа
-					(RetailOrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
+					node => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices,
+						CommonServices,
 						employeeService,
 						nomenclatureSelectorFactory,
 						counterpartySelectorFactory,
@@ -630,7 +631,7 @@ namespace Vodovoz.JournalViewModels
 						userRepository
 					),
 					//функция идентификации документа 
-					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
+					node => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
 					"Счет без отгрузки на предоплату",
 					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
 				);

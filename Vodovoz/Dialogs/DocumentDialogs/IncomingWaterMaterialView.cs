@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
+using QS.ViewModels;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Store;
@@ -90,23 +91,28 @@ namespace Vodovoz
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
 			ITdiTab mytab = DialogHelper.FindParentTab (this);
-			if (mytab == null) {
+			if (mytab == null)
+			{
 				logger.Warn ("Родительская вкладка не найдена.");
 				return;
 			}
 
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-				new WarehouseRepository()
-			);
-			filter.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse;
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseRepository())
+			{
+				RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse
+			};
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
+				journalActions,
 				filter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
-			);
+			)
+			{
+				SelectionMode = JournalSelectionMode.Single
+			};
 
-			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.OnEntitySelectedResult += (s, ea) => {
 				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
 				if(selectedNode == null) {

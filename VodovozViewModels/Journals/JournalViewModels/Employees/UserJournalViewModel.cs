@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels.Employees;
@@ -14,16 +15,21 @@ namespace Vodovoz.Journals
 {
     public class UserJournalViewModel : FilterableSingleEntityJournalViewModelBase<User, UserViewModel, UserJournalNode, UserJournalFilterViewModel>
     {
-        public UserJournalViewModel(UserJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public UserJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
+	        UserJournalFilterViewModel filterViewModel,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        ICommonServices commonServices)
+            : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал пользователей";
         }
 
-        protected override void CreateNodeActions()
+        protected override void InitializeJournalActionsViewModel()
         {
-            NodeActionsList.Clear();
-            CreateDefaultSelectAction();
+	        EntitiesJournalActionsViewModel.Initialize(
+		        SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+		        true, false, false, false);
         }
 
         protected override Func<IUnitOfWork, IQueryOver<User>> ItemsSourceQueryFunction => (uow) =>
@@ -52,12 +58,12 @@ namespace Vodovoz.Journals
         protected override Func<UserViewModel> CreateDialogFunction => () => new UserViewModel(
 			   EntityUoWBuilder.ForCreate(),
 			   UnitOfWorkFactory,
-			   commonServices
+			   CommonServices
 		   );
 
-		protected override Func<UserJournalNode, UserViewModel> OpenDialogFunction => (node) => new UserViewModel(
+		protected override Func<JournalEntityNodeBase, UserViewModel> OpenDialogFunction => node => new UserViewModel(
 			   EntityUoWBuilder.ForOpen(node.Id),
 			   UnitOfWorkFactory,
-			   commonServices);
+			   CommonServices);
     }
 }

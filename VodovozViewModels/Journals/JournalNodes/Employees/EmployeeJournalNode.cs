@@ -1,7 +1,7 @@
 ﻿using QS.Project.Journal;
 using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 {
 	public class EmployeeJournalNode : JournalEntityNodeBase<Employee>
 	{

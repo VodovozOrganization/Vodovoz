@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
@@ -14,12 +15,13 @@ namespace Vodovoz.JournalViewModels
 {
 	public class ClientCameFromJournalViewModel : FilterableSingleEntityJournalViewModelBase<ClientCameFrom, ClientCameFromViewModel, ClientCameFromJournalNode, ClientCameFromFilterViewModel>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-
-		public ClientCameFromJournalViewModel(ClientCameFromFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public ClientCameFromJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			ClientCameFromFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-
 			TabName = "Откуда клиент";
 			SetOrder(x => x.Name);
 			UpdateOnChanges(typeof(ClientCameFrom));
@@ -52,14 +54,14 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<ClientCameFromViewModel> CreateDialogFunction => () => new ClientCameFromViewModel (
 			EntityUoWBuilder.ForCreate(),
-		   	unitOfWorkFactory,
-			commonServices
+		   	UnitOfWorkFactory,
+			CommonServices
 		);
 
-		protected override Func<ClientCameFromJournalNode, ClientCameFromViewModel> OpenDialogFunction => node => new ClientCameFromViewModel(
+		protected override Func<JournalEntityNodeBase, ClientCameFromViewModel> OpenDialogFunction => node => new ClientCameFromViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-		    unitOfWorkFactory,
-			commonServices
+		    UnitOfWorkFactory,
+			CommonServices
 		);
 	}
 }

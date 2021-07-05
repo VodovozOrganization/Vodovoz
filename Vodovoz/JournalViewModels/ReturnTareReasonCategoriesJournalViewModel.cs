@@ -6,6 +6,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Orders;
@@ -14,14 +15,14 @@ namespace Vodovoz.JournalViewModels
 {
     public class ReturnTareReasonCategoriesJournalViewModel : SingleEntityJournalViewModelBase<ReturnTareReasonCategory, ReturnTareReasonCategoryViewModel, ReturnTareReasonCategoriesJournalNode>
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
-
-		public ReturnTareReasonCategoriesJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+		public ReturnTareReasonCategoriesJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			bool hideJournalForOpenDialog = false,
+			bool hideJournalForCreateDialog = false)
+			: base(journalActionsViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-
 			TabName = "Категории причин забора тары";
 
 			var threadLoader = DataLoader as ThreadDataLoader<ReturnTareReasonCategoriesJournalNode>;
@@ -50,23 +51,25 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<ReturnTareReasonCategoryViewModel> CreateDialogFunction => () => new ReturnTareReasonCategoryViewModel(
+			EntitiesJournalActionsViewModel,
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
-			commonServices
+			UnitOfWorkFactory,
+			CommonServices
 		);
 
-		protected override Func<ReturnTareReasonCategoriesJournalNode, ReturnTareReasonCategoryViewModel> OpenDialogFunction => node => new ReturnTareReasonCategoryViewModel(
-			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
-			commonServices
+		protected override Func<JournalEntityNodeBase, ReturnTareReasonCategoryViewModel> OpenDialogFunction =>
+			node => new ReturnTareReasonCategoryViewModel(
+				EntitiesJournalActionsViewModel,
+				EntityUoWBuilder.ForOpen(node.Id),
+				UnitOfWorkFactory,
+				CommonServices
 	   	);
-
-		protected override void CreateNodeActions()
+		
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
+			EntitiesJournalActionsViewModel.Initialize(
+				SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+				true, true, true, false);
 		}
     }
 }

@@ -41,8 +41,8 @@ namespace Vodovoz.ViewModels.Orders
 					
 					var nomenclatureSelectorFactory =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, filter, counterpartySelectorFactory,
-							 nomenclatureRepository, userRepository);
+							ServicesConfig.CommonServices, filter, new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+							counterpartySelectorFactory, nomenclatureRepository, userRepository);
 					
 					return new AddFixPriceActionViewModel(uow, promotionalSet, ServicesConfig.CommonServices, nomenclatureSelectorFactory);
 				default: 

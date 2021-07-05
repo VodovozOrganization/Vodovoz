@@ -9,6 +9,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -32,6 +33,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUserRepository userRepository;
 
 		public NomenclaturesJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			NomenclatureFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -40,7 +42,7 @@ namespace Vodovoz.JournalViewModels
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
-		) : base(filterViewModel, unitOfWorkFactory, commonServices) 
+		) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices) 
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
@@ -66,10 +68,10 @@ namespace Vodovoz.JournalViewModels
 		public IAdditionalJournalRestriction<Nomenclature> AdditionalJournalRestriction { get; set; } = null;
 
 		protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) => {
-			var canAddSpares = commonServices.PermissionService.ValidateUserPresetPermission("can_add_spares_to_order", currentUserId);
-			var canAddBottles = commonServices.PermissionService.ValidateUserPresetPermission("can_add_bottles_to_order", currentUserId);
-			var canAddMaterials = commonServices.PermissionService.ValidateUserPresetPermission("can_add_materials_to_order", currentUserId);
-			var canAddEquipmentNotForSale = commonServices.PermissionService.ValidateUserPresetPermission("can_add_equipment_not_for_sale_to_order", currentUserId);
+			var canAddSpares = CommonServices.PermissionService.ValidateUserPresetPermission("can_add_spares_to_order", currentUserId);
+			var canAddBottles = CommonServices.PermissionService.ValidateUserPresetPermission("can_add_bottles_to_order", currentUserId);
+			var canAddMaterials = CommonServices.PermissionService.ValidateUserPresetPermission("can_add_materials_to_order", currentUserId);
+			var canAddEquipmentNotForSale = CommonServices.PermissionService.ValidateUserPresetPermission("can_add_equipment_not_for_sale_to_order", currentUserId);
 
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits unitAlias = null;
@@ -169,12 +171,13 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<NomenclatureViewModel> CreateDialogFunction =>
-			() => new NomenclatureViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices,
+			() => new NomenclatureViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices,
 				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
 				userRepository);
 
-		protected override Func<NomenclatureJournalNode, NomenclatureViewModel> OpenDialogFunction =>
-			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
+		protected override Func<JournalEntityNodeBase, NomenclatureViewModel> OpenDialogFunction =>
+			node => new NomenclatureViewModel(
+				EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices,
 				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
 				userRepository);
 	}

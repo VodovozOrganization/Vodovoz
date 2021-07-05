@@ -1,8 +1,5 @@
 ﻿using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.Deletion;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -17,6 +14,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using QS.Project.DB;
+using QS.ViewModels;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
@@ -26,10 +24,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IPremiumTemplateJournalFactory _premiumTemplateJournalFactory;
-		public PremiumJournalViewModel(PremiumJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, IEmployeeService employeeService,
-			IEmployeeJournalFactory employeeJournalFactory, IPremiumTemplateJournalFactory premiumTemplateJournalFactory)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+		public PremiumJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			PremiumJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IEmployeeService employeeService,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IPremiumTemplateJournalFactory premiumTemplateJournalFactory)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -54,13 +57,38 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			);
 		}
 
-		protected override void CreateNodeActions()
+		private void ConfigureDeleteAction()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
-			CreateCustomDeleteAction();
+			EntitiesJournalActionsViewModel.CanDeleteFunc =
+				() =>
+				{
+					var selectedNodes = SelectedItems.OfType<PremiumJournalNode>().ToList();
+					if(selectedNodes.Count != 1)
+					{
+						return false;
+					}
+
+					PremiumJournalNode selectedNode = selectedNodes.First();
+					
+					if(selectedNode.EntityType == typeof(PremiumRaskatGAZelle))
+					{
+						return false;
+					}
+
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanDelete;
+				};
+		}
+		
+		protected override void InitializeJournalActionsViewModel()
+		{
+			base.InitializeJournalActionsViewModel();
+			ConfigureDeleteAction();
 		}
 
 		private void RegisterPremiums()
@@ -77,7 +105,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 						_premiumTemplateJournalFactory
 					),
 					//функция диалога открытия документа
-					(PremiumJournalNode node) => new PremiumViewModel(
+					node => new PremiumViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
 						_commonServices,
@@ -86,7 +114,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 						_premiumTemplateJournalFactory
 					),
 					//функция идентификации документа 
-					(PremiumJournalNode node) => node.EntityType == typeof(Premium),
+					node => node.EntityType == typeof(Premium),
 					"Премия",
 					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = false }
 				);
@@ -101,13 +129,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				RegisterEntity<PremiumRaskatGAZelle>(GetPremiumsRaskatGAZelleQuery)
 				.AddDocumentConfigurationWithoutCreation(
 				//функция диалога открытия документа
-				(PremiumJournalNode node) => new PremiumRaskatGAZelleViewModel(
+				node => new PremiumRaskatGAZelleViewModel(
 					EntityUoWBuilder.ForOpen(node.Id),
 					UnitOfWorkFactory,
 					_commonServices
 				),
 				//функция идентификации документа 
-				(PremiumJournalNode node) => node.EntityType == typeof(PremiumRaskatGAZelle),
+				node => node.EntityType == typeof(PremiumRaskatGAZelle),
 				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = false }
 				);
 
@@ -229,52 +257,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				.TransformUsing(Transformers.AliasToBean<PremiumJournalNode<PremiumRaskatGAZelle>>());
 
 			return resultQuery;
-		}
-
-		private void CreateCustomDeleteAction()
-		{
-			var deleteAction = new JournalAction("Удалить",
-				(selected) =>
-				{
-					var selectedNodes = selected.OfType<PremiumJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1)
-					{
-						return false;
-					}
-					PremiumJournalNode selectedNode = selectedNodes.First();
-					if(selectedNode.EntityType == typeof(PremiumRaskatGAZelle))
-					{
-						return false;
-					}
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
-					{
-						return false;
-					}
-					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanDelete;
-				},
-				(selected) => true,
-				(selected) =>
-				{
-					var selectedNodes = selected.OfType<PremiumJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1)
-					{
-						return;
-					}
-					PremiumJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
-					{
-						return;
-					}
-					var config = EntityConfigs[selectedNode.EntityType];
-					if(config.PermissionResult.CanDelete)
-					{
-						DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
-					}
-				},
-				"Delete"
-			);
-			NodeActionsList.Add(deleteAction);
 		}
 	}
 }

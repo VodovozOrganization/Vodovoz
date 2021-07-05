@@ -10,11 +10,12 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using System.Linq;
 using QS.ViewModels;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewModels
 {
-	public class BusinessTasksJournalActionsViewModel : WidgetViewModelBase//JournalActionsViewModel
+	public class BusinessTasksJournalActionsViewModel : WidgetViewModelBase
 	{
 		public object[] SelectedObjs;
 
@@ -56,8 +57,14 @@ namespace Vodovoz.ViewModels
 			EmployeeSelectorFactory =
 				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
 					() => {
-						var filter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.office };
-						return new EmployeesJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+						var filter = new EmployeeFilterViewModel
+						{
+							Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.office
+						};
+						var journalActions = 
+							new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+
+						return new EmployeesJournalViewModel(journalActions, filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 					});
 		}
 

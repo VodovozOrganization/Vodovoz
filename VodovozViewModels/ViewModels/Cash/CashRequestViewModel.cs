@@ -37,8 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         private readonly IUnitOfWorkFactory unitOfWorkFactory;
         private readonly ConsoleInteractiveService consoleInteractiveService;
         public HashSet<CashRequestSumItem> SumsGiven = new HashSet<CashRequestSumItem>();
-
-
+        
         public string StateName => Entity.State.GetEnumTitle();
         public CashRequestViewModel(
             IEntityUoWBuilder uowBuilder,
@@ -65,6 +64,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     {
                         var expenseCategoryJournalViewModel =
                             new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
+	                            new EntitiesJournalActionsViewModel(commonServices.InteractiveService),
                                 x => x.Name,
                                 () => new ExpenseCategoryViewModel(
                                     EntityUoWBuilder.ForCreate(),
@@ -92,8 +92,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                         return expenseCategoryJournalViewModel;
                     });
                 
-                var expenseCategorySelectorFactory = 
-            CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
+            var expenseCategorySelectorFactory = CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
             if(uowBuilder.IsNewEntity)
                 TabName = "Создание новой заявки на выдачу ДС";

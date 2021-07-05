@@ -10,6 +10,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Suppliers;
@@ -25,8 +26,6 @@ namespace Vodovoz.JournalViewModels.Suppliers
 {
 	public class RequestsToSuppliersJournalViewModel : FilterableSingleEntityJournalViewModelBase<RequestToSupplier, RequestToSupplierViewModel, RequestToSupplierJournalNode, RequestsToSuppliersFilterViewModel>
 	{
-		private readonly RequestsToSuppliersFilterViewModel filterViewModel;
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
 		private readonly IEmployeeService employeeService;
 		private readonly INomenclatureRepository nomenclatureRepository;
@@ -35,6 +34,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 
 		public RequestsToSuppliersJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			RequestsToSuppliersFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -44,14 +44,12 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
-			this.filterViewModel = filterViewModel;
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			
@@ -120,8 +118,8 @@ namespace Vodovoz.JournalViewModels.Suppliers
 
 		protected override Func<RequestToSupplierViewModel> CreateDialogFunction => () => new RequestToSupplierViewModel(
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
-			commonServices,
+			UnitOfWorkFactory,
+			CommonServices,
 			employeeService,
 			supplierPriceItemsRepository,
 			counterpartySelectorFactory,
@@ -130,10 +128,10 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			userRepository
 		);
 
-		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n => new RequestToSupplierViewModel(
+		protected override Func<JournalEntityNodeBase, RequestToSupplierViewModel> OpenDialogFunction => n => new RequestToSupplierViewModel(
 			EntityUoWBuilder.ForOpen(n.Id),
-			unitOfWorkFactory,
-			commonServices,
+			UnitOfWorkFactory,
+			CommonServices,
 			employeeService,
 			supplierPriceItemsRepository,
 			counterpartySelectorFactory,
@@ -156,8 +154,8 @@ namespace Vodovoz.JournalViewModels.Suppliers
 
 							RequestToSupplierViewModel newRequestVM = new RequestToSupplierViewModel(
 								EntityUoWBuilder.ForCreate(),
-								unitOfWorkFactory,
-								commonServices,
+								UnitOfWorkFactory,
+								CommonServices,
 								employeeService,
 								supplierPriceItemsRepository,
 								counterpartySelectorFactory,

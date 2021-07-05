@@ -13,6 +13,7 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
+using QS.ViewModels;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Documents;
@@ -102,18 +103,22 @@ namespace Vodovoz
 				return;
 			}
 
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-				new WarehouseRepository()
-			);
-			filter.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse;
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseRepository())
+			{
+				RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse
+			};
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
+				journalActions,
 				filter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
-			);
+			)
+			{
+				SelectionMode = JournalSelectionMode.Single
+			};
 
-			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.OnEntitySelectedResult += (s, ea) => {
 				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
 				if(selectedNode == null) {

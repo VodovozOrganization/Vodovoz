@@ -5,6 +5,7 @@ using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Journals.FilterViewModels;
@@ -39,9 +40,16 @@ namespace Vodovoz.ViewWidgets.Logistics
 
 		protected void OnButtonAddDistrictClicked(object sender, EventArgs e)
 		{
-			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active, OnlyWithBorders = true };
-			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
-				EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false, SelectionMode = JournalSelectionMode.Multiple
+			var filter = new DistrictJournalFilterViewModel
+			{
+				Status = DistrictsSetStatus.Active, OnlyWithBorders = true
+			};
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.CommonServices.InteractiveService);
+			
+			var journalViewModel = new DistrictJournalViewModel(
+				journalActions, filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) 
+			{
+				SelectionMode = JournalSelectionMode.Multiple
 			};
 			journalViewModel.OnEntitySelectedResult += (o, args) => {
 				var addDistricts = args.SelectedNodes;

@@ -4,11 +4,9 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
@@ -16,15 +14,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
     public class EmployeePostsJournalViewModel : SingleEntityJournalViewModelBase<EmployeePost, EmployeePostViewModel, EmployeePostJournalNode>
     {
-        private readonly ICommonServices _commonServices;
-
         public EmployeePostsJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices)
-            : base(unitOfWorkFactory, commonServices)
+            : base(journalActionsViewModel, unitOfWorkFactory, commonServices)
         {
-            _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-
             TabName = "Журнал должностей";
         }
 
@@ -47,21 +42,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
         protected override Func<EmployeePostViewModel> CreateDialogFunction => () => new EmployeePostViewModel(
             EntityUoWBuilder.ForCreate(),
-            QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-            _commonServices);
+            UnitOfWorkFactory,
+            CommonServices);
 
-        protected override Func<EmployeePostJournalNode, EmployeePostViewModel> OpenDialogFunction => (node) => new EmployeePostViewModel(
+        protected override Func<JournalEntityNodeBase, EmployeePostViewModel> OpenDialogFunction => node => new EmployeePostViewModel(
             EntityUoWBuilder.ForOpen(node.Id),
-            QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-            _commonServices
+            UnitOfWorkFactory,
+            CommonServices
         );
 
-        protected override void CreateNodeActions()
+        protected override void InitializeJournalActionsViewModel()
         {
-            NodeActionsList.Clear();
-            CreateDefaultSelectAction();
-            CreateDefaultAddActions();
-            CreateDefaultEditAction();
+	        EntitiesJournalActionsViewModel.Initialize(SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+		        true, true, true, false);
         }
     }
 }

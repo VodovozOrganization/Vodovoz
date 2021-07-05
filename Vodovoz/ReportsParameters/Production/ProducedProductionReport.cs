@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
+using QS.ViewModels;
 using QSReport;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Goods;
@@ -45,7 +46,10 @@ namespace Vodovoz.ReportsParameters.Production
 					() =>
 					{
 						var nomenclatureFilter = new NomenclatureFilterViewModel();
+						var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+							
 						return new NomenclaturesJournalViewModel(
+							journalActions,
 							nomenclatureFilter,
 							UnitOfWorkFactory.GetDefaultFactory,
 							ServicesConfig.CommonServices,
@@ -76,21 +80,20 @@ namespace Vodovoz.ReportsParameters.Production
 
 		private ReportInfo GetReportInfo()
 		{
-			
 			CultureInfo ci = new CultureInfo("ru-RU");
 			DateTimeFormatInfo mfi = ci.DateTimeFormat;
 
             var monthNum = (int)yenumcomboboxMonths.SelectedItem;
-			string strMonthName = mfi.GetMonthName(monthNum).ToString();
+			string strMonthName = mfi.GetMonthName(monthNum);
 
             var year = (int)ylistcomboboxYear.SelectedItem;
             var reportDate = new DateTime(year, monthNum, 1);
 
             var monthNumMinus1 = reportDate.AddMonths(-1).Month;
-            string strMonthNameMinus1 = mfi.GetMonthName(monthNumMinus1).ToString();
+            string strMonthNameMinus1 = mfi.GetMonthName(monthNumMinus1);
 			
 			var monthNumMinus2 = reportDate.AddMonths(-2).Month;
-			string strMonthNameMinus2 = mfi.GetMonthName(monthNumMinus2).ToString();
+			string strMonthNameMinus2 = mfi.GetMonthName(monthNumMinus2);
 
             return new ReportInfo {
 				Identifier = "Production.ProducedProduction",

@@ -20,7 +20,7 @@ namespace Vodovoz.Views.Employees
 			yspinMoney.Binding.AddBinding(ViewModel.Entity, e => e.TotalMoney, w => w.ValueAsDecimal).InitializeFromSource();
 			yentryPremiumReasonString.Binding.AddBinding(ViewModel.Entity, e => e.PremiumReasonString, w => w.Text).InitializeFromSource();
 			ylabelTotal.Binding.AddBinding(ViewModel, vm => vm.EmployeesSum, w => w.LabelProp).InitializeFromSource();
-			employeeViewModelEntry.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeAutocompleteSelectorFactory);
+			employeeViewModelEntry.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 			employeeViewModelEntry.CanEditReference = true;
 			employeeViewModelEntry.Sensitive = false;
 			employeeViewModelEntry.Binding.AddBinding(ViewModel.Entity, e => e.Author, w => w.Subject).InitializeFromSource();

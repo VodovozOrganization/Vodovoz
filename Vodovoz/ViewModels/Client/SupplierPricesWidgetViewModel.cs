@@ -69,8 +69,7 @@ namespace Vodovoz.ViewModels.Client
 			Entity.SupplierPriceListRefresh(Search?.SearchValues);
 			ListContentChanged?.Invoke(this, new EventArgs());
 		}
-
-
+		
 		public bool CanAdd { get; set; } = true;
 		public bool CanEdit { get; set; } = false;//задача редактирования пока не актуальна
 
@@ -93,7 +92,10 @@ namespace Vodovoz.ViewModels.Client
 					var filter = new NomenclatureFilterViewModel() {
 						HidenByDefault = true
 					};
+					var journalActions = new EntitiesJournalActionsViewModel(CommonServices.InteractiveService);
+					
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+						journalActions,
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,

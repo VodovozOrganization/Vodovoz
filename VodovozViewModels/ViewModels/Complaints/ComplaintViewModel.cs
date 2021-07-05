@@ -292,7 +292,9 @@ namespace Vodovoz.ViewModels.Complaints
 				() => {
 					var fineFilter = new FineFilterViewModel();
 					fineFilter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
+					var journalActions = new EntitiesJournalActionsViewModel(CommonServices.InteractiveService);
 					var fineJournalViewModel = new FinesJournalViewModel(
+						journalActions,
 						fineFilter,
 						undeliveryViewOpener,
 						EmployeeService,

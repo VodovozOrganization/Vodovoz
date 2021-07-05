@@ -11,6 +11,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -24,15 +25,14 @@ namespace Vodovoz.Journals.JournalViewModels
                                                      FinancialDistrictsSetsJournalNode, 
                                                      FinancialDistrictsSetsJournalFilterViewModel>
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
         private readonly IEmployeeService employeeService;
         private readonly IEntityDeleteWorker entityDeleteWorker;
 		
         private readonly bool canUpdate;
-        private readonly bool canCreate;
         private readonly bool canActivateDistrictsSet;
 
         public FinancialDistrictsSetsJournalViewModel(
+	        FinancialDistrictsSetJournalActionsViewModel journalActionsViewModel,
             FinancialDistrictsSetsJournalFilterViewModel filterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
@@ -40,15 +40,19 @@ namespace Vodovoz.Journals.JournalViewModels
             IEntityDeleteWorker entityDeleteWorker,
             bool hideJournalForOpenDialog = false, 
             bool hideJournalForCreateDialog = false)
-            : base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+            : base(
+	            journalActionsViewModel,
+	            filterViewModel,
+	            unitOfWorkFactory,
+	            commonServices,
+	            hideJournalForOpenDialog,
+	            hideJournalForCreateDialog)
         {
             this.entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
-            this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
             this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			
             canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_financial_districts_set");
             var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FinancialDistrictsSet));
-            canCreate = permissionResult.CanCreate;
             canUpdate = permissionResult.CanUpdate;
 
             TabName = "Журнал версий финансовых районов";
@@ -85,62 +89,24 @@ namespace Vodovoz.Journals.JournalViewModels
 
 		protected override Func<FinancialDistrictsSetViewModel> CreateDialogFunction => () =>
 			new FinancialDistrictsSetViewModel(
-				EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, entityDeleteWorker, employeeService);
+				EntityUoWBuilder.ForCreate(),
+				UnitOfWorkFactory,
+				CommonServices,
+				entityDeleteWorker,
+				employeeService);
 
-		protected override Func<FinancialDistrictsSetsJournalNode, FinancialDistrictsSetViewModel> OpenDialogFunction => node =>
+		protected override Func<JournalEntityNodeBase, FinancialDistrictsSetViewModel> OpenDialogFunction => node =>
 			new FinancialDistrictsSetViewModel(
-				EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, entityDeleteWorker, employeeService);
+				EntityUoWBuilder.ForOpen(node.Id),
+				UnitOfWorkFactory,
+				CommonServices,
+				entityDeleteWorker,
+				employeeService);
 		
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
-			CreateCopyAction();
-		}
-
-		private void CreateCopyAction()
-		{
-			var copyAction = new JournalAction("Копировать",
-				selectedItems => canCreate && 
-				                 selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault() != null,
-				selected => true,
-				selected => {
-					var selectedNode = selected.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault();
-					
-					if(selectedNode == null)
-						return;
-					
-					var districtsSetToCopy = UoW.GetById<FinancialDistrictsSet>(selectedNode.Id);
-					var alreadyCopiedDistrict = 
-						UoW.Session.QueryOver<FinancialDistrict>()
-								   .WhereRestrictionOn(x => x.CopyOf.Id)
-								   .IsIn(districtsSetToCopy.FinancialDistricts.Select(x => x.Id).ToArray())
-								   .Take(1)
-								   .SingleOrDefault();
-					
-					if(alreadyCopiedDistrict != null) {
-						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-							$"Выбранная версия районов уже была скопирована\nКопия: {alreadyCopiedDistrict.FinancialDistrictsSet.Id} {alreadyCopiedDistrict.FinancialDistrictsSet.Name}");
-						return;
-					}
-					
-					if(commonServices.InteractiveService.Question($"Скопировать версию районов \"{selectedNode.Name}\"")) {
-						var copy = districtsSetToCopy.Clone() as FinancialDistrictsSet;
-						copy.Name += " - копия";
-						copy.Author = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
-						copy.Status = DistrictsSetStatus.Draft;
-						copy.DateCreated = DateTime.Now;
-						
-						UoW.Save(copy);
-						UoW.Commit();
-						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Копирование завершено");
-						Refresh();
-					}
-				}
-			);
-			NodeActionsList.Add(copyAction);
+			EntitiesJournalActionsViewModel.Initialize(SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+				true, true, true, false);
 		}
 
 		protected override void CreatePopupActions()
@@ -172,7 +138,9 @@ namespace Vodovoz.Journals.JournalViewModels
 															.SingleOrDefault();
 						
 						if(activeFinancialDistrictsSet?.DateCreated > selectedNode.DateCreated) {
-							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя активировать, так как дата создания выбранной версии меньше чем дата создания активной версии");
+							CommonServices.InteractiveService.ShowMessage(
+								ImportanceLevel.Warning,
+								"Нельзя активировать, так как дата создания выбранной версии меньше чем дата создания активной версии");
 							return;
 						}
 						

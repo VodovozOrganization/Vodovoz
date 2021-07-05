@@ -5,6 +5,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using QS.ViewModels;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
@@ -15,8 +16,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	public class CarEventTypeJournalViewModel : SingleEntityJournalViewModelBase<CarEventType, CarEventTypeViewModel,
 		CarEventTypeJournalNode>
 	{
-		public CarEventTypeJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(unitOfWorkFactory, commonServices)
+		public CarEventTypeJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+			: base(journalActionsViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Виды событий ТС";
 
@@ -49,9 +53,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		};
 
 		protected override Func<CarEventTypeViewModel> CreateDialogFunction => () =>
-			new CarEventTypeViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
+			new CarEventTypeViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices);
 
-		protected override Func<CarEventTypeJournalNode, CarEventTypeViewModel> OpenDialogFunction =>
-			(node) => new CarEventTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
+		protected override Func<JournalEntityNodeBase, CarEventTypeViewModel> OpenDialogFunction =>
+			(node) => new CarEventTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices);
 	}
 }

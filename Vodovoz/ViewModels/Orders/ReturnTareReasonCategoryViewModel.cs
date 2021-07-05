@@ -1,3 +1,4 @@
+using System;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
@@ -11,10 +12,16 @@ namespace Vodovoz.ViewModels.Orders
 {
     public class ReturnTareReasonCategoryViewModel : EntityTabViewModelBase<ReturnTareReasonCategory>
     {
-        public ReturnTareReasonCategoryViewModel(IEntityUoWBuilder uowBuilder, 
-                                        IUnitOfWorkFactory unitOfWorkFactory,
-                                        ICommonServices commonServices) : base(uowBuilder, unitOfWorkFactory, commonServices)
+	    private readonly EntitiesJournalActionsViewModel _journalActionsViewModel;
+	    
+        public ReturnTareReasonCategoryViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
+	        IEntityUoWBuilder uowBuilder,
+            IUnitOfWorkFactory unitOfWorkFactory,
+            ICommonServices commonServices) : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
+	        _journalActionsViewModel = journalActionsViewModel ?? throw new ArgumentNullException(nameof(journalActionsViewModel));
+	        
             if(uowBuilder.IsNewEntity)
                 TabName = "Создание новой категории причины забора тары";
 			else
@@ -43,7 +50,6 @@ namespace Vodovoz.ViewModels.Orders
 
 		#endregion
 
-
 		public void CreateCommands()
 		{
 			CreateAddReasonCommand();
@@ -63,7 +69,7 @@ namespace Vodovoz.ViewModels.Orders
 			AddReasonCommand = new DelegateCommand(
 				() => {
 
-					var reasonsSelector = new ReturnTareReasonsJournalViewModel(UnitOfWorkFactory, CommonServices) 
+					var reasonsSelector = new ReturnTareReasonsJournalViewModel(_journalActionsViewModel, UnitOfWorkFactory, CommonServices) 
 					{
 						SelectionMode = QS.Project.Journal.JournalSelectionMode.Single
 					};

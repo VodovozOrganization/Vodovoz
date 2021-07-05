@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using QS.ViewModels;
 using Vodovoz.Additions;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.Employees;
@@ -39,6 +40,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
@@ -231,7 +233,11 @@ namespace Vodovoz
 
             var unitOfWorkFactory = UnitOfWorkFactory.GetDefaultFactory;
             var commonServices = ServicesConfig.CommonServices;
-            var employeePostJournalFactory = new EmployeePostsJournalFactory(unitOfWorkFactory, commonServices);
+            var employeePostJournalFactory = 
+	            new EmployeePostsJournalFactory(
+		            new EntitiesJournalActionsViewModel(commonServices.InteractiveService),
+		            unitOfWorkFactory,
+		            commonServices);
             entryEmployeePost.SetEntityAutocompleteSelectorFactory(employeePostJournalFactory);
             entryEmployeePost.Binding.AddBinding(Entity, e => e.Post, w => w.Subject).InitializeFromSource();
 
@@ -754,13 +760,29 @@ namespace Vodovoz
 				entityentrySubdivision.SetEntityAutocompleteSelectorFactory(
 					new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 						typeof(Subdivision), () => {
-							var filter = new SubdivisionFilterViewModel();
-							filter.SubdivisionType = SubdivisionType.Logistic;
+							var filter = new SubdivisionFilterViewModel
+							{
+								SubdivisionType = SubdivisionType.Logistic
+							};
 							IEntityAutocompleteSelectorFactory employeeSelectorFactory =
-								new DefaultEntityAutocompleteSelectorFactory
-								<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
+								new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+									() =>
+									{
+										var employeeFilter = new EmployeeFilterViewModel();
+
+										var employeesJournalActions = 
+											new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+						
+										return new EmployeesJournalViewModel(
+											employeesJournalActions,
+											employeeFilter,
+											UnitOfWorkFactory.GetDefaultFactory,
+											ServicesConfig.CommonServices);
+									});
+							var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 							return new SubdivisionsJournalViewModel(
+								journalActions,
 								filter,
 								UnitOfWorkFactory.GetDefaultFactory,
 								ServicesConfig.CommonServices,

@@ -4,6 +4,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
@@ -12,19 +13,23 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
 {
     public class ExpenseCategorySelectorFactory : IEntitySelectorFactory
     {
-        public ExpenseCategorySelectorFactory(ICommonServices commonServices, 
+        public ExpenseCategorySelectorFactory(
+	        ExpenseCategoryJournalActionsViewModel journalActionsViewModel,
+	        ICommonServices commonServices, 
             ExpenseCategoryJournalFilterViewModel filterViewModel,
             IFileChooserProvider fileChooserProvider
         )
         {
-            this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-            filter = filterViewModel;
-            this.fileChooserProvider = fileChooserProvider;
+            JournalActionsViewModel = journalActionsViewModel ?? throw new ArgumentNullException(nameof(journalActionsViewModel));
+            CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+            Filter = filterViewModel;
+            FileChooserProvider = fileChooserProvider;
         }
 
-        protected readonly ICommonServices commonServices;
-        protected readonly ExpenseCategoryJournalFilterViewModel filter;
-        protected readonly IFileChooserProvider fileChooserProvider;
+        protected readonly ExpenseCategoryJournalActionsViewModel JournalActionsViewModel;
+        protected readonly ICommonServices CommonServices;
+        protected readonly ExpenseCategoryJournalFilterViewModel Filter;
+        protected readonly IFileChooserProvider FileChooserProvider;
 
         public Type EntityType => typeof(ExpenseCategory);
 
@@ -32,10 +37,11 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
         {
             
             ExpenseCategoryJournalViewModel selectorViewModel = new ExpenseCategoryJournalViewModel(
-                filter,
+	            JournalActionsViewModel,
+                Filter,
                 UnitOfWorkFactory.GetDefaultFactory,
-                commonServices,
-                fileChooserProvider
+                CommonServices,
+                FileChooserProvider
             )
             {
                 SelectionMode = JournalSelectionMode.Single

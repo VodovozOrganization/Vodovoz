@@ -7,12 +7,14 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Utilities;
 using QS.Utilities.Text;
+using QS.ViewModels;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
@@ -42,7 +44,12 @@ namespace Vodovoz.Dialogs.Cash
 						{
 							Status = EmployeeStatus.IsWorking,
 						};
+						
+						var employeesJournalActions = 
+							new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
+						
 						return new EmployeesJournalViewModel(
+							employeesJournalActions,
 							employeeFilter,
 							UnitOfWorkFactory.GetDefaultFactory,
 							ServicesConfig.CommonServices);
@@ -59,15 +66,28 @@ namespace Vodovoz.Dialogs.Cash
 
 			//Подразделение
 			var employeeSelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory
-					<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
+				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+					() =>
+					{
+						var employeeFilter = new EmployeeFilterViewModel();
 
-			var filter = new SubdivisionFilterViewModel() {SubdivisionType = SubdivisionType.Default};
+						var employeesJournalActions =
+							new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
 
+						return new EmployeesJournalViewModel(
+							employeesJournalActions,
+							employeeFilter,
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices);
+					});
+
+			var filter = new SubdivisionFilterViewModel {SubdivisionType = SubdivisionType.Default};
+			var subdivisionsJournalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 					typeof(Subdivision),
 					() => new SubdivisionsJournalViewModel(
+						subdivisionsJournalActions,
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
