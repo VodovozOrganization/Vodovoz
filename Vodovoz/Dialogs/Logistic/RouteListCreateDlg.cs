@@ -398,7 +398,10 @@ namespace Vodovoz
 					Save();
 
 					if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck && !Entity.NeedToLoad) {
-						if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle())) {
+						if(MessageDialogHelper.RunQuestionDialog(
+							"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?",
+							RouteListStatus.OnClosing.GetEnumTitle()))
+						{
 							Entity.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker);
 						}
 					} else {
