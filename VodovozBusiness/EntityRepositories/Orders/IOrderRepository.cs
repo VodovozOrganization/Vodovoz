@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Orders;
@@ -133,7 +132,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<PaymentItem> GetPaymentItemsForOrder(IUnitOfWork uow, int orderId);
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
-		IList<Domain.Orders.Order> GetOrders(IUnitOfWork uow, int[] ids);
+		IEnumerable<Domain.Orders.Order> GetOrders(IUnitOfWork uow, int[] ids);
 		bool CanAddVodovozCatalogToOrder(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int leafletId, int geographicGroup);
     }

@@ -492,7 +492,7 @@ namespace Vodovoz.Domain.Client
 		public virtual GenericObservableList<DeliveryPointEstimatedCoordinate> ObservableDeliveryPointEstimatedCoordinates
 		{
 			get => observableDeliveryPointEstimatedCoordinates
-					?? new GenericObservableList<DeliveryPointEstimatedCoordinate>(DeliveryPointEstimatedCoordinates);
+					?? (observableDeliveryPointEstimatedCoordinates = new GenericObservableList<DeliveryPointEstimatedCoordinate>(DeliveryPointEstimatedCoordinates));
 		}
 
 		#region Временные поля для хранения фиксированных цен из 1с

@@ -151,19 +151,9 @@ namespace Vodovoz.EntityRepositories.Employees
 				.Inner.JoinAlias(() => routeListAddress.RouteList, () => routeList)
 				.Inner.JoinAlias(() => routeListAddress.Order, () => vodovozOrder)
 				.Inner.JoinAlias(() => routeList.Driver, () => employee)
-				.Where(Restrictions.And(
-					Restrictions.Eq(
-						Projections.Property(() => vodovozOrder.Id),
-						orderId
-					),
-					Restrictions.Not(
-						Restrictions.Eq(
-							Projections.Property(() => routeListAddress.Status),
-							RouteListItemStatus.Transfered
-						)
-					)
-				))
-				.Where(Restrictions.IsNull(Projections.Property(() => routeListAddress.TransferedTo)))
+				.Where(Restrictions.Eq(Projections.Property(() => vodovozOrder.Id), orderId))
+				.And(Restrictions.Not(Restrictions.Eq(Projections.Property(() => routeListAddress.Status), RouteListItemStatus.Transfered)))
+				.And(Restrictions.IsNull(Projections.Property(() => routeListAddress.TransferedTo)))
 				.Select(Projections.Property(() => employee.AndroidToken))
 				.SingleOrDefault<string>();
 		}
