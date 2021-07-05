@@ -49,12 +49,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitrixPaymentController.cs" />
+    <Compile Include="DriverAPIHelper.cs" />
     <Compile Include="DTO\PaymentResult.cs" />
     <Compile Include="DTO\RequestBody.cs" />
+    <Compile Include="DTO\SendPaymentRequest.cs" />
     <Compile Include="DTO\SendResponse.cs" />
     <Compile Include="DTO\SmsPaymentCacheDTO.cs" />
     <Compile Include="DTO\SmsPaymentDTO.cs" />
     <Compile Include="DTO\StatusCode.cs" />
+    <Compile Include="ISmsPaymentStatusNotificationReciever.cs" />
     <Compile Include="SmsPaymentDTOFactory.cs" />
     <Compile Include="SmsPaymentFileCache.cs" />
     <Compile Include="IPaymentController.cs" />
@@ -88,6 +91,8 @@
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NHibernate" Version="5.3.8" />
     <PackageReference Include="NLog" Version="4.7.10" />

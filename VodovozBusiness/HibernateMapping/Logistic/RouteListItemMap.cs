@@ -47,9 +47,9 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.CashierCommentAuthor)				.Column("cashier_comment_author");
 			References(x => x.DriverWageCalculationMethodic)	.Column("driver_wage_calculation_methodic_id");
 			References(x => x.ForwarderWageCalculationMethodic)	.Column("forwarder_wage_calculation_methodic_id");
-			References(x => x.LateArrivalReason).Column("late_arrival_reason_id");
-			References(x => x.LateArrivalReasonAuthor).Column("late_arrival_reason_author_id");
-			References(x => x.CommentForFineAuthor).Column("comment_for_fine_author_id");
+			References(x => x.LateArrivalReason)                .Column("late_arrival_reason_id");
+			References(x => x.LateArrivalReasonAuthor)          .Column("late_arrival_reason_author_id");
+			References(x => x.CommentForFineAuthor)             .Column("comment_for_fine_author_id");
 			
 			HasManyToMany(x => x.Fines)
 				.Table("fines_to_route_list_addresses")

@@ -2,6 +2,8 @@
 *.userprefs
 *.usertasks
 *.DotSettings.user
+*.csproj.user
+*.pubxml.user
 *~
 
 #Rider
@@ -25,3 +27,6 @@ WinInstall/*
 !*.nsi
 !*.sh
 *.sln.DotSettings.user
+
+#Production Environment Settings
+*appsettings.Production.json
