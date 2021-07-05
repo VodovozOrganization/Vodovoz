@@ -102,5 +102,34 @@ namespace Vodovoz.EntityRepositories.Complaints
 
 			return result;
 		}
+
+		public IEnumerable<DriverComplaintReason> GetDriverComplaintReasons(IUnitOfWork unitOfWork)
+		{
+			DriverComplaintReason driverComplaintReasonAlias = null;
+
+			var query = unitOfWork.Session.QueryOver<DriverComplaintReason>();
+
+			return query.List();
+		}
+
+		public IEnumerable<DriverComplaintReason> GetDriverComplaintPopularReasons(IUnitOfWork unitOfWork)
+        {
+			DriverComplaintReason driverComplaintReasonAlias = null;
+
+			var query = unitOfWork.Session.QueryOver<DriverComplaintReason>()
+						   .Where(c => c.IsPopular);
+
+			return query.List();
+		}
+
+        public DriverComplaintReason GetDriverComplaintReasonById(IUnitOfWork unitOfWork, int driverComplaintReasonId)
+        {
+			return unitOfWork.GetById<DriverComplaintReason>(driverComplaintReasonId);
+		}
+
+        public ComplaintSource GetComplaintSourceById(IUnitOfWork unitOfWork, int complaintSourceId)
+        {
+			return unitOfWork.GetById<ComplaintSource>(complaintSourceId);
+		}
 	}
 }
