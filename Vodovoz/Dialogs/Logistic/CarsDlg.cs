@@ -15,7 +15,6 @@ using QS.Project.Services;
 using Vodovoz.EntityRepositories.Logistic;
 using QS.Dialog.GtkUI;
 using QS.Project.Journal.EntitySelector;
-using QS.ViewModels;
 using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalViewModels;
 

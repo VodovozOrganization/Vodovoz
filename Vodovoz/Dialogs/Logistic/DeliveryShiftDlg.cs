@@ -1,6 +1,5 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QS.Validation;
 using QSWidgetLib;
 using Vodovoz.Domain.Logistic;

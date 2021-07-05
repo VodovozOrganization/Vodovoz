@@ -22,8 +22,6 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
-using QS.Osm;
-using QS.Osm.Osrm;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
