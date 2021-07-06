@@ -43,8 +43,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
 		IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false);
 
-		IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow);
-
 		/// <summary>
 		/// Оборудование заказа от клиента
 		/// </summary>
