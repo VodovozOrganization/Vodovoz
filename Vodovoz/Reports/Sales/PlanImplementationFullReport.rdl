@@ -515,10 +515,10 @@ LEFT JOIN (
 		FROM orders o
 		LEFT JOIN order_items i ON o.id = i.order_id
 		LEFT JOIN nomenclature n ON n.id = i.nomenclature_id
-		WHERE (IF(@date_type,
+		WHERE (IF(@is_creation_date,
 			   o.create_date BETWEEN @start_date AND @end_date,
 			   o.delivery_date BETWEEN @start_date AND @end_date))
-			AND (IF(@date_type,
+			AND (IF(@is_creation_date,
                o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
 			   o.order_status NOT IN('New','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
                OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
@@ -534,10 +534,10 @@ LEFT JOIN (
 		FROM orders o
 		LEFT JOIN order_items oi ON o.id = oi.order_id
 		LEFT JOIN nomenclature adds ON adds.id = oi.nomenclature_id
-		WHERE (IF(@date_type,
+		WHERE (IF(@is_creation_date,
 			   o.create_date BETWEEN @start_date AND @end_date,
 			   o.delivery_date BETWEEN @start_date AND @end_date))
-			AND (IF(@date_type,
+			AND (IF(@is_creation_date,
                o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
 			   o.order_status NOT IN('New','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
                OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
@@ -546,10 +546,10 @@ LEFT JOIN (
 		GROUP BY o.id
 		) AS additions on additions.order_id = o.id
 	LEFT JOIN route_list_addresses a ON a.order_id = o.id
-	WHERE (IF(@date_type,
+	WHERE (IF(@is_creation_date,
 			   o.create_date BETWEEN @start_date AND @end_date,
 			   o.delivery_date BETWEEN @start_date AND @end_date))
-			AND (IF(@date_type,
+			AND (IF(@is_creation_date,
                o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
 			   o.order_status NOT IN('New','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
                OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
@@ -567,8 +567,8 @@ ORDER BY e.last_name</CommandText>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
-          <QueryParameter Name="date_type">
-            <Value>=Parameters!date_type</Value>
+          <QueryParameter Name="is_creation_date">
+            <Value>=Parameters!is_creation_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -651,7 +651,7 @@ ORDER BY e.last_name</CommandText>
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="date_type">
+    <ReportParameter Name="is_creation_date">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

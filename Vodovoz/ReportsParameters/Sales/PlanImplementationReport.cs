@@ -82,7 +82,7 @@ namespace Vodovoz.ReportsParameters
 					{"start_date", dateperiodpicker.StartDateOrNull},
 					{"end_date", dateperiodpicker.EndDateOrNull.Value.AddDays(1).AddTicks(-1)},
 					{"employee_id", employeeId},
-					{"date_type", (OrderDateType)comboTypeOfDate.SelectedItem == OrderDateType.CreationDate},
+					{"is_creation_date", (OrderDateType)comboTypeOfDate.SelectedItem == OrderDateType.CreationDate}
 				}
 			};
 		}
