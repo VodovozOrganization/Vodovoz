@@ -49,40 +49,37 @@
             <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>40.1pt</Width>
+            <Width>40.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>67.6pt</Width>
+            <Width>71.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.7pt</Width>
+            <Width>28.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>87.7pt</Width>
+            <Width>94.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>70.2pt</Width>
+            <Width>107.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.6pt</Width>
+            <Width>45.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>33.4pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>79.1pt</Width>
+            <Width>102.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>68.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.2pt</Width>
+            <Width>60.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>73.3pt</Width>
+            <Width>80.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>60.3pt</Width>
@@ -106,7 +103,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -124,7 +120,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -142,7 +137,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -161,7 +155,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -180,26 +173,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>Район доставки</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Right>None</Right>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -218,7 +191,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -237,7 +209,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -256,7 +227,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -274,7 +244,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -292,7 +261,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -310,7 +278,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -328,7 +295,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -346,7 +312,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -378,7 +343,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>9pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -401,7 +365,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>9pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -425,7 +388,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -447,7 +409,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -470,28 +431,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox30">
-                      <Value>={delivery_district}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Right>None</Right>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop>10pt</PaddingTop>
-                        <PaddingBottom>10pt</PaddingBottom>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingRight>2pt</PaddingRight>
-                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -512,7 +451,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>9pt</FontSize>
                       </Style>
                       <CanShrink>true</CanShrink>
                       <CanGrow>true</CanGrow>
@@ -536,7 +474,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -559,7 +496,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>9pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -582,7 +518,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -603,7 +538,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>9pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -625,7 +559,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>9pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -647,7 +580,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -669,7 +601,6 @@
                         <PaddingBottom>10pt</PaddingBottom>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <FontSize>9pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -680,7 +611,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>28.1pt</Top>
+        <Top>28.9pt</Top>
       </Table>
       <Textbox Name="TextboxStats">
         <Height>25.53pt</Height>
@@ -743,7 +674,7 @@
         WHEN 'cash' THEN 'НАЛ'
         WHEN 'cashless' THEN 'БЕЗНАЛ'
         WHEN 'ByCard' THEN 'ПО КАРТЕ'
-        WHEN 'Terminal' THEN 'ТЕР- МИНАЛ'
+        WHEN 'Terminal' THEN 'ТЕРМИНАЛ'
         ELSE o.payment_type
     END AS payment_type,
     gg.name as geographic_group,
@@ -768,16 +699,21 @@
     ) AS discount,
     cc.name as came_from ,
     o.comment AS comment ,
-    GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS order_creator,
-    dist.district_name as delivery_district
+    CONCAT_WS('',
+            CONCAT(e.last_name, ' '),
+            IF(e.name = '',
+                '',
+                CONCAT(LEFT(e.name, 1), '.')),
+            IF(e.patronymic = '',
+                '',
+                CONCAT(LEFT(e.patronymic, 1), '.'))) AS order_creator
 FROM 
     orders o
-    INNER JOIN order_items i ON o.id = i.order_id
-    INNER JOIN nomenclature ON nomenclature.id = i.nomenclature_id
-    INNER JOIN discount_reasons d ON i.discount_reason_id = d.id
-    INNER JOIN counterparty c ON o.id = c.first_order_id
-    INNER JOIN delivery_points dp ON dp.id = o.delivery_point_id
-    INNER JOIN districts dist ON dist.id = dp.district_id 
+    JOIN order_items i ON o.id = i.order_id
+    JOIN nomenclature ON nomenclature.id = i.nomenclature_id
+    JOIN discount_reasons d ON i.discount_reason_id = d.id
+    JOIN counterparty c ON o.id = c.first_order_id
+    JOIN delivery_points dp ON dp.id = o.delivery_point_id
     LEFT JOIN employees e ON e.id = o.author_employee_id
     LEFT JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
     LEFT JOIN districts ON districts.id = dp.district_id
@@ -787,7 +723,6 @@ FROM
 WHERE 
     o.delivery_date BETWEEN @start_date AND @end_date
     AND (@discount_id = 0 OR d.id = @discount_id)
-    AND (@district_id = '' OR dist.id = @district_id)
 GROUP BY o.id DESC
 ;</CommandText>
         <QueryParameters>
@@ -799,9 +734,6 @@ GROUP BY o.id DESC
           </QueryParameter>
           <QueryParameter Name="discount_id">
             <Value>=Parameters!discount_id</Value>
-          </QueryParameter>
-          <QueryParameter Name="district_id">
-            <Value>=Parameters!district_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -855,10 +787,6 @@ GROUP BY o.id DESC
         <Field Name="order_creator">
           <DataField>order_creator</DataField>
         </Field>
-        <Field Name="delivery_district">
-          <DataField>delivery_district</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Stats">
@@ -873,13 +801,12 @@ FROM
         cc.name as came_from
     FROM 
         orders o
-        INNER JOIN order_items i ON o.id = i.order_id
-        INNER JOIN nomenclature ON nomenclature.id = i.nomenclature_id
-        INNER JOIN discount_reasons d ON i.discount_reason_id = d.id
-        INNER JOIN counterparty c ON o.id = c.first_order_id
-        INNER JOIN delivery_points dp ON dp.id = o.delivery_point_id
-        INNER JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
-        INNER JOIN districts dist ON dist.id = dp.district_id
+        JOIN order_items i ON o.id = i.order_id
+        JOIN nomenclature ON nomenclature.id = i.nomenclature_id
+        JOIN discount_reasons d ON i.discount_reason_id = d.id
+        JOIN counterparty c ON o.id = c.first_order_id
+        JOIN delivery_points dp ON dp.id = o.delivery_point_id
+        JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
         LEFT JOIN employees e ON e.id = o.author_employee_id
         LEFT JOIN districts ON districts.id = dp.district_id
         LEFT JOIN geographic_groups gg ON gg.id = districts.geographic_group_id
@@ -888,7 +815,6 @@ FROM
     WHERE 
         o.delivery_date BETWEEN @start_date AND @end_date
         AND (@discount_id = 0 OR d.id = @discount_id)
-        AND (@district_id = '' OR dist.id = @district_id)
     GROUP BY cc.id DESC 
 ) as stats
 ;</CommandText>
@@ -902,9 +828,6 @@ FROM
           <QueryParameter Name="end_date">
             <Value>={?end_date}</Value>
           </QueryParameter>
-          <QueryParameter Name="district_id">
-            <Value>={?district_id}</Value>
-          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields>
@@ -916,16 +839,7 @@ FROM
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString></ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -965,12 +879,14 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="district_id">
-      <DataType>String</DataType>
-      <Nullable>true</Nullable>
-      <AllowBlank>true</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt />
-    </ReportParameter>
   </ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>
