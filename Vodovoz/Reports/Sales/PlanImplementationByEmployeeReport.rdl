@@ -1158,7 +1158,7 @@
 	o.order_status != 'Closed' AND a.route_list_id IS NULL AS unclosed_not_in_rl,
 	CONCAT('МЛ№', rl.id, ', водитель - ',GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic)) AS rl_details,
     o.comment_manager,
-    SUM(IFNULL(additions.adds_sum, 0)) as adds_sum
+    IFNULL(additions.adds_sum, 0) as adds_sum
 FROM orders o
 LEFT JOIN (
 	SELECT
@@ -1170,21 +1170,31 @@ LEFT JOIN (
 	FROM orders o
 	LEFT JOIN order_items i ON o.id = i.order_id
 	LEFT JOIN nomenclature n ON n.id = i.nomenclature_id
-	WHERE o.create_date BETWEEN @start_date AND @end_date
-		AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
+	WHERE (IF(@is_creation_date,
+			   o.create_date BETWEEN @start_date AND @end_date,
+			   o.delivery_date BETWEEN @start_date AND @end_date))
+		AND (IF(@is_creation_date,
+               o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
+			   o.order_status NOT IN('New','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+               OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
 		AND o.author_employee_id = @employee_id
 		AND !o.is_contract_closer
 		AND n.category = 'water' AND n.tare_volume = 'Vol19L'
 ) AS items ON o.id = items.order_id
 LEFT JOIN ( -- расчет дополнительных продаж
 	SELECT
-		GET_TOTAL_SUM_FOR_ORDER_ITEM(oi.id) as adds_sum,
+		SUM(GET_TOTAL_SUM_FOR_ORDER_ITEM(oi.id)) as adds_sum,
 		o.id as order_id
 	FROM orders o
 	LEFT JOIN order_items oi ON o.id = oi.order_id
 	LEFT JOIN nomenclature adds ON adds.id = oi.nomenclature_id
-	WHERE o.create_date BETWEEN @start_date AND @end_date
-		AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
+	WHERE (IF(@is_creation_date,
+			   o.create_date BETWEEN @start_date AND @end_date,
+			   o.delivery_date BETWEEN @start_date AND @end_date))
+		AND (IF(@is_creation_date,
+               o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
+			   o.order_status NOT IN('New','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+               OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
 		AND o.author_employee_id = @employee_id
 		AND !o.is_contract_closer
 		AND (adds.category != 'water' OR adds.tare_volume != 'Vol19L')
@@ -1206,7 +1216,13 @@ LEFT JOIN route_list_addresses a ON a.order_id = o.id
 INNER JOIN counterparty c ON c.id = o.client_id
 LEFT JOIN route_lists rl ON a.route_list_id = rl.id
 LEFT JOIN employees e ON e.id = rl.driver_id
-WHERE o.create_date BETWEEN @start_date AND @end_date
+WHERE (IF(@is_creation_date,
+       o.create_date BETWEEN @start_date AND @end_date,
+	   o.delivery_date BETWEEN @start_date AND @end_date))
+	AND (IF(@is_creation_date,
+         o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
+         o.order_status NOT IN('New','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+         OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
 	AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
 	AND o.author_employee_id = @employee_id
 	AND !o.is_contract_closer
@@ -1223,6 +1239,9 @@ GROUP BY o.id
           </QueryParameter>
           <QueryParameter Name="employee_id">
             <Value>={?employee_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_creation_date">
+            <Value>=Parameters!is_creation_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1371,12 +1390,21 @@ WHERE e.id = @employee_id
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="is_creation_date">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
   </ReportParameters>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
+        <ConnectString>
+        </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
