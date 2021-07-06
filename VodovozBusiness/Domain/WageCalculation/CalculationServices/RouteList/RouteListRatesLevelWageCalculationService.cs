@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
@@ -211,8 +212,17 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			RouteListItemWageCalculationDetails addressWageDetails = new RouteListItemWageCalculationDetails()
 			{
-				RouteListItemWageCalculationName = wageParameterItem.Title
+				RouteListItemWageCalculationName = wageParameterItem.Title,
+				WageCalculationEmployeeCategory = src.EmployeeCategory
 			};
+
+			if(!src.IsValidForWageCalculation)
+			{
+				return addressWageDetails;
+			}
+
+
+			IList<WageRate> wageRates = GetCurrentWageDistrictLevelRate(src).WageRates;
 
 			if(!src.HasFirstOrderForDeliveryPoint)
 			{
@@ -221,20 +231,21 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 					{
 						Name = $"Не первый заказ на точку доставки",
 					});
-				return addressWageDetails;
 			}
-
-			IList<WageRate> wageRates = GetCurrentWageDistrictLevelRate(src).WageRates;
-			var rateAddress = wageRates.FirstOrDefault(r => r.WageRateType == (src.IsDriverForeignDistrict ? WageRateTypes.ForeignAddress : WageRateTypes.Address));
-			if(rateAddress != null)
+			else
 			{
-				addressWageDetails.WageCalculationDetailsList.Add(
-					new WageCalculationDetailsItem()
-					{
-						Name = $"{rateAddress.WageRateType.GetEnumTitle()}",
-						Count = 1,
-						Price = GetRateValue(src, rateAddress)
-					});
+				var rateAddress = wageRates.FirstOrDefault(r =>
+					r.WageRateType == (src.IsDriverForeignDistrict ? WageRateTypes.ForeignAddress : WageRateTypes.Address));
+				if(rateAddress != null)
+				{
+					addressWageDetails.WageCalculationDetailsList.Add(
+						new WageCalculationDetailsItem()
+						{
+							Name = $"{rateAddress.WageRateType.GetEnumTitle()}",
+							Count = 1,
+							Price = GetRateValue(src, rateAddress)
+						});
+				}
 			}
 
 			bool addressWithBigOrder = HasBigOrder(src);
