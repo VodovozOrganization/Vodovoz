@@ -1175,7 +1175,7 @@ LEFT JOIN (
 			   o.delivery_date BETWEEN @start_date AND @end_date))
 		AND (IF(@is_creation_date,
                o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
-			   o.order_status NOT IN('New','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+			   o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
                OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
 		AND o.author_employee_id = @employee_id
 		AND !o.is_contract_closer
@@ -1193,7 +1193,7 @@ LEFT JOIN ( -- расчет дополнительных продаж
 			   o.delivery_date BETWEEN @start_date AND @end_date))
 		AND (IF(@is_creation_date,
                o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
-			   o.order_status NOT IN('New','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+			   o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
                OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
 		AND o.author_employee_id = @employee_id
 		AND !o.is_contract_closer
@@ -1221,9 +1221,8 @@ WHERE (IF(@is_creation_date,
 	   o.delivery_date BETWEEN @start_date AND @end_date))
 	AND (IF(@is_creation_date,
          o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
-         o.order_status NOT IN('New','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+         o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
          OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
-	AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
 	AND o.author_employee_id = @employee_id
 	AND !o.is_contract_closer
 	AND (items.nomenclature IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0 OR additions.adds_sum &gt; 0)
