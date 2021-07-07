@@ -23,17 +23,22 @@ namespace Vodovoz.ViewModels
 			List<Order> orders = new List<Order>();
 
 			if(payment.Counterparty == null)
+			{
 				return false;
+			}
 
 			var str = CheckPaymentPurpose(payment);
 
-			if(str.Any()) {
-
-				foreach(string st in str) {
+			if(str.Any())
+			{
+				foreach(string st in str)
+				{
 					var order = UoW.GetById<Order>(int.Parse(st));
 
 					if(order == null)
+					{
 						return false;
+					}
 
 					orders.Add(order);
 				}
@@ -41,26 +46,32 @@ namespace Vodovoz.ViewModels
 				var result = orders.Sum(x => x.ActualTotalSum);
 
 				if(payment.Total != result)
+				{
 					return false;
+				}
 
-				if(payment.Total == result) {
-
-					foreach(var order in orders) {
+				if(payment.Total == result)
+				{
+					foreach(var order in orders)
+					{
 						if(order.OrderPaymentStatus != OrderPaymentStatus.UnPaid)
+						{
 							return false;
-						else {
-							order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+						}
+						else
+						{
 							payment.AddPaymentItem(order);
-							UoW.Save(order);
 							sb.AppendLine(order.Id.ToString());
 						}
 					}
 				}
-
-			} else
+			}
+			else
+			{
 				return false;
+			}
 
-			payment.NumOrders = sb.ToString().TrimEnd('\n');
+			payment.NumOrders = sb.ToString().TrimEnd(new[] { '\r', '\n' });
 			return true;
 		}
 
