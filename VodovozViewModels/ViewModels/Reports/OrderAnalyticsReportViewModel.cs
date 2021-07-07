@@ -402,9 +402,9 @@ namespace Vodovoz.ViewModels.Reports
             Map(x => x.CreationDate).Index(18).Name("Дата создания заказа").TypeConverter<CreationDateTimeConverter>();
             Map(x => x.DriverWage).Index(19).Name("ЗП водителя за адрес").TypeConverter<DecimalConverter>();
             Map(x => x.ForwarderFIO).Index(20).Name("ФИО экспедитора").Default("Без экспедитора");
-            Map(x => x.OrderSum).Index(10).Name("Общая сумма заказа").TypeConverter<DecimalConverter>();
-            Map(x => x.Bottles19LSum).Index(10).Name("Сумма за 19л бутыли").TypeConverter<DecimalConverter>();
-            Map(x => x.Bottles19LAvgPrice).Index(10).Name("Cредняя стоимость 19л в заказе").TypeConverter<DecimalConverter>();
+            Map(x => x.OrderSum).Index(21).Name("Общая сумма заказа").TypeConverter<DecimalConverter>();
+            Map(x => x.Bottles19LSum).Index(22).Name("Сумма за 19л бутыли").TypeConverter<DecimalConverter>();
+            Map(x => x.Bottles19LAvgPrice).Index(23).Name("Cредняя стоимость 19л в заказе").TypeConverter<DecimalConverter>();
         }
     }
     
