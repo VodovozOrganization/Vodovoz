@@ -8,12 +8,14 @@ using System.Linq;
 using QS.Navigation;
 using System.Threading.Tasks;
 using System;
+using NLog;
 
 namespace Vodovoz.Views
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class PaymentLoaderView : TabViewBase<PaymentLoaderViewModel>
 	{
+		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		static Gdk.Color colorPink = new Gdk.Color(0xff, 0xc0, 0xc0);
 		static Gdk.Color colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 		static Gdk.Color colorLightGreen = new Gdk.Color(0xc0, 0xff, 0xc0);
@@ -23,6 +25,7 @@ namespace Vodovoz.Views
 			Build();
 			Configure();
 		}
+		
 
 		private void Configure()
 		{
@@ -165,7 +168,7 @@ namespace Vodovoz.Views
 			}
 			catch(Exception ex)
 			{
-				ViewModel.Logger.Error(ex);
+				_logger.Error(ex);
 				Application.Invoke((s, e) => ShowMessageAndClose(
 					QS.Dialog.ImportanceLevel.Warning,
 					CloseSource.Self,

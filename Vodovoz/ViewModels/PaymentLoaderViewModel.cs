@@ -19,6 +19,7 @@ namespace Vodovoz.ViewModels
 {
 	public class PaymentLoaderViewModel : DialogTabViewModelBase
 	{
+		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IProfitCategoryProvider _profitCategoryProvider;
 		private readonly int _vodovozId;
 		private readonly int _vodovozSouthId;
@@ -65,7 +66,6 @@ namespace Vodovoz.ViewModels
 			GetProfitCategories();
 		}
 
-		public Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 		public TransferDocumentsFromBankParser Parser { get; private set; }
 		public GenericObservableList<Payment> ObservablePayments { get; } =	new GenericObservableList<Payment>();
 		public IList<CategoryProfit> ProfitCategories { get; private set; }
@@ -155,18 +155,20 @@ namespace Vodovoz.ViewModels
 		{
 			foreach(var doc in parsedPayments)
 			{
-				var curDoc = ObservablePayments.SingleOrDefault(x => x.Date == doc.Date
-																&& x.PaymentNum == int.Parse(doc.DocNum)
-																&& x.Organization.INN == doc.RecipientInn
-																&& x.CounterpartyInn == doc.PayerInn
-																&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount);
+				var curDoc = ObservablePayments.SingleOrDefault(
+					x => x.Date == doc.Date
+					&& x.PaymentNum == int.Parse(doc.DocNum)
+					&& x.Organization.INN == doc.RecipientInn
+					&& x.CounterpartyInn == doc.PayerInn
+					&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount);
 
-				if(PaymentsRepository.PaymentFromBankClientExists(UoW,
-																   doc.Date,
-																   int.Parse(doc.DocNum),
-																   doc.RecipientInn,
-																   doc.PayerInn,
-																   doc.PayerCurrentAccount) || curDoc != null)
+				if(PaymentsRepository.PaymentFromBankClientExists(
+					UoW,
+					doc.Date,
+					int.Parse(doc.DocNum),
+					doc.RecipientInn,
+					doc.PayerInn,
+					doc.PayerCurrentAccount) || curDoc != null)
 				{
 					count++;
 					countDuplicates++;
@@ -210,7 +212,7 @@ namespace Vodovoz.ViewModels
 			catch(Exception ex)
 			{
 				UoW.Session.Clear();
-				Logger.Error(ex);
+				_logger.Error(ex);
 				_saveAttempts++;
 
 				if(_saveAttempts >= 3)
