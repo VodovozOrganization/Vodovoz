@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Globalization;
@@ -293,7 +293,17 @@ namespace Vodovoz.ViewModels.Reports
                 .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
                 .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
                 .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-                .Select(Projections.Sum(() => orderItemAlias.Count));
+                .Select(Projections.Sum(() => orderItemAlias.Count)); 
+            
+            var orderSumSubquery = QueryOver.Of(() => orderItemAlias)
+	            .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
+	            .Select(Projections.Sum(() => (orderItemAlias.Count * orderItemAlias.Price) - orderItemAlias.DiscountMoney)); 
+            
+            var bottleSumSubquery = QueryOver.Of(() => orderItemAlias)
+	            .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
+	            .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+	            .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+	            .Select(Projections.Sum(() => (orderItemAlias.Count * orderItemAlias.Price) - orderItemAlias.DiscountMoney)); 
             
             var result = query
                 .SelectList(list => list
@@ -321,7 +331,10 @@ namespace Vodovoz.ViewModels.Reports
                     .Select(() => routeListItemAlias.DriverWage).WithAlias(() => resultAlias.DriverWage)
                     .Select(() => forwarderAlias.LastName).WithAlias(() => resultAlias.ForwarderLastName)
                     .Select(() => forwarderAlias.Name).WithAlias(() => resultAlias.ForwarderName)
-                    .Select(() => forwarderAlias.Patronymic).WithAlias(() => resultAlias.ForwarderPatronymic))
+                    .Select(() => forwarderAlias.Patronymic).WithAlias(() => resultAlias.ForwarderPatronymic)
+                    .SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.OrderSum)
+                    .SelectSubQuery(bottleSumSubquery).WithAlias(() => resultAlias.Bottles19LSum)
+                )
                 .TransformUsing(Transformers.AliasToBean<OrderAnalyticsReportNode>())
                 .List<OrderAnalyticsReportNode>();
 
@@ -358,6 +371,10 @@ namespace Vodovoz.ViewModels.Reports
         public string ForwarderName { get; set; }
         public string ForwarderPatronymic { get; set; }
         public string ForwarderFIO => $"{ForwarderLastName} {ForwarderName} {ForwarderPatronymic}";
+        public decimal OrderSum { get; set; }
+        public decimal Bottles19LSum { get; set; }
+        public decimal Bottles19LAvgPrice => Bottles19LCount > 0 ? Bottles19LSum / Bottles19LCount: 0;
+
     }
     
     public sealed class OrderAnalyticsReportNodeMap : ClassMap<OrderAnalyticsReportNode>
@@ -385,6 +402,9 @@ namespace Vodovoz.ViewModels.Reports
             Map(x => x.CreationDate).Index(18).Name("Дата создания заказа").TypeConverter<CreationDateTimeConverter>();
             Map(x => x.DriverWage).Index(19).Name("ЗП водителя за адрес").TypeConverter<DecimalConverter>();
             Map(x => x.ForwarderFIO).Index(20).Name("ФИО экспедитора").Default("Без экспедитора");
+            Map(x => x.OrderSum).Index(10).Name("Общая сумма заказа").TypeConverter<DecimalConverter>();
+            Map(x => x.Bottles19LSum).Index(10).Name("Сумма за 19л бутыли").TypeConverter<DecimalConverter>();
+            Map(x => x.Bottles19LAvgPrice).Index(10).Name("Cредняя стоимость 19л в заказе").TypeConverter<DecimalConverter>();
         }
     }
     
