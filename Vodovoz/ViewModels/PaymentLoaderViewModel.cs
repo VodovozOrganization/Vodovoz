@@ -32,8 +32,6 @@ namespace Vodovoz.ViewModels
 		private bool _isNotAutoMatchingMode = true;
 		private bool _isSavingState;
 
-		public Logger logger = LogManager.GetCurrentClassLogger();
-
 		public PaymentLoaderViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
@@ -67,6 +65,7 @@ namespace Vodovoz.ViewModels
 			GetProfitCategories();
 		}
 
+		public Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 		public TransferDocumentsFromBankParser Parser { get; private set; }
 		public GenericObservableList<Payment> ObservablePayments { get; } =	new GenericObservableList<Payment>();
 		public IList<CategoryProfit> ProfitCategories { get; private set; }
@@ -211,7 +210,7 @@ namespace Vodovoz.ViewModels
 			catch(Exception ex)
 			{
 				UoW.Session.Clear();
-				logger.Error(ex);
+				Logger.Error(ex);
 				_saveAttempts++;
 
 				if(_saveAttempts >= 3)

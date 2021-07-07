@@ -165,7 +165,7 @@ namespace Vodovoz.Views
 			}
 			catch(Exception ex)
 			{
-				ViewModel.logger.Error(ex);
+				ViewModel.Logger.Error(ex);
 				Application.Invoke((s, e) => ShowMessageAndClose(
 					QS.Dialog.ImportanceLevel.Warning,
 					CloseSource.Self,
