@@ -63,7 +63,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			if(e.CloseSource == CloseSource.Save) {
 				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
 				if(client != null) {
-					this.Close(false, CloseSource.External);
+					this.Close(true, CloseSource.External);
 					MangoManager.AddCounterpartyToCall(client.Id);
 				} else
 					throw new Exception("При сохранении контрагента произошла ошибка, попробуйте снова." + "\n Сообщение для поддержки : UnknowTalkViewModel.NewCounterparty_PageClose()");
@@ -81,7 +81,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 					UoW.Commit();
 				}
 			}
-			this.Close(false, CloseSource.External);
+			this.Close(true, CloseSource.External);
 			MangoManager.AddCounterpartyToCall(client.Id);
 		}
 

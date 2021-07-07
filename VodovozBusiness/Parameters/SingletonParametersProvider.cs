@@ -8,6 +8,7 @@ using Vodovoz.Domain;
 
 namespace Vodovoz.Parameters
 {
+	[Obsolete("Используйте экземплярный вариант")]
 	public class SingletonParametersProvider : IParametersProvider
 	{
 		private readonly Logger logger = LogManager.GetCurrentClassLogger();

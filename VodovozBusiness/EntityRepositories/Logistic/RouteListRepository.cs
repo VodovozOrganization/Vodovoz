@@ -21,6 +21,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Repositories;
 using Vodovoz.NhibernateExtensions;
+using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -35,6 +36,21 @@ namespace Vodovoz.EntityRepositories.Logistic
 					  .Where(() => routeListAlias.Status == status)
 					  .Where(() => routeListAlias.Date == date)
 					  .List();
+		}
+
+		public IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null)
+		{
+			RouteList routeListAlias = null;
+
+			var query = uow.Session.QueryOver<RouteList>(() => routeListAlias)
+					  .Where(() => routeListAlias.Driver == driver);
+
+			if (status != null)
+			{
+				query.Where(() => routeListAlias.Status == status);
+			}
+
+			return query.Select(x => x.Id).List<int>();
 		}
 
 		public QueryOver<RouteList> GetRoutesAtDay(DateTime date)
@@ -167,7 +183,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList)
 		{
 			GoodsInRouteListResult resultAlias = null;
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			VodovozOrder orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			Nomenclature OrderItemNomenclatureAlias = null;
 
@@ -194,7 +210,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public IList<GoodsInRouteListResultWithSpecialRequirements> GetGoodsInRLWithoutEquipmentsWithSpecialRequirements(IUnitOfWork uow, RouteList routeList)
 		{
 			GoodsInRouteListResultWithSpecialRequirements resultAlias = null;
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			VodovozOrder orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			Counterparty counterpartyAlias = null;
 			Nomenclature OrderItemNomenclatureAlias = null;
@@ -251,12 +267,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public IList<GoodsInRouteListResultWithSpecialRequirements> GetEquipmentsInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList)
 		{
 			GoodsInRouteListResultWithSpecialRequirements resultAlias = null;
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			VodovozOrder orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature OrderEquipmentNomenclatureAlias = null;
 
 			//Выбирается список Id заказов находящихся в МЛ
-			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
+			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
 				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
@@ -285,12 +301,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public IList<GoodsInRouteListResult> GetEquipmentsInRL(IUnitOfWork uow, RouteList routeList)
 		{
 			GoodsInRouteListResult resultAlias = null;
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			VodovozOrder orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature OrderEquipmentNomenclatureAlias = null;
 
 			//Выбирается список Id заказов находящихся в МЛ
-			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
+			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
 				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
@@ -702,13 +718,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 			   .List();
 		}
 
-		public RouteList GetRouteListByOrder(IUnitOfWork uow, Domain.Orders.Order order)
+		public RouteList GetRouteListByOrder(IUnitOfWork uow, VodovozOrder order)
 		{
 			RouteList routeListAlias = null;
 			RouteListItem routeListItemAlias = null;
 			return uow.Session.QueryOver(() => routeListAlias)
 							  .Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
 							  .Where(() => routeListItemAlias.Order.Id == order.Id)
+							  .Fetch(SelectMode.ChildFetch, routeList => routeList.Addresses)
 							  .List()
 							  .FirstOrDefault();
 		}
@@ -720,7 +737,26 @@ namespace Vodovoz.EntityRepositories.Logistic
 				return actualRouteList.Version != routeList.Version;
 			}
 		}
-	}
+
+		public IList<RouteList> GetRouteListsByIds(IUnitOfWork uow, int[] routeListsIds)
+		{
+			RouteList routeListAlias = null;
+			var query = uow.Session.QueryOver(() => routeListAlias)
+				.Where(
+					Restrictions.In(
+						Projections.Property(() => routeListAlias.Id),
+						routeListsIds
+						)
+					);
+
+			return query.List();
+		}
+
+        public RouteList GetRouteListById(IUnitOfWork uow, int routeListsId)
+        {
+			return uow.GetById<RouteList>(routeListsId);
+		}
+    }
 
 	#region DTO
 

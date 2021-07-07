@@ -57,7 +57,7 @@ namespace Vodovoz.Views.Warehouse
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonSave.Binding.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive);
 			
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 			
 			#endregion
 			

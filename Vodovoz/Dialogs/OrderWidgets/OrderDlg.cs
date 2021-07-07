@@ -107,6 +107,7 @@ namespace Vodovoz
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
+		private int _treeItemsNomenclatureColumnWidth;
 
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
@@ -747,6 +748,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => Entity.OrderItems.IndexOf(node) + 1)
 				.AddColumn("Номенклатура")
+					.SetTag(nameof(Nomenclature))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
 				.AddColumn(!orderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
@@ -1803,14 +1805,6 @@ namespace Vodovoz
 		#region Изменение диалога
 
 		/// <summary>
-		/// Ширина первой колонки списка товаров или оборудования
-		/// (создано для хранения ширины колонки до автосайза ячейки по 
-		/// содержимому, чтобы отобразить по правильному положению ввод 
-		/// количества при добавлении нового товара)
-		/// </summary>
-		int treeAnyGoodsFirstColWidth;
-
-		/// <summary>
 		/// Активирует редактирование ячейки количества
 		/// </summary>
 		private void EditGoodsCountCellOnAdd(yTreeView treeView)
@@ -1822,7 +1816,7 @@ namespace Vodovoz
 				treeView.Model.IterNthChild(out TreeIter iter, index);
 				path = treeView.Model.GetPath(iter);
 
-				var column = treeView.ColumnsConfig.ConfiguredColumns.FirstOrDefault(x => (x.tag as string) == "Count")?.TreeViewColumn;
+				var column = treeView.ColumnsConfig.GetColumnsByTag("Count").FirstOrDefault();
 				if(column == null) {
 					return;
 				}
@@ -1836,15 +1830,6 @@ namespace Vodovoz
 				return;
 			}
 
-		}
-
-		void TreeAnyGoods_ExposeEvent(object o, ExposeEventArgs args)
-		{
-			var newColWidth = ((yTreeView)o).Columns.First().Width;
-			if(treeAnyGoodsFirstColWidth != newColWidth) {
-				EditGoodsCountCellOnAdd((yTreeView)o);
-				((yTreeView)o).ExposeEvent -= TreeAnyGoods_ExposeEvent;
-			}
 		}
 
 		#endregion
@@ -2343,13 +2328,19 @@ namespace Vodovoz
 				Entity.CheckAndSetOrderIsService();
 				OnFormOrderActions();
 			}
-
-			treeAnyGoodsFirstColWidth = treeItems.Columns.First(x => x.Title == "Номенклатура").Width;
-			treeItems.ExposeEvent += TreeAnyGoods_ExposeEvent;
-			//Выполнение в случае если размер не поменяется
-			EditGoodsCountCellOnAdd(treeItems);
+			_treeItemsNomenclatureColumnWidth = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Nomenclature)).First().Width;
+			treeItems.ExposeEvent += TreeItemsOnExposeEvent;
 		}
-		
+
+		private void TreeItemsOnExposeEvent(object o, ExposeEventArgs args)
+		{
+			if(_treeItemsNomenclatureColumnWidth != ((yTreeView)o).ColumnsConfig.GetColumnsByTag(nameof(Nomenclature)).First().Width)
+			{
+				EditGoodsCountCellOnAdd((yTreeView)o);
+				treeItems.ExposeEvent -= TreeItemsOnExposeEvent;
+			}
+		}
+
 		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			HboxReturnTareReasonCategoriesShow();

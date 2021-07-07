@@ -315,11 +315,18 @@ namespace Vodovoz.Domain.Documents
 		#endregion
 	}
 
-	public class GoodsReceptionVMNode
+	public class GoodsReceptionVMNode: PropertyChangedBase
 	{
 		public int NomenclatureId { get; set; }
 		public string Name { get; set; }
-		public decimal Amount { get; set; }
+
+		decimal amount;
+		public virtual decimal Amount
+		{
+			get => amount;
+			set => SetField(ref amount, value);
+		}
+
 		public int ExpectedAmount { get; set; }
 		public NomenclatureCategory Category { get; set; }
         public Direction? Direction { get; set; }

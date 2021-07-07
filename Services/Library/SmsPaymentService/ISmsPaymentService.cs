@@ -1,3 +1,4 @@
+﻿using SmsPaymentService.DTO;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 
@@ -13,13 +14,21 @@ namespace SmsPaymentService
         StatusCode ReceivePayment(RequestBody body);
 
         /// <summary>
-        /// Формирует и отправляет платеж
+        /// Формирует и отправляет платеж, обрабатывает метод GET
         /// </summary>
         /// <param name="orderId">Номер заказа</param>
         /// <param name="phoneNumber">Номер телефона клиента</param>
         [OperationContract, WebGet(ResponseFormat = WebMessageFormat.Json)]
 		PaymentResult SendPayment(int orderId, string phoneNumber);
-        
+
+        /// <summary>
+        /// Формирует и отправляет платеж, обрабатывает метод POST
+        /// </summary>
+        /// <param name="orderId">Номер заказа</param>
+        /// <param name="phoneNumber">Номер телефона клиента</param>
+        [OperationContract, WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        PaymentResult SendPaymentPost(SendPaymentRequest sendPaymentRequest);
+
         /// <summary>
         /// Записывает в базу и возвращает актуальный статус платежа
         /// </summary>

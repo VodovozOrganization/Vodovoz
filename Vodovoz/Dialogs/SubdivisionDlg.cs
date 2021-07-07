@@ -24,8 +24,6 @@ namespace Vodovoz
 		SubdivisionsVM subdivisionsVM;
 		PresetSubdivisionPermissionsViewModel presetPermissionVM;
 
-		public override bool HasChanges { get => true; set { } }
-
 		[Obsolete("Использовать Vodovoz.Views.Organization.SubdivisionView")]
 		public SubdivisionDlg()
 		{
@@ -86,6 +84,10 @@ namespace Vodovoz
 			vboxPresetPermissions.Add(new PresetPermissionsView(presetPermissionVM));
 			vboxPresetPermissions.ShowAll();
 			vboxPresetPermissions.Visible = QSMain.User.Admin;
+
+			presetPermissionVM.ObservablePermissionsList.ListContentChanged += (sender, e) => HasChanges = true;
+			Entity.ObservableDocumentTypes.ListContentChanged += (sender, e) => HasChanges = true;
+			subdivisionentitypermissionwidget.ViewModel.ObservableTypeOfEntitiesList.ListContentChanged += (sender, e) => HasChanges = true;
 		}
 
 		void YSpecCmbGeographicGroup_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)

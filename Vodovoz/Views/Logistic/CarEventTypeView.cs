@@ -21,7 +21,7 @@ namespace Vodovoz.Views.Logistic
 			ycheckbuttonIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
 		}
 	}
 }

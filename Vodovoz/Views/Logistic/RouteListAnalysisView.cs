@@ -36,7 +36,7 @@ namespace Vodovoz.Views.Logistic
 			table1.Sensitive = false;
 
 			buttonSave.Clicked += (sender, e) => Save();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
 			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));

@@ -20,7 +20,7 @@ namespace Vodovoz.Views.Orders
             yentryPlanMonth.Binding.AddBinding(ViewModel.Entity, e => e.PlanMonth, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
             buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-            buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);	
+            buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);	
         }
     }
 }
