@@ -38,7 +38,7 @@ namespace Vodovoz.ViewModels.Cash
             }
 
             Entity.PropertyChanged += Entity_PropertyChanged;
-			ValidationContext.ServiceContainer.AddService(typeof(IOrderPaymentSettings), orderPaymentSettings);
+			ValidationContext.ServiceContainer.AddService(typeof(IOrderPaymentSettings), this.orderPaymentSettings);
         }
 
         void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -55,17 +55,20 @@ namespace Vodovoz.ViewModels.Cash
         }
 
         public List<PaymentFrom> ItemsList { get; private set; }
+        
+		protected override void BeforeValidation()
+		{
+			Entity.ChangePaymentTypeToByCard(callTaskWorker);
 
-        protected override void BeforeSave(){
-            Entity.ChangePaymentTypeToByCard(callTaskWorker);
+			if(!Entity.PayAfterShipment)
+			{
+				Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService, callTaskWorker);
+			}
 
-            if (!Entity.PayAfterShipment){
-                Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService, callTaskWorker);
-            }
-
-            if (Entity.SelfDelivery){
-                Entity.IsSelfDeliveryPaid = true;
-            }
-        }
-    }
+			if(Entity.SelfDelivery)
+			{
+				Entity.IsSelfDeliveryPaid = true;
+			}
+		}
+	}
 }

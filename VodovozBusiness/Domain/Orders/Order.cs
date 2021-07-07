@@ -914,7 +914,7 @@ namespace Vodovoz.Domain.Orders
 
 		#region IValidatableObject implementation
 
-		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext/*, object orderPayment*/)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
@@ -1102,14 +1102,10 @@ namespace Vodovoz.Domain.Orders
 
 			if(SelfDelivery && PaymentType == PaymentType.ByCard && OnlineOrder == null)
 			{
-				IOrderPaymentSettings obj = validationContext.GetService(typeof(IOrderPaymentSettings)) as IOrderPaymentSettings;
-				//if(!((validationContext.GetService(typeof(IOrderPaymentSettings)) is IOrderPaymentSettings orderPayment))
-				//throw new ArgumentException("Parameters should be available!"); 
-				if(obj == null)
+				IOrderPaymentSettings orderPayment = (validationContext.GetService(typeof(IOrderPaymentSettings)) as IOrderPaymentSettings); 
+				if(orderPayment == null)
 					throw new ArgumentException("Не был передан необходимый аргумент IOrderPaymentService");
-				//if(!(obj is IOrderPaymentSettings ord))
-				//	throw nwe
-				if(PaymentByCardFrom.Id == obj.PaymentFromTerminalId)
+				if(PaymentByCardFrom.Id == orderPayment.PaymentFromTerminalId)
 					yield return new ValidationResult($"В заказe on selfdelivery TEST с оплатой по терминалу  №{Id} отсутствует номер оплаты.");
 			}
 

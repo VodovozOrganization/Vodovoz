@@ -23,6 +23,7 @@ using QS.Project.Services;
 using QS.Report;
 using QS.Tdi;
 using QS.Validation;
+using QS.Services;
 using QSDocTemplates;
 using QSOrmProject;
 using QSProjectsLib;
@@ -31,6 +32,7 @@ using QSWidgetLib;
 using RdlEngine;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -115,6 +117,8 @@ namespace Vodovoz
 		private IEmailRepository emailRepository { get; set; } = new EmailRepository();
 		private ICashRepository cashRepository { get; } = new CashRepository();
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
+
+		private IOrderPaymentSettings orderPaymentSettings { get; } = new OrderPaymentSettings();
 
 		private  INomenclatureRepository nomenclatureRepository;
 		public virtual INomenclatureRepository NomenclatureRepository {
@@ -998,20 +1002,26 @@ namespace Vodovoz
 			buttonCancel.Sensitive = isSensetive;
 		}
 
+		protected bool Validate(ValidationContext validationContext)
+		{
+			validationContext.ServiceContainer.AddService(typeof(IOrderPaymentSettings), orderPaymentSettings);
+			return ServicesConfig.ValidationService.Validate(Entity, validationContext);
+		}
+
 		public override bool Save()
 		{
 			try {
 				SetSensetivity(false);
 				Entity.CheckAndSetOrderIsService();
 
-				var valid = new QSValidator<Order>(
-					Entity, new Dictionary<object, object>{
+				ValidationContext validationContext = new ValidationContext(Entity,null, new Dictionary<object, object>{
 					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
-					}
-				);
+					});
 
-				if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+				if(!Validate(validationContext))
+				{
 					return false;
+				}
 
 				if(Entity.OrderStatus == OrderStatus.NewOrder) {
 					if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
@@ -1127,14 +1137,15 @@ namespace Vodovoz
 		{
 			Entity.CheckAndSetOrderIsService();
 
-			var valid = new QSValidator<Order>(
-				Entity, new Dictionary<object, object>{
+			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>{
 					{ "NewStatus", OrderStatus.Accepted },
 					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
-				}
-			);
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+				});
+
+			if(!Validate(validationContext))
+			{
 				return false;
+			}
 
 			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.CalculateDistricts(UoW).Any())
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
@@ -2112,14 +2123,13 @@ namespace Vodovoz
 					"Для продолжения необходимо удалить отгрузку или приходник.");
 				return;
 			}
-			
-			var valid = new QSValidator<Order>(Entity,
-				new Dictionary<object, object> {
+
+			ValidationContext validationContext = new ValidationContext(Entity,null, new Dictionary<object, object> {
 				{ "NewStatus", OrderStatus.Canceled },
 				{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
 			});
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
-				return;
+
+			if(!Validate(validationContext)) return;
 
 			OpenDlgToCreateNewUndeliveredOrder();
 		}
@@ -2160,13 +2170,12 @@ namespace Vodovoz
 
 		protected void OnButtonWaitForPaymentClicked(object sender, EventArgs e)
 		{
-			var valid = new QSValidator<Order>(Entity,
-				new Dictionary<object, object> {
+			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object> {
 				{ "NewStatus", OrderStatus.WaitForPayment },
 				{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
 			});
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
-				return;
+
+			if(!Validate(validationContext)) return ;
 
 			Entity.ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, CallTaskWorker);
 			UpdateUIState();
