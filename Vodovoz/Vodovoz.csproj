@@ -1638,6 +1638,8 @@
     <Compile Include="Views\Orders\DiscountReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.DiscountReasonView.cs" />
     <Compile Include="ReportsParameters\Sales\PlanImplementationReport.cs" />
+    <Compile Include="Views\Complaints\DriverComplaintReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.DriverComplaintReasonView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
