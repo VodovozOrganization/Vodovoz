@@ -32,19 +32,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	{
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly bool _canCloseUndeliveries;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly IEmployeeJournalFactory _driverEmployeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUndeliveriesViewOpener _undeliveryViewOpener;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ICommonServices _commonServices;
 
 		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory employeeJournalFactory,
+			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
 			IEmployeeService employeeService, IUndeliveriesViewOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_driverEmployeeJournalFactory = driverEmployeeJournalFactory ?? throw new ArgumentNullException(nameof(driverEmployeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
@@ -343,17 +343,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Client)
 					.Select(() => oldOrderAuthorAlias.LastName).WithAlias(() => resultAlias.OldOrderAuthorLastName)
 					.Select(() => oldOrderAuthorAlias.Name).WithAlias(() => resultAlias.OldOrderAuthorFirstName)
-					.Select(() => oldOrderAuthorAlias.Patronymic).WithAlias(() => resultAlias.OldOrderAuthorMidleName)
+					.Select(() => oldOrderAuthorAlias.Patronymic).WithAlias(() => resultAlias.OldOrderAuthorMiddleName)
 					.Select(() => undeliveredOrderDeliveryScheduleAlias.Name).WithAlias(() => resultAlias.OldDeliverySchedule)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorFirstName)
-					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorMidleName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorMiddleName)
 					.Select(() => registratorAlias.LastName).WithAlias(() => resultAlias.RegistratorLastName)
 					.Select(() => registratorAlias.Name).WithAlias(() => resultAlias.RegistratorFirstName)
-					.Select(() => registratorAlias.Patronymic).WithAlias(() => resultAlias.RegistratorMidleName)
+					.Select(() => registratorAlias.Patronymic).WithAlias(() => resultAlias.RegistratorMiddleName)
 					.Select(() => editorAlias.LastName).WithAlias(() => resultAlias.EditorLastName)
 					.Select(() => editorAlias.Name).WithAlias(() => resultAlias.EditorFirstName)
-					.Select(() => editorAlias.Patronymic).WithAlias(() => resultAlias.EditorMidleName)
+					.Select(() => editorAlias.Patronymic).WithAlias(() => resultAlias.EditorMiddleName)
 					.Select(() => undeliveredOrderAlias.Reason).WithAlias(() => resultAlias.Reason)
 					.Select(() => undeliveredOrderAlias.UndeliveryStatus).WithAlias(() => resultAlias.UndeliveryStatus)
 					.Select(() => undeliveredOrderAlias.OldOrderStatus).WithAlias(() => resultAlias.StatusOnOldOrderCancel)
@@ -534,7 +534,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 							UnitOfWorkFactory,
 							_undeliveryViewOpener,
 							_employeeService,
-							_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+							_driverEmployeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(),
 							_commonServices
 						);
 

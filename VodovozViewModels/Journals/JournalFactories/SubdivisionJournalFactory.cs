@@ -9,9 +9,9 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public class SubdivisionJournalFactory : ISubdivisionJournalFactory
 	{
-		private readonly IJournalFilter _subdivisionJournalFilter;
+		private readonly SubdivisionFilterViewModel _subdivisionJournalFilter;
 
-		public SubdivisionJournalFactory(IJournalFilter subdivisionJournalFilter = null)
+		public SubdivisionJournalFactory(SubdivisionFilterViewModel subdivisionJournalFilter = null)
 		{
 			_subdivisionJournalFilter = subdivisionJournalFilter;
 		}
@@ -19,8 +19,7 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 		{
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
 			{
-				return new SubdivisionsJournalViewModel((_subdivisionJournalFilter as SubdivisionFilterViewModel) ?? new SubdivisionFilterViewModel(),
-					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, employeeSelectorFactory);
+				return new SubdivisionsJournalViewModel(_subdivisionJournalFilter ?? new SubdivisionFilterViewModel(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, employeeSelectorFactory);
 			});
 		}
 	}

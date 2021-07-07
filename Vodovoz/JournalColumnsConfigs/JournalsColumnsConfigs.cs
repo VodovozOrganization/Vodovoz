@@ -1132,7 +1132,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			TreeViewColumnsConfigFactory.Register<UndeliveredOrdersJournalViewModel>(
 				() => FluentColumnsConfig<UndeliveredOrderJournalNode>.Create()
 				.AddColumn("№").HeaderAlignment(0.5f).AddNumericRenderer(node => node.NumberInList)
-				.AddColumn("Идентификатор").HeaderAlignment(0.5f).AddTextRenderer(node => node.Id != 0 ? node.Id.ToString() : "")
+				.AddColumn("Код").HeaderAlignment(0.5f).AddTextRenderer(node => node.Id != 0 ? node.Id.ToString() : "")
 				.AddColumn("Статус").HeaderAlignment(0.5f).AddTextRenderer(node => node.Status, useMarkup: true)
 					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Дата\nзаказа").HeaderAlignment(0.5f).AddTextRenderer(node => node.OldOrderDeliveryDate, useMarkup: true)

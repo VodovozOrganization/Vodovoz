@@ -1,7 +1,14 @@
 ﻿using System;
+using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Tdi;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Orders;
+using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.JournalViewers
 {
@@ -11,14 +18,35 @@ namespace Vodovoz.JournalViewers
 		//отрытие журнала недовоза на конкретном недовозе из диалога штрафов
 		public void OpenFromFine(ITdiTab tab, Order oldOrder, DateTime? deliveryDate, UndeliveryStatus undeliveryStatus)
 		{
-			UndeliveriesView dlg = new UndeliveriesView();
-			dlg.HideFilterAndControls();
-			dlg.UndeliveredOrdersFilter.SetAndRefilterAtOnce(
-				x => x.RestrictOldOrder = oldOrder,
-				x => x.RestrictOldOrderStartDate = deliveryDate,
-				x => x.RestrictOldOrderEndDate = deliveryDate,
-				x => x.RestrictUndeliveryStatus = undeliveryStatus
-			);
+			var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
+				ServicesConfig.CommonServices,
+				new OrderSelectorFactory(),
+				new EmployeeJournalFactory(),
+				new CounterpartyJournalFactory(),
+				new DeliveryPointJournalFactory(),
+				new SubdivisionJournalFactory(
+					new SubdivisionFilterViewModel()
+					{
+						SubdivisionType = SubdivisionType.Default
+					})
+			)
+			{
+				RestrictOldOrder = oldOrder,
+				RestrictOldOrderStartDate = deliveryDate,
+				RestrictOldOrderEndDate = deliveryDate,
+				RestrictUndeliveryStatus = undeliveryStatus
+			};
+
+			var dlg = new UndeliveredOrdersJournalViewModel(
+				undeliveredOrdersFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new GtkTabsOpener(),
+				new EmployeeJournalFactory(),
+				VodovozGtkServicesConfig.EmployeeService,
+				new UndeliveriesViewOpener(),
+				new OrderSelectorFactory());
+
 			tab.TabParent.AddSlaveTab(tab, dlg);
 		}
 	}

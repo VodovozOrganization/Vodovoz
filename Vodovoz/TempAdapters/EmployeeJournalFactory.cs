@@ -10,9 +10,9 @@ namespace Vodovoz.TempAdapters
 {
 	public class EmployeeJournalFactory : IEmployeeJournalFactory
 	{
-		private readonly IJournalFilter _employeeJournalFilter;
-		
-		public EmployeeJournalFactory(IJournalFilter employeeJournalFilter = null)
+		private readonly EmployeeFilterViewModel _employeeJournalFilter;
+
+		public EmployeeJournalFactory(EmployeeFilterViewModel employeeJournalFilter = null)
 		{
 			_employeeJournalFilter = employeeJournalFilter;
 		}
@@ -20,8 +20,38 @@ namespace Vodovoz.TempAdapters
 		{
 			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee), () =>
 			{
-				return new EmployeesJournalViewModel((_employeeJournalFilter as EmployeeFilterViewModel) ?? new EmployeeFilterViewModel(),
+				return new EmployeesJournalViewModel(_employeeJournalFilter ?? new EmployeeFilterViewModel(),
 					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			});
+		}
+
+		public IEntityAutocompleteSelectorFactory CreateWorkingDriverEmployeeAutocompleteSelectorFactory()
+		{
+			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee), () =>
+			{
+				EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel()
+				{
+					HidenByDefault = true,
+					Status = EmployeeStatus.IsWorking,
+					Category = EmployeeCategory.driver
+				};
+				return new EmployeesJournalViewModel(employeeFilterViewModel, UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices);
+			});
+		}
+
+		public IEntityAutocompleteSelectorFactory CreateWorkingOfficeEmployeeAutocompleteSelectorFactory()
+		{
+			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee), () =>
+			{
+				EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel()
+				{
+					HidenByDefault = true,
+					Status = EmployeeStatus.IsWorking,
+					Category = EmployeeCategory.office
+				};
+				return new EmployeesJournalViewModel(employeeFilterViewModel, UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices);
 			});
 		}
 	}

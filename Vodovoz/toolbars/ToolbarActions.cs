@@ -980,7 +980,14 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionOrdersTableActivated(object sender, System.EventArgs e) {
+	void ActionOrdersTableActivated(object sender, System.EventArgs e)
+	{
+		SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
+		{
+			SubdivisionType = SubdivisionType.Default
+		};
+		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
@@ -991,61 +998,53 @@ public partial class MainWindow : Window
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
 				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
 				UserSingletonRepository.GetInstance());
-		
+
 		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel() { IsForRetail = false };
-		var ordersJournal = new OrderJournalViewModel(filter, 
-													  UnitOfWorkFactory.GetDefaultFactory, 
+		var ordersJournal = new OrderJournalViewModel(filter,
+													  UnitOfWorkFactory.GetDefaultFactory,
 													  ServicesConfig.CommonServices,
 													  VodovozGtkServicesConfig.EmployeeService,
 													  nomenclatureSelectorFactory,
 													  counterpartySelectorFactory,
 													  nomenclatureRepository,
-													  UserSingletonRepository.GetInstance());
+													  UserSingletonRepository.GetInstance(),
+													  new OrderSelectorFactory(),
+													  new EmployeeJournalFactory(),
+													  new CounterpartyJournalFactory(),
+													  new DeliveryPointJournalFactory(),
+													  subdivisionJournalFactory,
+													  new GtkTabsOpener(),
+													  new UndeliveriesViewOpener()
+													  );
+		
 		tdiMain.AddTab(ordersJournal);
 	}
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)
 	{
-		IDeliveryPointJournalFactory deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
-		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
-		IOrderSelectorFactory orderSelectorFactory = new OrderSelectorFactory();
-
-		IJournalFilter driverJournalFilter = new EmployeeFilterViewModel()
-		{
-			RestrictCategory = EmployeeCategory.driver,
-			Status = EmployeeStatus.IsWorking
-		};
-		IEmployeeJournalFactory driverJournalFactory = new EmployeeJournalFactory(driverJournalFilter);
-
-		IJournalFilter subdivisionJournalFilter = new SubdivisionFilterViewModel()
+		SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
 		{
 			SubdivisionType = SubdivisionType.Default
 		};
 		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
 
-		IJournalFilter authorJournalFilter = new EmployeeFilterViewModel()
+		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
+			new EmployeeJournalFactory(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
 		{
-			RestrictCategory = EmployeeCategory.office,
-			Status = EmployeeStatus.IsWorking
-		};
-		IEmployeeJournalFactory authorJournalFactory = new EmployeeJournalFactory(authorJournalFilter);
-
-		var undeliveredOrdersEventFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, orderSelectorFactory,
-			driverJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory, authorJournalFactory)
-		{
-			HidenByDefault = true
+			HidenByDefault = true,
+			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
+			RestrictNotIsProblematicCases = true
 		};
 
 		tdiMain.OpenTab(() => new UndeliveredOrdersJournalViewModel(
-			undeliveredOrdersEventFilter,
+			undeliveredOrdersFilter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			new GtkTabsOpener(),
-			driverJournalFactory,
+			new EmployeeJournalFactory(),
 			VodovozGtkServicesConfig.EmployeeService,
-			undeliveriesViewOpener,
-			orderSelectorFactory)
+			new UndeliveriesViewOpener(),
+			new OrderSelectorFactory())
 		);
 	}
 

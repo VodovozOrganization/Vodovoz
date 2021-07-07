@@ -14,21 +14,21 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public string Reason { get; set; }
 		public string Guilty { get; set; }
 		public string OldDeliverySchedule { get; set; }
-		
+
 		public string ClientAndAddress => String.Format("{0}\n{1}", Client, Address);
 		public string DriverName => OldRouteListDriverName ?? "Заказ\nне в МЛ";
-		public string OldOrderDeliveryDate => OldOrderDeliveryDateTime.ToString("d MMM"); 
+		public string OldOrderDeliveryDate => OldOrderDeliveryDateTime.ToString("d MMM");
 		public string DispatcherCall => DispatcherCallTime.HasValue ? DispatcherCallTime.Value.ToString("HH:mm") : "Не\nзвонили";
-		public string ActionWithInvoice => NewOrderId > 0 ? NewOrderId.ToString() : "Новый заказ\nне создан"; 
-		public string Registrator=> PersonHelper.PersonNameWithInitials(RegistratorLastName, RegistratorFirstName, RegistratorMidleName);
-		public string UndeliveryAuthor => PersonHelper.PersonNameWithInitials(AuthorLastName, AuthorFirstName, AuthorMidleName);
-		public string Status  => UndeliveryStatus.GetEnumTitle(); 
-		public string FinedPeople => Fined ?? "Не выставлено"; 
+		public string ActionWithInvoice => NewOrderId > 0 ? NewOrderId.ToString() : "Новый заказ\nне создан";
+		public string Registrator => PersonHelper.PersonNameWithInitials(RegistratorLastName, RegistratorFirstName, RegistratorMiddleName);
+		public string UndeliveryAuthor => PersonHelper.PersonNameWithInitials(AuthorLastName, AuthorFirstName, AuthorMiddleName);
+		public string Status => UndeliveryStatus.GetEnumTitle();
+		public string FinedPeople => Fined ?? "Не выставлено";
 		public string OldOrderStatus => String.Format("{0}\n\t↓\n{1}", StatusOnOldOrderCancel.GetEnumTitle(), OldOrderCurStatus.GetEnumTitle());
 
-		public string OldOrderAuthor => 
-			PersonHelper.PersonNameWithInitials(OldOrderAuthorLastName, OldOrderAuthorFirstName, OldOrderAuthorMidleName);
-		
+		public string OldOrderAuthor =>
+			PersonHelper.PersonNameWithInitials(OldOrderAuthorLastName, OldOrderAuthorFirstName, OldOrderAuthorMiddleName);
+
 		public string UndeliveredOrderItems
 		{
 			get
@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 				return String.Format("{0}{1}", time, DriverCallType.GetEnumTitle());
 			}
 		}
-		
+
 		public string TransferDateTime =>
 			NewOrderId > 0 ? NewOrderDeliveryDate?.ToString("d MMM\n") + NewOrderDeliverySchedule + "\n№" + NewOrderId.ToString() : "Новый заказ\nне создан";
 
@@ -75,13 +75,13 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public int DriverCallNr { get; set; }
 		public string AuthorLastName { get; set; }
 		public string AuthorFirstName { get; set; }
-		public string AuthorMidleName { get; set; }
+		public string AuthorMiddleName { get; set; }
 		public string EditorLastName { get; set; }
 		public string EditorFirstName { get; set; }
-		public string EditorMidleName { get; set; }
+		public string EditorMiddleName { get; set; }
 		public string RegistratorLastName { get; set; }
 		public string RegistratorFirstName { get; set; }
-		public string RegistratorMidleName { get; set; }
+		public string RegistratorMiddleName { get; set; }
 		public UndeliveryStatus UndeliveryStatus { get; set; }
 		public GuiltyTypes GuiltySide { get; set; }
 		public string GuiltyDepartment { get; set; }
@@ -94,7 +94,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public DateTime OldOrderDeliveryDateTime { get; set; }
 		public string OldOrderAuthorLastName { get; set; }
 		public string OldOrderAuthorFirstName { get; set; }
-		public string OldOrderAuthorMidleName { get; set; }
+		public string OldOrderAuthorMiddleName { get; set; }
 		public decimal OldOrder19LBottleQty { get; set; }
 		public string OldOrderGoodsToClient { get; set; }
 		public string OldOrderGoodsFromClient { get; set; }

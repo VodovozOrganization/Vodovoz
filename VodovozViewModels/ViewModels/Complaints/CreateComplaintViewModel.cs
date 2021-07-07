@@ -15,6 +15,9 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -41,7 +44,14 @@ namespace Vodovoz.ViewModels.Complaints
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
             IFilePickerService filePickerService,
-            string phone = null
+			IOrderSelectorFactory orderSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IGtkTabsOpener gtkDialogsOpener,
+			IUndeliveriesViewOpener undeliveriesViewOpener,
+			string phone = null
 			) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
             this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
@@ -52,6 +62,15 @@ namespace Vodovoz.ViewModels.Complaints
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+
+			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
+			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
+			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			GtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
+			UndeliveriesViewOpener = undeliveriesViewOpener ?? throw new ArgumentNullException(nameof(undeliveriesViewOpener));
+
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.Checking);
 			ConfigureEntityPropertyChanges();
@@ -71,7 +90,17 @@ namespace Vodovoz.ViewModels.Complaints
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
             IFilePickerService filePickerService,
-            string phone = null) : this(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,nomenclatureSelectorFactory,nomenclatureRepository,userRepository,filePickerService,phone)
+			IOrderSelectorFactory orderSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IGtkTabsOpener gtkDialogsOpener,
+			IUndeliveriesViewOpener undeliveriesViewOpener,
+			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, employeeSelectorFactory, counterpartySelectorFactory,
+			subdivisionRepository, commonServices, nomenclatureSelectorFactory, nomenclatureRepository, userRepository, filePickerService,
+			orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory,
+			gtkDialogsOpener, undeliveriesViewOpener, phone)
 		{
 			Counterparty _client = UoW.GetById<Counterparty>(client.Id);
 			Entity.Counterparty = _client;
@@ -90,7 +119,17 @@ namespace Vodovoz.ViewModels.Complaints
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
             IFilePickerService filePickerService,
-            string phone = null) : this(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,nomenclatureSelectorFactory,nomenclatureRepository,userRepository,filePickerService,phone)
+			IOrderSelectorFactory orderSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IGtkTabsOpener gtkDialogsOpener,
+			IUndeliveriesViewOpener undeliveriesViewOpener,
+			string phone = null) : this
+		(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,
+			nomenclatureSelectorFactory,nomenclatureRepository,userRepository,filePickerService, orderSelectorFactory, employeeJournalFactory,
+			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory,  gtkDialogsOpener, undeliveriesViewOpener, phone)
 		{
 			Order _order = UoW.GetById<Order>(order.Id);
 			Entity.Order = _order;
@@ -201,5 +240,13 @@ namespace Vodovoz.ViewModels.Complaints
 		        .And(i => i.CreationDate >= DateTime.Now.AddDays(-1))
 		        .RowCount() > 0;
         }
-    }
+
+        public IOrderSelectorFactory OrderSelectorFactory { get; }
+        public IEmployeeJournalFactory EmployeeJournalFactory { get; }
+        public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
+        public IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
+        public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
+        public IGtkTabsOpener GtkDialogsOpener { get; }
+        public IUndeliveriesViewOpener UndeliveriesViewOpener { get; }
+	}
 }

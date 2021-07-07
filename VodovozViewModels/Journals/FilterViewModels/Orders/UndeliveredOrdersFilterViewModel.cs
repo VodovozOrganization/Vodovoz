@@ -36,34 +36,38 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		private bool _restrictGuiltyDepartmentVisible;
 
 		public UndeliveredOrdersFilterViewModel(ICommonServices commonServices, IOrderSelectorFactory orderSelectorFactory,
-			IEmployeeJournalFactory driverJournalFactory, ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory, ISubdivisionJournalFactory subdivisionJournalFactory,
-			IEmployeeJournalFactory authorJournalFactory)
+			IEmployeeJournalFactory employeeJournalFactory, ICounterpartyJournalFactory counterpartyJournalFactory,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory, ISubdivisionJournalFactory subdivisionJournalFactory)
 		{
-			OrderSelectorFactory = orderSelectorFactory.CreateOrderAutocompleteSelectorFactory();
-			DriverSelectorFactory = driverJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			AuthorSelectorFactory = authorJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
-			DeliveryPointSelectorFactory = deliveryPointJournalFactory.CreateDeliveryPointAutocompleteSelectorFactory();
+			OrderSelectorFactory = (orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory)))
+				.CreateOrderAutocompleteSelectorFactory();
 
-			AuthorSubdivisionSelectorFactory =
-				subdivisionJournalFactory.CreateSubdivisionAutocompleteSelectorFactory(driverJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
+			DriverEmployeeSelectorFactory = (employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+
+			OfficeEmployeeSelectorFactory = (employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+
+			CounterpartySelectorFactory = (counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory();
+
+			DeliveryPointSelectorFactory = (deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory)))
+				.CreateDeliveryPointAutocompleteSelectorFactory();
+
+			AuthorSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
+				.CreateSubdivisionAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 
 			Subdivisions = UoW.GetAll<Subdivision>();
-			RestrictUndeliveryStatus = UndeliveryStatus.InProcess;
-			RestrictNotIsProblematicCases = true;
 			RestrictOldOrderStartDate = DateTime.Today.AddMonths(-1);
 			RestrictOldOrderEndDate = DateTime.Today.AddMonths(1);
-			CanDelete = commonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 		}
 
 		public IEntityAutocompleteSelectorFactory OrderSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory AuthorSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory DriverEmployeeSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory OfficeEmployeeSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory AuthorSubdivisionSelectorFactory { get; }
-		public bool CanDelete { get; }
 
 		public Order RestrictOldOrder
 		{

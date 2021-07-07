@@ -30,9 +30,13 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Mango
 {
@@ -138,15 +142,13 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void OpenUndelivery(Order order)
 		{
-			var page = tdiNavigation.OpenTdiTab<UndeliveriesView>(null);
-			var dlg = page.TdiTab as UndeliveriesView;
-			dlg.HideFilterAndControls();
-			dlg.UndeliveredOrdersFilter.SetAndRefilterAtOnce(
-				x => x.ResetFilter(),
-				x => x.RestrictOldOrder = order,
-				x => x.RestrictOldOrderStartDate = order.DeliveryDate,
-				x => x.RestrictOldOrderEndDate = order.DeliveryDate
-			);
+			var page = tdiNavigation.OpenTdiTab<UndeliveredOrdersJournalViewModel>(null);
+			var dlg = page.TdiTab as UndeliveredOrdersJournalViewModel;
+			var filter = dlg.UndeliveredOrdersFilterViewModel;
+			filter.HidenByDefault = true;
+			filter.RestrictOldOrder = order;
+			filter.RestrictOldOrderStartDate = order.DeliveryDate;
+			filter.RestrictOldOrderEndDate = order.DeliveryDate;
 		}
 
 		public void CancelOrder(Order order)
