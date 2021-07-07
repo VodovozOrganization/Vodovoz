@@ -38,6 +38,7 @@ namespace Vodovoz.ViewModels.Cash
             }
 
             Entity.PropertyChanged += Entity_PropertyChanged;
+			ValidationContext.ServiceContainer.AddService(typeof(IOrderPaymentSettings), orderPaymentSettings);
         }
 
         void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

@@ -57,6 +57,8 @@ namespace Vodovoz.Domain.Orders
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
 
+		//private OrderPaymentSettings orderPaymentSettings = new OrderPaymentSettings();
+
 		private int _vodovozLeafletId;
 		private int _luckyPizzaLeafletId;
 
@@ -735,7 +737,7 @@ namespace Vodovoz.Domain.Orders
 		ReturnTareReason returnTareReason;
 		[Display(Name = "Причина забора тары")]
 		public virtual ReturnTareReason ReturnTareReason {
-			get => returnTareReason;
+			get => returnTareReason; /*ValidationContext*/
 			set => SetField(ref returnTareReason, value);
 		}
 
@@ -912,7 +914,7 @@ namespace Vodovoz.Domain.Orders
 
 		#region IValidatableObject implementation
 
-		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext/*, object orderPayment*/)
 		{
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
@@ -955,7 +957,7 @@ namespace Vodovoz.Domain.Orders
 					//если ни у точки доставки, ни у контрагента нет ни одного номера телефона
 					if(!IsLoadedFrom1C && !((DeliveryPoint != null && DeliveryPoint.Phones.Any()) || Client.Phones.Any()))
 						yield return new ValidationResult("Ни для контрагента, ни для точки доставки заказа не указано ни одного номера телефона.");
-
+					//validationContext.GetService()
 					if(!IsLoadedFrom1C && DeliveryPoint != null) {
 						if(string.IsNullOrWhiteSpace(DeliveryPoint.Entrance)) {
 							yield return new ValidationResult("Не заполнена парадная в точке доставки");
@@ -1060,11 +1062,15 @@ namespace Vodovoz.Domain.Orders
 			}           
 
 			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
-            if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
-                if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
+            if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"])
+                if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress )
                     yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
+                    
+					
+			if(SelfDelivery && PaymentType == PaymentType.Terminal && OnlineOrder == null)
+				yield return new ValidationResult($"В заказe on selfdelivery с оплатой по терминалу №{Id} отсутствует номер оплаты.");
 
-            if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
+			if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
 			if(!SelfDelivery && DeliveryPoint == null)
@@ -1093,6 +1099,19 @@ namespace Vodovoz.Domain.Orders
 					"Выбран тип оплаты по карте. Необходимо указать откуда произведена оплата.",
 					new[] { this.GetPropertyName(o => o.PaymentByCardFrom) }
 				);
+
+			if(SelfDelivery && PaymentType == PaymentType.ByCard && OnlineOrder == null)
+			{
+				IOrderPaymentSettings obj = validationContext.GetService(typeof(IOrderPaymentSettings)) as IOrderPaymentSettings;
+				//if(!((validationContext.GetService(typeof(IOrderPaymentSettings)) is IOrderPaymentSettings orderPayment))
+				//throw new ArgumentException("Parameters should be available!"); 
+				if(obj == null)
+					throw new ArgumentException("Не был передан необходимый аргумент IOrderPaymentService");
+				//if(!(obj is IOrderPaymentSettings ord))
+				//	throw nwe
+				if(PaymentByCardFrom.Id == obj.PaymentFromTerminalId)
+					yield return new ValidationResult($"В заказe on selfdelivery TEST с оплатой по терминалу  №{Id} отсутствует номер оплаты.");
+			}
 
 			if(
 				ObservableOrderEquipments
@@ -1128,6 +1147,8 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.PaymentType) }
 				);
 			}
+
+			if(SelfDelivery)
 
 			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType)
 				&& Contract?.Organization != null && Contract.Organization.CashBoxId == null) {

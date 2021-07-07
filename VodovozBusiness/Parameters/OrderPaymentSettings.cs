@@ -14,5 +14,9 @@ namespace Vodovoz.Parameters
         public int DefaultSelfDeliveryPaymentFromId{
             get => parametersProvider.GetIntValue("default_selfdelivery_paymentFrom_id");        
         }
-    }
+
+		public int PaymentFromTerminalId{
+			get => parametersProvider.GetIntValue("paymentfrom_terminal_id");
+		}
+	}
 }

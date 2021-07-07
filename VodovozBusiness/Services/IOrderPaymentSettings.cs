@@ -3,5 +3,6 @@
     public interface IOrderPaymentSettings
     {
         int DefaultSelfDeliveryPaymentFromId { get; }
-    }
+        int PaymentFromTerminalId { get; }
+	}
 }
