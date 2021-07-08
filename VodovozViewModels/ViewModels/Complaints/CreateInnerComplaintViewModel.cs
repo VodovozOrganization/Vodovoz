@@ -20,8 +20,10 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ISubdivisionRepository subdivisionRepository;
 		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
         private readonly IFilePickerService filePickerService;
+        private List<ComplaintObject> _complaintObjectSource;
+        private ComplaintObject _complaintObject;
 
-        public CreateInnerComplaintViewModel(
+		public CreateInnerComplaintViewModel(
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
@@ -54,7 +56,7 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		List<ComplaintKind> complaintKindSource;
-		public IEnumerable<ComplaintKind> ComplaintKindSource {
+		public List<ComplaintKind> ComplaintKindSource {
 			get {
 				if(complaintKindSource == null)
 					complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
@@ -62,6 +64,38 @@ namespace Vodovoz.ViewModels.Complaints
 					complaintKindSource.Add(UoW.GetById<ComplaintKind>(Entity.ComplaintKind.Id));
 
 				return complaintKindSource;
+			}
+			set
+			{
+				SetField(ref complaintKindSource, value);
+			}
+		}
+
+		public virtual ComplaintObject ComplaintObject
+		{
+			get => _complaintObject;
+			set
+			{
+				SetField(ref _complaintObject, value);
+				var complaintKinds = UoW.GetAll<ComplaintKind>();
+				if(value != null)
+				{
+					complaintKinds = complaintKinds.Where(x => x.ComplaintObject == value);
+				}
+				ComplaintKindSource = complaintKinds.ToList();
+			}
+		}
+
+		public IEnumerable<ComplaintObject> ComplaintObjectSource
+		{
+			get
+			{
+				if(_complaintObjectSource == null)
+				{
+					_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList();
+				}
+
+				return _complaintObjectSource;
 			}
 		}
 

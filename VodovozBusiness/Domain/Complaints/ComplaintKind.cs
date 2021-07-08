@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -17,6 +18,10 @@ namespace Vodovoz.Domain.Complaints
 	[EntityPermission]
 	public class ComplaintKind : BusinessObjectBase<Complaint>, IDomainObject, IValidatableObject
 	{
+		private ComplaintObject _complaintObject;
+		private IList<Subdivision> _subdivisions = new List<Subdivision>();
+		GenericObservableList<Subdivision> _observableSubdivisions;
+
 		public virtual int Id { get; set; }
 
 		string name;
@@ -33,6 +38,13 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref isArchive, value);
 		}
 
+		[Display(Name = "Объект рекламаций")]
+		public virtual ComplaintObject ComplaintObject
+		{
+			get => _complaintObject;
+			set => SetField(ref _complaintObject, value);
+		}
+
 		public virtual string GetFullName => !IsArchive ? Name : string.Format("(Архив) {0}", Name);
 
 		public virtual string Title => string.Format("Вид рекламации №{0} ({1})", Id, Name);
@@ -44,6 +56,36 @@ namespace Vodovoz.Domain.Complaints
 					"Укажите название вида рекламации",
 					new[] { this.GetPropertyName(o => o.Name) }
 				);
+		}
+
+		[Display(Name = "Подразделения")]
+		public virtual IList<Subdivision> Subdivisions
+		{
+			get => _subdivisions;
+			set => SetField(ref _subdivisions, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Subdivision> ObservableSubdivisions
+		{
+			get
+			{
+				if(_observableSubdivisions == null)
+				{
+					_observableSubdivisions = new GenericObservableList<Subdivision>(Subdivisions);
+				}
+				return _observableSubdivisions;
+			}
+		}
+
+		public virtual void AddSubdivision(Subdivision subdivision)
+		{
+			if(ObservableSubdivisions.Contains(subdivision))
+			{
+				return;
+			}
+			
+			ObservableSubdivisions.Add(subdivision);
 		}
 	}
 }

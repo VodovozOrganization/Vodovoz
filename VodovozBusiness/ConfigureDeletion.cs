@@ -1179,6 +1179,8 @@ namespace Vodovoz
 						.AddDeleteDependence<ComplaintFile>(item => item.ComplaintDiscussionComment)
 						;
 
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintObject>();
+
 			#endregion Рекламации
 
 			#region stuff

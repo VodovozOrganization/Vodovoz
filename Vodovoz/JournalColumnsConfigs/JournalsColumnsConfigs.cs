@@ -23,11 +23,13 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using WrapMode = Pango.WrapMode;
 using Vodovoz.Journals;
+using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -279,6 +281,9 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(node => node.ComplaintText)
 						.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 						.XAlign(0f)
+					.AddColumn("Объект рекламации").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ComplaintObjectString)
+						.XAlign(0.5f)
 					.AddColumn("Вид рекламации").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.ComplaintKindString)
 						.XAlign(0.5f)
@@ -1180,6 +1185,30 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("В работе\nу отдела").HeaderAlignment(0.5f).AddTextRenderer(node => node.InProcessAt)
 					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 				.Finish()
+			);
+
+			//ComplaintObjectJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ComplaintObjectJournalViewModel>(
+				() => FluentColumnsConfig<ComplaintObjectJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Дата создания").AddTextRenderer(node => node.CreateDate.ToString("g"))
+					.AddColumn("Название").AddTextRenderer(node => node.Name).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Сопряженные виды").AddTextRenderer(node => node.ComplaintKinds).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("В архиве")
+					.AddToggleRenderer(node => node.IsArchive)
+						.Editing(false)
+						.XAlign(0f)
+					.AddColumn("Дата архивирования").AddTextRenderer(node => node.IsArchive ? node.ArchiveDate.ToString("g") : "")
+					.Finish()
+			);
+
+			//ComplaintKindJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ComplaintKindJournalViewModel>(
+				() => FluentColumnsConfig<ComplaintKindJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Объект рекламаций").AddTextRenderer(node => node.ComplaintObject).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.Finish()
 			);
 		}
 	}

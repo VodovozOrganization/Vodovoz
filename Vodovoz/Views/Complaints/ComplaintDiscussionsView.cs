@@ -18,6 +18,9 @@ namespace Vodovoz.Views.Complaints
 			ybuttonAttachSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanAttachSubdivision, w => w.Sensitive).InitializeFromSource();
 			ybuttonAttachSubdivision.Clicked += (sender, e) => ViewModel.AttachSubdivisionCommand.Execute();
 
+			ybuttonAttachSubdivisionByComplaintKind.Binding.AddBinding(ViewModel, vm => vm.CanAttachSubdivision, w => w.Sensitive).InitializeFromSource();
+			ybuttonAttachSubdivisionByComplaintKind.Clicked += (sender, e) => ViewModel.AttachSubdivisionByComplaintKindCommand.Execute();
+
 			ViewModel.ObservableComplaintDiscussionViewModels.ElementAdded += ObservableComplaintDiscussionViewModels_ElementAdded;
 			ViewModel.ObservableComplaintDiscussionViewModels.ElementRemoved += ObservableComplaintDiscussionViewModels_ElementRemoved;
 
