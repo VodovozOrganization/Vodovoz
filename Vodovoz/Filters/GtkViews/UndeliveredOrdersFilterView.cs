@@ -22,23 +22,23 @@ namespace Vodovoz.Filters.GtkViews
 			yEnumCMBActionWithInvoice.ItemsEnum = typeof(ActionsWithInvoice);
 			yEnumCMBActionWithInvoice.Binding.AddBinding(ViewModel, vm => vm.RestrictActionsWithInvoice, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			ySpecCMBinProcessAt.Binding
-				.AddBinding(ViewModel, vm => vm.Subdivisions, w => w.ItemsList)
-				.AddBinding(ViewModel, vm => vm.RestrictInProcessAtDepartment, w => w.SelectedItem)
+			ySpecCMBinProcessAt.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Subdivisions, w => w.ItemsList)
+				.AddBinding(vm => vm.RestrictInProcessAtDepartment, w => w.SelectedItem)
 				.InitializeFromSource();
 
-			ySpecCMBGuiltyDep.Binding
-				.AddBinding(ViewModel, vm => vm.Subdivisions, w => w.ItemsList)
-				.AddBinding(ViewModel, vm => vm.RestrictGuiltyDepartment, w => w.SelectedItem)
-				.AddBinding(ViewModel, vm => vm.RestrictGuiltyDepartmentVisible, w => w.Visible)
+			ySpecCMBGuiltyDep.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Subdivisions, w => w.ItemsList)
+				.AddBinding(vm => vm.RestrictGuiltyDepartment, w => w.SelectedItem)
+				.AddBinding(vm => vm.RestrictGuiltyDepartmentVisible, w => w.Visible)
 				.InitializeFromSource();
 
 			ylabelGuiltyDep.Binding.AddBinding(ViewModel, vm => vm.RestrictGuiltyDepartmentVisible, w => w.Visible).InitializeFromSource();
 
 			yEnumCMBGuilty.ItemsEnum = typeof(GuiltyTypes);
-			yEnumCMBGuilty.Binding
-				.AddBinding(ViewModel, vm => vm.RestrictGuiltySide, w => w.SelectedItemOrNull)
-				.AddBinding(ViewModel, vm => vm.RestrictNotIsProblematicCases, w => w.Sensitive)
+			yEnumCMBGuilty.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.RestrictGuiltySide, w => w.SelectedItemOrNull)
+				.AddBinding(vm => vm.RestrictNotIsProblematicCases, w => w.Sensitive)
 				.InitializeFromSource();
 
 			entryOldOrder.SetEntityAutocompleteSelectorFactory(ViewModel.OrderSelectorFactory);
@@ -60,11 +60,15 @@ namespace Vodovoz.Filters.GtkViews
 			entryUndeliveryAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.OfficeEmployeeSelectorFactory);
 			entryUndeliveryAuthor.Binding.AddBinding(ViewModel, vm => vm.RestrictUndeliveryAuthor, w => w.Subject).InitializeFromSource();
 
-			dateperiodOldOrderDate.Binding.AddBinding(ViewModel, vm => vm.RestrictOldOrderStartDate, w => w.StartDateOrNull).InitializeFromSource();
-			dateperiodOldOrderDate.Binding.AddBinding(ViewModel, vm => vm.RestrictOldOrderEndDate, w => w.EndDateOrNull).InitializeFromSource();
+			dateperiodOldOrderDate.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.RestrictOldOrderStartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.RestrictOldOrderEndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
 
-			dateperiodNewOrderDate.Binding.AddBinding(ViewModel, vm => vm.RestrictNewOrderStartDate, w => w.StartDateOrNull).InitializeFromSource();
-			dateperiodNewOrderDate.Binding.AddBinding(ViewModel, vm => vm.RestrictNewOrderEndDate, w => w.EndDateOrNull).InitializeFromSource();
+			dateperiodNewOrderDate.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.RestrictNewOrderStartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.RestrictNewOrderEndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
 
 			entryAuthorSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.AuthorSubdivisionSelectorFactory);
 			entryAuthorSubdivision.Binding.AddBinding(ViewModel, vm => vm.RestrictAuthorSubdivision, w => w.Subject).InitializeFromSource();
