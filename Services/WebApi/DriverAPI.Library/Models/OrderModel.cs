@@ -31,7 +31,7 @@ namespace DriverAPI.Library.Models
 		private readonly IUnitOfWork _unitOfWork;
 
 		private readonly int _maxClosingRating = 5;
-		private readonly PaymentType[] _smsPayable = new PaymentType[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
+		private readonly PaymentType[] _smsNotPayable = new PaymentType[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
 
 		public OrderModel(ILogger<OrderModel> logger,
 			IOrderRepository orderRepository,
@@ -161,7 +161,7 @@ namespace DriverAPI.Library.Models
 		/// <returns></returns>
 		private bool CanSendSmsForPayment(Vodovoz.Domain.Orders.Order order, SmsPaymentStatus? smsPaymentStatus)
 		{
-			return !_smsPayable.Contains(order.PaymentType)
+			return !_smsNotPayable.Contains(order.PaymentType)
 				&& order.OrderTotalSum > 0;
 		}
 
