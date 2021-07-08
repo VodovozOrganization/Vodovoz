@@ -47,7 +47,6 @@ using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.Views.Users;
 using VodovozInfrastructure.Configuration;
@@ -217,11 +216,11 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().DefaultTableView()
                     .Column("Название", w => w.Name).End(),
                 OrmObjectMapping<CarEventType>.Create().Dialog<CarEventTypeViewModel>()
-            };
+			};
 
-			#region Складские документы
+            #region Складские документы
 
-			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
+            OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
             OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentDlg>();
             OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentDlg>();
             OrmMain.AddObjectDescription<ShiftChangeWarehouseDocument>().Dialog<ShiftChangeWarehouseDocumentDlg>();
@@ -250,6 +249,10 @@ namespace Vodovoz.Configuration
 
             #region Простые справочники
 
+            OrmMain.AddObjectDescription<DiscountReason>()
+                .DefaultTableView()
+                .SearchColumn("Название", x => x.Name)
+                .End();
             OrmMain.AddObjectDescription<GeographicGroup>()
                 .Dialog<GeographicGroupDlg>()
                 .DefaultTableView()

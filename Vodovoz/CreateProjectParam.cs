@@ -214,7 +214,6 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PremiumTemplateViewModel, PremiumTemplateView>()
 				.RegisterWidgetForTabViewModel<CarEventTypeViewModel, CarEventTypeView>()
 				.RegisterWidgetForTabViewModel<CarEventViewModel, CarEventView>()
-				.RegisterWidgetForTabViewModel<DiscountReasonViewModel, DiscountReasonView>()
 ;
 
             //Регистрация виджетов
