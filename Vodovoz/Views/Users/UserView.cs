@@ -57,7 +57,10 @@ namespace Vodovoz.Views.Users
 			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Description, w => w.Buffer.Text).InitializeFromSource();
 			ylabelIdValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.Id.ToString(), w => w.LabelProp).InitializeFromSource();
 			yentryDisplayName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
-			yentryLogin.Binding.AddBinding(ViewModel.Entity, e => e.Login, w => w.Text).InitializeFromSource();
+			yentryLogin.Binding
+				.AddBinding(ViewModel.Entity, e => e.Login, w => w.Text)
+				.AddBinding(ViewModel, e => e.CanEditLogin, w => w.IsEditable)
+				.InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => {
 				documentPermissionWidget.Save();

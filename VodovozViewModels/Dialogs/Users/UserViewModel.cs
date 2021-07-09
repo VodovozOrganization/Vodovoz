@@ -21,6 +21,8 @@ namespace Vodovoz.ViewModels
 			_permissionRepository = permissionRepository ?? throw new System.ArgumentNullException(nameof(permissionRepository));
 		}
 
+		public bool CanEditLogin => UoW.IsNew;
+
 		private PresetUserPermissionsViewModel _presetUserPermissionsViewModel;
 		public PresetUserPermissionsViewModel PresetPermissionsViewModel
 		{

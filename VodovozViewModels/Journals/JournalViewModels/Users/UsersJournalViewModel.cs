@@ -15,7 +15,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 	{
 		private readonly IPermissionRepository _permissionRepository;
 
-		public UsersJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, IPermissionRepository permissionRepository, ICommonServices commonServices, bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false) : base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+		public UsersJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, IPermissionRepository permissionRepository, ICommonServices commonServices, bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false) 
+			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
 			TabName = "Журнал пользователей";
 			_permissionRepository = permissionRepository ?? throw new ArgumentNullException(nameof(permissionRepository));
@@ -25,7 +26,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
 			CreateDefaultEditAction();
 		}
 
