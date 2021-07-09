@@ -5,6 +5,7 @@ using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -19,6 +20,8 @@ namespace Vodovoz.SidePanel.InfoViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class UndeliveredOrdersPanelView : Gtk.Bin, IPanelView
 	{
+		private readonly IUnitOfWork _uow;
+		
 		public UndeliveredOrdersPanelView()
 		{
 			this.Build();
@@ -35,6 +38,8 @@ namespace Vodovoz.SidePanel.InfoViews
 				.RowCells()
 					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = (int)n[2] % 2 == 0 ? wh : gr)
 				.Finish();
+			
+			_uow = UnitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		List<object[]> guilties = new List<object[]>();
@@ -94,7 +99,7 @@ namespace Vodovoz.SidePanel.InfoViews
 												.Where(n => n.Category == NomenclatureCategory.water && n.TareVolume == TareVolume.Vol19L)
 												.Select(Projections.Sum(() => orderItemAlias.Count));
 
-			var query = InfoProvider.UoW.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
+			var query = _uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
 				.Left.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
 				.Left.JoinAlias(u => u.NewOrder, () => newOrderAlias)
 				.Left.JoinAlias(() => oldOrderAlias.Client, () => counterpartyAlias)
@@ -105,7 +110,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				.Left.JoinAlias(u => u.Author, () => authorAlias);
 
 			if(filter?.RestrictDriver != null) {
-				var oldOrderIds = UndeliveredOrdersRepository.GetListOfUndeliveryIdsForDriver(InfoProvider.UoW, filter.RestrictDriver);
+				var oldOrderIds = UndeliveredOrdersRepository.GetListOfUndeliveryIdsForDriver(_uow, filter.RestrictDriver);
 				query.Where(() => oldOrderAlias.Id.IsIn(oldOrderIds.ToArray()));
 			}
 
