@@ -79,7 +79,7 @@ namespace Vodovoz.TempAdapters
 					new DeliveryPointJournalFactory(),
 					subdivisionJournalFactory,
 					new GtkTabsOpener(),
-					new UndeliveriesViewOpener()
+					new UndeliveredOrdersJournalOpener()
 					);
 			});
 		}

@@ -520,7 +520,7 @@ namespace Vodovoz.ViewModel
 									new DeliveryPointJournalFactory(), 
 									new SubdivisionJournalFactory(new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default }),
 									new GtkTabsOpener(),
-									new UndeliveriesViewOpener()
+									new UndeliveredOrdersJournalOpener()
 								)
 							);
 					},

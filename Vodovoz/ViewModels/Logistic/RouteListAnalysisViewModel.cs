@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>
 	{
-		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
+		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 		private readonly IEmployeeService employeeService;
 		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
@@ -46,7 +46,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
-		private readonly IUndeliveriesViewOpener _undeliveriesViewOpener;
+		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly ICommonServices _commonServices;
 
 		#region Properties
@@ -75,7 +75,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveriesViewOpener undeliveriesViewOpener) : base (uowBuilder, unitOfWorkFactory, commonServices)
+			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -83,12 +83,12 @@ namespace Vodovoz.ViewModels.Logistic
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_undeliveriesViewOpener = undeliveriesViewOpener ?? throw new ArgumentNullException(nameof(undeliveriesViewOpener));
+			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			Entity.ObservableAddresses.PropertyOfElementChanged += ObservableAddressesOnPropertyOfElementChanged;
 			
-			undeliveryViewOpener = new UndeliveriesViewOpener();
+			undeliveryViewOpener = new UndeliveredOrdersJournalOpener();
 			employeeService = VodovozGtkServicesConfig.EmployeeService;
 			CurrentEmployee = employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
 			
@@ -172,7 +172,7 @@ namespace Vodovoz.ViewModels.Logistic
 						_gtkDialogsOpener,
 						_employeeJournalFactory,
 						employeeService,
-						_undeliveriesViewOpener,
+						_undeliveredOrdersJournalOpener,
 						_orderSelectorFactory);
 
 					dlg.TabClosed += (s,e) => UpdateTreeAddresses?.Invoke();

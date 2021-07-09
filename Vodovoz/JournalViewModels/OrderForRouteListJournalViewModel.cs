@@ -41,7 +41,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
-		private readonly IUndeliveriesViewOpener _undeliveriesViewOpener;
+		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
 		public OrderForRouteListJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -53,7 +53,7 @@ namespace Vodovoz.JournalViewModels
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveriesViewOpener undeliveriesViewOpener,
+			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -63,7 +63,7 @@ namespace Vodovoz.JournalViewModels
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_undeliveriesViewOpener = undeliveriesViewOpener ?? throw new ArgumentNullException(nameof(undeliveriesViewOpener));
+			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 
 			TabName = "Журнал заказов";
@@ -307,7 +307,7 @@ namespace Vodovoz.JournalViewModels
 							_gtkDialogsOpener,
 							_employeeJournalFactory,
 							_employeeService,
-							_undeliveriesViewOpener,
+							_undeliveredOrdersJournalOpener,
 							_orderSelectorFactory
 							);
 

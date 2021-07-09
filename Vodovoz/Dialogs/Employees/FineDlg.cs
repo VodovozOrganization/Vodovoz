@@ -295,7 +295,7 @@ namespace Vodovoz
 				new GtkTabsOpener(),
 				new EmployeeJournalFactory(),
 				VodovozGtkServicesConfig.EmployeeService,
-				new UndeliveriesViewOpener(),
+				new UndeliveredOrdersJournalOpener(),
 				new OrderSelectorFactory()
 				);
 

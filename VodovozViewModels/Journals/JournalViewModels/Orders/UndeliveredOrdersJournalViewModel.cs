@@ -34,13 +34,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly bool _canCloseUndeliveries;
 		private readonly IEmployeeJournalFactory _driverEmployeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
-		private readonly IUndeliveriesViewOpener _undeliveryViewOpener;
+		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ICommonServices _commonServices;
 
 		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
-			IEmployeeService employeeService, IUndeliveriesViewOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory)
+			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));

@@ -72,18 +72,18 @@ namespace Vodovoz
         private bool deliveryPointsConfigured = false;
         private bool documentsConfigured = false;
         
-        private IUndeliveriesViewOpener undeliveriesViewOpener;
+        private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 
-        public virtual IUndeliveriesViewOpener UndeliveriesViewOpener
+        public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener
         {
 	        get
 	        {
-		        if (undeliveriesViewOpener is null)
+		        if (_undeliveredOrdersJournalOpener is null)
 		        {
-			        undeliveriesViewOpener = new UndeliveriesViewOpener();
+			        _undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
 		        }
 
-		        return undeliveriesViewOpener;
+		        return _undeliveredOrdersJournalOpener;
 	        }
         }
 
@@ -726,7 +726,7 @@ namespace Vodovoz
 		        new DeliveryPointJournalFactory(),
 		        subdivisionJournalFactory,
 		        new GtkTabsOpener(),
-		        new UndeliveriesViewOpener()
+		        new UndeliveredOrdersJournalOpener()
 			);
 
 	        TabParent.AddTab(orderJournalViewModel, this, false);
@@ -746,7 +746,7 @@ namespace Vodovoz
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
-		        UndeliveriesViewOpener,
+		        UndeliveredOrdersJournalOpener,
 		        employeeService,
 		        EmployeeSelectorFactory,
 		        CounterpartySelectorFactory,

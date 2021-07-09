@@ -4,7 +4,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.TempAdapters
 {
-	public interface IUndeliveriesViewOpener
+	public interface IUndeliveredOrdersJournalOpener
 	{
 		void OpenFromFine(ITdiTab tab, Order oldOrder, DateTime? deliveryDate, UndeliveryStatus undeliveryStatus);
 	}

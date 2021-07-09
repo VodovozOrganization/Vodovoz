@@ -13,7 +13,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 namespace Vodovoz.JournalViewers
 {
 	//FIXME Временно. Для возможности открывать старые диалоги из отдельного проекта для моделей представления
-	public class UndeliveriesViewOpener : IUndeliveriesViewOpener
+	public class UndeliveredOrdersJournalOpener : IUndeliveredOrdersJournalOpener
 	{
 		//отрытие журнала недовоза на конкретном недовозе из диалога штрафов
 		public void OpenFromFine(ITdiTab tab, Order oldOrder, DateTime? deliveryDate, UndeliveryStatus undeliveryStatus)
@@ -44,7 +44,7 @@ namespace Vodovoz.JournalViewers
 				new GtkTabsOpener(),
 				new EmployeeJournalFactory(),
 				VodovozGtkServicesConfig.EmployeeService,
-				new UndeliveriesViewOpener(),
+				new UndeliveredOrdersJournalOpener(),
 				new OrderSelectorFactory());
 
 			tab.TabParent.AddSlaveTab(tab, dlg);

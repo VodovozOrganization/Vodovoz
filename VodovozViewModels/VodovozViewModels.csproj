@@ -146,7 +146,7 @@
     <Compile Include="ViewModels\Employees\FineViewModel.cs" />
     <Compile Include="Infrastructure\Services\EmployeeService.cs" />
     <Compile Include="Infrastructure\Services\IEmployeeService.cs" />
-    <Compile Include="TempAdapters\IUndeliveriesViewOpener.cs" />
+    <Compile Include="TempAdapters\IUndeliveredOrdersJournalOpener.cs" />
     <Compile Include="ViewModels\Employees\FineTemplateViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateComplaintViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateInnerComplaintViewModel.cs" />

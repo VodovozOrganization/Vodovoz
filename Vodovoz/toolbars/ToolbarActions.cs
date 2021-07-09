@@ -1014,7 +1014,7 @@ public partial class MainWindow : Window
 													  new DeliveryPointJournalFactory(),
 													  subdivisionJournalFactory,
 													  new GtkTabsOpener(),
-													  new UndeliveriesViewOpener()
+													  new UndeliveredOrdersJournalOpener()
 													  );
 		
 		tdiMain.AddTab(ordersJournal);
@@ -1043,7 +1043,7 @@ public partial class MainWindow : Window
 			new GtkTabsOpener(),
 			new EmployeeJournalFactory(),
 			VodovozGtkServicesConfig.EmployeeService,
-			new UndeliveriesViewOpener(),
+			new UndeliveredOrdersJournalOpener(),
 			new OrderSelectorFactory())
 		);
 	}

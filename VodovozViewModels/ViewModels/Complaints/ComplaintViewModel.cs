@@ -29,7 +29,7 @@ namespace Vodovoz.ViewModels.Complaints
 	public class ComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
 		private readonly ICommonServices commonServices;
-		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
+		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			IUndeliveriesViewOpener undeliveryViewOpener,
+			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveriesViewOpener undeliveriesViewOpener
+			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener
 			) : base(uowBuilder, uowFactory, commonServices)
 		{
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
@@ -79,7 +79,7 @@ namespace Vodovoz.ViewModels.Complaints
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			GtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			UndeliveriesViewOpener = undeliveriesViewOpener ?? throw new ArgumentNullException(nameof(undeliveriesViewOpener));
+			UndeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
@@ -372,6 +372,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 		public IGtkTabsOpener GtkDialogsOpener { get; }
-		public IUndeliveriesViewOpener UndeliveriesViewOpener { get; }
+		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
 	}
 }

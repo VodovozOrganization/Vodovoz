@@ -876,7 +876,7 @@ public partial class MainWindow : Gtk.Window
 	    };
 	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
 
-	    IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
+	    IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
 
         var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
@@ -903,7 +903,7 @@ public partial class MainWindow : Gtk.Window
                 return new ComplaintsJournalViewModel(
                     UnitOfWorkFactory.GetDefaultFactory,
                     ServicesConfig.CommonServices,
-                    undeliveriesViewOpener,
+                    undeliveredOrdersJournalOpener,
                     VodovozGtkServicesConfig.EmployeeService,
                     employeeSelectorFactory,
                     counterpartySelectorFactory,
@@ -2026,7 +2026,7 @@ public partial class MainWindow : Gtk.Window
 	    };
 	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
 
-	    IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
+	    IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
 
         var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
@@ -2053,7 +2053,7 @@ public partial class MainWindow : Gtk.Window
                 return new ComplaintsJournalViewModel(
                     UnitOfWorkFactory.GetDefaultFactory,
                     ServicesConfig.CommonServices,
-                    undeliveriesViewOpener,
+                    undeliveredOrdersJournalOpener,
                     VodovozGtkServicesConfig.EmployeeService,
                     employeeSelectorFactory,
                     counterpartySelectorFactory,
@@ -2127,13 +2127,13 @@ public partial class MainWindow : Gtk.Window
                     counterpartySelectorFactory,
                     nomenclatureRepository,
                     UserSingletonRepository.GetInstance(),
-					new OrderSelectorFactory(),
-					new EmployeeJournalFactory(),
-					new CounterpartyJournalFactory(),
-					new DeliveryPointJournalFactory(),
-					new SubdivisionJournalFactory(),
-					new GtkTabsOpener(),
-					new UndeliveriesViewOpener()
+                    new OrderSelectorFactory(),
+                    new EmployeeJournalFactory(),
+                    new CounterpartyJournalFactory(),
+                    new DeliveryPointJournalFactory(),
+                    new SubdivisionJournalFactory(),
+                    new GtkTabsOpener(),
+                    new UndeliveredOrdersJournalOpener()
             )
         );
     }
