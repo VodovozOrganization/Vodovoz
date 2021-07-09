@@ -32,6 +32,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -534,6 +536,16 @@ namespace Vodovoz.JournalColumnsConfigs
 				() => FluentColumnsConfig<MovementWagonJournalNode>.Create()
 					.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
 					.AddColumn("Название").AddTextRenderer(x => x.Name)
+					.Finish()
+			);
+
+			//DriverComplaintReason
+			TreeViewColumnsConfigFactory.Register<DriverComplaintReasonsJournalViewModel>(
+				() => FluentColumnsConfig<DriverComplaintReasonJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(x => x.Name)
+					.AddColumn("Популярная").AddToggleRenderer(x => x.IsPopular).Editing(false)
+					.AddColumn("")
 					.Finish()
 			);
 

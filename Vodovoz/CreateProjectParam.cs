@@ -118,6 +118,9 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Views.Reports;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.JournalViewers.Complaints;
+using Vodovoz.ViewModels.ViewModels.Complaints;
 
 namespace Vodovoz
 {
@@ -215,7 +218,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CarEventTypeViewModel, CarEventTypeView>()
 				.RegisterWidgetForTabViewModel<CarEventViewModel, CarEventView>()
 				.RegisterWidgetForTabViewModel<DiscountReasonViewModel, DiscountReasonView>()
-;
+				.RegisterWidgetForTabViewModel<DriverComplaintReasonViewModel, DriverComplaintReasonView>()
+				;
 
             //Регистрация виджетов
             ViewModelWidgetResolver.Instance
@@ -271,6 +275,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<DeliveryAnalyticsViewModel, DeliveryAnalyticsReportView>()
 				.RegisterWidgetForWidgetViewModel<CarEventFilterViewModel, CarEventFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrdersFilterViewModel, UndeliveredOrdersFilterView>()
+				.RegisterWidgetForWidgetViewModel<DriverComplaintReasonJournalFilterViewModel, DriverComplaintReasonJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
