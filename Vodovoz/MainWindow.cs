@@ -2385,4 +2385,9 @@ public partial class MainWindow : Gtk.Window
 			ServicesConfig.CommonServices)
 		);
 	}
+
+	protected void OnActionDriversComplaintReasonsJournalActivated(object sender, EventArgs e)
+	{
+
+	}
 }
