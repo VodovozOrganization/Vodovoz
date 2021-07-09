@@ -487,6 +487,7 @@
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
+    <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
     <Compile Include="TempAdapters\PremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
@@ -1173,7 +1174,7 @@
     <Compile Include="Views\Complaints\ComplaintView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintView.cs" />
     <Compile Include="JournalViewModels\CounterpartyJournalViewModel.cs" />
-    <Compile Include="JournalViewers\UndeliveriesViewOpener.cs" />
+    <Compile Include="JournalViewers\UndeliveredOrdersJournalOpener.cs" />
     <Compile Include="Views\Employees\FineTemplateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineTemplateView.cs" />
     <Compile Include="Views\Employees\FineView.cs" />
@@ -1632,6 +1633,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarEventView.cs" />
     <Compile Include="Filters\GtkViews\CarEventFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventFilterView.cs" />
+    <Compile Include="Filters\GtkViews\UndeliveredOrdersFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveredOrdersFilterView.cs" />
     <Compile Include="Views\Orders\DiscountReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.DiscountReasonView.cs" />
     <Compile Include="ReportsParameters\Sales\PlanImplementationReport.cs" />

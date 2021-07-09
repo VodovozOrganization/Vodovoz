@@ -1127,6 +1127,48 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Автор").AddTextRenderer(node => node.AuthorFullName)
 					.Finish()
 			);
+
+			//UndeliveredOrdersJournalViewModel
+			TreeViewColumnsConfigFactory.Register<UndeliveredOrdersJournalViewModel>(
+				() => FluentColumnsConfig<UndeliveredOrderJournalNode>.Create()
+				.AddColumn("№").HeaderAlignment(0.5f).AddNumericRenderer(node => node.NumberInList)
+				.AddColumn("Код").HeaderAlignment(0.5f).AddTextRenderer(node => node.Id != 0 ? node.Id.ToString() : "")
+				.AddColumn("Статус").HeaderAlignment(0.5f).AddTextRenderer(node => node.Status)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Дата\nзаказа").HeaderAlignment(0.5f).AddTextRenderer(node => node.OldOrderDeliveryDate)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Автор\nзаказа").HeaderAlignment(0.5f).AddTextRenderer(node => node.OldOrderAuthor)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Клиент и адрес").HeaderAlignment(0.5f).AddTextRenderer(node => node.ClientAndAddress)
+					.WrapWidth(300).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Интервал\nдоставки").HeaderAlignment(0.5f).AddTextRenderer(node => node.OldDeliverySchedule)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Количество\nбутылей").HeaderAlignment(0.5f).AddTextRenderer(node => node.UndeliveredOrderItems)
+					.WrapWidth(75).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Статус\nначальный ➔\n ➔ текущий").HeaderAlignment(0.5f).AddTextRenderer(node => node.OldOrderStatus)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Виновный").HeaderAlignment(0.5f).AddTextRenderer(node => node.Guilty)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Причина").HeaderAlignment(0.5f).AddTextRenderer(node => node.Reason)
+					.WrapWidth(200).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Звонок\nв офис").HeaderAlignment(0.5f).AddTextRenderer(node => node.DriversCall)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Звонок\nклиенту").HeaderAlignment(0.5f).AddTextRenderer(node => node.DispatcherCall)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Водитель").HeaderAlignment(0.5f).AddTextRenderer(node => node.DriverName)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Перенос").HeaderAlignment(0.5f).AddTextRenderer(node => node.TransferDateTime)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Кто недовоз\nзафиксировал").HeaderAlignment(0.5f).AddTextRenderer(node => node.Registrator)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Автор\nнедовоза").HeaderAlignment(0.5f).AddTextRenderer(node => node.UndeliveryAuthor)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Оштрафованные").HeaderAlignment(0.5f).AddTextRenderer(node => node.FinedPeople)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("В работе\nу отдела").HeaderAlignment(0.5f).AddTextRenderer(node => node.InProcessAt)
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.Finish()
+			);
 		}
 	}
 }

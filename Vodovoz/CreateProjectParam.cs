@@ -270,6 +270,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<PremiumJournalFilterViewModel, PremiumJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryAnalyticsViewModel, DeliveryAnalyticsReportView>()
 				.RegisterWidgetForWidgetViewModel<CarEventFilterViewModel, CarEventFilterView>()
+				.RegisterWidgetForWidgetViewModel<UndeliveredOrdersFilterViewModel, UndeliveredOrdersFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -355,7 +356,7 @@ namespace Vodovoz
 
 			#region Vodovoz
 			#region Adapters
-			builder.RegisterType<UndeliveriesViewOpener>().As<IUndeliveriesViewOpener>();
+			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 			#endregion
 			#region Services
 			builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
