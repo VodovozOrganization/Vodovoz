@@ -87,7 +87,7 @@ namespace SmsPaymentService
                         logger.Error("Запрос на отправку платежа пришёл без товаров на продажу");
                         return new PaymentResult("Нельзя отправить платеж на заказ, в котором нет товаров на продажу");
                     }
-                    if(newPayment.Amount <= 1) {
+                    if(newPayment.Amount < 1) {
                         logger.Error("Запрос на отправку платежа пришёл с суммой заказа меньше 1 рубля");
                         return new PaymentResult("Нельзя отправить платеж на заказ, сумма которого меньше 1 рубля");
                     }
