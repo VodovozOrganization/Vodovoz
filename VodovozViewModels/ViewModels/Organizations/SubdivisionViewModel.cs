@@ -74,6 +74,8 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			Entity.ObservableChildSubdivisions.ElementRemoved += (aList, aIdx, aObject) => OnPropertyChanged(() => GeographicGroupVisible);
 		}
 
+		public override bool HasChanges => true;
+
 		public override bool Save(bool close)
 		{
 			bool res = base.Save(close);

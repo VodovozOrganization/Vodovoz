@@ -13,7 +13,9 @@ namespace Vodovoz.ViewModels
 {
     public class UserViewModel : EntityTabViewModelBase<User>
     {
-        public UserViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, IPermissionRepository permissionRepository, ICommonServices commonServices, INavigationManager navigation = null) 
+		public override bool HasChanges => true;
+
+		public UserViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, IPermissionRepository permissionRepository, ICommonServices commonServices, INavigationManager navigation = null) 
             : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
 			_permissionRepository = permissionRepository ?? throw new System.ArgumentNullException(nameof(permissionRepository));
