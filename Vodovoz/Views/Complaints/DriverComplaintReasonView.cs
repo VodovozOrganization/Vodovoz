@@ -11,6 +11,27 @@ namespace Vodovoz.Views.Complaints
 			: base(driverComplaintReasonViewModel)
 		{
 			this.Build();
+
+			ConfigureView();
+		}
+
+		private void ConfigureView()
+		{
+			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text);
+			ycheckbuttonIsPopular.Binding.AddBinding(ViewModel.Entity, e => e.IsPopular, w => w.Active);
+
+			buttonSave.Clicked += OnButtonSaveClicked;
+			buttonCancel.Clicked += OnButtonCancelClicked;
+		}
+
+		private void OnButtonCancelClicked(object sender, EventArgs e)
+		{
+			ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+		}
+
+		private void OnButtonSaveClicked(object sender, EventArgs e)
+		{
+			ViewModel.SaveAndClose();
 		}
 	}
 }
