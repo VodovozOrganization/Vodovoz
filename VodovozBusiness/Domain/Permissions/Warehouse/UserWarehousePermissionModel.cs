@@ -52,7 +52,7 @@ namespace Vodovoz.Domain.Permissions.Warehouse
 		}
 
 		public override IEnumerable<WarehousePermission> GetEnumerator() => _uow.Session
-			.QueryOver<SubdivisionWarehousePermission>().Where(x => x.Subdivision.Id == _user.Id)
+			.QueryOver<UserWarehousePermission>().Where(x => x.User.Id == _user.Id)
 			.List();
 
 		public override List<WarehousePermission> AllPermission { get; set; }
