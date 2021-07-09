@@ -222,15 +222,14 @@ namespace SmsPaymentService
 				logger.Error(ex, $"Не получилось уведомить службу водителей об обновлении статуса заказа");
 			}
 
-            // TODO: При переходе на WebApi - это разкоментировать, верхний такой же блок - удалить
-            //try
-            //{
-            //    smsPaymentStatusNotificationReciever.NotifyOfSmsPaymentStatusChanged(orderId).Wait();
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.Error(ex, $"Не получилось уведомить DriverAPI об обновлении статуса заказа");
-            //}
+			try
+			{
+				smsPaymentStatusNotificationReciever.NotifyOfSmsPaymentStatusChanged(orderId).Wait();
+			}
+			catch(Exception ex)
+			{
+				logger.Error(ex, $"Не получилось уведомить DriverAPI об обновлении статуса заказа");
+			}
 
 			return new StatusCode(HttpStatusCode.OK);
         }
