@@ -10,8 +10,7 @@ namespace Vodovoz.JournalViewers.Complaints
 		public DriverComplaintReasonJournalFilterView(DriverComplaintReasonJournalFilterViewModel viewModel)
 			: base(viewModel)
 		{
-			this.Build();
-
+			Build();
 			ConfigureView();
 		}
 
