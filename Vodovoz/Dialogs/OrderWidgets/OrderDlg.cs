@@ -2343,6 +2343,12 @@ namespace Vodovoz
 
 		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
+			var items = aList as GenericObservableList<OrderItem>;
+			for(var i = 0; i < items?.Count; i++)
+			{
+				FixPrice(i);
+			}
+			
 			HboxReturnTareReasonCategoriesShow();
 			
 			if (Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder) {

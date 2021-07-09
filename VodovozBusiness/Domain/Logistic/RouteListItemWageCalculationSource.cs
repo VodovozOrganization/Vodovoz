@@ -134,6 +134,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public (TimeSpan, TimeSpan) DeliverySchedule => (item.Order.DeliverySchedule.From, item.Order.DeliverySchedule.To);
 
+		public EmployeeCategory EmployeeCategory => employeeCategory;
+
 		#endregion IRouteListItemWageCalculationSource implementation
 	}
 }

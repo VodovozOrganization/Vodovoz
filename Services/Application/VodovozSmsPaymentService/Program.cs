@@ -44,12 +44,14 @@ namespace VodovozSmsPaymentService
 		{
 			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
 
+			IConfiguration configuration;
+
 			try
 			{
 				var builder = new ConfigurationBuilder()
 					.AddIniFile(configFile, optional: false);
 
-				var configuration = builder.Build();
+				configuration = builder.Build();
 
 				var serviceSection = configuration.GetSection("Service");
 				serviceHostName = serviceSection["service_host_name"];
@@ -106,6 +108,7 @@ namespace VodovozSmsPaymentService
 					$"http://{driverServiceHostName}:{driverServicePort}/AndroidDriverService"
 				);
 				IDriverPaymentService driverPaymentService = new DriverPaymentService(channelFactory);
+				ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever = new DriverAPIHelper(configuration);
 				var paymentSender = new BitrixPaymentController(baseAddress);
 				
 				var smsPaymentFileCache = new SmsPaymentFileCache("/tmp/VodovozSmsPaymentServiceTemp.txt");
@@ -113,6 +116,7 @@ namespace VodovozSmsPaymentService
 				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
 					paymentSender, 
 					driverPaymentService,
+					smsPaymentStatusNotificationReciever,
 					new OrderParametersProvider(SingletonParametersProvider.Instance),
 					smsPaymentFileCache
 				);
