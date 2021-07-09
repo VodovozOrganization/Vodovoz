@@ -545,6 +545,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
 					.AddColumn("Название").AddTextRenderer(x => x.Name)
 					.AddColumn("Популярная").AddToggleRenderer(x => x.IsPopular).Editing(false)
+					.AddColumn("")
 					.Finish()
 			);
 

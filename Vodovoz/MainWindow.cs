@@ -127,6 +127,8 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2388,6 +2390,8 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionDriversComplaintReasonsJournalActivated(object sender, EventArgs e)
 	{
-
+		var driversComplaintReasonsFilter = new DriverComplaintReasonJournalFilterViewModel();
+		var driversComplaintReasonsJournal = new DriverComplaintReasonsJournalViewModel(driversComplaintReasonsFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(driversComplaintReasonsJournal);
 	}
 }

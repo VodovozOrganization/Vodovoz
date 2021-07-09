@@ -7,5 +7,14 @@ using System.Threading.Tasks;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 {
-	public class DriverComplaintReasonJournalFilterViewModel : FilterViewModelBase<DriverComplaintReasonJournalFilterViewModel> { }
+	public class DriverComplaintReasonJournalFilterViewModel : FilterViewModelBase<DriverComplaintReasonJournalFilterViewModel>
+	{
+		private bool _isPopular;
+
+		public bool IsPopular
+		{ 
+			get => _isPopular; 
+			set => UpdateFilterField(ref _isPopular, value);
+		}
+	}
 }

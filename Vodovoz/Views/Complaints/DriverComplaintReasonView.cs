@@ -17,8 +17,8 @@ namespace Vodovoz.Views.Complaints
 
 		private void ConfigureView()
 		{
-			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text);
-			ycheckbuttonIsPopular.Binding.AddBinding(ViewModel.Entity, e => e.IsPopular, w => w.Active);
+			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			ycheckbuttonIsPopular.Binding.AddBinding(ViewModel.Entity, e => e.IsPopular, w => w.Active).InitializeFromSource();
 
 			buttonSave.Clicked += OnButtonSaveClicked;
 			buttonCancel.Clicked += OnButtonCancelClicked;

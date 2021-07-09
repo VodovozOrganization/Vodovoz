@@ -19,6 +19,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал причин оценки адреса";
+
+			UpdateOnChanges(typeof(DriverComplaintReason));
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<DriverComplaintReason>> ItemsSourceQueryFunction => (unitOfWork) =>
@@ -28,6 +30,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			var query = unitOfWork.Session.QueryOver<DriverComplaintReason>(() => driverComplaintReasonAlias);
 
+			if(FilterViewModel.IsPopular)
+			{
+				query.Where(() => driverComplaintReasonAlias.IsPopular);
+			}
+
 			query.Where(GetSearchCriterion(
 				() => driverComplaintReasonAlias.Id,
 				() => driverComplaintReasonAlias.Name
@@ -35,7 +42,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			var result = query.SelectList(list => list
 				.Select(u => u.Id).WithAlias(() => driverComplaintReasonJournalNodeAlias.Id)
-				.Select(u => u.Name).WithAlias(() => driverComplaintReasonJournalNodeAlias.Name))
+				.Select(u => u.Name).WithAlias(() => driverComplaintReasonJournalNodeAlias.Name)
+				.Select(u => u.IsPopular).WithAlias(() => driverComplaintReasonJournalNodeAlias.IsPopular))
 				.TransformUsing(Transformers.AliasToBean<DriverComplaintReasonJournalNode>());
 
 			return result;

@@ -11,6 +11,13 @@ namespace Vodovoz.JournalViewers.Complaints
 			: base(viewModel)
 		{
 			this.Build();
+
+			ConfigureView();
+		}
+
+		private void ConfigureView()
+		{
+			ycheckbuttonIsPopularOnly.Binding.AddBinding(ViewModel, vm => vm.IsPopular, w => w.Active);
 		}
 	}
 }
