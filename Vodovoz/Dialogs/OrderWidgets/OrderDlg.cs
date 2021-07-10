@@ -563,7 +563,8 @@ namespace Vodovoz
 			SetSensitivityOfPaymentType();
 			depositrefunditemsview.Configure(UoWGeneric, Entity);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
-			ycomboboxReason.ItemsList = orderRepository.GetActiveDiscountReasons(UoW);
+			ycomboboxReason.ShowSpecialStateNot = true;
+			ycomboboxReason.PopupRequested += (o, args) => (o as ySpecComboBox).ItemsList = orderRepository.GetActiveDiscountReasons(UoW);
 
 			yCmbReturnTareReasonCategories.SetRenderTextFunc<ReturnTareReasonCategory>(x => x.Name);
 			yCmbReturnTareReasonCategories.ItemsList = UoW.Session.QueryOver<ReturnTareReasonCategory>().List();
