@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
