@@ -39,6 +39,8 @@ namespace Vodovoz.Representations
 
         private readonly OrderPaymentSettings orderPaymentSettings;
 
+        private readonly OrderParametersProvider orderParametersProvider;
+
 		private readonly bool userCanChangePayTypeToByCard;
 
         public SelfDeliveriesJournalViewModel(
@@ -46,11 +48,14 @@ namespace Vodovoz.Representations
             IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
             CallTaskWorker callTaskWorker,
-            OrderPaymentSettings orderPaymentSettings) 
+            OrderPaymentSettings orderPaymentSettings,
+        OrderParametersProvider orderParametersProvider) 
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
             this.callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
             this.orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
+            this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+            
             TabName = "Журнал самовывозов";
 			SetOrder(x => x.Date, true);
 			UpdateOnChanges(
@@ -267,7 +272,8 @@ namespace Vodovoz.Representations
                                     UnitOfWorkFactory,
 									commonServices,
                                     callTaskWorker,
-                                    orderPaymentSettings), 
+                                    orderPaymentSettings,
+									orderParametersProvider), 
 								this
 							);
 					}
