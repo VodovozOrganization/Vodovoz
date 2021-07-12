@@ -9,6 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.Dialog;
 
 namespace Vodovoz.Core
 {

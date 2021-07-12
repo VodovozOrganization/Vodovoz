@@ -95,6 +95,10 @@
     <Compile Include="SmsPaymentService\SmsPaymentItemDTOCalculateTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
+      <Name>QS.Project.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{EFE73102-83BC-4036-8642-D3A4121E8351}</Project>
       <Name>SmsPaymentService</Name>
