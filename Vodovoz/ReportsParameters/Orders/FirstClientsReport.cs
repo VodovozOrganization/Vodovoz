@@ -27,6 +27,7 @@ namespace Vodovoz.ReportsParameters.Orders
 			yCpecCmbDiscountReason.SelectedItem = reasons.FirstOrDefault(r => r.Id == 16);
 			datePeriodPicker.StartDate = datePeriodPicker.EndDate = DateTime.Today;
 			entryDistrict.SetEntityAutocompleteSelectorFactory(districtSelector);
+			entryDistrict.CanEditReference = false;
 		}
 
 		#region IParametersWidget implementation
