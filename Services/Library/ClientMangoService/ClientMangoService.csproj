@@ -54,10 +54,10 @@
     <Folder Include="ProtoBuf\" />
   </ItemGroup>
   <ItemGroup>
-    <Protobuf Include="..\..\Application\VodovozMangoService\Protobuf\NotificationService.proto">
+    <Protobuf Include="..\..\WebApi\VodovozMangoService\Protobuf\NotificationService.proto">
       <Link>ProtoBuf\NotificationService.proto</Link>
     </Protobuf>
-    <Protobuf Include="..\..\Application\VodovozMangoService\Protobuf\PhonebookService.proto">
+    <Protobuf Include="..\..\WebApi\VodovozMangoService\Protobuf\PhonebookService.proto">
       <Link>ProtoBuf\PhonebookService.proto</Link>
     </Protobuf>
   </ItemGroup>

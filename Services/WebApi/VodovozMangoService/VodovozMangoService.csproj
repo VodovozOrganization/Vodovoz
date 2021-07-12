@@ -17,7 +17,7 @@
         <PackageReference Include="LettuceEncrypt" Version="1.1.0-beta.73" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.AzureAD.UI" Version="3.1.14" />
         <PackageReference Include="MySql.Data" Version="8.0.24" />
-        <PackageReference Include="NLog" Version="4.7.9" />
+        <PackageReference Include="NLog" Version="4.7.10" />
         <PackageReference Include="NLog.Web.AspNetCore" Version="4.12.0" />
         <PackageReference Include="System.Threading.Channels" Version="5.0.0" />
     </ItemGroup>
@@ -44,8 +44,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\QSProjects\QS.Utilities\QS.Utilities.dotnet.csproj" />
-      <ProjectReference Include="..\..\Library\MangoController\MangoController.csproj" />
+      <ProjectReference Include="..\..\..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
+      <ProjectReference Include="..\MangoController\MangoController.csproj" />
     </ItemGroup>
 
 </Project>

@@ -11,12 +11,7 @@ using MangoService.DTO.MakeCall;
 using MangoService.DTO.Users;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-#if NETFRAMEWORK
-using xNet;
-#else
 using xNetStandard;
-#endif
-
 
 namespace MangoService
 {
