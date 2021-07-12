@@ -114,6 +114,7 @@ using QS.BaseParameters;
 using QS.BaseParameters.ViewModels;
 using QS.BaseParameters.Views;
 using QS.ChangePassword.Views;
+using QS.Dialog;
 using QS.Project.Repositories;
 using QS.ViewModels;
 using Vodovoz.ReportsParameters.Employees;
@@ -123,9 +124,12 @@ using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 
 public partial class MainWindow : Gtk.Window
 {
