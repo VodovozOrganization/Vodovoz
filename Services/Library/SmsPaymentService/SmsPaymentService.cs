@@ -87,7 +87,7 @@ namespace SmsPaymentService
                         logger.Error("Запрос на отправку платежа пришёл без товаров на продажу");
                         return new PaymentResult("Нельзя отправить платеж на заказ, в котором нет товаров на продажу");
                     }
-                    if(newPayment.Amount <= 1) {
+                    if(newPayment.Amount < 1) {
                         logger.Error("Запрос на отправку платежа пришёл с суммой заказа меньше 1 рубля");
                         return new PaymentResult("Нельзя отправить платеж на заказ, сумма которого меньше 1 рубля");
                     }
@@ -222,15 +222,14 @@ namespace SmsPaymentService
 				logger.Error(ex, $"Не получилось уведомить службу водителей об обновлении статуса заказа");
 			}
 
-            // TODO: При переходе на WebApi - это разкоментировать, верхний такой же блок - удалить
-            //try
-            //{
-            //    smsPaymentStatusNotificationReciever.NotifyOfSmsPaymentStatusChanged(orderId).Wait();
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.Error(ex, $"Не получилось уведомить DriverAPI об обновлении статуса заказа");
-            //}
+			try
+			{
+				smsPaymentStatusNotificationReciever.NotifyOfSmsPaymentStatusChanged(orderId).Wait();
+			}
+			catch(Exception ex)
+			{
+				logger.Error(ex, $"Не получилось уведомить DriverAPI об обновлении статуса заказа");
+			}
 
 			return new StatusCode(HttpStatusCode.OK);
         }

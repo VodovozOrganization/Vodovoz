@@ -563,7 +563,8 @@ namespace Vodovoz
 			SetSensitivityOfPaymentType();
 			depositrefunditemsview.Configure(UoWGeneric, Entity);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
-			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
+			ycomboboxReason.ShowSpecialStateNot = true;
+			ycomboboxReason.ItemsList = orderRepository.GetActiveDiscountReasons(UoW);
 
 			yCmbReturnTareReasonCategories.SetRenderTextFunc<ReturnTareReasonCategory>(x => x.Name);
 			yCmbReturnTareReasonCategories.ItemsList = UoW.Session.QueryOver<ReturnTareReasonCategory>().List();
@@ -2343,6 +2344,12 @@ namespace Vodovoz
 
 		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
+			var items = aList as GenericObservableList<OrderItem>;
+			for(var i = 0; i < items?.Count; i++)
+			{
+				FixPrice(i);
+			}
+			
 			HboxReturnTareReasonCategoriesShow();
 			
 			if (Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder) {

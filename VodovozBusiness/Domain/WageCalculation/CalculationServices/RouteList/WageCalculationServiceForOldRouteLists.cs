@@ -29,7 +29,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			RouteListItemWageCalculationDetails addressWageDetails = new RouteListItemWageCalculationDetails()
 			{
-				RouteListItemWageCalculationName = "Расчёт ЗП для старых МЛ"
+				RouteListItemWageCalculationName = "Расчёт ЗП для старых МЛ",
+				WageCalculationEmployeeCategory = src.EmployeeCategory
 			};
 
 			addressWageDetails.WageCalculationDetailsList.Add(

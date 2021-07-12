@@ -31,6 +31,7 @@ namespace DriverAPI.Library.Models
 		private readonly IUnitOfWork _unitOfWork;
 
 		private readonly int _maxClosingRating = 5;
+		private readonly PaymentType[] _smsNotPayable = new PaymentType[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
 
 		public OrderModel(ILogger<OrderModel> logger,
 			IOrderRepository orderRepository,
@@ -160,9 +161,8 @@ namespace DriverAPI.Library.Models
 		/// <returns></returns>
 		private bool CanSendSmsForPayment(Vodovoz.Domain.Orders.Order order, SmsPaymentStatus? smsPaymentStatus)
 		{
-			return order.PaymentType == PaymentType.ByCard
-				&& order.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId
-				&& smsPaymentStatus != SmsPaymentStatus.Paid;
+			return !_smsNotPayable.Contains(order.PaymentType)
+				&& order.OrderTotalSum > 0;
 		}
 
 		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType)
@@ -247,5 +247,6 @@ namespace DriverAPI.Library.Models
 					ActionTime = actionTime
 				});
 		}
+
 	}
 }

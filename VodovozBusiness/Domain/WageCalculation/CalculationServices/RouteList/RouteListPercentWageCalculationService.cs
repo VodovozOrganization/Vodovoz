@@ -45,7 +45,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			RouteListItemWageCalculationDetails addressWageDetails = new RouteListItemWageCalculationDetails()
 			{
-				RouteListItemWageCalculationName = wageParameterItem.Title
+				RouteListItemWageCalculationName = wageParameterItem.Title,
+				WageCalculationEmployeeCategory = src.EmployeeCategory
 			};
 
 			switch(wageParameterItem.PercentWageType)
