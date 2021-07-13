@@ -46,7 +46,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IOrderRepository orderRepository;
 		private readonly IAtWorkRepository atWorkRepository;
-		private readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener;
+		private readonly IGtkTabsOpener gtkTabsOpener;
 		private readonly ICarRepository carRepository;
 		private readonly IUserRepository userRepository;
 		private readonly ICommonServices commonServices;
@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public RouteListsOnDayViewModel(
 			ICommonServices commonServices,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
-			IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener,
+			IGtkTabsOpener gtkTabsOpener,
 			IRouteListRepository routeListRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IOrderRepository orderRepository,

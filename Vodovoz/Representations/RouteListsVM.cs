@@ -33,9 +33,14 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using QS.Project.Domain;
 using QS.DomainModel.NotifyChange;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.JournalViewers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModel
 {
@@ -508,7 +513,14 @@ namespace Vodovoz.ViewModel
 								new RouteListAnalysisViewModel(
 									EntityUoWBuilder.ForOpen(selectedNode.Id),
 									UnitOfWorkFactory.GetDefaultFactory,
-									ServicesConfig.CommonServices
+									ServicesConfig.CommonServices,
+									new OrderSelectorFactory(),
+									new EmployeeJournalFactory(),
+									new CounterpartyJournalFactory(),
+									new DeliveryPointJournalFactory(), 
+									new SubdivisionJournalFactory(new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default }),
+									new GtkTabsOpener(),
+									new UndeliveredOrdersJournalOpener()
 								)
 							);
 					},

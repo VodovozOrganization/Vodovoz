@@ -2,6 +2,7 @@
 using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
+using QS.Dialog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.WageCalculation;

@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.Spatial.Criterion.Lambda;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -19,7 +18,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
@@ -383,6 +381,12 @@ namespace Vodovoz.EntityRepositories.Orders
 			var query = UoW.Session.QueryOver<DiscountReason>()
 						   .OrderBy(i => i.Name);
 			return orderByDescending ? query.Desc().List() : query.Asc().List();
+		}
+
+		public IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<DiscountReason>()
+				.WhereNot(dr => dr.IsArchive).OrderBy(dr => dr.Name).Asc().List();
 		}
 
 		public VodovozOrder GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
@@ -862,11 +866,24 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return subqueryAdded - subqueryRemoved - subqueryReserved > 0;
 		}
-		public IList<VodovozOrder> GetOrdersById(IUnitOfWork UoW, IEnumerable<int> OrderIds)
-		{
-			VodovozOrder orderAlias = null;
-			return UoW.Session.QueryOver(() => orderAlias)
-				.WhereRestrictionOn(() => orderAlias.Id).IsIn(OrderIds.ToList()).List();
+
+		public IEnumerable<VodovozOrder> GetOrders(IUnitOfWork uow, int[] ids)
+        {
+			VodovozOrder vodovozOrderAlias = null;
+			var query = uow.Session.QueryOver(() => vodovozOrderAlias)
+				.Where(
+					Restrictions.In(
+						Projections.Property(() => vodovozOrderAlias.Id),
+						ids
+						)
+					);
+
+			return query.List();
 		}
-	}
+
+        public VodovozOrder GetOrder(IUnitOfWork unitOfWork, int orderId)
+        {
+			return unitOfWork.GetById<VodovozOrder>(orderId);
+        }
+    }
 }

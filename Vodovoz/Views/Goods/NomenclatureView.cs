@@ -50,7 +50,7 @@ namespace Vodovoz.Views.Goods
 			#endregion
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
-			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);	
+			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);	
 			ylabelCreationDate.Binding.AddFuncBinding(ViewModel.Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
 			ylabelCreatedBy.Binding.AddFuncBinding(ViewModel.Entity, e => ViewModel.GetUserEmployeeName(), w => w.LabelProp).InitializeFromSource();
 

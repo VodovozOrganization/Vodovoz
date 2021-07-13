@@ -1,77 +1,81 @@
-node('Vodovoz') {
-	def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
+node('Vod6'){
+	stage('Checkout'){
+		def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
 
-	stage('Gtk.DataBindings') {		
+		echo "checkout Gtk.DataBindings"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
 			branches: [[name: '*/master']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions: 
-				[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Gtk.DataBindings']]
-				+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Gtk.DataBindings"]],
+			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Gtk.DataBindings']]
+			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Gtk.DataBindings"]],
 			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/Gtk.DataBindings.git']]
 		])
-	}
-	stage('GammaBinding') {
+
+		echo "checkout GammaBinding"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
 			branches: [[name: '*/master']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
-				[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GammaBinding']]
-				+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GammaBinding"]],
+			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GammaBinding']]
+			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GammaBinding"]],
 			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GammaBinding.git']]
 		])
-	}
-	stage('GMap.NET') {
+
+		echo "checkout GMap.NET"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
 			branches: [[name: '*/master']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
-				[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GMap.NET']]
-				+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GMap.NET"]],
+			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GMap.NET']]
+			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GMap.NET"]],
 			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GMap.NET.git']]
 		])
-	}
-	stage('My-FyiReporting') {
+
+		echo "checkout My-FyiReporting"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
 			branches: [[name: '*/QSBuild']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
-				[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
-				+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/My-FyiReporting"]],
+			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
+			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/My-FyiReporting"]],
 			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/My-FyiReporting.git']]
 		])
-		sh 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
-	}
-	stage('QSProjects') {
+
+		echo "checkout QSProjects"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
 			branches: [[name: '*/master']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
-				[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
-				+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/QSProjects"]],
+			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
+			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/QSProjects"]],
 			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/QSProjects.git']]
 		])
-		sh 'nuget restore QSProjects/QSProjectsLib.sln'
-	}
-	stage('Vodovoz') {		
+
+		echo "checkout Vodovoz"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
 			branches: scm.branches,
 			doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
 			extensions: scm.extensions 
-				+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
-				+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
+			+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
+			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
 			userRemoteConfigs: scm.userRemoteConfigs
 		])
-		sh 'nuget restore Vodovoz/Vodovoz.sln'
 	}
-	stage('Build') {
-		sh 'msbuild /p:Configuration=DebugWin /p:Platform=x86 Vodovoz/Vodovoz.sln'
+	stage('Restore'){
+		echo 'Prepare Vodovoz'	
+		bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86'
+	}
+	stage('Build'){
+		echo 'Build solution'
+		bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Vodovoz.sln -t:Build -p:Configuration=DebugWin -p:Platform=x86'
+
 		fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
 		zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
 		archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true
@@ -97,4 +101,3 @@ node('Vod3') {
 		}
 	}
 }
- 

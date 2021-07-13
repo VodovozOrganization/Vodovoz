@@ -53,7 +53,14 @@ namespace Vodovoz.Views.Complaints
 												ViewModel.NomenclatureSelectorFactory,
 												ViewModel.CounterpartySelectorFactory,
 												ViewModel.NomenclatureRepository,
-												ViewModel.UserRepository);
+												ViewModel.UserRepository,
+												ViewModel.OrderSelectorFactory,
+												ViewModel.EmployeeJournalFactory,
+												ViewModel.CounterpartyJournalFactory,
+												ViewModel.DeliveryPointJournalFactory,
+												ViewModel.SubdivisionJournalFactory,
+												ViewModel.GtkDialogsOpener,
+												ViewModel.UndeliveredOrdersJournalOpener);
 			});
 
 			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);
@@ -77,7 +84,7 @@ namespace Vodovoz.Views.Complaints
 			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.CheckAndSave(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 		}
 
 		void EntryCounterparty_ChangedByUser(object sender, System.EventArgs e)

@@ -60,6 +60,10 @@
     <Compile Include="IDriverNotificator.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
+      <Name>QS.Project.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
       <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
       <Name>QSOrmProject</Name>

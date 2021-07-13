@@ -69,7 +69,7 @@ namespace Vodovoz.Dialogs.Fuel
 			buttonPrint.Binding.AddBinding(ViewModel, vm => vm.CanPrint, w => w.Sensitive).InitializeFromSource();
 			buttonPrint.Clicked += (sender, e) => ViewModel.PrintCommand.Execute();
 
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
 			ViewModel.PropertyChanged += (sender, e) => {
 				if(e.PropertyName == nameof(ViewModel.FuelBalanceCache)) {

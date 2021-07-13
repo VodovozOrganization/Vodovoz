@@ -44,7 +44,7 @@ namespace Vodovoz.Views.Employees
 			buttonGetReasonFromTemplate.Clicked += (sender, e) => ViewModel.GetReasonFromTemplate.Execute();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
 		}
 	}
 }

@@ -28,6 +28,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure.Converters;
+using TrackRepository = Vodovoz.Repository.Logistics.TrackRepository;
 
 namespace Vodovoz
 {
@@ -70,7 +71,6 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
-			HasChanges = true;
 			if(!editing) {
 				MessageDialogHelper.RunWarningDialog("Не достаточно прав. Обратитесь к руководителю.");
 				HasChanges = false;

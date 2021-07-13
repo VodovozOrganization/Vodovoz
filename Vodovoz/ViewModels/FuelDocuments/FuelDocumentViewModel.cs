@@ -480,7 +480,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void CreateCancelCommand()
 		{
-			CancelCommand = new DelegateCommand(() => { Close(false, CloseSource.Cancel); }, () => true);
+			CancelCommand = new DelegateCommand(() => { Close(true, CloseSource.Cancel); }, () => true);
 		}
 
 		private void CreateSaveCommand()

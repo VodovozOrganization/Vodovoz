@@ -126,7 +126,6 @@ namespace Vodovoz
 			PerformanceHelper.StartMeasurement();
 
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
-			this.HasChanges = true;
 
 			TabName = string.Format("Закрытие маршрутного листа №{0}", Entity.Id);
 			PerformanceHelper.AddTimePoint("Создан UoW");
@@ -315,6 +314,8 @@ namespace Vodovoz
 				hbxStatistics1.Sensitive = false;
 				hbxStatistics2.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
+				labelWage1.Visible = false;
+				toggleWageDetails.Sensitive = false;
 
 				HasChanges = false;
 
@@ -341,6 +342,8 @@ namespace Vodovoz
 			advanceCheckbox.Sensitive = advanceSpinbutton.Sensitive = editing;
 			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = editing;
 			buttonCalculateCash.Sensitive = editing;
+			labelWage1.Visible = editing;
+			toggleWageDetails.Sensitive = editing;
 			UpdateButtonState();
 		}
 

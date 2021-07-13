@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
 	public class RouteListItemWageCalculationDetails
 	{
 		public string RouteListItemWageCalculationName { get; set; }
+		public EmployeeCategory WageCalculationEmployeeCategory { get; set; }
 		public IList<WageCalculationDetailsItem> WageCalculationDetailsList { get; set; } = new List<WageCalculationDetailsItem>();
 	}
 

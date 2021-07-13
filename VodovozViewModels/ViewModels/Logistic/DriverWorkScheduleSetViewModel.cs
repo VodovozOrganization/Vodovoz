@@ -101,7 +101,7 @@ namespace Vodovoz.ViewModels.Logistic
                 Entity.LastEditor = employeeForCurrentUser;
             
                 SynchronizeDriverWorkSchedules();
-                Close(false, CloseSource.Self);
+                Close(true, CloseSource.Self);
                 EntityAccepted?.Invoke(this, EventArgs.Empty);
             },
             () => CanEdit

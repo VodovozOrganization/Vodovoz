@@ -32,9 +32,14 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		GuiltyItemViewModel currentGuiltyVM;
-		public virtual GuiltyItemViewModel CurrentGuiltyVM {
+		public virtual GuiltyItemViewModel CurrentGuiltyVM
+		{
 			get => currentGuiltyVM;
-			set => SetField(ref currentGuiltyVM, value, () => CurrentGuiltyVM);
+			set
+			{
+				SetField(ref currentGuiltyVM, value, () => CurrentGuiltyVM);
+				OnPropertyChanged(nameof(CanAddGuilty));
+			}
 		}
 
 		private bool canRemoveGuilty;

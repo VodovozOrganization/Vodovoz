@@ -104,7 +104,7 @@ namespace Vodovoz.Dialogs.Fuel
 			ViewModel.DeleteWriteoffItemCommand.CanExecuteChanged += (sender, e) => { ybuttonDeleteItem.Sensitive = ViewModel.DeleteWriteoffItemCommand.CanExecute(GetSelectedItem()); };
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 
 			buttonPrint.Clicked += (sender, e) => { ViewModel.PrintCommand.Execute(); };
 			buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();

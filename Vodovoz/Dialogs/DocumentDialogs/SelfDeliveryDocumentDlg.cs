@@ -38,8 +38,6 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		
-		public override bool HasChanges => GoodsReceptionList.Sum(x => x.Amount) >= 0 || base.HasChanges;
-		
 		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
 		public SelfDeliveryDocumentDlg()
@@ -203,6 +201,9 @@ namespace Vodovoz
 			}
 
 			FillTrees();
+
+			spnTareToReturn.ValueChanged += (sender, e) => HasChanges = true;
+			GoodsReceptionList.ListContentChanged += (sender, e) => HasChanges = true;
 		}
 
 		void FillTrees()
