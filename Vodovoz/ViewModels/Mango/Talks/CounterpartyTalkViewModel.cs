@@ -25,6 +25,7 @@ using Vodovoz.JournalNodes;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.Views.Mango;
 
@@ -36,6 +37,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IInteractiveQuestion interactive;
 		private readonly RouteListRepository routedListRepository;
         private readonly IInteractiveService interactiveService;
+        private IOrderParametersProvider _orderParametersProvider;
         private IUnitOfWork UoW;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels { get; private set; } = new List<CounterpartyOrderViewModel>();
@@ -49,6 +51,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			IUnitOfWorkFactory unitOfWorkFactory,
 			RouteListRepository routedListRepository,
             IInteractiveService interactiveService,
+			IOrderParametersProvider orderParametersProvider, 
             MangoManager manager) : base(navigation, manager)
 		{
 			this.NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
@@ -56,6 +59,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 			this.routedListRepository = routedListRepository;
             this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+            _orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             UoW = unitOfWorkFactory.CreateWithoutRoot();
 
 			if(ActiveCall.CounterpartyIds.Any())
@@ -63,7 +67,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				var clients = UoW.GetById<Counterparty>(ActiveCall.CounterpartyIds);
 				foreach(Counterparty client in clients)
 				{
-					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, tdinavigation,routedListRepository,this.MangoManager);
+					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, tdinavigation,routedListRepository,this.MangoManager,_orderParametersProvider);
 					CounterpartyOrdersModels.Add(model);
 				}
 				currentCounterparty = CounterpartyOrdersModels.FirstOrDefault().Client;
@@ -108,7 +112,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				client.Phones.Add(ActiveCall.Phone);
 				clients.Add(client);
 				UoW.Save<Counterparty>(client);
-				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager);
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager,_orderParametersProvider);
 				CounterpartyOrdersModels.Add(model);
 				currentCounterparty = client;
 				MangoManager.AddCounterpartyToCall(client.Id);
@@ -127,7 +131,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 					UoW.Save<Counterparty>(client);
 					UoW.Commit();
 				}
-				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager);
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation, routedListRepository,this.MangoManager,_orderParametersProvider);
 				CounterpartyOrdersModels.Add(model);
 				currentCounterparty = client;
 				MangoManager.AddCounterpartyToCall(client.Id);
