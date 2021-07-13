@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using FluentNHibernate.Data;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -49,7 +48,7 @@ namespace Vodovoz.ViewModels.Mango
 		public Counterparty Client { get; private set; }
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private MangoManager MangoManager { get; set; }
-		private IOrderParametersProvider _orderParametersProvider { get; }
+		private readonly IOrderParametersProvider _orderParametersProvider;
 
 		private readonly RouteListRepository routedListRepository;
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
