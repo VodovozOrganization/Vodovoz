@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DocumentFormat.OpenXml.Wordprocessing;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -23,6 +24,7 @@ using Vodovoz.JournalNodes;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Mango.Talks
@@ -31,14 +33,17 @@ namespace Vodovoz.ViewModels.Mango.Talks
 	{
 		private readonly ITdiCompatibilityNavigation tdiNavigation;
 		private readonly IInteractiveQuestion interactive;
+		private readonly IOrderParametersProvider _orderParametersProvider;
 		private IUnitOfWork UoW;
 		public UnknowTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
 			IInteractiveQuestion interactive,
-			MangoManager manager) : base(navigation, manager)
+			MangoManager manager,
+			IOrderParametersProvider orderParametersProvider) : base(navigation, manager)
 		{
 			this.tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
+			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 		}
 
