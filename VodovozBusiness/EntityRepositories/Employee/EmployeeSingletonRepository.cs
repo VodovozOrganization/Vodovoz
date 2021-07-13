@@ -6,6 +6,7 @@ using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 
@@ -156,6 +157,16 @@ namespace Vodovoz.EntityRepositories.Employees
 				.And(Restrictions.IsNull(Projections.Property(() => routeListAddress.TransferedTo)))
 				.Select(Projections.Property(() => employee.AndroidToken))
 				.SingleOrDefault<string>();
+		}
+
+		public DriverAttachedTerminalDocumentBase GetLastTerminalDocumentForEmployee(IUnitOfWork uow, Employee employee)
+		{
+			DriverAttachedTerminalDocumentBase docAlias = null;
+
+			return uow.Session.QueryOver(() => docAlias)
+				.Where(doc => doc.Driver == employee)
+				.OrderBy(doc => doc.CreationDate).Desc.Take(1)
+				.SingleOrDefault();
 		}
 	}
 }

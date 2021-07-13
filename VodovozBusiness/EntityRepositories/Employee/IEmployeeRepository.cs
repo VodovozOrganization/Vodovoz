@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.EntityRepositories.Employees
@@ -22,5 +23,6 @@ namespace Vodovoz.EntityRepositories.Employees
 		IList<EmployeeWorkChart> GetWorkChartForEmployeeByDate(IUnitOfWork uow, Employee employee, DateTime date);
 		QueryOver<Employee> OfficeWorkersQuery();
 		string GetEmployeePushTokenByOrderId(IUnitOfWork uow, int orderId);
+		DriverAttachedTerminalDocumentBase GetLastTerminalDocumentForEmployee(IUnitOfWork uow, Employee employee);
 	}
 }
