@@ -67,7 +67,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				var clients = UoW.GetById<Counterparty>(ActiveCall.CounterpartyIds);
 				foreach(Counterparty client in clients)
 				{
-					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, tdinavigation,routedListRepository,this.MangoManager,_orderParametersProvider);
+					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel
+						(client, unitOfWorkFactory, tdinavigation,routedListRepository,this.MangoManager,_orderParametersProvider);
 					CounterpartyOrdersModels.Add(model);
 				}
 				currentCounterparty = CounterpartyOrdersModels.FirstOrDefault().Client;
