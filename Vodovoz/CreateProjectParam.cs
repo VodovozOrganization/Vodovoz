@@ -123,6 +123,8 @@ using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.JournalViewers.Complaints;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 
 namespace Vodovoz
@@ -372,6 +374,8 @@ namespace Vodovoz
 			builder.RegisterType<GtkFilePicker>().As<IFilePickerService>();
 			builder.Register(c => new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance())).As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
+			builder.RegisterType<ParametersProvider>().As<IParametersProvider>();
+			builder.RegisterType<OrderParametersProvider>().As<IOrderParametersProvider>();
 			#endregion
 			#region Selectors
 			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
