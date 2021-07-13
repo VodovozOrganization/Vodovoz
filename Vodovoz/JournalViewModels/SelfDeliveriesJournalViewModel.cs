@@ -39,7 +39,7 @@ namespace Vodovoz.Representations
 
         private readonly OrderPaymentSettings orderPaymentSettings;
 
-        private readonly OrderParametersProvider orderParametersProvider;
+        private readonly OrderParametersProvider _orderParametersProvider;
 
 		private readonly bool userCanChangePayTypeToByCard;
 
