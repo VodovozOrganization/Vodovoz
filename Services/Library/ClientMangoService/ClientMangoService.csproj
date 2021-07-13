@@ -40,10 +40,6 @@
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Web" />
-    <Reference Include="xNet">
-      <HintPath>..\..\..\lib\xNet.dll</HintPath>
-      <IncludeInPackage>true</IncludeInPackage>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MangoServiceClient.cs" />
@@ -54,10 +50,10 @@
     <Folder Include="ProtoBuf\" />
   </ItemGroup>
   <ItemGroup>
-    <Protobuf Include="..\..\Application\VodovozMangoService\Protobuf\NotificationService.proto">
+    <Protobuf Include="..\..\WebApi\VodovozMangoService\Protobuf\NotificationService.proto">
       <Link>ProtoBuf\NotificationService.proto</Link>
     </Protobuf>
-    <Protobuf Include="..\..\Application\VodovozMangoService\Protobuf\PhonebookService.proto">
+    <Protobuf Include="..\..\WebApi\VodovozMangoService\Protobuf\PhonebookService.proto">
       <Link>ProtoBuf\PhonebookService.proto</Link>
     </Protobuf>
   </ItemGroup>

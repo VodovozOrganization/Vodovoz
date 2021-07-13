@@ -14,6 +14,7 @@ using QS.Commands;
 using Vodovoz.Repositories;
 using Vodovoz.Domain.Orders;
 using System.Threading.Tasks;
+using QS.Dialog;
 
 namespace Vodovoz.ViewModels
 {

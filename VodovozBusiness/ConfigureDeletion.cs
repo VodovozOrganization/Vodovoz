@@ -866,6 +866,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<MovementWagon>()
 				.AddClearDependence<MovementDocument>(x => x.MovementWagon);
 
+			DeleteConfig.AddHibernateDeleteInfo<DriverComplaintReason>();
+
 			DeleteConfig.AddHibernateDeleteInfo<Residue>()
 				.AddDeleteDependence<ResidueEquipmentDepositItem>(item => item.Residue)
 				.AddDeleteCascadeDependence(x => x.BottlesDepositOperation)

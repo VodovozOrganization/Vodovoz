@@ -1,0 +1,51 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+service NotificationService {
+    rpc Subscribe(NotificationSubscribeRequest) returns (stream NotificationMessage);
+}
+
+message NotificationSubscribeRequest {
+  uint32 extension = 1;
+}
+
+message NotificationMessage {
+  string call_id = 1;
+  Caller call_from = 2;
+  CallState state = 3;
+  CallDirection direction = 4;
+  google.protobuf.Timestamp timestamp = 5;
+  bool is_transfer = 6;
+  Caller primary_caller = 7;
+}
+
+message Caller{
+  CallerType type = 1;
+  string number = 2;
+  repeated CallerName names = 3;
+}
+
+enum CallState{
+  CALL_STATE_APPEARED = 0;
+  CALL_STATE_CONNECTED = 1;
+  CALL_STATE_ON_HOLD = 2;
+  CALL_STATE_DISCONNECTED = 3;
+}
+
+enum CallerType {
+    CALLER_TYPE_INTERNAL = 0;
+    CALLER_TYPE_EXTERNAL = 1;
+}
+
+enum CallDirection{
+    CALL_DIRECTION_INCOMING = 0;
+    CALL_DIRECTION_OUTGOING = 1;
+}
+
+message CallerName{
+  string name = 1;
+  uint32 counterparty_id = 2;
+  uint32 delivery_point_id = 3;
+  uint32 employee_id = 4;
+}

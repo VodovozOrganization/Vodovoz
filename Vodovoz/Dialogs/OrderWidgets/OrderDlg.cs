@@ -108,6 +108,7 @@ namespace Vodovoz
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
+		private IList<DiscountReason> _discountReasons;
 
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
@@ -345,6 +346,7 @@ namespace Vodovoz
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
+			_discountReasons = orderRepository.GetActiveDiscountReasons(UoW);
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint>(OnDeliveryPointChanged);
@@ -564,7 +566,7 @@ namespace Vodovoz
 			depositrefunditemsview.Configure(UoWGeneric, Entity);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			ycomboboxReason.ShowSpecialStateNot = true;
-			ycomboboxReason.ItemsList = orderRepository.GetActiveDiscountReasons(UoW);
+			ycomboboxReason.ItemsList = _discountReasons;
 
 			yCmbReturnTareReasonCategories.SetRenderTextFunc<ReturnTareReasonCategory>(x => x.Name);
 			yCmbReturnTareReasonCategories.ItemsList = UoW.Session.QueryOver<ReturnTareReasonCategory>().List();
@@ -820,7 +822,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(orderRepository.GetDiscountReasons(UoW))
+					.FillItems(_discountReasons)
 					.AddSetter((c, n) => c.Editable = n.Discount > 0 && n.PromoSet == null)
 					.AddSetter(
 						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null

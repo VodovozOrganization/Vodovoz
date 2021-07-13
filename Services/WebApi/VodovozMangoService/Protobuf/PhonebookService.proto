@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package MangoService;
+
+service PhonebookService {
+  rpc GetBook(google.protobuf.Empty) returns (PhoneBook);
+}
+
+message PhoneBook{
+  repeated PhoneEntry entries = 1;
+}
+
+message PhoneEntry{
+  uint32 extension = 1;
+  string name = 2;
+  string department = 3;
+  PhoneEntryType phone_type = 4;
+  PhoneState phone_state = 5;
+}
+
+enum PhoneEntryType {
+  PHONE_ENTRY_TYPE_EXTENSION = 0;
+  PHONE_ENTRY_TYPE_GROUP = 1;
+}
+
+enum PhoneState {
+  PHONE_STATE_READY = 0;
+  PHONE_STATE_BUSY = 1;
+}
+
