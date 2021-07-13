@@ -1136,9 +1136,12 @@ namespace Vodovoz.Domain.Orders
 				{
 					throw new ArgumentException("Не был передан необходимый аргумент IOrderParametersProvider");
 				}
-				if(PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
+				if(PaymentByCardFrom != null)
 				{
-					yield return new ValidationResult($"В заказe №{Id} с формой оплаты По карте и источником оплаты Терминал отсутствует номер оплаты.");
+					if(PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
+					{
+						yield return new ValidationResult($"В заказe №{Id} с формой оплаты По карте и источником оплаты Терминал отсутствует номер оплаты.");
+					}
 				}
 			}
 
