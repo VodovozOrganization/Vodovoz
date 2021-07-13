@@ -17,6 +17,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Mango;
 using Vodovoz.ViewModels.Mango.Talks;
 
@@ -37,6 +38,7 @@ namespace Vodovoz.Infrastructure.Mango
 		private IPage CurrentPage;
 		private uint timer;
 		private MangoService.MangoController mangoController;
+		private IOrderParametersProvider _orderParametersProvider;
 
 		public MangoManager(Gtk.Action toolbarIcon,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -44,7 +46,8 @@ namespace Vodovoz.Infrastructure.Mango
 			IUserService userService,
 			INavigationManager navigation,
 			BaseParametersProvider parametrs,
-			PhoneRepository phoneRepository)
+			PhoneRepository phoneRepository,
+			IOrderParametersProvider orderParametersProvider)
 		{
 			this.toolbarIcon = toolbarIcon;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -52,6 +55,7 @@ namespace Vodovoz.Infrastructure.Mango
 			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			this.navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.mangoController = new MangoService.MangoController(parametrs.VpbxApiKey, parametrs.VpbxApiSalt);
+			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 
 			timer = GLib.Timeout.Add(1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
 			toolbarIcon.Activated += ToolbarIcon_Activated;
