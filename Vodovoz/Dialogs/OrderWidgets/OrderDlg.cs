@@ -23,6 +23,7 @@ using QS.Project.Services;
 using QS.Report;
 using QS.Tdi;
 using QS.Validation;
+using QS.Services;
 using QSDocTemplates;
 using QSOrmProject;
 using QSProjectsLib;
@@ -31,6 +32,7 @@ using QSWidgetLib;
 using RdlEngine;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -102,6 +104,7 @@ namespace Vodovoz
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
 		private Nomenclature vodovozLeaflet;
+		private IOrderParametersProvider _orderParametersProvider;
 		
 		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
@@ -347,6 +350,7 @@ namespace Vodovoz
 			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
 			_discountReasons = orderRepository.GetActiveDiscountReasons(UoW);
+			_orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint>(OnDeliveryPointChanged);
@@ -1001,20 +1005,26 @@ namespace Vodovoz
 			buttonCancel.Sensitive = isSensetive;
 		}
 
+		protected bool Validate(ValidationContext validationContext)
+		{
+			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), _orderParametersProvider);
+			return ServicesConfig.ValidationService.Validate(Entity, validationContext);
+		}
+		
 		public override bool Save()
 		{
 			try {
 				SetSensetivity(false);
 				Entity.CheckAndSetOrderIsService();
 
-				var valid = new QSValidator<Order>(
-					Entity, new Dictionary<object, object>{
+				ValidationContext validationContext = new ValidationContext(Entity,null, new Dictionary<object, object>{
 					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
-					}
-				);
+				});
 
-				if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+				if(!Validate(validationContext))
+				{
 					return false;
+				}
 
 				if(Entity.OrderStatus == OrderStatus.NewOrder) {
 					if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
@@ -1130,14 +1140,15 @@ namespace Vodovoz
 		{
 			Entity.CheckAndSetOrderIsService();
 
-			var valid = new QSValidator<Order>(
-				Entity, new Dictionary<object, object>{
-					{ "NewStatus", OrderStatus.Accepted },
-					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
-				}
-			);
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>{
+				{ "NewStatus", OrderStatus.Accepted },
+				{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
+			});
+
+			if(!Validate(validationContext))
+			{
 				return false;
+			}
 
 			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.CalculateDistricts(UoW).Any())
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
@@ -1189,7 +1200,6 @@ namespace Vodovoz
 			UpdateUIState();
 		}
 
-
 		/// <summary>
 		/// Отправка самовывоза на погрузку
 		/// </summary>
@@ -1228,12 +1238,13 @@ namespace Vodovoz
 
 		protected void OnBtnAddM2ProxyForThisOrderClicked(object sender, EventArgs e)
 		{
-			if(!new QSValidator<Order>(
-				Entity, new Dictionary<object, object>{
-					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
-				}
-			).RunDlgIfNotValid((Window)this.Toplevel)
-			   && SaveOrderBeforeContinue<M2ProxyDocument>()) {
+			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
+			{
+				{"IsCopiedFromUndelivery", templateOrder != null} //индикатор того, что заказ - копия, созданная из недовозов
+			});
+			
+			if(Validate(validationContext) && SaveOrderBeforeContinue<M2ProxyDocument>())
+			{
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<M2ProxyDocument>(0),
 					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), EntityUoWBuilder.ForCreateInChildUoW(UoW), UnitOfWorkFactory.GetDefaultFactory)
@@ -2116,13 +2127,15 @@ namespace Vodovoz
 				return;
 			}
 			
-			var valid = new QSValidator<Order>(Entity,
-				new Dictionary<object, object> {
+			ValidationContext validationContext = new ValidationContext(Entity,null, new Dictionary<object, object> {
 				{ "NewStatus", OrderStatus.Canceled },
 				{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
 			});
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+
+			if(!Validate(validationContext))
+			{
 				return;
+			}
 
 			OpenDlgToCreateNewUndeliveredOrder();
 		}
@@ -2163,13 +2176,15 @@ namespace Vodovoz
 
 		protected void OnButtonWaitForPaymentClicked(object sender, EventArgs e)
 		{
-			var valid = new QSValidator<Order>(Entity,
-				new Dictionary<object, object> {
+			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object> {
 				{ "NewStatus", OrderStatus.WaitForPayment },
 				{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
 			});
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
-				return;
+
+			if(!Validate(validationContext))
+			{
+				return ;
+			}
 
 			Entity.ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, CallTaskWorker);
 			UpdateUIState();

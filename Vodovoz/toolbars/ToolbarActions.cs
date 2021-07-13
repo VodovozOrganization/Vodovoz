@@ -664,7 +664,8 @@ public partial class MainWindow : Window
 				new BaseParametersProvider(),
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance),
-                new OrderPaymentSettings());
+                new OrderPaymentSettings(),
+				new OrderParametersProvider(new ParametersProvider()));
 		
 		tdiMain.AddTab(selfDeliveriesJournal);
 	}

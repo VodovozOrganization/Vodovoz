@@ -1128,6 +1128,19 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.PaymentType) }
 				);
 			}
+			
+			if(SelfDelivery && PaymentType == PaymentType.ByCard && OnlineOrder == null)
+			{
+				IOrderParametersProvider _orderParametersProvider = (validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider); 
+				if(_orderParametersProvider == null)
+				{
+					throw new ArgumentException("Не был передан необходимый аргумент IOrderParametersProvider");
+				}
+				if(PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
+				{
+					yield return new ValidationResult($"В заказe №{Id} с формой оплаты По карте и источником оплаты Терминал отсутствует номер оплаты.");
+				}
+			}
 
 			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType)
 				&& Contract?.Organization != null && Contract.Organization.CashBoxId == null) {
