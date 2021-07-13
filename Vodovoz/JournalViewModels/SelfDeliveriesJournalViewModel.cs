@@ -54,7 +54,7 @@ namespace Vodovoz.Representations
 		{
             this.callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
             this.orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
-            this._orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+            _orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             
             TabName = "Журнал самовывозов";
 			SetOrder(x => x.Date, true);
@@ -273,7 +273,7 @@ namespace Vodovoz.Representations
 									commonServices,
                                     callTaskWorker,
                                     orderPaymentSettings,
-									orderParametersProvider), 
+									_orderParametersProvider), 
 								this
 							);
 					}
