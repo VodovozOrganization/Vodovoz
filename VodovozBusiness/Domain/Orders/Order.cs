@@ -1138,7 +1138,7 @@ namespace Vodovoz.Domain.Orders
 				}
 				if(PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
 				{
-					yield return new ValidationResult($"В заказe по карте с оплатой по терминалу  №{Id} отсутствует номер оплаты.");
+					yield return new ValidationResult($"В заказe №{Id} с формой оплаты По карте и источником оплаты Терминал отсутствует номер оплаты.");
 				}
 			}
 
