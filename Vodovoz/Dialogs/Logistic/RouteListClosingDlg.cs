@@ -63,6 +63,7 @@ namespace Vodovoz
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
+		private IOrderParametersProvider _orderParametersProvider;
 		
 		List<ReturnsNode> allReturnsToWarehouse;
 		private IEnumerable<DefectSource> defectiveReasons;
@@ -731,9 +732,13 @@ namespace Vodovoz
 			bool isOrdersValid = true;
 			string orderIds = "";
 			byte ordersCounter = 0;
+			_orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
+			ValidationContext validationContext;
 			foreach(var item in Entity.Addresses) {
-				var orderValidator = new QSValidator<Order>(item.Order);
-				if(!orderValidator.IsValid) {
+				validationContext = new ValidationContext(item.Order);
+				validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), _orderParametersProvider);
+				if(!ServicesConfig.ValidationService.Validate(item.Order, validationContext))
+				{
 					if(string.IsNullOrWhiteSpace(orderIds)) {
 						orderIds = string.Format("{0}", item.Order.Id);
 					} else {
