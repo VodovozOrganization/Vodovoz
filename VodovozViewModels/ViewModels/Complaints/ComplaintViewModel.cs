@@ -4,6 +4,7 @@ using System.Linq;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -373,5 +374,25 @@ namespace Vodovoz.ViewModels.Complaints
 		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 		public IGtkTabsOpener GtkDialogsOpener { get; }
 		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
+
+		public override void Close(bool askSave, CloseSource source)
+		{
+			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
+			{
+				return;
+			}
+			
+			base.Close(askSave, source);
+		}
+
+		public override bool Save(bool close)
+		{
+			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
+			{
+				return false;
+			}
+			
+			return base.Save(close);
+		}
 	}
 }
