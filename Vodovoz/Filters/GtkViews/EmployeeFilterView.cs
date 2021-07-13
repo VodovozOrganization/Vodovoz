@@ -20,11 +20,21 @@ namespace Vodovoz.Filters.GtkViews
 			enumcomboCategory.ShowSpecialStateNot = false;
 
 			enumcomboCategory.Binding.AddBinding(ViewModel, vm => vm.Category, w => w.SelectedItemOrNull).InitializeFromSource();
-			enumcomboCategory.Binding.AddFuncBinding(ViewModel, vm => vm.IsCategoryNotRestricted, w => w.Sensitive).InitializeFromSource();
+			enumcomboCategory.Binding.AddBinding(ViewModel, vm => vm.CanChangeCategory, w => w.Sensitive).InitializeFromSource();
 
 			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
 			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.Status, w => w.SelectedItemOrNull).InitializeFromSource();
-			yenumcomboStatus.Binding.AddFuncBinding(ViewModel, vm => vm.CanChangeStatus, w => w.Sensitive).InitializeFromSource();
+			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.CanChangeStatus, w => w.Sensitive).InitializeFromSource();
+
+			hboxDriversAndTerminals.Binding.AddBinding(ViewModel, vm => vm.HasAccessToDriverTerminal, w => w.Visible).InitializeFromSource();
+			if(ViewModel.HasAccessToDriverTerminal)
+			{
+				comboDriverType.ItemsEnum = typeof(DriverTerminalRelation);
+				comboDriverType.Binding.AddBinding(ViewModel, vm => vm.DriverTerminalRelation, w => w.SelectedItemOrNull).InitializeFromSource();
+
+				checkSortByPriority.Binding.AddBinding(ViewModel, vm => vm.SortByPriority, w => w.Active);
+				checkSortByPriority.Toggled += (sender, args) => ViewModel.UpdateRestrictions.Execute();
+			}
 		}
 	}
 }
