@@ -103,7 +103,6 @@ namespace Vodovoz
 		OrderNode orderNode;
 		RouteListItem routeListItem;
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
-		private IOrderParametersProvider _orderParametersProvider;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -483,11 +482,11 @@ namespace Vodovoz
 
 		public bool CanClose()
 		{
-			_orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
+			IOrderParametersProvider orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
 			ValidationContext validationContext = new ValidationContext(routeListItem.Order,null, new Dictionary<object, object>{
 					{ "NewStatus", OrderStatus.Closed },
 				{ "AddressStatus", routeListItem.Status }});
-			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), _orderParametersProvider);
+			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
 			routeListItem.AddressIsValid = ServicesConfig.ValidationService.Validate(routeListItem.Order, validationContext);
 			routeListItem.Order.CheckAndSetOrderIsService();
 			orderEquipmentItemsView.UnsubscribeOnEquipmentAdd();
