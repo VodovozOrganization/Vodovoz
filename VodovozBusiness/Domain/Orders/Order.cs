@@ -1129,7 +1129,7 @@ namespace Vodovoz.Domain.Orders
 				);
 			}
 			
-			if(SelfDelivery && PaymentType == PaymentType.ByCard && OnlineOrder == null)
+			if(SelfDelivery && PaymentType == PaymentType.ByCard && PaymentByCardFrom != null && OnlineOrder == null)
 			{
 				IOrderParametersProvider _orderParametersProvider = (validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider); 
 				if(_orderParametersProvider == null)
