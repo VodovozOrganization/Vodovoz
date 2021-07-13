@@ -1149,8 +1149,6 @@ namespace Vodovoz
 			{
 				return false;
 			}
-			
-			
 
 			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.CalculateDistricts(UoW).Any())
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
@@ -1202,7 +1200,6 @@ namespace Vodovoz
 			UpdateUIState();
 		}
 
-
 		/// <summary>
 		/// Отправка самовывоза на погрузку
 		/// </summary>
@@ -1246,7 +1243,7 @@ namespace Vodovoz
 				{"IsCopiedFromUndelivery", templateOrder != null} //индикатор того, что заказ - копия, созданная из недовозов
 			});
 			
-			if(!Validate(validationContext) && SaveOrderBeforeContinue<M2ProxyDocument>())
+			if(Validate(validationContext) && SaveOrderBeforeContinue<M2ProxyDocument>())
 			{
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<M2ProxyDocument>(0),
