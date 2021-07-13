@@ -5,6 +5,7 @@ using Gtk;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Filters.ViewModels;
@@ -42,6 +43,26 @@ namespace Vodovoz.ViewModel
 					.Select(p => p.Employee.Id)
 				;
 				query.WithSubquery.WhereProperty(e => e.Id).In(subquery);
+			}
+
+			if(Filter?.DriverTerminalRelation != null)
+			{
+				var relation = Filter?.DriverTerminalRelation;
+				DriverAttachedTerminalDocumentBase baseAlias = null;
+				DriverAttachedTerminalGiveoutDocument giveoutAlias = null;
+				var baseQuery = QueryOver.Of(() => baseAlias)
+					.Where(doc => doc.Driver.Id == employeeAlias.Id)
+					.Select(doc => doc.Id).OrderBy(doc => doc.CreationDate).Desc.Take(1);
+				var giveoutQuery = QueryOver.Of(() => giveoutAlias).WithSubquery.WhereProperty(giveout => giveout.Id).Eq(baseQuery)
+					.Select(doc => doc.Driver.Id);
+				if(relation == DriverTerminalRelation.WithTerminal)
+				{
+					query.WithSubquery.WhereProperty(e => e.Id).In(giveoutQuery);
+				}
+				else
+				{
+					query.WithSubquery.WhereProperty(e => e.Id).NotIn(giveoutQuery);
+				}
 			}
 
 			var result = query

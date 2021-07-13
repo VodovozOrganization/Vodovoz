@@ -16,6 +16,7 @@ using QS.Project.Repositories;
 using QS.Project.Services.GtkUI;
 using QS.Services;
 using Vodovoz.Additions;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Filters.ViewModels;
@@ -72,6 +73,26 @@ namespace Vodovoz.JournalViewModels
 					.Select(p => p.Employee.Id)
 				;
 				query.WithSubquery.WhereProperty(e => e.Id).In(subquery);
+			}
+
+			if(FilterViewModel?.DriverTerminalRelation != null)
+			{
+				var relation = FilterViewModel?.DriverTerminalRelation;
+				DriverAttachedTerminalDocumentBase baseAlias = null;
+				DriverAttachedTerminalGiveoutDocument giveoutAlias = null;
+				var baseQuery = QueryOver.Of(() => baseAlias)
+					.Where(doc => doc.Driver.Id == employeeAlias.Id)
+					.Select(doc => doc.Id).OrderBy(doc => doc.CreationDate).Desc.Take(1);
+				var giveoutQuery = QueryOver.Of(() => giveoutAlias).WithSubquery.WhereProperty(giveout => giveout.Id).Eq(baseQuery)
+					.Select(doc => doc.Driver.Id);
+				if(relation == DriverTerminalRelation.WithTerminal)
+				{
+					query.WithSubquery.WhereProperty(e => e.Id).In(giveoutQuery);
+				}
+				else
+				{
+					query.WithSubquery.WhereProperty(e => e.Id).NotIn(giveoutQuery);
+				}
 			}
 			
 			var employeeProjection = Projections.SqlFunction(
