@@ -102,6 +102,7 @@ namespace Vodovoz.Filters.ViewModels
 					{
 						Category = EmployeeCategory.driver;
 						Status = EmployeeStatus.IsWorking;
+						DriverTerminalRelation = Domain.Employees.DriverTerminalRelation.WithoutTerminal;
 					}
 					else
 					{
