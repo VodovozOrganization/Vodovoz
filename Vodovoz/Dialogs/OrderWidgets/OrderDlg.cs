@@ -1241,12 +1241,13 @@ namespace Vodovoz
 
 		protected void OnBtnAddM2ProxyForThisOrderClicked(object sender, EventArgs e)
 		{
-			if(!new QSValidator<Order>(
-				Entity, new Dictionary<object, object>{
-					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
-				}
-			).RunDlgIfNotValid((Window)this.Toplevel)
-			   && SaveOrderBeforeContinue<M2ProxyDocument>()) {
+			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
+			{
+				{"IsCopiedFromUndelivery", templateOrder != null} //индикатор того, что заказ - копия, созданная из недовозов
+			});
+			
+			if(!Validate(validationContext) && SaveOrderBeforeContinue<M2ProxyDocument>())
+			{
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<M2ProxyDocument>(0),
 					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), EntityUoWBuilder.ForCreateInChildUoW(UoW), UnitOfWorkFactory.GetDefaultFactory)
