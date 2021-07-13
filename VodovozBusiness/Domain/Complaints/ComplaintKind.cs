@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Complaints
 	{
 		private ComplaintObject _complaintObject;
 		private IList<Subdivision> _subdivisions = new List<Subdivision>();
-		GenericObservableList<Subdivision> _observableSubdivisions;
+		private GenericObservableList<Subdivision> _observableSubdivisions;
 
 		public virtual int Id { get; set; }
 
@@ -66,17 +66,8 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Subdivision> ObservableSubdivisions
-		{
-			get
-			{
-				if(_observableSubdivisions == null)
-				{
-					_observableSubdivisions = new GenericObservableList<Subdivision>(Subdivisions);
-				}
-				return _observableSubdivisions;
-			}
-		}
+		
+		public virtual GenericObservableList<Subdivision> ObservableSubdivisions => _observableSubdivisions ?? (_observableSubdivisions = new GenericObservableList<Subdivision>(Subdivisions));
 
 		public virtual void AddSubdivision(Subdivision subdivision)
 		{

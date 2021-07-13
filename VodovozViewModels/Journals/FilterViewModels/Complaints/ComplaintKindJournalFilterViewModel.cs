@@ -8,12 +8,17 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 	{
 		private ComplaintObject _complaintObject;
 
+		public ComplaintKindJournalFilterViewModel()
+		{
+			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
+		}
+
 		public ComplaintObject ComplaintObject
 		{
 			get => _complaintObject;
 			set => UpdateFilterField(ref _complaintObject, value);
 		}
 
-		public IList<ComplaintObject> ComplaintObjects => UoW.Session.QueryOver<ComplaintObject>().List();
+		public IList<ComplaintObject> ComplaintObjects { get; }
 	}
 }

@@ -16,14 +16,7 @@ namespace Vodovoz.Views.Complaints
 		private void Configure()
 		{
 			ylabelCreateDate.Binding
-				.AddFuncBinding(ViewModel.Entity,e => e.CreateDate.ToString("g"), w => w.LabelProp)
-				.InitializeFromSource();
-
-			ylabelArchiveDateName.Binding.AddBinding(ViewModel, vm=> vm.ArchiveDateVisible, w=>w.Visible).InitializeFromSource();
-
-			ylabelArchiveDate.Binding
-				.AddFuncBinding(ViewModel.Entity,e => e.ArchiveDate.HasValue ? e.ArchiveDate.Value.ToString("g") : null, w => w.LabelProp)
-				.AddBinding(ViewModel, vm => vm.ArchiveDateVisible, w => w.Visible)
+				.AddFuncBinding(ViewModel.Entity, e => e.CreateDate.ToString("g"), w => w.LabelProp)
 				.InitializeFromSource();
 
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();

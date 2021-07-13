@@ -20,10 +20,6 @@ namespace Vodovoz.Views.Complaints
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelArchiveDate;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelArchiveDateName;
-
 		private global::Gamma.GtkWidgets.yLabel ylabelCreateDate;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelCreateDateName;
@@ -77,7 +73,7 @@ namespace Vodovoz.Views.Complaints
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -121,54 +117,30 @@ namespace Vodovoz.Views.Complaints
 			w8.RightAttach = ((uint)(2));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ylabelArchiveDate = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelArchiveDate.Name = "ylabelArchiveDate";
-			this.ylabelArchiveDate.Xalign = 0F;
-			this.ylabelArchiveDate.LabelProp = global::Mono.Unix.Catalog.GetString("ylabel3");
-			this.table1.Add(this.ylabelArchiveDate);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelArchiveDate]));
-			w9.TopAttach = ((uint)(3));
-			w9.BottomAttach = ((uint)(4));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ylabelArchiveDateName = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelArchiveDateName.Name = "ylabelArchiveDateName";
-			this.ylabelArchiveDateName.Xalign = 1F;
-			this.ylabelArchiveDateName.LabelProp = global::Mono.Unix.Catalog.GetString("Дата архивации:");
-			this.table1.Add(this.ylabelArchiveDateName);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelArchiveDateName]));
-			w10.TopAttach = ((uint)(3));
-			w10.BottomAttach = ((uint)(4));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.ylabelCreateDate = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCreateDate.Name = "ylabelCreateDate";
 			this.ylabelCreateDate.Xalign = 0F;
 			this.ylabelCreateDate.LabelProp = global::Mono.Unix.Catalog.GetString("ylabel2");
 			this.table1.Add(this.ylabelCreateDate);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCreateDate]));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCreateDate]));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelCreateDateName = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCreateDateName.Name = "ylabelCreateDateName";
 			this.ylabelCreateDateName.Xalign = 1F;
 			this.ylabelCreateDateName.LabelProp = global::Mono.Unix.Catalog.GetString("Дата создания:");
 			this.table1.Add(this.ylabelCreateDateName);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCreateDateName]));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCreateDateName]));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

@@ -18,18 +18,23 @@ namespace Vodovoz.ViewModels.Complaints
 	public class ComplaintKindViewModel : EntityTabViewModelBase<ComplaintKind>
 	{
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly ICommonServices _commonServices;
 		public ComplaintKindViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-
-			TabName = "Виды рекламаций";
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			CreateAttachSubdivisionCommand();
+
+			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
+
+			TabName = "Виды рекламаций";
 		}
 
-		public IList<ComplaintObject> ComplaintObjects => UoW.Session.QueryOver<ComplaintObject>().List();
-
+		public IList<ComplaintObject> ComplaintObjects { get; }
 
 		#region AttachSubdivisionCommand
 
@@ -42,8 +47,8 @@ namespace Vodovoz.ViewModels.Complaints
 					var subdivisionFilter = new SubdivisionFilterViewModel();
 					var subdivisionJournalViewModel = new SubdivisionsJournalViewModel(
 						subdivisionFilter,
-						UnitOfWorkFactory,
-						CommonServices,
+						_unitOfWorkFactory,
+						_commonServices,
 						_employeeSelectorFactory
 					);
 					subdivisionJournalViewModel.SelectionMode = JournalSelectionMode.Single;

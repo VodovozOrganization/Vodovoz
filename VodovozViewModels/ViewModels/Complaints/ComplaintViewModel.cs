@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private List<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
+		private readonly List<ComplaintKind> _complaintKinds;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
@@ -98,6 +99,8 @@ namespace Vodovoz.ViewModels.Complaints
 			ConfigureEntityChangingRelations();
 
 			CreateCommands();
+
+			_complaintKinds = UoW.GetAll<ComplaintKind>().ToList();
 
 			ComplaintObject = Entity.ComplaintKind?.ComplaintObject;
 
@@ -289,13 +292,10 @@ namespace Vodovoz.ViewModels.Complaints
 			get => _complaintObject;
 			set
 			{
-				SetField<ComplaintObject>(ref _complaintObject, value);
-				var complaintKinds = UoW.GetAll<ComplaintKind>();
-				if(value != null)
+				if(SetField(ref _complaintObject, value))
 				{
-					complaintKinds = complaintKinds.Where(x => x.ComplaintObject == value);
+					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value).ToList();
 				}
-				ComplaintKindSource = complaintKinds.ToList();
 			}
 		}
 
@@ -367,6 +367,7 @@ namespace Vodovoz.ViewModels.Complaints
 				},
 				() => CanAttachFine
 			);
+			AttachFineCommand.CanExecuteChangedWith(this, x => CanAttachFine);
 		}
 
 		#endregion AttachFineCommand

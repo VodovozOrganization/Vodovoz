@@ -47,21 +47,7 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref _isArchive, value);
 		}
 
-		[Display(Name = "Дата архивации")]
-		public virtual DateTime? ArchiveDate
-		{
-			get => _archiveDate;
-			set => SetField(ref _archiveDate, value);
-		}
-
 		#endregion
-
-		[Display(Name = "Подразделения")]
-		public virtual IList<Subdivision> Subdivisions
-		{
-			get => _subdivisions;
-			set => SetField(ref _subdivisions, value);
-		}
 
 		#region IValidatableObject implementation
 

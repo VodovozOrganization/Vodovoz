@@ -152,15 +152,13 @@ namespace Vodovoz.ViewModels.Complaints
 					if(Entity.ComplaintKind == null)
 					{
 						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Не выбран вид рекламаций");
-
 						return;
 					}
 
 					if(!Entity.ComplaintKind.Subdivisions.Any())
 					{
 						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-							$"У вида рекламации {Entity.ComplaintKind.Name} отсутствуют подключаемые отделы."); 
-						
+							$"У вида рекламации {Entity.ComplaintKind.Name} отсутствуют подключаемые отделы.");
 						return;
 					}
 

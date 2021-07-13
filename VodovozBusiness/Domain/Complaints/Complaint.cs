@@ -104,8 +104,10 @@ namespace Vodovoz.Domain.Complaints
 			get => order;
 			set
 			{
-				SetField(ref order, value, () => Order);
-				DeliveryPoint = value?.DeliveryPoint;
+				if(SetField(ref order, value))
+				{
+					DeliveryPoint = value?.DeliveryPoint;
+				}
 			}
 		}
 

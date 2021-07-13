@@ -27,6 +27,7 @@ namespace Vodovoz.ViewModels.Complaints
         private readonly IFilePickerService filePickerService;
         private List<ComplaintObject> _complaintObjectSource;
         private ComplaintObject _complaintObject;
+        private readonly List<ComplaintKind> _complaintKinds;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
@@ -77,6 +78,9 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.SetStatus(ComplaintStatuses.Checking);
 			ConfigureEntityPropertyChanges();
 			Entity.Phone = phone;
+
+			_complaintKinds = UoW.GetAll<ComplaintKind>().ToList();
+
 			TabName = "Новая клиентская рекламация";
 		}
 
@@ -200,13 +204,10 @@ namespace Vodovoz.ViewModels.Complaints
 			get => _complaintObject;
 			set
 			{
-				SetField(ref _complaintObject, value);
-				var complaintKinds = UoW.GetAll<ComplaintKind>();
-				if(value != null)
+				if(SetField(ref _complaintObject, value))
 				{
-					complaintKinds = complaintKinds.Where(x => x.ComplaintObject == value);
+					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value).ToList();
 				}
-				ComplaintKindSource = complaintKinds.ToList();
 			}
 		}
 

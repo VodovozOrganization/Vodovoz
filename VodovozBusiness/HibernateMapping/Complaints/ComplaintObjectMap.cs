@@ -14,7 +14,6 @@ namespace Vodovoz.HibernateMapping.Complaints
 			Map(x => x.CreateDate).Column("create_date").ReadOnly();
 			Map(x => x.Name).Column("name");
 			Map(x => x.IsArchive).Column("is_archive");
-			Map(x => x.ArchiveDate).Column("archive_date");
 		}
 	}
 }

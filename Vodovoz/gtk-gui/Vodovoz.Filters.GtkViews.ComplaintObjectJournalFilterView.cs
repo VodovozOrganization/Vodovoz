@@ -10,11 +10,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonArchive;
 
-		private global::Gamma.Widgets.yDatePeriodPicker ydateperiodpickerArchiveDate;
-
 		private global::Gamma.Widgets.yDatePeriodPicker ydateperiodpickerCreateDate;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelArchiveDate;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelCreateDate;
 
@@ -29,7 +25,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(4)), false);
+			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(4)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -46,56 +43,29 @@ namespace Vodovoz.Filters.GtkViews
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ydateperiodpickerArchiveDate = new global::Gamma.Widgets.yDatePeriodPicker();
-			this.ydateperiodpickerArchiveDate.Events = ((global::Gdk.EventMask)(256));
-			this.ydateperiodpickerArchiveDate.Name = "ydateperiodpickerArchiveDate";
-			this.ydateperiodpickerArchiveDate.StartDate = new global::System.DateTime(0);
-			this.ydateperiodpickerArchiveDate.EndDate = new global::System.DateTime(0);
-			this.table1.Add(this.ydateperiodpickerArchiveDate);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.ydateperiodpickerArchiveDate]));
-			w2.TopAttach = ((uint)(1));
-			w2.BottomAttach = ((uint)(2));
-			w2.LeftAttach = ((uint)(3));
-			w2.RightAttach = ((uint)(4));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.ydateperiodpickerCreateDate = new global::Gamma.Widgets.yDatePeriodPicker();
 			this.ydateperiodpickerCreateDate.Events = ((global::Gdk.EventMask)(256));
 			this.ydateperiodpickerCreateDate.Name = "ydateperiodpickerCreateDate";
 			this.ydateperiodpickerCreateDate.StartDate = new global::System.DateTime(0);
 			this.ydateperiodpickerCreateDate.EndDate = new global::System.DateTime(0);
 			this.table1.Add(this.ydateperiodpickerCreateDate);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.ydateperiodpickerCreateDate]));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ylabelArchiveDate = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelArchiveDate.Name = "ylabelArchiveDate";
-			this.ylabelArchiveDate.Xalign = 1F;
-			this.ylabelArchiveDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата архивации:");
-			this.table1.Add(this.ylabelArchiveDate);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelArchiveDate]));
-			w4.TopAttach = ((uint)(1));
-			w4.BottomAttach = ((uint)(2));
-			w4.LeftAttach = ((uint)(2));
-			w4.RightAttach = ((uint)(3));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.ydateperiodpickerCreateDate]));
+			w2.LeftAttach = ((uint)(1));
+			w2.RightAttach = ((uint)(2));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelCreateDate = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCreateDate.Name = "ylabelCreateDate";
 			this.ylabelCreateDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата создания:");
 			this.table1.Add(this.ylabelCreateDate);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCreateDate]));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCreateDate]));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox2.Add(this.table1);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table1]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table1]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

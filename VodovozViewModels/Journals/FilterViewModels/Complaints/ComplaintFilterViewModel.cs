@@ -21,6 +21,7 @@ namespace Vodovoz.FilterViewModels
 		private readonly ICommonServices commonServices;
 		private List<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
+		private readonly List<ComplaintKind> _complaintKinds;
 		
 		public ISubdivisionService SubdivisionService { get; set; }
 		public IEmployeeService EmployeeService { get; set; }
@@ -67,6 +68,8 @@ namespace Vodovoz.FilterViewModels
 			};
 			GuiltyItemVM.OnGuiltyItemReady += (sender, e) => Update();
 
+			_complaintKinds = UoW.GetAll<ComplaintKind>().ToList();
+
 			UpdateWith(
 				x => x.ComplaintType,
 				x => x.ComplaintStatus,
@@ -99,13 +102,10 @@ namespace Vodovoz.FilterViewModels
 			get => _complaintObject;
 			set
 			{
-				SetField<ComplaintObject>(ref _complaintObject, value);
-				var complaintKinds = UoW.GetAll<ComplaintKind>();
-				if(value != null)
+				if(SetField(ref _complaintObject, value))
 				{
-					complaintKinds = complaintKinds.Where(x => x.ComplaintObject == value);
+					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value);
 				}
-				ComplaintKindSource = complaintKinds.ToList();
 			}
 		}
 

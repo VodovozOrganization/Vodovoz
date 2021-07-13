@@ -1195,10 +1195,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Название").AddTextRenderer(node => node.Name).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Сопряженные виды").AddTextRenderer(node => node.ComplaintKinds).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("В архиве")
-					.AddToggleRenderer(node => node.IsArchive)
-						.Editing(false)
-						.XAlign(0f)
-					.AddColumn("Дата архивирования").AddTextRenderer(node => node.IsArchive ? node.ArchiveDate.ToString("g") : "")
+					.AddToggleRenderer(node => node.IsArchive).Editing(false).XAlign(0f)
 					.Finish()
 			);
 

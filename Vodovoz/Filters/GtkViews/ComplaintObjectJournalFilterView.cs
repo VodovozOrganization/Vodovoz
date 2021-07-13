@@ -18,14 +18,6 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.CreateDateTo, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			ylabelArchiveDate.Binding.AddBinding(ViewModel, vm => vm.IsArchive, w => w.Visible).InitializeFromSource();
-
-			ydateperiodpickerArchiveDate.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.ArchiveDateFrom, w => w.StartDateOrNull)
-				.AddBinding(vm => vm.ArchiveDateTo, w => w.EndDateOrNull)
-				.AddBinding(vm => vm.IsArchive, w => w.Visible)
-				.InitializeFromSource();
-
 			ycheckbuttonArchive.Binding.AddBinding(ViewModel, vm => vm.IsArchive, w => w.Active).InitializeFromSource();
 		}
 	}

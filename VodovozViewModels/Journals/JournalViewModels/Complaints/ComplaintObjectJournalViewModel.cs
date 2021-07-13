@@ -39,16 +39,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			if(FilterViewModel.CreateDateFrom != null && FilterViewModel.CreateDateTo != null)
 			{
-				itemsQuery.Where(x => x.CreateDate >= FilterViewModel.CreateDateFrom.Value.Date.Add(new TimeSpan(0, 0, 0, 0)) &&
+				itemsQuery.Where(x => x.CreateDate >= FilterViewModel.CreateDateFrom.Value.Date &&
 									  x.CreateDate <= FilterViewModel.CreateDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
-			}
-
-			if(FilterViewModel.ArchiveDateFrom != null && FilterViewModel.ArchiveDateTo != null)
-			{
-				itemsQuery.Where(x => (!x.IsArchive || 
-				                       (x.ArchiveDate >= FilterViewModel.ArchiveDateFrom.Value.Date.Add(new TimeSpan(0, 0, 0, 0)) &&
-				                        x.ArchiveDate <= FilterViewModel.ArchiveDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)))
-				                       ));
 			}
 
 			if(!FilterViewModel.IsArchive)
@@ -67,7 +59,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.Name)
 					.SelectSubQuery(complaintKindSubquery).WithAlias(() => resultAlias.ComplaintKinds)
 					.Select(() => complaintObjectAlias.IsArchive).WithAlias(() => resultAlias.IsArchive)
-					.Select(() => complaintObjectAlias.ArchiveDate).WithAlias(() => resultAlias.ArchiveDate)
 				)
 				.TransformUsing(Transformers.AliasToBean<ComplaintObjectJournalNode>());
 

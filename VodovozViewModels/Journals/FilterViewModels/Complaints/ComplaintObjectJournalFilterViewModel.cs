@@ -23,31 +23,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 			set => UpdateFilterField(ref _createDateTo, value);
 		}
 
-		public DateTime? ArchiveDateFrom
-		{
-			get => _archiveDateFrom;
-			set => UpdateFilterField(ref _archiveDateFrom, value);
-		}
-
-		public DateTime? ArchiveDateTo
-		{
-			get => _archiveDateTo;
-			set => UpdateFilterField(ref _archiveDateTo, value);
-		}
-
 		public bool IsArchive
 		{
 			get => _isArchive;
-			set
-			{
-				UpdateFilterField(ref _isArchive, value);
-
-				if(!value)
-				{
-					ArchiveDateFrom = null;
-					ArchiveDateTo = null;
-				}
-			}
+			set => UpdateFilterField(ref _isArchive, value);
 		}
 	}
 }
