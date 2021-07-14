@@ -43,6 +43,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
 		IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false);
 
+		IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow);
+
 		/// <summary>
 		/// Оборудование заказа от клиента
 		/// </summary>
@@ -131,7 +133,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		IEnumerable<Domain.Orders.Order> GetOrders(IUnitOfWork uow, int[] ids);
-		bool CanAddVodovozCatalogToOrder(
+		bool CanAddVodovozLeafletToOrder(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int leafletId, int geographicGroup);
     }
 

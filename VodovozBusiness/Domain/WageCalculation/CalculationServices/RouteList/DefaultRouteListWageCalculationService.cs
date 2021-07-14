@@ -14,7 +14,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			RouteListItemWageCalculationDetails addressWageDetails = new RouteListItemWageCalculationDetails()
 			{
-				RouteListItemWageCalculationName = "Способ расчёта ЗП по умолчанию"
+				RouteListItemWageCalculationName = "Способ расчёта ЗП по умолчанию",
+				WageCalculationEmployeeCategory = source.EmployeeCategory
 			};
 
 			return addressWageDetails;

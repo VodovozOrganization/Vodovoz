@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
@@ -110,5 +111,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		IEnumerable<IOrderDepositItemWageCalculationSource> OrderDepositItemsSource { get; }
 
 		bool IsDriverForeignDistrict { get; }
+
+		EmployeeCategory EmployeeCategory { get; }
 	}
 }

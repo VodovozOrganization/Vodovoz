@@ -53,7 +53,14 @@ namespace Vodovoz.Views.Complaints
 												ViewModel.NomenclatureSelectorFactory,
 												ViewModel.CounterpartySelectorFactory,
 												ViewModel.NomenclatureRepository,
-												ViewModel.UserRepository);
+												ViewModel.UserRepository,
+												ViewModel.OrderSelectorFactory,
+												ViewModel.EmployeeJournalFactory,
+												ViewModel.CounterpartyJournalFactory,
+												ViewModel.DeliveryPointJournalFactory,
+												ViewModel.SubdivisionJournalFactory,
+												ViewModel.GtkDialogsOpener,
+												ViewModel.UndeliveredOrdersJournalOpener);
 			});
 
 			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);

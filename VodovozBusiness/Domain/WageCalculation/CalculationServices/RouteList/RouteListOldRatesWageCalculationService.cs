@@ -159,7 +159,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			RouteListItemWageCalculationDetails addressWageDetails = new RouteListItemWageCalculationDetails()
 			{
-				RouteListItemWageCalculationName = wageParameterItem.Title
+				RouteListItemWageCalculationName = wageParameterItem.Title,
+				WageCalculationEmployeeCategory = source.EmployeeCategory
 			};
 
 			if(!src.IsDelivered)
@@ -189,19 +190,20 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 					{
 						Name = $"Не первый заказ на точку доставки",
 					});
-				return addressWageDetails;
 			}
-
-			var rateAddress = GetActualRate(src.IsDriverForeignDistrict ? WageRateTypes.ForeignAddress : WageRateTypes.Address);
-			if(rateAddress != null)
+			else
 			{
-				addressWageDetails.WageCalculationDetailsList.Add(
-					new WageCalculationDetailsItem()
-					{
-						Name = $"{rateAddress.WageRateType.GetEnumTitle()}",
-						Count = 1,
-						Price = GetRateValue(src, rateAddress)
-					});
+				var rateAddress = GetActualRate(src.IsDriverForeignDistrict ? WageRateTypes.ForeignAddress : WageRateTypes.Address);
+				if(rateAddress != null)
+				{
+					addressWageDetails.WageCalculationDetailsList.Add(
+						new WageCalculationDetailsItem()
+						{
+							Name = $"{rateAddress.WageRateType.GetEnumTitle()}",
+							Count = 1,
+							Price = GetRateValue(src, rateAddress)
+						});
+				}
 			}
 
 			bool addressWithBigOrder = HasBigOrder(src);

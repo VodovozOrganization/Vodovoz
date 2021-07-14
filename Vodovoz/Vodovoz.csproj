@@ -487,6 +487,7 @@
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
+    <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
     <Compile Include="TempAdapters\PremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
@@ -1173,7 +1174,7 @@
     <Compile Include="Views\Complaints\ComplaintView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintView.cs" />
     <Compile Include="JournalViewModels\CounterpartyJournalViewModel.cs" />
-    <Compile Include="JournalViewers\UndeliveriesViewOpener.cs" />
+    <Compile Include="JournalViewers\UndeliveredOrdersJournalOpener.cs" />
     <Compile Include="Views\Employees\FineTemplateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineTemplateView.cs" />
     <Compile Include="Views\Employees\FineView.cs" />
@@ -1237,7 +1238,6 @@
     <Compile Include="Infrastructure\Services\GtkTaskCreationInteractive.cs" />
     <Compile Include="ViewWidgets\TaskCreationDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.TaskCreationDialog.cs" />
-    <Compile Include="ReportsParameters\PlanImplementationReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PlanImplementationReport.cs" />
     <Compile Include="Views\WageCalculation\WageDistrictLevelRateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictLevelRateView.cs" />
@@ -1633,6 +1633,15 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarEventView.cs" />
     <Compile Include="Filters\GtkViews\CarEventFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventFilterView.cs" />
+    <Compile Include="Filters\GtkViews\UndeliveredOrdersFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveredOrdersFilterView.cs" />
+    <Compile Include="Views\Orders\DiscountReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.DiscountReasonView.cs" />
+    <Compile Include="ReportsParameters\Sales\PlanImplementationReport.cs" />
+    <Compile Include="Views\Complaints\DriverComplaintReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.DriverComplaintReasonView.cs" />
+    <Compile Include="JournalViewers\Complaints\DriverComplaintReasonJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.Complaints.DriverComplaintReasonJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1937,6 +1946,7 @@
     <Folder Include="Reports\Retail\" />
     <Folder Include="Views\Reports\" />
     <Folder Include="ReportsParameters\Employees\" />
+    <Folder Include="JournalViewers\Complaints\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2519,6 +2529,9 @@
     </None>
     <None Include="Reports\Documents\ShetFactura2017Edition.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\CarsExploitationReport-ConditionalFormatting.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

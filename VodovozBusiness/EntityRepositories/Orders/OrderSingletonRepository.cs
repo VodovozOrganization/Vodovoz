@@ -383,6 +383,12 @@ namespace Vodovoz.EntityRepositories.Orders
 			return orderByDescending ? query.Desc().List() : query.Asc().List();
 		}
 
+		public IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<DiscountReason>()
+				.WhereNot(dr => dr.IsArchive).OrderBy(dr => dr.Name).Asc().List();
+		}
+
 		public VodovozOrder GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
 		{
 			var notSupportedStatuses = new OrderStatus[] {
@@ -816,7 +822,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return receipt != null;
 		}
 
-		public bool CanAddVodovozCatalogToOrder(
+		public bool CanAddVodovozLeafletToOrder(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int leafletId, int geographicGroupId)
 		{
 			WarehouseMovementOperation operationAddAlias = null;

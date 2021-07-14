@@ -92,6 +92,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.ViewModels;
@@ -114,10 +115,15 @@ using Vodovoz.ViewModels.ViewModels.Retail;
 using Vodovoz.Views.Retail;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Views.Reports;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.JournalViewers.Complaints;
+using Vodovoz.ViewModels.ViewModels.Complaints;
 
 namespace Vodovoz
 {
@@ -214,7 +220,9 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PremiumTemplateViewModel, PremiumTemplateView>()
 				.RegisterWidgetForTabViewModel<CarEventTypeViewModel, CarEventTypeView>()
 				.RegisterWidgetForTabViewModel<CarEventViewModel, CarEventView>()
-;
+				.RegisterWidgetForTabViewModel<DiscountReasonViewModel, DiscountReasonView>()
+				.RegisterWidgetForTabViewModel<DriverComplaintReasonViewModel, DriverComplaintReasonView>()
+				;
 
             //Регистрация виджетов
             ViewModelWidgetResolver.Instance
@@ -269,6 +277,8 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<PremiumJournalFilterViewModel, PremiumJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryAnalyticsViewModel, DeliveryAnalyticsReportView>()
 				.RegisterWidgetForWidgetViewModel<CarEventFilterViewModel, CarEventFilterView>()
+				.RegisterWidgetForWidgetViewModel<UndeliveredOrdersFilterViewModel, UndeliveredOrdersFilterView>()
+				.RegisterWidgetForWidgetViewModel<DriverComplaintReasonJournalFilterViewModel, DriverComplaintReasonJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -354,7 +364,8 @@ namespace Vodovoz
 
 			#region Vodovoz
 			#region Adapters
-			builder.RegisterType<UndeliveriesViewOpener>().As<IUndeliveriesViewOpener>();
+			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
+			builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
 			#endregion
 			#region Services
 			builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
@@ -366,6 +377,10 @@ namespace Vodovoz
 			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
 			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
+			builder.RegisterType<DeliveryPointJournalFactory>().As<IDeliveryPointJournalFactory>();
+			builder.RegisterType<EmployeeJournalFactory>().As<IEmployeeJournalFactory>();
+			builder.RegisterType<CounterpartyJournalFactory>().As<ICounterpartyJournalFactory>();
+			builder.RegisterType<SubdivisionJournalFactory>().As<ISubdivisionJournalFactory>();	
 			#endregion
 			#region Интерфейсы репозиториев
 			builder.RegisterType<SubdivisionRepository>().As<ISubdivisionRepository>();

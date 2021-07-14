@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
@@ -45,6 +46,8 @@ namespace Vodovoz.ReportsParameters
 
 				lblEmployeePlan.Markup = actualWageParameter.Title;
 			};
+			comboTypeOfDate.ItemsEnum = typeof(OrderDateType);
+			comboTypeOfDate.SelectedItem = OrderDateType.CreationDate;
 		}
 
 		void LstCmbPlanType_Changed(object sender, EventArgs e)
@@ -76,9 +79,10 @@ namespace Vodovoz.ReportsParameters
 				Identifier = employeeId > 0 ? "Sales.PlanImplementationByEmployeeReport" : "Sales.PlanImplementationFullReport",
 				Parameters = new Dictionary<string, object>
 				{
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull.Value.AddDays(1).AddTicks(-1) },
-					{ "employee_id", employeeId }
+					{"start_date", dateperiodpicker.StartDateOrNull},
+					{"end_date", dateperiodpicker.EndDateOrNull.Value.AddDays(1).AddTicks(-1)},
+					{"employee_id", employeeId},
+					{"is_creation_date", (OrderDateType)comboTypeOfDate.SelectedItem == OrderDateType.CreationDate}
 				}
 			};
 		}
