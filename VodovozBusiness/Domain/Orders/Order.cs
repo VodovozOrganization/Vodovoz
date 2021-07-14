@@ -59,6 +59,7 @@ namespace Vodovoz.Domain.Orders
 
 		private int _vodovozLeafletId;
 		private int _luckyPizzaLeafletId;
+		private int _daughtersSonsLeafletId;
 
 		#region Листовки
 
@@ -84,6 +85,19 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				return _luckyPizzaLeafletId;
+			}
+		}
+		
+		private int DaughtersSonsLeafletId
+		{
+			get
+			{
+				if(_daughtersSonsLeafletId == default(int))
+				{
+					_daughtersSonsLeafletId = new NomenclatureParametersProvider().DaughtersSonsLeafletId;
+				}
+
+				return _daughtersSonsLeafletId;
 			}
 		}
 
@@ -2139,7 +2153,9 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(OrderEquipment orderEquipment in order.OrderEquipments)
 			{
-				if (orderEquipment.Nomenclature.Id == VodovozLeafletId || orderEquipment.Nomenclature.Id == LuckyPizzaLeafletId) 
+				if (orderEquipment.Nomenclature.Id == VodovozLeafletId
+				    || orderEquipment.Nomenclature.Id == LuckyPizzaLeafletId
+				    || orderEquipment.Nomenclature.Id == DaughtersSonsLeafletId)
 				{
 					continue;
 				}

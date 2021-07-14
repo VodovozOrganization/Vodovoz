@@ -12,6 +12,7 @@ namespace Vodovoz.Services
         string OnlineStoreExportFileUrl { get; }
         int VodovozLeafletId { get; }
 		int LuckyPizzaLeafletId { get; }
+		int DaughtersSonsLeafletId { get; }
 
 		Nomenclature GetWaterSemiozerie(IUnitOfWork uow);
         Nomenclature GetWaterKislorodnaya(IUnitOfWork uow);

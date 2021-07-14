@@ -667,21 +667,26 @@ namespace Vodovoz
 
 		private void TryAddVodovozLeaflet(INomenclatureParametersProvider nomenclatureParametersProvider)
 		{
-			if (Entity.SelfDelivery 
-			    || Entity.OrderStatus != OrderStatus.NewOrder
-			    || Entity.DeliveryPoint.District == null) return;
+			if(Entity.SelfDelivery
+			   || Entity.OrderStatus != OrderStatus.NewOrder
+			   || Entity.DeliveryPoint.District == null)
+			{
+				return;
+			}
 			
-			if (vodovozLeaflet == null) {
+			if (vodovozLeaflet == null)
+			{
 				vodovozLeaflet = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.VodovozLeafletId);
 			}
 
 			var geographicGroupId = Entity.DeliveryPoint.District.GeographicGroup.Id;
 			
-			if (!orderRepository.CanAddVodovozCatalogToOrder(
+			if (!orderRepository.CanAddVodovozLeafletToOrder(
 			    UoW, 
 			    new RouteListParametersProvider(SingletonParametersProvider.Instance), 
 			    vodovozLeaflet.Id, 
-			    geographicGroupId)) {
+			    geographicGroupId))
+			{
 				return;
 			}
 
