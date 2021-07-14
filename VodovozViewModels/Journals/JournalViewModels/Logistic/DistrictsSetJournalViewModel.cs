@@ -13,7 +13,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels;
-using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
 
@@ -21,8 +21,7 @@ namespace Vodovoz.Journals.JournalViewModels
 {
 	public sealed class DistrictsSetJournalViewModel : FilterableSingleEntityJournalViewModelBase<DistrictsSet, DistrictsSetViewModel, DistrictsSetJournalNode, DistrictsSetJournalFilterViewModel>
 	{
-		private const string _onlineDeliveriesTodayParameter = "is_stopped_online_deliveries_today";
-		private readonly IParametersProvider _parametersProvider;
+		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly bool _сanChangeOnlineDeliveriesToday;
 		
 		public DistrictsSetJournalViewModel(
@@ -31,7 +30,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			ICommonServices commonServices,
 			IEmployeeRepository employeeRepository,
 			IEntityDeleteWorker entityDeleteWorker,
-			IParametersProvider parametersProvider,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			bool hideJournalForOpenDialog = false, 
 			bool hideJournalForCreateDialog = false)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
@@ -39,7 +38,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			this.entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_deliveryRulesParametersProvider = 
+				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			
 			canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_districts_set");
 			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
@@ -165,8 +165,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				selected => _сanChangeOnlineDeliveriesToday && IsStoppedOnlineDeliveriesToday,
 				selected => 
 				{
-					_parametersProvider.CreateOrUpdateParameter(_onlineDeliveriesTodayParameter,"false");
-
+					_deliveryRulesParametersProvider.UpdateOnlineDeliveriesTodayParameter("false");
 					SetIsStoppedOnlineDeliveriesToday();
 					UpdateJournalActions?.Invoke();
 				}
@@ -181,8 +180,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				selected => _сanChangeOnlineDeliveriesToday && !IsStoppedOnlineDeliveriesToday,
 				selected => 
 				{
-					_parametersProvider.CreateOrUpdateParameter(_onlineDeliveriesTodayParameter,"true");
-
+					_deliveryRulesParametersProvider.UpdateOnlineDeliveriesTodayParameter("true");
 					SetIsStoppedOnlineDeliveriesToday();
 					UpdateJournalActions?.Invoke();
 				}
@@ -192,7 +190,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		
 		private void SetIsStoppedOnlineDeliveriesToday()
 		{
-			IsStoppedOnlineDeliveriesToday = _parametersProvider.GetBoolValue(_onlineDeliveriesTodayParameter);
+			IsStoppedOnlineDeliveriesToday = _deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday;
 		}
 
 		protected override void CreatePopupActions()
