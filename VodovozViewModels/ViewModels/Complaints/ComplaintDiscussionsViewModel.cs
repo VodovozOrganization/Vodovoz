@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -99,6 +100,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private void CreateCommands()
 		{
 			CreateAttachSubdivisionCommand();
+			CreateAttachSubdivisionByComplaintKindCommand();
 		}
 
 		#region AttachSubdivisionCommand
@@ -137,6 +139,48 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		#endregion AttachSubdivisionCommand
+
+		#region AttachSubdivisionByComplaintKindCommand
+
+		public DelegateCommand AttachSubdivisionByComplaintKindCommand { get; private set; }
+
+		private void CreateAttachSubdivisionByComplaintKindCommand()
+		{
+			AttachSubdivisionByComplaintKindCommand = new DelegateCommand(
+				() =>
+				{
+					if(Entity.ComplaintKind == null)
+					{
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Не выбран вид рекламаций");
+						return;
+					}
+
+					if(!Entity.ComplaintKind.Subdivisions.Any())
+					{
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+							$"У вида рекламации {Entity.ComplaintKind.Name} отсутствуют подключаемые отделы.");
+						return;
+					}
+
+					string subdivisionString = string.Join(", ", Entity.ComplaintKind.Subdivisions.Select(s => s.Name));
+
+					if(CommonServices.InteractiveService.Question(
+						$"Будут подключены следующие отделы: { subdivisionString }.",
+						"Подключить?")
+					)
+					{
+						foreach(var subdivision in Entity.ComplaintKind.Subdivisions)
+						{
+							Entity.AttachSubdivisionToDiscussions(subdivision);
+						}
+					}
+				},
+				() => CanAttachSubdivision
+			);
+			AttachSubdivisionByComplaintKindCommand.CanExecuteChangedWith(this, x => x.CanAttachSubdivision);
+		}
+
+		#endregion AttachSubdivisionByComplaintKindCommand
 
 		#endregion Commands
 	}

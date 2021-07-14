@@ -1642,6 +1642,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.DriverComplaintReasonView.cs" />
     <Compile Include="JournalViewers\Complaints\DriverComplaintReasonJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.Complaints.DriverComplaintReasonJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\ComplaintObjectJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintObjectJournalFilterView.cs" />
+    <Compile Include="Views\Complaints\ComplaintObjectView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintObjectView.cs" />
+    <Compile Include="Filters\GtkViews\ComplaintKindJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintKindJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

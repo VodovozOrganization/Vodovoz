@@ -125,6 +125,8 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
@@ -1753,24 +1755,20 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionComplaintKindActivated(object sender, EventArgs e)
     {
-        var complaintKindsViewModel = new SimpleEntityJournalViewModel<ComplaintKind, ComplaintKindViewModel>(
-            x => x.Name,
-            () => new ComplaintKindViewModel(
-                EntityUoWBuilder.ForCreate(),
-                UnitOfWorkFactory.GetDefaultFactory,
-                ServicesConfig.CommonServices
-            ),
-            (node) => new ComplaintKindViewModel(
-                EntityUoWBuilder.ForOpen(node.Id),
-                UnitOfWorkFactory.GetDefaultFactory,
-                ServicesConfig.CommonServices
-            ),
-            UnitOfWorkFactory.GetDefaultFactory,
-            ServicesConfig.CommonServices
-        );
-        complaintKindsViewModel.SetActionsVisible(deleteActionEnabled: false);
-        tdiMain.AddTab(complaintKindsViewModel);
-    }
+	    var employeeSelectorFactory =
+		    new DefaultEntityAutocompleteSelectorFactory
+			    <Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
+
+		tdiMain.OpenTab(() => new ComplaintKindJournalViewModel(
+			new ComplaintKindJournalFilterViewModel()
+			{
+				HidenByDefault = true
+			},
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			employeeSelectorFactory)
+		);
+	}
 
     protected void OnActionSetBillsReportActivated(object sender, EventArgs e)
     {
@@ -2393,7 +2391,20 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionDriversComplaintReasonsJournalActivated(object sender, EventArgs e)
 	{
 		var driversComplaintReasonsFilter = new DriverComplaintReasonJournalFilterViewModel();
-		var driversComplaintReasonsJournal = new DriverComplaintReasonsJournalViewModel(driversComplaintReasonsFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		var driversComplaintReasonsJournal = new DriverComplaintReasonsJournalViewModel(driversComplaintReasonsFilter,
+			UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 		tdiMain.AddTab(driversComplaintReasonsJournal);
+	}
+
+	protected void OnActionComplaintObjectActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new ComplaintObjectJournalViewModel(
+			new ComplaintObjectJournalFilterViewModel()
+			{
+				HidenByDefault = true
+			},
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
 	}
 }
