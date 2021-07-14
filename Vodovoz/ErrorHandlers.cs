@@ -72,7 +72,7 @@ namespace Vodovoz
 
 			if (nhibernateEx != null && timeOutEx != null && timeOutEx.SocketErrorCode == System.Net.Sockets.SocketError.TimedOut)
             {
-				interactiveService.ShowMessage(ImportanceLevel.Warning, "Программа не смогла обработать запрос во время, переоткройте вкладку");
+				interactiveService.ShowMessage(ImportanceLevel.Warning, "Программа не смогла обработать запрос вовремя, переоткройте вкладку");
 				return true;
             }
 			return false;
