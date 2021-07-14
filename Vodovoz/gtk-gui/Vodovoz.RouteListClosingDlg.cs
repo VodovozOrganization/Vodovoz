@@ -40,7 +40,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yTextView ytextClosingComment;
 
-		private global::Gamma.GtkWidgets.yHBox hboxTerminalCondiiton;
+		private global::Gamma.GtkWidgets.yHBox hboxTerminalCondition;
 
 		private global::Gamma.GtkWidgets.yLabel labelTerminalCondition;
 
@@ -374,34 +374,34 @@ namespace Vodovoz
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblRLInfo.Gtk.Table+TableChild
-			this.hboxTerminalCondiiton = new global::Gamma.GtkWidgets.yHBox();
-			this.hboxTerminalCondiiton.Name = "hboxTerminalCondiiton";
-			this.hboxTerminalCondiiton.Spacing = 6;
-			// Container child hboxTerminalCondiiton.Gtk.Box+BoxChild
+			this.hboxTerminalCondition = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxTerminalCondition.Name = "hboxTerminalCondition";
+			this.hboxTerminalCondition.Spacing = 6;
+			// Container child hboxTerminalCondition.Gtk.Box+BoxChild
 			this.labelTerminalCondition = new global::Gamma.GtkWidgets.yLabel();
 			this.labelTerminalCondition.Name = "labelTerminalCondition";
 			this.labelTerminalCondition.Xalign = 1F;
 			this.labelTerminalCondition.LabelProp = global::Mono.Unix.Catalog.GetString("Состояние терминала:");
 			this.labelTerminalCondition.Justify = ((global::Gtk.Justification)(1));
-			this.hboxTerminalCondiiton.Add(this.labelTerminalCondition);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxTerminalCondiiton[this.labelTerminalCondition]));
+			this.hboxTerminalCondition.Add(this.labelTerminalCondition);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxTerminalCondition[this.labelTerminalCondition]));
 			w18.Position = 0;
 			w18.Expand = false;
 			w18.Fill = false;
-			// Container child hboxTerminalCondiiton.Gtk.Box+BoxChild
+			// Container child hboxTerminalCondition.Gtk.Box+BoxChild
 			this.enumTerminalCondition = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumTerminalCondition.Name = "enumTerminalCondition";
 			this.enumTerminalCondition.ShowSpecialStateAll = false;
 			this.enumTerminalCondition.ShowSpecialStateNot = true;
 			this.enumTerminalCondition.UseShortTitle = false;
 			this.enumTerminalCondition.DefaultFirst = false;
-			this.hboxTerminalCondiiton.Add(this.enumTerminalCondition);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hboxTerminalCondiiton[this.enumTerminalCondition]));
+			this.hboxTerminalCondition.Add(this.enumTerminalCondition);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hboxTerminalCondition[this.enumTerminalCondition]));
 			w19.Position = 1;
 			w19.Expand = false;
 			w19.Fill = false;
-			this.tblRLInfo.Add(this.hboxTerminalCondiiton);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tblRLInfo[this.hboxTerminalCondiiton]));
+			this.tblRLInfo.Add(this.hboxTerminalCondition);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tblRLInfo[this.hboxTerminalCondition]));
 			w20.TopAttach = ((uint)(5));
 			w20.BottomAttach = ((uint)(6));
 			w20.LeftAttach = ((uint)(3));
@@ -690,7 +690,6 @@ namespace Vodovoz
 			this.vboxHidenPanel.Spacing = 6;
 			// Container child vboxHidenPanel.Gtk.Box+BoxChild
 			this.routelistdiscrepancyview = new global::Vodovoz.RouteListDiscrepancyView();
-			this.routelistdiscrepancyview.Sensitive = false;
 			this.routelistdiscrepancyview.Events = ((global::Gdk.EventMask)(256));
 			this.routelistdiscrepancyview.Name = "routelistdiscrepancyview";
 			this.routelistdiscrepancyview.Sensitive = false;
