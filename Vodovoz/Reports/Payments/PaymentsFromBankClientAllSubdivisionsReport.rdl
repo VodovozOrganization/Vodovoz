@@ -21,8 +21,8 @@
         <Width>581.25pt</Width>
         <Value>= "Отчет по оплатам " + (Format(Convert.ToDateTime({?date}), "dd.MM.yyyy"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>102.3pt</Left>
-        <Top>5.6pt</Top>
+        <Left>102.30pt</Left>
+        <Top>5.60pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -535,7 +535,12 @@
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingBottom>=Len({comment})/6+"pt"</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
