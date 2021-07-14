@@ -98,6 +98,7 @@ namespace Vodovoz.Filters.ViewModels
 				() =>
 				{
 					CanChangeStatus = !SortByPriority;
+					CanChangeCategory = !SortByPriority;
 					if(SortByPriority)
 					{
 						Category = EmployeeCategory.driver;
