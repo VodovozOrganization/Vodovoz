@@ -27,11 +27,15 @@ namespace Vodovoz.Parameters
 
         public string OnlineStoreExportFileUrl => parametersProvider.GetStringValue("online_store_export_file_url");
 
+        #region Листовки
+
         public int VodovozLeafletId => parametersProvider.GetIntValue("vodovoz_leaflet_id");
+        public int LuckyPizzaLeafletId => parametersProvider.GetIntValue("lucky_pizza_leaflet_id");
+        public int DaughtersSonsLeafletId => parametersProvider.GetIntValue("daughters_sons_leaflet_id");
 
-		public int LuckyPizzaLeafletId => parametersProvider.GetIntValue("lucky_pizza_leaflet_id");
+        #endregion
 
-		#region Получение номенклатур воды
+        #region Получение номенклатур воды
 
 		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
 		{
