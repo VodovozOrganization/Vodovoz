@@ -63,7 +63,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>22.5pt</Width>
+            <Width>20.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.1pt</Width>
@@ -75,16 +75,16 @@
             <Width>41.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.4pt</Width>
+            <Width>88.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.1pt</Width>
+            <Width>49.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>47.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.8pt</Width>
+            <Width>60.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>125.8pt</Width>
@@ -407,6 +407,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
+                        <PaddingLeft >1pt</PaddingLeft>
+                        <PaddingRight >1pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
