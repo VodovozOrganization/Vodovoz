@@ -7,8 +7,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 	{
 		private DateTime? _createDateFrom;
 		private DateTime? _createDateTo;
-		private DateTime? _archiveDateFrom;
-		private DateTime? _archiveDateTo;
 		private bool _isArchive;
 
 		public DateTime? CreateDateFrom

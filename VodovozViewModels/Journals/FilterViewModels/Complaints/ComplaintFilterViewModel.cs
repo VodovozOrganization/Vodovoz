@@ -19,9 +19,9 @@ namespace Vodovoz.FilterViewModels
 	public class ComplaintFilterViewModel : FilterViewModelBase<ComplaintFilterViewModel>
 	{
 		private readonly ICommonServices commonServices;
-		private List<ComplaintObject> _complaintObjectSource;
+		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
-		private readonly List<ComplaintKind> _complaintKinds;
+		private readonly IList<ComplaintKind> _complaintKinds;
 		
 		public ISubdivisionService SubdivisionService { get; set; }
 		public IEmployeeService EmployeeService { get; set; }
@@ -68,7 +68,7 @@ namespace Vodovoz.FilterViewModels
 			};
 			GuiltyItemVM.OnGuiltyItemReady += (sender, e) => Update();
 
-			_complaintKinds = UoW.GetAll<ComplaintKind>().ToList();
+			_complaintKinds = complaintKindSource = UoW.GetAll<ComplaintKind>().ToList();
 
 			UpdateWith(
 				x => x.ComplaintType,
@@ -104,7 +104,7 @@ namespace Vodovoz.FilterViewModels
 			{
 				if(SetField(ref _complaintObject, value))
 				{
-					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value);
+					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value).ToList();
 				}
 			}
 		}
@@ -196,31 +196,14 @@ namespace Vodovoz.FilterViewModels
 			Employee = EmployeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
 		}
 
-		IEnumerable<ComplaintKind> complaintKindSource;
-		public IEnumerable<ComplaintKind> ComplaintKindSource {
-			get {
-				if(complaintKindSource == null)
-					complaintKindSource = UoW.GetAll<ComplaintKind>().ToList();
-				return complaintKindSource;
-			}
-			set
-			{
-				SetField(ref complaintKindSource, value);
-			}
+		IList<ComplaintKind> complaintKindSource;
+		public IList<ComplaintKind> ComplaintKindSource {
+			get => complaintKindSource;
+			set => SetField(ref complaintKindSource, value);
 		}
 
-		public IEnumerable<ComplaintObject> ComplaintObjectSource
-		{
-			get
-			{
-				if(_complaintObjectSource == null)
-				{
-					_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList();
-				}
-
-				return _complaintObjectSource;
-			}
-		}
+		public IEnumerable<ComplaintObject> ComplaintObjectSource => 
+			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList());
 
 		public ReportInfo GetReportInfo()
 		{

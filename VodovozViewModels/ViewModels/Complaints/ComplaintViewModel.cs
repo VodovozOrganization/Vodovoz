@@ -33,9 +33,9 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
-		private List<ComplaintObject> _complaintObjectSource;
+		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
-		private readonly List<ComplaintKind> _complaintKinds;
+		private readonly IList<ComplaintKind> _complaintKinds;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
@@ -100,7 +100,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 			CreateCommands();
 
-			_complaintKinds = UoW.GetAll<ComplaintKind>().ToList();
+			_complaintKinds = complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 
 			ComplaintObject = Entity.ComplaintKind?.ComplaintObject;
 
@@ -271,11 +271,9 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		List<ComplaintKind> complaintKindSource;
-		public List<ComplaintKind> ComplaintKindSource {
+		IList<ComplaintKind> complaintKindSource;
+		public IList<ComplaintKind> ComplaintKindSource {
 			get {
-				if(complaintKindSource == null)
-					complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 				if(Entity.ComplaintKind != null && Entity.ComplaintKind.IsArchive)
 					complaintKindSource.Add(UoW.GetById<ComplaintKind>(Entity.ComplaintKind.Id));
 
@@ -299,18 +297,8 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		public IEnumerable<ComplaintObject> ComplaintObjectSource
-		{
-			get
-			{
-				if(_complaintObjectSource == null)
-				{
-					_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList();
-				}
-
-				return _complaintObjectSource;
-			}
-		}
+		public IEnumerable<ComplaintObject> ComplaintObjectSource =>
+			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList());
 
 		public IList<FineItem> FineItems => Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
 

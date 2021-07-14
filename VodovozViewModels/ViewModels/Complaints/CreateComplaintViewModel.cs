@@ -25,9 +25,9 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
         private readonly IFilePickerService filePickerService;
-        private List<ComplaintObject> _complaintObjectSource;
+        private IList<ComplaintObject> _complaintObjectSource;
         private ComplaintObject _complaintObject;
-        private readonly List<ComplaintKind> _complaintKinds;
+        private readonly IList<ComplaintKind> _complaintKinds;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
@@ -79,7 +79,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ConfigureEntityPropertyChanges();
 			Entity.Phone = phone;
 
-			_complaintKinds = UoW.GetAll<ComplaintKind>().ToList();
+			_complaintKinds = complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 
 			TabName = "Новая клиентская рекламация";
 		}
@@ -183,20 +183,10 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		List<ComplaintKind> complaintKindSource;
-		public List<ComplaintKind> ComplaintKindSource {
-			get {
-				if(complaintKindSource == null)
-					complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
-				if(Entity.ComplaintKind != null && Entity.ComplaintKind.IsArchive)
-					complaintKindSource.Add(UoW.GetById<ComplaintKind>(Entity.ComplaintKind.Id));
-
-				return complaintKindSource;
-			}
-			set
-			{
-				SetField(ref complaintKindSource, value);
-			}
+		IList<ComplaintKind> complaintKindSource;
+		public IList<ComplaintKind> ComplaintKindSource {
+			get => complaintKindSource;
+			set => SetField(ref complaintKindSource, value);
 		}
 
 		public virtual ComplaintObject ComplaintObject
@@ -211,18 +201,8 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		public IEnumerable<ComplaintObject> ComplaintObjectSource
-		{
-			get
-			{
-				if(_complaintObjectSource == null)
-				{
-					_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList();
-				}
-
-				return _complaintObjectSource;
-			}
-		}
+		public IEnumerable<ComplaintObject> ComplaintObjectSource =>
+			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList());
 
 		private GuiltyItemsViewModel guiltyItemsViewModel;
 		public GuiltyItemsViewModel GuiltyItemsViewModel {
