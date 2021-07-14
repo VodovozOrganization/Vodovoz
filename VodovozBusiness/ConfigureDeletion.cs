@@ -100,12 +100,12 @@ namespace Vodovoz
 
 			DeleteConfig.AddDeleteInfo(
 				new DeleteInfo {
-					ObjectClass = typeof(EquipmentType),
+					ObjectClass = typeof(EquipmentKind),
 					SqlSelect = "SELECT id, name FROM @tablename ",
 					DisplayString = "{1}",
 					DeleteItems = new List<DeleteDependenceInfo> {
-						DeleteDependenceInfo.Create<Nomenclature> (item => item.Type),
-						DeleteDependenceInfo.Create<PaidRentPackage> (item => item.EquipmentType)
+						DeleteDependenceInfo.Create<Nomenclature> (item => item.Kind),
+						DeleteDependenceInfo.Create<PaidRentPackage> (item => item.EquipmentKind)
 					}
 				}.FillFromMetaInfo()
 			);

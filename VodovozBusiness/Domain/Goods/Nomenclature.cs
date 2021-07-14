@@ -249,12 +249,12 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref equipmentColor, value, () => EquipmentColor);
 		}
 
-		private EquipmentType type;
+		private EquipmentKind _kind;
 
-		[Display(Name = "Тип оборудования")]
-		public virtual EquipmentType Type {
-			get => type;
-			set => SetField(ref type, value, () => Type);
+		[Display(Name = "Вид оборудования")]
+		public virtual EquipmentKind Kind {
+			get => _kind;
+			set => SetField(ref _kind, value, () => Kind);
 		}
 
 		private Manufacturer manufacturer;
@@ -713,10 +713,10 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult(
 					"Код 1С обязателен для заполнения", new[] { this.GetPropertyName(o => o.Code1c) });
 
-			if(Category == NomenclatureCategory.equipment && Type == null)
+			if(Category == NomenclatureCategory.equipment && Kind == null)
 				yield return new ValidationResult(
-					"Не указан тип оборудования.",
-					new[] { this.GetPropertyName(o => o.Type) });
+					"Не указан вид оборудования.",
+					new[] { this.GetPropertyName(o => o.Kind) });
 
 			if(GetCategoriesWithSaleCategory().Contains(category) && SaleCategory == null)
 				yield return new ValidationResult(

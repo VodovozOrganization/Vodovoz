@@ -87,14 +87,14 @@ namespace Vodovoz
 		}
 	}
 
-	public class EquipmentTypeGroupingResult
+	public class EquipmentKindGroupingResult
 	{
-		public EquipmentType EquipmentType { get; set; }
+		public EquipmentKind EquipmentKind { get; set; }
 		public int Amount { get; set; }
-		public static EquipmentTypeGroupingResult Selector(EquipmentType type, IEnumerable<int> amounts)
+		public static EquipmentKindGroupingResult Selector(EquipmentKind type, IEnumerable<int> amounts)
 		{
-			return new EquipmentTypeGroupingResult {
-				EquipmentType = type,
+			return new EquipmentKindGroupingResult {
+				EquipmentKind = type,
 				Amount = amounts.Sum()
 			};
 		}

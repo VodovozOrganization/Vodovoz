@@ -691,7 +691,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.Select(() => nomenclatureAlias.IsSerial).WithAlias(() => resultAlias.Trackable)
 					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
-					.Select(() => nomenclatureAlias.Type).WithAlias(() => resultAlias.EquipmentType)
+					.Select(() => nomenclatureAlias.Kind).WithAlias(() => resultAlias.EquipmentKind)
 					.Select(() => carUnloadItemsAlias.DefectSource).WithAlias(() => resultAlias.DefectSource)
 									  )
 				.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
@@ -795,7 +795,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public string Name { get; set; }
 		public decimal Amount { get; set; }
 		public bool Trackable { get; set; }
-		public EquipmentType EquipmentType { get; set; }
+		public EquipmentKind EquipmentKind { get; set; }
 		public DefectSource DefectSource { get; set; }
 		
 		public string Serial {

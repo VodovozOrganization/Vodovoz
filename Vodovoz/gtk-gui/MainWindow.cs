@@ -61,7 +61,7 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionManufacturers;
 
-	private global::Gtk.Action ActionEquipmentTypes;
+	private global::Gtk.Action ActionEquipmentKinds;
 
 	private global::Gtk.Action ActionNomenclature;
 
@@ -625,9 +625,9 @@ public partial class MainWindow
 		this.ActionManufacturers = new global::Gtk.Action("ActionManufacturers", global::Mono.Unix.Catalog.GetString("Производители оборудования"), null, null);
 		this.ActionManufacturers.ShortLabel = global::Mono.Unix.Catalog.GetString("Производители оборудования");
 		w1.Add(this.ActionManufacturers, null);
-		this.ActionEquipmentTypes = new global::Gtk.Action("ActionEquipmentTypes", global::Mono.Unix.Catalog.GetString("Типы оборудования"), null, null);
-		this.ActionEquipmentTypes.ShortLabel = global::Mono.Unix.Catalog.GetString("Типы оборудования");
-		w1.Add(this.ActionEquipmentTypes, null);
+		this.ActionEquipmentKinds = new global::Gtk.Action("ActionEquipmentKinds", global::Mono.Unix.Catalog.GetString("Типы оборудования"), null, null);
+		this.ActionEquipmentKinds.ShortLabel = global::Mono.Unix.Catalog.GetString("Типы оборудования");
+		w1.Add(this.ActionEquipmentKinds, null);
 		this.ActionNomenclature = new global::Gtk.Action("ActionNomenclature", global::Mono.Unix.Catalog.GetString("Номенклатура"), null, null);
 		this.ActionNomenclature.ShortLabel = global::Mono.Unix.Catalog.GetString("Номенклатура");
 		w1.Add(this.ActionNomenclature, null);
@@ -1354,7 +1354,7 @@ public partial class MainWindow
 				" name=\'ActionProductGroups\' action=\'ActionProductGroups\'/><menuitem name=\'Action" +
 				"Folders1c\' action=\'ActionFolders1c\'/><menuitem name=\'ActionPromotionalSets\' acti" +
 				"on=\'ActionPromotionalSets\'/><separator/><menuitem name=\'ActionEquipment\' action=" +
-				"\'ActionEquipment\'/><menuitem name=\'ActionEquipmentTypes\' action=\'ActionEquipment" +
+				"\'ActionEquipment\'/><menuitem name=\'ActionEquipmentKinds\' action=\'ActionEquipment" +
 				"Types\'/><menuitem name=\'ActionManufacturers\' action=\'ActionManufacturers\'/><menu" +
 				"item name=\'ActionColors\' action=\'ActionColors\'/><separator/><menuitem name=\'Acti" +
 				"onProductSpecification\' action=\'ActionProductSpecification\'/><menuitem name=\'Act" +
@@ -1631,7 +1631,7 @@ public partial class MainWindow
 		this.ActionColors.Activated += new global::System.EventHandler(this.OnActionColorsActivated);
 		this.ActionUnits.Activated += new global::System.EventHandler(this.OnActionUnitsActivated);
 		this.ActionManufacturers.Activated += new global::System.EventHandler(this.OnActionManufacturersActivated);
-		this.ActionEquipmentTypes.Activated += new global::System.EventHandler(this.OnActionEquipmentTypesActivated);
+		this.ActionEquipmentKinds.Activated += new global::System.EventHandler(this.OnActionEquipmentKindsActivated);
 		this.ActionNomenclature.Activated += new global::System.EventHandler(this.OnActionNomenclatureActivated);
 		this.ActionPhoneTypes.Activated += new global::System.EventHandler(this.OnActionPhoneTypesActivated);
 		this.ActionCounterpartyHandbook.Activated += new global::System.EventHandler(this.OnActionCounterpartyHandbookActivated);

@@ -1,0 +1,53 @@
+﻿using FluentNHibernate.Mapping;
+using Vodovoz.Domain;
+using Vodovoz.Domain.WageCalculation;
+
+namespace Vodovoz.HibernateMapping.WageCalculation
+{
+	public class NomenclatureSalesPlanMap : ClassMap<NomenclatureSalesPlan>
+	{
+		public NomenclatureSalesPlanMap()
+		{
+			Table("test");
+
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			//Map(x => x.PlanDay).Column("plan_day");
+			//Map(x => x.PlanMonth).Column("plan_month");
+			References(x => x.SalesPlan).Column("sales_plan_id");
+
+			DiscriminateSubClassesOnColumn("type");
+		}
+
+
+
+		//public class EquipmentKindSalesPlanMap : SubclassMap<EquipmentKindItemSalesPlan>
+		//{
+		//	public EquipmentKindSalesPlanMap()
+		//	{
+		//		DiscriminatorValue("EquipmentKind");
+
+		//		References(x => x.EquipmentKind).Column("equipment_kind_id");
+		//	}
+		//}
+
+		public class EquipmentTypeSalesPlanMap : SubclassMap<EquipmentTypeItemSalesPlan>
+		{
+			public EquipmentTypeSalesPlanMap()
+			{
+				DiscriminatorValue("EquipmentType");
+
+				Map(x => x.EquipmentType).Column("equipment_type").CustomType<EquipmentTypeStringType>();
+			}
+		}
+
+		public class NomenclatureItemSalesPlanMap : SubclassMap<NomenclatureItemSalesPlan>
+		{
+			public NomenclatureItemSalesPlanMap()
+			{
+				DiscriminatorValue("Nomenclature");
+
+				References(x => x.Nomenclature).Column("nomenclature_id");
+			}
+		}
+	}
+}

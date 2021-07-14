@@ -178,8 +178,8 @@ namespace Vodovoz.Views.Goods
 			referenceColor.Binding.AddBinding(ViewModel, vm => vm.SensitivityEquipmentCategoryItems, w => w.Sensitive).InitializeFromSource();
 
 			labelClass.Binding.AddBinding(ViewModel, vm => vm.SensitivityEquipmentCategoryItems, w => w.Sensitive).InitializeFromSource();
-			yentryrefEqupmentType.SubjectType = typeof(EquipmentType);
-			yentryrefEqupmentType.Binding.AddBinding(ViewModel.Entity, e => e.Type, w => w.Subject).InitializeFromSource();
+			yentryrefEqupmentType.SubjectType = typeof(EquipmentKind);
+			yentryrefEqupmentType.Binding.AddBinding(ViewModel.Entity, e => e.Kind, w => w.Subject).InitializeFromSource();
 			yentryrefEqupmentType.Binding.AddBinding(ViewModel, vm => vm.SensitivityEquipmentCategoryItems, w => w.Sensitive).InitializeFromSource();
 
 			labelModel.Binding.AddBinding(ViewModel, vm => vm.SensitivityEquipmentCategoryItems, w => w.Sensitive).InitializeFromSource();

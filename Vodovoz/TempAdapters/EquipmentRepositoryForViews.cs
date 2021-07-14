@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
@@ -19,7 +19,7 @@ namespace Vodovoz.TempAdapters
 		/// Запрос выбирающий количество добавленное на склад, отгруженное со склада 
 		/// и зарезервированное в заказах каждой номенклатуры по выбранному типу оборудования
 		/// </summary>
-		public static QueryOver<Nomenclature, Nomenclature> QueryAvailableNonSerialEquipmentForRent(EquipmentType type)
+		public static QueryOver<Nomenclature, Nomenclature> QueryAvailableNonSerialEquipmentForRent(EquipmentKind type)
 		{
 			Nomenclature nomenclatureAlias = null;
 			WarehouseMovementOperation operationAddAlias = null;
@@ -52,21 +52,21 @@ namespace Vodovoz.TempAdapters
 
 			NomenclatureForRentVMNode resultAlias = null;
 			MeasurementUnits unitAlias = null;
-			EquipmentType equipmentType = null;
+			EquipmentKind equipmentKind = null;
 
 			//Запрос выбирающий количество добавленное на склад, отгруженное со склада 
 			//и зарезервированное в заказах каждой номенклатуры по выбранному типу оборудования
 			var query = QueryOver.Of<Nomenclature>(() => nomenclatureAlias)
 							 .JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
-							 .JoinAlias(() => nomenclatureAlias.Type, () => equipmentType);
+							 .JoinAlias(() => nomenclatureAlias.Kind, () => equipmentKind);
 			
 			if(type != null){
-				query = query.Where(() => nomenclatureAlias.Type.Id == type.Id);
+				query = query.Where(() => nomenclatureAlias.Kind.Id == type.Id);
 			}
 
 			query = query.SelectList(list => list
 							.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
-			                .Select(() => equipmentType.Id).WithAlias(() => resultAlias.TypeId)
+			                .Select(() => equipmentKind.Id).WithAlias(() => resultAlias.TypeId)
 							.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 							.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
 							.SelectSubQuery(subqueryAdded).WithAlias(() => resultAlias.Added)
@@ -80,7 +80,7 @@ namespace Vodovoz.TempAdapters
 		/// <summary>
 		/// Возвращает доступное оборудование указанного типа для аренды
 		/// </summary>
-		public static Nomenclature GetAvailableNonSerialEquipmentForRent(IUnitOfWork uow, EquipmentType type, int[] excludeNomenclatures)
+		public static Nomenclature GetAvailableNonSerialEquipmentForRent(IUnitOfWork uow, EquipmentKind type, int[] excludeNomenclatures)
 		{
 			Nomenclature nomenclatureAlias = null;
 
@@ -118,7 +118,7 @@ namespace Vodovoz.TempAdapters
 		/// <summary>
 		/// Возвращает список всего оборудования определенного типа для аренды
 		/// </summary>
-		public static IList<NomenclatureForRentVMNode> GetAllNonSerialEquipmentForRent(IUnitOfWork uow, EquipmentType type)
+		public static IList<NomenclatureForRentVMNode> GetAllNonSerialEquipmentForRent(IUnitOfWork uow, EquipmentKind type)
 		{
 			var result = QueryAvailableNonSerialEquipmentForRent(type)
 				.GetExecutableQueryOver(uow.Session)
@@ -146,7 +146,7 @@ namespace Vodovoz.TempAdapters
 							 .WhereRestrictionOn(x => x.Id)
 							 .IsIn(nodes.Select(x => x.Id).ToArray())
 							 .List().ToDictionary(x => x.Id);
-			var typeList = uow.Session.QueryOver<EquipmentType>()
+			var typeList = uow.Session.QueryOver<EquipmentKind>()
 							 .WhereRestrictionOn(x => x.Id)
 							 .IsIn(nodes.Select(x => x.TypeId).ToArray())
 							 .List().ToDictionary(x => x.Id);
@@ -165,7 +165,7 @@ namespace Vodovoz.TempAdapters
 	    public Nomenclature Nomenclature { get; set; }
 	    [UseForSearch]
 	    public int TypeId { get; set; }
-	    public EquipmentType Type { get; set; }
+	    public EquipmentKind Type { get; set; }
 	    public decimal InStock => Added - Removed;
 	    public int? Reserved { get; set; }
 	    public decimal Available => InStock - Reserved.GetValueOrDefault();

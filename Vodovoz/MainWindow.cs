@@ -487,9 +487,9 @@ public partial class MainWindow : Gtk.Window
         tdiMain.AddTab(refWin);
     }
 
-    protected void OnActionEquipmentTypesActivated(object sender, EventArgs e)
+    protected void OnActionEquipmentKindsActivated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(EquipmentType));
+        OrmReference refWin = new OrmReference(typeof(EquipmentKind));
         tdiMain.AddTab(refWin);
     }
 
@@ -1743,8 +1743,9 @@ public partial class MainWindow : Gtk.Window
         tdiMain.AddTab(
             new SalesPlanJournalViewModel(
                 UnitOfWorkFactory.GetDefaultFactory,
-                ServicesConfig.CommonServices
-            )
+                ServicesConfig.CommonServices,
+                new NomenclatureSelectorFactory()
+			)
         );
     }
 

@@ -8,6 +8,7 @@ using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.Journals.JournalViewModels.WageCalculation
@@ -15,10 +16,13 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 	public class SalesPlanJournalViewModel : SingleEntityJournalViewModelBase<SalesPlan, SalesPlanViewModel, SalesPlanJournalNode>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 
-		public SalesPlanJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
+		public SalesPlanJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, 
+			INomenclatureSelectorFactory nomenclatureSelectorFactory) : base(unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			TabName = "Журнал планов продаж";
 
@@ -56,13 +60,15 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 		protected override Func<SalesPlanViewModel> CreateDialogFunction => () => new SalesPlanViewModel(
 			EntityUoWBuilder.ForCreate(),
 			unitOfWorkFactory,
-			commonServices
+			commonServices,
+			_nomenclatureSelectorFactory
 		);
 
 		protected override Func<SalesPlanJournalNode, SalesPlanViewModel> OpenDialogFunction => node => new SalesPlanViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
 			unitOfWorkFactory,
-			commonServices
+			commonServices,
+			_nomenclatureSelectorFactory
 	   	);
 	}
 }
