@@ -1274,7 +1274,6 @@ namespace Vodovoz.Domain.Logistic
 				throw new ArgumentException($"Для валидации МЛ должен быть доступен {typeof(IRouteListRepository)}");
 			}
 
-
 			if(!GeographicGroups.Any())
 				yield return new ValidationResult(
 						"Необходимо указать район",
@@ -1297,6 +1296,12 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult($"Превышена длина комментария к километражу ({MileageComment.Length}/500)",
 					new[] { nameof(MileageComment) });
+			}
+
+			if(validationContext.Items.ContainsKey(nameof(DriverTerminalCondition)) &&
+			   (bool) validationContext.Items[nameof(DriverTerminalCondition)] && DriverTerminalCondition == null)
+			{
+				yield return new ValidationResult("Не указано состояние терминала водителя", new []{nameof(DriverTerminalCondition)});
 			}
 		}
 

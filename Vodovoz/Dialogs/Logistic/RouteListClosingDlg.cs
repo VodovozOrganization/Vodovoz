@@ -35,6 +35,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using QS.Tools;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -57,13 +58,16 @@ namespace Vodovoz
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
-		private bool editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+		private readonly bool _editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 		private bool canCloseRoutelist = false;
 		private Employee previousForwarder = null;
-		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
-		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
-		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
-		
+		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
+		private readonly ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
+		private bool _needToSelectTerminalCondition = false;
+		private bool _hasAccessToDriverTerminal = false;
+
 		List<ReturnsNode> allReturnsToWarehouse;
 		private IEnumerable<DefectSource> defectiveReasons;
 		int bottlesReturnedToWarehouse;
@@ -294,6 +298,16 @@ namespace Vodovoz
 
 			notebook1.ShowTabs = false;
 			notebook1.Page = 0;
+
+			_hasAccessToDriverTerminal = _editing;
+			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
+			_needToSelectTerminalCondition = baseDoc is DriverAttachedTerminalGiveoutDocument && baseDoc.CreationDate < Entity?.Date;
+			hboxTerminalCondition.Visible = _hasAccessToDriverTerminal && _needToSelectTerminalCondition;
+			if(_hasAccessToDriverTerminal && _needToSelectTerminalCondition)
+			{
+				enumTerminalCondition.ItemsEnum = typeof(DriverTerminalCondition);
+				enumTerminalCondition.Binding.AddBinding(Entity, e => e.DriverTerminalCondition, w => w.SelectedItemOrNull);
+			}
 		}
 
 		private void UpdateSensitivity()
@@ -324,26 +338,26 @@ namespace Vodovoz
 
 			speccomboShift.Sensitive = false;
 			vbxFuelTickets.Sensitive = CheckIfCashier();
-			entityviewmodelentryCar.Sensitive = editing;
-			referenceDriver.Sensitive = editing;
-			referenceForwarder.Sensitive = editing;
-			referenceLogistican.Sensitive = editing;
-			datePickerDate.Sensitive = editing;
-			ycheckConfirmDifferences.Sensitive = editing &&
+			entityviewmodelentryCar.Sensitive = _editing;
+			referenceDriver.Sensitive = _editing;
+			referenceForwarder.Sensitive = _editing;
+			referenceLogistican.Sensitive = _editing;
+			datePickerDate.Sensitive = _editing;
+			ycheckConfirmDifferences.Sensitive = _editing &&
 				(Entity.Status == RouteListStatus.OnClosing || 
 				 Entity.Status == RouteListStatus.Delivered);
-			ytextClosingComment.Sensitive = editing;
-			routeListAddressesView.IsEditing = editing;
-			ycheckHideCells.Sensitive = editing;
-			routelistdiscrepancyview.Sensitive = editing;
-			buttonAddFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && editing;
-			buttonDeleteFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && editing;
-			enummenuRLActions.Sensitive = editing;
-			advanceCheckbox.Sensitive = advanceSpinbutton.Sensitive = editing;
-			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = editing;
-			buttonCalculateCash.Sensitive = editing;
-			labelWage1.Visible = editing;
-			toggleWageDetails.Sensitive = editing;
+			ytextClosingComment.Sensitive = _editing;
+			routeListAddressesView.IsEditing = _editing;
+			ycheckHideCells.Sensitive = _editing;
+			routelistdiscrepancyview.Sensitive = _editing;
+			buttonAddFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && _editing;
+			buttonDeleteFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && _editing;
+			enummenuRLActions.Sensitive = _editing;
+			advanceCheckbox.Sensitive = advanceSpinbutton.Sensitive = _editing;
+			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = _editing;
+			buttonCalculateCash.Sensitive = _editing;
+			labelWage1.Visible = _editing;
+			toggleWageDetails.Sensitive = _editing;
 			UpdateButtonState();
 		}
 
@@ -478,6 +492,7 @@ namespace Vodovoz
 							RouteListAddressesTransferringDlg.OpenParameter.Receiver,
 							employeeNomenclatureMovementRepository,
 							terminalNomenclatureProvider,
+							_routeListRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices
 						)
@@ -497,6 +512,7 @@ namespace Vodovoz
 							RouteListAddressesTransferringDlg.OpenParameter.Sender,
 							employeeNomenclatureMovementRepository,
 							terminalNomenclatureProvider,
+							_routeListRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices
 						)
@@ -764,9 +780,10 @@ namespace Vodovoz
 			}
 
 			var validationContext = new Dictionary<object, object> {
-				{ "NewStatus", RouteListStatus.MileageCheck},
-                { "cash_order_close", true},
-				{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
+				{"NewStatus", RouteListStatus.MileageCheck},
+                {"cash_order_close", true},
+				{nameof(IRouteListItemRepository), new RouteListItemRepository()},
+				{nameof(DriverTerminalCondition), _needToSelectTerminalCondition}
 			};
 			var valid = new QSValidator<RouteList>(UoWGeneric.Root, validationContext);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
