@@ -17,6 +17,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -39,6 +40,7 @@ namespace Vodovoz
 		private readonly WageParameterService _wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private readonly IRouteListRepository _routeListRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
 
@@ -56,6 +58,7 @@ namespace Vodovoz
 
 		public RouteListAddressesTransferringDlg(IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository, 
 		                                         ITerminalNomenclatureProvider terminalNomenclatureProvider,
+		                                         IRouteListRepository routeListRepository,
 												 IEmployeeService employeeService,
 												 ICommonServices commonServices)
 		{
@@ -64,6 +67,7 @@ namespace Vodovoz
 				?? throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
 			_terminalNomenclatureProvider = terminalNomenclatureProvider
 				?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			TabName = "Перенос адресов маршрутных листов";
@@ -75,8 +79,10 @@ namespace Vodovoz
 			OpenParameter param,
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
+			IRouteListRepository routeListRepository,
 			IEmployeeService employeeService,
-			ICommonServices commonServices) : this(employeeNomenclatureMovementRepository, terminalNomenclatureProvider, employeeService, commonServices)
+			ICommonServices commonServices)
+			: this(employeeNomenclatureMovementRepository, terminalNomenclatureProvider, routeListRepository, employeeService, commonServices)
 		{
 			var rl = UoW.GetById<RouteList>(routeListId);
 
@@ -522,18 +528,28 @@ namespace Vodovoz
 						MessageDialogHelper.RunErrorDialog("Вы не можете передавать терминал, т.к. его нет на балансе у водителя.", "Ошибка");
 						return;
 					}
-					
+
+					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+
+					var giveoutDocFrom = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, routeListFrom?.Driver);
+					if(giveoutDocFrom is DriverAttachedTerminalGiveoutDocument)
+					{
+						MessageDialogHelper.RunErrorDialog("Нельзя передать терминал от водителя, к которому привязан терминал.\r\n" +
+						                                   "Водителю, которому передается заказ, необходима допогрузка\r\n" +
+						                                  $"{giveoutDocFrom.GetTitle()}", "Ошибка");
+						return;
+					}
+
 					if (ObservableDriverBalanceTo.Any(x => x.NomenclatureId == _terminalNomenclatureProvider.GetNomenclatureIdForTerminal 
-														&& x.Amount > 0))
+					                                       && x.Amount > 0))
 					{
 						MessageDialogHelper.RunErrorDialog("У водителя уже есть терминал для оплаты.", "Ошибка");
 						return;
 					}
 					
 					var terminal = UoW.GetById<Nomenclature>(selectedNode.NomenclatureId);
-					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
 					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
-					
+
 					var operationFrom = new EmployeeNomenclatureMovementOperation
 					{
 						Employee = routeListFrom.Driver,
@@ -592,9 +608,18 @@ namespace Vodovoz
 						return;
 					}
 
+					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
+
+					var giveoutDocTo = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, routeListTo?.Driver);
+					if(giveoutDocTo is DriverAttachedTerminalGiveoutDocument)
+					{
+						MessageDialogHelper.RunErrorDialog("Нельзя вернуть терминал от водителя, к которому привязан терминал.\r\n" +
+						                                   $"{giveoutDocTo.GetTitle()}", "Ошибка");
+						return;
+					}
+
 					var terminal = UoW.GetById<Nomenclature>(selectedNode.NomenclatureId);
-					var routeListFrom = yentryreferenceRLTo.Subject as RouteList;
-					var routeListTo = yentryreferenceRLFrom.Subject as RouteList;
+					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
 
 					var operationFrom = new EmployeeNomenclatureMovementOperation {
 						Employee = routeListFrom.Driver,
