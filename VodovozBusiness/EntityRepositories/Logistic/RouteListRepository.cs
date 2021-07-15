@@ -426,6 +426,32 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return null;
 		}
 
+		public IList<GoodsInRouteListResultToDivide> AllGoodsLoadedDivided(IUnitOfWork uow, RouteList routeList, CarLoadDocument excludeDoc = null)
+		{
+			CarLoadDocument docAlias = null;
+			CarLoadDocumentItem docItemsAlias = null;
+			GoodsInRouteListResultToDivide inCarLoads = null;
+
+			var loadedQuery = uow.Session.QueryOver<CarLoadDocument>(() => docAlias)
+				.Where(d => d.RouteList.Id == routeList.Id);
+
+			if(excludeDoc != null)
+			{
+				loadedQuery.Where(d => d.Id != excludeDoc.Id);
+			}
+
+			var loadedlist = loadedQuery
+				.JoinAlias(d => d.Items, () => docItemsAlias)
+				.SelectList(list => list
+				   .Select(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inCarLoads.NomenclatureId)
+				   .Select(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
+				   .Select(()=> docItemsAlias.ExpireDatePercent).WithAlias(()=>inCarLoads.ExpireDatePercent)
+				   .Select(()=>docItemsAlias.OwnType).WithAlias(()=>inCarLoads.OwnType)
+				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultToDivide>())
+				.List<GoodsInRouteListResultToDivide>();
+			return loadedlist;
+		}
+		
 		public IList<GoodsInRouteListResult> AllGoodsLoaded(IUnitOfWork uow, RouteList routeList, CarLoadDocument excludeDoc = null)
 		{
 			CarLoadDocument docAlias = null;
@@ -441,8 +467,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var loadedlist = loadedQuery
 				.JoinAlias(d => d.Items, () => docItemsAlias)
 				.SelectList(list => list
-				   .SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inCarLoads.NomenclatureId)
-				   .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
+					.SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inCarLoads.NomenclatureId)
+					.SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
 				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();
 			return loadedlist;
@@ -790,6 +816,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 	{
 		public int NomenclatureId { get; set; }
 		public decimal Amount { get; set; }
+	}
+	
+	public class GoodsInRouteListResultToDivide
+	{
+		public int NomenclatureId { get; set; }
+		public decimal Amount { get; set; }
+		public decimal? ExpireDatePercent { get; set; } = null;
+		public OwnTypes OwnType { get; set; }
+		
 	}
 
 	public class GoodsInRouteListResultWithSpecialRequirements
