@@ -63,7 +63,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>22.5pt</Width>
+            <Width>20.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.8pt</Width>
@@ -75,7 +75,7 @@
             <Width>41.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.2pt</Width>
+            <Width>88.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.2pt</Width>
@@ -84,7 +84,7 @@
             <Width>47.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.3pt</Width>
+            <Width>60.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>125.9pt</Width>
@@ -407,6 +407,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
+                        <PaddingLeft >1pt</PaddingLeft>
+                        <PaddingRight >1pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -535,7 +537,12 @@
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingBottom>=Len({comment})/6+"pt"</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>

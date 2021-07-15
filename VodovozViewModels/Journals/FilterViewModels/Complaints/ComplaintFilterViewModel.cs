@@ -19,6 +19,10 @@ namespace Vodovoz.FilterViewModels
 	public class ComplaintFilterViewModel : FilterViewModelBase<ComplaintFilterViewModel>
 	{
 		private readonly ICommonServices commonServices;
+		private IList<ComplaintObject> _complaintObjectSource;
+		private ComplaintObject _complaintObject;
+		private readonly IList<ComplaintKind> _complaintKinds;
+		
 		public ISubdivisionService SubdivisionService { get; set; }
 		public IEmployeeService EmployeeService { get; set; }
 		
@@ -64,6 +68,8 @@ namespace Vodovoz.FilterViewModels
 			};
 			GuiltyItemVM.OnGuiltyItemReady += (sender, e) => Update();
 
+			_complaintKinds = complaintKindSource = UoW.GetAll<ComplaintKind>().ToList();
+
 			UpdateWith(
 				x => x.ComplaintType,
 				x => x.ComplaintStatus,
@@ -74,7 +80,8 @@ namespace Vodovoz.FilterViewModels
 				x => x.Subdivision,
 				x => x.FilterDateType,
 				x => x.ComplaintKind,
-				x => x.ComplaintDiscussionStatus
+				x => x.ComplaintDiscussionStatus,
+				x => x.ComplaintObject
 			);
 		}
 
@@ -88,6 +95,18 @@ namespace Vodovoz.FilterViewModels
 		public virtual ComplaintKind ComplaintKind {
 			get => complaintKind;
 			set => SetField(ref complaintKind, value);
+		}
+
+		public virtual ComplaintObject ComplaintObject
+		{
+			get => _complaintObject;
+			set
+			{
+				if(SetField(ref _complaintObject, value))
+				{
+					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value).ToList();
+				}
+			}
 		}
 
 		private DateFilterType filterDateType = DateFilterType.PlannedCompletionDate;
@@ -177,14 +196,14 @@ namespace Vodovoz.FilterViewModels
 			Employee = EmployeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
 		}
 
-		List<ComplaintKind> complaintKindSorce;
-		public IEnumerable<ComplaintKind> ComplaintKindSource {
-			get {
-				if(complaintKindSorce == null)
-					complaintKindSorce = UoW.GetAll<ComplaintKind>().ToList();
-				return complaintKindSorce;
-			}
+		IList<ComplaintKind> complaintKindSource;
+		public IList<ComplaintKind> ComplaintKindSource {
+			get => complaintKindSource;
+			set => SetField(ref complaintKindSource, value);
 		}
+
+		public IEnumerable<ComplaintObject> ComplaintObjectSource => 
+			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList());
 
 		public ReportInfo GetReportInfo()
 		{

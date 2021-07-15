@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using FluentNHibernate.Data;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
@@ -480,12 +482,12 @@ namespace Vodovoz
 
 		public bool CanClose()
 		{
-			var orderValidator = new QSValidator<Order>(routeListItem.Order,
-				new Dictionary<object, object> {
-				{ "NewStatus", OrderStatus.Closed },
+			IOrderParametersProvider orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
+			ValidationContext validationContext = new ValidationContext(routeListItem.Order,null, new Dictionary<object, object>{
+					{ "NewStatus", OrderStatus.Closed },
 				{ "AddressStatus", routeListItem.Status }});
-			routeListItem.AddressIsValid = orderValidator.IsValid;
-			orderValidator.RunDlgIfNotValid((Window)this.Toplevel);
+			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
+			routeListItem.AddressIsValid = ServicesConfig.ValidationService.Validate(routeListItem.Order, validationContext);
 			routeListItem.Order.CheckAndSetOrderIsService();
 			orderEquipmentItemsView.UnsubscribeOnEquipmentAdd();
 			//Не блокируем закрытие вкладки

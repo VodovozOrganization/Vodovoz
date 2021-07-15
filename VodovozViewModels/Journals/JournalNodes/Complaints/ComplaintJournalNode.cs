@@ -70,5 +70,7 @@ namespace Vodovoz.Journals.JournalNodes
 			get => ComplaintKindIsArchive ? string.Format("(Архив) {0}", complaintKindString) : complaintKindString;
 			set => complaintKindString = value;
 		}
+
+		public string ComplaintObjectString { get; set; }
 	}
 }

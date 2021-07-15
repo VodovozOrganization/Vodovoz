@@ -3,6 +3,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using Vodovoz.Infrastructure.Mango;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Mango.Talks
 {
@@ -12,7 +13,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IUnitOfWork UoW;
 		private readonly ITdiCompatibilityNavigation tdiCompatibilityNavigation;
 		private readonly IInteractiveQuestion interactive;
-
 
 		public InternalTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory,
 			ITdiCompatibilityNavigation navigation,

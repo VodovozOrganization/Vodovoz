@@ -4,6 +4,7 @@ using System.Linq;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -33,6 +34,9 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
+		private IList<ComplaintObject> _complaintObjectSource;
+		private ComplaintObject _complaintObject;
+		private readonly IList<ComplaintKind> _complaintKinds;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
@@ -96,6 +100,11 @@ namespace Vodovoz.ViewModels.Complaints
 			ConfigureEntityChangingRelations();
 
 			CreateCommands();
+
+			_complaintKinds = complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
+
+			ComplaintObject = Entity.ComplaintKind?.ComplaintObject;
+
 			TabName = $"Рекламация №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
 		}
 
@@ -263,17 +272,34 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		List<ComplaintKind> complaintKindSource;
-		public IEnumerable<ComplaintKind> ComplaintKindSource {
+		IList<ComplaintKind> complaintKindSource;
+		public IList<ComplaintKind> ComplaintKindSource {
 			get {
-				if(complaintKindSource == null)
-					complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 				if(Entity.ComplaintKind != null && Entity.ComplaintKind.IsArchive)
 					complaintKindSource.Add(UoW.GetById<ComplaintKind>(Entity.ComplaintKind.Id));
 
 				return complaintKindSource;
 			}
+			set
+			{
+				SetField(ref complaintKindSource, value);
+			}
 		}
+
+		public virtual ComplaintObject ComplaintObject
+		{
+			get => _complaintObject;
+			set
+			{
+				if(SetField(ref _complaintObject, value))
+				{
+					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value).ToList();
+				}
+			}
+		}
+
+		public IEnumerable<ComplaintObject> ComplaintObjectSource =>
+			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList());
 
 		public IList<FineItem> FineItems => Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
 
@@ -373,5 +399,25 @@ namespace Vodovoz.ViewModels.Complaints
 		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 		public IGtkTabsOpener GtkDialogsOpener { get; }
 		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
+
+		public override void Close(bool askSave, CloseSource source)
+		{
+			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
+			{
+				return;
+			}
+			
+			base.Close(askSave, source);
+		}
+
+		public override bool Save(bool close)
+		{
+			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
+			{
+				return false;
+			}
+			
+			return base.Save(close);
+		}
 	}
 }
