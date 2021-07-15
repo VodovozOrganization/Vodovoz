@@ -157,21 +157,20 @@ namespace Vodovoz.Domain.Documents
 				return;
 
 			var inLoaded = routeListRepository.AllGoodsLoadedDivided(uow, RouteList, this);
-
+			if(inLoaded.Count == 0)
+			{
+				return;
+			}
+			
 			foreach(var item in Items)
 			{
-				if(inLoaded != null)
+				var found = inLoaded.FirstOrDefault(x => 
+					x.NomenclatureId == item.Nomenclature.Id 
+					&& x.OwnType == item.OwnType 
+					&& x.ExpireDatePercent == item.ExpireDatePercent);
+				if(found != null)
 				{
-					foreach(var found in inLoaded)
-					{
-						if(item.Nomenclature.Id == found.NomenclatureId)
-						{
-							if(item.OwnType == found.OwnType && item.ExpireDatePercent == found.ExpireDatePercent)
-							{
-								item.AmountLoaded = found.Amount;
-							}
-						} 
-					}
+					item.AmountLoaded += found.Amount;
 				}
 			}
 		}

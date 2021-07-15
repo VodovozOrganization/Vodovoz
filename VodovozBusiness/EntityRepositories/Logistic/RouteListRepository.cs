@@ -443,10 +443,10 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var loadedlist = loadedQuery
 				.JoinAlias(d => d.Items, () => docItemsAlias)
 				.SelectList(list => list
-				   .Select(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inCarLoads.NomenclatureId)
-				   .Select(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
-				   .Select(()=> docItemsAlias.ExpireDatePercent).WithAlias(()=>inCarLoads.ExpireDatePercent)
-				   .Select(()=>docItemsAlias.OwnType).WithAlias(()=>inCarLoads.OwnType)
+					.SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inCarLoads.NomenclatureId)
+				    .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
+				    .SelectGroup(() => docItemsAlias.ExpireDatePercent).WithAlias(() => inCarLoads.ExpireDatePercent)
+				    .SelectGroup(() => docItemsAlias.OwnType).WithAlias(() => inCarLoads.OwnType)
 				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultToDivide>())
 				.List<GoodsInRouteListResultToDivide>();
 			return loadedlist;
@@ -824,7 +824,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public decimal Amount { get; set; }
 		public decimal? ExpireDatePercent { get; set; } = null;
 		public OwnTypes OwnType { get; set; }
-		
 	}
 
 	public class GoodsInRouteListResultWithSpecialRequirements
