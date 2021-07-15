@@ -35,6 +35,7 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
@@ -939,6 +940,7 @@ namespace Vodovoz
 				this as ITdiTab,
 				employeeRepository,
 				new WarehouseRepository(),
+				new RouteListRepository(),
 				ServicesConfig.CommonServices,
 				UoW
 			);

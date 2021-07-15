@@ -14,6 +14,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -32,6 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly ICommonServices _commonServices;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWarehouseRepository _warehouseRepository;
+		private readonly IRouteListRepository _routeListRepository;
 		private Fine _fine;
 		private string _title;
 		private int _terminalId;
@@ -44,6 +46,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			ITdiTab parentTab,
 			IEmployeeRepository employeeRepository,
 			IWarehouseRepository warehouseRepository,
+			IRouteListRepository routeListRepository,
 			ICommonServices commonServices,
 			IUnitOfWork uow)
 		{
@@ -54,14 +57,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_defaultWarehouse = defaultWarehouse ?? throw new ArgumentNullException(nameof(defaultWarehouse));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 
 			_author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			UpdateEntityAndRelatedProperties(
 				_driver.Id > 0
-				? _employeeRepository.GetLastTerminalDocumentForEmployee(UoW, _driver)
+				? _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, _driver)
 				: null, false);
-			_canManageTerminal = _commonServices.CurrentPermissionService.ValidatePresetPermission("logistican") ||
-			                     _commonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+			_canManageTerminal = _commonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 		}
 
 		#region Свойства
@@ -112,7 +115,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			if(!RunChecksBeforeExecution()) {return;}
 			if(HasChanges && _entity is DriverAttachedTerminalGiveoutDocument)
 			{
-				UpdateEntityAndRelatedProperties(_employeeRepository.GetLastTerminalDocumentForEmployee(UoW, _driver), false);
+				UpdateEntityAndRelatedProperties(_routeListRepository.GetLastTerminalDocumentForEmployee(UoW, _driver), false);
 			}
 			else
 			{
@@ -199,7 +202,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			if(!_canManageTerminal)
 			{
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-					"Нет прав кассира или логиста для управления терминалом водителя");
+					"Нет прав кассира для управления терминалом водителя");
 				return false;
 			}
 
