@@ -1,8 +1,10 @@
 ﻿using QS.Dialog.Gtk;
 using QS.Tdi;
+using System;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
 namespace Vodovoz.Dialogs.OrderWidgets
 {
@@ -30,6 +32,14 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				DialogHelper.GenerateDialogHashName<UndeliveredOrder>(id),
 				() => id > 0 ? new UndeliveredOrderDlg(id) : new UndeliveredOrderDlg()
 			);
+		}
+
+		public ITdiTab OpenUndeliveriesWithCommentsPrintDlg(ITdiTab tab, UndeliveredOrdersFilterViewModel filter)
+		{
+			return tab.TabParent.OpenTab(
+					nameof(UndeliveriesWithCommentsPrintDlg),
+					() => new UndeliveriesWithCommentsPrintDlg(filter)
+					);
 		}
 	}
 }
