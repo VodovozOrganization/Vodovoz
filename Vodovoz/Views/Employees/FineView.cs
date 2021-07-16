@@ -66,7 +66,7 @@ namespace Vodovoz.Views.Employees
 			ytreeviewItems.Binding.AddBinding(ViewModel.Entity, e => e.ObservableItems, w => w.ItemsDataSource).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 		}
 
 		private FineItem GetSelectedFineItem()

@@ -114,6 +114,7 @@ using QS.BaseParameters;
 using QS.BaseParameters.ViewModels;
 using QS.BaseParameters.Views;
 using QS.ChangePassword.Views;
+using QS.Dialog;
 using QS.Project.Repositories;
 using QS.ViewModels;
 using Vodovoz.ReportsParameters.Employees;
@@ -121,9 +122,14 @@ using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -482,8 +488,15 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionDiscountReasonsActivated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(DiscountReason));
-        tdiMain.AddTab(refWin);
+	    tdiMain.OpenTab(
+		    () =>
+		    {
+			    return new DiscountReasonJournalViewModel(
+				    UnitOfWorkFactory.GetDefaultFactory,
+				    ServicesConfig.CommonServices
+			    );
+		    }
+	    );
     }
 
     protected void OnActionColorsActivated(object sender, EventArgs e)
@@ -883,7 +896,13 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionComplaintsActivated(object sender, EventArgs e)
     {
-        IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
+	    SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
+	    {
+		    SubdivisionType = SubdivisionType.Default
+	    };
+	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+
+	    IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
 
         var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
@@ -910,7 +929,7 @@ public partial class MainWindow : Gtk.Window
                 return new ComplaintsJournalViewModel(
                     UnitOfWorkFactory.GetDefaultFactory,
                     ServicesConfig.CommonServices,
-                    undeliveriesViewOpener,
+                    undeliveredOrdersJournalOpener,
                     VodovozGtkServicesConfig.EmployeeService,
                     employeeSelectorFactory,
                     counterpartySelectorFactory,
@@ -931,7 +950,12 @@ public partial class MainWindow : Gtk.Window
                     new GtkReportViewOpener(),
                     new GtkTabsOpener(),
                     nomenclatureRepository,
-                    UserSingletonRepository.GetInstance()
+                    UserSingletonRepository.GetInstance(),
+                    new OrderSelectorFactory(),
+                    new EmployeeJournalFactory(),
+                    new CounterpartyJournalFactory(),
+                    new DeliveryPointJournalFactory(),
+                    subdivisionJournalFactory
                 );
             }
         );
@@ -1512,9 +1536,14 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionFirstClientsActivated(object sender, EventArgs e)
     {
+	    var districtFilter = new DistrictJournalFilterViewModel{Status = DistrictsSetStatus.Active};
+
+	    var districtSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District),
+		    () => new DistrictJournalViewModel(districtFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+	    
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
-            () => new QSReport.ReportViewDlg(new FirstClientsReport())
+            () => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory))
         );
     }
 
@@ -2018,7 +2047,13 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
     {
-        IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
+	    SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
+	    {
+		    SubdivisionType = SubdivisionType.Default
+	    };
+	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+
+	    IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
 
         var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
@@ -2045,7 +2080,7 @@ public partial class MainWindow : Gtk.Window
                 return new ComplaintsJournalViewModel(
                     UnitOfWorkFactory.GetDefaultFactory,
                     ServicesConfig.CommonServices,
-                    undeliveriesViewOpener,
+                    undeliveredOrdersJournalOpener,
                     VodovozGtkServicesConfig.EmployeeService,
                     employeeSelectorFactory,
                     counterpartySelectorFactory,
@@ -2064,7 +2099,12 @@ public partial class MainWindow : Gtk.Window
                     new GtkReportViewOpener(),
                     new GtkTabsOpener(),
                     nomenclatureRepository,
-                    UserSingletonRepository.GetInstance()
+                    UserSingletonRepository.GetInstance(),
+                    new OrderSelectorFactory(),
+                    new EmployeeJournalFactory(),
+                    new CounterpartyJournalFactory(),
+                    new DeliveryPointJournalFactory(),
+                    subdivisionJournalFactory
                 );
             }
         );
@@ -2087,7 +2127,13 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
     {
-        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+	    SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
+	    {
+		    SubdivisionType = SubdivisionType.Default
+	    };
+	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+
+	    var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
         IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
@@ -2107,7 +2153,14 @@ public partial class MainWindow : Gtk.Window
                     nomenclatureSelectorFactory,
                     counterpartySelectorFactory,
                     nomenclatureRepository,
-                    UserSingletonRepository.GetInstance()
+                    UserSingletonRepository.GetInstance(),
+                    new OrderSelectorFactory(),
+                    new EmployeeJournalFactory(),
+                    new CounterpartyJournalFactory(),
+                    new DeliveryPointJournalFactory(),
+                    new SubdivisionJournalFactory(),
+                    new GtkTabsOpener(),
+                    new UndeliveredOrdersJournalOpener()
             )
         );
     }
@@ -2154,39 +2207,12 @@ public partial class MainWindow : Gtk.Window
 				}
 			);
 
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Logistic.CarsExploitationReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Logistic.CarsExploitationReport(
-				UnitOfWorkFactory.GetDefaultFactory,
-				carEntityAutocompleteSelectorFactory,
-				new BaseParametersProvider(),
-				ServicesConfig.InteractiveService))
-		);
+		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+		var interactiveService = autofacScope.Resolve<IInteractiveService>();
 
-		//IEntityAutocompleteSelectorFactory carEntityAutocompleteSelectorFactory
-		//	= new EntityAutocompleteSelectorFactory<CarJournalViewModel>(typeof(Car),
-		//		() =>
-		//		{
-		//			var filter = new CarJournalFilterViewModel
-		//			{
-		//				IncludeArchive = false,
-		//				VisitingMasters = AllYesNo.No,
-		//				RestrictedCarTypesOfUse = new List<CarTypeOfUse>(
-		//					new[] { CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.DriverCar })
-		//			};
-		//			filter.SetFilterSensitivity(false);
-		//			filter.CanChangeRaskat = true;
-		//			return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-		//				ServicesConfig.CommonServices);
-		//		}
-		//	);
+		var viewModel = new CarsExploitationReportViewModel(uowFactory, interactiveService, NavigationManager, new BaseParametersProvider(), carEntityAutocompleteSelectorFactory);
 
-		//var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
-		//var interactiveService = autofacScope.Resolve<IInteractiveService>();
-
-		//var viewModel = new CarsExploitationReportViewModel(uowFactory, interactiveService, NavigationManager, new BaseParametersProvider(), carEntityAutocompleteSelectorFactory);
-
-		//tdiMain.AddTab(viewModel);
+		tdiMain.AddTab(viewModel);
 	}
 
     protected void OnActionDriverCarKindActivated(object sender, EventArgs e)
@@ -2385,5 +2411,12 @@ public partial class MainWindow : Gtk.Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices)
 		);
+	}
+
+	protected void OnActionDriversComplaintReasonsJournalActivated(object sender, EventArgs e)
+	{
+		var driversComplaintReasonsFilter = new DriverComplaintReasonJournalFilterViewModel();
+		var driversComplaintReasonsJournal = new DriverComplaintReasonsJournalViewModel(driversComplaintReasonsFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(driversComplaintReasonsJournal);
 	}
 }

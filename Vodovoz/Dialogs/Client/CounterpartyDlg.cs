@@ -47,8 +47,11 @@ using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels;
+using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
 using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepository;
@@ -69,18 +72,18 @@ namespace Vodovoz
         private bool deliveryPointsConfigured = false;
         private bool documentsConfigured = false;
         
-        private IUndeliveriesViewOpener undeliveriesViewOpener;
+        private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 
-        public virtual IUndeliveriesViewOpener UndeliveriesViewOpener
+        public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener
         {
 	        get
 	        {
-		        if (undeliveriesViewOpener is null)
+		        if (_undeliveredOrdersJournalOpener is null)
 		        {
-			        undeliveriesViewOpener = new UndeliveriesViewOpener();
+			        _undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
 		        }
 
-		        return undeliveriesViewOpener;
+		        return _undeliveredOrdersJournalOpener;
 	        }
         }
 
@@ -701,6 +704,12 @@ namespace Vodovoz
 
         void AllOrders_Activated(object sender, EventArgs e)
         {
+	        SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
+	        {
+		        SubdivisionType = SubdivisionType.Default
+	        };
+	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+
 	        var orderJournalFilter = new OrderJournalFilterViewModel { RestrictCounterparty = Entity };
 	        var orderJournalViewModel = new OrderJournalViewModel(
 		        orderJournalFilter,
@@ -710,21 +719,34 @@ namespace Vodovoz
 		        nomenclatureSelectorFactory,
 		        counterpartySelectorFactory,
 		        nomenclatureRepository,
-		        userRepository
-	        );
+		        userRepository,
+		        new OrderSelectorFactory(),
+		        new EmployeeJournalFactory(),
+		        new CounterpartyJournalFactory(),
+		        new DeliveryPointJournalFactory(),
+		        subdivisionJournalFactory,
+		        new GtkTabsOpener(),
+		        new UndeliveredOrdersJournalOpener()
+			);
 
 	        TabParent.AddTab(orderJournalViewModel, this, false);
         }
         
         private void ComplaintViewOnActivated(object sender, EventArgs e)
         {
+	        SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
+	        {
+		        SubdivisionType = SubdivisionType.Default
+	        };
+	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+
 	        var filter = new ComplaintFilterViewModel(ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
 	        filter.SetAndRefilterAtOnce(x=> x.Counterparty = Entity);
 	        
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
-		        UndeliveriesViewOpener,
+		        UndeliveredOrdersJournalOpener,
 		        employeeService,
 		        EmployeeSelectorFactory,
 		        CounterpartySelectorFactory,
@@ -737,7 +759,12 @@ namespace Vodovoz
 		        new GtkReportViewOpener(),
 		        new GtkTabsOpener(),
 		        NomenclatureRepository,
-		        userRepository
+		        userRepository,
+		        new OrderSelectorFactory(),
+		        new EmployeeJournalFactory(),
+		        new CounterpartyJournalFactory(),
+		        new DeliveryPointJournalFactory(),
+		        subdivisionJournalFactory
 	        );
 	        
 	        TabParent.AddTab(complaintsJournalViewModel, this, false);

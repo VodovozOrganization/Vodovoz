@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,6 +7,7 @@ using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NLog;
 using QS.DomainModel.UoW;
+using SmsPaymentService.DTO;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -19,13 +20,15 @@ namespace SmsPaymentService
     {
         public SmsPaymentService(
             IPaymentController paymentController, 
-            IDriverPaymentService androidDriverService, 
+            IDriverPaymentService androidDriverService,
+            ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever,
             IOrderParametersProvider orderParametersProvider,
             SmsPaymentFileCache smsPaymentFileCache
         )
         {
             this.paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
             this.androidDriverService = androidDriverService ?? throw new ArgumentNullException(nameof(androidDriverService));
+            this.smsPaymentStatusNotificationReciever = smsPaymentStatusNotificationReciever ?? throw new ArgumentNullException(nameof(smsPaymentStatusNotificationReciever));
             this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             this.smsPaymentFileCache = smsPaymentFileCache ?? throw new ArgumentNullException(nameof(smsPaymentFileCache));
         }
@@ -33,6 +36,7 @@ namespace SmsPaymentService
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IPaymentController paymentController;
 		private readonly IDriverPaymentService androidDriverService;
+        private readonly ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever;
         private readonly IOrderParametersProvider orderParametersProvider;
         private readonly SmsPaymentFileCache smsPaymentFileCache;
         private readonly SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory();
@@ -83,7 +87,7 @@ namespace SmsPaymentService
                         logger.Error("Запрос на отправку платежа пришёл без товаров на продажу");
                         return new PaymentResult("Нельзя отправить платеж на заказ, в котором нет товаров на продажу");
                     }
-                    if(newPayment.Amount <= 1) {
+                    if(newPayment.Amount < 1) {
                         logger.Error("Запрос на отправку платежа пришёл с суммой заказа меньше 1 рубля");
                         return new PaymentResult("Нельзя отправить платеж на заказ, сумма которого меньше 1 рубля");
                     }
@@ -122,8 +126,13 @@ namespace SmsPaymentService
             }
             return new PaymentResult(SmsPaymentStatus.WaitingForPayment);
         }
-        
-		public StatusCode ReceivePayment(RequestBody body)
+
+        public PaymentResult SendPaymentPost(SendPaymentRequest sendPaymentRequest)
+        {
+            return SendPayment(sendPaymentRequest.OrderId, sendPaymentRequest.PhoneNumber);
+        }
+
+        public StatusCode ReceivePayment(RequestBody body)
         {
             int orderId;
             int externalId = 0;
@@ -211,6 +220,15 @@ namespace SmsPaymentService
 			}
 			catch(Exception ex) {
 				logger.Error(ex, $"Не получилось уведомить службу водителей об обновлении статуса заказа");
+			}
+
+			try
+			{
+				smsPaymentStatusNotificationReciever.NotifyOfSmsPaymentStatusChanged(orderId).Wait();
+			}
+			catch(Exception ex)
+			{
+				logger.Error(ex, $"Не получилось уведомить DriverAPI об обновлении статуса заказа");
 			}
 
 			return new StatusCode(HttpStatusCode.OK);

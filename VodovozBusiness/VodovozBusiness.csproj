@@ -62,6 +62,8 @@
     <Compile Include="Domain\Client\CounterpartyFile.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransferDocument.cs" />
     <Compile Include="Domain\Documents\DocumentPrintHistory.cs" />
+    <Compile Include="Domain\Client\DeliveryPointEstimatedCoordinate.cs" />
+    <Compile Include="Domain\Complaints\DriverComplaintReason.cs" />
     <Compile Include="Domain\Documents\WayBillDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocumentItem.cs" />
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />
@@ -106,6 +108,7 @@
     <Compile Include="Domain\Logistic\OrdersCountNode.cs" />
     <Compile Include="Domain\Logistic\CarEventType.cs" />
     <Compile Include="Domain\Logistic\UndeliveryOrderNode.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionRecord.cs" />
     <Compile Include="Domain\Operations\OrganisationCashMovementOperation.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceController.cs" />
     <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
@@ -125,6 +128,7 @@
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
     <Compile Include="Domain\Security\RegisteredRM.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItem.cs" />
@@ -134,7 +138,9 @@
     <Compile Include="Domain\Logistic\Drivers\DriverDistrictPrioritySet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWorkSchedule.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWorkScheduleSet.cs" />
+    <Compile Include="EntityRepositories\Logistic\ITrackRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IWayBillDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\TrackRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\WayBillDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Cash\IRouteListItemCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Cash\RouteListItemCashDistributionDocumentRepository.cs" />
@@ -151,9 +157,11 @@
     <Compile Include="EntityRepositories\Orders\ExtendedReceiptForOrderNode.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\DriverComplaintReasonMap.cs" />
     <Compile Include="HibernateMapping\Cash\OrganizationCashTransferDocumentMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyFileMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\DeliveryPointEstimatedCoordinateMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DocumentPrintHistoryMap.cs" />
@@ -171,6 +179,7 @@
     <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DriverCarKindMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Drivers\DriverMobileAppActionRecordMap.cs" />
     <Compile Include="HibernateMapping\Logistic\LateArrivalReasonMap.cs" />
     <Compile Include="HibernateMapping\Logistic\CarEventTypeMap.cs" />
     <Compile Include="HibernateMapping\Operations\CashDistributionOperationMap.cs" />
@@ -205,6 +214,7 @@
     <Compile Include="Models\Stage2OrganizationProvider.cs" />
     <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
+    <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
@@ -213,6 +223,7 @@
     <Compile Include="Parameters\NomenclaturePlanParametersProvider.cs" />
     <Compile Include="Parameters\OrderParametersProvider.cs" />
     <Compile Include="Parameters\OrganizationParametersProvider.cs" />
+    <Compile Include="Parameters\ParametersProvider.cs" />
     <Compile Include="Parameters\ReportDefaultsProvider.cs" />
     <Compile Include="Parameters\PremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="Parameters\RouteListParametersProvider.cs" />
@@ -471,6 +482,7 @@
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="HibernateMapping\Documents\TransferOperationDocumentMap.cs" />
     <Compile Include="Services\ICashDistributionCommonOrganisationProvider.cs" />
+    <Compile Include="Services\IDeliveryRulesParametersProvider.cs" />
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IOrganizationCashTransferDocumentParametersProvider.cs" />
@@ -482,6 +494,8 @@
     <Compile Include="Services\ISalesReceiptsParametersProvider.cs" />
     <Compile Include="Services\ITabsParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
+    <Compile Include="Services\IDriverApiParametersProvider.cs" />
+    <Compile Include="Services\DriverApiParametersProvider.cs" />
     <Compile Include="Tools\LoggedMySqlClientDriver.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="HibernateMapping\Service\CullingCategoryMap.cs" />
@@ -1054,6 +1068,10 @@
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
       <Project>{D0C39D9D-BED0-418B-9A5E-713176CAF40C}</Project>
       <Name>GMap.NET.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
+      <Name>QS.Project.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>

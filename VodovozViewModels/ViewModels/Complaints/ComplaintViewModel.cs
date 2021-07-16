@@ -4,6 +4,7 @@ using System.Linq;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -21,13 +22,15 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
 		private readonly ICommonServices commonServices;
-		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
+		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
@@ -42,7 +45,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			IUndeliveriesViewOpener undeliveryViewOpener,
+			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
@@ -50,7 +53,14 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionRepository subdivisionRepository,
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository
+			IUserRepository userRepository,
+			IOrderSelectorFactory orderSelectorFactory,
+			IEmployeeJournalFactory driverJournalFactory, 
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IGtkTabsOpener gtkDialogsOpener,
+			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener
 			) : base(uowBuilder, uowFactory, commonServices)
 		{
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
@@ -63,6 +73,15 @@ namespace Vodovoz.ViewModels.Complaints
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+
+			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
+			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
+			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
+			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			GtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
+			UndeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
@@ -347,5 +366,33 @@ namespace Vodovoz.ViewModels.Complaints
 		#endregion AddFineCommand
 
 		#endregion Commands
+
+		public IOrderSelectorFactory OrderSelectorFactory { get; }
+		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
+		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
+		public IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
+		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
+		public IGtkTabsOpener GtkDialogsOpener { get; }
+		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
+
+		public override void Close(bool askSave, CloseSource source)
+		{
+			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
+			{
+				return;
+			}
+			
+			base.Close(askSave, source);
+		}
+
+		public override bool Save(bool close)
+		{
+			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
+			{
+				return false;
+			}
+			
+			return base.Save(close);
+		}
 	}
 }

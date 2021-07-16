@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
@@ -204,6 +206,120 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			return src.WageCalculationMethodic ?? wageParameterItem.WageDistrictLevelRates
 															   .LevelRates
 															   .FirstOrDefault(r => r.WageDistrict == src.WageDistrictOfAddress);
+		}
+
+		public RouteListItemWageCalculationDetails GetWageCalculationDetailsForRouteListItem(IRouteListItemWageCalculationSource src)
+		{
+			RouteListItemWageCalculationDetails addressWageDetails = new RouteListItemWageCalculationDetails()
+			{
+				RouteListItemWageCalculationName = wageParameterItem.Title,
+				WageCalculationEmployeeCategory = src.EmployeeCategory
+			};
+
+			if(!src.IsValidForWageCalculation)
+			{
+				return addressWageDetails;
+			}
+
+
+			IList<WageRate> wageRates = GetCurrentWageDistrictLevelRate(src).WageRates;
+
+			if(!src.HasFirstOrderForDeliveryPoint)
+			{
+				addressWageDetails.WageCalculationDetailsList.Add(
+					new WageCalculationDetailsItem()
+					{
+						Name = $"Не первый заказ на точку доставки",
+					});
+			}
+			else
+			{
+				var rateAddress = wageRates.FirstOrDefault(r =>
+					r.WageRateType == (src.IsDriverForeignDistrict ? WageRateTypes.ForeignAddress : WageRateTypes.Address));
+				if(rateAddress != null)
+				{
+					addressWageDetails.WageCalculationDetailsList.Add(
+						new WageCalculationDetailsItem()
+						{
+							Name = $"{rateAddress.WageRateType.GetEnumTitle()}",
+							Count = 1,
+							Price = GetRateValue(src, rateAddress)
+						});
+				}
+			}
+
+			bool addressWithBigOrder = HasBigOrder(src);
+			var rateFullBottle19L = wageRates
+				.FirstOrDefault(r => r.WageRateType == (addressWithBigOrder ? WageRateTypes.Bottle19LInBigOrder : WageRateTypes.Bottle19L));
+			var priceFullBottle19L = GetRateValue(src, rateFullBottle19L);
+			if(priceFullBottle19L * src.FullBottle19LCount > 0)
+			{
+				addressWageDetails.WageCalculationDetailsList.Add(
+					new WageCalculationDetailsItem()
+					{
+						Name = rateFullBottle19L.WageRateType.GetEnumTitle(),
+						Count = src.FullBottle19LCount,
+						Price = priceFullBottle19L
+					});
+			}
+			else
+			{
+				if(src.NeedTakeOrDeliverEquipment)
+				{
+					addressWageDetails.WageCalculationDetailsList.Add(
+						new WageCalculationDetailsItem()
+						{
+							Name = WageRateTypes.Equipment.GetEnumTitle(),
+							Count = 1,
+							Price = GetRateValue(src, wageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Equipment))
+						});
+				}
+			}
+
+			addressWageDetails.WageCalculationDetailsList.Add(
+				new WageCalculationDetailsItem()
+				{
+					Name = addressWithBigOrder ? WageRateTypes.EmptyBottle19LInBigOrder.GetEnumTitle() : WageRateTypes.EmptyBottle19L.GetEnumTitle(),
+					Count = src.EmptyBottle19LCount,
+					Price = GetRateValue(src,
+						wageRates
+							.FirstOrDefault(r => r.WageRateType == (addressWithBigOrder ? WageRateTypes.EmptyBottle19LInBigOrder : WageRateTypes.EmptyBottle19L))
+						)
+				});
+
+			addressWageDetails.WageCalculationDetailsList.Add(
+				new WageCalculationDetailsItem()
+				{
+					Name = WageRateTypes.PackOfBottles600ml.GetEnumTitle(),
+					Count = src.Bottle600mlCount,
+					Price = GetRateValue(src, wageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.PackOfBottles600ml)) / 36
+				});
+
+			addressWageDetails.WageCalculationDetailsList.Add(
+				new WageCalculationDetailsItem()
+				{
+					Name = WageRateTypes.Bottle6L.GetEnumTitle(),
+					Count = src.Bottle6LCount,
+					Price = GetRateValue(src, wageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Bottle6L))
+				});
+
+			addressWageDetails.WageCalculationDetailsList.Add(
+				new WageCalculationDetailsItem()
+				{
+					Name = WageRateTypes.Bottle1500ml.GetEnumTitle(),
+					Count = src.Bottle1500mlCount,
+					Price = GetRateValue(src, wageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Bottle1500ml))
+				});
+
+			addressWageDetails.WageCalculationDetailsList.Add(
+				new WageCalculationDetailsItem()
+				{
+					Name = WageRateTypes.Bottle500ml.GetEnumTitle(),
+					Count = src.Bottle500mlCount,
+					Price = GetRateValue(src, wageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Bottle500ml))
+				});
+
+			return addressWageDetails;
 		}
 	}
 }

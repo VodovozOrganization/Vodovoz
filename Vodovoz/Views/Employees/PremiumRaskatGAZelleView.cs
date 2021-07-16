@@ -22,7 +22,7 @@ namespace Vodovoz.Views.Employees
 			ylabelPremiumEmployee.Binding.AddFuncBinding(ViewModel, vm => vm.EmployeeFullName,
 				w => w.LabelProp).InitializeFromSource();
 			
-			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
 		}
 	}
 }

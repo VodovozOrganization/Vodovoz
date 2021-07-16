@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -207,6 +208,14 @@ namespace Vodovoz.Domain.Logistic
 		public virtual DateTime? ClosingDate {
 			get => closingDate;
 			set => SetField(ref closingDate, value, () => ClosingDate);
+		}
+
+		private DateTime? _firstClosingDate;
+		[Display(Name = "Дата первого закрытия")]
+		[HistoryDateOnly]
+		public virtual DateTime? FirstClosingDate {
+			get => _firstClosingDate;
+			set => SetField(ref _firstClosingDate, value);
 		}
 
 		string closingComment;
@@ -1119,10 +1128,17 @@ namespace Vodovoz.Domain.Logistic
 
 		private void UpdateClosedInformation()
 		{
-			if(Status == RouteListStatus.Closed) {
+			if(Status == RouteListStatus.Closed)
+			{
 				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 				ClosingDate = DateTime.Now;
-			} else {
+				if(!FirstClosingDate.HasValue)
+				{
+					FirstClosingDate = DateTime.Now;
+				}
+			}
+			else
+			{
 				ClosedBy = null;
 				ClosingDate = null;
 			}
@@ -1268,6 +1284,12 @@ namespace Vodovoz.Domain.Logistic
 			if(Car == null)
 				yield return new ValidationResult("На заполнен автомобиль.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car) });
+
+			if(MileageComment?.Length > 500)
+			{
+				yield return new ValidationResult($"Превышена длина комментария к километражу ({MileageComment.Length}/500)",
+					new[] { nameof(MileageComment) });
+			}
 		}
 
 		#endregion
@@ -2218,6 +2240,108 @@ namespace Vodovoz.Domain.Logistic
 		IRouteListWageCalculationSource DriverWageCalculationSrc => new RouteListWageCalculationSource(this, EmployeeCategory.driver);
 
 		IRouteListWageCalculationSource ForwarderWageCalculationSrc => new RouteListWageCalculationSource(this, EmployeeCategory.forwarder);
+
+		private string CreateWageCalculationDetailsTextForAddress(RouteListItemWageCalculationDetails addressWageDetails, RouteListItem address,
+			EmployeeCategory employeeCategory, string carOwner)
+		{
+			if(addressWageDetails == null)
+			{
+				return "";
+			}
+
+			string addressDetailsText =
+				$"{ addressWageDetails.RouteListItemWageCalculationName } ({ carOwner }), адрес №{ address.Id }, заказ №{ address.Order.Id }" +
+				$", категория \"{ employeeCategory.GetEnumTitle() }\":\n";
+
+			var wageRateTypeTitles = Enum.GetValues(typeof(WageRateTypes)).OfType<WageRateTypes>().Select(w => w.GetEnumTitle());
+
+			addressDetailsText += string.Join("\n",
+				addressWageDetails.WageCalculationDetailsList
+					.Where(d => d.Count > 0 || !wageRateTypeTitles.Contains(d.Name))
+					.Select(d =>
+					{
+						var s = $"- {d.Name}";
+						if(wageRateTypeTitles.Contains(d.Name))
+						{
+							if(d.Name == WageRateTypes.PackOfBottles600ml.GetEnumTitle())
+							{
+								s += $" = { decimal.Round(d.Price, 2) } руб. * {d.Count} шт. = { Math.Truncate(d.Price * d.Count) } руб.";
+							}
+							else
+							{
+								s += $" = { decimal.Round(d.Price, 2) } руб. * {d.Count} шт. = { decimal.Round(d.Price * d.Count, 2) } руб.";
+							}
+						}
+
+						return s;
+					})
+				);
+
+			var adsressSum = addressWageDetails.WageCalculationDetailsList.Sum(d =>
+			{
+				return d.Name == WageRateTypes.PackOfBottles600ml.GetEnumTitle() ? Math.Truncate(d.Price * d.Count) : decimal.Round(d.Price * d.Count, 2);
+			});
+
+			addressDetailsText += $"\nИтого за адрес: { Math.Round(adsressSum, 2) } руб.\n\n";
+
+			return addressDetailsText;
+		}
+
+		public virtual string GetWageCalculationDetails(WageParameterService wageParameterService)
+		{
+			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
+			var routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
+
+			List<RouteListItemWageCalculationDetails> addressWageDetailsList = new List<RouteListItemWageCalculationDetails>();
+
+			string resultTextDriver = "ЗП водителя:\n\n";
+			string resultTextForwarder = "\n\nЗП экспедитора:\n\n";
+
+			string carOwner = DriverWageCalculationSrc.DriverOfOurCar ? "автомобиль компании" : "автомобиль водителя";
+
+			if(routeListDriverWageCalculationService is RouteListWageCalculationService service
+			   && service.GetWageCalculationService is RouteListFixedWageCalculationService)
+			{
+				resultTextDriver +=  $"Расчёт ЗП с фиксированной суммой за МЛ ({ carOwner }) = { routeListDriverWageCalculationService.CalculateWage().FixedWage } руб.";
+				return resultTextDriver;
+			}
+
+			foreach(var address in addresses)
+			{
+				var driverAddressWageDetails = routeListDriverWageCalculationService?
+					.GetWageCalculationDetailsForRouteListItem(address.DriverWageCalculationSrc);
+				if(driverAddressWageDetails != null)
+				{
+					addressWageDetailsList.Add(driverAddressWageDetails);
+				}
+
+				var forwarderAddressWageDetails = routeListForwarderWageCalculationService?
+					.GetWageCalculationDetailsForRouteListItem(address.ForwarderWageCalculationSrc);
+				if(forwarderAddressWageDetails != null)
+				{
+					addressWageDetailsList.Add(forwarderAddressWageDetails);
+				}
+
+				resultTextDriver += CreateWageCalculationDetailsTextForAddress(driverAddressWageDetails, address, EmployeeCategory.driver, carOwner);
+				resultTextForwarder += CreateWageCalculationDetailsTextForAddress(forwarderAddressWageDetails, address, EmployeeCategory.forwarder, carOwner);
+			}
+
+			var routeListDriverWageSum = addressWageDetailsList.Where(w=>w.WageCalculationEmployeeCategory == EmployeeCategory.driver).Sum(a => a.WageCalculationDetailsList.Sum(d =>
+			{
+				return d.Name == WageRateTypes.PackOfBottles600ml.GetEnumTitle() ? Math.Truncate(d.Price * d.Count) : decimal.Round(d.Price * d.Count, 2);
+			}));
+
+			var routeListForwarderWageSum = addressWageDetailsList.Where(w => w.WageCalculationEmployeeCategory == EmployeeCategory.forwarder).Sum(a => a.WageCalculationDetailsList.Sum(d =>
+			{
+				return d.Name == WageRateTypes.PackOfBottles600ml.GetEnumTitle() ? Math.Truncate(d.Price * d.Count) : decimal.Round(d.Price * d.Count, 2);
+			}));
+
+			resultTextDriver += $"Итого ЗП водителя за МЛ: { routeListDriverWageSum } руб.";
+
+			resultTextForwarder += $"Итого ЗП экспедитора за МЛ: { routeListForwarderWageSum } руб.";
+
+			return $"{ resultTextDriver }\n\n{ resultTextForwarder }";
+		}
 
 		#endregion Зарплата
 	}

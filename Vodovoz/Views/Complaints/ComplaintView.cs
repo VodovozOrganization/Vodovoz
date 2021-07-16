@@ -72,7 +72,14 @@ namespace Vodovoz.Views.Complaints
 												ViewModel.NomenclatureSelectorFactory,
 												ViewModel.CounterpartySelectorFactory,
 												ViewModel.NomenclatureRepository,
-												ViewModel.UserRepository);
+												ViewModel.UserRepository,
+												ViewModel.OrderSelectorFactory,
+												ViewModel.EmployeeJournalFactory,
+												ViewModel.CounterpartyJournalFactory,
+												ViewModel.DeliveryPointJournalFactory,
+												ViewModel.SubdivisionJournalFactory,
+												ViewModel.GtkDialogsOpener,
+												ViewModel.UndeliveredOrdersJournalOpener);
 			});
 
 			entryOrder.SetEntityAutocompleteSelectorFactory(orderSelectorFactory);
@@ -137,7 +144,7 @@ namespace Vodovoz.Views.Complaints
 			buttonAttachFine.Binding.AddBinding(ViewModel, vm => vm.CanAttachFine, w => w.Sensitive).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 
 			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 		}

@@ -37,7 +37,7 @@ namespace Vodovoz.Views.Security
             }
 
             buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-            buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
+            buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
         }
 
         protected void OnButtonAddUserClicked(object sender, System.EventArgs e)

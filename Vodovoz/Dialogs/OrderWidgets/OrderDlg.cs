@@ -107,6 +107,8 @@ namespace Vodovoz
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
+		private int _treeItemsNomenclatureColumnWidth;
+		private IList<DiscountReason> _discountReasons;
 
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
@@ -344,6 +346,7 @@ namespace Vodovoz
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
+			_discountReasons = orderRepository.GetActiveDiscountReasons(UoW);
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint>(OnDeliveryPointChanged);
@@ -562,7 +565,8 @@ namespace Vodovoz
 			SetSensitivityOfPaymentType();
 			depositrefunditemsview.Configure(UoWGeneric, Entity);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
-			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
+			ycomboboxReason.ShowSpecialStateNot = true;
+			ycomboboxReason.ItemsList = _discountReasons;
 
 			yCmbReturnTareReasonCategories.SetRenderTextFunc<ReturnTareReasonCategory>(x => x.Name);
 			yCmbReturnTareReasonCategories.ItemsList = UoW.Session.QueryOver<ReturnTareReasonCategory>().List();
@@ -659,21 +663,26 @@ namespace Vodovoz
 
 		private void TryAddVodovozLeaflet(INomenclatureParametersProvider nomenclatureParametersProvider)
 		{
-			if (Entity.SelfDelivery 
-			    || Entity.OrderStatus != OrderStatus.NewOrder
-			    || Entity.DeliveryPoint.District == null) return;
+			if(Entity.SelfDelivery
+			   || Entity.OrderStatus != OrderStatus.NewOrder
+			   || Entity.DeliveryPoint.District == null)
+			{
+				return;
+			}
 			
-			if (vodovozLeaflet == null) {
+			if (vodovozLeaflet == null)
+			{
 				vodovozLeaflet = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.VodovozLeafletId);
 			}
 
 			var geographicGroupId = Entity.DeliveryPoint.District.GeographicGroup.Id;
 			
-			if (!orderRepository.CanAddVodovozCatalogToOrder(
+			if (!orderRepository.CanAddVodovozLeafletToOrder(
 			    UoW, 
 			    new RouteListParametersProvider(SingletonParametersProvider.Instance), 
 			    vodovozLeaflet.Id, 
-			    geographicGroupId)) {
+			    geographicGroupId))
+			{
 				return;
 			}
 
@@ -747,6 +756,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => Entity.OrderItems.IndexOf(node) + 1)
 				.AddColumn("Номенклатура")
+					.SetTag(nameof(Nomenclature))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
 				.AddColumn(!orderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
@@ -817,7 +827,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(orderRepository.GetDiscountReasons(UoW))
+					.FillItems(_discountReasons)
 					.AddSetter((c, n) => c.Editable = n.Discount > 0 && n.PromoSet == null)
 					.AddSetter(
 						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
@@ -2326,18 +2336,27 @@ namespace Vodovoz
 				Entity.CheckAndSetOrderIsService();
 				OnFormOrderActions();
 			}
-
-			treeItems.SizeAllocated += TreeItemsOnAdded;
+			_treeItemsNomenclatureColumnWidth = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Nomenclature)).First().Width;
+			treeItems.ExposeEvent += TreeItemsOnExposeEvent;
 		}
 
-		private void TreeItemsOnAdded(object o, SizeAllocatedArgs args)
+		private void TreeItemsOnExposeEvent(object o, ExposeEventArgs args)
 		{
-			EditGoodsCountCellOnAdd(treeItems);
-			treeItems.SizeAllocated -= TreeItemsOnAdded;
+			if(_treeItemsNomenclatureColumnWidth != ((yTreeView)o).ColumnsConfig.GetColumnsByTag(nameof(Nomenclature)).First().Width)
+			{
+				EditGoodsCountCellOnAdd((yTreeView)o);
+				treeItems.ExposeEvent -= TreeItemsOnExposeEvent;
+			}
 		}
 
 		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
+			var items = aList as GenericObservableList<OrderItem>;
+			for(var i = 0; i < items?.Count; i++)
+			{
+				FixPrice(i);
+			}
+			
 			HboxReturnTareReasonCategoriesShow();
 			
 			if (Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder) {
