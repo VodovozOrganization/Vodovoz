@@ -35,6 +35,7 @@ namespace DriverAPI.Library.Converters
 				SmsPaymentStatus = smsPaymentConverter.convertToAPIPaymentStatus(smsPaymentStatus),
 				DeliveryTime = vodovozOrder.TimeDelivered?.ToString("HH:mm:ss"),
 				FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,
+				EmptyBottlesToReturn = vodovozOrder.BottlesReturn ?? 0,
 				Counterparty = vodovozOrder.Client.FullName,
 				CounterpartyPhoneNumbers = vodovozOrder.Client.Phones.Select(x => "+7" + x.DigitsNumber),
 				PaymentType = paymentTypeConverter.convertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
