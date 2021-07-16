@@ -170,7 +170,7 @@ namespace Vodovoz.Domain.Documents
 					&& x.ExpireDatePercent == item.ExpireDatePercent);
 				if(found != null)
 				{
-					item.AmountLoaded += found.Amount;
+					item.AmountLoaded = found.Amount;
 				}
 			}
 		}

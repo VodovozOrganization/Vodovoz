@@ -151,6 +151,7 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 			
+			Entity.UpdateAlreadyLoaded(UoW, new RouteListRepository());
 			var valid = new QS.Validation.QSValidator<CarLoadDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -179,7 +180,6 @@ namespace Vodovoz
 			UoW.Commit();
 
 			logger.Info("Ok.");
-			Entity.UpdateAlreadyLoaded(UoW, new RouteListRepository());
 
 			return true;
 		}
