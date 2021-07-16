@@ -58,7 +58,7 @@ namespace DriverAPI.Library.Converters
 							|| rla.Status == RouteListItemStatus.Overdue)
 						.Sum(rla => rla.Order.Total19LBottlesToDeliver),
 					EmptyBottlesToReturn = routeList.Addresses
-						.Sum(rla => rla.Order.BottlesReturn ?? 0),
+						.Sum(rla => rla.DriverBottlesReturned ?? 0),
 				};
 			}
 			else
@@ -93,7 +93,6 @@ namespace DriverAPI.Library.Converters
 				DeliveryIntervalStart = routeListAddress.Order.DeliveryDate + routeListAddress.Order.DeliverySchedule.From ?? DateTime.MinValue,
 				DeliveryIntervalEnd = routeListAddress.Order.DeliveryDate + routeListAddress.Order.DeliverySchedule.To ?? DateTime.MinValue,
 				OrderId = routeListAddress.Order.Id,
-				FullBottlesCount = routeListAddress.Order.BottlesReturn ?? 0,
 				Address = deliveryPointConverter.extractAPIAddressFromDeliveryPoint(routeListAddress.Order.DeliveryPoint)
 			};
 		}
