@@ -156,12 +156,22 @@ namespace Vodovoz.Domain.Documents
 			if(!Items.Any() || Warehouse == null)
 				return;
 
-			var inLoaded = routeListRepository.AllGoodsLoaded(uow, RouteList, this);
-
-			foreach(var item in Items) {
-				var found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
+			var inLoaded = routeListRepository.AllGoodsLoadedDivided(uow, RouteList, this);
+			if(inLoaded.Count == 0)
+			{
+				return;
+			}
+			
+			foreach(var item in Items)
+			{
+				var found = inLoaded.FirstOrDefault(x => 
+					x.NomenclatureId == item.Nomenclature.Id 
+					&& x.OwnType == item.OwnType 
+					&& x.ExpireDatePercent == item.ExpireDatePercent);
 				if(found != null)
-					item.AmountLoaded = found.Amount;
+				{
+					item.AmountLoaded += found.Amount;
+				}
 			}
 		}
 
