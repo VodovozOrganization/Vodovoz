@@ -55,6 +55,7 @@ using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
@@ -81,6 +82,7 @@ using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 
@@ -983,7 +985,7 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
+		/*SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
 		{
 			SubdivisionType = SubdivisionType.Default
 		};
@@ -1018,7 +1020,15 @@ public partial class MainWindow : Window
 													  new UndeliveredOrdersJournalOpener()
 													  );
 		
-		tdiMain.AddTab(ordersJournal);
+		tdiMain.AddTab(ordersJournal);*/
+
+		var journal = new FlyersJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			new NomenclatureSelectorFactory(),
+			new FlyerRepository());
+		
+		tdiMain.AddTab(journal);
 	}
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)

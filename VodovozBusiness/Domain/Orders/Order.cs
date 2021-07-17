@@ -29,6 +29,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -54,54 +55,9 @@ namespace Vodovoz.Domain.Orders
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
-
-		private int _vodovozLeafletId;
-		private int _luckyPizzaLeafletId;
-		private int _daughtersSonsLeafletId;
-
-		#region Листовки
-
-		private int VodovozLeafletId
-		{
-			get
-			{
-				if (_vodovozLeafletId == default(int)) {
-					_vodovozLeafletId = new NomenclatureParametersProvider().VodovozLeafletId;
-				}
-
-				return _vodovozLeafletId;
-			}
-		}
-
-		private int LuckyPizzaLeafletId
-		{
-			get
-			{
-				if(_luckyPizzaLeafletId == default(int))
-				{
-					_luckyPizzaLeafletId = new NomenclatureParametersProvider().LuckyPizzaLeafletId;
-				}
-
-				return _luckyPizzaLeafletId;
-			}
-		}
-		
-		private int DaughtersSonsLeafletId
-		{
-			get
-			{
-				if(_daughtersSonsLeafletId == default(int))
-				{
-					_daughtersSonsLeafletId = new NomenclatureParametersProvider().DaughtersSonsLeafletId;
-				}
-
-				return _daughtersSonsLeafletId;
-			}
-		}
-
-		#endregion
 
 		#region Платная доставка
 
@@ -1713,9 +1669,9 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(oi);
 		}
 
-		public virtual void AddVodovozLeafletNomenclature(Nomenclature leaflet)
+		public virtual void AddFlyerNomenclature(Nomenclature leaflet)
 		{
-			if (ObservableOrderEquipments.Any(x => x.Nomenclature.Id == VodovozLeafletId)) {
+			if (ObservableOrderEquipments.Any(x => x.Nomenclature.Id == leaflet.Id)) {
 				return;
 			}
 			
@@ -2153,9 +2109,9 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(OrderEquipment orderEquipment in order.OrderEquipments)
 			{
-				if (orderEquipment.Nomenclature.Id == VodovozLeafletId
-				    || orderEquipment.Nomenclature.Id == LuckyPizzaLeafletId
-				    || orderEquipment.Nomenclature.Id == DaughtersSonsLeafletId)
+				var flyersNomenclaturesIds = _flyerRepository.GetAllFlyersNomenclaturesIds(UoW);
+				
+				if (flyersNomenclaturesIds.Contains(orderEquipment.Nomenclature.Id))
 				{
 					continue;
 				}

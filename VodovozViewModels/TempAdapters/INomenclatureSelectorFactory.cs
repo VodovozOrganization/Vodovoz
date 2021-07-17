@@ -11,7 +11,7 @@ namespace Vodovoz.TempAdapters
 		IEntitySelector CreateNomenclatureSelectorForWarehouse(Warehouse warehouse, IEnumerable<int> excludedNomenclatures);
 		IEntitySelector CreateNomenclatureSelector(IEnumerable<int> excludedNomenclatures);
 		IEntitySelector CreateNomenclatureSelectorForFuelSelect();
-
 		IEntityAutocompleteSelectorFactory GetWaterJournalFactory();
+		IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory();
 	}
 }

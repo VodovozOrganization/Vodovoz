@@ -30,8 +30,6 @@ namespace Vodovoz.Parameters
         #region Листовки
 
         public int VodovozLeafletId => parametersProvider.GetIntValue("vodovoz_leaflet_id");
-        public int LuckyPizzaLeafletId => parametersProvider.GetIntValue("lucky_pizza_leaflet_id");
-        public int DaughtersSonsLeafletId => parametersProvider.GetIntValue("daughters_sons_leaflet_id");
 
         #endregion
 

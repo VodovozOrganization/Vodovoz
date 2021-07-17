@@ -1648,6 +1648,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintObjectView.cs" />
     <Compile Include="Filters\GtkViews\ComplaintKindJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintKindJournalFilterView.cs" />
+    <Compile Include="Views\Flyers\FlyerView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Flyers.FlyerView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1953,6 +1955,7 @@
     <Folder Include="Views\Reports\" />
     <Folder Include="ReportsParameters\Employees\" />
     <Folder Include="JournalViewers\Complaints\" />
+    <Folder Include="Views\Flyers\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

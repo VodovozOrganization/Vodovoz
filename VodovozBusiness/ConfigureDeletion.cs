@@ -1196,6 +1196,15 @@ namespace Vodovoz
 
 			#endregion
 
+			#region Листовки (Flyer)
+
+			DeleteConfig.AddHibernateDeleteInfo<Flyer>()
+				.AddDeleteDependence<FlyerActionTime>(item => item.Flyer);
+
+			DeleteConfig.AddHibernateDeleteInfo<FlyerActionTime>();
+
+			#endregion
+
 			logger.Info("Ок");
 		}
 	}
