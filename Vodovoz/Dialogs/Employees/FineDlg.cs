@@ -274,12 +274,7 @@ namespace Vodovoz
 				new EmployeeJournalFactory(),
 				new CounterpartyJournalFactory(),
 				new DeliveryPointJournalFactory(),
-				new SubdivisionJournalFactory(
-					new SubdivisionFilterViewModel()
-					{
-						SubdivisionType = SubdivisionType.Default
-					})
-				)
+				new SubdivisionJournalFactory())
 			{
 				HidenByDefault = true,
 				RestrictOldOrder = Entity.UndeliveredOrder.OldOrder,

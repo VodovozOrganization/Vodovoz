@@ -875,11 +875,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionComplaintsActivated(object sender, EventArgs e)
     {
-	    SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
-	    {
-		    SubdivisionType = SubdivisionType.Default
-	    };
-	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 	    IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
 
@@ -2022,11 +2018,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
     {
-	    SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
-	    {
-		    SubdivisionType = SubdivisionType.Default
-	    };
-	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 	    IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
 
@@ -2102,11 +2094,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
     {
-	    SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
-	    {
-		    SubdivisionType = SubdivisionType.Default
-	    };
-	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 	    var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
@@ -2121,7 +2109,7 @@ public partial class MainWindow : Gtk.Window
 
         tdiMain.OpenTab(
             () => new RetailOrderJournalViewModel(
-                    new OrderJournalFilterViewModel() { IsForRetail = true },
+                    new OrderJournalFilterViewModel { IsForRetail = true },
                     UnitOfWorkFactory.GetDefaultFactory,
                     ServicesConfig.CommonServices,
                     VodovozGtkServicesConfig.EmployeeService,
@@ -2133,7 +2121,7 @@ public partial class MainWindow : Gtk.Window
                     new EmployeeJournalFactory(),
                     new CounterpartyJournalFactory(),
                     new DeliveryPointJournalFactory(),
-                    new SubdivisionJournalFactory(),
+                    subdivisionJournalFactory,
                     new GtkTabsOpener(),
                     new UndeliveredOrdersJournalOpener()
             )

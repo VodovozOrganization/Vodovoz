@@ -225,6 +225,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CarEventTypeViewModel, CarEventTypeView>()
 				.RegisterWidgetForTabViewModel<CarEventViewModel, CarEventView>()
 				.RegisterWidgetForTabViewModel<DiscountReasonViewModel, DiscountReasonView>()
+				.RegisterWidgetForTabViewModel<EmployeeViewModel, EmployeeView>()
 				.RegisterWidgetForTabViewModel<DriverComplaintReasonViewModel, DriverComplaintReasonView>()
 				.RegisterWidgetForTabViewModel<ComplaintObjectViewModel, ComplaintObjectView>()
 				;

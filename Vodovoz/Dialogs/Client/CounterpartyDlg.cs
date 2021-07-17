@@ -704,11 +704,7 @@ namespace Vodovoz
 
         void AllOrders_Activated(object sender, EventArgs e)
         {
-	        SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
-	        {
-		        SubdivisionType = SubdivisionType.Default
-	        };
-	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 	        var orderJournalFilter = new OrderJournalFilterViewModel { RestrictCounterparty = Entity };
 	        var orderJournalViewModel = new OrderJournalViewModel(
@@ -734,13 +730,10 @@ namespace Vodovoz
         
         private void ComplaintViewOnActivated(object sender, EventArgs e)
         {
-	        SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
-	        {
-		        SubdivisionType = SubdivisionType.Default
-	        };
-	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
-	        var filter = new ComplaintFilterViewModel(ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
+	        var filter = new ComplaintFilterViewModel(
+		        ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
 	        filter.SetAndRefilterAtOnce(x=> x.Counterparty = Entity);
 	        
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(

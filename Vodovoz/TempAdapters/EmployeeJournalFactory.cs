@@ -1,5 +1,4 @@
 ﻿using QS.DomainModel.UoW;
-using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Employees;
@@ -16,43 +15,69 @@ namespace Vodovoz.TempAdapters
 		{
 			_employeeJournalFilter = employeeJournalFilter;
 		}
+		
 		public IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory()
 		{
-			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee), () =>
-			{
-				return new EmployeesJournalViewModel(_employeeJournalFilter ?? new EmployeeFilterViewModel(),
-					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-			});
+			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
+				typeof(Employee),
+				() => new EmployeesJournalViewModel(_employeeJournalFilter ?? new EmployeeFilterViewModel(),
+				UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateWorkingDriverEmployeeAutocompleteSelectorFactory()
 		{
-			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee), () =>
-			{
-				EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel()
+			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
+				typeof(Employee),
+				() =>
 				{
-					HidenByDefault = true,
-					Status = EmployeeStatus.IsWorking,
-					Category = EmployeeCategory.driver
-				};
-				return new EmployeesJournalViewModel(employeeFilterViewModel, UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices);
-			});
+					var driverFilter = new EmployeeFilterViewModel
+					{
+						HidenByDefault = true,
+						Status = EmployeeStatus.IsWorking,
+						Category = EmployeeCategory.driver
+					};
+					
+					return new EmployeesJournalViewModel(driverFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+				}
+			);
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateWorkingOfficeEmployeeAutocompleteSelectorFactory()
 		{
-			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee), () =>
-			{
-				EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel()
+			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
+				typeof(Employee),
+				() =>
 				{
-					HidenByDefault = true,
-					Status = EmployeeStatus.IsWorking,
-					Category = EmployeeCategory.office
-				};
-				return new EmployeesJournalViewModel(employeeFilterViewModel, UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices);
-			});
+					var officeFilter = new EmployeeFilterViewModel
+					{
+						HidenByDefault = true,
+						Status = EmployeeStatus.IsWorking,
+						Category = EmployeeCategory.office
+					};
+					
+					return new EmployeesJournalViewModel(officeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+				}
+			);
+		}
+		
+		public IEntityAutocompleteSelectorFactory CreateWorkingForwarderEmployeeAutocompleteSelectorFactory()
+		{
+			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
+				typeof(Employee),
+				() =>
+				{
+					var forwarderFilter = new EmployeeFilterViewModel
+					{
+						HidenByDefault = true,
+					};
+					
+					forwarderFilter.SetAndRefilterAtOnce(
+						x => x.Status = EmployeeStatus.IsWorking,
+						x => x.Category = EmployeeCategory.forwarder);
+					
+					return new EmployeesJournalViewModel(forwarderFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+				}
+			);
 		}
 	}
 }

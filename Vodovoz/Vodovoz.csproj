@@ -392,7 +392,6 @@
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
-    <Compile Include="Additions\IAuthorizationService.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Commons\FileChooser.cs" />
@@ -400,7 +399,9 @@
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
+    <Compile Include="Factories\EmployeeWageParametersFactory.cs" />
     <Compile Include="Filters\GtkViews\PremiumJournalFilterView.cs" />
+    <Compile Include="Filters\ViewModels\EmployeeFilterViewModel.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PremiumJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.OrderChangesReport.cs" />
@@ -488,6 +489,7 @@
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
+    <Compile Include="TempAdapters\EmailServiceSettingAdapter.cs" />
     <Compile Include="TempAdapters\PremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
@@ -1091,7 +1093,6 @@
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTransferDocumentView.cs" />
-    <Compile Include="Filters\ViewModels\EmployeeFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\EmployeeFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EmployeeFilterView.cs" />
     <Compile Include="Filters\RepresentationFilterViewModelBase.cs" />
@@ -1636,6 +1637,8 @@
     <Compile Include="Views\Orders\DiscountReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.DiscountReasonView.cs" />
     <Compile Include="ReportsParameters\Sales\PlanImplementationReport.cs" />
+    <Compile Include="Views\Employees\EmployeeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeeView.cs" />
     <Compile Include="Views\Complaints\DriverComplaintReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.DriverComplaintReasonView.cs" />
     <Compile Include="JournalViewers\Complaints\DriverComplaintReasonJournalFilterView.cs" />

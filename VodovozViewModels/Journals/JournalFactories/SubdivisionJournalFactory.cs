@@ -11,16 +11,34 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 	{
 		private readonly SubdivisionFilterViewModel _subdivisionJournalFilter;
 
-		public SubdivisionJournalFactory(SubdivisionFilterViewModel subdivisionJournalFilter = null)
+		public IEntityAutocompleteSelectorFactory CreateDefaultSubdivisionAutocompleteSelectorFactory(
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory)
 		{
-			_subdivisionJournalFilter = subdivisionJournalFilter;
+			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
+				typeof(Subdivision),
+				() => new SubdivisionsJournalViewModel(
+					new SubdivisionFilterViewModel
+					{
+						SubdivisionType = SubdivisionType.Default
+					},
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices,
+					employeeSelectorFactory));
 		}
-		public IEntityAutocompleteSelectorFactory CreateSubdivisionAutocompleteSelectorFactory(IEntityAutocompleteSelectorFactory employeeSelectorFactory)
+		
+		public IEntityAutocompleteSelectorFactory CreateLogisticSubdivisionAutocompleteSelectorFactory(
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory)
 		{
-			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
-			{
-				return new SubdivisionsJournalViewModel(_subdivisionJournalFilter ?? new SubdivisionFilterViewModel(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, employeeSelectorFactory);
-			});
+			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
+				typeof(Subdivision),
+				() => new SubdivisionsJournalViewModel(
+					new SubdivisionFilterViewModel
+					{
+						SubdivisionType = SubdivisionType.Logistic
+					},
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices,
+					employeeSelectorFactory));
 		}
 	}
 }

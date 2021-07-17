@@ -46,6 +46,7 @@ using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.WageCalculation;
@@ -228,11 +229,10 @@ namespace Vodovoz
 			repEntDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			repEntDefaultForwarder.Binding
 				.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
-
-            var unitOfWorkFactory = UnitOfWorkFactory.GetDefaultFactory;
-            var commonServices = ServicesConfig.CommonServices;
-            var employeePostJournalFactory = new EmployeePostsJournalFactory(unitOfWorkFactory, commonServices);
-            entryEmployeePost.SetEntityAutocompleteSelectorFactory(employeePostJournalFactory);
+			
+            var employeePostsJournalFactory = new EmployeePostsJournalFactory();
+            entryEmployeePost.SetEntityAutocompleteSelectorFactory(
+	            employeePostsJournalFactory.CreateEmployeePostsAutoCompleteSelectorFactory());
             entryEmployeePost.Binding.AddBinding(Entity, e => e.Post, w => w.Subject).InitializeFromSource();
 
             referenceNationality.SubjectType = typeof(Nationality);

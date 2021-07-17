@@ -11,20 +11,30 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Repositories;
 using QS.Project.Services.GtkUI;
 using QS.Services;
 using Vodovoz.Additions;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
+using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
+using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class EmployeesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Employee, EmployeeDlg, EmployeeJournalNode, EmployeeFilterViewModel>
+	public class EmployeesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Employee, EmployeeViewModel, EmployeeJournalNode, EmployeeFilterViewModel>
 	{
 		public EmployeesJournalViewModel(
 			EmployeeFilterViewModel filterViewModel,
@@ -166,9 +176,43 @@ namespace Vodovoz.JournalViewModels
 			NodeActionsList.Add(resetPassAction);
 		}
 
-		protected override Func<EmployeeDlg> CreateDialogFunction => () => new EmployeeDlg();
+		protected override Func<EmployeeViewModel> CreateDialogFunction => () => new EmployeeViewModel(
+			new AuthorizationService(
+				new PasswordGenerator(),
+				new MySQLUserRepository(
+					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
+					new GtkInteractiveService()),
+				EmailServiceSetting.GetEmailService()),
+			new EmployeeWageParametersFactory(),
+			new EmployeeJournalFactory(),
+			new EmployeePostsJournalFactory(),
+			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider())),
+			SubdivisionParametersProvider.Instance,
+			new EmailServiceSettingAdapter(),
+			WageSingletonRepository.GetInstance(),
+			EmployeeSingletonRepository.GetInstance(),
+			EntityUoWBuilder.ForCreate(),
+			UnitOfWorkFactory,
+			commonServices);
 
-		protected override Func<EmployeeJournalNode, EmployeeDlg> OpenDialogFunction => 
-			n => new EmployeeDlg(n.Id);
+		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
+			n => new EmployeeViewModel(
+				new AuthorizationService(
+					new PasswordGenerator(),
+					new MySQLUserRepository(
+						new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
+						new GtkInteractiveService()),
+					EmailServiceSetting.GetEmailService()),
+				new EmployeeWageParametersFactory(),
+				new EmployeeJournalFactory(),
+				new EmployeePostsJournalFactory(),
+				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider())),
+				SubdivisionParametersProvider.Instance,
+				new EmailServiceSettingAdapter(),
+				WageSingletonRepository.GetInstance(),
+				EmployeeSingletonRepository.GetInstance(),
+				EntityUoWBuilder.ForOpen(n.Id),
+				UnitOfWorkFactory,
+				commonServices);
 	}
 }

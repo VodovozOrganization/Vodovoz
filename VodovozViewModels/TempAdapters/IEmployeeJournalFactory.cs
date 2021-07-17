@@ -1,6 +1,4 @@
-﻿using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Domain.Orders;
+﻿using QS.Project.Journal.EntitySelector;
 
 namespace Vodovoz.TempAdapters
 {
@@ -8,6 +6,7 @@ namespace Vodovoz.TempAdapters
 	{
 		IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory();
 		IEntityAutocompleteSelectorFactory CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+		IEntityAutocompleteSelectorFactory CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
 		IEntityAutocompleteSelectorFactory CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 	}
 }

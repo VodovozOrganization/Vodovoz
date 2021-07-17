@@ -983,11 +983,7 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
-		{
-			SubdivisionType = SubdivisionType.Default
-		};
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		
@@ -1023,11 +1019,7 @@ public partial class MainWindow : Window
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)
 	{
-		SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
-		{
-			SubdivisionType = SubdivisionType.Default
-		};
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
 			new EmployeeJournalFactory(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory(), subdivisionJournalFactory)

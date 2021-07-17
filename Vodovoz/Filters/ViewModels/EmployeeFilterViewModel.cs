@@ -1,6 +1,4 @@
-﻿using System;
-using QS.DomainModel.Entity;
-using QS.Services;
+﻿using QS.DomainModel.Entity;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
 
@@ -8,22 +6,26 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public class EmployeeFilterViewModel : RepresentationFilterViewModelBase<EmployeeFilterViewModel>
 	{
-		private EmployeeCategory? category;
-		public virtual EmployeeCategory? Category {
-			get => category;
-			set {
-				if(SetField(ref category, value, () => Category)) {
-					Update();
-				}
-			}
+		private EmployeeCategory? _category;
+		private EmployeeCategory? _restrictCategory;
+		private EmployeeStatus? _status;
+		private bool _canChangeStatus = true;
+		WageParameterItemTypes? _restrictWageParameterItemType;
+		
+		public virtual EmployeeCategory? Category
+		{
+			get => _category;
+			set => UpdateFilterField(ref _category, value);
 		}
 
-		private EmployeeCategory? restrictCategory;
 		[PropertyChangedAlso(nameof(IsCategoryNotRestricted))]
-		public virtual EmployeeCategory? RestrictCategory {
-			get => restrictCategory;
-			set {
-				if(SetField(ref restrictCategory, value, () => RestrictCategory)) {
+		public virtual EmployeeCategory? RestrictCategory
+		{
+			get => _restrictCategory;
+			set 
+			{
+				if(SetField(ref _restrictCategory, value))
+				{
 					Category = RestrictCategory;
 					Update();
 				}
@@ -32,22 +34,22 @@ namespace Vodovoz.Filters.ViewModels
 
 		public bool IsCategoryNotRestricted => !RestrictCategory.HasValue;
 
-		EmployeeStatus? status;
-		public virtual EmployeeStatus? Status {
-			get => status;
-			set => UpdateFilterField(ref status, value, () => Status);
+		public virtual EmployeeStatus? Status
+		{
+			get => _status;
+			set => UpdateFilterField(ref _status, value);
 		}
 
-		private bool canChangeStatus = true;
-		public bool CanChangeStatus {
-			get => canChangeStatus; 
-			set => UpdateFilterField(ref canChangeStatus, value, () => CanChangeStatus); 
+		public bool CanChangeStatus
+		{
+			get => _canChangeStatus; 
+			set => UpdateFilterField(ref _canChangeStatus, value); 
 		}
 
-		WageParameterItemTypes? restrictWageParameterItemType;
-		public virtual WageParameterItemTypes? RestrictWageParameterItemType {
-			get => restrictWageParameterItemType;
-			set => UpdateFilterField(ref restrictWageParameterItemType, value);
+		public virtual WageParameterItemTypes? RestrictWageParameterItemType
+		{
+			get => _restrictWageParameterItemType;
+			set => UpdateFilterField(ref _restrictWageParameterItemType, value);
 		}
 	}
 }
