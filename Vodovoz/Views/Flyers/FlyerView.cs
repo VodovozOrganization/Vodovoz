@@ -2,7 +2,7 @@
 using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain;
-using Vodovoz.ViewModels.ViewModels.Leaflets;
+using Vodovoz.ViewModels.ViewModels.Flyers;
 
 namespace Vodovoz.Views.Flyers
 {

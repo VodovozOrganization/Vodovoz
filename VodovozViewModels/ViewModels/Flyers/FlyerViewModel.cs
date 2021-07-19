@@ -11,7 +11,7 @@ using Vodovoz.Domain;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.TempAdapters;
 
-namespace Vodovoz.ViewModels.ViewModels.Leaflets
+namespace Vodovoz.ViewModels.ViewModels.Flyers
 {
 	public class FlyerViewModel : EntityTabViewModelBase<Flyer>
 	{

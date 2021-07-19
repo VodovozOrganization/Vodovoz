@@ -126,7 +126,7 @@ using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.ViewModels.ViewModels.Leaflets;
+using Vodovoz.ViewModels.ViewModels.Flyers;
 using Vodovoz.Views.Flyers;
 
 namespace Vodovoz

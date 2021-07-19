@@ -10,7 +10,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes.Flyers;
-using Vodovoz.ViewModels.ViewModels.Leaflets;
+using Vodovoz.ViewModels.ViewModels.Flyers;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 {
