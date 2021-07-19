@@ -1669,9 +1669,9 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(oi);
 		}
 
-		public virtual void AddFlyerNomenclature(Nomenclature leaflet)
+		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
 		{
-			if (ObservableOrderEquipments.Any(x => x.Nomenclature.Id == leaflet.Id)) {
+			if (ObservableOrderEquipments.Any(x => x.Nomenclature.Id == flyerNomenclature.Id)) {
 				return;
 			}
 			
@@ -1684,7 +1684,7 @@ namespace Vodovoz.Domain.Orders
 					OrderItem = null,
 					Reason = Reason.Sale,
 					Confirmed = true,
-					Nomenclature = leaflet
+					Nomenclature = flyerNomenclature
 				}
 			);
 			UpdateDocuments();
