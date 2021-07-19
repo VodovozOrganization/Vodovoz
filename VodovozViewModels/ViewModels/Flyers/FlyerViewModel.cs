@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 				TabName = $"{Entity.FlyerNomenclature.Name}";
 			}
 			
-			GetCurrentFlyerActionTime();
+			SetCurrentFlyerActionTime();
 			AddServiceToValidationContext();
 		}
 
@@ -96,7 +96,7 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 				}
 
 				ActivateFlyer();
-				GetCurrentFlyerActionTime();
+				SetCurrentFlyerActionTime();
 				OnPropertyChanged(nameof(IsFlyerActivated));
 			}
 		));
@@ -127,7 +127,7 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 			}
 		));
 
-		private void GetCurrentFlyerActionTime()
+		private void SetCurrentFlyerActionTime()
 		{
 			var flyerActionTime = Entity.FlyerActionTimes.LastOrDefault();
 			_currentFlyerActionTime = flyerActionTime;

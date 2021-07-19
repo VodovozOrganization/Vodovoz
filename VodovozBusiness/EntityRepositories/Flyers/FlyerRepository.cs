@@ -51,7 +51,7 @@ namespace Vodovoz.EntityRepositories.Flyers
 			return query;
 		}
 
-		public bool HasDuplicateFlyerNomenclature(IUnitOfWork uow, int nomenclatureId)
+		public bool ExistsFlyerForNomenclatureId(IUnitOfWork uow, int nomenclatureId)
 		{
 			Nomenclature flyerNomenclatureAlias = null;
 

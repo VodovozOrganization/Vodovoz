@@ -63,7 +63,7 @@ namespace Vodovoz.Domain
 					throw new ArgumentException("Не был передан необходимый аргумент IFlyerRepository");
 				}
 
-				if(flyerRepository.HasDuplicateFlyerNomenclature(UnitOfWorkFactory.CreateWithoutRoot(), FlyerNomenclature.Id))
+				if(flyerRepository.ExistsFlyerForNomenclatureId(UnitOfWorkFactory.CreateWithoutRoot(), FlyerNomenclature.Id))
 				{
 					yield return new ValidationResult("Листовка с данной номенклатурой уже создана",
 						new[] { nameof(FlyerNomenclature) });

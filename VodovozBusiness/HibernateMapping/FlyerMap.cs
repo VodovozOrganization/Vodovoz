@@ -13,7 +13,7 @@ namespace Vodovoz.HibernateMapping
 
 			References(x => x.FlyerNomenclature).Column("flyer_nomenclature_id");
 			
-			HasMany(x => x.FlyerActionTimes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("flyer_id");
+			HasMany(x => x.FlyerActionTimes).Cascade.AllDeleteOrphan().Inverse().KeyColumn("flyer_id");
 		}
 	}
 }

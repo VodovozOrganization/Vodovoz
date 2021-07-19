@@ -9,6 +9,6 @@ namespace Vodovoz.EntityRepositories.Flyers
 		IList<int> GetAllFlyersNomenclaturesIds(IUnitOfWork uow);
 		IList<Flyer> GetAllActiveFlyers(IUnitOfWork uow);
 		IList<int> GetAllActiveFlyersNomenclaturesIds(IUnitOfWork uow);
-		bool HasDuplicateFlyerNomenclature(IUnitOfWork uow, int nomenclatureId);
+		bool ExistsFlyerForNomenclatureId(IUnitOfWork uow, int nomenclatureId);
 	}
 }

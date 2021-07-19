@@ -113,7 +113,7 @@ namespace Vodovoz
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
-		private IList<Nomenclature> _addedFlyersNomenclatures;
+		private IList<int> _addedFlyersNomenclaturesIds;
 
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
@@ -681,7 +681,7 @@ namespace Vodovoz
 
 			if(activeFlyers.Any())
 			{
-				_addedFlyersNomenclatures = new List<Nomenclature>();
+				_addedFlyersNomenclaturesIds = new List<int>();
 				
 				foreach(var flyer in activeFlyers)
 				{
@@ -695,7 +695,7 @@ namespace Vodovoz
 					}
 
 					Entity.AddFlyerNomenclature(flyer.FlyerNomenclature);
-					_addedFlyersNomenclatures.Add(flyer.FlyerNomenclature);
+					_addedFlyersNomenclaturesIds.Add(flyer.FlyerNomenclature.Id);
 				}
 			}
 		}
@@ -1975,12 +1975,12 @@ namespace Vodovoz
 			}
 			else
 			{
-				if(_addedFlyersNomenclatures.Any())
+				if(_addedFlyersNomenclaturesIds.Any())
 				{
-					foreach(var flyerNomenclature in _addedFlyersNomenclatures)
+					foreach(var flyerNomenclatureId in _addedFlyersNomenclaturesIds)
 					{
 						Entity.ObservableOrderEquipments.Remove(Entity.ObservableOrderEquipments.SingleOrDefault(
-							x => x.Nomenclature.Id == flyerNomenclature.Id));
+							x => x.Nomenclature.Id == flyerNomenclatureId));
 					}
 				}
 			}
