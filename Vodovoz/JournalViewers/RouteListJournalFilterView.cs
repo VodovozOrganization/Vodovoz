@@ -42,6 +42,11 @@ namespace Vodovoz.JournalViewers
 
             ySpecCmbGeographicGroup.ItemsList = ViewModel.GeographicGroups;
             ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
+
+            checkDriversWithAttachedTerminals.Binding.AddBinding(ViewModel, vm => vm.HasAccessToDriverTerminal, w => w.Sensitive)
+	            .InitializeFromSource();
+            checkDriversWithAttachedTerminals.Binding.AddBinding(ViewModel, vm => vm.ShowDriversWithTerminal, w => w.Active)
+	            .InitializeFromSource();
         }
 
         protected void OnButtonStatusAllActivated(object sender, System.EventArgs e)
