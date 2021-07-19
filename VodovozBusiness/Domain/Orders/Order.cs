@@ -56,8 +56,8 @@ namespace Vodovoz.Domain.Orders
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
-		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
-		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
+		private readonly IEmployeeRepository _employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private readonly IOrderRepository _orderRepository = OrderSingletonRepository.GetInstance();
 
 		#region Платная доставка
 
@@ -143,7 +143,7 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == client)
 					return;
-				if (orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
+				if (_orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
 					OnPropertyChanged(nameof(Client));
@@ -968,11 +968,11 @@ namespace Vodovoz.Domain.Orders
 
 					//создание нескольких заказов на одну дату и точку доставки
 					if(!SelfDelivery && DeliveryPoint != null) {
-						var ordersForDeliveryPoints = orderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
+						var ordersForDeliveryPoints = _orderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
 																	 .Where(
 																		 o => o.Id != Id
 																		 && o.DeliveryDate == DeliveryDate
-																		 && !orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
+																		 && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
 																		 && !o.IsService
 																		);
 
@@ -1031,7 +1031,7 @@ namespace Vodovoz.Domain.Orders
 
 			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
             if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
-                if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
+                if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
                     yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
 
             if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
@@ -2629,7 +2629,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void ChangeOrderPaymentStatus()
 		{
-			var paymentItems = orderRepository.GetPaymentItemsForOrder(UoW, Id);
+			var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id);
 
 			if (!paymentItems.Any()) 
 				return;
@@ -2697,7 +2697,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			if(OrderStatus == OrderStatus.Accepted && permissionService.ValidatePresetPermission("allow_load_selfdelivery")) {
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
-				LoadAllowedBy = employeeRepository.GetEmployeeForCurrentUser(UoW);
+				LoadAllowedBy = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			}
 		}
 
@@ -3193,7 +3193,7 @@ namespace Vodovoz.Domain.Orders
 			bool isValidCondition = amountDelivered != 0;
 			isValidCondition |= returnByStock > 0;
 			isValidCondition |= forfeitQuantity > 0;
-			isValidCondition &= !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus);
+			isValidCondition &= !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus);
 
 			if(isValidCondition) {
 				if(BottlesMovementOperation == null) {
@@ -3531,7 +3531,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SaveEntity(IUnitOfWork uow)
 		{
 			SetFirstOrder();
-			LastEditor = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();
 			ClearPromotionSets();
