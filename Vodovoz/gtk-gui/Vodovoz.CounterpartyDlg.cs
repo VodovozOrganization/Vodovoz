@@ -274,7 +274,7 @@ namespace Vodovoz
 
 		private global::Gtk.VBox vbox12;
 
-		private global::Vodovoz.DeliveryPointView deliveryPointView;
+		private global::Vodovoz.DeliveryPointsManagementView deliveryPointsManagementView;
 
 		private global::Gtk.Label label40;
 
@@ -585,7 +585,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 7;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -1808,11 +1808,11 @@ namespace Vodovoz
 			this.vbox12.Spacing = 6;
 			this.vbox12.BorderWidth = ((uint)(6));
 			// Container child vbox12.Gtk.Box+BoxChild
-			this.deliveryPointView = new global::Vodovoz.DeliveryPointView();
-			this.deliveryPointView.Events = ((global::Gdk.EventMask)(256));
-			this.deliveryPointView.Name = "deliveryPointView";
-			this.vbox12.Add(this.deliveryPointView);
-			global::Gtk.Box.BoxChild w131 = ((global::Gtk.Box.BoxChild)(this.vbox12[this.deliveryPointView]));
+			this.deliveryPointsManagementView = new global::Vodovoz.DeliveryPointsManagementView();
+			this.deliveryPointsManagementView.Events = ((global::Gdk.EventMask)(256));
+			this.deliveryPointsManagementView.Name = "deliveryPointsManagementView";
+			this.vbox12.Add(this.deliveryPointsManagementView);
+			global::Gtk.Box.BoxChild w131 = ((global::Gtk.Box.BoxChild)(this.vbox12[this.deliveryPointsManagementView]));
 			w131.Position = 0;
 			this.notebook1.Add(this.vbox12);
 			global::Gtk.Notebook.NotebookChild w132 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vbox12]));

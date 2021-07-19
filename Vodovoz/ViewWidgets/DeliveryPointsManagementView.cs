@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QS.Project.Repositories;
 using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModel;
@@ -11,7 +10,7 @@ using QS.Project.Services;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DeliveryPointView : QS.Dialog.Gtk.WidgetOnDialogBase
+	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		IUnitOfWorkGeneric<Counterparty> deliveryPointUoW;
 
@@ -35,7 +34,7 @@ namespace Vodovoz
 		}
 
 
-		public DeliveryPointView()
+		public DeliveryPointsManagementView()
 		{
 			this.Build();
 
