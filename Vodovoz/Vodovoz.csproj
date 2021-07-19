@@ -958,8 +958,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CardPaymentsOrdersReport.cs" />
     <Compile Include="JournalFilters\UndeliveredOrdersFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.UndeliveredOrdersFilter.cs" />
-    <Compile Include="JournalViewers\UndeliveriesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.UndeliveriesView.cs" />
     <Compile Include="Dialogs\UndeliveredOrderCommentsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveredOrderCommentsDlg.cs" />
     <Compile Include="Dialogs\Goods\ProductGroupDlg.cs" />

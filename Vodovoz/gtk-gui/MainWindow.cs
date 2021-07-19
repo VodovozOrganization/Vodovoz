@@ -1625,6 +1625,7 @@ public partial class MainWindow
 		this.ActionNationality.Activated += new global::System.EventHandler(this.OnActionNationalityActivated);
 		this.ActionEMailTypes.Activated += new global::System.EventHandler(this.OnActionEMailTypesActivated);
 		this.ActionCounterpartyPost.Activated += new global::System.EventHandler(this.OnActionCounterpartyPostActivated);
+		this.ActionFreeRentPackage.Activated += new global::System.EventHandler(this.OnActionFreeRentPackageActivated);
 		this.ActionEquipment.Activated += new global::System.EventHandler(this.OnActionEquipmentActivated);
 		this.ActionCar.Activated += new global::System.EventHandler(this.OnActionCarsActivated);
 		this.ActionColors.Activated += new global::System.EventHandler(this.OnActionColorsActivated);
