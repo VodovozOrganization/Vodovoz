@@ -666,7 +666,8 @@ public partial class MainWindow : Window
 				new BaseParametersProvider(),
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance),
-                new OrderPaymentSettings());
+                new OrderPaymentSettings(),
+				new OrderParametersProvider(new ParametersProvider()));
 		
 		tdiMain.AddTab(selfDeliveriesJournal);
 	}
@@ -1090,7 +1091,8 @@ public partial class MainWindow : Window
 	{
 		var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
 		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,
-			EmployeeSingletonRepository.GetInstance(), new EntityDeleteWorker(), true, true));
+			EmployeeSingletonRepository.GetInstance(), new EntityDeleteWorker(), new DeliveryRulesParametersProvider(new ParametersProvider())
+			, true, true));
 	}
 
 	void ActionCarEventsJournalActivated(object sender, System.EventArgs e)

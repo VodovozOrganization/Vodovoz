@@ -59,6 +59,7 @@ namespace Vodovoz.Domain.Orders
 
 		private int _vodovozLeafletId;
 		private int _luckyPizzaLeafletId;
+		private int _daughtersSonsLeafletId;
 
 		#region Листовки
 
@@ -84,6 +85,19 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				return _luckyPizzaLeafletId;
+			}
+		}
+		
+		private int DaughtersSonsLeafletId
+		{
+			get
+			{
+				if(_daughtersSonsLeafletId == default(int))
+				{
+					_daughtersSonsLeafletId = new NomenclatureParametersProvider().DaughtersSonsLeafletId;
+				}
+
+				return _daughtersSonsLeafletId;
 			}
 		}
 
@@ -1128,6 +1142,19 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.PaymentType) }
 				);
 			}
+			
+			if(SelfDelivery && PaymentType == PaymentType.ByCard && PaymentByCardFrom != null && OnlineOrder == null)
+			{
+				IOrderParametersProvider _orderParametersProvider = (validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider); 
+				if(_orderParametersProvider == null)
+				{
+					throw new ArgumentException("Не был передан необходимый аргумент IOrderParametersProvider");
+				}
+				if(PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
+				{
+					yield return new ValidationResult($"В заказe №{Id} с формой оплаты По карте и источником оплаты Терминал отсутствует номер оплаты.");
+				}
+			}
 
 			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType)
 				&& Contract?.Organization != null && Contract.Organization.CashBoxId == null) {
@@ -2126,7 +2153,9 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(OrderEquipment orderEquipment in order.OrderEquipments)
 			{
-				if (orderEquipment.Nomenclature.Id == VodovozLeafletId || orderEquipment.Nomenclature.Id == LuckyPizzaLeafletId) 
+				if (orderEquipment.Nomenclature.Id == VodovozLeafletId
+				    || orderEquipment.Nomenclature.Id == LuckyPizzaLeafletId
+				    || orderEquipment.Nomenclature.Id == DaughtersSonsLeafletId)
 				{
 					continue;
 				}

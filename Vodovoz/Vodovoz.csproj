@@ -958,8 +958,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CardPaymentsOrdersReport.cs" />
     <Compile Include="JournalFilters\UndeliveredOrdersFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.UndeliveredOrdersFilter.cs" />
-    <Compile Include="JournalViewers\UndeliveriesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.UndeliveriesView.cs" />
     <Compile Include="Dialogs\UndeliveredOrderCommentsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveredOrderCommentsDlg.cs" />
     <Compile Include="Dialogs\Goods\ProductGroupDlg.cs" />
@@ -1642,6 +1640,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.DriverComplaintReasonView.cs" />
     <Compile Include="JournalViewers\Complaints\DriverComplaintReasonJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.Complaints.DriverComplaintReasonJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\ComplaintObjectJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintObjectJournalFilterView.cs" />
+    <Compile Include="Views\Complaints\ComplaintObjectView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintObjectView.cs" />
+    <Compile Include="Filters\GtkViews\ComplaintKindJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintKindJournalFilterView.cs" />
     <Compile Include="Views\Employees\TerminalManagementView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.TerminalManagementView.cs" />
     <Compile Include="Filters\GtkViews\NomenclatureBalanceByStockFilterView.cs" />

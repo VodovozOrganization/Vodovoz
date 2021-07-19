@@ -41,6 +41,11 @@ namespace Vodovoz.Filters.GtkViews
 			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
 			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKind, w => w.SelectedItem).InitializeFromSource();
 
+			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
+			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
+				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
+
 			yentryreferenceSubdivision.SubjectType = typeof(Subdivision);
 			yentryreferenceSubdivision.Binding.AddBinding(ViewModel, x => x.Subdivision, w => w.Subject).InitializeFromSource();
 

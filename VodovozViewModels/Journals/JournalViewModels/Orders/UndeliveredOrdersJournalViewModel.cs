@@ -553,6 +553,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			CreateDefaultSelectAction();
 			CreateCustomAddActions();
 			CreateCustomEditAction();
+			CreatePrintAction();
+		}
+
+		private void CreatePrintAction()
+		{
+			NodeActionsList.Add(new JournalAction(
+				"Печать", 
+				x => true, 
+				x => true,
+				x => _gtkDlgOpener.OpenUndeliveriesWithCommentsPrintDlg(this, FilterViewModel)
+				)
+			);
 		}
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;

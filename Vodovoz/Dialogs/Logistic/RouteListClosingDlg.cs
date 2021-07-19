@@ -747,9 +747,13 @@ namespace Vodovoz
 			bool isOrdersValid = true;
 			string orderIds = "";
 			byte ordersCounter = 0;
+			OrderParametersProvider orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
+			ValidationContext validationContext;
 			foreach(var item in Entity.Addresses) {
-				var orderValidator = new QSValidator<Order>(item.Order);
-				if(!orderValidator.IsValid) {
+				validationContext = new ValidationContext(item.Order);
+				validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
+				if(!ServicesConfig.ValidationService.Validate(item.Order, validationContext))
+				{
 					if(string.IsNullOrWhiteSpace(orderIds)) {
 						orderIds = string.Format("{0}", item.Order.Id);
 					} else {

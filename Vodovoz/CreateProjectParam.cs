@@ -103,6 +103,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.JournalFilters.Proposal;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Proposal;
@@ -118,12 +119,15 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Views.Reports;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.JournalViewers.Complaints;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 
 namespace Vodovoz
@@ -223,6 +227,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CarEventViewModel, CarEventView>()
 				.RegisterWidgetForTabViewModel<DiscountReasonViewModel, DiscountReasonView>()
 				.RegisterWidgetForTabViewModel<DriverComplaintReasonViewModel, DriverComplaintReasonView>()
+				.RegisterWidgetForTabViewModel<ComplaintObjectViewModel, ComplaintObjectView>()
 				;
 
             //Регистрация виджетов
@@ -280,6 +285,8 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CarEventFilterViewModel, CarEventFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrdersFilterViewModel, UndeliveredOrdersFilterView>()
 				.RegisterWidgetForWidgetViewModel<DriverComplaintReasonJournalFilterViewModel, DriverComplaintReasonJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<ComplaintObjectJournalFilterViewModel, ComplaintObjectJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<ComplaintKindJournalFilterViewModel, ComplaintKindJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureBalanceByStockFilterViewModel, NomenclatureBalanceByStockFilterView>()
 				;
 
@@ -374,6 +381,8 @@ namespace Vodovoz
 			builder.RegisterType<GtkFilePicker>().As<IFilePickerService>();
 			builder.Register(c => new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance())).As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
+			builder.RegisterType<ParametersProvider>().As<IParametersProvider>();
+			builder.RegisterType<OrderParametersProvider>().As<IOrderParametersProvider>();
 			#endregion
 			#region Selectors
 			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();

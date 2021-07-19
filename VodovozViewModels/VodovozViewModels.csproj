@@ -50,6 +50,8 @@
     <Compile Include="Infrastructure\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
     <Compile Include="Journals\FilterViewModels\CashRequestJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Complaints\DriverComplaintReasonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Complaints\ComplaintKindJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Complaints\ComplaintObjectJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Employees\PremiumJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\ActionsWithInvoice.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
@@ -78,6 +80,8 @@
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\CashRequestJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\DriverComplaintReasonJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintKindJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintObjectJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DiscountReasonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DistrictsSetJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DriverCarKindNode.cs" />
@@ -109,6 +113,8 @@
     <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\OrganizationCashTransferDocumentJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\DriverComplaintReasonsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintKindJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintObjectJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\PremiumJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\PremiumTemplateJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\FinancialDistrictsSetsJournalViewModel.cs" />
@@ -126,6 +132,7 @@
     <Compile Include="Journals\JournalViewModels\NomenclatureBalanceByStockJournalViewModel.cs" />
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumRaskatGAZelleViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumViewModel.cs" />
@@ -246,7 +253,7 @@
     <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
     <Compile Include="TempAdapters\SearchHelper.cs" />
     <Compile Include="TempAdapters\SearchParameter.cs" />
-    <Compile Include="Journals\JournalViewModels\ComplaintsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\PhoneTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FinesJournalViewModel.cs" />
@@ -254,7 +261,7 @@
     <Compile Include="Journals\JournalViewModels\WageCalculation\SalesPlanJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\WageCalculation\WageDistrictLevelRatesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\WageCalculation\WageDistrictsJournalViewModel.cs" />
-    <Compile Include="Journals\JournalNodes\ComplaintJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DistrictJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\FineJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\NomenclatureStockJournalNode.cs" />
@@ -264,7 +271,7 @@
     <Compile Include="Journals\JournalNodes\SubdivisionJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\WageDistrictJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\WageDistrictLevelRatesJournalNode.cs" />
-    <Compile Include="Journals\FilterViewModels\ComplaintFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Complaints\ComplaintFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Employees\FineFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\NomenclatureFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />

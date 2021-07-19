@@ -99,6 +99,11 @@ namespace Vodovoz.Views.Complaints
 			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
 			cmbComplaintKind.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem).InitializeFromSource();
 
+			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
+			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
+				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
+
 			comboboxComplaintSource.SetRenderTextFunc<ComplaintSource>(x => x.Name);
 			comboboxComplaintSource.Binding.AddBinding(ViewModel, vm => vm.ComplaintSources, w => w.ItemsList).InitializeFromSource();
 			comboboxComplaintSource.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintSource, w => w.SelectedItem).InitializeFromSource();

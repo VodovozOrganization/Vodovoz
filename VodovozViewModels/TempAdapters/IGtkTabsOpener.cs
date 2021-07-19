@@ -1,4 +1,5 @@
 ﻿using QS.Tdi;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
 namespace Vodovoz.TempAdapters
 {
@@ -9,5 +10,7 @@ namespace Vodovoz.TempAdapters
 		void OpenCreateRouteListDlg(ITdiTab tab, int id);
 		
 		ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0);
+
+		ITdiTab OpenUndeliveriesWithCommentsPrintDlg(ITdiTab tab, UndeliveredOrdersFilterViewModel filter);
 	}
 }

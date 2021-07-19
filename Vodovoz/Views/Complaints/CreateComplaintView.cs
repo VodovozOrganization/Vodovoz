@@ -39,6 +39,11 @@ namespace Vodovoz.Views.Complaints
 			spLstComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
 			spLstComplaintKind.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem).InitializeFromSource();
 
+			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
+			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
+				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
+
 			spLstAddress.Binding.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive).InitializeFromSource();
 
 			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
