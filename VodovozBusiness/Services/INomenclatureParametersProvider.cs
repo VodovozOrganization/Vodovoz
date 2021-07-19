@@ -10,7 +10,6 @@ namespace Vodovoz.Services
         int RootProductGroupForOnlineStoreNomenclatures { get; }
         int CurrentOnlineStoreId { get; }
         string OnlineStoreExportFileUrl { get; }
-        int VodovozLeafletId { get; }
 
         Nomenclature GetWaterSemiozerie(IUnitOfWork uow);
         Nomenclature GetWaterKislorodnaya(IUnitOfWork uow);
