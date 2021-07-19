@@ -1194,8 +1194,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Дата создания").AddTextRenderer(node => node.CreateDate.ToString("g"))
 					.AddColumn("Название").AddTextRenderer(node => node.Name).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Сопряженные виды").AddTextRenderer(node => node.ComplaintKinds).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
-					.AddColumn("В архиве")
-					.AddToggleRenderer(node => node.IsArchive).Editing(false).XAlign(0f)
+					.AddColumn("В архиве").AddToggleRenderer(node => node.IsArchive).Editing(false).XAlign(0f)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
 
@@ -1205,6 +1205,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)
 					.AddColumn("Название").AddTextRenderer(node => node.Name).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Объект рекламаций").AddTextRenderer(node => node.ComplaintObject).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Подключаемые отделы").AddTextRenderer(node => node.Subdivisions).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("В архиве").AddToggleRenderer(node => node.IsArchive).Editing(false).XAlign(0f)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
 		}

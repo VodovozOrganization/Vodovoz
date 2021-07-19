@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
@@ -28,6 +29,7 @@ namespace Vodovoz.ViewModels.Complaints
         private IList<ComplaintObject> _complaintObjectSource;
         private ComplaintObject _complaintObject;
         private readonly IList<ComplaintKind> _complaintKinds;
+        private DelegateCommand _changeDeliveryPointCommand;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
@@ -256,7 +258,22 @@ namespace Vodovoz.ViewModels.Complaints
 		        .RowCount() > 0;
         }
 
-        public IOrderSelectorFactory OrderSelectorFactory { get; }
+        #region ChangeDeliveryPointCommand
+        
+        public DelegateCommand ChangeDeliveryPointCommand => _changeDeliveryPointCommand ?? (_changeDeliveryPointCommand =
+	        new DelegateCommand(() =>
+		        {
+			        if(Entity.Order?.DeliveryPoint != null)
+			        {
+				        Entity.DeliveryPoint = Entity.Order.DeliveryPoint;
+			        }
+		        },
+		        () => true
+	        ));
+	        
+        #endregion ChangeDeliveryPointCommand
+
+		public IOrderSelectorFactory OrderSelectorFactory { get; }
         public IEmployeeJournalFactory EmployeeJournalFactory { get; }
         public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
         public IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }

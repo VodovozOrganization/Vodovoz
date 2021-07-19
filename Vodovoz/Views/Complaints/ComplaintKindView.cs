@@ -22,7 +22,8 @@ namespace Vodovoz.Views.Complaints
 			yspeccomboboxComplaintObject.Binding.AddBinding(ViewModel, vm => vm.ComplaintObjects, w => w.ItemsList).InitializeFromSource();
 			yspeccomboboxComplaintObject.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
 
-			ybuttonAttachSubdivision.Clicked += (sender, e) => { ViewModel.AttachSubdivisionCommand.Execute(); };
+			ybuttonAttachSubdivision.Clicked += (sender, e) => ViewModel.AttachSubdivisionCommand.Execute();
+			ybuttonRemoveSubdivision.Clicked += (sender, e) => ViewModel.RemoveSubdivisionCommand.Execute(ytreeviewSubdivisions.GetSelectedObject<Subdivision>());
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);

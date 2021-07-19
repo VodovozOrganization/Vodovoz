@@ -20,30 +20,43 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ICommonServices _commonServices;
+		private DelegateCommand<Subdivision> _removeSubdivisionCommand;
+		private DelegateCommand _attachSubdivisionCommand;
+		private readonly Action _updateJournalAction;
+		private readonly IList<Subdivision> _subdivisionsOnStart;
+
 		public ComplaintKindViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory, Action updateJournalAction) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-
-			CreateAttachSubdivisionCommand();
+			_updateJournalAction = updateJournalAction ?? throw new ArgumentNullException(nameof(updateJournalAction));
 
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
+			_subdivisionsOnStart = new List<Subdivision>(Entity.Subdivisions);
 
 			TabName = "Виды рекламаций";
 		}
 
+		protected override void AfterSave()
+		{
+			var isEqualSubdivisionLists = new HashSet<Subdivision>(_subdivisionsOnStart).SetEquals(Entity.Subdivisions);
+
+			if(!isEqualSubdivisionLists)
+			{
+				_updateJournalAction.Invoke();
+			}
+
+			base.AfterSave();
+		}
+
 		public IList<ComplaintObject> ComplaintObjects { get; }
 
-		#region AttachSubdivisionCommand
+		#region Commands
 
-		public DelegateCommand AttachSubdivisionCommand { get; private set; }
-
-		private void CreateAttachSubdivisionCommand()
-		{
-			AttachSubdivisionCommand = new DelegateCommand(
-				() => {
+		public DelegateCommand AttachSubdivisionCommand => _attachSubdivisionCommand ?? (_attachSubdivisionCommand = new DelegateCommand(() =>
+				{
 					var subdivisionFilter = new SubdivisionFilterViewModel();
 					var subdivisionJournalViewModel = new SubdivisionsJournalViewModel(
 						subdivisionFilter,
@@ -52,7 +65,8 @@ namespace Vodovoz.ViewModels.Complaints
 						_employeeSelectorFactory
 					);
 					subdivisionJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-					subdivisionJournalViewModel.OnEntitySelectedResult += (sender, e) => {
+					subdivisionJournalViewModel.OnEntitySelectedResult += (sender, e) =>
+					{
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
 						if(selectedNode == null)
 						{
@@ -63,9 +77,19 @@ namespace Vodovoz.ViewModels.Complaints
 					TabParent.AddSlaveTab(this, subdivisionJournalViewModel);
 				},
 				() => true
-			);
-		}
+			));
 
-		#endregion AttachSubdivisionCommand
+
+		public DelegateCommand<Subdivision> RemoveSubdivisionCommand => _removeSubdivisionCommand ?? (_removeSubdivisionCommand =
+			new DelegateCommand<Subdivision>((subdivision) =>
+				{
+
+					Entity.RemoveSubdivision(subdivision);
+				},
+				(subdivision) => true
+			));
+
+		#endregion Commands
+
 	}
 }

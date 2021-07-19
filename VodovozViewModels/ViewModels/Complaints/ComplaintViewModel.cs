@@ -37,6 +37,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
+		private DelegateCommand _changeDeliveryPointCommand;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
@@ -389,6 +390,21 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		#endregion AddFineCommand
+
+		#region ChangeDeliveryPointCommand
+		
+		public DelegateCommand ChangeDeliveryPointCommand => _changeDeliveryPointCommand ?? (_changeDeliveryPointCommand =
+			new DelegateCommand(() =>
+				{
+					if(Entity.Order?.DeliveryPoint != null)
+					{
+						Entity.DeliveryPoint = Entity.Order.DeliveryPoint;
+					}
+				},
+				() => true
+			));
+			
+		#endregion ChangeDeliveryPointCommand
 
 		#endregion Commands
 
