@@ -7,14 +7,14 @@ namespace Vodovoz.HibernateMapping
 	{
 		public FlyerActionTimeMap()
 		{
-			Table("leaflets_action_times");
+			Table("flyers_action_times");
 			
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.EndDate).Column("end_date");
 
-			References(x => x.Flyer).Column("leaflet_id");
+			References(x => x.Flyer).Column("flyer_id");
 		}
 	}
 }

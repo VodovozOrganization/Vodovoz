@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
 using Dialogs.Employees;
 using Gtk;
-using InstantSmsService;
 using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
-using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
-using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -44,25 +37,18 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.EntityRepositories.Store;
 using QS.Project.Journal;
-using QS.Project.Repositories;
-using QS.Project.Services.GtkUI;
-using Vodovoz.Additions;
-using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -82,9 +68,7 @@ using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
-using Vodovoz.ViewModels.TempAdapters;
 
 public partial class MainWindow : Window
 {
@@ -985,7 +969,7 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		/*SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
+		SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
 		{
 			SubdivisionType = SubdivisionType.Default
 		};
@@ -1020,15 +1004,7 @@ public partial class MainWindow : Window
 													  new UndeliveredOrdersJournalOpener()
 													  );
 		
-		tdiMain.AddTab(ordersJournal);*/
-
-		var journal = new FlyersJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			new NomenclatureSelectorFactory(),
-			new FlyerRepository());
-		
-		tdiMain.AddTab(journal);
+		tdiMain.AddTab(ordersJournal);
 	}
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)

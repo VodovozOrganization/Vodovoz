@@ -20,8 +20,6 @@ namespace Vodovoz.Views.Flyers
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryFlyerNomenclature;
 
-		private global::Gamma.GtkWidgets.yCheckButton chckIsActive;
-
 		private global::Gamma.GtkWidgets.yHBox hboxActivationDeactivation;
 
 		private global::Gamma.GtkWidgets.yHBox hboxActivation;
@@ -120,18 +118,6 @@ namespace Vodovoz.Views.Flyers
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.chckIsActive = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chckIsActive.CanFocus = true;
-			this.chckIsActive.Name = "chckIsActive";
-			this.chckIsActive.Label = global::Mono.Unix.Catalog.GetString("Листовка активирована");
-			this.chckIsActive.DrawIndicator = true;
-			this.chckIsActive.UseUnderline = true;
-			this.vboxMain.Add(this.chckIsActive);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.chckIsActive]));
-			w8.Position = 3;
-			w8.Expand = false;
-			w8.Fill = false;
-			// Container child vboxMain.Gtk.Box+BoxChild
 			this.hboxActivationDeactivation = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxActivationDeactivation.Name = "hboxActivationDeactivation";
 			this.hboxActivationDeactivation.Spacing = 6;
@@ -144,10 +130,10 @@ namespace Vodovoz.Views.Flyers
 			this.lblStartDate.Name = "lblStartDate";
 			this.lblStartDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата старта:");
 			this.hboxActivation.Add(this.lblStartDate);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxActivation[this.lblStartDate]));
-			w9.Position = 0;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxActivation[this.lblStartDate]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child hboxActivation.Gtk.Box+BoxChild
 			this.startDatePicker = new global::QS.Widgets.GtkUI.DatePicker();
 			this.startDatePicker.Events = ((global::Gdk.EventMask)(256));
@@ -158,8 +144,8 @@ namespace Vodovoz.Views.Flyers
 			this.startDatePicker.IsEditable = false;
 			this.startDatePicker.AutoSeparation = false;
 			this.hboxActivation.Add(this.startDatePicker);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxActivation[this.startDatePicker]));
-			w10.Position = 1;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxActivation[this.startDatePicker]));
+			w9.Position = 1;
 			// Container child hboxActivation.Gtk.Box+BoxChild
 			this.btnActivate = new global::Gamma.GtkWidgets.yButton();
 			this.btnActivate.CanFocus = true;
@@ -167,13 +153,13 @@ namespace Vodovoz.Views.Flyers
 			this.btnActivate.UseUnderline = true;
 			this.btnActivate.Label = global::Mono.Unix.Catalog.GetString("Активировать");
 			this.hboxActivation.Add(this.btnActivate);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxActivation[this.btnActivate]));
-			w11.Position = 2;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxActivation[this.btnActivate]));
+			w10.Position = 2;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.hboxActivationDeactivation.Add(this.hboxActivation);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxActivationDeactivation[this.hboxActivation]));
-			w12.Position = 0;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxActivationDeactivation[this.hboxActivation]));
+			w11.Position = 0;
 			// Container child hboxActivationDeactivation.Gtk.Box+BoxChild
 			this.hboxDeactivation = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxDeactivation.Name = "hboxDeactivation";
@@ -183,10 +169,10 @@ namespace Vodovoz.Views.Flyers
 			this.lblEndDate.Name = "lblEndDate";
 			this.lblEndDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата окончания:");
 			this.hboxDeactivation.Add(this.lblEndDate);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hboxDeactivation[this.lblEndDate]));
-			w13.Position = 0;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxDeactivation[this.lblEndDate]));
+			w12.Position = 0;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child hboxDeactivation.Gtk.Box+BoxChild
 			this.endDatePicker = new global::QS.Widgets.GtkUI.DatePicker();
 			this.endDatePicker.Events = ((global::Gdk.EventMask)(256));
@@ -197,8 +183,8 @@ namespace Vodovoz.Views.Flyers
 			this.endDatePicker.IsEditable = false;
 			this.endDatePicker.AutoSeparation = false;
 			this.hboxDeactivation.Add(this.endDatePicker);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxDeactivation[this.endDatePicker]));
-			w14.Position = 1;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hboxDeactivation[this.endDatePicker]));
+			w13.Position = 1;
 			// Container child hboxDeactivation.Gtk.Box+BoxChild
 			this.btnDeactivate = new global::Gamma.GtkWidgets.yButton();
 			this.btnDeactivate.CanFocus = true;
@@ -206,18 +192,18 @@ namespace Vodovoz.Views.Flyers
 			this.btnDeactivate.UseUnderline = true;
 			this.btnDeactivate.Label = global::Mono.Unix.Catalog.GetString("Отключить");
 			this.hboxDeactivation.Add(this.btnDeactivate);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxDeactivation[this.btnDeactivate]));
-			w15.Position = 2;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxDeactivation[this.btnDeactivate]));
+			w14.Position = 2;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.hboxActivationDeactivation.Add(this.hboxDeactivation);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxActivationDeactivation[this.hboxDeactivation]));
-			w16.Position = 1;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxActivationDeactivation[this.hboxDeactivation]));
+			w15.Position = 1;
 			this.vboxMain.Add(this.hboxActivationDeactivation);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxActivationDeactivation]));
-			w17.Position = 4;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxActivationDeactivation]));
+			w16.Position = 3;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -228,8 +214,8 @@ namespace Vodovoz.Views.Flyers
 			this.treeViewFlyersActionTimes.Name = "treeViewFlyersActionTimes";
 			this.GtkScrolledWindow.Add(this.treeViewFlyersActionTimes);
 			this.vboxMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.GtkScrolledWindow]));
-			w19.Position = 5;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.GtkScrolledWindow]));
+			w18.Position = 4;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

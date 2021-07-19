@@ -32,11 +32,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			
-			TabName = "Журнал флаеров";
-
-			var rep = new FlyerRepository();
-			var activeNoms = rep.GetAllActiveFlyers(UoW);
-			var Ids = rep.GetAllFlyersNomenclaturesIds(UoW);
+			TabName = "Журнал рекламных листовок";
 			
 			UpdateOnChanges(
 				typeof(Flyer),

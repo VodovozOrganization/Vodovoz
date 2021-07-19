@@ -3,6 +3,7 @@ using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain;
 using Vodovoz.ViewModels.ViewModels.Leaflets;
+
 namespace Vodovoz.Views.Flyers
 {
 	public partial class FlyerView : TabViewBase<FlyerViewModel>
@@ -21,21 +22,18 @@ namespace Vodovoz.Views.Flyers
 			btnDeactivate.Clicked += (sender, args) => ViewModel.DeactivateFlyerCommand.Execute();
 			
 			entryFlyerNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.FlyerAutocompleteSelectorFactory);
-			entryFlyerNomenclature.Binding.AddBinding(ViewModel.Entity, vm => vm.FlyerNomenclature, w => w.Subject).InitializeFromSource();
+			entryFlyerNomenclature.Binding.AddBinding(ViewModel.Entity, e => e.FlyerNomenclature, w => w.Subject).InitializeFromSource();
 			entryFlyerNomenclature.Binding.AddBinding(ViewModel, vm => vm.CanEditFlyerNomenclature, w => w.Sensitive).InitializeFromSource();
 
-			hboxActivation.Visible = !ViewModel.IsFlyerActive;
+			hboxActivation.Binding.AddFuncBinding(ViewModel, vm => !vm.IsFlyerActivated, w => w.Visible).InitializeFromSource();
 			startDatePicker.Binding.AddBinding(ViewModel, vm => vm.FlyerStartDate, w => w.DateOrNull).InitializeFromSource();
 			startDatePicker.IsEditable = true;
 			btnActivate.Binding.AddBinding(ViewModel, vm => vm.CanActivateFlyer, w => w.Sensitive).InitializeFromSource();
 
-			hboxDeactivation.Visible = ViewModel.IsFlyerActive;
+			hboxDeactivation.Binding.AddBinding(ViewModel, vm => vm.IsFlyerActivated, w => w.Visible).InitializeFromSource();
 			endDatePicker.Binding.AddBinding(ViewModel, vm => vm.FlyerEndDate, w => w.DateOrNull).InitializeFromSource();
 			endDatePicker.IsEditable = true;
 			btnDeactivate.Binding.AddBinding(ViewModel, vm => vm.CanDeactivateFlyer, w => w.Sensitive).InitializeFromSource();
-
-			chckIsActive.Binding.AddBinding(ViewModel, vm => vm.IsFlyerActive, w => w.Active).InitializeFromSource();
-			chckIsActive.Sensitive = false;
 
 			ConfigureTreeView();
 		}

@@ -185,21 +185,17 @@ namespace Vodovoz.Tools.Orders
 
 		private bool OnlyFlyersInEquipments(IList<int> allActiveFlyersNomenclaturesIds)
 		{
-			bool onlyFlyers = false;
-
 			foreach(OrderEquipment equipment in Order.ObservableOrderEquipments)
 			{
 				if(allActiveFlyersNomenclaturesIds.Contains(equipment.Nomenclature.Id))
 				{
-					onlyFlyers = true;
+					continue;
 				}
-				else
-				{
-					onlyFlyers = false;
-				}
+
+				return false;
 			}
 
-			return onlyFlyers;
+			return true;
 		}
 
 		public bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)

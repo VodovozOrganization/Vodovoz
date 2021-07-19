@@ -105,7 +105,6 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
-using QS.Services;
 using Vodovoz.ViewModels.Reports;
 using MySql.Data.MySqlClient;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -122,16 +121,14 @@ using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2406,5 +2403,16 @@ public partial class MainWindow : Gtk.Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices)
 		);
+	}
+
+	protected void OnActionFlyersActivated(object sender, EventArgs e)
+	{
+		var journal = new FlyersJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			new NomenclatureSelectorFactory(),
+			new FlyerRepository());
+		
+		tdiMain.AddTab(journal);
 	}
 }

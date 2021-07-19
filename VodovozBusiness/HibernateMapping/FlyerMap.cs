@@ -7,12 +7,13 @@ namespace Vodovoz.HibernateMapping
 	{
 		public FlyerMap()
 		{
-			Table("leaflets");
+			Table("flyers");
 			
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			References(x => x.FlyerNomenclature).Column("leaflet_nomenclature_id");
-			HasMany(x => x.FlyerActionTimes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("leaflet_id");
+			References(x => x.FlyerNomenclature).Column("flyer_nomenclature_id");
+			
+			HasMany(x => x.FlyerActionTimes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("flyer_id");
 		}
 	}
 }

@@ -372,7 +372,7 @@ namespace Vodovoz
 				|| Entity.OrderStatus == OrderStatus.Closed
 				|| Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading;
 
-			orderEquipmentItemsView.Configure(UoWGeneric, Entity, new NomenclatureParametersProvider());
+			orderEquipmentItemsView.Configure(UoWGeneric, Entity, _flyerRepository);
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
 
 			//Подписывемся на изменения листов для засеривания клиента

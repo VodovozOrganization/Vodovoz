@@ -34,6 +34,11 @@ namespace Vodovoz.ViewModels.ViewModels.Leaflets
 				.CreateNomenclatureForFlyerJournalFactory();
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 
+			if(!uowBuilder.IsNewEntity)
+			{
+				TabName = $"{Entity.FlyerNomenclature.Name}";
+			}
+			
 			GetCurrentFlyerActionTime();
 			AddServiceToValidationContext();
 		}
@@ -65,7 +70,7 @@ namespace Vodovoz.ViewModels.ViewModels.Leaflets
 		}
 
 		public bool CanEditFlyerNomenclature => Entity.Id == 0;
-		public bool IsFlyerActive => _currentFlyerActionTime != null && !_currentFlyerActionTime.EndDate.HasValue;
+		public bool IsFlyerActivated => _currentFlyerActionTime != null && !_currentFlyerActionTime.EndDate.HasValue;
 		public bool CanActivateFlyer => FlyerStartDate.HasValue;
 		public bool CanDeactivateFlyer => FlyerEndDate.HasValue;
 		
@@ -91,6 +96,8 @@ namespace Vodovoz.ViewModels.ViewModels.Leaflets
 				}
 
 				ActivateFlyer();
+				GetCurrentFlyerActionTime();
+				OnPropertyChanged(nameof(IsFlyerActivated));
 			}
 		));
 
@@ -116,6 +123,7 @@ namespace Vodovoz.ViewModels.ViewModels.Leaflets
 				}
 
 				DeactivateFlyer();
+				OnPropertyChanged(nameof(IsFlyerActivated));
 			}
 		));
 

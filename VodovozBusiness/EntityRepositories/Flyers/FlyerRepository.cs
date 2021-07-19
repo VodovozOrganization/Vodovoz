@@ -28,8 +28,8 @@ namespace Vodovoz.EntityRepositories.Flyers
 			var query = uow.Session.QueryOver<Flyer>()
 				.JoinAlias(f => f.FlyerNomenclature, () => flyerNomenclatureAlias)
 				.JoinAlias(f => f.FlyerActionTimes, () => flyerActionTimeAlias)
-				.Where(() => flyerActionTimeAlias.EndDate == null || flyerActionTimeAlias.EndDate.Value > DateTime.Today)
-				.And(() => flyerActionTimeAlias.StartDate <= DateTime.Today)
+				.Where(() => flyerActionTimeAlias.StartDate <= DateTime.Today)
+				.And(() => flyerActionTimeAlias.EndDate == null || flyerActionTimeAlias.EndDate.Value > DateTime.Today)
 				.List();
 			
 			return query;

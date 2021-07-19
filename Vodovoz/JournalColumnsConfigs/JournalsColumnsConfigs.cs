@@ -1213,7 +1213,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			//FlyersJournalViewModel
 			TreeViewColumnsConfigFactory.Register<FlyersJournalViewModel>(
 				() => FluentColumnsConfig<FlyersJournalNode>.Create()
-					.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Код").AddNumericRenderer(n => n.Id)
 					.AddColumn("Название").AddTextRenderer(n => n.Name)
 					.AddColumn("Дата старта").AddTextRenderer(n => n.StartDate.ToShortDateString())
 					.AddColumn("Дата окончания").AddTextRenderer(n =>

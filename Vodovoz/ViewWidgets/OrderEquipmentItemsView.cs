@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
@@ -8,9 +9,9 @@ using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalFilters;
-using Vodovoz.Services;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ViewWidgets
@@ -18,7 +19,7 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderEquipmentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private int vodovozLeafletId;
+		private IList<int> _activeFlyersNomenclaturesIds;
 		public IUnitOfWork UoW { get; set; }
 
 		public Order Order { get; set; }
@@ -48,15 +49,15 @@ namespace Vodovoz.ViewWidgets
 		/// </summary>
 		int treeAnyGoodsFirstColWidth;
 
-		public void Configure(IUnitOfWork uow, Order order, INomenclatureParametersProvider nomenclatureParametersProvider)
+		public void Configure(IUnitOfWork uow, Order order, IFlyerRepository flyerRepository)
 		{
-			if (nomenclatureParametersProvider == null) {
-				throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			if (flyerRepository == null) {
+				throw new ArgumentNullException(nameof(flyerRepository));
 			}
 			
 			UoW = uow;
 			Order = order;
-			vodovozLeafletId = nomenclatureParametersProvider.VodovozLeafletId;
+			_activeFlyersNomenclaturesIds = flyerRepository.GetAllActiveFlyersNomenclaturesIds(UoW);
 
 			buttonDeleteEquipment.Sensitive = false;
 			Order.ObservableOrderEquipments.ElementAdded += Order_ObservableOrderEquipments_ElementAdded;
@@ -93,7 +94,7 @@ namespace Vodovoz.ViewWidgets
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 				.AddSetter((cell, node) => {
-					cell.Editable = node.Nomenclature.Id != vodovozLeafletId 
+					cell.Editable = !_activeFlyersNomenclaturesIds.Contains(node.Nomenclature.Id)
 					                && !(node.OrderItem != null && node.OwnType == OwnTypes.Rent);
 				})
 				.AddTextRenderer(node => $"({node.ReturnedCount})")
