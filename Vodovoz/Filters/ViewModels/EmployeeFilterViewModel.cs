@@ -8,6 +8,7 @@ namespace Vodovoz.Filters.ViewModels
 	public class EmployeeFilterViewModel : RepresentationFilterViewModelBase<EmployeeFilterViewModel>
 	{
 		private bool _sortByPriority;
+		private bool _canSortByPriotity;
 		private bool _canChangeStatus = true;
 		private bool _canChangeCategory = true;
 		private bool _hasAccessToDriverTerminal;
@@ -73,6 +74,12 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _hasAccessToDriverTerminal, value, () => HasAccessToDriverTerminal);
 		}
 
+		public bool CanSortByPriority
+		{
+			get => _canSortByPriotity;
+			set => UpdateFilterField(ref _canSortByPriotity, value, () => CanSortByPriority);
+		}
+
 		public bool SortByPriority
 		{
 			get => _sortByPriority;
@@ -87,8 +94,12 @@ namespace Vodovoz.Filters.ViewModels
 		#endregion
 
 		public EmployeeFilterViewModel()
-		{//FIXME Фильтр создается в разных местах для разных версий журналов(Representation, MVVM), замучаюсь прокидывать ServicesConfig
-			HasAccessToDriverTerminal = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+		{
+			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			HasAccessToDriverTerminal = cashier || logistician;
+			CanSortByPriority = cashier;
+
 			CreateCommands();
 		}
 

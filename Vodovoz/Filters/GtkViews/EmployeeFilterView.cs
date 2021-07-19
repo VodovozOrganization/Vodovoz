@@ -32,7 +32,8 @@ namespace Vodovoz.Filters.GtkViews
 				comboDriverType.ItemsEnum = typeof(DriverTerminalRelation);
 				comboDriverType.Binding.AddBinding(ViewModel, vm => vm.DriverTerminalRelation, w => w.SelectedItemOrNull).InitializeFromSource();
 
-				checkSortByPriority.Binding.AddBinding(ViewModel, vm => vm.SortByPriority, w => w.Active);
+				checkSortByPriority.Binding.AddBinding(ViewModel, vm => vm.CanSortByPriority, w => w.Visible).InitializeFromSource();
+				checkSortByPriority.Binding.AddBinding(ViewModel, vm => vm.SortByPriority, w => w.Active).InitializeFromSource();
 				checkSortByPriority.Toggled += (sender, args) => ViewModel.UpdateRestrictions.Execute();
 			}
 		}
