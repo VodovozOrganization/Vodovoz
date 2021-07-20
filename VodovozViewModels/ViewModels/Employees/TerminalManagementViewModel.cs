@@ -54,10 +54,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_driver = driver ?? throw new ArgumentNullException(nameof(driver));
 			_parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_defaultWarehouse = defaultWarehouse ?? throw new ArgumentNullException(nameof(defaultWarehouse));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_defaultWarehouse = defaultWarehouse;
 
 			_author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			UpdateEntityAndRelatedProperties(
