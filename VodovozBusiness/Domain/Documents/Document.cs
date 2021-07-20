@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Documents
@@ -74,6 +75,12 @@ namespace Vodovoz.Domain.Documents
 					return typeof(RegradingOfGoodsDocument);
 				case DocumentType.DeliveryDocument:
 					return typeof(DeliveryDocument);
+				case DocumentType.DriverTerminalMovement:
+					return typeof(DriverAttachedTerminalDocumentBase);
+				case DocumentType.DriverTerminalGiveout:
+					return typeof(DriverAttachedTerminalGiveoutDocument);
+				case DocumentType.DriverTerminalReturn:
+					return typeof(DriverAttachedTerminalReturnDocument);
 			}
 			throw new NotSupportedException();
 		}
@@ -104,7 +111,13 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Пересортица товаров")]
 		RegradingOfGoodsDocument,
 		[Display (Name = "Документ доставки")]
-		DeliveryDocument
+		DeliveryDocument,
+		[Display(Name = "Документы перемещения терминала водителя")]
+		DriverTerminalMovement,
+		[Display(Name = "Документ выдачи терминала водителя")]
+		DriverTerminalGiveout,
+		[Display(Name = "Документ возврата терминала водителя")]
+		DriverTerminalReturn
 	}
 
 	public class DocumentTypeStringType : NHibernate.Type.EnumStringType

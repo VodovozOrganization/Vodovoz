@@ -193,7 +193,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			DocumentTypeToCreate = _entity is DriverAttachedTerminalReturnDocument || _entity == null
 				? AttachedTerminalDocumentType.Giveout
 				: AttachedTerminalDocumentType.Return;
-			Title = _entity.GetTitle();
+			Title = _entity?.ToString();
 			HasChanges = hasChanges;
 		}
 

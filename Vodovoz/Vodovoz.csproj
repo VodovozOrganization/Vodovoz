@@ -1650,6 +1650,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.TerminalManagementView.cs" />
     <Compile Include="Filters\GtkViews\NomenclatureBalanceByStockFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclatureBalanceByStockFilterView.cs" />
+    <Compile Include="Views\Employees\DriverAttachedTerminalView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.DriverAttachedTerminalView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -300,6 +300,7 @@
     <Compile Include="ViewModels\Complaints\DriverComplaintReasonViewModel.cs" />
     <Compile Include="ViewModels\Employees\TerminalManagementViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\NomenclatureBalanceByStockFilterViewModel.cs" />
+    <Compile Include="ViewModels\Employees\DriverAttachedTerminalViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />

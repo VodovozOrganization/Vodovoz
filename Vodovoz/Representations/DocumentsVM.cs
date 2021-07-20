@@ -16,6 +16,8 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Goods;
 using Gtk;
 using Gdk;
+using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.ViewModel
 {
@@ -48,7 +50,7 @@ namespace Vodovoz.ViewModel
 			Warehouse secondWarehouseAlias = null;
 			MovementWagon wagonAlias = null;
 
-             Nomenclature productAlias = null;
+            Nomenclature productAlias = null;
 
 			CarLoadDocument loadCarAlias = null;
 			CarUnloadDocument unloadCarAlias = null;
@@ -58,6 +60,9 @@ namespace Vodovoz.ViewModel
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Domain.Orders.Order orderAlias = null;
+			DriverAttachedTerminalGiveoutDocument terminalGiveoutAlias = null;
+			DriverAttachedTerminalReturnDocument terminalReturnAlias = null;
+			WarehouseMovementOperation wmoAlias = null;
 
 			List<DocumentVMNode> result = new List<DocumentVMNode> ();
 
@@ -384,9 +389,9 @@ namespace Vodovoz.ViewModel
 						.Select (() => DocumentType.CarLoadDocument).WithAlias (() => resultAlias.DocTypeEnum)
 						.Select (() => carAlias.Model).WithAlias (() => resultAlias.CarModel)
 						.Select (() => carAlias.RegistrationNumber).WithAlias (() => resultAlias.CarNumber)
-						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DirverSurname)
-						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DirverName)
-						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DirverPatronymic)
+						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DriverSurname)
+						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DriverName)
+						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DriverPatronymic)
 						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse)
 						.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.RouteListId)
 						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
@@ -427,9 +432,9 @@ namespace Vodovoz.ViewModel
 						.Select (() => DocumentType.CarUnloadDocument).WithAlias (() => resultAlias.DocTypeEnum)
 						.Select (() => carAlias.Model).WithAlias (() => resultAlias.CarModel)
 						.Select (() => carAlias.RegistrationNumber).WithAlias (() => resultAlias.CarNumber)
-						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DirverSurname)
-						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DirverName)
-						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DirverPatronymic)
+						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DriverSurname)
+						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DriverName)
+						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DriverPatronymic)
 						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse)
 						.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.RouteListId)
 						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
@@ -443,6 +448,159 @@ namespace Vodovoz.ViewModel
 					.List<DocumentVMNode> ();
 
 				result.AddRange (carUnloadList);
+			}
+
+			if(Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.DriverTerminalMovement)
+			{
+				#region Giveout
+				var driverTerminalGiveoutQuery = UoW.Session.QueryOver(() => terminalGiveoutAlias)
+					.JoinQueryOver(() => terminalGiveoutAlias.WarehouseMovementOperation, () => wmoAlias,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => wmoAlias.WriteoffWarehouse, () => warehouseAlias,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => terminalGiveoutAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+				if(Filter.RestrictWarehouse != null)
+				{
+					driverTerminalGiveoutQuery
+						.Where(() => wmoAlias.WriteoffWarehouse != null &&
+						             wmoAlias.WriteoffWarehouse.Id == Filter.RestrictWarehouse.Id);
+				}
+
+				if(Filter.RestrictStartDate.HasValue) {driverTerminalGiveoutQuery.Where (() => terminalGiveoutAlias.CreationDate >= Filter.RestrictStartDate.Value);}
+				if(Filter.RestrictEndDate.HasValue) {driverTerminalGiveoutQuery.Where (() => terminalGiveoutAlias.CreationDate < Filter.RestrictEndDate.Value.AddDays(1));}
+				if(Filter.RestrictDriver != null) {driverTerminalGiveoutQuery.Where (() => terminalGiveoutAlias.Driver.Id == Filter.RestrictDriver.Id);}
+
+				var terminalGiveoutDocs = driverTerminalGiveoutQuery
+					.JoinAlias(() => terminalGiveoutAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.SelectList (list => list
+						.Select (() => terminalGiveoutAlias.Id).WithAlias (() => resultAlias.Id)
+						.Select (() => terminalGiveoutAlias.CreationDate).WithAlias (() => resultAlias.Date)
+						.Select (() => DocumentType.DriverTerminalGiveout).WithAlias (() => resultAlias.DocTypeEnum)
+						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DriverSurname)
+						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DriverName)
+						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DriverPatronymic)
+						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse)
+						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
+						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
+						.Select (() => authorAlias.Patronymic).WithAlias (() => resultAlias.AuthorPatronymic))
+					.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
+					.List<DocumentVMNode>();
+				result.AddRange (terminalGiveoutDocs);
+				#endregion
+
+				#region Return
+				var driverTerminalReturnQuery = UoW.Session.QueryOver(() => terminalReturnAlias)
+					.JoinQueryOver(() => terminalReturnAlias.WarehouseMovementOperation, () => wmoAlias,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => wmoAlias.IncomingWarehouse, () => warehouseAlias,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => terminalReturnAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+				if(Filter.RestrictWarehouse != null)
+				{
+					driverTerminalReturnQuery
+						.Where(() => wmoAlias.IncomingWarehouse != null &&
+						             wmoAlias.IncomingWarehouse.Id == Filter.RestrictWarehouse.Id);
+				}
+
+				if(Filter.RestrictStartDate.HasValue) {driverTerminalReturnQuery.Where (() => terminalReturnAlias.CreationDate >= Filter.RestrictStartDate.Value);}
+				if(Filter.RestrictEndDate.HasValue) {driverTerminalReturnQuery.Where (() => terminalReturnAlias.CreationDate < Filter.RestrictEndDate.Value.AddDays(1));}
+				if(Filter.RestrictDriver != null) {driverTerminalReturnQuery.Where (() => terminalReturnAlias.Driver.Id == Filter.RestrictDriver.Id);}
+
+				var terminalReturnDocs = driverTerminalReturnQuery
+					.JoinAlias(() => terminalReturnAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.SelectList (list => list
+						.Select (() => terminalReturnAlias.Id).WithAlias (() => resultAlias.Id)
+						.Select (() => terminalReturnAlias.CreationDate).WithAlias (() => resultAlias.Date)
+						.Select (() => DocumentType.DriverTerminalReturn).WithAlias (() => resultAlias.DocTypeEnum)
+						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DriverSurname)
+						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DriverName)
+						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DriverPatronymic)
+						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse)
+						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
+						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
+						.Select (() => authorAlias.Patronymic).WithAlias (() => resultAlias.AuthorPatronymic))
+					.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
+					.List<DocumentVMNode>();
+				result.AddRange (terminalReturnDocs);
+				#endregion
+			}
+
+			if(Filter.RestrictDocumentType == DocumentType.DriverTerminalGiveout)
+			{
+				var driverterminalGiveoutQuery = UoW.Session.QueryOver(() => terminalGiveoutAlias)
+					.JoinQueryOver(() => terminalGiveoutAlias.WarehouseMovementOperation, () => wmoAlias,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => wmoAlias.WriteoffWarehouse, () => warehouseAlias,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => terminalGiveoutAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+				if(Filter.RestrictWarehouse != null)
+				{
+					driverterminalGiveoutQuery
+						.Where(() => wmoAlias.WriteoffWarehouse != null &&
+						             wmoAlias.WriteoffWarehouse.Id == Filter.RestrictWarehouse.Id);
+				}
+
+				if(Filter.RestrictStartDate.HasValue) {driverterminalGiveoutQuery.Where (() => terminalGiveoutAlias.CreationDate >= Filter.RestrictStartDate.Value);}
+				if(Filter.RestrictEndDate.HasValue) {driverterminalGiveoutQuery.Where (() => terminalGiveoutAlias.CreationDate < Filter.RestrictEndDate.Value.AddDays(1));}
+				if(Filter.RestrictDriver != null) {driverterminalGiveoutQuery.Where (() => terminalGiveoutAlias.Driver.Id == Filter.RestrictDriver.Id);}
+
+				var terminalGiveoutDocs = driverterminalGiveoutQuery
+					.JoinAlias(() => terminalGiveoutAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.SelectList (list => list
+						.Select (() => terminalGiveoutAlias.Id).WithAlias (() => resultAlias.Id)
+						.Select (() => terminalGiveoutAlias.CreationDate).WithAlias (() => resultAlias.Date)
+						.Select (() => DocumentType.DriverTerminalGiveout).WithAlias (() => resultAlias.DocTypeEnum)
+						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DriverSurname)
+						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DriverName)
+						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DriverPatronymic)
+						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse)
+						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
+						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
+						.Select (() => authorAlias.Patronymic).WithAlias (() => resultAlias.AuthorPatronymic))
+					.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
+					.List<DocumentVMNode>();
+				result.AddRange (terminalGiveoutDocs);
+			}
+
+			if(Filter.RestrictDocumentType == DocumentType.DriverTerminalReturn)
+			{
+				var driverTerminalReturnQuery = UoW.Session.QueryOver(() => terminalReturnAlias)
+					.JoinQueryOver(() => terminalReturnAlias.WarehouseMovementOperation, () => wmoAlias,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => wmoAlias.IncomingWarehouse, () => warehouseAlias,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => terminalReturnAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+				if(Filter.RestrictWarehouse != null)
+				{
+					driverTerminalReturnQuery
+						.Where(() => wmoAlias.IncomingWarehouse != null &&
+						             wmoAlias.IncomingWarehouse.Id == Filter.RestrictWarehouse.Id);
+				}
+
+				if(Filter.RestrictStartDate.HasValue) {driverTerminalReturnQuery.Where (() => terminalReturnAlias.CreationDate >= Filter.RestrictStartDate.Value);}
+				if(Filter.RestrictEndDate.HasValue) {driverTerminalReturnQuery.Where (() => terminalReturnAlias.CreationDate < Filter.RestrictEndDate.Value.AddDays(1));}
+				if(Filter.RestrictDriver != null) {driverTerminalReturnQuery.Where (() => terminalReturnAlias.Driver.Id == Filter.RestrictDriver.Id);}
+
+				var terminalReturnDocs = driverTerminalReturnQuery
+					.JoinAlias(() => terminalReturnAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.SelectList (list => list
+						.Select (() => terminalReturnAlias.Id).WithAlias (() => resultAlias.Id)
+						.Select (() => terminalReturnAlias.CreationDate).WithAlias (() => resultAlias.Date)
+						.Select (() => DocumentType.DriverTerminalReturn).WithAlias (() => resultAlias.DocTypeEnum)
+						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DriverSurname)
+						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DriverName)
+						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DriverPatronymic)
+						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse)
+						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
+						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
+						.Select (() => authorAlias.Patronymic).WithAlias (() => resultAlias.AuthorPatronymic))
+					.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
+					.List<DocumentVMNode>();
+				result.AddRange (terminalReturnDocs);
 			}
 
 			result.Sort ((x, y) => { 
@@ -518,7 +676,8 @@ namespace Vodovoz.ViewModel
 			typeof(CarUnloadDocument),
 			typeof(InventoryDocument),
 			typeof(ShiftChangeWarehouseDocument),
-			typeof(RegradingOfGoodsDocument)
+			typeof(RegradingOfGoodsDocument),
+			typeof(DriverAttachedTerminalDocumentBase)
 		)
 		{
 			this.UoW = uow;
@@ -565,9 +724,9 @@ namespace Vodovoz.ViewModel
 							CarModel,
 							CarNumber,
 							PersonHelper.PersonNameWithInitials(
-								DirverSurname,
-								DirverName,
-								DirverPatronymic
+								DriverSurname,
+								DriverName,
+								DriverPatronymic
 							),
 							RouteListId
 						);
@@ -577,9 +736,9 @@ namespace Vodovoz.ViewModel
 							CarModel,
 							CarNumber,
 							PersonHelper.PersonNameWithInitials(
-								DirverSurname,
-								DirverName,
-								DirverPatronymic
+								DriverSurname,
+								DriverName,
+								DriverPatronymic
 							),
 							RouteListId
 						);
@@ -591,6 +750,12 @@ namespace Vodovoz.ViewModel
 						return string.Format("По складу: {0}", Warehouse);
 					case DocumentType.SelfDeliveryDocument:
 						return string.Format("Склад: {0}, Заказ №: {1}, Клиент: {2}", Warehouse, OrderId, Counterparty);
+					case DocumentType.DriverTerminalGiveout:
+						return "Выдача терминала водителю " +
+						       $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} со склада {Warehouse}";
+					case DocumentType.DriverTerminalReturn:
+						return "Возврат терминала водителем " +
+						       $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} на склад {Warehouse}";
 					default:
 						return string.Empty;
 				}
@@ -631,9 +796,9 @@ namespace Vodovoz.ViewModel
 
 		public string LastEditor => PersonHelper.PersonNameWithInitials(LastEditorSurname, LastEditorName, LastEditorPatronymic);
 
-		public string DirverSurname { get; set; }
-		public string DirverName { get; set; }
-		public string DirverPatronymic { get; set; }
+		public string DriverSurname { get; set; }
+		public string DriverName { get; set; }
+		public string DriverPatronymic { get; set; }
 
 		public MovementDocumentStatus MovementDocumentStatus { get; set; }
 
