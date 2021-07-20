@@ -91,10 +91,10 @@ namespace Vodovoz
 	{
 		public EquipmentKind EquipmentKind { get; set; }
 		public int Amount { get; set; }
-		public static EquipmentKindGroupingResult Selector(EquipmentKind type, IEnumerable<int> amounts)
+		public static EquipmentKindGroupingResult Selector(EquipmentKind kind, IEnumerable<int> amounts)
 		{
 			return new EquipmentKindGroupingResult {
-				EquipmentKind = type,
+				EquipmentKind = kind,
 				Amount = amounts.Sum()
 			};
 		}

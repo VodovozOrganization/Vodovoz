@@ -45,10 +45,11 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 
 			var result = query.SelectList(list => list
 									.Select(x => x.Id).WithAlias(() => resultAlias.Id)
+									.Select(x => x.Name).WithAlias(() => resultAlias.Name)
 									.Select(x => x.FullBottleToSell).WithAlias(() => resultAlias.FullBottleToSell)
 									.Select(x => x.EmptyBottlesToTake).WithAlias(() => resultAlias.EmptyBottlesToTake)
 									.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive)
-								)
+					)
 								.TransformUsing(Transformers.AliasToBean<SalesPlanJournalNode>())
 								.OrderBy(x => x.Name).Asc
 								.ThenBy(x => x.IsArchive).Asc

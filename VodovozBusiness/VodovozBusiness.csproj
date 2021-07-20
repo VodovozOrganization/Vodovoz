@@ -134,9 +134,9 @@
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />
-    <Compile Include="Domain\WageCalculation\NomenclatureItemSalesPlan.cs" />
-    <Compile Include="Domain\WageCalculation\EquipmentKindItemSalesPlan.cs" />
-    <Compile Include="Domain\WageCalculation\EquipmentTypeItemSalesPlan.cs" />
+    <Compile Include="Domain\WageCalculation\NomenclatureSalesPlanItem.cs" />
+    <Compile Include="Domain\WageCalculation\EquipmentKindSalesPlanItem.cs" />
+    <Compile Include="Domain\WageCalculation\EquipmentTypeSalesPlanItem.cs" />
     <Compile Include="Domain\WageCalculation\SalesPlanItem.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItem.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItemTypes.cs" />

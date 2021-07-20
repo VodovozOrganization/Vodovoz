@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
@@ -18,46 +19,58 @@ namespace Vodovoz.Views.WageCalculation
 
 		protected void ConfigureWidget()
 		{
-			//labelName.Visible = yentryName.Visible = false;
 			btnSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			btnCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+			
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			chkIsArchive.Binding.AddBinding(ViewModel.Entity, s => s.IsArchive, w => w.Active).InitializeFromSource();
 			entryFullBottlesToSell.Binding.AddBinding(ViewModel.Entity, e => e.FullBottleToSell, w => w.ValueAsInt).InitializeFromSource();
 			entryEmptyBottlesToTake.Binding.AddBinding(ViewModel.Entity, e => e.EmptyBottlesToTake, w => w.ValueAsInt).InitializeFromSource();
+			entryProceeds.Binding.AddBinding(ViewModel.Entity, e => e.Proceeds, w => w.ValueAsDecimal).InitializeFromSource();
 
-			ybuttonAddNomenclature.Clicked += (sender, e) => { ViewModel.AddNomenclatureCommand.Execute(); };
-
-			//ytreeviewNomenclatureSalesPlan.ColumnsConfig = FluentColumnsConfig<Nomenclature>.Create()
-			//	.AddColumn("Подразделение").AddTextRenderer(x => x.Name)
-			//	.Finish();
-			ytreeviewNomenclatureSalesPlan.ColumnsConfig = FluentColumnsConfig<NomenclatureItemSalesPlan>.Create()
-				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature != null ?x.Nomenclature.Name:"")
+			ytreeviewNomenclatureSalesPlan.ColumnsConfig = FluentColumnsConfig<NomenclatureSalesPlanItem>.Create()
+				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature != null ? x.Nomenclature.Name : "")
+				.AddColumn("План день").AddNumericRenderer(x => x.PlanDay).WidthChars(10).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
+				.AddColumn("План месяц").AddNumericRenderer(x => x.PlanMonth).WidthChars(10).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
 				.Finish();
 			ytreeviewNomenclatureSalesPlan.ItemsDataSource = ViewModel.Entity.ObservableNomenclatureItemSalesPlans;
-			ytreeviewNomenclatureSalesPlan.HeadersVisible = false;
 
-			ytreeviewEquipmentTypeSalesPlan.ColumnsConfig = FluentColumnsConfig<EquipmentTypeItemSalesPlan>.Create()
-				.AddColumn("Тип").AddTextRenderer(x => x.EquipmentType !=null? x.EquipmentType.GetEnumTitle():"")
-				.Finish();
-			ytreeviewEquipmentTypeSalesPlan.ItemsDataSource = ViewModel.Entity.ObservableEquipmentTypeItemSalesPlans;
-			ytreeviewEquipmentTypeSalesPlan.HeadersVisible = false;
+			ybuttonAddNomenclature.Clicked += (sender, e) => ViewModel.AddNomenclatureItemCommand.Execute();
+			ybuttonDeleteNomenclature.Clicked += (sender, e) =>
+				ViewModel.RemoveNomenclatureItemCommand.Execute(ytreeviewNomenclatureSalesPlan.GetSelectedObject<NomenclatureSalesPlanItem>());
 
-			ytreeviewEquipmentKindSalesPlan.ColumnsConfig = FluentColumnsConfig<EquipmentKindItemSalesPlan>.Create()
+			ytreeviewEquipmentKindSalesPlan.ColumnsConfig = FluentColumnsConfig<EquipmentKindSalesPlanItem>.Create()
 				.AddColumn("Вид").AddTextRenderer(x => x.EquipmentKind != null ? x.EquipmentKind.Name : "")
+				.AddColumn("План день").AddNumericRenderer(x => x.PlanDay).WidthChars(10).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
+				.AddColumn("План месяц").AddNumericRenderer(x => x.PlanMonth).WidthChars(10).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
 				.Finish();
 			ytreeviewEquipmentKindSalesPlan.ItemsDataSource = ViewModel.Entity.ObservableEquipmentKindItemSalesPlans;
-			ytreeviewEquipmentKindSalesPlan.HeadersVisible = false;
+
+			ybuttonAddEquipmentKind.Clicked += (sender, e) => ViewModel.AddEquipmentKindItemCommand.Execute();
+			ybuttonDeleteEquipmentKind.Clicked += (sender, e) =>
+				ViewModel.RemoveEquipmentKindItemCommand.Execute(ytreeviewEquipmentKindSalesPlan.GetSelectedObject<EquipmentKindSalesPlanItem>());
+
+			ytreeviewEquipmentTypeSalesPlan.ColumnsConfig = FluentColumnsConfig<EquipmentTypeSalesPlanItem>.Create()
+				.AddColumn("Тип").AddTextRenderer(x => x.EquipmentType.GetEnumTitle())
+				.AddColumn("План день").AddNumericRenderer(x => x.PlanDay).WidthChars(10).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
+				.AddColumn("План месяц").AddNumericRenderer(x => x.PlanMonth).WidthChars(10).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
+				.Finish();
+			ytreeviewEquipmentTypeSalesPlan.ItemsDataSource = ViewModel.Entity.ObservableEquipmentTypeItemSalesPlans;
 
 			ybuttonAddEquipmentType.Clicked += (sender, e) => ShowAttachmentForEquipmentType(true);
-
-			ybuttonSaveEquipmentType.Clicked += (sender, e) => { ViewModel.AddEquipmentTypeCommand.Execute(); };
+			ybuttonDeleteEquipmentType.Clicked += (sender, e) =>
+				ViewModel.RemoveEquipmentTypeItemCommand.Execute(ytreeviewEquipmentTypeSalesPlan.GetSelectedObject<EquipmentTypeSalesPlanItem>());
+			ybuttonSaveEquipmentType.Clicked += (sender, e) =>
+			{
+				ViewModel.AddEquipmentTypeItemCommand.Execute();
+				ShowAttachmentForEquipmentType(false);
+			};
 			ybuttonCancelEquipmentType.Clicked += (sender, e) => ShowAttachmentForEquipmentType(false);
 
-
-			yspeccomboboxEquipmentType.Binding.AddSource(ViewModel) 
-				.AddBinding( vm => vm.EquipmentTypes, w => w.ItemsList)
-				.AddBinding( vm => vm.EquipmentType, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxEquipmentType.SetRenderTextFunc<EquipmentType>(s => s.GetEnumTitle());
+			yspeccomboboxEquipmentType.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.EquipmentTypes, w => w.ItemsList)
+				.AddBinding(vm => vm.EquipmentType, w => w.SelectedItem).InitializeFromSource();
 		}
 
 		private void ShowAttachmentForEquipmentType(bool show)

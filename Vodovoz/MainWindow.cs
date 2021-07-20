@@ -129,6 +129,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -489,9 +492,11 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionEquipmentKindsActivated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(EquipmentKind));
-        tdiMain.AddTab(refWin);
-    }
+	    tdiMain.OpenTab(() => new EquipmentKindJournalViewModel(
+		    UnitOfWorkFactory.GetDefaultFactory,
+		    ServicesConfig.CommonServices)
+	    );
+	}
 
     protected void OnActionNomenclatureActivated(object sender, EventArgs e)
     {

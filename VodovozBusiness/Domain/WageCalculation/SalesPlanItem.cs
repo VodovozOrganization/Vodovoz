@@ -1,14 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
-using Gamma.Utilities;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.WageCalculation
 {
-	public abstract class SalesPlanItem : PropertyChangedBase, IDomainObject//, IValidatableObject
+	public abstract class SalesPlanItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 		private SalesPlan _salesPlan;
@@ -35,26 +30,5 @@ namespace Vodovoz.Domain.WageCalculation
 			get => _salesPlan;
 			set => SetField(ref _salesPlan, value);
 		}
-
-
-
-		#region IValidatableObject implementation
-
-		/*public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			return null;
-		}*/
-		
-		#endregion IValidatableObject implementation*/
-
-		/*public enum SalesPlanType
-		{
-			[Display(Name = "План продаж номенклатуры")]
-			Nomenclature,
-			[Display(Name = "План продаж вида оборудования")]
-			EquipmentKind,
-			[Display(Name = "План продаж типа оборудования")]
-			EquipmentType
-		}*/
 	}
 }

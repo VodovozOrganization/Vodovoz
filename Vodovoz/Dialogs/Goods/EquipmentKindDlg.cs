@@ -1,4 +1,6 @@
-﻿using QS.Dialog.Gtk;
+﻿using System;
+using Gamma.Utilities;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 
@@ -34,6 +36,10 @@ namespace Vodovoz
 			enumWarrantyType.Binding
 				.AddBinding (UoWGeneric.Root, equipmentKind => equipmentKind.WarrantyCardType, widget => widget.SelectedItem)
 				.InitializeFromSource ();
+
+			yspeccomboboxEquipmentType.SetRenderTextFunc<EquipmentType>(s => s.GetEnumTitle());
+			yspeccomboboxEquipmentType.ItemsList = Enum.GetValues(typeof(EquipmentType));
+			yspeccomboboxEquipmentType.Binding.AddBinding(UoWGeneric.Root, e => e.EquipmentType, w => w.SelectedItem).InitializeFromSource();
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase

@@ -1648,6 +1648,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintKindJournalFilterView.cs" />
     <Compile Include="Views\Flyers\FlyerView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Flyers.FlyerView.cs" />
+    <Compile Include="Views\Goods\EquipmentKindView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.EquipmentKindView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

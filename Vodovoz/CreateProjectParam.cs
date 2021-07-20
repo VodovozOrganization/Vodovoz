@@ -228,6 +228,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<DriverComplaintReasonViewModel, DriverComplaintReasonView>()
 				.RegisterWidgetForTabViewModel<FlyerViewModel, FlyerView>()
 				.RegisterWidgetForTabViewModel<ComplaintObjectViewModel, ComplaintObjectView>()
+				.RegisterWidgetForTabViewModel<EquipmentKindViewModel, EquipmentKindView>()
 				;
 
             //Регистрация виджетов

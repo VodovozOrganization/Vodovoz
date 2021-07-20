@@ -7,76 +7,50 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
 	public class SalesPlanViewModel : EntityTabViewModelBase<SalesPlan>
 	{
 		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
-		private DelegateCommand _addNomenclatureCommand;
-		private DelegateCommand _addEquipmentKindCommand;
-		private DelegateCommand _addEquipmentTypeCommand;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly ICommonServices _commonServices;
+		private DelegateCommand _addNomenclatureItemCommand;
+		private DelegateCommand<NomenclatureSalesPlanItem> _removeNomenclatureItemCommand;
+		private DelegateCommand _addEquipmentKindItemCommand;
+		private DelegateCommand<EquipmentKindSalesPlanItem> _removeEquipmentKindItemCommand;
+		private DelegateCommand _addEquipmentTypeItemCommand;
+		private DelegateCommand<EquipmentTypeSalesPlanItem> _removeEquipmentTypeItemCommand;
+
 
 		public SalesPlanViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INomenclatureSelectorFactory nomenclatureSelectorFactory) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			//var f= Enum.GetValues(typeof(EquipmentType));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 		}
 
 		public Array EquipmentTypes => Enum.GetValues(typeof(EquipmentType));
 		public EquipmentType EquipmentType { get; set; }
 
-		/*	#region AttachNomenclatureCommand
+		#region Commands
 
-			public DelegateCommand AttachNomenclatureCommand { get; private set; }
-
-			private void CreateAttachNomenclatureCommand()
-			{
-				AttachNomenclatureCommand = new DelegateCommand(
-					() => {
-						var nomenclatureFilter = new NomenclatureFilterViewModel();
-						var nomenclatureJournalViewModel = new NomenclaturesJournalViewModel(
-							nomenclatureFilter,
-							_unitOfWorkFactory,
-							_commonServices,
-							_employeeSelectorFactory
-						);
-						nomenclatureJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-						nomenclatureJournalViewModel.OnEntitySelectedResult += (sender, e) => {
-							var selectedNode = e.SelectedNodes.FirstOrDefault();
-							if(selectedNode == null)
-							{
-								return;
-							}
-							Entity.AddNomenclature(UoW.GetById<Nomenclature>(selectedNode.Id));
-						};
-						TabParent.AddSlaveTab(this, nomenclatureJournalViewModel);
-					},
-					() => true
-				);
-			}
-
-			#endregion AttachNomenclatureCommand*/
-
-
-		public DelegateCommand AddNomenclatureCommand =>
-			_addNomenclatureCommand ?? (_addNomenclatureCommand = new DelegateCommand(() =>
+		public DelegateCommand AddNomenclatureItemCommand =>
+			_addNomenclatureItemCommand ?? (_addNomenclatureItemCommand = new DelegateCommand(() =>
 				{
 					var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelector();
 					nomenclatureSelector.OnEntitySelectedResult += (sender, e) =>
 					{
-						//foreach(var nomenclature in UoW.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id)))
-						//{
-						//	Entity.AddNomenclature(nomenclature);
-						//}
 						foreach(var nomenclature in UoW.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id)))
 						{
-							Entity.AddNomenclature(new NomenclatureItemSalesPlan(){Nomenclature = nomenclature, SalesPlan = Entity});
+							Entity.AddNomenclatureItem(new NomenclatureSalesPlanItem() { Nomenclature = nomenclature, SalesPlan = Entity });
 						}
 					};
 					TabParent.AddSlaveTab(this, nomenclatureSelector);
@@ -84,47 +58,60 @@ namespace Vodovoz.ViewModels.WageCalculation
 				() => true
 			));
 
-		public DelegateCommand AddEquipmentTypeCommand =>
-			_addEquipmentTypeCommand ?? (_addEquipmentTypeCommand = new DelegateCommand(() =>
+		public DelegateCommand<NomenclatureSalesPlanItem> RemoveNomenclatureItemCommand => _removeNomenclatureItemCommand ?? (_removeNomenclatureItemCommand =
+			new DelegateCommand<NomenclatureSalesPlanItem>((nomenclatureItem) =>
 				{
-					//Entity.AddEquipmentType(EquipmentType);
-					Entity.AddEquipmentType(new EquipmentTypeItemSalesPlan(){EquipmentType = EquipmentType, SalesPlan = Entity});
+					Entity.RemoveNomenclatureItem(nomenclatureItem);
+				},
+				(nomenclatureItem) => true
+			));
+
+		public DelegateCommand AddEquipmentTypeItemCommand =>
+			_addEquipmentTypeItemCommand ?? (_addEquipmentTypeItemCommand = new DelegateCommand(() =>
+				{
+					Entity.AddEquipmentType(new EquipmentTypeSalesPlanItem() { EquipmentType = EquipmentType, SalesPlan = Entity });
 				},
 				() => true
 			));
-		
 
-		/*public DelegateCommand AddEquipmentKindCommand =>
-			_addEquipmentKindCommand ?? (_addEquipmentKindCommand = new DelegateCommand(() =>
+		public DelegateCommand<EquipmentTypeSalesPlanItem> RemoveEquipmentTypeItemCommand => _removeEquipmentTypeItemCommand ?? (_removeEquipmentTypeItemCommand =
+			new DelegateCommand<EquipmentTypeSalesPlanItem>((equipmentTypeItem) =>
 				{
-					var equipmentKindSelector = _equipmentKindSelectorFactory.CreateEquipmentKindSelector();
+					Entity.RemoveEquipmentTypeItem(equipmentTypeItem);
+				},
+				(equipmentTypeItem) => true
+			));
+
+		public DelegateCommand AddEquipmentKindItemCommand =>
+			_addEquipmentKindItemCommand ?? (_addEquipmentKindItemCommand = new DelegateCommand(() =>
+				{
+					var equipmentKindSelector = new EquipmentKindJournalViewModel(_unitOfWorkFactory, _commonServices)
+					{
+						SelectionMode = JournalSelectionMode.Multiple
+					};
+
 					equipmentKindSelector.OnEntitySelectedResult += (sender, e) =>
 					{
 						foreach(var equipmentKind in UoW.GetById<EquipmentKind>(e.SelectedNodes.Select(x => x.Id)))
 						{
-							Entity.AddEquipmentKind(equipmentKind);
+							Entity.AddEquipmentKind(new EquipmentKindSalesPlanItem() { EquipmentKind = equipmentKind, SalesPlan = Entity });
 						}
 					};
+
 					TabParent.AddSlaveTab(this, equipmentKindSelector);
 				},
 				() => true
 			));
 
-		public DelegateCommand AddNomenclatureCommand =>
-			_addNomenclatureCommand ?? (_addNomenclatureCommand = new DelegateCommand(() =>
+		public DelegateCommand<EquipmentKindSalesPlanItem> RemoveEquipmentKindItemCommand => _removeEquipmentKindItemCommand ?? (_removeEquipmentKindItemCommand =
+			new DelegateCommand<EquipmentKindSalesPlanItem>((equipmentKindItem) =>
 				{
-					var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelector();
-					nomenclatureSelector.OnEntitySelectedResult += (sender, e) =>
-					{
-						foreach(var nomenclature in UoW.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id)))
-						{
-							Entity.AddNomenclature(nomenclature);
-						}
-					};
-					TabParent.AddSlaveTab(this, nomenclatureSelector);
+					Entity.RemoveEquipmentKindItem(equipmentKindItem);
 				},
-				() => true
-			));*/
+				(equipmentKindItem) => true
+			));
 
+
+		#endregion
 	}
 }

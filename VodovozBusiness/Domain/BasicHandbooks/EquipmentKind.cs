@@ -6,11 +6,13 @@ using QS.DomainModel.Entity.EntityPermissions;
 namespace Vodovoz.Domain
 {
 	[Appellative (Gender = GrammaticalGender.Masculine,
-		NominativePlural = "типы оборудования",
+		NominativePlural = "виды оборудования",
 		Nominative = "вид оборудования")]
 	[EntityPermission]
 	public class EquipmentKind : PropertyChangedBase, IDomainObject
 	{
+		private EquipmentType _equipmentType;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -29,6 +31,13 @@ namespace Vodovoz.Domain
 		public virtual WarrantyCardType WarrantyCardType{
 			get{ return warrantyCardType; }
 			set{ SetField (ref warrantyCardType, value, () => WarrantyCardType); }
+		}
+
+		[Display(Name = "Тип оборудования")]
+		public virtual EquipmentType EquipmentType
+		{
+			get { return _equipmentType; }
+			set { SetField(ref _equipmentType, value); }
 		}
 		#endregion
 

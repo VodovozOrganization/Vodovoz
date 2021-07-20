@@ -59,6 +59,7 @@ namespace Vodovoz
 				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
 
 		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private Employee _employeeForCurrentUser;
 
 		public EmployeeDlg()
 		{
@@ -129,6 +130,8 @@ namespace Vodovoz
 		private bool canManageDriversAndForwarders;
 		private bool canManageOfficeWorkers;
 		private bool canEditOrganisationForSalary;
+		private bool _canEditWage;
+		private bool _canEditWageBySelfSubdivision;
 
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly MySQLUserRepository mySQLUserRepository;
@@ -154,6 +157,8 @@ namespace Vodovoz
 				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
 			}
 
+			_employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(UoW);
+
 			canActivateDriverDistrictPrioritySetPermission = ServicesConfig.CommonServices
 				.CurrentPermissionService.ValidatePresetPermission("can_activate_driver_district_priority_set");
 			canManageDriversAndForwarders = ServicesConfig.CommonServices
@@ -162,6 +167,12 @@ namespace Vodovoz
 				.CurrentPermissionService.ValidatePresetPermission("can_manage_office_workers");
 			canEditOrganisationForSalary = ServicesConfig.CommonServices
 				.CurrentPermissionService.ValidatePresetPermission("can_edit_organisation_for_salary");
+			_canEditWage = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
+			_canEditWageBySelfSubdivision = ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin ||
+			                                (_employeeForCurrentUser.Subdivision == Entity.Subdivision &&
+			                                 ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+				                                 "can_edit_wage_by_self_subdivision")
+			                                 );
 
 			ConfigureCategory();
 			ConfigureSubdivision();
@@ -524,8 +535,6 @@ namespace Vodovoz
 
 		private void OnActivateDistrictPrioritySetClicked()
 		{
-			var employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(UoW);
-
 			if (!(ytreeDistrictPrioritySets.GetSelectedObject() is DriverDistrictPrioritySet districtPrioritySet))
 			{
 				return;
@@ -536,7 +545,7 @@ namespace Vodovoz
 			districtPrioritySet.DateLastChanged = now;
 			districtPrioritySet.DateActivated = now;
 
-			Entity.ActivateDriverDistrictPrioritySet(districtPrioritySet, employeeForCurrentUser);
+			Entity.ActivateDriverDistrictPrioritySet(districtPrioritySet, _employeeForCurrentUser);
 		}
 
 		private void OpenDistrictPrioritySetCreateWindow()
@@ -658,12 +667,10 @@ namespace Vodovoz
 					$"(Код: {selectedScheduleSet.Id})?"
 				)
 			) {
-				var employeeForCurrentUser = EmployeeSingletonRepository.GetInstance()
-					.GetEmployeeForCurrentUser(UoW);
 
 				var newScheduleSet = (DriverWorkScheduleSet)selectedScheduleSet.Clone();
-				newScheduleSet.Author = employeeForCurrentUser;
-				newScheduleSet.LastEditor = employeeForCurrentUser;
+				newScheduleSet.Author = _employeeForCurrentUser;
+				newScheduleSet.LastEditor = _employeeForCurrentUser;
 				newScheduleSet.IsCreatedAutomatically = false;
 
 				Entity.AddActiveDriverWorkScheduleSet(newScheduleSet);
@@ -1016,7 +1023,7 @@ namespace Vodovoz
 				= hboxDriversParameters.Visible
 				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
 
-			wageParametersView.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
+			wageParametersView.Sensitive = _canEditWage || _canEditWageBySelfSubdivision;
 		}
 
 		protected void OnRadioWageParametersClicked(object sender, EventArgs e)

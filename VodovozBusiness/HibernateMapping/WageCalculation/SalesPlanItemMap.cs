@@ -11,16 +11,14 @@ namespace Vodovoz.HibernateMapping.WageCalculation
 			Table("sales_plan_items");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			//Map(x => x.PlanDay).Column("plan_day");
-			//Map(x => x.PlanMonth).Column("plan_month");
+			Map(x => x.PlanDay).Column("plan_day");
+			Map(x => x.PlanMonth).Column("plan_month");
 			References(x => x.SalesPlan).Column("sales_plan_id");
 
 			DiscriminateSubClassesOnColumn("type");
 		}
 
-
-
-		public class EquipmentKindSalesPlanMap : SubclassMap<EquipmentKindItemSalesPlan>
+		public class EquipmentKindSalesPlanMap : SubclassMap<EquipmentKindSalesPlanItem>
 		{
 			public EquipmentKindSalesPlanMap()
 			{
@@ -30,7 +28,7 @@ namespace Vodovoz.HibernateMapping.WageCalculation
 			}
 		}
 
-		public class EquipmentTypeSalesPlanMap : SubclassMap<EquipmentTypeItemSalesPlan>
+		public class EquipmentTypeSalesPlanMap : SubclassMap<EquipmentTypeSalesPlanItem>
 		{
 			public EquipmentTypeSalesPlanMap()
 			{
@@ -40,7 +38,7 @@ namespace Vodovoz.HibernateMapping.WageCalculation
 			}
 		}
 
-		public class NomenclatureItemSalesPlanMap : SubclassMap<NomenclatureItemSalesPlan>
+		public class NomenclatureItemSalesPlanMap : SubclassMap<NomenclatureSalesPlanItem>
 		{
 			public NomenclatureItemSalesPlanMap()
 			{
