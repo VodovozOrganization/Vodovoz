@@ -822,7 +822,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return receipt != null;
 		}
 
-		public bool CanAddVodovozLeafletToOrder(
+		public bool CanAddFlyerToOrder(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int leafletId, int geographicGroupId)
 		{
 			WarehouseMovementOperation operationAddAlias = null;

@@ -55,6 +55,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
@@ -103,15 +104,16 @@ namespace Vodovoz
 		private IOrganizationProvider organizationProvider;
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
-		private Nomenclature vodovozLeaflet;
 		private IOrderParametersProvider _orderParametersProvider;
 		
 		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
+		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
+		private IList<int> _addedFlyersNomenclaturesIds;
 
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
@@ -370,7 +372,7 @@ namespace Vodovoz
 				|| Entity.OrderStatus == OrderStatus.Closed
 				|| Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading;
 
-			orderEquipmentItemsView.Configure(UoWGeneric, Entity, new NomenclatureParametersProvider());
+			orderEquipmentItemsView.Configure(UoWGeneric, Entity, _flyerRepository);
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
 
 			//Подписывемся на изменения листов для засеривания клиента
@@ -665,7 +667,7 @@ namespace Vodovoz
 			}
 		}
 
-		private void TryAddVodovozLeaflet(INomenclatureParametersProvider nomenclatureParametersProvider)
+		private void TryAddFlyers()
 		{
 			if(Entity.SelfDelivery
 			   || Entity.OrderStatus != OrderStatus.NewOrder
@@ -673,24 +675,29 @@ namespace Vodovoz
 			{
 				return;
 			}
-			
-			if (vodovozLeaflet == null)
-			{
-				vodovozLeaflet = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.VodovozLeafletId);
-			}
 
 			var geographicGroupId = Entity.DeliveryPoint.District.GeographicGroup.Id;
-			
-			if (!orderRepository.CanAddVodovozLeafletToOrder(
-			    UoW, 
-			    new RouteListParametersProvider(SingletonParametersProvider.Instance), 
-			    vodovozLeaflet.Id, 
-			    geographicGroupId))
-			{
-				return;
-			}
+			var activeFlyers = _flyerRepository.GetAllActiveFlyers(UoW);
 
-			Entity.AddVodovozLeafletNomenclature(vodovozLeaflet);
+			if(activeFlyers.Any())
+			{
+				_addedFlyersNomenclaturesIds = new List<int>();
+				
+				foreach(var flyer in activeFlyers)
+				{
+					if(!orderRepository.CanAddFlyerToOrder(
+						UoW,
+						new RouteListParametersProvider(SingletonParametersProvider.Instance),
+						flyer.FlyerNomenclature.Id,
+						geographicGroupId))
+					{
+						continue;
+					}
+
+					Entity.AddFlyerNomenclature(flyer.FlyerNomenclature);
+					_addedFlyersNomenclaturesIds.Add(flyer.FlyerNomenclature.Id);
+				}
+			}
 		}
 
 		private void OnDeliveryPointChanged(EntityChangeEvent[] changeevents)
@@ -1964,14 +1971,17 @@ namespace Vodovoz
 
 			if(Entity.DeliveryPoint != null)
 			{
-				TryAddVodovozLeaflet(new NomenclatureParametersProvider());
+				TryAddFlyers();
 			}
 			else
 			{
-				if(vodovozLeaflet != null)
+				if(_addedFlyersNomenclaturesIds.Any())
 				{
-					Entity.ObservableOrderEquipments.Remove(Entity.ObservableOrderEquipments.SingleOrDefault(
-						x => x.Nomenclature.Id == vodovozLeaflet.Id));
+					foreach(var flyerNomenclatureId in _addedFlyersNomenclaturesIds)
+					{
+						Entity.ObservableOrderEquipments.Remove(Entity.ObservableOrderEquipments.SingleOrDefault(
+							x => x.Nomenclature.Id == flyerNomenclatureId));
+					}
 				}
 			}
 		}

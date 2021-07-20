@@ -36,6 +36,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
+using Vodovoz.ViewModels.Journals.JournalNodes.Flyers;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -1205,6 +1207,18 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)
 					.AddColumn("Название").AddTextRenderer(node => node.Name).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Объект рекламаций").AddTextRenderer(node => node.ComplaintObject).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.Finish()
+			);
+			
+			//FlyersJournalViewModel
+			TreeViewColumnsConfigFactory.Register<FlyersJournalViewModel>(
+				() => FluentColumnsConfig<FlyersJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(n => n.Id)
+					.AddColumn("Название").AddTextRenderer(n => n.Name)
+					.AddColumn("Дата старта").AddTextRenderer(n => n.StartDate.ToShortDateString())
+					.AddColumn("Дата окончания").AddTextRenderer(n =>
+						n.EndDate.HasValue ? n.EndDate.Value.ToShortDateString() : "")
+					.AddColumn("")
 					.Finish()
 			);
 		}
