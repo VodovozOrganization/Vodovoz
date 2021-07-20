@@ -59,9 +59,9 @@ namespace Vodovoz.Domain.Complaints
 					new[] { nameof(ComplaintObject) });
 			}
 
-			if(Name?.Length > 255)
+			if(Name?.Length > 100)
 			{
-				yield return new ValidationResult($"Превышена максимально допустимая длина названия ({Name.Length}/255).",
+				yield return new ValidationResult($"Превышена максимально допустимая длина названия ({Name.Length}/100).",
 					new[] { nameof(Name) });
 			}
 		}
