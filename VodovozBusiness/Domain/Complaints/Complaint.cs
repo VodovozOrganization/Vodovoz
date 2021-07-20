@@ -102,13 +102,7 @@ namespace Vodovoz.Domain.Complaints
 		[Display(Name = "Заказ")]
 		public virtual Order Order {
 			get => order;
-			set
-			{
-				if(SetField(ref order, value))
-				{
-					DeliveryPoint = value?.DeliveryPoint;
-				}
-			}
+			set => SetField(ref order, value);
 		}
 
 		private string phone;

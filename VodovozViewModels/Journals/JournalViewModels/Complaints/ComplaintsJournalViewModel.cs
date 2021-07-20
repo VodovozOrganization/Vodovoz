@@ -156,7 +156,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				typeof(Fine),
 				typeof(Order),
 				typeof(RouteList),
-				typeof(RouteListItem)
+				typeof(RouteListItem),
+				typeof(ComplaintObject)
 			);
 			this.DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
 
@@ -268,7 +269,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Left.JoinAlias(() => complaintAlias.CreatedBy, () => authorAlias)
 				.Left.JoinAlias(() => complaintAlias.Counterparty, () => counterpartyAlias)
 				.Left.JoinAlias(() => complaintAlias.Order, () => orderAlias)
-				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => complaintAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => complaintAlias.Guilties, () => complaintGuiltyItemAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
 				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)

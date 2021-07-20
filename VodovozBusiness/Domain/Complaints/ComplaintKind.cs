@@ -56,6 +56,12 @@ namespace Vodovoz.Domain.Complaints
 					"Укажите название вида рекламации",
 					new[] { this.GetPropertyName(o => o.Name) }
 				);
+
+			if(Name?.Length > 100)
+			{
+				yield return new ValidationResult($"Превышена максимально допустимая длина названия ({Name.Length}/100).",
+					new[] { nameof(Name) });
+			}
 		}
 
 		[Display(Name = "Подразделения")]
@@ -67,7 +73,8 @@ namespace Vodovoz.Domain.Complaints
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		
-		public virtual GenericObservableList<Subdivision> ObservableSubdivisions => _observableSubdivisions ?? (_observableSubdivisions = new GenericObservableList<Subdivision>(Subdivisions));
+		public virtual GenericObservableList<Subdivision> ObservableSubdivisions => 
+			_observableSubdivisions ?? (_observableSubdivisions = new GenericObservableList<Subdivision>(Subdivisions));
 
 		public virtual void AddSubdivision(Subdivision subdivision)
 		{
@@ -77,6 +84,14 @@ namespace Vodovoz.Domain.Complaints
 			}
 			
 			ObservableSubdivisions.Add(subdivision);
+		}
+
+		public virtual void RemoveSubdivision(Subdivision subdivision)
+		{
+			if(ObservableSubdivisions.Contains(subdivision))
+			{
+				ObservableSubdivisions.Remove(subdivision);
+			}
 		}
 	}
 }
