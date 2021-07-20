@@ -32,11 +32,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				);
 		}
 
-		private void UpdateJournal()
-		{
-			DataLoader.LoadData(false);
-		}
-
 		protected override Func<IUnitOfWork, IQueryOver<ComplaintKind>> ItemsSourceQueryFunction => (uow) =>
 		{
 			ComplaintKind complaintKindAlias = null;
@@ -85,9 +80,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		}
 
 		protected override Func<ComplaintKindViewModel> CreateDialogFunction => () =>
-			new ComplaintKindViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _employeeSelectorFactory, UpdateJournal);
+			new ComplaintKindViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _employeeSelectorFactory, Refresh);
 
 		protected override Func<ComplaintKindJournalNode, ComplaintKindViewModel> OpenDialogFunction =>
-			(node) => new ComplaintKindViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _employeeSelectorFactory, UpdateJournal);
+			(node) => new ComplaintKindViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _employeeSelectorFactory, Refresh);
 	}
 }

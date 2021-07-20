@@ -83,7 +83,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public DelegateCommand<Subdivision> RemoveSubdivisionCommand => _removeSubdivisionCommand ?? (_removeSubdivisionCommand =
 			new DelegateCommand<Subdivision>((subdivision) =>
 				{
-
 					Entity.RemoveSubdivision(subdivision);
 				},
 				(subdivision) => true
