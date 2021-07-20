@@ -10,7 +10,7 @@ namespace Vodovoz.Domain.WageCalculation
 		Nominative = "план продаж типа оборудования")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class EquipmentTypeItemSalesPlan : NomenclatureSalesPlan
+	public class EquipmentTypeItemSalesPlan : SalesPlanItem
 	{
 		private EquipmentType _equipmentType;
 

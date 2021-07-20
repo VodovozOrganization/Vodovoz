@@ -4,11 +4,11 @@ using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.HibernateMapping.WageCalculation
 {
-	public class NomenclatureSalesPlanMap : ClassMap<NomenclatureSalesPlan>
+	public class SalesPlanItemMap : ClassMap<SalesPlanItem>
 	{
-		public NomenclatureSalesPlanMap()
+		public SalesPlanItemMap()
 		{
-			Table("test");
+			Table("sales_plan_items");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			//Map(x => x.PlanDay).Column("plan_day");
@@ -20,15 +20,15 @@ namespace Vodovoz.HibernateMapping.WageCalculation
 
 
 
-		//public class EquipmentKindSalesPlanMap : SubclassMap<EquipmentKindItemSalesPlan>
-		//{
-		//	public EquipmentKindSalesPlanMap()
-		//	{
-		//		DiscriminatorValue("EquipmentKind");
+		public class EquipmentKindSalesPlanMap : SubclassMap<EquipmentKindItemSalesPlan>
+		{
+			public EquipmentKindSalesPlanMap()
+			{
+				DiscriminatorValue("EquipmentKind");
 
-		//		References(x => x.EquipmentKind).Column("equipment_kind_id");
-		//	}
-		//}
+				References(x => x.EquipmentKind).Column("equipment_kind_id");
+			}
+		}
 
 		public class EquipmentTypeSalesPlanMap : SubclassMap<EquipmentTypeItemSalesPlan>
 		{

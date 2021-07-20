@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.WageCalculation
 		Nominative = "план продаж номенклатуры")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class NomenclatureItemSalesPlan : NomenclatureSalesPlan
+	public class NomenclatureItemSalesPlan : SalesPlanItem
 	{
 		private Nomenclature _nomenclature;
 

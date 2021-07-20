@@ -137,7 +137,7 @@
     <Compile Include="Domain\WageCalculation\NomenclatureItemSalesPlan.cs" />
     <Compile Include="Domain\WageCalculation\EquipmentKindItemSalesPlan.cs" />
     <Compile Include="Domain\WageCalculation\EquipmentTypeItemSalesPlan.cs" />
-    <Compile Include="Domain\WageCalculation\NomenclatureSalesPlan.cs" />
+    <Compile Include="Domain\WageCalculation\SalesPlanItem.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItem.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItemTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
@@ -211,7 +211,7 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
-    <Compile Include="HibernateMapping\WageCalculation\NomenclatureSalesPlanMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\SalesPlanItemMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPriorityMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPrioritySetMap.cs" />

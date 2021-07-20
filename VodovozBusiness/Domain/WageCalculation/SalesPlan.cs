@@ -22,12 +22,12 @@ namespace Vodovoz.Domain.WageCalculation
 	{
 		//private IList<Nomenclature> _nomenclatures = new List<Nomenclature>();
 		private IList<NomenclatureItemSalesPlan> _nomenclatureItemSalesPlans = new List<NomenclatureItemSalesPlan>();
-		private IList<EquipmentKind> _equipmentKinds = new List<EquipmentKind>();
+		private IList<EquipmentKindItemSalesPlan> _equipmentKindItemSalesPlans = new List<EquipmentKindItemSalesPlan>();
 		//private IList<EquipmentType> _equipmentTypes = new List<EquipmentType>();
 		private IList<EquipmentTypeItemSalesPlan> _equipmentTypeItemSalesPlans = new List<EquipmentTypeItemSalesPlan>();
 		//private GenericObservableList<Nomenclature> _observableNomenclatures;
 		private GenericObservableList<NomenclatureItemSalesPlan> _observableNomenclatureItemSalesPlan;
-		private GenericObservableList<EquipmentKind> _observableEquipmentKinds;
+		private GenericObservableList<EquipmentKindItemSalesPlan> _observableEquipmentKindItemSalesPlans;
 		//private GenericObservableList<EquipmentType> _observableEquipmentTypes;
 		private GenericObservableList<EquipmentTypeItemSalesPlan> _observableEquipmentTypeItemSalesPlans;
 		public virtual int Id { get; set; }
@@ -86,10 +86,10 @@ namespace Vodovoz.Domain.WageCalculation
 		}
 
 		[Display(Name = "Виды оборудования")]
-		public virtual IList<EquipmentKind> EquipmentKinds
+		public virtual IList<EquipmentKindItemSalesPlan> EquipmentKindItemSalesPlans
 		{
-			get => _equipmentKinds;
-			set => SetField(ref _equipmentKinds, value);
+			get => _equipmentKindItemSalesPlans;
+			set => SetField(ref _equipmentKindItemSalesPlans, value);
 		}
 
 		//[Display(Name = "Типы оборудования")]
@@ -111,9 +111,9 @@ namespace Vodovoz.Domain.WageCalculation
 		public virtual GenericObservableList<NomenclatureItemSalesPlan> ObservableNomenclatureItemSalesPlans => 
 			_observableNomenclatureItemSalesPlan ?? 
 			(_observableNomenclatureItemSalesPlan = new GenericObservableList<NomenclatureItemSalesPlan>(NomenclatureItemSalesPlans));
-		public virtual GenericObservableList<EquipmentKind> ObservableEquipmentKinds => 
-			_observableEquipmentKinds ?? (_observableEquipmentKinds = new GenericObservableList<EquipmentKind>(EquipmentKinds));
-		public virtual GenericObservableList<EquipmentTypeItemSalesPlan> ObservableEquipmetTypeItemSalesPlans =>
+		public virtual GenericObservableList<EquipmentKindItemSalesPlan> ObservableEquipmentKindItemSalesPlans => 
+			_observableEquipmentKindItemSalesPlans ?? (_observableEquipmentKindItemSalesPlans = new GenericObservableList<EquipmentKindItemSalesPlan>(EquipmentKindItemSalesPlans));
+		public virtual GenericObservableList<EquipmentTypeItemSalesPlan> ObservableEquipmentTypeItemSalesPlans =>
 			_observableEquipmentTypeItemSalesPlans ?? (_observableEquipmentTypeItemSalesPlans = new GenericObservableList<EquipmentTypeItemSalesPlan>(EquipmentTypeItemSalesPlans));
 
 		//public virtual void AddNomenclature(Nomenclature nomenclature)
@@ -136,24 +136,24 @@ namespace Vodovoz.Domain.WageCalculation
 			ObservableNomenclatureItemSalesPlans.Add(nomenclature);
 		}
 
-		public virtual void AddEquipmentKind(EquipmentKind equipmentKind)
+		public virtual void AddEquipmentKind(EquipmentKindItemSalesPlan equipmentKindItemSalesPlan)
 		{
-			if(ObservableEquipmentKinds.Contains(equipmentKind))
+			if(ObservableEquipmentKindItemSalesPlans.Contains(equipmentKindItemSalesPlan))
 			{
 				return;
 			}
 
-			ObservableEquipmentKinds.Add(equipmentKind);
+			ObservableEquipmentKindItemSalesPlans.Add(equipmentKindItemSalesPlan);
 		}
 
 		public virtual void AddEquipmentType(EquipmentTypeItemSalesPlan equipmentTypeItemSalesPlan)
 		{
-			if(ObservableEquipmetTypeItemSalesPlans.Contains(equipmentTypeItemSalesPlan))
+			if(ObservableEquipmentTypeItemSalesPlans.Contains(equipmentTypeItemSalesPlan))
 			{
 				return;
 			}
 
-			ObservableEquipmetTypeItemSalesPlans.Add(equipmentTypeItemSalesPlan);
+			ObservableEquipmentTypeItemSalesPlans.Add(equipmentTypeItemSalesPlan);
 		}
 
 		#region IValidatableObject implementation

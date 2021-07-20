@@ -40,8 +40,14 @@ namespace Vodovoz.Views.WageCalculation
 			ytreeviewEquipmentTypeSalesPlan.ColumnsConfig = FluentColumnsConfig<EquipmentTypeItemSalesPlan>.Create()
 				.AddColumn("Тип").AddTextRenderer(x => x.EquipmentType !=null? x.EquipmentType.GetEnumTitle():"")
 				.Finish();
-			ytreeviewEquipmentTypeSalesPlan.ItemsDataSource = ViewModel.Entity.ObservableEquipmetTypeItemSalesPlans;
+			ytreeviewEquipmentTypeSalesPlan.ItemsDataSource = ViewModel.Entity.ObservableEquipmentTypeItemSalesPlans;
 			ytreeviewEquipmentTypeSalesPlan.HeadersVisible = false;
+
+			ytreeviewEquipmentKindSalesPlan.ColumnsConfig = FluentColumnsConfig<EquipmentKindItemSalesPlan>.Create()
+				.AddColumn("Вид").AddTextRenderer(x => x.EquipmentKind != null ? x.EquipmentKind.Name : "")
+				.Finish();
+			ytreeviewEquipmentKindSalesPlan.ItemsDataSource = ViewModel.Entity.ObservableEquipmentKindItemSalesPlans;
+			ytreeviewEquipmentKindSalesPlan.HeadersVisible = false;
 
 			ybuttonAddEquipmentType.Clicked += (sender, e) => ShowAttachmentForEquipmentType(true);
 

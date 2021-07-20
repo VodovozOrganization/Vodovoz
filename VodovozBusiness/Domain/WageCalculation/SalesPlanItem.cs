@@ -8,7 +8,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.WageCalculation
 {
-	public abstract class NomenclatureSalesPlan : PropertyChangedBase, IDomainObject//, IValidatableObject
+	public abstract class SalesPlanItem : PropertyChangedBase, IDomainObject//, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 		private SalesPlan _salesPlan;

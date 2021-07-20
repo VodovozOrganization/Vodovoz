@@ -25,6 +25,10 @@ namespace Vodovoz.HibernateMapping.WageCalculation
 				.Where($"type='Nomenclature'")
 				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("sales_plan_id");
 
+			HasMany(x => x.EquipmentKindItemSalesPlans)
+				.Where($"type='EquipmentKind'")
+				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("sales_plan_id");
+
 			//HasManyToMany<Nomenclature>(x => x.Nomenclatures)
 			//	.Table("nomenclature_sales_plan")
 			//	.ParentKeyColumn("sales_plan_id")
