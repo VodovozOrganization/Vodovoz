@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.WageCalculation
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "строки плана продаж",
+		Nominative = "строка плана продаж")]
 	public abstract class SalesPlanItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
