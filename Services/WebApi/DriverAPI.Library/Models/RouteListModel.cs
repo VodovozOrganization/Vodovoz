@@ -4,7 +4,9 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 
@@ -115,17 +117,24 @@ namespace DriverAPI.Library.Models
 				?? throw new DataNotFoundException(nameof(orderId), $"Не найден токен для PUSH-сообщения водителя заказа {orderId}");
 		}
 
-		public void RollbackRouteListStatusEnRoute(int routelistId)
+		public void RollbackRouteListAddressStatusEnRoute(int routeListAddressId)
 		{
-			if(routelistId <= 0)
+			if(routeListAddressId <= 0)
 			{
-				throw new ArgumentOutOfRangeException(nameof(routelistId), routelistId, "Идентификатор МЛ не может быть меньше или равен нулю");
+				throw new DataNotFoundException(nameof(routeListAddressId), routeListAddressId, "Идентификатор адреса МЛ не может быть меньше или равен нулю");
 			}
 
-			var vodovozRoutelist = _routeListRepository.GetRouteListById(_unitOfWork, routelistId)
-				?? throw new ArgumentOutOfRangeException(nameof(routelistId), routelistId, "Указан идентификатор несуществующего МЛ");
-			vodovozRoutelist.RollBackEnRouteStatus();
-			_unitOfWork.Save(vodovozRoutelist);
+			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId)
+				?? throw new DataNotFoundException(nameof(routeListAddressId), routeListAddressId, "Указан идентификатор несуществующего адреса МЛ");
+
+			if(routeListAddress.Status == RouteListItemStatus.Transfered)
+			{
+				throw new InvalidOperationException("Перенесенный адрес нельзя вернуть в путь");
+			}
+
+			routeListAddress.UpdateStatus(_unitOfWork, RouteListItemStatus.EnRoute);
+
+			_unitOfWork.Save(routeListAddress);
 			_unitOfWork.Commit();
 		}
 	}
