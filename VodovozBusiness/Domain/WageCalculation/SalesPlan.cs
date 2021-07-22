@@ -110,12 +110,10 @@ namespace Vodovoz.Domain.WageCalculation
 
 		public virtual void AddNomenclatureItem(NomenclatureSalesPlanItem nomenclatureSalesPlanItem)
 		{
-			if(ObservableNomenclatureItemSalesPlans.Select(x=>x.Nomenclature.Id).Contains(nomenclatureSalesPlanItem.Nomenclature.Id))
+			if(!ObservableNomenclatureItemSalesPlans.Any(x => x.Nomenclature == nomenclatureSalesPlanItem.Nomenclature))
 			{
-				return;
+				ObservableNomenclatureItemSalesPlans.Add(nomenclatureSalesPlanItem);
 			}
-
-			ObservableNomenclatureItemSalesPlans.Add(nomenclatureSalesPlanItem);
 		}
 
 		public virtual void RemoveNomenclatureItem(NomenclatureSalesPlanItem nomenclatureSalesPlanItem)
@@ -128,12 +126,10 @@ namespace Vodovoz.Domain.WageCalculation
 
 		public virtual void AddEquipmentKind(EquipmentKindSalesPlanItem equipmentKindSalesPlanItem)
 		{
-			if(ObservableEquipmentKindItemSalesPlans.Select(x=>x.EquipmentKind.Id).Contains(equipmentKindSalesPlanItem.EquipmentKind.Id))
+			if(!ObservableEquipmentKindItemSalesPlans.Any(x => x.EquipmentKind == equipmentKindSalesPlanItem.EquipmentKind))
 			{
-				return;
+				ObservableEquipmentKindItemSalesPlans.Add(equipmentKindSalesPlanItem);
 			}
-
-			ObservableEquipmentKindItemSalesPlans.Add(equipmentKindSalesPlanItem);
 		}
 
 		public virtual void RemoveEquipmentKindItem(EquipmentKindSalesPlanItem equipmentKindSalesPlanItem)
@@ -146,7 +142,7 @@ namespace Vodovoz.Domain.WageCalculation
 
 		public virtual void AddEquipmentType(EquipmentTypeSalesPlanItem equipmentTypeSalesPlanItem)
 		{
-			if(ObservableEquipmentTypeItemSalesPlans.Select(x=>x.EquipmentType).Contains(equipmentTypeSalesPlanItem.EquipmentType))
+			if(ObservableEquipmentTypeItemSalesPlans.Select(x => x.EquipmentType).Contains(equipmentTypeSalesPlanItem.EquipmentType))
 			{
 				return;
 			}
@@ -188,6 +184,14 @@ namespace Vodovoz.Domain.WageCalculation
 					"Должно быть указано название",
 					new[] { nameof(Name) }
 				);
+			}
+
+			if(Name?.Length > 50)
+			{
+				yield return new ValidationResult(
+					$"Превышена максимально допустимая длина названия ({Name.Length}/50).",
+					new[] { nameof(Name) }
+					);
 			}
 		}
 

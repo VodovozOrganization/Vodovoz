@@ -125,7 +125,6 @@ namespace Vodovoz
 		/// </summary>
 		public virtual int GetLevel => ParentSubdivision == null ? 0 : ParentSubdivision.GetLevel + 1;
 
-
 		/// <summary>
 		/// Является ли подразделение ребёнком другого подразделения?
 		/// </summary>
