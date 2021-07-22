@@ -43,9 +43,11 @@ using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.WageCalculation;
@@ -771,7 +773,9 @@ namespace Vodovoz
 								filter,
 								UnitOfWorkFactory.GetDefaultFactory,
 								ServicesConfig.CommonServices,
-								employeeSelectorFactory
+								employeeSelectorFactory,
+								new SalesPlanJournalFactory(),
+								new NomenclatureSelectorFactory()
 							);
 						}
 					)

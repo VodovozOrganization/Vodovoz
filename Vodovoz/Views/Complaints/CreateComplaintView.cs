@@ -11,6 +11,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -65,7 +66,9 @@ namespace Vodovoz.Views.Complaints
 												ViewModel.DeliveryPointJournalFactory,
 												ViewModel.SubdivisionJournalFactory,
 												ViewModel.GtkDialogsOpener,
-												ViewModel.UndeliveredOrdersJournalOpener);
+												ViewModel.UndeliveredOrdersJournalOpener,
+												ViewModel.SalesPlanJournalFactory,
+												new NomenclatureSelectorFactory());
 			});
 
 			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);

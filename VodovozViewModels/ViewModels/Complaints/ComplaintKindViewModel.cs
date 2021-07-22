@@ -12,6 +12,8 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -24,14 +26,19 @@ namespace Vodovoz.ViewModels.Complaints
 		private DelegateCommand _attachSubdivisionCommand;
 		private readonly Action _updateJournalAction;
 		private readonly IList<Subdivision> _subdivisionsOnStart;
+		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 
 		public ComplaintKindViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory, Action updateJournalAction) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory, Action updateJournalAction, ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_updateJournalAction = updateJournalAction ?? throw new ArgumentNullException(nameof(updateJournalAction));
+			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
 			_subdivisionsOnStart = new List<Subdivision>(Entity.Subdivisions);
@@ -62,7 +69,9 @@ namespace Vodovoz.ViewModels.Complaints
 						subdivisionFilter,
 						_unitOfWorkFactory,
 						_commonServices,
-						_employeeSelectorFactory
+						_employeeSelectorFactory,
+						_salesPlanJournalFactory,
+						_nomenclatureSelectorFactory
 					);
 					subdivisionJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 					subdivisionJournalViewModel.OnEntitySelectedResult += (sender, e) =>

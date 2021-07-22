@@ -60,6 +60,8 @@ namespace Vodovoz.Journals.JournalViewModels
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		private bool canCloseComplaint = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
+		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelector;
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
 
@@ -86,7 +88,9 @@ namespace Vodovoz.Journals.JournalViewModels
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelector
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -109,6 +113,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_nomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 
 			TabName = "Журнал рекламаций";
 
@@ -439,7 +445,9 @@ namespace Vodovoz.Journals.JournalViewModels
 						_deliveryPointJournalFactory,
 						_subdivisionJournalFactory,
 						gtkDlgOpener,
-						_undeliveredOrdersJournalOpener
+						_undeliveredOrdersJournalOpener,
+						_salesPlanJournalFactory,
+						_nomenclatureSelector
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -461,7 +469,9 @@ namespace Vodovoz.Journals.JournalViewModels
 						_deliveryPointJournalFactory,
 						_subdivisionJournalFactory,
 						gtkDlgOpener,
-						_undeliveredOrdersJournalOpener
+						_undeliveredOrdersJournalOpener,
+						_salesPlanJournalFactory,
+						_nomenclatureSelector
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -501,7 +511,9 @@ namespace Vodovoz.Journals.JournalViewModels
 						_deliveryPointJournalFactory,
 						_subdivisionJournalFactory,
 						gtkDlgOpener,
-						_undeliveredOrdersJournalOpener
+						_undeliveredOrdersJournalOpener,
+						_salesPlanJournalFactory,
+						_nomenclatureSelector
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -598,7 +610,9 @@ namespace Vodovoz.Journals.JournalViewModels
 								_deliveryPointJournalFactory,
 								_subdivisionJournalFactory,
 								gtkDlgOpener,
-								_undeliveredOrdersJournalOpener
+								_undeliveredOrdersJournalOpener,
+								_salesPlanJournalFactory,
+								_nomenclatureSelector
 							);
 							currentComplaintVM.AddFineCommand.Execute(this);
 						}
@@ -634,7 +648,9 @@ namespace Vodovoz.Journals.JournalViewModels
 								_deliveryPointJournalFactory,
 								_subdivisionJournalFactory,
 								gtkDlgOpener,
-								_undeliveredOrdersJournalOpener
+								_undeliveredOrdersJournalOpener,
+								_salesPlanJournalFactory,
+								_nomenclatureSelector
 							);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))

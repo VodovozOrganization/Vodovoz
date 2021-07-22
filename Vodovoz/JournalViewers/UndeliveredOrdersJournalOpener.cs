@@ -28,7 +28,9 @@ namespace Vodovoz.JournalViewers
 					new SubdivisionFilterViewModel()
 					{
 						SubdivisionType = SubdivisionType.Default
-					})
+					}),
+				new SalesPlanJournalFactory(),
+				new NomenclatureSelectorFactory()
 			)
 			{
 				RestrictOldOrder = oldOrder,

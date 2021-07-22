@@ -64,7 +64,9 @@ namespace Vodovoz.ViewModels.Complaints
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener
+			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelector
 			) : base(uowBuilder, uowFactory, commonServices)
 		{
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
@@ -77,6 +79,8 @@ namespace Vodovoz.ViewModels.Complaints
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			SalesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 
 			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
@@ -200,7 +204,9 @@ namespace Vodovoz.ViewModels.Complaints
 						filePickerService,
 						EmployeeService,
 						CommonServices,
-						employeeSelectorFactory
+						employeeSelectorFactory,
+						SalesPlanJournalFactory,
+						NomenclatureSelector
 					);
 				}
 				return discussionsViewModel;
@@ -274,6 +280,7 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		IList<ComplaintKind> complaintKindSource;
+
 		public IList<ComplaintKind> ComplaintKindSource {
 			get {
 				if(Entity.ComplaintKind != null && Entity.ComplaintKind.IsArchive)
@@ -415,6 +422,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 		public IGtkTabsOpener GtkDialogsOpener { get; }
 		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
+		public ISalesPlanJournalFactory SalesPlanJournalFactory { get; }
+		public INomenclatureSelectorFactory NomenclatureSelector { get; }
 
 		public override void Close(bool askSave, CloseSource source)
 		{

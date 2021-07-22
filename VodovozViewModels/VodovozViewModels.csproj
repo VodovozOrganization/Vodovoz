@@ -72,7 +72,9 @@
     <Compile Include="Journals\FilterViewModels\Retail\SalesChannelJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Security\RegisteredRMJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\MovementWagonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalFactories\SalesPlanJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\CarEventTypeJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\ISalesPlanJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventTypeJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\SubdivisionJournalFactory.cs" />

@@ -265,7 +265,9 @@ namespace Vodovoz.ViewModel
 								new SubdivisionFilterViewModel()
 								{
 									SubdivisionType = SubdivisionType.Default
-								})
+								}),
+							new SalesPlanJournalFactory(),
+							new NomenclatureSelectorFactory()
 						)
 						{
 							HidenByDefault = true,

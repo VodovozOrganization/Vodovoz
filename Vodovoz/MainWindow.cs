@@ -815,7 +815,9 @@ public partial class MainWindow : Gtk.Window
                     filter,
                     UnitOfWorkFactory.GetDefaultFactory,
                     ServicesConfig.CommonServices,
-                    employeeSelectorFactory
+                    employeeSelectorFactory,
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
                 );
             });
 
@@ -942,7 +944,9 @@ public partial class MainWindow : Gtk.Window
                     new EmployeeJournalFactory(),
                     new CounterpartyJournalFactory(),
                     new DeliveryPointJournalFactory(),
-                    subdivisionJournalFactory
+                    subdivisionJournalFactory,
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
                 );
             }
         );
@@ -1775,7 +1779,9 @@ public partial class MainWindow : Gtk.Window
 			},
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			employeeSelectorFactory)
+			employeeSelectorFactory,
+			new SalesPlanJournalFactory(),
+			new NomenclatureSelectorFactory())
 		);
 	}
 
@@ -2088,7 +2094,9 @@ public partial class MainWindow : Gtk.Window
                     new EmployeeJournalFactory(),
                     new CounterpartyJournalFactory(),
                     new DeliveryPointJournalFactory(),
-                    subdivisionJournalFactory
+                    subdivisionJournalFactory,
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
                 );
             }
         );
@@ -2144,7 +2152,9 @@ public partial class MainWindow : Gtk.Window
                     new DeliveryPointJournalFactory(),
                     new SubdivisionJournalFactory(),
                     new GtkTabsOpener(),
-                    new UndeliveredOrdersJournalOpener()
+                    new UndeliveredOrdersJournalOpener(),
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
             )
         );
     }

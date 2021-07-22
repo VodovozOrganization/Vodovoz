@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 
 		public UndeliveredOrdersFilterViewModel(ICommonServices commonServices, IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory, ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory, ISubdivisionJournalFactory subdivisionJournalFactory)
+			IDeliveryPointJournalFactory deliveryPointJournalFactory, ISubdivisionJournalFactory subdivisionJournalFactory, ISalesPlanJournalFactory salesPlanJournalFactory, INomenclatureSelectorFactory nomenclatureSelectorFactory)
 		{
 			OrderSelectorFactory = (orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory)))
 				.CreateOrderAutocompleteSelectorFactory();
@@ -55,7 +55,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 				.CreateDeliveryPointAutocompleteSelectorFactory();
 
 			AuthorSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-				.CreateSubdivisionAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
+				.CreateSubdivisionAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(), salesPlanJournalFactory, nomenclatureSelectorFactory);
 
 			Subdivisions = UoW.GetAll<Subdivision>();
 			RestrictOldOrderStartDate = DateTime.Today.AddMonths(-1);
