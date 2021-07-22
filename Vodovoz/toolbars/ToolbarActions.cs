@@ -753,7 +753,9 @@ public partial class MainWindow : Window
 					new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default },
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
-					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()
+					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
 				);
 			});
 
@@ -1001,7 +1003,9 @@ public partial class MainWindow : Window
 													  new DeliveryPointJournalFactory(),
 													  subdivisionJournalFactory,
 													  new GtkTabsOpener(),
-													  new UndeliveredOrdersJournalOpener()
+													  new UndeliveredOrdersJournalOpener(),
+													  new SalesPlanJournalFactory(),
+													  new NomenclatureSelectorFactory()
 													  );
 		
 		tdiMain.AddTab(ordersJournal);
@@ -1016,7 +1020,8 @@ public partial class MainWindow : Window
 		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
 
 		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
+			new EmployeeJournalFactory(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory(), subdivisionJournalFactory,
+			new SalesPlanJournalFactory(), new NomenclatureSelectorFactory())
 		{
 			HidenByDefault = true,
 			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,

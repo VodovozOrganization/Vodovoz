@@ -37,7 +37,7 @@ namespace Vodovoz.TempAdapters
 			return vm;
 		}
 		
-		public IEntitySelector CreateNomenclatureSelector(IEnumerable<int> excludedNomenclatures)
+		public IEntitySelector CreateNomenclatureSelector(IEnumerable<int> excludedNomenclatures = null)
 		{
 			NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();
 			nomenclatureFilter.RestrictArchive = true;

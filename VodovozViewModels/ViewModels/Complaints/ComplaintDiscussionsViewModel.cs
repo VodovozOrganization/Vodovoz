@@ -15,6 +15,8 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -24,6 +26,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IFilePickerService filePickerService;
 		private readonly IEmployeeService employeeService;
 		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity, 
@@ -32,13 +36,17 @@ namespace Vodovoz.ViewModels.Complaints
 			IFilePickerService filePickerService,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory
 		) : base(entity, commonServices)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
+			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			UoW = uow;
 			CreateCommands();
@@ -119,7 +127,9 @@ namespace Vodovoz.ViewModels.Complaints
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,
-						employeeSelectorFactory
+						employeeSelectorFactory,
+						_salesPlanJournalFactory,
+						_nomenclatureSelectorFactory
 					) {
 						SelectionMode = JournalSelectionMode.Single
 					};

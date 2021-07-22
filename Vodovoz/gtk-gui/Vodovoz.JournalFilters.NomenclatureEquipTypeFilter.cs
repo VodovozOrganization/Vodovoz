@@ -8,7 +8,7 @@ namespace Vodovoz.JournalFilters
 
 		private global::Gtk.Label labelType1;
 
-		private global::QSOrmProject.EntryReference entryrefEquipmentType;
+		private global::QSOrmProject.EntryReference entryrefEquipmentKind;
 
 		private global::Gtk.Button buttonClear;
 
@@ -25,18 +25,18 @@ namespace Vodovoz.JournalFilters
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.labelType1 = new global::Gtk.Label();
 			this.labelType1.Name = "labelType1";
-			this.labelType1.LabelProp = global::Mono.Unix.Catalog.GetString("Тип оборудования");
+			this.labelType1.LabelProp = global::Mono.Unix.Catalog.GetString("Вид оборудования");
 			this.hbox1.Add(this.labelType1);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelType1]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.entryrefEquipmentType = new global::QSOrmProject.EntryReference();
-			this.entryrefEquipmentType.Events = ((global::Gdk.EventMask)(256));
-			this.entryrefEquipmentType.Name = "entryrefEquipmentType";
-			this.hbox1.Add(this.entryrefEquipmentType);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entryrefEquipmentType]));
+			this.entryrefEquipmentKind = new global::QSOrmProject.EntryReference();
+			this.entryrefEquipmentKind.Events = ((global::Gdk.EventMask)(256));
+			this.entryrefEquipmentKind.Name = "entryrefEquipmentKind";
+			this.hbox1.Add(this.entryrefEquipmentKind);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entryrefEquipmentKind]));
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
@@ -59,7 +59,7 @@ namespace Vodovoz.JournalFilters
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.entryrefEquipmentType.ChangedByUser += new global::System.EventHandler(this.OnEntryrefEquipmentTypeChangedByUser);
+			this.entryrefEquipmentKind.ChangedByUser += new global::System.EventHandler(this.OnEntryrefEquipmentKindChangedByUser);
 			this.buttonClear.Clicked += new global::System.EventHandler(this.OnButtonClearClicked);
 		}
 	}

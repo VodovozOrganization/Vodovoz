@@ -134,6 +134,10 @@
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />
+    <Compile Include="Domain\WageCalculation\NomenclatureSalesPlanItem.cs" />
+    <Compile Include="Domain\WageCalculation\EquipmentKindSalesPlanItem.cs" />
+    <Compile Include="Domain\WageCalculation\EquipmentTypeSalesPlanItem.cs" />
+    <Compile Include="Domain\WageCalculation\SalesPlanItem.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItem.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterItemTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
@@ -207,6 +211,7 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\SalesPlanItemMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPriorityMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPrioritySetMap.cs" />
@@ -244,7 +249,7 @@
     <Compile Include="Domain\Accounting\AccountIncome.cs" />
     <Compile Include="Domain\BasicHandbooks\CullingCategory.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentColors.cs" />
-    <Compile Include="Domain\BasicHandbooks\EquipmentType.cs" />
+    <Compile Include="Domain\BasicHandbooks\EquipmentKind.cs" />
     <Compile Include="Domain\BasicHandbooks\Manufacturer.cs" />
     <Compile Include="Domain\Cash\AdvanceClosing.cs" />
     <Compile Include="Domain\Cash\AdvanceReport.cs" />
@@ -381,7 +386,7 @@
     <Compile Include="HibernateMapping\Employees\UserSettingsMap.cs" />
     <Compile Include="HibernateMapping\Goods\EquipmentColorsMap.cs" />
     <Compile Include="HibernateMapping\Goods\EquipmentMap.cs" />
-    <Compile Include="HibernateMapping\Goods\EquipmentTypeMap.cs" />
+    <Compile Include="HibernateMapping\Goods\EquipmentKindMap.cs" />
     <Compile Include="HibernateMapping\Goods\ManufacturerMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclaturePriceMap.cs" />
@@ -422,7 +427,7 @@
     <Compile Include="Repositories\Cash\CategoryRepository.cs" />
     <Compile Include="Repositories\CounterpartyRepository.cs" />
     <Compile Include="Repositories\EquipmentRepository.cs" />
-    <Compile Include="Repositories\EquipmentTypeRepository.cs" />
+    <Compile Include="Repositories\EquipmentKindRepository.cs" />
     <Compile Include="Repositories\Logistics\DeliveryShiftRepository.cs" />
     <Compile Include="Repositories\Logistics\RouteColumnRepository.cs" />
     <Compile Include="Repositories\Logistics\RouteListRepository.cs" />

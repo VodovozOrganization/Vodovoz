@@ -38,8 +38,8 @@ namespace Vodovoz
 			referenceDepositService.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature> ()
 				.Add (Restrictions.Eq ("Category", NomenclatureCategory.deposit));
 			referenceDepositService.Binding.AddBinding (Entity, e => e.DepositService, w => w.Subject).InitializeFromSource ();
-			referenceEquipmentType.SubjectType = typeof(EquipmentType);
-			referenceEquipmentType.Binding.AddBinding (Entity, e => e.EquipmentType, w => w.Subject).InitializeFromSource ();
+			referenceEquipmentKind.SubjectType = typeof(EquipmentKind);
+			referenceEquipmentKind.Binding.AddBinding (Entity, e => e.EquipmentKind, w => w.Subject).InitializeFromSource ();
 		}
 
 		public override bool Save ()
