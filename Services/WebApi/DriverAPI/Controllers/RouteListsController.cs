@@ -82,15 +82,15 @@ namespace DriverAPI.Controllers
 		}
 
 		/// <summary>
-		/// Эндпоинт возвращения МЛ в Путь
+		/// Эндпоинт возвращения адреса МЛ в Путь
 		/// </summary>
-		/// <param name="routelistId">идентификатор МЛ</param>
+		/// <param name="routelistAddressId">идентификатор адреса МЛ</param>
 		/// <returns></returns>
 		[HttpPost]
-		[Route("/api/RollbackRouteListStatusEnRoute")]
-		public async Task RollbackRouteListStatusEnRoute([FromBody]int routelistId)
+		[Route("/api/RollbackRouteListAddressStatusEnRoute")]
+		public async Task RollbackRouteListAddressStatusEnRoute([FromBody]int routelistAddressId)
 		{
-			_aPIRouteListData.RollbackRouteListStatusEnRoute(routelistId);
+			_aPIRouteListData.RollbackRouteListAddressStatusEnRoute(routelistAddressId);
 		}
 	}
 }
