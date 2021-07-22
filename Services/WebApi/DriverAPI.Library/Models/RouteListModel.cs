@@ -114,5 +114,19 @@ namespace DriverAPI.Library.Models
 			return _employeeRepository.GetEmployeePushTokenByOrderId(_unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Не найден токен для PUSH-сообщения водителя заказа {orderId}");
 		}
+
+		public void RollbackRouteListStatusEnRoute(int routelistId)
+		{
+			if(routelistId >= 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(routelistId), routelistId, "Идентификатор МЛ не может быть меньше или равен нулю");
+			}
+
+			var vodovozRoutelist = _routeListRepository.GetRouteListById(_unitOfWork, routelistId)
+				?? throw new ArgumentOutOfRangeException(nameof(routelistId), routelistId, "Указан идентификатор несуществующего МЛ");
+			vodovozRoutelist.RollBackEnRouteStatus();
+			_unitOfWork.Save(vodovozRoutelist);
+			_unitOfWork.Commit();
+		}
 	}
 }
