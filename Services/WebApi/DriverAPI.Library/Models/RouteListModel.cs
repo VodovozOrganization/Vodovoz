@@ -121,15 +121,15 @@ namespace DriverAPI.Library.Models
 		{
 			if(routeListAddressId <= 0)
 			{
-				throw new ArgumentOutOfRangeException(nameof(routeListAddressId), routeListAddressId, "Идентификатор адреса МЛ не может быть меньше или равен нулю");
+				throw new DataNotFoundException(nameof(routeListAddressId), routeListAddressId, "Идентификатор адреса МЛ не может быть меньше или равен нулю");
 			}
 
 			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId)
-				?? throw new ArgumentOutOfRangeException(nameof(routeListAddressId), routeListAddressId, "Указан идентификатор несуществующего адреса МЛ");
+				?? throw new DataNotFoundException(nameof(routeListAddressId), routeListAddressId, "Указан идентификатор несуществующего адреса МЛ");
 
 			if(routeListAddress.Status == RouteListItemStatus.Transfered)
 			{
-				throw new ArgumentOutOfRangeException(nameof(routeListAddressId), routeListAddressId, "Перенесенный адрес нельзя вернуть в путь");
+				throw new InvalidOperationException("Перенесенный адрес нельзя вернуть в путь");
 			}
 
 			routeListAddress.UpdateStatus(_unitOfWork, RouteListItemStatus.EnRoute);
