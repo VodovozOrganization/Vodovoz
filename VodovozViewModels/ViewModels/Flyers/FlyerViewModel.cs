@@ -113,11 +113,11 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 					return;
 				}
 				
-				if(FlyerEndDate.HasValue && FlyerEndDate < _currentFlyerActionTime?.StartDate)
+				if(FlyerEndDate.HasValue && FlyerEndDate <= _currentFlyerActionTime?.StartDate)
 				{
 					CommonServices.InteractiveService.ShowMessage(
 						ImportanceLevel.Warning,
-						"Дата окончания не может быть раньше даты старта");
+						"Дата окончания не может быть меньше или равна дате старта");
 					
 					return;
 				}
