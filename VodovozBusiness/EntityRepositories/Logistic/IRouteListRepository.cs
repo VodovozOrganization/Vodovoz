@@ -46,5 +46,6 @@ namespace Vodovoz.EntityRepositories.Logistic
         IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null);
         IList<RouteList> GetRouteListsByIds(IUnitOfWork uow, int[] routeListsIds);
 		RouteList GetRouteListById(IUnitOfWork uow, int routeListsId);
-    }
+		IEnumerable<KeyValuePair<string, int>> GetDeliveryItemsToReturn(IUnitOfWork unitOfWork, int routeListsId);
+	}
 }
