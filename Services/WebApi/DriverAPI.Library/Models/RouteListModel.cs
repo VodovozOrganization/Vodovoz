@@ -117,7 +117,7 @@ namespace DriverAPI.Library.Models
 
 		public void RollbackRouteListStatusEnRoute(int routelistId)
 		{
-			if(routelistId >= 0)
+			if(routelistId <= 0)
 			{
 				throw new ArgumentOutOfRangeException(nameof(routelistId), routelistId, "Идентификатор МЛ не может быть меньше или равен нулю");
 			}
