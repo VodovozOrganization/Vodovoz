@@ -64,10 +64,13 @@ namespace DriverAPI.Library.Models
 		/// <returns>APIOrder</returns>
 		public OrderDto Get(int orderId)
 		{
-			var order = _orderRepository.GetOrder(_unitOfWork, orderId)
+			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
-			return _orderConverter.convertToAPIOrder(order, _aPISmsPaymentData.GetOrderPaymentStatus(orderId));
+			var order = _orderConverter.convertToAPIOrder(vodovozOrder, _aPISmsPaymentData.GetOrderPaymentStatus(orderId));
+			order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
+
+			return order;
 		}
 
 		/// <summary>
