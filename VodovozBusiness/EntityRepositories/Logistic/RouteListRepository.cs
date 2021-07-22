@@ -756,6 +756,45 @@ namespace Vodovoz.EntityRepositories.Logistic
         {
 			return uow.GetById<RouteList>(routeListsId);
 		}
+
+		public IEnumerable<KeyValuePair<string, int>> GetDeliveryItemsToReturn(IUnitOfWork unitOfWork, int routeListsId)
+		{
+			RouteListItem routeListItemAlias = null;
+			VodovozOrder orderAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			KeyValuePair<string, int> keyValuePairAlias = new KeyValuePair<string, int>();
+
+			return unitOfWork.Session.QueryOver(() => routeListItemAlias)
+				.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+				.Inner.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+				.Inner.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(Restrictions.Or(
+						Restrictions.And(
+							Restrictions.Eq(Projections.Property(() => orderAlias.OrderStatus), OrderStatus.Shipped),
+							Restrictions.Eq(Projections.Property(() => orderEquipmentAlias.Direction), Direction.PickUp)
+						),
+						Restrictions.And(
+							Restrictions.Eq(Projections.Property(() => orderAlias.OrderStatus), OrderStatus.NotDelivered),
+							Restrictions.Eq(Projections.Property(() => orderEquipmentAlias.Direction), Direction.Deliver)
+						)
+					))
+				.And(Restrictions.Eq(Projections.Property(() => routeListItemAlias.RouteList.Id), routeListsId))
+				.SelectList(list =>
+					list.Select(Projections.GroupProperty(Projections.Property(() => nomenclatureAlias.Name)).WithAlias(() => keyValuePairAlias.Key))
+						.Select(Projections.Sum(
+							Projections.Conditional(
+								Restrictions.Eq(Projections.Property(() => orderEquipmentAlias.Direction), Direction.PickUp),
+								Projections.Property(() => orderEquipmentAlias.ActualCount),
+								Projections.Conditional(
+									Restrictions.Eq(Projections.Property(() => orderEquipmentAlias.Direction), Direction.Deliver),
+									Projections.Property(() => orderEquipmentAlias.Count),
+									Projections.Constant(0))
+								)
+							)
+						).WithAlias(() => keyValuePairAlias.Value)
+				).TransformUsing(Transformers.AliasToBean<KeyValuePair<string, int>>()).List<KeyValuePair<string, int>>();
+		}
     }
 
 	#region DTO
