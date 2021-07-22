@@ -11,5 +11,6 @@ namespace DriverAPI.Library.Models
 		IEnumerable<int> GetRouteListsIdsForDriverByAndroidLogin(string login);
 		void RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime);
 		string GetActualDriverPushNotificationsTokenByOrderId(int orderId);
+		void RollbackRouteListStatusEnRoute(int routelistId);
 	}
 }
