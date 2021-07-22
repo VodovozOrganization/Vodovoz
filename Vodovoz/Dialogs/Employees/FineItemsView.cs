@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
-using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using QSProjectsLib;
 using Vodovoz.ViewModel;
@@ -112,10 +111,20 @@ namespace Vodovoz
 		protected void OnButtonRemoveClicked(object sender, EventArgs e)
 		{
 			var row = ytreeviewItems.GetSelectedObject<FineItem>();
-			if (row.Id > 0) {
+
+			if(row == null)
+			{
+				return;
+			}
+			
+			if (row.Id > 0) 
+			{
 				FineUoW.Delete(row);
-				if (row.WageOperation != null)
+				
+				if(row.WageOperation != null)
+				{
 					FineUoW.Delete(row.WageOperation);
+				}
 			}
 			FineUoW.Root.ObservableItems.Remove(row);
 		}
