@@ -27,7 +27,8 @@ namespace Vodovoz.Domain.WageCalculation
 		private GenericObservableList<NomenclatureSalesPlanItem> _observableNomenclatureItemSalesPlan;
 		private GenericObservableList<EquipmentKindSalesPlanItem> _observableEquipmentKindItemSalesPlans;
 		private GenericObservableList<EquipmentTypeSalesPlanItem> _observableEquipmentTypeItemSalesPlans;
-		private decimal _proceeds;
+		private decimal _proceedsDay;
+		private decimal _proceedsMonth;
 		public virtual int Id { get; set; }
 
 		string name;
@@ -58,11 +59,18 @@ namespace Vodovoz.Domain.WageCalculation
 			set => SetField(ref emptyBottlesToTake, value);
 		}
 
-		[Display(Name = "Выручка")]
-		public virtual decimal Proceeds
+		[Display(Name = "Выручка за день")]
+		public virtual decimal ProceedsDay
 		{
-			get => _proceeds;
-			set => SetField(ref _proceeds, value);
+			get => _proceedsDay;
+			set => SetField(ref _proceedsDay, value);
+		}
+
+		[Display(Name = "Выручка за месяц")]
+		public virtual decimal ProceedsMonth
+		{
+			get => _proceedsMonth;
+			set => SetField(ref _proceedsMonth, value);
 		}
 
 		public virtual string Title {

@@ -16,7 +16,8 @@ namespace Vodovoz.HibernateMapping.WageCalculation
 			Map(x => x.IsArchive).Column("is_archive");
 			Map(x => x.EmptyBottlesToTake).Column("empty_bottles_to_take_salesplan_wage");
 			Map(x => x.FullBottleToSell).Column("full_bottles_to_sell_salesplan_wage");
-			Map(x => x.Proceeds).Column("proceeds");
+			Map(x => x.ProceedsDay).Column("proceeds_day");
+			Map(x => x.ProceedsMonth).Column("proceeds_month");
 
 			HasMany(x => x.EquipmentTypeItemSalesPlans)
 				.Where($"type='EquipmentType'")

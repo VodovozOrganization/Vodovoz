@@ -26,7 +26,8 @@ namespace Vodovoz.Views.WageCalculation
 			chkIsArchive.Binding.AddBinding(ViewModel.Entity, s => s.IsArchive, w => w.Active).InitializeFromSource();
 			entryFullBottlesToSell.Binding.AddBinding(ViewModel.Entity, e => e.FullBottleToSell, w => w.ValueAsInt).InitializeFromSource();
 			entryEmptyBottlesToTake.Binding.AddBinding(ViewModel.Entity, e => e.EmptyBottlesToTake, w => w.ValueAsInt).InitializeFromSource();
-			entryProceeds.Binding.AddBinding(ViewModel.Entity, e => e.Proceeds, w => w.ValueAsDecimal).InitializeFromSource();
+			entryProceedsDay.Binding.AddBinding(ViewModel.Entity, e => e.ProceedsDay, w => w.ValueAsDecimal).InitializeFromSource();
+			entryProceedsMonth.Binding.AddBinding(ViewModel.Entity, e => e.ProceedsMonth, w => w.ValueAsDecimal).InitializeFromSource();
 
 			ytreeviewNomenclatureSalesPlan.ColumnsConfig = FluentColumnsConfig<NomenclatureSalesPlanItem>.Create()
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature != null ? x.Nomenclature.Name : "")
