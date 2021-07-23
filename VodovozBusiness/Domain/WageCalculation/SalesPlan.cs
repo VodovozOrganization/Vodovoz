@@ -59,14 +59,14 @@ namespace Vodovoz.Domain.WageCalculation
 			set => SetField(ref emptyBottlesToTake, value);
 		}
 
-		[Display(Name = "Выручка день")]
+		[Display(Name = "Выручка за день")]
 		public virtual decimal ProceedsDay
 		{
 			get => _proceedsDay;
 			set => SetField(ref _proceedsDay, value);
 		}
 
-		[Display(Name = "Выручка месяц")]
+		[Display(Name = "Выручка за месяц")]
 		public virtual decimal ProceedsMonth
 		{
 			get => _proceedsMonth;
