@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 
 namespace DriverAPI.Library.Converters
 {
@@ -28,14 +29,14 @@ namespace DriverAPI.Library.Converters
 			this.routeListCompletionStatusConverter = routeListCompletionStatusConverter ?? throw new ArgumentNullException(nameof(routeListCompletionStatusConverter));
 		}
 
-		public RouteListDto convertToAPIRouteList(RouteList routeList)
+		public RouteListDto convertToAPIRouteList(RouteList routeList, IEnumerable<KeyValuePair<string, int>> itemsToReturn)
 		{
 			var result = new RouteListDto()
 			{
 				CompletionStatus = routeListCompletionStatusConverter.convertToAPIRouteListCompletionStatus(routeList.Status)
 			};
 
-			if (result.CompletionStatus == RouteListDtoCompletionStatus.Completed)
+			if(result.CompletionStatus == RouteListDtoCompletionStatus.Completed)
 			{
 				result.CompletedRouteList = new CompletedRouteListDto()
 				{
@@ -60,6 +61,8 @@ namespace DriverAPI.Library.Converters
 					EmptyBottlesToReturn = routeList.Addresses
 						.Sum(rla => rla.DriverBottlesReturned ?? 0),
 				};
+
+				result.CompletedRouteList.OrdersReturnItems = itemsToReturn.Select(pair => new OrdersReturnItemDto() { Name = pair.Key, Count = pair.Value });
 			}
 			else
 			{
