@@ -37,7 +37,7 @@ namespace DriverAPI.Library.Converters
 				FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,
 				EmptyBottlesToReturn = vodovozOrder.BottlesReturn ?? 0,
 				Counterparty = vodovozOrder.Client.FullName,
-				CounterpartyPhoneNumbers = vodovozOrder.Client.Phones.Select(x => "+7" + x.DigitsNumber),
+				PhoneNumbers = vodovozOrder.DeliveryPoint.Phones.Concat(vodovozOrder.Client.Phones).Select(x => "+7" + x.DigitsNumber),
 				PaymentType = paymentTypeConverter.convertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
 				Address = deliveryPointConverter.extractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderComment = vodovozOrder.Comment,

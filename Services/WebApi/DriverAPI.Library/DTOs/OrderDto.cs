@@ -10,7 +10,7 @@ namespace DriverAPI.Library.DTOs
 		public int FullBottleCount { get; set; }
 		public int EmptyBottlesToReturn { get; set; }
 		public string Counterparty { get; set; }
-		public IEnumerable<string> CounterpartyPhoneNumbers { get; set; }
+		public IEnumerable<string> PhoneNumbers { get; set; }
 		public PaymentDtoType PaymentType { get; set; }
 		public AddressDto Address { get; set; }
 		public string OrderComment { get; set; }
