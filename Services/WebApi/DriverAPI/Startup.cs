@@ -197,16 +197,17 @@ namespace DriverAPI
 				}
 			);
 
-			QS.Project.Repositories.UserRepository.GetCurrentUserId = () =>
+			var serviceUserId = 0;
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
 			{
-				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
-				{
-					return unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
-						.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
-						.Select(u => u.Id)
-						.FirstOrDefault();
-				}
-			};
+				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
+					.Select(u => u.Id)
+					.FirstOrDefault();
+			}
+
+			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
 
 			HistoryMain.Enable();
 		}
