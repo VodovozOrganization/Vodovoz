@@ -301,7 +301,7 @@ namespace Vodovoz
 
 			_hasAccessToDriverTerminal = _editing;
 			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
-			_needToSelectTerminalCondition = baseDoc is DriverAttachedTerminalGiveoutDocument && baseDoc.CreationDate < Entity?.Date;
+			_needToSelectTerminalCondition = baseDoc is DriverAttachedTerminalGiveoutDocument && baseDoc.CreationDate.Date <= Entity?.Date;
 			hboxTerminalCondition.Visible = _hasAccessToDriverTerminal && _needToSelectTerminalCondition;
 			if(_hasAccessToDriverTerminal && _needToSelectTerminalCondition)
 			{

@@ -212,7 +212,7 @@ namespace Vodovoz
 			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
 			labelTerminalCondition.Visible = hasAccessToDriverTerminal &&
 			                                 baseDoc is DriverAttachedTerminalGiveoutDocument &&
-			                                 baseDoc.CreationDate < Entity?.Date;
+			                                 baseDoc.CreationDate.Date <= Entity?.Date;
 			if(labelTerminalCondition.Visible)
 			{
 				labelTerminalCondition.LabelProp += $"{Entity.DriverTerminalCondition?.GetEnumTitle() ?? "неизвестно"}";

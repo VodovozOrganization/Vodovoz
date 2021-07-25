@@ -96,7 +96,7 @@ namespace Vodovoz.ViewModel
 				DriverAttachedTerminalGiveoutDocument giveoutAlias = null;
 				var baseQuery = QueryOver.Of(() => baseAlias)
 					.Where(doc => doc.Driver.Id == routeListAlias.Driver.Id)
-					.And(doc => doc.CreationDate < routeListAlias.Date)
+					.And(doc => doc.CreationDate.Date <= routeListAlias.Date)
 					.Select(doc => doc.Id).OrderBy(doc => doc.CreationDate).Desc.Take(1);
 				var giveoutQuery = QueryOver.Of(() => giveoutAlias).WithSubquery.WhereProperty(giveout => giveout.Id).Eq(baseQuery)
 					.Select(doc => doc.Driver.Id);
