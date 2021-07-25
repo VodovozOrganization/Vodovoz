@@ -339,7 +339,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 			                        .Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
 			                        .And(x => x.RouteList.Id == routeList.Id)
 			                        .List();
-			
+
+			if(GetLastTerminalDocumentForEmployee(uow, routeList.Driver) is DriverAttachedTerminalGiveoutDocument)
+			{
+				return null;
+			}
+
 			if (needTerminal || loadedTerminal.Any()) {
 				var terminal = uow.GetById<Nomenclature>(terminalId);
 				int amount = 1;
