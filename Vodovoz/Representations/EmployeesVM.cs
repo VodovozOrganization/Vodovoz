@@ -128,9 +128,10 @@ namespace Vodovoz.ViewModel
 						)
 						.OrderByAlias(() => resultAlias.TotalMonths).Desc
 						.ThenByAlias(() => resultAlias.AvgSalary).Desc
-						.TransformUsing(Transformers.AliasToBean<EmployeeJournalNode>())
+						.TransformUsing(Transformers.AliasToBean<EmployeesVMNode>())
 						.List<EmployeesVMNode>();
 				SetItemsSource(result);
+				return;
 			}
 
 			result = query

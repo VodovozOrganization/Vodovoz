@@ -530,13 +530,15 @@ namespace Vodovoz
 					}
 
 					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
 
 					var giveoutDocFrom = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, routeListFrom?.Driver);
 					if(giveoutDocFrom is DriverAttachedTerminalGiveoutDocument)
 					{
-						MessageDialogHelper.RunErrorDialog("Нельзя передать терминал от водителя, к которому привязан терминал.\r\n" +
-						                                   "Водителю, которому передается заказ, необходима допогрузка\r\n" +
-						                                  $"{giveoutDocFrom.GetTitle()}", "Ошибка");
+						MessageDialogHelper.RunErrorDialog(
+							$"Нельзя передать терминал от водителя {routeListFrom?.Driver.GetPersonNameWithInitials()}, " +
+							$"к которому привязан терминал.\r\nВодителю {routeListTo?.Driver.GetPersonNameWithInitials()}, " +
+							"которому передается заказ, необходима допогрузка", "Ошибка");
 						return;
 					}
 
@@ -548,7 +550,6 @@ namespace Vodovoz
 					}
 					
 					var terminal = UoW.GetById<Nomenclature>(selectedNode.NomenclatureId);
-					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
 
 					var operationFrom = new EmployeeNomenclatureMovementOperation
 					{
@@ -613,8 +614,8 @@ namespace Vodovoz
 					var giveoutDocTo = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, routeListTo?.Driver);
 					if(giveoutDocTo is DriverAttachedTerminalGiveoutDocument)
 					{
-						MessageDialogHelper.RunErrorDialog("Нельзя вернуть терминал от водителя, к которому привязан терминал.\r\n" +
-						                                   $"{giveoutDocTo.GetTitle()}", "Ошибка");
+						MessageDialogHelper.RunErrorDialog($"Нельзя вернуть терминал от водителя {routeListTo?.Driver.GetPersonNameWithInitials()}" +
+						                                   ", к которому привязан терминал.", "Ошибка");
 						return;
 					}
 
