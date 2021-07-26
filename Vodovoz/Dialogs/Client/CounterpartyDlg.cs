@@ -720,7 +720,9 @@ namespace Vodovoz
 		        new DeliveryPointJournalFactory(),
 		        subdivisionJournalFactory,
 		        new GtkTabsOpener(),
-		        new UndeliveredOrdersJournalOpener()
+		        new UndeliveredOrdersJournalOpener(),
+				new SalesPlanJournalFactory(),
+				new NomenclatureSelectorFactory()
 			);
 
 	        TabParent.AddTab(orderJournalViewModel, this, false);
@@ -754,7 +756,9 @@ namespace Vodovoz
 		        new EmployeeJournalFactory(),
 		        new CounterpartyJournalFactory(),
 		        new DeliveryPointJournalFactory(),
-		        subdivisionJournalFactory
+		        subdivisionJournalFactory,
+				new SalesPlanJournalFactory(),
+				new NomenclatureSelectorFactory()
 	        );
 	        
 	        TabParent.AddTab(complaintsJournalViewModel, this, false);

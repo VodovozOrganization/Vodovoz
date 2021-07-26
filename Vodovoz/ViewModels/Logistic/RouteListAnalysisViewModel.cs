@@ -47,6 +47,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly ICommonServices _commonServices;
+		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 
 		#region Properties
 
@@ -74,7 +76,9 @@ namespace Vodovoz.ViewModels.Logistic
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener) : base (uowBuilder, unitOfWorkFactory, commonServices)
+			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -84,6 +88,8 @@ namespace Vodovoz.ViewModels.Logistic
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			Entity.ObservableAddresses.PropertyOfElementChanged += ObservableAddressesOnPropertyOfElementChanged;
 			
@@ -137,7 +143,9 @@ namespace Vodovoz.ViewModels.Logistic
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
 						_deliveryPointJournalFactory,
-						_subdivisionJournalFactory)
+						_subdivisionJournalFactory,
+						_salesPlanJournalFactory,
+						_nomenclatureSelectorFactory)
 					{
 						HidenByDefault = true,
 						RestrictOldOrder = SelectedItem.Order,
@@ -249,6 +257,7 @@ namespace Vodovoz.ViewModels.Logistic
 		));
 		
 		private DelegateCommand createDetachFineCommand;
+
 		public DelegateCommand DetachFineCommand => 
 			createDetachFineCommand ?? (createDetachFineCommand = new DelegateCommand(
 			() =>

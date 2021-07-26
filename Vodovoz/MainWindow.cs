@@ -120,6 +120,7 @@ using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -127,6 +128,10 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -521,11 +526,13 @@ public partial class MainWindow : Gtk.Window
         tdiMain.AddTab(refWin);
     }
 
-    protected void OnActionEquipmentTypesActivated(object sender, EventArgs e)
+    protected void OnActionEquipmentKindsActivated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(EquipmentType));
-        tdiMain.AddTab(refWin);
-    }
+	    tdiMain.OpenTab(() => new EquipmentKindJournalViewModel(
+		    UnitOfWorkFactory.GetDefaultFactory,
+		    ServicesConfig.CommonServices)
+	    );
+	}
 
     protected void OnActionNomenclatureActivated(object sender, EventArgs e)
     {
@@ -595,6 +602,12 @@ public partial class MainWindow : Gtk.Window
     {
         OrmReference refWin = new OrmReference(typeof(Post));
         tdiMain.AddTab(refWin);
+    }
+    
+    protected void OnActionFreeRentPackageActivated(object sender, EventArgs e)
+    {
+	    OrmReference refWin = new OrmReference(typeof(FreeRentPackage));
+	    tdiMain.AddTab(refWin);
     }
 
     protected void OnActionPaidRentPackageActivated(object sender, EventArgs e)
@@ -964,7 +977,9 @@ public partial class MainWindow : Gtk.Window
                     employeeJournalFactory,
                     new CounterpartyJournalFactory(),
                     new DeliveryPointJournalFactory(),
-                    subdivisionJournalFactory
+                    subdivisionJournalFactory,
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
                 );
             }
         );
@@ -1771,8 +1786,9 @@ public partial class MainWindow : Gtk.Window
         tdiMain.AddTab(
             new SalesPlanJournalViewModel(
                 UnitOfWorkFactory.GetDefaultFactory,
-                ServicesConfig.CommonServices
-            )
+                ServicesConfig.CommonServices,
+                new NomenclatureSelectorFactory()
+			)
         );
     }
 
@@ -2105,7 +2121,9 @@ public partial class MainWindow : Gtk.Window
                     employeeJournalFactory,
                     new CounterpartyJournalFactory(),
                     new DeliveryPointJournalFactory(),
-                    subdivisionJournalFactory
+                    subdivisionJournalFactory,
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
                 );
             }
         );
@@ -2157,7 +2175,9 @@ public partial class MainWindow : Gtk.Window
                     new DeliveryPointJournalFactory(),
                     subdivisionJournalFactory,
                     new GtkTabsOpener(),
-                    new UndeliveredOrdersJournalOpener()
+                    new UndeliveredOrdersJournalOpener(),
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
             )
         );
     }
@@ -2415,5 +2435,16 @@ public partial class MainWindow : Gtk.Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices)
 		);
+	}
+
+	protected void OnActionFlyersActivated(object sender, EventArgs e)
+	{
+		var journal = new FlyersJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			new NomenclatureSelectorFactory(),
+			new FlyerRepository());
+		
+		tdiMain.AddTab(journal);
 	}
 }

@@ -8,6 +8,8 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Permissions;
 
 namespace Vodovoz.ViewModels.ViewModels.Organizations
@@ -37,11 +39,15 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
-			IPermissionRepository permissionRepository
+			IPermissionRepository permissionRepository,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory
 		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			PresetSubdivisionPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, permissionRepository, Entity);
 			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			SalesPlanSelectorFactory = (salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory)))
+				.CreateSalesPlanAutocompleteSelectorFactory(nomenclatureSelectorFactory);
 			ConfigureEntityChangingRelations();
 			CreateCommands();
 		}
@@ -82,6 +88,8 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 				Entity.SetChildsGeographicGroup(Entity.GeographicGroup);
 			}
 		}
+
+		public IEntityAutocompleteSelectorFactory SalesPlanSelectorFactory { get; }
 
 		#region Commands
 

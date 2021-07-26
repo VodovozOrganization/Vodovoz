@@ -14,14 +14,14 @@ namespace Vodovoz.ViewModel
 	/// <summary>
 	/// Модель отображения в списке количества оборудования определенного типа.
 	/// </summary>
-	public class EquipmentTypesForRentVM :RepresentationModelWithoutEntityBase<EquipmentTypesForRentVMNode>
+	public class EquipmentKindsForRentVM :RepresentationModelWithoutEntityBase<EquipmentKindsForRentVMNode>
 	{
 		#region implemented abstract members of RepresentationModelBase
 
 		public override void UpdateNodes ()
 		{
 			Nomenclature nomenclatureAlias = null;
-			EquipmentType equipmentTypeAlias = null;
+			EquipmentKind equipmentKindAlias = null;
 			NomenclatureForSaleVMNode resultAlias = null;
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;
@@ -31,13 +31,13 @@ namespace Vodovoz.ViewModel
 
 			var subqueryAdded = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
 				.JoinAlias(() => operationAddAlias.Nomenclature, () => nomenclatureAlias)
-				.Where (() => nomenclatureAlias.Type.Id == equipmentTypeAlias.Id)
+				.Where (() => nomenclatureAlias.Kind.Id == equipmentKindAlias.Id)
 				.Where (Restrictions.IsNotNull (Projections.Property<WarehouseMovementOperation> (o => o.IncomingWarehouse)))
 				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
 
 			var subqueryRemoved = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
 				.JoinAlias(() => operationRemoveAlias.Nomenclature, () => nomenclatureAlias)
-				.Where (() => nomenclatureAlias.Type.Id == equipmentTypeAlias.Id)
+				.Where (() => nomenclatureAlias.Kind.Id == equipmentKindAlias.Id)
 				.Where(Restrictions.IsNotNull (Projections.Property<WarehouseMovementOperation> (o => o.WriteoffWarehouse)))
 				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
 
@@ -45,23 +45,23 @@ namespace Vodovoz.ViewModel
 				.JoinAlias (() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias)
 				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
-				.Where (() => nomenclatureAlias.Type.Id == equipmentTypeAlias.Id)
+				.Where (() => nomenclatureAlias.Kind.Id == equipmentKindAlias.Id)
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
 			           || orderAlias.OrderStatus == OrderStatus.InTravelList
 			           || orderAlias.OrderStatus == OrderStatus.OnLoading)
 				.Select (Projections.Count (() => orderEquipmentAlias.Id));
 
-			var equipment = UoW.Session.QueryOver<EquipmentType>(()=>equipmentTypeAlias)
+			var equipment = UoW.Session.QueryOver<EquipmentKind>(()=>equipmentKindAlias)
 				.SelectList(list=>list
-					.SelectGroup(()=> equipmentTypeAlias.Id).WithAlias(()=>resultAlias.Id)
-					.Select(() => equipmentTypeAlias.Name).WithAlias(() => resultAlias.Name)
+					.SelectGroup(()=> equipmentKindAlias.Id).WithAlias(()=>resultAlias.Id)
+					.Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.Name)
 					.SelectSubQuery (subqueryAdded).WithAlias(() => resultAlias.Added)
 					.SelectSubQuery (subqueryRemoved).WithAlias(() => resultAlias.Removed)
 					.SelectSubQuery(subqueryReserved).WithAlias(()=>resultAlias.Reserved)
 				)
-				.TransformUsing(Transformers.AliasToBean<EquipmentTypesForRentVMNode>())
-				.List<EquipmentTypesForRentVMNode>();
+				.TransformUsing(Transformers.AliasToBean<EquipmentKindsForRentVMNode>())
+				.List<EquipmentKindsForRentVMNode>();
 
 			SetItemsSource (equipment);
 		}
@@ -69,8 +69,8 @@ namespace Vodovoz.ViewModel
 		static Gdk.Color colorBlack = new Gdk.Color (0, 0, 0);
 		static Gdk.Color colorRed = new Gdk.Color (0xff, 0, 0);
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig <EquipmentTypesForRentVMNode>.Create ()
-			.AddColumn ("Тип оборудования").SetDataProperty (node => node.Name)
+		IColumnsConfig columnsConfig = FluentColumnsConfig <EquipmentKindsForRentVMNode>.Create ()
+			.AddColumn ("Вид оборудования").SetDataProperty (node => node.Name)
 			.AddColumn ("На складе").AddTextRenderer (node => node.InStockText)
 			.AddColumn ("Зарезервировано").AddTextRenderer (node => node.ReservedText)
 			.AddColumn ("Доступно").AddTextRenderer (node => node.AvailableText)
@@ -83,11 +83,11 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public EquipmentTypesForRentVM () 
+		public EquipmentKindsForRentVM () 
 			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
 		{}
 
-		public EquipmentTypesForRentVM (IUnitOfWork uow) : base(typeof(Nomenclature), typeof(WarehouseMovementOperation))
+		public EquipmentKindsForRentVM (IUnitOfWork uow) : base(typeof(Nomenclature), typeof(WarehouseMovementOperation))
 		{
 			this.UoW = uow;
 		}
@@ -102,7 +102,7 @@ namespace Vodovoz.ViewModel
 		#endregion
 	}
 
-	public class EquipmentTypesForRentVMNode
+	public class EquipmentKindsForRentVMNode
 	{
 		public int Id{get;set;}
 

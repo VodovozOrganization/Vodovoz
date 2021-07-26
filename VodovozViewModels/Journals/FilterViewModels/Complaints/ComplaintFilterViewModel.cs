@@ -39,7 +39,8 @@ namespace Vodovoz.FilterViewModels
 				x => x.Subdivision,
 				x => x.FilterDateType,
 				x => x.ComplaintKind,
-				x => x.ComplaintDiscussionStatus
+				x => x.ComplaintDiscussionStatus,
+				x => x.ComplaintObject
 			);
 		}
 
@@ -203,7 +204,7 @@ namespace Vodovoz.FilterViewModels
 		}
 
 		public IEnumerable<ComplaintObject> ComplaintObjectSource => 
-			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList());
+			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().ToList());
 
 		public ReportInfo GetReportInfo()
 		{

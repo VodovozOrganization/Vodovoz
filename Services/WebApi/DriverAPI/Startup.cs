@@ -29,6 +29,7 @@ using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools;
+using QSProjectsLib;
 
 namespace DriverAPI
 {
@@ -195,6 +196,18 @@ namespace DriverAPI
 					System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
 				}
 			);
+
+			var serviceUserId = 0;
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
+			{
+				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
+					.Select(u => u.Id)
+					.FirstOrDefault();
+			}
+
+			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
 
 			HistoryMain.Enable();
 		}

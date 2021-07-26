@@ -14,7 +14,7 @@ namespace Vodovoz
 			this.Build ();
 			UoW = uow;
 			IsFiltred = false;
-			entryrefEquipmentType.SubjectType = typeof(EquipmentType);
+			entryrefEquipmentKind.SubjectType = typeof(EquipmentKind);
 		}
 
 		#region IReferenceFilter implementation
@@ -58,10 +58,10 @@ namespace Vodovoz
 				FiltredCriteria.Add (Restrictions.Lt ("LastServiceDate", DateTime.Now.AddMonths (-5).AddDays (-14)));
 				IsFiltred = true;
 			}
-			if(entryrefEquipmentType.Subject != null)
+			if(entryrefEquipmentKind.Subject != null)
 			{
 				FiltredCriteria.CreateAlias("Nomenclature", "nomenclatureAlias");
-				FiltredCriteria.Add(Restrictions.Eq("nomenclatureAlias.Type", entryrefEquipmentType.Subject));
+				FiltredCriteria.Add(Restrictions.Eq("nomenclatureAlias.Type", entryrefEquipmentKind.Subject));
 			}
 			OnRefiltered ();
 		}
@@ -71,7 +71,7 @@ namespace Vodovoz
 			UpdateCreteria ();
 		}
 
-		protected void OnEntryrefEquipmentTypeChangedByUser(object sender, EventArgs e)
+		protected void OnEntryrefEquipmentKindChangedByUser(object sender, EventArgs e)
 		{
 			UpdateCreteria();
 		}
