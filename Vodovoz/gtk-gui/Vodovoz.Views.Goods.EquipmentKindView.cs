@@ -14,6 +14,8 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gtk.Table table1;
 
+		private global::Gamma.Widgets.yEnumComboBox enumEquipmentType;
+
 		private global::Gamma.Widgets.yEnumComboBox enumWarrantyType;
 
 		private global::Gtk.Label labelEquipmentKind;
@@ -23,8 +25,6 @@ namespace Vodovoz.Views.Goods
 		private global::Gtk.Label labelName1;
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
-
-		private global::Gamma.Widgets.ySpecComboBox yspeccomboboxEquipmentType;
 
 		protected virtual void Build()
 		{
@@ -79,6 +79,21 @@ namespace Vodovoz.Views.Goods
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
+			this.enumEquipmentType = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumEquipmentType.Name = "enumEquipmentType";
+			this.enumEquipmentType.ShowSpecialStateAll = false;
+			this.enumEquipmentType.ShowSpecialStateNot = false;
+			this.enumEquipmentType.UseShortTitle = false;
+			this.enumEquipmentType.DefaultFirst = false;
+			this.table1.Add(this.enumEquipmentType);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.enumEquipmentType]));
+			w6.TopAttach = ((uint)(2));
+			w6.BottomAttach = ((uint)(3));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.enumWarrantyType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumWarrantyType.Name = "enumWarrantyType";
 			this.enumWarrantyType.ShowSpecialStateAll = false;
@@ -86,44 +101,44 @@ namespace Vodovoz.Views.Goods
 			this.enumWarrantyType.UseShortTitle = false;
 			this.enumWarrantyType.DefaultFirst = false;
 			this.table1.Add(this.enumWarrantyType);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.enumWarrantyType]));
-			w6.TopAttach = ((uint)(1));
-			w6.BottomAttach = ((uint)(2));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.enumWarrantyType]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelEquipmentKind = new global::Gtk.Label();
 			this.labelEquipmentKind.Name = "labelEquipmentKind";
 			this.labelEquipmentKind.Xalign = 1F;
 			this.labelEquipmentKind.LabelProp = global::Mono.Unix.Catalog.GetString("Тип оборудования:");
 			this.table1.Add(this.labelEquipmentKind);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.labelEquipmentKind]));
-			w7.TopAttach = ((uint)(2));
-			w7.BottomAttach = ((uint)(3));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.labelEquipmentKind]));
+			w8.TopAttach = ((uint)(2));
+			w8.BottomAttach = ((uint)(3));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelName = new global::Gtk.Label();
 			this.labelName.Name = "labelName";
 			this.labelName.Xalign = 1F;
 			this.labelName.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
 			this.table1.Add(this.labelName);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.labelName]));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.labelName]));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelName1 = new global::Gtk.Label();
 			this.labelName1.Name = "labelName1";
 			this.labelName1.Xalign = 1F;
 			this.labelName1.LabelProp = global::Mono.Unix.Catalog.GetString("Тип гарантийного талона:");
 			this.table1.Add(this.labelName1);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.labelName1]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.labelName1]));
+			w10.TopAttach = ((uint)(1));
+			w10.BottomAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.CanFocus = true;
@@ -132,22 +147,7 @@ namespace Vodovoz.Views.Goods
 			this.yentryName.MaxLength = 80;
 			this.yentryName.InvisibleChar = '•';
 			this.table1.Add(this.yentryName);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.yspeccomboboxEquipmentType = new global::Gamma.Widgets.ySpecComboBox();
-			this.yspeccomboboxEquipmentType.Name = "yspeccomboboxEquipmentType";
-			this.yspeccomboboxEquipmentType.AddIfNotExist = false;
-			this.yspeccomboboxEquipmentType.DefaultFirst = false;
-			this.yspeccomboboxEquipmentType.ShowSpecialStateAll = false;
-			this.yspeccomboboxEquipmentType.ShowSpecialStateNot = false;
-			this.table1.Add(this.yspeccomboboxEquipmentType);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.yspeccomboboxEquipmentType]));
-			w11.TopAttach = ((uint)(2));
-			w11.BottomAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
 			w11.LeftAttach = ((uint)(1));
 			w11.RightAttach = ((uint)(2));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -161,7 +161,6 @@ namespace Vodovoz.Views.Goods
 			{
 				this.Child.ShowAll();
 			}
-			this.yspeccomboboxEquipmentType.Hide();
 			this.Hide();
 		}
 	}
