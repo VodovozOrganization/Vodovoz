@@ -23,6 +23,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Repositories.Client;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
@@ -155,15 +157,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		private IEntityAutocompleteSelectorFactory CreateDeliveryPointFactory()
 		{
-			return new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
-					() => {
-						var filter = new DeliveryPointJournalFilterViewModel();
-
-						if(Entity.Counterparty != null)
-							filter.Counterparty = Entity.Counterparty;
-
-						return new DeliveryPointJournalViewModel(filter, UnitOfWorkFactory, CommonServices);
-					});
+			var dpFilter = new DeliveryPointJournalFilterViewModel{Counterparty = Entity.Counterparty, HidenByDefault = true};
+			return new DeliveryPointJournalFactory(dpFilter).CreateDeliveryPointByClientAutocompleteSelectorFactory();
 		}
 
 		private PhonesViewModel CreatePhonesViewModel()
