@@ -640,7 +640,6 @@
     <Compile Include="SidePanel\InfoViews\CounterpartyPanelView.cs" />
     <Compile Include="SidePanel\InfoViews\DeliveryPointPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\ICounterpartyInfoProvider.cs" />
-    <Compile Include="SidePanel\InfoProviders\IDeliveryPointInfoProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
     <Compile Include="ReportsParameters\Revision.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
@@ -967,7 +966,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.UndeliveredOrderView.cs" />
     <Compile Include="Dialogs\UndeliveryOnOrderCloseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveryOnOrderCloseDlg.cs" />
-    <Compile Include="SidePanel\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
     <Compile Include="SidePanel\InfoViews\UndeliveredOrdersPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.UndeliveredOrdersPanelView.cs" />
     <Compile Include="Dialogs\UndeliveriesWithCommentsPrintDlg.cs" />
