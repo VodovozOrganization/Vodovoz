@@ -8,10 +8,9 @@ using System.Linq;
 using Vodovoz.Services;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories;
 using Vodovoz.EntityRepositories;
 
-namespace Vodovoz.Dialogs.Phones
+namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
 	public class PhonesViewModel : WidgetViewModelBase
 	{

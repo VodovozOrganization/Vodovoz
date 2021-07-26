@@ -1162,7 +1162,6 @@
     <Compile Include="Dialogs\Cash\ExpenseCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.ExpenseCategoryView.cs" />
     <Compile Include="Infrastructure\Converters\EmployeeToLastNameWithInitialsConverter.cs" />
-    <Compile Include="Dialogs\Phones\PhonesViewModel.cs" />
     <Compile Include="Dialogs\Phones\PhonesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Phones.PhonesView.cs" />
     <Compile Include="Additions\ManualEmailSender.cs" />
@@ -1346,7 +1345,6 @@
     <Compile Include="JournalViewModels\OrderForMovDocJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\OrderForMovDocFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrderForMovDocFilterView.cs" />
-    <Compile Include="Filters\ViewModels\DeliveryPointJournalFilterViewModel.cs" />
     <Compile Include="JournalViewModels\DeliveryPointJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\DeliveryPointJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView.cs" />
@@ -1646,6 +1644,8 @@
     <Compile Include="Filters\GtkViews\ComplaintKindJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintKindJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointsManagementView.cs" />
+    <Compile Include="Views\Client\DeliveryPointView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.DeliveryPointView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1720,6 +1720,10 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QSDocTemplates\QSDocTemplates.csproj">
       <Project>{55CD5E7C-3164-4A5D-9DA8-F29F5E9D170C}</Project>
       <Name>QSDocTemplates</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Application\VodovozOSMService\VodovozOSMService.csproj">
+      <Project>{cd4bbd26-5cfc-4dd4-bb6d-faa73b56a7bf}</Project>
+      <Name>VodovozOSMService</Name>
     </ProjectReference>
     <ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{efe73102-83bc-4036-8642-d3a4121e8351}</Project>
