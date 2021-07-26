@@ -115,8 +115,12 @@ using QS.BaseParameters.ViewModels;
 using QS.BaseParameters.Views;
 using QS.ChangePassword.Views;
 using QS.Dialog;
+using QS.Osm;
+using QS.Osm.Loaders;
+using QS.Osm.Osrm;
 using QS.Project.Repositories;
 using QS.ViewModels;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.ReportsParameters.Employees;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
@@ -132,6 +136,7 @@ using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using VodovozOSMService;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -788,7 +793,15 @@ public partial class MainWindow : Gtk.Window
     protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
     {
         DeliveryPointJournalFilterViewModel filter = new DeliveryPointJournalFilterViewModel();
-        var deliveryPointJournal = new DeliveryPointJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+        var deliveryPointJournal = new DeliveryPointJournalViewModel(
+	        UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
+	        ContactParametersProvider.Instance,
+	        new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
+	        new HousesDataLoader(OsmWorker.GetOsmService()),
+	        new NomenclatureSelectorFactory(),
+	        new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+		        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+	        filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
         tdiMain.AddTab(deliveryPointJournal);
     }
 

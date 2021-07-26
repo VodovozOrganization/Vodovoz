@@ -1,7 +1,5 @@
-﻿using System;
-using QS.Project.Journal.EntitySelector;
+﻿using QS.Project.Journal.EntitySelector;
 using System.Collections.Generic;
-using QS.Project.Journal;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.TempAdapters
@@ -13,5 +11,6 @@ namespace Vodovoz.TempAdapters
 		IEntitySelector CreateNomenclatureSelectorForFuelSelect();
 
 		IEntityAutocompleteSelectorFactory GetWaterJournalFactory();
+		IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory();
 	}
 }

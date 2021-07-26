@@ -3,18 +3,28 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
-using NHibernate.Util;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QS.Tdi;
+using QS.Osm;
+using QS.Osm.Loaders;
+using QS.Project.Domain;
+using QS.Project.Services;
 using QSProjectsLib;
+using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets.Mango;
+using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -169,10 +179,15 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
-			TDIMain.MainNotebook.OpenTab(
-				DialogHelper.GenerateDialogHashName<DeliveryPoint>(DeliveryPoint.Id),
-				() => new DeliveryPointDlg(DeliveryPoint.Id)
-			);
+			var dpViewModel = new DeliveryPointViewModel(UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
+				ContactParametersProvider.Instance,
+				new CitiesDataLoader(OsmWorker.GetOsmService()),
+				new StreetsDataLoader(OsmWorker.GetOsmService()),
+				new HousesDataLoader(OsmWorker.GetOsmService()),
+				new NomenclatureSelectorFactory(),
+				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+				EntityUoWBuilder.ForOpen(DeliveryPoint.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 		}
 	}
 }

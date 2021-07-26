@@ -6,18 +6,50 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Deletion;
 using QS.DomainModel.UoW;
+using QS.Osm.Loaders;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Services;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class DeliveryPointJournalViewModel : FilterableSingleEntityJournalViewModelBase<DeliveryPoint, DeliveryPointDlg, DeliveryPointJournalNode, DeliveryPointJournalFilterViewModel>
+	public class DeliveryPointJournalViewModel : FilterableSingleEntityJournalViewModelBase<DeliveryPoint, DeliveryPointViewModel, DeliveryPointJournalNode, DeliveryPointJournalFilterViewModel>
 	{
-		public DeliveryPointJournalViewModel(DeliveryPointJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) 
+		private readonly IUserRepository _userRepository;
+		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IPhoneRepository _phoneRepository;
+		private readonly IContactsParameters _contactsParameters;
+		private readonly ICitiesDataLoader _citiesLoader;
+		private readonly IStreetsDataLoader _streetsLoader;
+		private readonly IHousesDataLoader _housesLoader;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly NomenclatureFixedPriceController _nomenclatureFixedPriceController;
+
+		public DeliveryPointJournalViewModel(
+			IUserRepository userRepository, IGtkTabsOpener gtkTabsOpener, IPhoneRepository phoneRepository, IContactsParameters contactsParameters,
+			ICitiesDataLoader citiesLoader, IStreetsDataLoader streetsLoader, IHousesDataLoader housesLoader,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory, NomenclatureFixedPriceController nomenclatureFixedPriceController,
+			DeliveryPointJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
+			_contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
+			_citiesLoader = citiesLoader ?? throw new ArgumentNullException(nameof(citiesLoader));
+			_streetsLoader = streetsLoader ?? throw new ArgumentNullException(nameof(streetsLoader));
+			_housesLoader = housesLoader ?? throw new ArgumentNullException(nameof(housesLoader));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_nomenclatureFixedPriceController = nomenclatureFixedPriceController ??
+			                                    throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
+
 			TabName = "Журнал точек доставки";
 			UpdateOnChanges(
 				typeof(Counterparty),
@@ -117,9 +149,16 @@ namespace Vodovoz.JournalViewModels
 			return resultQuery;
 		};
 
-		protected override Func<DeliveryPointDlg> CreateDialogFunction => () => { throw new NotImplementedException(); };
+		protected override Func<DeliveryPointViewModel> CreateDialogFunction => () => throw new NotImplementedException();
 
-		protected override Func<DeliveryPointJournalNode, DeliveryPointDlg> OpenDialogFunction => (node) => new DeliveryPointDlg(node.Id);
+		protected override Func<DeliveryPointJournalNode, DeliveryPointViewModel> OpenDialogFunction => (node) =>
+			new DeliveryPointViewModel(
+				_userRepository, _gtkTabsOpener, _phoneRepository, _contactsParameters,
+				_citiesLoader, _streetsLoader, _housesLoader,
+				_nomenclatureSelectorFactory,
+				_nomenclatureFixedPriceController,
+				EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
+
 	}
 
 	public class DeliveryPointJournalNode : JournalEntityNodeBase<DeliveryPoint>

@@ -1,11 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using QS.Osm;
+using QS.Osm.Loaders;
+using QS.Project.Domain;
 using QSOrmProject;
-using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModel;
 using QS.Project.Services;
+using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz
 {
@@ -22,7 +32,7 @@ namespace Vodovoz
 				deliveryPointUoW = value;
 				if(DeliveryPointUoW.Root.DeliveryPoints == null)
 					DeliveryPointUoW.Root.DeliveryPoints = new List<DeliveryPoint>();
-				treeDeliveryPoints.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(value);
+				treeDeliveryPoints.RepresentationModel = new ClientDeliveryPointsVM(value);
 				treeDeliveryPoints.RepresentationModel.UpdateNodes();
 			}
 		}
@@ -58,15 +68,27 @@ namespace Vodovoz
 					return;
 			}
 
-			ITdiDialog dlg = new DeliveryPointDlg(DeliveryPointUoW.Root);
-			MyTab.TabParent.AddSlaveTab(MyTab, dlg);
+			var client = DeliveryPointUoW.Root;
+			var dpViewModel = new DeliveryPointViewModel(client, UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(), ContactParametersProvider.Instance,
+				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()), new HousesDataLoader(OsmWorker.GetOsmService()),
+				new NomenclatureSelectorFactory(),
+				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 			treeDeliveryPoints.RepresentationModel.UpdateNodes();
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			ITdiDialog dlg = new DeliveryPointDlg((treeDeliveryPoints.GetSelectedObjects()[0] as ClientDeliveryPointVMNode).Id);
-			MyTab.TabParent.AddSlaveTab(MyTab, dlg);
+			var dpId = ((ClientDeliveryPointVMNode) treeDeliveryPoints.GetSelectedObjects()[0]).Id;
+			var dpViewModel = new DeliveryPointViewModel(UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(), ContactParametersProvider.Instance,
+				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()), new HousesDataLoader(OsmWorker.GetOsmService()),
+				new NomenclatureSelectorFactory(),
+				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+				EntityUoWBuilder.ForOpen(dpId), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 		}
 
 		protected void OnTreeDeliveryPointsRowActivated(object o, Gtk.RowActivatedArgs args)
@@ -77,7 +99,7 @@ namespace Vodovoz
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
 			if(OrmMain.DeleteObject(typeof(DeliveryPoint),
-				treeDeliveryPoints.GetSelectedId())) {
+				(treeDeliveryPoints.GetSelectedObject() as DeliveryPoint).Id)) {
 				treeDeliveryPoints.RepresentationModel.UpdateNodes();
 			}
 		}

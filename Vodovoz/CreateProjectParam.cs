@@ -128,6 +128,8 @@ using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.ViewModels.Complaints;
+using Vodovoz.Views.Client;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz
 {
@@ -227,6 +229,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<DiscountReasonViewModel, DiscountReasonView>()
 				.RegisterWidgetForTabViewModel<DriverComplaintReasonViewModel, DriverComplaintReasonView>()
 				.RegisterWidgetForTabViewModel<ComplaintObjectViewModel, ComplaintObjectView>()
+				.RegisterWidgetForTabViewModel<DeliveryPointViewModel, DeliveryPointView>()
 				;
 
             //Регистрация виджетов

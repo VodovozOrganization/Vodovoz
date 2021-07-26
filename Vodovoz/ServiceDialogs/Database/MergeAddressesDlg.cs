@@ -11,11 +11,20 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Tdi;
+using QS.Osm;
+using QS.Osm.Loaders;
+using QS.Project.Domain;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
-using QS.Project.Repositories;
 using QS.Project.Services;
+using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
@@ -289,10 +298,16 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		protected void OnYtreeviewAddressesRowActivated(object o, Gtk.RowActivatedArgs args)
 		{
-			var node = ytreeviewAddresses.GetSelectedObject() as AddressNode;
-			ITdiDialog dlg = new DeliveryPointDlg(node.Address);
-			TabParent.AddSlaveTab(this, dlg);
-
+			var id = ((AddressNode) ytreeviewAddresses.GetSelectedObject()).Address.Id;
+			var dpViewModel = new DeliveryPointViewModel(UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
+				ContactParametersProvider.Instance,
+				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
+				new HousesDataLoader(OsmWorker.GetOsmService()),
+				new NomenclatureSelectorFactory(),
+				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+				EntityUoWBuilder.ForOpen(id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			TabParent.AddSlaveTab(this, dpViewModel);
 		}
 	}
 }
