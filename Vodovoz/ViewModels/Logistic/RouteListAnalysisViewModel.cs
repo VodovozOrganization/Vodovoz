@@ -143,9 +143,7 @@ namespace Vodovoz.ViewModels.Logistic
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
 						_deliveryPointJournalFactory,
-						_subdivisionJournalFactory,
-						_salesPlanJournalFactory,
-						_nomenclatureSelectorFactory)
+						_subdivisionJournalFactory)
 					{
 						HidenByDefault = true,
 						RestrictOldOrder = SelectedItem.Order,

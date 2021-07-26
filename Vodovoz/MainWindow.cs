@@ -847,19 +847,20 @@ public partial class MainWindow : Gtk.Window
     protected void OnPropertiesActionActivated(object sender, EventArgs e)
     {
         var employeeJournalFactory = new EmployeeJournalFactory();
+        var salesPlanJournalFactory = new SalesPlanJournalFactory();
+        var nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
 
-        var filter = new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default };
+        var filter = new SubdivisionFilterViewModel { SubdivisionType = SubdivisionType.Default };
 
         var subdivisionAutocompleteSelectorFactory =
-            new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
-            {
-                return new SubdivisionsJournalViewModel(
-                    filter,
-                    UnitOfWorkFactory.GetDefaultFactory,
-                    ServicesConfig.CommonServices,
-                    employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()
-                );
-            });
+            new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () => new SubdivisionsJournalViewModel(
+	            filter,
+	            UnitOfWorkFactory.GetDefaultFactory,
+	            ServicesConfig.CommonServices,
+	            employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+	            salesPlanJournalFactory,
+	            nomenclatureSelectorFactory
+            ));
 
         var counterpartyAutocompleteSelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
@@ -1803,15 +1804,19 @@ public partial class MainWindow : Gtk.Window
     protected void OnActionComplaintKindActivated(object sender, EventArgs e)
     {
 	    var employeeJournalFactory = new EmployeeJournalFactory();
-
-		tdiMain.OpenTab(() => new ComplaintKindJournalViewModel(
+	    var salesPlanJournalFactory = new SalesPlanJournalFactory();
+	    var nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+	    
+	    tdiMain.OpenTab(() => new ComplaintKindJournalViewModel(
 			new ComplaintKindJournalFilterViewModel
 			{
 				HidenByDefault = true
 			},
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory())
+			employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+			salesPlanJournalFactory,
+			nomenclatureSelectorFactory)
 		);
 	}
 
