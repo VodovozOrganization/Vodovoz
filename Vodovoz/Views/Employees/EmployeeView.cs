@@ -202,7 +202,7 @@ namespace Vodovoz.Views.Employees
 			
 			if(ViewModel.Entity.Id != 0)
 			{
-				attachmentFiles.ItemId =  ViewModel.UoWGeneric.Root.Id;
+				attachmentFiles.ItemId =  ViewModel.Entity.Id;
 				attachmentFiles.UpdateFileList();
 			}
 
