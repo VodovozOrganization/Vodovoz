@@ -134,7 +134,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		IEnumerable<Domain.Orders.Order> GetOrders(IUnitOfWork uow, int[] ids);
 		bool CanAddFlyerToOrder(
-			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int leafletId, int geographicGroup);
+			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
     }
 
 	public class ClientEquipmentNode
