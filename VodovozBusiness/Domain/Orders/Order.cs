@@ -38,6 +38,7 @@ using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Services;
+using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
@@ -203,7 +204,14 @@ namespace Vodovoz.Domain.Orders
 		[HistoryDateOnly]
 		public virtual DateTime? DeliveryDate {
 			get => deliveryDate;
-			set => SetField(ref deliveryDate, value, () => DeliveryDate);
+			set
+			{
+				if(SetField(ref deliveryDate, value, () => DeliveryDate) && 
+				   Contract != null && Contract.Id == 0)
+				{
+					UpdateContract();
+				}
+			}
 		}
 
 		DateTime billDate = DateTime.Now;
@@ -469,7 +477,9 @@ namespace Vodovoz.Domain.Orders
 		public virtual PaymentFrom PaymentByCardFrom {
 			get => _paymentByCardFrom;
 			set {
-				if(SetField(ref _paymentByCardFrom, value, () => PaymentByCardFrom)) {
+				if(SetField(ref _paymentByCardFrom, value, () => PaymentByCardFrom) && 
+				   Contract != null && Contract.Id == 0)
+				{
 					UpdateContract();
 				}
 			}
@@ -1515,8 +1525,8 @@ namespace Vodovoz.Domain.Orders
 			if(Client == null) {
 				return;
 			}
-
-			var counterpartyContract = counterpartyContractRepository.GetCounterpartyContract(uow, this);
+			
+			var counterpartyContract = counterpartyContractRepository.GetCounterpartyContract(uow, this, SingletonErrorReporter.Instance);
 			if(counterpartyContract == null) {
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);
 			}
