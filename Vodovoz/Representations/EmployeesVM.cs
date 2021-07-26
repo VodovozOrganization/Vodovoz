@@ -76,9 +76,10 @@ namespace Vodovoz.ViewModel
 			if(Filter?.SortByPriority ?? false)
 			{
 				var endDate = DateTime.Today;
-				var start3 = endDate.AddMonths(-3);
-				var start2 = endDate.AddMonths(-2);
+				var start3 = endDate.AddMonths(-3).AddDays(-2);
+				var start2 = endDate.AddMonths(-2).AddDays(-1);
 				var start1 = endDate.AddMonths(-1);
+				endDate = endDate.AddDays(1).AddSeconds(-1);
 				var timestampDiff = new SQLFunctionTemplate(
 					NHibernateUtil.Int32, "CASE WHEN TIMESTAMPDIFF(MONTH, ?1, ?2) > 2 THEN 3 ELSE TIMESTAMPDIFF(MONTH, ?1, ?2) END");
 				var avgSalary = new SQLFunctionTemplate(NHibernateUtil.Decimal, "(IFNULL(?1,0)+IFNULL(?2,0)+IFNULL(?3,0))/3");
