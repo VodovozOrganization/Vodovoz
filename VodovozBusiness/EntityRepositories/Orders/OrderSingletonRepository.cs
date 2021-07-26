@@ -832,12 +832,11 @@ namespace Vodovoz.EntityRepositories.Orders
 			return receipt != null;
 		}
 
-		public bool CanAddVodovozLeafletToOrder(
-			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int leafletId, int geographicGroupId)
+		public bool CanAddFlyerToOrder(
+			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroupId)
 		{
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;
-			Nomenclature nomenclatureAlias = null;
 			VodovozOrder orderAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
@@ -850,14 +849,14 @@ namespace Vodovoz.EntityRepositories.Orders
 				: routeListParametersProvider.WarehouseParnasId;
 
 			var subqueryAdded = uow.Session.QueryOver(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == leafletId)
+				.Where(() => operationAddAlias.Nomenclature.Id == flyerId)
 				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
 				.Where(o => o.IncomingWarehouse.Id == warehouseId)
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
 				.SingleOrDefault<decimal>();
 
 			var subqueryRemoved = uow.Session.QueryOver(() => operationRemoveAlias)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == leafletId)
+				.Where(() => operationRemoveAlias.Nomenclature.Id == flyerId)
 				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
 				.Where(o => o.WriteoffWarehouse.Id == warehouseId)
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
@@ -871,8 +870,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.JoinAlias(() => deliveryPointSectorVersion.Sector, () => sectorAlias)
 				.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersion)
 				.Where(() => sectorVersion.Status == SectorsSetStatus.Active)
-				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => orderEquipmentAlias.Nomenclature.Id == leafletId)
+				.Where(() => orderEquipmentAlias.Nomenclature.Id == flyerId)
 				.Where(() => sectorVersion.Id == geographicGroupId)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
 				             || orderAlias.OrderStatus == OrderStatus.InTravelList

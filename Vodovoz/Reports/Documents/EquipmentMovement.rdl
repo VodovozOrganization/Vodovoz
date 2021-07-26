@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -69,9 +69,9 @@ WHERE orders.id = @order_id</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT order_equipment.direction, order_equipment.direction_reason, order_equipment.own_type,
-equipment_type.name FROM order_equipment
+equipment_kind.name FROM order_equipment
 LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
-LEFT JOIN equipment_type ON equipment_type.id = nomenclature.type_id
+LEFT JOIN equipment_kind ON equipment_kind.id = nomenclature.kind_id
 WHERE order_equipment.order_id = @order_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">

@@ -21,7 +21,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		{
 			TabName = "Объекты рекламаций";
 
-			UpdateOnChanges(typeof(ComplaintObject));
+			UpdateOnChanges(
+				typeof(ComplaintObject),
+				typeof(ComplaintKind)
+			);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<ComplaintObject>> ItemsSourceQueryFunction => (uow) =>

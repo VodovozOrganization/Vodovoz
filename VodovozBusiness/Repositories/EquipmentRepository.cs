@@ -18,12 +18,12 @@
 	{
 		#region С серийными номерами
 
-		public static QueryOver<Equipment> GetEquipmentWithTypesQuery(List<EquipmentType> types)
+		public static QueryOver<Equipment> GetEquipmentWithKindsQuery(List<EquipmentKind> kinds)
 		{
 			Nomenclature nomenclatureAlias = null;
 			var Query = QueryOver.Of<Equipment>()
 				.JoinAlias(e => e.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Type.IsIn(types));
+				.Where(() => nomenclatureAlias.Kind.IsIn(kinds));
 			return Query;
 		}
 
@@ -48,14 +48,14 @@
 					: new List<Equipment>();
 		}
 
-		public static Equipment GetAvailableEquipmentForRent(IUnitOfWork uow, EquipmentType type, int[] excludeEquipments)
+		public static Equipment GetAvailableEquipmentForRent(IUnitOfWork uow, EquipmentKind kind, int[] excludeEquipments)
 		{
 			Nomenclature nomenclatureAlias = null;
 
 			//Ищем сначала дежурные
 			var proposedList = AvailableOnDutyEquipmentQuery().GetExecutableQueryOver(uow.Session)
 				.JoinAlias(e => e.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Type == type)
+				.Where(() => nomenclatureAlias.Kind == kind)
 				.List();
 
 			var result = FirstNotExcludedEquipment(proposedList, excludeEquipments);
@@ -66,7 +66,7 @@
 			//Выбираем сначала приоритетные модели
 			proposedList = AvailableEquipmentQuery().GetExecutableQueryOver(uow.Session)
 				.JoinAlias(e => e.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Type == type)
+				.Where(() => nomenclatureAlias.Kind == kind)
 				.Where(() => nomenclatureAlias.RentPriority == true)
 				.List();
 
@@ -78,7 +78,7 @@
 			//Выбираем любой куллер
 			proposedList = AvailableEquipmentQuery().GetExecutableQueryOver(uow.Session)
 				.JoinAlias(e => e.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Type == type)
+				.Where(() => nomenclatureAlias.Kind == kind)
 				.List();
 
 			result = FirstNotExcludedEquipment(proposedList, excludeEquipments);

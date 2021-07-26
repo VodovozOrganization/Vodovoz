@@ -615,7 +615,7 @@
     <Compile Include="Dialogs\Store\WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDlg.cs" />
     <Compile Include="Representations\NomenclatureForSaleVM.cs" />
-    <Compile Include="gtk-gui\Vodovoz.EquipmentTypeDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.EquipmentKindDlg.cs" />
     <Compile Include="Representations\RouteListsVM.cs" />
     <Compile Include="JournalFilters\RouteListsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListsFilter.cs" />
@@ -683,7 +683,7 @@
     <Compile Include="Dialogs\Client\ContactDlg.cs" />
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
-    <Compile Include="Representations\EquipmentTypesForRentVM.cs" />
+    <Compile Include="Representations\EquipmentKindsForRentVM.cs" />
     <Compile Include="Representations\ClientDeliveryPointsVM.cs" />
     <Compile Include="Representations\DeliveryPointsVM.cs" />
     <Compile Include="Dialogs\DocumentDialogs\InventoryDocumentDlg.cs" />
@@ -714,7 +714,7 @@
     <Compile Include="gtk-gui\Vodovoz.SelfDeliveryDocumentItemsView.cs" />
     <Compile Include="Dialogs\Goods\EquipmentDlg.cs" />
     <Compile Include="Dialogs\Goods\EquipmentGenerator.cs" />
-    <Compile Include="Dialogs\Goods\EquipmentTypeDlg.cs" />
+    <Compile Include="Dialogs\Goods\EquipmentKindDlg.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\CarLoadDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CarLoadDocumentDlg.cs" />
@@ -958,8 +958,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CardPaymentsOrdersReport.cs" />
     <Compile Include="JournalFilters\UndeliveredOrdersFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.UndeliveredOrdersFilter.cs" />
-    <Compile Include="JournalViewers\UndeliveriesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.UndeliveriesView.cs" />
     <Compile Include="Dialogs\UndeliveredOrderCommentsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveredOrderCommentsDlg.cs" />
     <Compile Include="Dialogs\Goods\ProductGroupDlg.cs" />
@@ -1644,6 +1642,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintObjectView.cs" />
     <Compile Include="Filters\GtkViews\ComplaintKindJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintKindJournalFilterView.cs" />
+    <Compile Include="Views\Flyers\FlyerView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Flyers.FlyerView.cs" />
+    <Compile Include="Views\Goods\EquipmentKindView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.EquipmentKindView.cs" />
     <Compile Include="Views\Logistic\SectorsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SectorsView.cs" />
   </ItemGroup>
@@ -1951,6 +1953,7 @@
     <Folder Include="Views\Reports\" />
     <Folder Include="ReportsParameters\Employees\" />
     <Folder Include="JournalViewers\Complaints\" />
+    <Folder Include="Views\Flyers\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

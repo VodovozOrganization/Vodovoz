@@ -245,21 +245,21 @@ namespace Vodovoz.ViewModels
 			MeasurementUnits measurementUnitsAlias = null;
 			Folder1c folder1CAlias = null;
 			FuelType fuelTypeAlias = null;
-			EquipmentType equipmentTypeAlias = null;
+			EquipmentKind equipmentKindAlias = null;
 
 			var result = UoW.Session.QueryOver<Nomenclature>()
 				   .Left.JoinAlias(x => x.Unit, () => measurementUnitsAlias)
 				   .Left.JoinAlias(x => x.Folder1C, () => folder1CAlias)
 				   .Left.JoinAlias(x => x.NomenclaturePrice, () => nomenclaturePriceAlias)
 				   .Left.JoinAlias(x => x.FuelType, () => fuelTypeAlias)
-				   .Left.JoinAlias(x => x.Type, () => equipmentTypeAlias)
+				   .Left.JoinAlias(x => x.Kind, () => equipmentKindAlias)
 				   .SelectList(list => list
 						.SelectGroup(x => x.Id).WithAlias(() => resultAlias.Id)
 						.Select(x => x.OfficialName).WithAlias(() => resultAlias.Name)
 						.Select(x => x.ShipperCounterparty.Id).WithAlias(() => resultAlias.ShipperCounterpartyId)
 						.Select(x => x.ProductGroup.Id).WithAlias(() => resultAlias.GroupId)
 						.Select(x => x.PurchasePrice).WithAlias(() => resultAlias.PurchasePrice)
-						.Select(() => equipmentTypeAlias.Name).WithAlias(() => resultAlias.EquipmentTypeName)
+						.Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentKindName)
 						.Select(() => folder1CAlias.Name).WithAlias(() => resultAlias.Folder1cName)
 						.Select(() => measurementUnitsAlias.Name).WithAlias(() => resultAlias.MeasurementUnit)
 						.Select(() => fuelTypeAlias.Name).WithAlias(() => resultAlias.FuelTypeName)
@@ -326,7 +326,7 @@ namespace Vodovoz.ViewModels
 				progressBarValue++;
 				IEnumerable<Counterparty> counterparties = UoW.GetById<Counterparty>(counterpartyIds.Distinct());
 				IEnumerable<ProductGroup> productGroups = UoW.GetById<ProductGroup>(productGroupIds.Distinct());
-				IEnumerable<EquipmentType> equipmentTypes = UoW.GetAll<EquipmentType>();
+				IEnumerable<EquipmentKind> equipmentKinds = UoW.GetAll<EquipmentKind>();
 				IEnumerable<Folder1c> folders1C = UoW.GetAll<Folder1c>();
 				IEnumerable<MeasurementUnits> measurementUnits = UoW.GetAll<MeasurementUnits>();
 				IEnumerable<FuelType> fuelTypes = UoW.GetAll<FuelType>();
@@ -386,12 +386,12 @@ namespace Vodovoz.ViewModels
 							newNomenclature.FuelType = fuelType;
 					}
 
-					if(!String.IsNullOrWhiteSpace(node.EquipmentTypeName)) {
-						var equipType = equipmentTypes.FirstOrDefault(x => x.Name.Trim() == node.EquipmentTypeName);
+					if(!String.IsNullOrWhiteSpace(node.EquipmentKindName)) {
+						var equipType = equipmentKinds.FirstOrDefault(x => x.Name.Trim() == node.EquipmentKindName);
 						if(equipType == null) {
-							node.AddWrongDataErrorMessage($"Не найден тип оборудования с названием: \"{node.EquipmentTypeName}\"");
+							node.AddWrongDataErrorMessage($"Не найден вид оборудования с названием: \"{node.EquipmentKindName}\"");
 						} else
-							newNomenclature.Type = equipType;
+							newNomenclature.Kind = equipType;
 					}
 
 					if(!String.IsNullOrWhiteSpace(node.MeasurementUnit)) {
@@ -837,7 +837,7 @@ namespace Vodovoz.ViewModels
 							nomToUpdate.Unit = newNom.Unit;
 							nomToUpdate.Category = newNom.Category;
 							nomToUpdate.TareVolume = newNom.TareVolume;
-							nomToUpdate.Type = newNom.Type;
+							nomToUpdate.Kind = newNom.Kind;
 							nomToUpdate.SaleCategory = newNom.SaleCategory;
 							nomToUpdate.TypeOfDepositCategory = newNom.TypeOfDepositCategory;
 							nomToUpdate.FuelType = newNom.FuelType;
@@ -872,8 +872,8 @@ namespace Vodovoz.ViewModels
 						case ConfirmUpdateAction.UpdateTareVolumes:
 							nomToUpdate.TareVolume = newNom.TareVolume;
 							break;
-						case ConfirmUpdateAction.UpdateEquipmentTypes:
-							nomToUpdate.Type = newNom.Type;
+						case ConfirmUpdateAction.UpdateEquipmentKinds:
+							nomToUpdate.Kind = newNom.Kind;
 							break;
 						case ConfirmUpdateAction.UpdateSaleCategory:
 							nomToUpdate.SaleCategory = newNom.SaleCategory;
@@ -932,7 +932,7 @@ namespace Vodovoz.ViewModels
 		public int? Id { get; set; }
 		public int? GroupId { get; set; }
 		public int? ShipperCounterpartyId { get; set; }
-		public string EquipmentTypeName { get; set; }
+		public string EquipmentKindName { get; set; }
 		public string FuelTypeName { get; set; }
 		public string Folder1cName { get; set; }
 		public string MeasurementUnit { get; set; }
@@ -995,7 +995,7 @@ namespace Vodovoz.ViewModels
 			Map(x => x.Folder1cName).Index(7).Name("Имя папки 1С");
 			Map(x => x.NomenclatureCategory).Index(8).Name("Категория");
 			Map(x => x.TareVolume).Index(9).Name("Объем тары");
-			Map(x => x.EquipmentTypeName).Index(10).Name("Тип оборудования");
+			Map(x => x.EquipmentKindName).Index(10).Name("Вид оборудования");
 			Map(x => x.SaleCategory).Index(11).Name("Доступность для продажи");
 			Map(x => x.TypeOfDepositCategory).Index(12).Name("Тип залога");
 			Map(x => x.FuelTypeName).Index(13).Name("Тип топлива");
@@ -1095,8 +1095,8 @@ namespace Vodovoz.ViewModels
 		UpdateCategories,
 		[Display(Name = "Объема тары")]
 		UpdateTareVolumes,
-		[Display(Name = "Типов оборудования")]
-		UpdateEquipmentTypes,
+		[Display(Name = "Видов оборудования")]
+		UpdateEquipmentKinds,
 		[Display(Name = "Доступностей для продажи")]
 		UpdateSaleCategory,
 		[Display(Name = "Типов залога")]

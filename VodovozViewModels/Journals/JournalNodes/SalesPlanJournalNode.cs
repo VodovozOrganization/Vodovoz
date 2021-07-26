@@ -17,7 +17,7 @@ namespace Vodovoz.Journals.JournalNodes
 			}
 		}
 
-
+		public string Name { get; set; }
 		public int FullBottleToSell { get; set; }
 		public int EmptyBottlesToTake { get; set; }
 		public bool IsArchive { get; set; }

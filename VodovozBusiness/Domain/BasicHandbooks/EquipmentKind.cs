@@ -6,11 +6,13 @@ using QS.DomainModel.Entity.EntityPermissions;
 namespace Vodovoz.Domain
 {
 	[Appellative (Gender = GrammaticalGender.Masculine,
-		NominativePlural = "типы оборудования",
-		Nominative = "тип оборудования")]
+		NominativePlural = "виды оборудования",
+		Nominative = "вид оборудования")]
 	[EntityPermission]
-	public class EquipmentType : PropertyChangedBase, IDomainObject
+	public class EquipmentKind : PropertyChangedBase, IDomainObject
 	{
+		private EquipmentType _equipmentType;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -30,9 +32,16 @@ namespace Vodovoz.Domain
 			get{ return warrantyCardType; }
 			set{ SetField (ref warrantyCardType, value, () => WarrantyCardType); }
 		}
+
+		[Display(Name = "Тип оборудования")]
+		public virtual EquipmentType EquipmentType
+		{
+			get { return _equipmentType; }
+			set { SetField(ref _equipmentType, value); }
+		}
 		#endregion
 
-		public EquipmentType ()
+		public EquipmentKind ()
 		{
 			Name = String.Empty;
 		}
@@ -47,9 +56,26 @@ namespace Vodovoz.Domain
 		PumpWarranty
 	}
 
+	public enum EquipmentType
+	{
+		[Display(Name = "Кулер")]
+		Cooler,
+		[Display(Name = "Помпа")]
+		Pump,
+		[Display(Name = "Прочее")]
+		Other
+	}
+
 	public class WarrantyCardTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public WarrantyCardTypeStringType () : base (typeof(WarrantyCardType))
+		{
+		}
+	}
+
+	public class EquipmentTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public EquipmentTypeStringType() : base(typeof(EquipmentType))
 		{
 		}
 	}

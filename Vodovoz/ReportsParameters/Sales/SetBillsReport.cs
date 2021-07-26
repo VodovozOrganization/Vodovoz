@@ -13,6 +13,8 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -42,7 +44,9 @@ namespace Vodovoz.ReportsParameters
 							filter,
 							unitOfWorkFactory,
 							ServicesConfig.CommonServices,
-							employeeAutoCompleteSelectorFactory
+							employeeAutoCompleteSelectorFactory,
+							new SalesPlanJournalFactory(),
+							new NomenclatureSelectorFactory()
 						);
 					})
 			);

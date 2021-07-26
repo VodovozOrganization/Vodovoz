@@ -5,10 +5,15 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using System.Linq;
+using NHibernate.Criterion;
+using QS.Project.DB;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
@@ -16,14 +21,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 	public class ComplaintKindJournalViewModel : FilterableSingleEntityJournalViewModelBase<ComplaintKind, ComplaintKindViewModel, ComplaintKindJournalNode, ComplaintKindJournalFilterViewModel>
 	{
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
-		public ComplaintKindJournalViewModel(ComplaintKindJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEntityAutocompleteSelectorFactory employeeSelectorFactory)
+		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+
+		public ComplaintKindJournalViewModel(ComplaintKindJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices, IEntityAutocompleteSelectorFactory employeeSelectorFactory, ISalesPlanJournalFactory salesPlanJournalFactory, 
+			INomenclatureSelectorFactory nomenclatureSelectorFactory)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			TabName = "Виды рекламаций";
 
-			UpdateOnChanges(typeof(ComplaintKind));
+			UpdateOnChanges(
+				typeof(ComplaintKind),
+				typeof(ComplaintObject)
+				);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<ComplaintKind>> ItemsSourceQueryFunction => (uow) =>
@@ -31,9 +46,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			ComplaintKind complaintKindAlias = null;
 			ComplaintObject complaintObjectAlias = null;
 			ComplaintKindJournalNode resultAlias = null;
+			Subdivision subdivisionsAlias = null;
 
 			var itemsQuery = uow.Session.QueryOver(() => complaintKindAlias)
-				.Left.JoinAlias(x => x.ComplaintObject, () => complaintObjectAlias);
+				.Left.JoinAlias(x => x.ComplaintObject, () => complaintObjectAlias)
+				.Left.JoinAlias(x => x.Subdivisions, () => subdivisionsAlias);
 
 			if(FilterViewModel.ComplaintObject != null)
 			{
@@ -46,10 +63,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				() => complaintObjectAlias.Name)
 			);
 
+			var subdivisionsProjection = CustomProjections.GroupConcat(
+				() => subdivisionsAlias.ShortName,
+				orderByExpression: () => subdivisionsAlias.ShortName,
+				separator: ", "
+			);
+
 			itemsQuery.SelectList(list => list
-					.Select(() => complaintKindAlias.Id).WithAlias(() => resultAlias.Id)
+					.SelectGroup(() => complaintKindAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => complaintKindAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(() => complaintKindAlias.IsArchive).WithAlias(() => resultAlias.IsArchive)
 					.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.ComplaintObject)
+					.Select(subdivisionsProjection).WithAlias(() => resultAlias.Subdivisions)
 				)
 				.TransformUsing(Transformers.AliasToBean<ComplaintKindJournalNode>());
 
@@ -64,9 +89,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		}
 
 		protected override Func<ComplaintKindViewModel> CreateDialogFunction => () =>
-			new ComplaintKindViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _employeeSelectorFactory);
+			new ComplaintKindViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _employeeSelectorFactory, Refresh, 
+				_salesPlanJournalFactory, _nomenclatureSelectorFactory);
 
 		protected override Func<ComplaintKindJournalNode, ComplaintKindViewModel> OpenDialogFunction =>
-			(node) => new ComplaintKindViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _employeeSelectorFactory);
+			(node) => new ComplaintKindViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _employeeSelectorFactory, Refresh,
+				_salesPlanJournalFactory, _nomenclatureSelectorFactory);
 	}
 }
