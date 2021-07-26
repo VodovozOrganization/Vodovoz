@@ -348,7 +348,8 @@ namespace Vodovoz
 					new PermissionRepository()),
 				UserSingletonRepository.GetInstance(),
 				ServicesConfig.CommonServices,
-				NavigationManagerProvider.NavigationManager
+				NavigationManagerProvider.NavigationManager,
+				EmployeeSingletonRepository.GetInstance()
 			);
 
 			logger.Info("Ok");
