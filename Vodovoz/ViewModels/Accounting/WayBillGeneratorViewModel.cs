@@ -18,7 +18,6 @@ namespace Vodovoz.ViewModels.Accounting
     public class WayBillGeneratorViewModel: DialogTabViewModelBase
     {
         public readonly WayBillDocumentGenerator Entity;
-        private readonly EntityAutocompleteSelectorFactory<EmployeesJournalViewModel> entityAutocompleteSelectorFactory;
 
         public WayBillGeneratorViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
@@ -26,11 +25,9 @@ namespace Vodovoz.ViewModels.Accounting
             INavigationManager navigation,
             IWayBillDocumentRepository wayBillDocumentRepository,
             RouteGeometryCalculator calculator,
-            EntityAutocompleteSelectorFactory<EmployeesJournalViewModel> entityAutocompleteSelectorFactory
-            )
-            : base(unitOfWorkFactory, interactiveService, navigation)
+            IEntityAutocompleteSelectorFactory entityAutocompleteSelectorFactory) : base(unitOfWorkFactory, interactiveService, navigation)
         {
-            this.entityAutocompleteSelectorFactory = entityAutocompleteSelectorFactory ?? throw new ArgumentNullException(nameof(entityAutocompleteSelectorFactory));
+            EntityAutocompleteSelectorFactory = entityAutocompleteSelectorFactory ?? throw new ArgumentNullException(nameof(entityAutocompleteSelectorFactory));
 
             if (wayBillDocumentRepository == null)
                 throw new ArgumentNullException(nameof(wayBillDocumentRepository));
@@ -65,11 +62,10 @@ namespace Vodovoz.ViewModels.Accounting
             set => Entity.EndDate = value;
         }
 
-        public EntityAutocompleteSelectorFactory<EmployeesJournalViewModel> EntityAutocompleteSelectorFactory => entityAutocompleteSelectorFactory;
+        public IEntityAutocompleteSelectorFactory EntityAutocompleteSelectorFactory { get; }
 
         #endregion
-
-
+        
         #region Commands
 
         void CreateCommands()

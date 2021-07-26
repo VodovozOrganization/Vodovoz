@@ -1,5 +1,4 @@
 ﻿using QS.DomainModel.UoW;
-using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.FilterViewModels.Organization;
@@ -9,8 +8,18 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public class SubdivisionJournalFactory : ISubdivisionJournalFactory
 	{
-		private readonly SubdivisionFilterViewModel _subdivisionJournalFilter;
-
+		public IEntityAutocompleteSelectorFactory CreateSubdivisionAutocompleteSelectorFactory(
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory)
+		{
+			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
+				typeof(Subdivision),
+				() => new SubdivisionsJournalViewModel(
+					new SubdivisionFilterViewModel(),
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices,
+					employeeSelectorFactory));
+		}
+		
 		public IEntityAutocompleteSelectorFactory CreateDefaultSubdivisionAutocompleteSelectorFactory(
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory)
 		{

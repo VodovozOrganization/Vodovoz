@@ -36,8 +36,10 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Mango
@@ -51,6 +53,7 @@ namespace Vodovoz.ViewModels.Mango
 		private readonly IOrderParametersProvider _orderParametersProvider;
 
 		private readonly RouteListRepository routedListRepository;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();

@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Project.Domain;
+using QS.Navigation;
+using QS.Permissions;
 using QS.Project.Services;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Contacts;
@@ -28,26 +31,25 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
-	public class EmployeeViewModel : EntityTabViewModelBase<Employee>
+	public class EmployeeViewModel : TabViewModelBase, ITdiDialog, ISingleUoWDialog
 	{
-		private readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IAuthorizationService _authorizationService;
 		private readonly ISubdivisionService _subdivisionService;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
-		public IReadOnlyList<Organization> organizations;
+		private readonly ICommonServices _commonServices;
+		private readonly ValidationContext _validationContext;
 
-        public bool _canManageDriversAndForwarders;
-        public bool _canManageOfficeWorkers;
         private bool _canActivateDriverDistrictPrioritySetPermission;
-
-        private object _selectedDriverScheduleSet;
-        private object _selectedDistrictPrioritySet;
+        private bool _canChangeTraineeToDriver;
+        private DriverWorkScheduleSet _selectedDriverScheduleSet;
+        private DriverDistrictPrioritySet _selectedDistrictPrioritySet;
+        private Employee _employeeForCurrentUser;
         private IEnumerable<EmployeeDocument> _selectedEmployeeDocuments = new EmployeeDocument[0];
         private IEnumerable<EmployeeContract> _selectedEmployeeContracts = new EmployeeContract[0];
 
-        private DelegateCommand _saveCommand;
         private DelegateCommand _openDistrictPrioritySetCreateWindowCommand;
         private DelegateCommand _openDistrictPrioritySetEditWindowCommand;
         private DelegateCommand _copyDistrictPrioritySetCommand;
@@ -57,6 +59,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
         private DelegateCommand _copyDriverWorkScheduleSetCommand;
         private DelegateCommand _removeEmployeeDocumentsCommand;
         private DelegateCommand _removeEmployeeContractsCommand;
+
+        public IReadOnlyList<Organization> organizations;
+        public event Action SaveAttachmentFilesChangesAction;
+        public event Func<bool> HasAttachmentFilesChangesFunc;
+        public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
         public EmployeeViewModel(
 	        IAuthorizationService authorizationService,
@@ -69,10 +76,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 	        IEmailServiceSettingAdapter emailServiceSettingAdapter,
 	        IWageCalculationRepository wageCalculationRepository,
 	        IEmployeeRepository employeeRepository,
-	        IEntityUoWBuilder uoWBuilder,
-	        IUnitOfWorkFactory uowFactory,
-	        ICommonServices commonServices
-	        ) : base(uoWBuilder, uowFactory, commonServices)
+	        IUnitOfWorkGeneric<Employee> uowGeneric,
+	        ICommonServices commonServices,
+	        IValidationContextFactory validationContextFactory,
+	        IPhonesViewModelFactory phonesViewModelFactory,
+	        bool traineeToEmployee = false,
+	        INavigationManager navigationManager = null
+	        ) : base(commonServices?.InteractiveService, navigationManager)
         {
 	        _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 	        EmployeeWageParametersFactory =
@@ -90,34 +100,46 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 	        _emailServiceSettingAdapter = emailServiceSettingAdapter ?? throw new ArgumentNullException(nameof(emailServiceSettingAdapter));
 	        _wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 	        _employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+	        UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
+	        _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+	        _validationContext = 
+		        (validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory)))
+					.CreateNewValidationContext(Entity);
+	        
+	        if(phonesViewModelFactory == null)
+	        {
+		        throw new ArgumentNullException(nameof(phonesViewModelFactory));
+	        }
+
+	        PhonesViewModel = phonesViewModelFactory.CreateNewPhonesViewModel(UoW);
 	        
 	        if(Entity.Id == 0)
 	        {
 		        Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
 	        }
 	        
-	        if(UoWGeneric.Root.Phones == null)
+	        if(Entity.Phones == null)
 	        {
-		        UoWGeneric.Root.Phones = new List<Phone>();
+		        Entity.Phones = new List<Phone>();
 	        }
-
-	        _canActivateDriverDistrictPrioritySetPermission = 
-		        commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_driver_district_priority_set");
-	        _canManageDriversAndForwarders = 
-		        commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_drivers_and_forwarders");
-	        _canManageOfficeWorkers = commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_office_workers");
-	        CanEditOrganisationForSalary = 
-		        commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_organisation_for_salary");
-	        DriverDistrictPrioritySetPermission = 
-		        commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverDistrictPrioritySet));
-	        DriverWorkScheduleSetPermission =
-		        commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverWorkScheduleSet));
+	        
+	        SetPermissions();
 
 	        organizations = UoW.GetAll<Organization>().ToList();
-	        FillHiddenCategories();
-        }
+	        FillHiddenCategories(traineeToEmployee);
 
-        public IEnumerable<EmployeeCategory> HiddenCategories { get; private set; }
+	        var permissionResult = 
+		        _commonServices.PermissionService.ValidateUserPermission(typeof(Employee), _commonServices.UserService.CurrentUserId);
+	        
+	        if(!permissionResult.CanRead) {
+		        AbortOpening(PermissionsSettings.GetEntityReadValidateResult(typeof(Employee)));
+	        }
+        }
+        
+        private Employee EmployeeForCurrentUser => 
+	        _employeeForCurrentUser ?? (_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW));
+
+        public List<EmployeeCategory> HiddenCategories { get; } = new List<EmployeeCategory>();
 
         public EmployeeDocumentType[] HiddenForRussianDocument { get; } =
         {
@@ -134,36 +156,41 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 	        EmployeeDocumentType.OfficerCertificate
         };
 
+        public IUnitOfWork UoW => UoWGeneric;
+        public Employee Entity => UoWGeneric.Root;
+        public IUnitOfWorkGeneric<Employee> UoWGeneric { get; }
         public IEmployeeWageParametersFactory EmployeeWageParametersFactory { get; }
         public IEmployeeJournalFactory EmployeeJournalFactory { get; }
         public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
         public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
-        /*
-        public override bool HasChanges
+        
+        public bool HasChanges
         {
 	        get
 	        {
-		        phonesView.RemoveEmpty();
+		        PhonesViewModel.RemoveEmpty();
+
+		        var attachmentFilesHasChanges = HasAttachmentFilesChangesFunc?.Invoke() ?? false;
+		        
 		        return UoWGeneric.HasChanges
-		               || attachmentFiles.HasChanges
-		               || !string.IsNullOrEmpty(yentryUserLogin.Text);
+		               || attachmentFilesHasChanges
+		               || !string.IsNullOrEmpty(Entity.LoginForNewUser);
 	        }
-	        set => base.HasChanges = value;
-        }*/
+        }
         
-        public IPermissionResult DriverDistrictPrioritySetPermission { get; }
-		public IPermissionResult DriverWorkScheduleSetPermission { get; }
-		
-		public bool CanManageUsers => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
-		
-		public bool CanCreateNewUser => 
-			Entity.User == null && CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
+        public IPermissionResult DriverDistrictPrioritySetPermission { get; private set; }
+        public IPermissionResult DriverWorkScheduleSetPermission { get; private set; }
 
-		public bool CanEditEmployeeCategory => Entity?.Id == 0 && (_canManageOfficeWorkers || _canManageDriversAndForwarders);
-		
-		public bool CanEditOrganisationForSalary { get; }
+        public PhonesViewModel PhonesViewModel { get; }
+        public bool CanManageUsers { get; private set; }
+		public bool CanManageDriversAndForwarders { get; private set; }
+		public bool CanManageOfficeWorkers { get; private set; }
+		public bool CanCreateNewUser => Entity.User == null && CanManageUsers;
+		public bool CanEditEmployeeCategory => Entity?.Id == 0 && (CanManageOfficeWorkers || CanManageDriversAndForwarders);
+		public bool CanEditWage { get; private set; }
+		public bool CanEditOrganisationForSalary { get; private set; }
 
-		public object SelectedDistrictPrioritySet
+		public DriverDistrictPrioritySet SelectedDistrictPrioritySet
 		{
 			get => _selectedDistrictPrioritySet;
 			set
@@ -178,10 +205,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		}
 		
 		public bool CanActivateDistrictPrioritySet =>
-			SelectedDistrictPrioritySet is DriverDistrictPrioritySet districtPrioritySet
-			&& !districtPrioritySet.IsActive
-			&& districtPrioritySet.DateActivated == null
-			&& districtPrioritySet.ObservableDriverDistrictPriorities
+			SelectedDistrictPrioritySet != null
+			&& !SelectedDistrictPrioritySet.IsActive
+			&& SelectedDistrictPrioritySet.DateActivated == null
+			&& SelectedDistrictPrioritySet.ObservableDriverDistrictPriorities
 				.All(x => x.District.DistrictsSet.Status == DistrictsSetStatus.Active)
 			&& _canActivateDriverDistrictPrioritySetPermission;
 		
@@ -190,7 +217,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			SelectedDistrictPrioritySet != null 
 			&& (DriverDistrictPrioritySetPermission.CanUpdate || DriverDistrictPrioritySetPermission.CanRead);
 
-		public object SelectedDriverScheduleSet
+		public DriverWorkScheduleSet SelectedDriverScheduleSet
 		{
 			get => _selectedDriverScheduleSet;
 			set
@@ -239,117 +266,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public bool CanEditDriverScheduleSet => 
 			SelectedDriverScheduleSet != null && (DriverWorkScheduleSetPermission.CanUpdate || DriverWorkScheduleSetPermission.CanRead);
 
-		public DelegateCommand SaveCommand => _saveCommand ?? (_saveCommand = new DelegateCommand(
-				() =>
-				{
-					if(Entity.Id == 0 && !_canManageOfficeWorkers && !_canManageDriversAndForwarders)
-					{
-						CommonServices.InteractiveService.ShowMessage(
-							ImportanceLevel.Info,
-							"У вас недостаточно прав для создания сотрудника");
-						
-						return;
-					}
-					
-					//Проверяем, чтобы в БД не попала пустая строка
-					if(string.IsNullOrWhiteSpace(Entity.AndroidLogin))
-					{
-						Entity.AndroidLogin = null;
-					}
-
-					//var valid = new QSValidator<Employee>(UoWGeneric.Root, Entity.GetValidationContextItems(_subdivisionService));
-					ValidationContext.Items.Add("Reason", _subdivisionService);
-
-					if(!Validate())
-					{
-						return/* false*/;
-					}
-
-					if(Entity.User != null)
-					{
-						Entity.User.Deactivated = Entity.Status == EmployeeStatus.IsFired;
-						var associatedEmployees = _employeeRepository.GetEmployeesForUser(UoW, Entity.User.Id);
-						
-						if(associatedEmployees.Any(e => e.Id != Entity.Id))
-						{
-							var mes = string.Format("Пользователь {0} уже связан с сотрудником {1}, " +
-								"при привязке этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",
-								Entity.User.Name,
-								string.Join(", ", associatedEmployees.Select(e => e.ShortName)));
-							
-							if(CommonServices.InteractiveService.Question(mes))
-							{
-								foreach(var ae in associatedEmployees.Where(e => e.Id != Entity.Id))
-								{
-									ae.User = null;
-									UoWGeneric.Save(ae);
-								}
-							}
-							else
-							{
-								return /* false*/;
-							}
-						}
-					}
-
-					if(Entity.InnerPhone != null)
-					{
-						var associatedEmployees = UoW.Session.Query<Employee>().Where(e => e.InnerPhone == Entity.InnerPhone);
-						
-						if(associatedEmployees.Any(e => e.Id != Entity.Id && e.InnerPhone == Entity.InnerPhone))
-						{
-							string mes = string.Format("Внутренний номер {0} уже связан с сотрудником {1}. Продолжить?",
-								Entity.InnerPhone,
-								string.Join(", ", associatedEmployees.Select(e => e.Name))
-								);
-							
-							if(!CommonServices.InteractiveService.Question(mes))
-							{
-								return/* false*/;
-							}
-						}
-					}
-
-					Entity.CreateDefaultWageParameter(
-						_wageCalculationRepository,
-						new BaseParametersProvider(),
-						CommonServices.InteractiveService);
-
-					//phonesView.RemoveEmpty();
-					UoWGeneric.Save(Entity);
-
-					#region Попытка сохранить логин для нового юзера
-					
-					if(!TrySaveNewUser())
-					{
-						return/* false*/;
-					}
-
-					#endregion
-
-					logger.Info("Сохраняем сотрудника...");
-					try
-					{
-						UoWGeneric.Save();
-						/*if(UoWGeneric.IsNew)
-						{
-							attachmentFiles.ItemId = UoWGeneric.Root.Id;
-						}
-						attachmentFiles.SaveChanges();*/
-					}
-					catch(Exception ex)
-					{
-						logger.Error(ex, "Не удалось записать сотрудника.");
-						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, ex.Message);
-						return/* false*/;
-					}
-					
-					logger.Info("Ok");
-					return /*true*/;
-				}
-			)
-		);
-
 		public DelegateCommand OpenDistrictPrioritySetCreateWindowCommand =>
 			_openDistrictPrioritySetCreateWindowCommand ?? (_openDistrictPrioritySetCreateWindowCommand = new DelegateCommand(
 					() =>
@@ -363,8 +279,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						var driverDistrictPrioritySetViewModel = new DriverDistrictPrioritySetViewModel(
 							newDistrictPrioritySet,
 							UoW,
-							UnitOfWorkFactory,
-							CommonServices,
+							UnitOfWorkFactory.GetDefaultFactory,
+							_commonServices,
 							new BaseParametersProvider(),
 							_employeeRepository
 						);
@@ -377,26 +293,19 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						};
 
 						TabParent.AddSlaveTab(this, driverDistrictPrioritySetViewModel);
-					},
-					() => SelectedDistrictPrioritySet is DriverDistrictPrioritySet
+					}
 				)
 			);
-
-		//TODO Подумать над частым использованием is
+		
 		public DelegateCommand OpenDistrictPrioritySetEditWindowCommand =>
 			_openDistrictPrioritySetEditWindowCommand ?? (_openDistrictPrioritySetEditWindowCommand = new DelegateCommand(
 					() =>
 					{
-						if(!(SelectedDistrictPrioritySet is DriverDistrictPrioritySet districtPrioritySet))
-						{
-							return;
-						}
-						
 						var driverDistrictPrioritySetViewModel = new DriverDistrictPrioritySetViewModel(
-							districtPrioritySet,
+							SelectedDistrictPrioritySet,
 							UoW,
-							UnitOfWorkFactory,
-							CommonServices,
+							UnitOfWorkFactory.GetDefaultFactory,
+							_commonServices,
 							new BaseParametersProvider(),
 							_employeeRepository
 						);
@@ -407,8 +316,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						};
 
 						TabParent.AddSlaveTab(this, driverDistrictPrioritySetViewModel);
-					},
-					() => SelectedDistrictPrioritySet is DriverDistrictPrioritySet
+					}
 				)
 			);
 
@@ -416,12 +324,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_copyDistrictPrioritySetCommand ?? (_copyDistrictPrioritySetCommand = new DelegateCommand(
 					() =>
 					{
-						if(!(SelectedDistrictPrioritySet is DriverDistrictPrioritySet selectedDistrictPrioritySet))
-						{
-							return;
-						}
-
-						if(selectedDistrictPrioritySet.Id == 0)
+						if(SelectedDistrictPrioritySet.Id == 0)
 						{
 							ServicesConfig.CommonServices.InteractiveService
 								.ShowMessage(ImportanceLevel.Info,
@@ -430,7 +333,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						}
 
 						var newDistrictPrioritySet = DriverDistrictPriorityHelper.CopyPrioritySetWithActiveDistricts(
-							selectedDistrictPrioritySet,
+							SelectedDistrictPrioritySet,
 							out var notCopiedPriorities
 						);
 						newDistrictPrioritySet.IsCreatedAutomatically = false;
@@ -439,7 +342,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						{
 							var messageBuilder = new StringBuilder(
 								"Для некоторых приоритетов районов\n" +
-								$"из выбранной для копирования версии (Код: {selectedDistrictPrioritySet.Id})\n" +
+								$"из выбранной для копирования версии (Код: {SelectedDistrictPrioritySet.Id})\n" +
 								"не были найдены связанные районы из активной\n" +
 								"версии районов. Список приоритетов районов,\n" +
 								"которые не будут скопированы:\n"
@@ -453,14 +356,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 									$"Приоритет: {driverDistrictPriority.Priority + 1}"
 								);
 							}
-							CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, messageBuilder.ToString());
+							_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, messageBuilder.ToString());
 						}
 
 						var driverDistrictPrioritySetViewModel = new DriverDistrictPrioritySetViewModel(
 							newDistrictPrioritySet,
 							UoW,
-							UnitOfWorkFactory,
-							CommonServices,
+							UnitOfWorkFactory.GetDefaultFactory,
+							_commonServices,
 							new BaseParametersProvider(),
 							_employeeRepository
 						);
@@ -473,8 +376,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						};
 
 						TabParent.AddSlaveTab(this, driverDistrictPrioritySetViewModel);
-					},
-					() => SelectedDistrictPrioritySet is DriverDistrictPrioritySet
+					}
 				)
 			);
 		
@@ -482,20 +384,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_activateDistrictPrioritySetCommand ?? (_activateDistrictPrioritySetCommand = new DelegateCommand(
 					() =>
 					{
-						if(!(SelectedDistrictPrioritySet is DriverDistrictPrioritySet districtPrioritySet))
-						{
-							return;
-						}
-			
-						var employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+						var employeeForCurrentUser = EmployeeForCurrentUser;
 						var now = DateTime.Now;
 
-						districtPrioritySet.DateLastChanged = now;
-						districtPrioritySet.DateActivated = now;
+						SelectedDistrictPrioritySet.DateLastChanged = now;
+						SelectedDistrictPrioritySet.DateActivated = now;
 
-						Entity.ActivateDriverDistrictPrioritySet(districtPrioritySet, employeeForCurrentUser);
-					},
-					() => SelectedDistrictPrioritySet is DriverDistrictPrioritySet
+						Entity.ActivateDriverDistrictPrioritySet(SelectedDistrictPrioritySet, employeeForCurrentUser);
+					}
 				)
 			);
 		
@@ -503,26 +399,21 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_copyDriverWorkScheduleSetCommand ?? (_copyDriverWorkScheduleSetCommand = new DelegateCommand(
 					() =>
 					{
-						if(!(SelectedDriverScheduleSet is DriverWorkScheduleSet selectedScheduleSet))
+						if(SelectedDriverScheduleSet.Id == 0)
 						{
-							return;
-						}
-
-						if(selectedScheduleSet.Id == 0)
-						{
-							CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+							_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
 								"Перед копированием новой версии необходимо сохранить сотрудника");
 							return;
 						}
 
-						if(CommonServices.InteractiveService.Question(
+						if(_commonServices.InteractiveService.Question(
 							$"Скопировать и активировать выбранную версию графиков работы водителя " +
-							$"(Код: {selectedScheduleSet.Id})?")
+							$"(Код: {SelectedDriverScheduleSet.Id})?")
 						)
 						{
-							var employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+							var employeeForCurrentUser = EmployeeForCurrentUser;
 
-							var newScheduleSet = (DriverWorkScheduleSet)selectedScheduleSet.Clone();
+							var newScheduleSet = (DriverWorkScheduleSet)SelectedDriverScheduleSet.Clone();
 							newScheduleSet.Author = employeeForCurrentUser;
 							newScheduleSet.LastEditor = employeeForCurrentUser;
 							newScheduleSet.IsCreatedAutomatically = false;
@@ -533,7 +424,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				)
 			);
 		
-
 		public DelegateCommand OpenDriverWorkScheduleSetCreateWindowCommand =>
 			_openDriverWorkScheduleSetCreateWindowCommand ?? (_openDriverWorkScheduleSetCreateWindowCommand = new DelegateCommand(
 					() =>
@@ -547,7 +437,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						var driverWorkScheduleSetViewModel = new DriverWorkScheduleSetViewModel(
 							newDriverWorkScheduleSet,
 							UoW,
-							CommonServices,
+							_commonServices,
 							new BaseParametersProvider(),
 							_employeeRepository
 						);
@@ -558,8 +448,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						};
 
 						TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
-					},
-					() => true
+					}
 				)
 			);
 
@@ -567,21 +456,15 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_openDriverWorkScheduleSetEditWindowCommand ?? (_openDriverWorkScheduleSetEditWindowCommand = new DelegateCommand(
 					() =>
 					{
-						if(!(SelectedDriverScheduleSet is DriverWorkScheduleSet workScheduleSet))
-						{
-							return;
-						}
-
 						var driverWorkScheduleSetViewModel = new DriverWorkScheduleSetViewModel(
-							workScheduleSet,
+							SelectedDriverScheduleSet,
 							UoW,
-							CommonServices,
+							_commonServices,
 							new BaseParametersProvider(),
 							_employeeRepository
 						);
 						TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
-					},
-					() => SelectedDriverScheduleSet is DriverDistrictPrioritySet
+					}
 				)
 			);
 		
@@ -609,6 +492,27 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				)
 			);
 		
+		private void SetPermissions()
+		{
+			CanManageUsers = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
+			_canActivateDriverDistrictPrioritySetPermission =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_driver_district_priority_set");
+			_canChangeTraineeToDriver =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_trainee_to_driver");
+			CanManageDriversAndForwarders =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_drivers_and_forwarders");
+			CanManageOfficeWorkers = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_office_workers");
+			CanEditWage = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
+			CanEditOrganisationForSalary =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_organisation_for_salary");
+			DriverDistrictPrioritySetPermission =
+				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverDistrictPrioritySet));
+			DriverWorkScheduleSetPermission =
+				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverWorkScheduleSet));
+		}
+		
+		private bool Validate() => _commonServices.ValidationService.Validate(Entity, _validationContext);
+
 		private bool TrySaveNewUser()
 		{
 			if(!string.IsNullOrEmpty(Entity.LoginForNewUser) && _emailServiceSettingAdapter.SendingAllowed)
@@ -621,19 +525,156 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			return true;
 		}
+
+		private void TryAddServiceToValidationContext()
+		{
+			if(!_validationContext.Items.ContainsKey("Reason"))
+			{
+				_validationContext.Items.Add("Reason", _subdivisionService);
+			}
+		}
 		
-		public void FillHiddenCategories()
+		private void FillHiddenCategories(bool traineeToEmployee)
 		{
 			var allCategories = (EmployeeCategory[])Enum.GetValues(typeof(EmployeeCategory));
 
-			if(_canManageDriversAndForwarders && !_canManageOfficeWorkers)
+			if(CanManageDriversAndForwarders && !CanManageOfficeWorkers)
 			{
-				HiddenCategories = allCategories.Except(new[] {EmployeeCategory.driver, EmployeeCategory.forwarder});
+				HiddenCategories.AddRange(allCategories.Except(new[] {EmployeeCategory.driver, EmployeeCategory.forwarder}));
 			}
-			else if(_canManageOfficeWorkers && !_canManageDriversAndForwarders)
+			else if((traineeToEmployee && !_canChangeTraineeToDriver) || (CanManageOfficeWorkers && !CanManageDriversAndForwarders))
 			{
-				HiddenCategories = allCategories.Except(new[] {EmployeeCategory.office});
+				HiddenCategories.AddRange(allCategories.Except(new[] {EmployeeCategory.office}));
 			}
+		}
+		
+		public void SaveAndClose()
+		{
+			if(!HasChanges)
+			{
+				Close(false, CloseSource.Save);
+				return;
+			}
+
+			if(Save())
+			{
+				EntitySaved?.Invoke(this, new EntitySavedEventArgs(UoW.RootObject));
+				Close(false, CloseSource.Save);
+			}
+		}
+
+		public bool Save()
+		{
+			if(Entity.Id == 0 && !CanManageOfficeWorkers && !CanManageDriversAndForwarders)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					"У вас недостаточно прав для создания сотрудника");
+				
+				return false;
+			}
+			
+			//Проверяем, чтобы в БД не попала пустая строка
+			if(string.IsNullOrWhiteSpace(Entity.AndroidLogin))
+			{
+				Entity.AndroidLogin = null;
+			}
+
+			TryAddServiceToValidationContext();
+
+			if(!Validate())
+			{
+				return false;
+			}
+
+			if(Entity.User != null)
+			{
+				Entity.User.Deactivated = Entity.Status == EmployeeStatus.IsFired;
+				var associatedEmployees = _employeeRepository.GetEmployeesForUser(UoW, Entity.User.Id);
+				
+				if(associatedEmployees.Any(e => e.Id != Entity.Id))
+				{
+					var mes = string.Format("Пользователь {0} уже связан с сотрудником {1}, " +
+						"при привязке этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",
+						Entity.User.Name,
+						string.Join(", ", associatedEmployees.Select(e => e.ShortName)));
+					
+					if(_commonServices.InteractiveService.Question(mes))
+					{
+						foreach(var ae in associatedEmployees.Where(e => e.Id != Entity.Id))
+						{
+							ae.User = null;
+							UoWGeneric.Save(ae);
+						}
+					}
+					else
+					{
+						return false;
+					}
+				}
+			}
+
+			if(Entity.InnerPhone != null)
+			{
+				var associatedEmployees = UoW.Session.Query<Employee>().Where(e => e.InnerPhone == Entity.InnerPhone);
+				
+				if(associatedEmployees.Any(e => e.Id != Entity.Id && e.InnerPhone == Entity.InnerPhone))
+				{
+					string mes = string.Format("Внутренний номер {0} уже связан с сотрудником {1}. Продолжить?",
+						Entity.InnerPhone,
+						string.Join(", ", associatedEmployees.Select(e => e.Name))
+						);
+					
+					if(!_commonServices.InteractiveService.Question(mes))
+					{
+						return false;
+					}
+				}
+			}
+
+			Entity.CreateDefaultWageParameter(
+				_wageCalculationRepository,
+				new BaseParametersProvider(),
+				_commonServices.InteractiveService);
+
+			UoWGeneric.Save(Entity);
+
+			#region Попытка сохранить логин для нового юзера
+			
+			if(!TrySaveNewUser())
+			{
+				return false;
+			}
+
+			#endregion
+
+			_logger.Info("Сохраняем сотрудника...");
+			try
+			{
+				UoWGeneric.Save();
+				SaveAttachmentFilesChangesAction?.Invoke();
+			}
+			catch(Exception ex)
+			{
+				_logger.Error(ex, "Не удалось записать сотрудника.");
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, ex.Message);
+				return false;
+			}
+
+			_logger.Info("Ok");
+			return true;
+		}
+		
+		public override void Close(bool askSave, CloseSource source)
+		{
+			base.Close(askSave, source);
+			Dispose();
+		}
+		
+		public override void Dispose()
+		{
+			UoW?.Dispose();
+			base.Dispose();
 		}
 	}
 }

@@ -1,77 +1,103 @@
 ﻿using System;
 using System.Linq;
-using EmailService;
-using InstantSmsService;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
-using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Repositories;
-using QS.Project.Services.GtkUI;
 using QS.Services;
-using Vodovoz.Additions;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalNodes;
-using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.Tools;
 using Vodovoz.ViewModels.Infrastructure.Services;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
-namespace Vodovoz.JournalViewModels
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
 	public class EmployeesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Employee, EmployeeViewModel, EmployeeJournalNode, EmployeeFilterViewModel>
 	{
+		private readonly IAuthorizationServiceFactory _authorizationServiceFactory;
+		private readonly IAuthorizationService _authorizationService;
+		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private readonly IEmployeePostsJournalFactory _employeePostsJournalFactory;
+		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
+		private readonly ISubdivisionService _subdivisionService;
+		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
+		private readonly IWageCalculationRepository _wageCalculationRepository;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IValidationContextFactory _validationContextFactory;
+		private readonly IPhonesViewModelFactory _phonesViewModelFactory;
+		
 		public EmployeesJournalViewModel(
 			EmployeeFilterViewModel filterViewModel,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices
-		) : base(
-			filterViewModel,
-			unitOfWorkFactory,
-			commonServices
-		)
+			IAuthorizationServiceFactory authorizationServiceFactory,
+			IEmployeeWageParametersFactory employeeWageParametersFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IEmployeePostsJournalFactory employeePostsJournalFactory,
+			ICashDistributionCommonOrganisationProvider cashDistributionCommonOrganisationProvider,
+			ISubdivisionService subdivisionService,
+			IEmailServiceSettingAdapter emailServiceSettingAdapter,
+			IWageCalculationRepository wageCalculationRepository,
+			IEmployeeRepository employeeRepository,
+			IValidationContextFactory validationContextFactory,
+			IPhonesViewModelFactory phonesViewModelFactory,
+			ICommonServices commonServices,
+			IUnitOfWorkFactory unitOfWorkFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.TabName = "Журнал сотрудников";
-			var instantSmsService = InstantSmsServiceSetting.GetInstantSmsService();
+			TabName = "Журнал сотрудников";
 		
-			this.authorizationService = new AuthorizationService(
-				new PasswordGenerator(),
-				new MySQLUserRepository(
-					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-					new GtkInteractiveService()),
-				EmailServiceSetting.GetEmailService());
+			_authorizationServiceFactory =
+				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
+			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
+			_employeeWageParametersFactory =
+				employeeWageParametersFactory ?? throw new ArgumentNullException(nameof(employeeWageParametersFactory));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			_employeePostsJournalFactory =
+				employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory));
+			_cashDistributionCommonOrganisationProvider =
+				cashDistributionCommonOrganisationProvider ??
+				throw new ArgumentNullException(nameof(cashDistributionCommonOrganisationProvider));
+			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
+			_emailServiceSettingAdapter = emailServiceSettingAdapter ?? throw new ArgumentNullException(nameof(emailServiceSettingAdapter));
+			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
+			_phonesViewModelFactory = phonesViewModelFactory ?? throw new ArgumentNullException(nameof(phonesViewModelFactory));
 
 			UpdateOnChanges(typeof(Employee));
 		}
 
-		private readonly IAuthorizationService authorizationService;
-
-		protected override Func<IUnitOfWork, IQueryOver<Employee>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IUnitOfWork, IQueryOver<Employee>> ItemsSourceQueryFunction => (uow) => 
+		{
 			EmployeeJournalNode resultAlias = null;
 			Employee employeeAlias = null;
 
 			var query = uow.Session.QueryOver(() => employeeAlias);
 
 			if(FilterViewModel?.Status != null)
+			{
 				query.Where(e => e.Status == FilterViewModel.Status);
+			}
 
 			if(FilterViewModel?.Category != null)
+			{
 				query.Where(e => e.Category == FilterViewModel.Category);
+			}
 
 			if(FilterViewModel?.RestrictWageParameterItemType != null) {
 				WageParameterItem wageParameterItemAlias = null;
@@ -122,10 +148,12 @@ namespace Vodovoz.JournalViewModels
 				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
 				return;
             }
-			if (authorizationService.ResetPasswordToGenerated(employee.User.Login, employee.Email))
+			if (_authorizationService.ResetPasswordToGenerated(employee.User.Login, employee.Email))
 			{
 				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Email с паролем отправлена успешно");
-			} else {
+			}
+			else
+			{
 				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Ошибка при отправке Email");
 			}
 		}
@@ -177,42 +205,36 @@ namespace Vodovoz.JournalViewModels
 		}
 
 		protected override Func<EmployeeViewModel> CreateDialogFunction => () => new EmployeeViewModel(
-			new AuthorizationService(
-				new PasswordGenerator(),
-				new MySQLUserRepository(
-					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-					new GtkInteractiveService()),
-				EmailServiceSetting.GetEmailService()),
-			new EmployeeWageParametersFactory(),
-			new EmployeeJournalFactory(),
-			new EmployeePostsJournalFactory(),
-			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider())),
-			SubdivisionParametersProvider.Instance,
-			new EmailServiceSettingAdapter(),
-			WageSingletonRepository.GetInstance(),
-			EmployeeSingletonRepository.GetInstance(),
-			EntityUoWBuilder.ForCreate(),
-			UnitOfWorkFactory,
-			commonServices);
+			_authorizationServiceFactory.CreateNewAuthorizationService(),
+			_employeeWageParametersFactory,
+			_employeeJournalFactory,
+			_subdivisionJournalFactory,
+			_employeePostsJournalFactory,
+			_cashDistributionCommonOrganisationProvider,
+			_subdivisionService,
+			_emailServiceSettingAdapter,
+			_wageCalculationRepository,
+			_employeeRepository,
+			EntityUoWBuilder.ForCreate().CreateUoW<Employee>(UnitOfWorkFactory),
+			commonServices,
+			_validationContextFactory,
+			_phonesViewModelFactory);
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
 			n => new EmployeeViewModel(
-				new AuthorizationService(
-					new PasswordGenerator(),
-					new MySQLUserRepository(
-						new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-						new GtkInteractiveService()),
-					EmailServiceSetting.GetEmailService()),
-				new EmployeeWageParametersFactory(),
-				new EmployeeJournalFactory(),
-				new EmployeePostsJournalFactory(),
-				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider())),
-				SubdivisionParametersProvider.Instance,
-				new EmailServiceSettingAdapter(),
-				WageSingletonRepository.GetInstance(),
-				EmployeeSingletonRepository.GetInstance(),
-				EntityUoWBuilder.ForOpen(n.Id),
-				UnitOfWorkFactory,
-				commonServices);
+				_authorizationServiceFactory.CreateNewAuthorizationService(),
+				_employeeWageParametersFactory,
+				_employeeJournalFactory,
+				_subdivisionJournalFactory,
+				_employeePostsJournalFactory,
+				_cashDistributionCommonOrganisationProvider,
+				_subdivisionService,
+				_emailServiceSettingAdapter,
+				_wageCalculationRepository,
+				_employeeRepository,
+				EntityUoWBuilder.ForOpen(n.Id).CreateUoW<Employee>(UnitOfWorkFactory),
+				commonServices,
+				_validationContextFactory,
+				_phonesViewModelFactory);
 	}
 }

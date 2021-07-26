@@ -1,10 +1,11 @@
 ﻿using QS.DomainModel.Entity;
+using QS.Project.Filter;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
 
-namespace Vodovoz.Filters.ViewModels
+namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 {
-	public class EmployeeFilterViewModel : RepresentationFilterViewModelBase<EmployeeFilterViewModel>
+	public class EmployeeFilterViewModel : FilterViewModelBase<EmployeeFilterViewModel>
 	{
 		private EmployeeCategory? _category;
 		private EmployeeCategory? _restrictCategory;

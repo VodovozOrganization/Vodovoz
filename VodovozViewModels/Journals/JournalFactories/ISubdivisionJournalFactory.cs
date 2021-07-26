@@ -4,6 +4,9 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public interface ISubdivisionJournalFactory
 	{
+		IEntityAutocompleteSelectorFactory CreateSubdivisionAutocompleteSelectorFactory(
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory);
+		
 		IEntityAutocompleteSelectorFactory CreateDefaultSubdivisionAutocompleteSelectorFactory(
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory);
 

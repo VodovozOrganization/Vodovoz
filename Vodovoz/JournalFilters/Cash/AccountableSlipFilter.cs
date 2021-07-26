@@ -4,7 +4,9 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalFilters;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -15,7 +17,7 @@ namespace Vodovoz
 		{
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
 
-			var filter = new EmployeeFilterViewModel();
+			var filter = new EmployeeRepresentationFilterViewModel();
 			filter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
 			repEntryAccountable.RepresentationModel = new EmployeesVM(filter);
 		}

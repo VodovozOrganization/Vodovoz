@@ -4,24 +4,25 @@ using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Report;
 using QSReport;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.FilterViewModels.Organization;
-using Vodovoz.Journals.JournalViewModels.Organization;
-using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SetBillsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public SetBillsReport(IUnitOfWorkFactory unitOfWorkFactory)
+		public SetBillsReport(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IEntityAutocompleteSelectorFactory subdivisionSelectorFactory)
 		{
-			this.Build();
+			if(subdivisionSelectorFactory == null)
+			{
+				throw new ArgumentNullException(nameof(subdivisionSelectorFactory));
+			}
+			
+			Build();
 
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			
@@ -30,22 +31,7 @@ namespace Vodovoz.ReportsParameters
 			ybuttonCreateReport.Clicked += (sender, e) => { OnUpdate(true); };
 			ybuttonCreateReport.TooltipText = $"Формирует отчет по заказам в статусе '{OrderStatus.WaitForPayment.GetEnumTitle()}'";
 
-			entrySubdivision.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision),
-					() => {
-						var filter = new SubdivisionFilterViewModel();
-						var employeeAutoCompleteSelectorFactory =
-							new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
-								ServicesConfig.CommonServices);
-
-						return new SubdivisionsJournalViewModel(
-							filter,
-							unitOfWorkFactory,
-							ServicesConfig.CommonServices,
-							employeeAutoCompleteSelectorFactory
-						);
-					})
-			);
+			entrySubdivision.SetEntityAutocompleteSelectorFactory(subdivisionSelectorFactory);
 		}
 
 		#region IParametersWidget implementation

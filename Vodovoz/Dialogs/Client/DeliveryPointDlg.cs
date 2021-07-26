@@ -37,6 +37,7 @@ using Vodovoz.Models;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.TempAdapters;
 using System.Collections.Generic;
+using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz
 {

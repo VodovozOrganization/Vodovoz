@@ -1,54 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Web.UI.WebControls;
-using EmailService;
-using FluentNHibernate.Data;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.Banks.Domain;
-using QS.Dialog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
-using QS.Project.Dialogs.GtkUI.ServiceDlg;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Repositories;
-using QS.Project.Services;
-using QS.Project.Services.GtkUI;
-using QS.Services;
-using QS.Validation;
 using QS.Views.GtkUI;
 using QS.Widgets.GtkUI;
 using QSOrmProject;
-using QSProjectsLib;
-using Vodovoz.Additions;
-using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Permissions;
-using Vodovoz.Domain.Service.BaseParametersServices;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.FilterViewModels.Organization;
-using Vodovoz.Infrastructure;
-using Vodovoz.Journals.JournalViewModels.Organization;
-using Vodovoz.JournalViewModels;
-using Vodovoz.Tools;
-using Vodovoz.Tools.Logistic;
-using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
-using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
-using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.Views.Employees
 {
@@ -60,37 +28,12 @@ namespace Vodovoz.Views.Employees
 			ConfigureDlg();
 		}
 
-		/*public EmployeeView(IUnitOfWorkGeneric<Employee> uow)
-		{
-			this.Build();
-			UoWGeneric = uow;
-
-			if(!ServicesConfig.CommonServices
-				.CurrentPermissionService.ValidatePresetPermission("can_change_trainee_to_driver"))
-			{
-				hiddenCategory.Add(EmployeeCategory.driver);
-				hiddenCategory.Add(EmployeeCategory.forwarder);
-			}
-
-			mySQLUserRepository = new MySQLUserRepository(
-				new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-				new GtkInteractiveService());
-			this.authorizationService = new AuthorizationService(
-				new PasswordGenerator(),
-				new MySQLUserRepository(
-					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
-					new GtkInteractiveService()),
-				EmailServiceSetting.GetEmailService());
-
-			ConfigureDlg();
-		}*/
-
 		private void ConfigureDlg()
 		{
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 
-			buttonSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
+			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			
 			ConfigureRadioButtons();
@@ -107,7 +50,7 @@ namespace Vodovoz.Views.Employees
 			photoviewEmployee.GetSaveFileName = () => ViewModel.Entity.FullName;
 			
 			entryEmployeePost.SetEntityAutocompleteSelectorFactory(
-				ViewModel.EmployeePostsJournalFactory.CreateEmployeePostsAutoCompleteSelectorFactory());
+				ViewModel.EmployeePostsJournalFactory.CreateEmployeePostsAutocompleteSelectorFactory());
 			entryEmployeePost.Binding.AddBinding(ViewModel.Entity, e => e.Post, w => w.Subject).InitializeFromSource();
 			
 			comboSkillLevel.ItemsList = ViewModel.Entity.GetSkillLevels();
@@ -124,22 +67,28 @@ namespace Vodovoz.Views.Employees
 			
 			cmbDriverOf.ItemsEnum = typeof(CarTypeOfUse);
 			cmbDriverOf.Binding
-				.AddBinding(ViewModel.Entity, e => e.DriverOf, w => w.SelectedItemOrNull).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.DriverOf, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 			
 			checkVisitingMaster.Binding
-				.AddBinding(ViewModel.Entity, e => e.VisitingMaster, w => w.Active).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.VisitingMaster, w => w.Active)
+				.InitializeFromSource();
 			chkDriverForOneDay.Binding
-				.AddBinding(ViewModel.Entity, e => e.IsDriverForOneDay, w => w.Active).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.IsDriverForOneDay, w => w.Active)
+				.InitializeFromSource();
 			checkChainStoreDriver.Binding
-				.AddBinding(ViewModel.Entity, e => e.IsChainStoreDriver, w => w.Active).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.IsChainStoreDriver, w => w.Active)
+				.InitializeFromSource();
 			
 			referenceNationality.SubjectType = typeof(Nationality);
 			referenceNationality.Binding
-				.AddBinding(ViewModel.Entity, e => e.Nationality, w => w.Subject).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.Nationality, w => w.Subject)
+				.InitializeFromSource();
 			
 			GenderComboBox.ItemsEnum = typeof(Gender);
 			GenderComboBox.Binding
-				.AddBinding(ViewModel.Entity, e => e.Gender, w => w.SelectedItemOrNull).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.Gender, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 			
 			ConfigureSubdivision();
 			
@@ -154,8 +103,9 @@ namespace Vodovoz.Views.Employees
 			yentryUserLogin.Binding.AddBinding(ViewModel.Entity, e => e.LoginForNewUser, w => w.Text);
 			yentryUserLogin.Sensitive = ViewModel.CanCreateNewUser;
 			
-			ydatepicker1.Binding
-				.AddBinding(ViewModel.Entity, e => e.BirthdayDate, w => w.DateOrNull).InitializeFromSource();
+			birthdatePicker.Binding
+				.AddBinding(ViewModel.Entity, e => e.BirthdayDate, w => w.DateOrNull)
+				.InitializeFromSource();
 			
 			dataentryInnerPhone.Binding
 				.AddBinding(
@@ -166,63 +116,77 @@ namespace Vodovoz.Views.Employees
 				).InitializeFromSource();
 			
 			checkbuttonRussianCitizen.Binding
-				.AddBinding(ViewModel.Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.IsRussianCitizen, w => w.Active)
+				.InitializeFromSource();
 			OnRussianCitizenToggled(null, EventArgs.Empty);
 			
 			referenceCitizenship.SubjectType = typeof(Citizenship);
 			referenceCitizenship.Binding
-				.AddBinding(ViewModel.Entity, e => e.Citizenship, w => w.Subject).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.Citizenship, w => w.Subject)
+				.InitializeFromSource();
 			
 			dataentryDrivingNumber.MaxLength = 20;
 			dataentryDrivingNumber.Binding
-				.AddBinding(ViewModel.Entity, e => e.DrivingLicense, w => w.Text).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.DrivingLicense, w => w.Text)
+				.InitializeFromSource();
 			
-			yenumcombobox13.ItemsEnum = typeof(RegistrationType);
-			yenumcombobox13.Binding
-				.AddBinding(ViewModel.Entity, e => e.Registration, w => w.SelectedItemOrNull).InitializeFromSource();
+			registrationTypeCmb.ItemsEnum = typeof(RegistrationType);
+			registrationTypeCmb.Binding
+				.AddBinding(ViewModel.Entity, e => e.Registration, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 			
-			phonesView.UoW = ViewModel.UoWGeneric;
-			phonesView.Phones = ViewModel.UoWGeneric.Root.Phones;
-			//ViewModel.UoWGeneric.Root.PropertyChanged += OnPropertyChanged;
+			phonesView.ViewModel = ViewModel.PhonesViewModel;
+			phonesView.ViewModel.PhonesList = new GenericObservableList<Phone>(ViewModel.Entity.Phones);
 
 			entryAddressCurrent.Binding
-				.AddBinding(ViewModel.Entity, e => e.AddressCurrent, w => w.Text).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.AddressCurrent, w => w.Text)
+				.InitializeFromSource();
 			entryAddressRegistration.Binding
-				.AddBinding(ViewModel.Entity, e => e.AddressRegistration, w => w.Text).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.AddressRegistration, w => w.Text)
+				.InitializeFromSource();
 			yentryEmailAddress.Binding.AddBinding(ViewModel.Entity, e => e.Email, w => w.Text).InitializeFromSource();
 
 			ydateFirstWorkDay.Binding
-				.AddBinding(ViewModel.Entity, e => e.FirstWorkDay, w => w.DateOrNull).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.FirstWorkDay, w => w.DateOrNull)
+				.InitializeFromSource();
 			dateFired.Binding.AddBinding(ViewModel.Entity, e => e.DateFired, w => w.DateOrNull).InitializeFromSource();
 			dateHired.Binding.AddBinding(ViewModel.Entity, e => e.DateHired, w => w.DateOrNull).InitializeFromSource();
 			dateCalculated.Binding
-				.AddBinding(ViewModel.Entity, e => e.DateCalculated, w => w.DateOrNull).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.DateCalculated, w => w.DateOrNull)
+				.InitializeFromSource();
 
 			//Вкладка Логистика
 			dataentryAndroidLogin.Binding
-				.AddBinding(ViewModel.Entity, e => e.AndroidLogin, w => w.Text).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.AndroidLogin, w => w.Text)
+				.InitializeFromSource();
 			dataentryAndroidPassword.Binding
-				.AddBinding(ViewModel.Entity, e => e.AndroidPassword, w => w.Text).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.AndroidPassword, w => w.Text)
+				.InitializeFromSource();
 
 			defaultForwarderEntry.SetEntityAutocompleteSelectorFactory(
 				ViewModel.EmployeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory());
 			defaultForwarderEntry.Binding
-				.AddBinding(ViewModel.Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.DefaultForwarder, w => w.Subject)
+				.InitializeFromSource();
 			
 			yspinTripsPriority.Binding
-				.AddBinding(ViewModel.Entity, e => e.TripPriority, w => w.ValueAsShort).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.TripPriority, w => w.ValueAsShort)
+				.InitializeFromSource();
 			yspinDriverSpeed.Binding
 				.AddBinding(ViewModel.Entity, e => e.DriverSpeed, w => w.Value, new MultiplierToPercentConverter())
 				.InitializeFromSource();
 			
 			minAddressesSpin.Binding
-				.AddBinding(ViewModel.Entity, e => e.MinRouteAddresses, w => w.ValueAsInt).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.MinRouteAddresses, w => w.ValueAsInt)
+				.InitializeFromSource();
 			maxAddressesSpin.Binding
-				.AddBinding(ViewModel.Entity, e => e.MaxRouteAddresses, w => w.ValueAsInt).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.MaxRouteAddresses, w => w.ValueAsInt)
+				.InitializeFromSource();
 			
 			comboDriverType.ItemsEnum = typeof(DriverType);
 			comboDriverType.Binding
-				.AddBinding(ViewModel.Entity, e => e.DriverType, w => w.SelectedItemOrNull).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.DriverType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 			
 			ConfigureWorkSchedules();
 			ConfigureDistrictPriorities();
@@ -242,6 +206,9 @@ namespace Vodovoz.Views.Employees
 				attachmentFiles.UpdateFileList();
 			}
 
+			ViewModel.SaveAttachmentFilesChangesAction += SaveAttachmentFilesChanges;
+			ViewModel.HasAttachmentFilesChangesFunc += HasAttachmentsFilesChanges;
+
 			//Вкладка Документы
 			ConfigureDocumentsTabButtons();
 			ConfigureTreeEmployeeDocuments();
@@ -253,14 +220,25 @@ namespace Vodovoz.Views.Employees
 			//Вкладка Зарплата
 			specialListCmbOrganisation.ItemsList = ViewModel.organizations;
 			specialListCmbOrganisation.Binding
-				.AddBinding(ViewModel.Entity, e => e.OrganisationForSalary, w => w.SelectedItem).InitializeFromSource();
+				.AddBinding(ViewModel.Entity, e => e.OrganisationForSalary, w => w.SelectedItem)
+				.InitializeFromSource();
 			specialListCmbOrganisation.Sensitive = ViewModel.CanEditOrganisationForSalary;
 
 			wageParametersView.ViewModel = 
 				ViewModel.EmployeeWageParametersFactory.CreateEmployeeWageParametersViewModel(ViewModel.Entity, ViewModel, ViewModel.UoW);
-
-			//logger.Info("Ok");
 		}
+
+		private void SaveAttachmentFilesChanges()
+		{
+			if(ViewModel.UoWGeneric.IsNew)
+			{
+				attachmentFiles.ItemId = ViewModel.Entity.Id;
+			}
+			
+			attachmentFiles.SaveChanges();
+		}
+
+		private bool HasAttachmentsFilesChanges() => attachmentFiles.HasChanges;
 		
 		private void ConfigureRadioButtons()
 		{
@@ -466,19 +444,6 @@ namespace Vodovoz.Views.Employees
 			ybuttonActivateDistrictPrioritySet.Binding
 				.AddBinding(ViewModel, x => x.CanActivateDistrictPrioritySet, w => w.Sensitive).InitializeFromSource();
 
-			/*(o, args) => {
-				var selectedDistrictPrioritySet
-					= ytreeDistrictPrioritySets.GetSelectedObject() as DriverDistrictPrioritySet;
-				ybuttonCopyDistrictPrioritySet.Sensitive = selectedDistrictPrioritySet != null && ViewModel.DriverDistrictPrioritySetPermission.CanCreate;
-				ybuttonEditDistrictPrioritySet.Sensitive = selectedDistrictPrioritySet != null && (ViewModel.DriverDistrictPrioritySetPermission.CanUpdate || ViewModel.DriverDistrictPrioritySetPermission.CanRead);
-				CanActivateDistrictPrioritySet = selectedDistrictPrioritySet != null
-					&& !selectedDistrictPrioritySet.IsActive
-					&& selectedDistrictPrioritySet.DateActivated == null
-					&& selectedDistrictPrioritySet.ObservableDriverDistrictPriorities
-						.All(x => x.District.DistrictsSet.Status == DistrictsSetStatus.Active)
-					&& ViewModel.CanActivateDriverDistrictPrioritySetPermission;
-			};*/
-
 			ybuttonCreateDistrictPrioritySet.Clicked += (sender, args) => ViewModel.OpenDistrictPrioritySetCreateWindowCommand.Execute();
 			ybuttonCreateDistrictPrioritySet.Sensitive = ViewModel.DriverDistrictPrioritySetPermission.CanCreate;
 		}
@@ -491,13 +456,6 @@ namespace Vodovoz.Views.Employees
 		#endregion
 
 		#region DriverWorkSchedules
-
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		public void OnPropertyChanged(string propertyName)
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
 
 		private void ConfigureWorkSchedules()
 		{
@@ -567,6 +525,7 @@ namespace Vodovoz.Views.Employees
 
 		private void ConfigureCategory()
 		{
+			comboCategory.EnumItemSelected += OnComboCategoryEnumItemSelected;
 			comboCategory.ItemsEnum = typeof(EmployeeCategory);
 			comboCategory.Binding.AddSource(ViewModel.Entity)
 				.AddBinding(e => e.Category, w => w.SelectedItem)
@@ -577,10 +536,9 @@ namespace Vodovoz.Views.Employees
 
 			if(ViewModel.HiddenCategories != null && ViewModel.HiddenCategories.Any())
 			{
-				comboCategory.AddEnumToHideList(ViewModel.HiddenCategories.Distinct().OfType<object>());
+				comboCategory.AddEnumToHideList(ViewModel.HiddenCategories.OfType<object>().ToArray());
 			}
-
-			comboCategory.EnumItemSelected += OnComboCategoryEnumItemSelected;
+			
 			comboCategory.ChangedByUser += (sender, e) => 
 			{
 				if(ViewModel.Entity.Category != EmployeeCategory.driver)
@@ -592,14 +550,15 @@ namespace Vodovoz.Views.Employees
 
 		private void ConfigureSubdivision()
 		{
-			if(ViewModel._canManageDriversAndForwarders && !ViewModel._canManageOfficeWorkers)
+			if(ViewModel.CanManageDriversAndForwarders && !ViewModel.CanManageOfficeWorkers)
 			{
 				var entityentrySubdivision = new EntityViewModelEntry();
 				entityentrySubdivision.SetEntityAutocompleteSelectorFactory(
-					ViewModel.SubdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(
+					ViewModel.SubdivisionJournalFactory.CreateLogisticSubdivisionAutocompleteSelectorFactory(
 						ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()));
 				entityentrySubdivision.Binding
-					.AddBinding(ViewModel.Entity, e => e.Subdivision, w => w.Subject).InitializeFromSource();
+					.AddBinding(ViewModel.Entity, e => e.Subdivision, w => w.Subject)
+					.InitializeFromSource();
 				hboxSubdivision.Add(entityentrySubdivision);
 				hboxSubdivision.ShowAll();
 				return;
@@ -611,17 +570,12 @@ namespace Vodovoz.Views.Employees
 			hboxSubdivision.Add(entrySubdivision);
 			hboxSubdivision.ShowAll();
 
-			if(!ViewModel._canManageOfficeWorkers && !ViewModel._canManageDriversAndForwarders)
+			if(!ViewModel.CanManageOfficeWorkers && !ViewModel.CanManageDriversAndForwarders)
 			{
 				entrySubdivision.Sensitive = false;
 			}
 		}
 
-		/*void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			logger.Debug("Property {0} changed", e.PropertyName);
-		}*/
-		
 		private void OnRussianCitizenToggled(object sender, EventArgs e)
 		{
 			if(ViewModel.Entity.IsRussianCitizen == false)
@@ -698,7 +652,7 @@ namespace Vodovoz.Views.Employees
 				= hboxDriversParameters.Visible
 				= (EmployeeCategory)e.SelectedItem == EmployeeCategory.driver;
 
-			wageParametersView.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
+			wageParametersView.Sensitive = ViewModel.CanEditWage;
 		}
 
 		private void OnRadioWageParametersClicked(object sender, EventArgs e)
@@ -710,5 +664,13 @@ namespace Vodovoz.Views.Employees
 		}
 
 		#endregion
+
+		public override void Destroy()
+		{
+			ViewModel.SaveAttachmentFilesChangesAction -= SaveAttachmentFilesChanges;
+			ViewModel.HasAttachmentFilesChangesFunc -= HasAttachmentsFilesChanges;
+			
+			base.Destroy();
+		}
 	}
 }

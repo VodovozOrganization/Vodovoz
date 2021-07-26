@@ -16,6 +16,10 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
 namespace Vodovoz.JournalFilters
 {
@@ -34,7 +38,7 @@ namespace Vodovoz.JournalFilters
 			refOldOrder.RepresentationModel = new OrdersVM(new OrdersFilter(UoW));
 			refOldOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			var driversFilter = new EmployeeFilterViewModel();
+			var driversFilter = new EmployeeRepresentationFilterViewModel();
 			driversFilter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking
@@ -45,7 +49,7 @@ namespace Vodovoz.JournalFilters
 			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<DeliveryPoint, DeliveryPointJournalViewModel, DeliveryPointJournalFilterViewModel>(ServicesConfig.CommonServices));
 
-			var authorsFilter = new EmployeeFilterViewModel();
+			var authorsFilter = new EmployeeRepresentationFilterViewModel();
 			authorsFilter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking
@@ -64,24 +68,11 @@ namespace Vodovoz.JournalFilters
 			};
 			
 			//Подразделение
-			var employeeSelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory
-					<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
-
-			var filter = new SubdivisionFilterViewModel() {SubdivisionType = SubdivisionType.Default};
-
+			var employeeSelectorFactory = new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory();
+			var subdivisionSelectorFactory =
+				new SubdivisionJournalFactory().CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeSelectorFactory);
 			
-			AuthorSubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
-					typeof(Subdivision),
-					() => new SubdivisionsJournalViewModel(
-						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices,
-						employeeSelectorFactory
-					)
-				)
-			);
+			AuthorSubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(subdivisionSelectorFactory);
 			
 			AuthorSubdivisionEntityviewmodelentry.Changed += AuthorSubdivisionEntityviewmodelentryOnChanged;
 		}

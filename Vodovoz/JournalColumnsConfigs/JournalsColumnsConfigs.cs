@@ -36,6 +36,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
+using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 
 namespace Vodovoz.JournalColumnsConfigs
 {

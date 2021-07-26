@@ -17,7 +17,9 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using QS.Navigation;
+using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ViewModels.FuelDocuments
 {
@@ -115,7 +117,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				if(employeeJournal != null)
 					return employeeJournal;
 
-				var filterDriver = new EmployeeFilterViewModel();
+				var filterDriver = new EmployeeRepresentationFilterViewModel();
 				filterDriver.SetAndRefilterAtOnce(
 					x => x.RestrictCategory = EmployeeCategory.driver,
 					x => x.Status = EmployeeStatus.IsWorking

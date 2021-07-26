@@ -27,12 +27,14 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz
@@ -116,7 +118,7 @@ namespace Vodovoz
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.Sensitive = logisticanEditing;
 
-			var filterDriver = new EmployeeFilterViewModel();
+			var filterDriver = new EmployeeRepresentationFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking
@@ -124,7 +126,7 @@ namespace Vodovoz
 			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			referenceDriver.Sensitive = logisticanEditing;
-			var filterForwarder = new EmployeeFilterViewModel();
+			var filterForwarder = new EmployeeRepresentationFilterViewModel();
 			filterForwarder.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.Status = EmployeeStatus.IsWorking

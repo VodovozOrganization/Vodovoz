@@ -12,29 +12,28 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class MileageReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public MileageReport()
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		
+		public MileageReport(IEmployeeJournalFactory employeeJournalFactory)
 		{
-			this.Build();
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			entityviewmodelentryEmployee.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() =>
-					{
-						var employeeFilter = new EmployeeFilterViewModel{
-							Status = EmployeeStatus.IsWorking,
-							Category = EmployeeCategory.driver
-						};
-						return new EmployeesJournalViewModel(employeeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-					})
-				);
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			
+			ConfigureEntries();
 
 			ycheckbutton1.Toggled += (sender, args) =>
 			{
@@ -45,7 +44,15 @@ namespace Vodovoz.ReportsParameters.Logistic
 			};
 
 			validatedentryDifference.ValidationMode = ValidationType.Numeric;
+		}
+
+		private void ConfigureEntries()
+		{
+			entityviewmodelentryEmployee.SetEntityAutocompleteSelectorFactory(
+				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 			
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
 		}
 
 		#region IParametersWidget implementation

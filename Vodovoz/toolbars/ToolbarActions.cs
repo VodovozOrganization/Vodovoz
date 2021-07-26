@@ -540,11 +540,15 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionAtWorks_Activated(object sender, System.EventArgs e)
+	void ActionAtWorks_Activated(object sender, EventArgs e)
 	{
+		var employeeJournalFactory = new EmployeeJournalFactory();
+		
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AtWorksDlg>(),
-			() => new AtWorksDlg(new BaseParametersProvider())
+			() => new AtWorksDlg(
+				new BaseParametersProvider(),
+				employeeJournalFactory)
 		);
 	}
 
@@ -569,7 +573,8 @@ public partial class MainWindow : Window
 					new CarRepository(),
 					NavigationManagerProvider.NavigationManager,
 					UserSingletonRepository.GetInstance(),
-					new BaseParametersProvider()
+					new BaseParametersProvider(),
+					new EmployeeJournalFactory()
 				)
 			);
 	}
@@ -689,12 +694,12 @@ public partial class MainWindow : Window
 		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
 		INomenclatureSelectorFactory nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		var subdivisionJournalFactory = new SubdivisionJournalFactory();
 		ICarJournalFactory carJournalFactory = new CarJournalFactory();
 		
 		IFileChooserProvider fileChooserProvider = new Vodovoz.FileChooser("Категория Расхода.csv");
-		var  expenseCategoryJournalFilterViewModel = new ExpenseCategoryJournalFilterViewModel(); 
-		
-		
+		var  expenseCategoryJournalFilterViewModel = new ExpenseCategoryJournalFilterViewModel();
+
 		var fuelDocumentsJournalViewModel = new FuelDocumentsJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
@@ -704,6 +709,7 @@ public partial class MainWindow : Window
 			counterpartyJournalFactory,
 			nomenclatureSelectorFactory,
 			employeeJournalFactory,
+			subdivisionJournalFactory,
 			carJournalFactory,
 			new GtkReportViewOpener(),
 			fileChooserProvider,
@@ -716,23 +722,19 @@ public partial class MainWindow : Window
 	{
 		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(),
 			EmployeeSingletonRepository.GetInstance());
-
-        var employeeSelectorFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-            () =>
-            {
-                var employeeFilter = new EmployeeFilterViewModel
-                {
-                    Status = EmployeeStatus.IsWorking,
-                };
-                return new EmployeesJournalViewModel(
-                    employeeFilter,
-                    UnitOfWorkFactory.GetDefaultFactory,
-                    ServicesConfig.CommonServices);
-            });
-
-
+		
+		var employeeFilter = new EmployeeFilterViewModel
+		{
+			Status = EmployeeStatus.IsWorking,
+		};
+		
+        var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
+        
         tdiMain.OpenTab(() => new OrganizationCashTransferDocumentJournalViewModel(
-			new OrganizationCashTransferDocumentFilterViewModel(employeeSelectorFactory) { HidenByDefault = true },
+			new OrganizationCashTransferDocumentFilterViewModel(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory())
+			{
+				HidenByDefault = true
+			},
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			entityExtendedPermissionValidator)
@@ -1047,6 +1049,8 @@ public partial class MainWindow : Window
 		IDepositRepository depositRepository = new DepositRepository();
 		IBottlesRepository bottlesRepository = new BottlesRepository();
 		ResidueFilterViewModel filter = new ResidueFilterViewModel();
+		var employeeJournalFactory = new EmployeeJournalFactory();
+		
 		var residueJournalViewModel = new ResidueJournalViewModel(
 			filter,
 			VodovozGtkServicesConfig.EmployeeService,
@@ -1056,7 +1060,7 @@ public partial class MainWindow : Window
 			bottlesRepository,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices)
+			employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()
 		);
 		tdiMain.AddTab(residueJournalViewModel);
 	}

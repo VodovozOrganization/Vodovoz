@@ -8,6 +8,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 using QS.Dialog.GtkUI;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters
 {
