@@ -133,8 +133,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		IEnumerable<Domain.Orders.Order> GetOrders(IUnitOfWork uow, int[] ids);
-		bool CanAddVodovozLeafletToOrder(
-			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int leafletId, int geographicGroup);
+		bool CanAddFlyerToOrder(
+			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
     }
 
 	public class ClientEquipmentNode

@@ -53,7 +53,7 @@ namespace Vodovoz.DocTemplates
 			SortFields();
 		}
 
-		public void AddTableEquipmentTypes(List<PaidRentEquipment> list)
+		public void AddTableEquipmentKinds(List<PaidRentEquipment> list)
 		{
 			var ids = list.Select(x => x.PaidRentPackage.Id).Distinct().ToArray();
 			var equipList = list.Where(x => ids.Contains(x.PaidRentPackage.Id)).ToList();
@@ -62,7 +62,7 @@ namespace Vodovoz.DocTemplates
 			foreach (var item in equipList)
 			{
 				var node = new NonFreeRentParserNode();
-				node.EquipmentType = item.PaidRentPackage.Name;
+				node.EquipmentKind = item.PaidRentPackage.Name;
 				node.Deposit = item.Deposit.ToString();
 				node.Price = item.Price.ToString();
 				decimal advance = item.Price * 2;
@@ -72,7 +72,7 @@ namespace Vodovoz.DocTemplates
 			}
 
 			AddCustomTable<NonFreeRentParserNode>("ТипыОборудования", result)
-				.AddColumn(x => x.EquipmentType, PatternFieldType.FString)
+				.AddColumn(x => x.EquipmentKind, PatternFieldType.FString)
 				.AddColumn(x => x.Deposit, PatternFieldType.FString)
 				.AddColumn(x => x.Price, PatternFieldType.FString)
 				.AddColumn(x => x.Advance, PatternFieldType.FString)
@@ -85,7 +85,7 @@ namespace Vodovoz.DocTemplates
 	public class NonFreeRentParserNode
 	{
 		[Display(Name = "Название")]
-		public string EquipmentType { get; set; }
+		public string EquipmentKind { get; set; }
 		[Display(Name = "Залог")]
 		public string Deposit { get; set; }
 		[Display(Name = "Цена")]

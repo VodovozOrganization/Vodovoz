@@ -298,8 +298,9 @@ namespace Vodovoz
 
 		private void UpdateSensitivity()
 		{
-			if(Entity.Status != RouteListStatus.OnClosing && Entity.Status != RouteListStatus.MileageCheck
-			&& Entity.Status != RouteListStatus.Delivered) {
+			var sensStatuses = new[] { RouteListStatus.OnClosing, RouteListStatus.MileageCheck, RouteListStatus.Delivered};
+			if(!sensStatuses.Contains(Entity.Status))
+			{
 				ytextviewFuelInfo.Sensitive = false;
 				ycheckHideCells.Sensitive = false;
 				vbxFuelTickets.Sensitive = false;
@@ -314,8 +315,7 @@ namespace Vodovoz
 				hbxStatistics1.Sensitive = false;
 				hbxStatistics2.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
-				labelWage1.Visible = false;
-				toggleWageDetails.Sensitive = false;
+				toggleWageDetails.Sensitive = editing;
 
 				HasChanges = false;
 
@@ -342,7 +342,6 @@ namespace Vodovoz
 			advanceCheckbox.Sensitive = advanceSpinbutton.Sensitive = editing;
 			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = editing;
 			buttonCalculateCash.Sensitive = editing;
-			labelWage1.Visible = editing;
 			toggleWageDetails.Sensitive = editing;
 			UpdateButtonState();
 		}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
@@ -28,6 +29,7 @@ namespace Vodovoz.ViewModels.Complaints
         private IList<ComplaintObject> _complaintObjectSource;
         private ComplaintObject _complaintObject;
         private readonly IList<ComplaintKind> _complaintKinds;
+        private DelegateCommand _changeDeliveryPointCommand;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
@@ -54,8 +56,10 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelector,
 			string phone = null
-			) : base(uowBuilder, unitOfWorkFactory, commonServices)
+		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
             this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
             this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
@@ -73,6 +77,8 @@ namespace Vodovoz.ViewModels.Complaints
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			GtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			UndeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			SalesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.Checking);
@@ -103,10 +109,12 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelector,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, employeeSelectorFactory, counterpartySelectorFactory,
 			subdivisionRepository, commonServices, nomenclatureSelectorFactory, nomenclatureRepository, userRepository, filePickerService,
 			orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory,
-			gtkDialogsOpener, undeliveredOrdersJournalOpener, phone)
+			gtkDialogsOpener, undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, phone)
 		{
 			Counterparty _client = UoW.GetById<Counterparty>(client.Id);
 			Entity.Counterparty = _client;
@@ -132,10 +140,12 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelector,
 			string phone = null) : this
 		(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,
 			nomenclatureSelectorFactory,nomenclatureRepository,userRepository,filePickerService, orderSelectorFactory, employeeJournalFactory,
-			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory,  gtkDialogsOpener, undeliveredOrdersJournalOpener, phone)
+			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory,  gtkDialogsOpener, undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, phone)
 		{
 			Order _order = UoW.GetById<Order>(order.Id);
 			Entity.Order = _order;
@@ -256,12 +266,29 @@ namespace Vodovoz.ViewModels.Complaints
 		        .RowCount() > 0;
         }
 
-        public IOrderSelectorFactory OrderSelectorFactory { get; }
+        #region ChangeDeliveryPointCommand
+        
+        public DelegateCommand ChangeDeliveryPointCommand => _changeDeliveryPointCommand ?? (_changeDeliveryPointCommand =
+	        new DelegateCommand(() =>
+		        {
+			        if(Entity.Order?.DeliveryPoint != null)
+			        {
+				        Entity.DeliveryPoint = Entity.Order.DeliveryPoint;
+			        }
+		        },
+		        () => true
+	        ));
+	        
+        #endregion ChangeDeliveryPointCommand
+
+		public IOrderSelectorFactory OrderSelectorFactory { get; }
         public IEmployeeJournalFactory EmployeeJournalFactory { get; }
         public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
         public IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
         public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
         public IGtkTabsOpener GtkDialogsOpener { get; }
         public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
+		public ISalesPlanJournalFactory SalesPlanJournalFactory { get; }
+		public INomenclatureSelectorFactory NomenclatureSelector { get; }
 	}
 }

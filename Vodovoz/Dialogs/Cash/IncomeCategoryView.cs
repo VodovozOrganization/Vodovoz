@@ -8,6 +8,8 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.Dialogs.Cash
@@ -50,7 +52,9 @@ namespace Vodovoz.Dialogs.Cash
 					filter,
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
-					employeeSelectorFactory
+					employeeSelectorFactory,
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
 				))
 			);
 			SubdivisionEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.Subject).InitializeFromSource();

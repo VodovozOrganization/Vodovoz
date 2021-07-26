@@ -135,8 +135,8 @@ namespace Vodovoz
 			
 			referenceUnit.SubjectType = typeof(MeasurementUnits);
 			referenceUnit.Binding.AddBinding(Entity, n => n.Unit, w => w.Subject).InitializeFromSource();
-			yentryrefEqupmentType.SubjectType = typeof(EquipmentType);
-			yentryrefEqupmentType.Binding.AddBinding(Entity, e => e.Type, w => w.Subject).InitializeFromSource();
+			yentryrefEqupmentType.SubjectType = typeof(EquipmentKind);
+			yentryrefEqupmentType.Binding.AddBinding(Entity, e => e.Kind, w => w.Subject).InitializeFromSource();
 			referenceColor.SubjectType = typeof(EquipmentColors);
 			referenceColor.Binding.AddBinding(Entity, e => e.EquipmentColor, w => w.Subject).InitializeFromSource();
 			referenceRouteColumn.SubjectType = typeof(Domain.Logistic.RouteColumn);

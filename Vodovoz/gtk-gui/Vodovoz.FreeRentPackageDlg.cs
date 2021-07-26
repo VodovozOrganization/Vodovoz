@@ -34,7 +34,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReference referenceDepositService;
 
-		private global::Gamma.Widgets.yEntryReference referenceEquipmentType;
+		private global::Gamma.Widgets.yEntryReference referenceEquipmentKind;
 
 		private global::Gamma.GtkWidgets.ySpinButton spinMinWaterAmount;
 
@@ -182,7 +182,7 @@ namespace Vodovoz
 			this.label9 = new global::Gtk.Label();
 			this.label9.Name = "label9";
 			this.label9.Xalign = 1F;
-			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString("Тип оборудования:");
+			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString("Вид оборудования:");
 			this.datatable1.Add(this.label9);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatable1[this.label9]));
 			w14.TopAttach = ((uint)(2));
@@ -201,11 +201,11 @@ namespace Vodovoz
 			w15.RightAttach = ((uint)(2));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceEquipmentType = new global::Gamma.Widgets.yEntryReference();
-			this.referenceEquipmentType.Events = ((global::Gdk.EventMask)(256));
-			this.referenceEquipmentType.Name = "referenceEquipmentType";
-			this.datatable1.Add(this.referenceEquipmentType);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceEquipmentType]));
+			this.referenceEquipmentKind = new global::Gamma.Widgets.yEntryReference();
+			this.referenceEquipmentKind.Events = ((global::Gdk.EventMask)(256));
+			this.referenceEquipmentKind.Name = "referenceEquipmentKind";
+			this.datatable1.Add(this.referenceEquipmentKind);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceEquipmentKind]));
 			w16.TopAttach = ((uint)(2));
 			w16.BottomAttach = ((uint)(3));
 			w16.LeftAttach = ((uint)(1));

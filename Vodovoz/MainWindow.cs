@@ -105,7 +105,6 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using System.Runtime.InteropServices;
-using QS.Services;
 using Vodovoz.ViewModels.Reports;
 using MySql.Data.MySqlClient;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -126,17 +125,18 @@ using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using VodovozOSMService;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -495,11 +495,13 @@ public partial class MainWindow : Gtk.Window
         tdiMain.AddTab(refWin);
     }
 
-    protected void OnActionEquipmentTypesActivated(object sender, EventArgs e)
+    protected void OnActionEquipmentKindsActivated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(EquipmentType));
-        tdiMain.AddTab(refWin);
-    }
+	    tdiMain.OpenTab(() => new EquipmentKindJournalViewModel(
+		    UnitOfWorkFactory.GetDefaultFactory,
+		    ServicesConfig.CommonServices)
+	    );
+	}
 
     protected void OnActionNomenclatureActivated(object sender, EventArgs e)
     {
@@ -569,6 +571,12 @@ public partial class MainWindow : Gtk.Window
     {
         OrmReference refWin = new OrmReference(typeof(Post));
         tdiMain.AddTab(refWin);
+    }
+    
+    protected void OnActionFreeRentPackageActivated(object sender, EventArgs e)
+    {
+	    OrmReference refWin = new OrmReference(typeof(FreeRentPackage));
+	    tdiMain.AddTab(refWin);
     }
 
     protected void OnActionPaidRentPackageActivated(object sender, EventArgs e)
@@ -820,7 +828,9 @@ public partial class MainWindow : Gtk.Window
                     filter,
                     UnitOfWorkFactory.GetDefaultFactory,
                     ServicesConfig.CommonServices,
-                    employeeSelectorFactory
+                    employeeSelectorFactory,
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
                 );
             });
 
@@ -947,7 +957,9 @@ public partial class MainWindow : Gtk.Window
                     new EmployeeJournalFactory(),
                     new CounterpartyJournalFactory(),
                     new DeliveryPointJournalFactory(),
-                    subdivisionJournalFactory
+                    subdivisionJournalFactory,
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
                 );
             }
         );
@@ -1753,8 +1765,9 @@ public partial class MainWindow : Gtk.Window
         tdiMain.AddTab(
             new SalesPlanJournalViewModel(
                 UnitOfWorkFactory.GetDefaultFactory,
-                ServicesConfig.CommonServices
-            )
+                ServicesConfig.CommonServices,
+                new NomenclatureSelectorFactory()
+			)
         );
     }
 
@@ -1779,7 +1792,9 @@ public partial class MainWindow : Gtk.Window
 			},
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			employeeSelectorFactory)
+			employeeSelectorFactory,
+			new SalesPlanJournalFactory(),
+			new NomenclatureSelectorFactory())
 		);
 	}
 
@@ -2092,7 +2107,9 @@ public partial class MainWindow : Gtk.Window
                     new EmployeeJournalFactory(),
                     new CounterpartyJournalFactory(),
                     new DeliveryPointJournalFactory(),
-                    subdivisionJournalFactory
+                    subdivisionJournalFactory,
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
                 );
             }
         );
@@ -2148,7 +2165,9 @@ public partial class MainWindow : Gtk.Window
                     new DeliveryPointJournalFactory(),
                     new SubdivisionJournalFactory(),
                     new GtkTabsOpener(),
-                    new UndeliveredOrdersJournalOpener()
+                    new UndeliveredOrdersJournalOpener(),
+					new SalesPlanJournalFactory(),
+					new NomenclatureSelectorFactory()
             )
         );
     }
@@ -2419,5 +2438,16 @@ public partial class MainWindow : Gtk.Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices)
 		);
+	}
+
+	protected void OnActionFlyersActivated(object sender, EventArgs e)
+	{
+		var journal = new FlyersJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			new NomenclatureSelectorFactory(),
+			new FlyerRepository());
+		
+		tdiMain.AddTab(journal);
 	}
 }

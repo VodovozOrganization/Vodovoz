@@ -540,6 +540,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                         <FontSize>10pt</FontSize>
                         <TextAlign>General</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingBottom >=Len({nomenclature}) / 6 + "pt"</PaddingBottom>
+                        <PaddingTop >=Len({nomenclature}) / 6 + "pt"</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2985,6 +2987,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         <FontSize>10pt</FontSize>
                         <TextAlign>General</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingBottom >=Len({nomenclature}) / 6 + "pt"</PaddingBottom>
+                        <PaddingTop >=Len({nomenclature}) / 6 + "pt"</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>

@@ -153,8 +153,8 @@ namespace Vodovoz.Configuration
                     .End(),
                 OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView()
                     .SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
-                OrmObjectMapping<EquipmentType>.Create().Dialog<EquipmentTypeDlg>().DefaultTableView()
-                    .Column("Название", equipmentType => equipmentType.Name).End(),
+                OrmObjectMapping<EquipmentKind>.Create().Dialog<EquipmentKindDlg>().DefaultTableView()
+                    .Column("Название", equipmentKind => equipmentKind.Name).End(),
                 //Связанное с клиентом
                 OrmObjectMapping<Proxy>.Create().Dialog<ProxyDlg>()
                     .DefaultTableView().SearchColumn("Номер", x => x.Number).SearchColumn("С", x => x.StartDate.ToShortDateString())
@@ -162,11 +162,11 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<DeliveryPoint>.Create().Dialog<DeliveryPointDlg>().DefaultTableView()
                     .SearchColumn("ID", x => x.Id.ToString()).Column("Адрес", x => x.Title).End(),
                 OrmObjectMapping<PaidRentPackage>.Create().Dialog<PaidRentPackageDlg>()
-                    .DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип оборудования", x => x.EquipmentType.Name)
+                    .DefaultTableView().SearchColumn("Название", x => x.Name).Column("Вид оборудования", x => x.EquipmentKind.Name)
                     .SearchColumn("Цена в сутки", x => CurrencyWorks.GetShortCurrencyString(x.PriceDaily))
                     .SearchColumn("Цена в месяц", x => CurrencyWorks.GetShortCurrencyString(x.PriceMonthly)).End(),
                 OrmObjectMapping<FreeRentPackage>.Create().Dialog<FreeRentPackageDlg>().DefaultTableView()
-                    .SearchColumn("Название", x => x.Name).Column("Тип оборудования", x => x.EquipmentType.Name).OrderAsc(x => x.Name)
+                    .SearchColumn("Название", x => x.Name).Column("Вид оборудования", x => x.EquipmentKind.Name).OrderAsc(x => x.Name)
                     .End(),
                 OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView()
                     .SearchColumn("Название", x => x.FullName).End(),
@@ -178,7 +178,7 @@ namespace Vodovoz.Configuration
                 //Справочники с фильтрами
                 OrmObjectMapping<Equipment>.Create().Dialog<EquipmentDlg>().JournalFilter<EquipmentFilter>()
                     .DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Номенклатура", x => x.NomenclatureName)
-                    .Column("Тип", x => x.Nomenclature.Type.Name).SearchColumn("Серийный номер", x => x.Serial)
+                    .Column("Тип", x => x.Nomenclature.Kind.Name).SearchColumn("Серийный номер", x => x.Serial)
                     .Column("Дата последней обработки", x => x.LastServiceDate.ToShortDateString()).End(),
                 //Логисткика
                 OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateDlg>()

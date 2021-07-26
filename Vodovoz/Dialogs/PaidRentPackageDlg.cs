@@ -49,8 +49,8 @@ namespace Vodovoz
 			referenceRentServiceMonthly.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature>();
 			referenceRentServiceMonthly.Binding.AddBinding (Entity, e => e.RentServiceMonthly, w => w.Subject).InitializeFromSource ();
 
-			referenceEquipmentType.SubjectType = typeof(EquipmentType);
-			referenceEquipmentType.Binding.AddBinding (Entity, e => e.EquipmentType, w => w.Subject).InitializeFromSource ();
+			referenceEquipmentKind.SubjectType = typeof(EquipmentKind);
+			referenceEquipmentKind.Binding.AddBinding (Entity, e => e.EquipmentKind, w => w.Subject).InitializeFromSource ();
 		}
 
 		public override bool Save ()

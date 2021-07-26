@@ -16,6 +16,8 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.JournalFilters
 {
@@ -78,7 +80,9 @@ namespace Vodovoz.JournalFilters
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
-						employeeSelectorFactory
+						employeeSelectorFactory,
+						new SalesPlanJournalFactory(),
+						new NomenclatureSelectorFactory()
 					)
 				)
 			);
