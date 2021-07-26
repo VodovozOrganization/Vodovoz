@@ -206,7 +206,7 @@ namespace Vodovoz.Domain.Orders
 			get => deliveryDate;
 			set
 			{
-				if(SetField(ref deliveryDate, value, () => DeliveryDate) && 
+				if(SetField(ref deliveryDate, value) && 
 				   Contract != null && Contract.Id == 0)
 				{
 					UpdateContract();
