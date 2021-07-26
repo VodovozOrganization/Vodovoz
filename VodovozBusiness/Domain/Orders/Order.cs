@@ -473,10 +473,18 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		PaymentFrom _paymentByCardFrom;
+
 		[Display(Name = "Место, откуда проведена оплата")]
-		public virtual PaymentFrom PaymentByCardFrom {
+		public virtual PaymentFrom PaymentByCardFrom
+		{
 			get => _paymentByCardFrom;
-			set => SetField(ref _paymentByCardFrom, value, () => PaymentByCardFrom);
+			set
+			{
+				if(SetField(ref _paymentByCardFrom, value, () => PaymentByCardFrom))
+				{
+					UpdateContract();
+				}
+			}
 		}
 
 		[Display(Name = "Колонка МЛ от клиента")]
