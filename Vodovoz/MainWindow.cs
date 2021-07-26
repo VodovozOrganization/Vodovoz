@@ -117,6 +117,7 @@ using QS.ChangePassword.Views;
 using QS.Dialog;
 using QS.Project.Repositories;
 using QS.ViewModels;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.ReportsParameters.Employees;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
@@ -208,7 +209,7 @@ public partial class MainWindow : Gtk.Window
 
         ActionAddOrder.Sensitive = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
         ActionExportImportNomenclatureCatalog.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
-        ActionDistricts.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
+        // ActionDistricts.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
 
         //Читаем настройки пользователя
         switch (CurrentUserSettings.Settings.ToolbarStyle)
@@ -1515,14 +1516,14 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionFirstClientsActivated(object sender, EventArgs e)
     {
-	    var districtFilter = new DistrictJournalFilterViewModel{Status = DistrictsSetStatus.Active};
+	    var sectorsFilter = new SectorJournalFilterViewModel{Status = SectorsSetStatus.Active};
 
-	    var districtSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District),
-		    () => new DistrictJournalViewModel(districtFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+	    var sectorsSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(Sector),
+		    () => new DistrictJournalViewModel(sectorsFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
 	    
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
-            () => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory))
+            () => new QSReport.ReportViewDlg(new FirstClientsReport(sectorsSelectorFactory))
         );
     }
 
@@ -2224,8 +2225,8 @@ public partial class MainWindow : Gtk.Window
     protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
     {
         IEntityAutocompleteSelectorFactory districtSelectorFactory =
-            new DefaultEntityAutocompleteSelectorFactory<District, DistrictJournalViewModel,
-                DistrictJournalFilterViewModel>(ServicesConfig.CommonServices);
+            new DefaultEntityAutocompleteSelectorFactory<Sector, DistrictJournalViewModel,
+                SectorJournalFilterViewModel>(ServicesConfig.CommonServices);
 
         IEntityAutocompleteSelectorFactory salesChannelselectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<SalesChannel, SalesChannelJournalViewModel,
@@ -2357,8 +2358,8 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
 	{
-		var districtSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () => {
-			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
+		var districtSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(Sector), () => {
+			var filter = new SectorJournalFilterViewModel { Status = SectorsSetStatus.Active };
 			return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
 				EnableDeleteButton = true,
 				EnableAddButton = true,

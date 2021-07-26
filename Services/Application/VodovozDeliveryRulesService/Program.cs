@@ -14,7 +14,7 @@ using QS.Banks.Domain;
 using QS.Osm.Osrm;
 using QS.Project.DB;
 using QSProjectsLib;
-using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 
@@ -89,13 +89,13 @@ namespace VodovozDeliveryRulesService
 				});
 				OsrmMain.ServerUrl = serverUrl;
 
-				IDeliveryRepository deliveryRepository = new DeliveryRepository();
+				ISectorsRepository sectorsRepository = new SectorsRepository();
 				var backupDistrictService = new BackupDistrictService();
 				IDeliveryRulesParametersProvider deliveryRulesParametersProvider
 					= new DeliveryRulesParametersProvider(new ParametersProvider());
 				
 				DeliveryRulesInstanceProvider deliveryRulesInstanceProvider = 
-					new DeliveryRulesInstanceProvider(deliveryRepository, backupDistrictService, deliveryRulesParametersProvider);
+					new DeliveryRulesInstanceProvider(sectorsRepository, backupDistrictService, deliveryRulesParametersProvider);
 				ServiceHost deliveryRulesHost = new DeliveryRulesServiceHost(deliveryRulesInstanceProvider);
 
 				ServiceEndpoint webEndPoint = deliveryRulesHost.AddServiceEndpoint(

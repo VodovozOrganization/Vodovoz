@@ -1039,11 +1039,11 @@ namespace Vodovoz.Domain.Orders
 						);
 
 					//FIXME Исправить изменение данных. В валидации нельзя менять объекты.
-					if(DeliveryPoint != null && !DeliveryPoint.FindAndAssociateDistrict(UoW))
-						yield return new ValidationResult(
-							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
-							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
-					);
+					// if(DeliveryPoint != null && !DeliveryPoint.FindAndAssociateDistrict(UoW))
+					// 	yield return new ValidationResult(
+					// 		"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
+					// 		new[] { this.GetPropertyName(o => o.DeliveryPoint) }
+					// );
 				}
 
 				if(newStatus == OrderStatus.Closed) {
@@ -1084,7 +1084,7 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult("В заказе необходимо заполнить точку доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
-			if(DeliveryPoint != null && (!DeliveryPoint.Latitude.HasValue || !DeliveryPoint.Longitude.HasValue)) {
+			if(DeliveryPoint != null && (!DeliveryPoint.ActiveVersion.Latitude.HasValue || !DeliveryPoint.ActiveVersion.Longitude.HasValue)) {
 				yield return new ValidationResult("В точке доставки необходимо указать координаты.",
 				new[] { this.GetPropertyName(o => o.DeliveryPoint) });
 			}
@@ -1852,11 +1852,11 @@ namespace Vodovoz.Domain.Orders
 			}
 			#endregion
 
-			var district = DeliveryPoint?.District;
+			var sector = DeliveryPoint?.ActiveVersion.Sector;
 
 			OrderStateKey orderKey = new OrderStateKey(this);
 			var price = 
-				district?.GetDeliveryPrice(orderKey, ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m )) ?? 0m;
+				sector?.GetDeliveryPrice(orderKey, ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m )) ?? 0m;
 
 			if(price != 0) {
 				if(deliveryPriceItem == null) {

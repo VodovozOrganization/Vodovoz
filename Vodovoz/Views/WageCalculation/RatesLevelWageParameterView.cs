@@ -84,7 +84,7 @@ namespace Vodovoz.Views.WageCalculation
 
 				Label tabLabel = new Label {
 					UseMarkup = true,
-					Markup = levelRate.WageDistrict.Name
+					Markup = levelRate.WageSector.Name
 				};
 
 				nbDistricts.AppendPage(scrolledWindow, tabLabel);

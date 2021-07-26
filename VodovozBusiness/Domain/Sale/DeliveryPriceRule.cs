@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Sale
 		)
 	]
 	[EntityPermission]
-	public class DeliveryPriceRule : BusinessObjectBase<DeliveryPriceRule>, IDomainObject, IDeliveryPriceRule, IValidatableObject
+	public class DeliveryPriceRule : BusinessObjectBase<DeliveryPriceRule>, IDomainObject, IDeliveryPriceRule, IValidatableObject, ICloneable
 	{
 		#region Свойства
 
@@ -137,6 +137,15 @@ namespace Vodovoz.Domain.Sale
 			return 31 * Water19LCount.GetHashCode();
 		}
 
+		
 		#endregion
+		public object Clone()
+		{
+			return new DeliveryPriceRule
+			{
+				Water19LCount = Water19LCount,
+				OrderMinSumEShopGoods = OrderMinSumEShopGoods
+			};
+		}
 	}
 }

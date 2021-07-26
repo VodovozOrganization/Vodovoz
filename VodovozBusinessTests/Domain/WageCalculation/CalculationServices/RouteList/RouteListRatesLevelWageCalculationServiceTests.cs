@@ -15,10 +15,10 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 	{
 		#region Подготовка ставок
 
-		Dictionary<WageDistrict, WageDistrictLevelRate> ConfigureLevelRates(WageDistrict district1, WageDistrict district2)
+		Dictionary<WageSector, WageDistrictLevelRate> ConfigureLevelRates(WageSector district1, WageSector district2)
 		{
 			WageDistrictLevelRate rate1 = Substitute.For<WageDistrictLevelRate>();
-			rate1.WageDistrict.Returns(district1);
+			rate1.WageSector.Returns(district1);
 			rate1.WageRates.Returns(
 				new List<WageRate> {
 					new WageRate {
@@ -103,7 +103,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			);
 
 			WageDistrictLevelRate rate2 = Substitute.For<WageDistrictLevelRate>();
-			rate2.WageDistrict.Returns(district2);
+			rate2.WageSector.Returns(district2);
 			rate2.WageRates.Returns(
 				new List<WageRate> {
 					new WageRate {
@@ -186,7 +186,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 					}
 				}
 			);
-			return new Dictionary<WageDistrict, WageDistrictLevelRate> {
+			return new Dictionary<WageSector, WageDistrictLevelRate> {
 				{ district1, rate1 },
 				{ district2, rate2 }
 			};
@@ -200,9 +200,9 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForDriverWithoutForwarderBySeveralAddresses()
 		{
 			// arrange
-			WageDistrict district1 = Substitute.For<WageDistrict>();
+			WageSector district1 = Substitute.For<WageSector>();
 			district1.Id.Returns(1);
-			WageDistrict district2 = Substitute.For<WageDistrict>();
+			WageSector district2 = Substitute.For<WageSector>();
 			district2.Id.Returns(2);
 
 			var rates = ConfigureLevelRates(district1, district2);
@@ -215,7 +215,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			};
 
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district1);
+			routeListItemWageCalculationSource1.WageSectorOfAddress.Returns(district1);
 			routeListItemWageCalculationSource1.Bottle600mlCount.Returns(100);
 			routeListItemWageCalculationSource1.Bottle500mlCount.Returns(10);
 			routeListItemWageCalculationSource1.Bottle1500mlCount.Returns(22);
@@ -231,7 +231,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 
 			var routeListItemWageCalculationSource2 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource2.WageDistrictOfAddress.Returns(district2);
+			routeListItemWageCalculationSource2.WageSectorOfAddress.Returns(district2);
 			routeListItemWageCalculationSource2.Bottle600mlCount.Returns(60);
 			routeListItemWageCalculationSource2.Bottle500mlCount.Returns(55);
 			routeListItemWageCalculationSource2.Bottle1500mlCount.Returns(11);
@@ -249,7 +249,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource3.IsDelivered.Returns(false);
 
 			var routeListItemWageCalculationSource4 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource4.WageDistrictOfAddress.Returns(district1);
+			routeListItemWageCalculationSource4.WageSectorOfAddress.Returns(district1);
 			routeListItemWageCalculationSource4.Bottle600mlCount.Returns(601);
 			routeListItemWageCalculationSource4.Bottle500mlCount.Returns(25);
 			routeListItemWageCalculationSource4.Bottle1500mlCount.Returns(13);
@@ -292,9 +292,9 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForDriverWithForwarderBySeveralAddresses()
 		{
 			// arrange
-			WageDistrict district1 = Substitute.For<WageDistrict>();
+			WageSector district1 = Substitute.For<WageSector>();
 			district1.Id.Returns(1);
-			WageDistrict district2 = Substitute.For<WageDistrict>();
+			WageSector district2 = Substitute.For<WageSector>();
 			district2.Id.Returns(2);
 
 			var rates = ConfigureLevelRates(district1, district2);
@@ -307,7 +307,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			};
 
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district1);
+			routeListItemWageCalculationSource1.WageSectorOfAddress.Returns(district1);
 			routeListItemWageCalculationSource1.Bottle600mlCount.Returns(100);
 			routeListItemWageCalculationSource1.Bottle500mlCount.Returns(10);
 			routeListItemWageCalculationSource1.Bottle1500mlCount.Returns(1);
@@ -322,7 +322,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 
 			var routeListItemWageCalculationSource2 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource2.WageDistrictOfAddress.Returns(district2);
+			routeListItemWageCalculationSource2.WageSectorOfAddress.Returns(district2);
 			routeListItemWageCalculationSource2.Bottle600mlCount.Returns(60);
 			routeListItemWageCalculationSource2.Bottle500mlCount.Returns(55);
 			routeListItemWageCalculationSource2.Bottle1500mlCount.Returns(12);
@@ -340,7 +340,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource3.IsDelivered.Returns(false);
 
 			var routeListItemWageCalculationSource4 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource4.WageDistrictOfAddress.Returns(district1);
+			routeListItemWageCalculationSource4.WageSectorOfAddress.Returns(district1);
 			routeListItemWageCalculationSource4.Bottle600mlCount.Returns(601);
 			routeListItemWageCalculationSource4.Bottle500mlCount.Returns(25);
 			routeListItemWageCalculationSource4.Bottle1500mlCount.Returns(17);
@@ -383,9 +383,9 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForDriverAsForwarderBySeveralAddresses()
 		{
 			// arrange
-			WageDistrict district1 = Substitute.For<WageDistrict>();
+			WageSector district1 = Substitute.For<WageSector>();
 			district1.Id.Returns(1);
-			WageDistrict district2 = Substitute.For<WageDistrict>();
+			WageSector district2 = Substitute.For<WageSector>();
 			district2.Id.Returns(2);
 
 			var rates = ConfigureLevelRates(district1, district2);
@@ -398,7 +398,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			};
 
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district1);
+			routeListItemWageCalculationSource1.WageSectorOfAddress.Returns(district1);
 			routeListItemWageCalculationSource1.Bottle600mlCount.Returns(100);
 			routeListItemWageCalculationSource1.Bottle500mlCount.Returns(10);
 			routeListItemWageCalculationSource1.Bottle1500mlCount.Returns(33);
@@ -413,7 +413,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 
 			var routeListItemWageCalculationSource2 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource2.WageDistrictOfAddress.Returns(district2);
+			routeListItemWageCalculationSource2.WageSectorOfAddress.Returns(district2);
 			routeListItemWageCalculationSource2.Bottle600mlCount.Returns(60);
 			routeListItemWageCalculationSource2.Bottle500mlCount.Returns(55);
 			routeListItemWageCalculationSource2.Bottle1500mlCount.Returns(20);
@@ -431,7 +431,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource3.IsDelivered.Returns(false);
 
 			var routeListItemWageCalculationSource4 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource4.WageDistrictOfAddress.Returns(district1);
+			routeListItemWageCalculationSource4.WageSectorOfAddress.Returns(district1);
 			routeListItemWageCalculationSource4.Bottle600mlCount.Returns(601);
 			routeListItemWageCalculationSource4.Bottle500mlCount.Returns(25);
 			routeListItemWageCalculationSource4.Bottle1500mlCount.Returns(1);
@@ -474,9 +474,9 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForDriverAsForwarderUsingSavedWageDistrictLevelRate()
 		{
 			// arrange
-			WageDistrict district1 = Substitute.For<WageDistrict>();
+			WageSector district1 = Substitute.For<WageSector>();
 			district1.Id.Returns(1);
-			WageDistrict district2 = Substitute.For<WageDistrict>();
+			WageSector district2 = Substitute.For<WageSector>();
 			district2.Id.Returns(2);
 
 			var rates = ConfigureLevelRates(district1, district2);
@@ -489,7 +489,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			};
 
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district2);
+			routeListItemWageCalculationSource1.WageSectorOfAddress.Returns(district2);
 			routeListItemWageCalculationSource1.Bottle600mlCount.Returns(100);
 			routeListItemWageCalculationSource1.Bottle500mlCount.Returns(10);
 			routeListItemWageCalculationSource1.Bottle1500mlCount.Returns(1);
@@ -533,10 +533,10 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForDriverWithoutForwarderWithBottlesCountAdvancedWageParameter()
 		{
 			// arrange
-			WageDistrict district = Substitute.For<WageDistrict>();
+			WageSector sector = Substitute.For<WageSector>();
 
 			WageDistrictLevelRate rate = Substitute.For<WageDistrictLevelRate>();
-			rate.WageDistrict.Returns(district);
+			rate.WageSector.Returns(sector);
 			rate.WageRates.Returns(
 				new List<WageRate> {
 					new WageRate {
@@ -648,7 +648,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			};
 
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district);
+			routeListItemWageCalculationSource1.WageSectorOfAddress.Returns(sector);
 			routeListItemWageCalculationSource1.FullBottle19LCount.Returns(50);
 			routeListItemWageCalculationSource1.HasFirstOrderForDeliveryPoint.Returns(true);
 			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(false);
@@ -679,10 +679,10 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForDriverForwarderWithDeliveryTimeAdvancedWageParameter()
 		{
 			// arrange
-			WageDistrict district = Substitute.For<WageDistrict>();
-			district.Id.Returns(1);
+			WageSector sector = Substitute.For<WageSector>();
+			sector.Id.Returns(1);
 			WageDistrictLevelRate rate = Substitute.For<WageDistrictLevelRate>();
-			rate.WageDistrict.Returns(district);
+			rate.WageSector.Returns(sector);
 			rate.WageRates.Returns(
 				new List<WageRate> {
 					new WageRate {
@@ -792,7 +792,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			};
 
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district);
+			routeListItemWageCalculationSource1.WageSectorOfAddress.Returns(sector);
 			routeListItemWageCalculationSource1.FullBottle19LCount.Returns(50);
 			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
@@ -823,10 +823,10 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForDriverAsForwarderWithNestedAdvancedWageParameters()
 		{
 			// arrange
-			WageDistrict district = Substitute.For<WageDistrict>();
-			district.Id.Returns(1);
+			WageSector sector = Substitute.For<WageSector>();
+			sector.Id.Returns(1);
 			WageDistrictLevelRate rate = Substitute.For<WageDistrictLevelRate>();
-			rate.WageDistrict.Returns(district);
+			rate.WageSector.Returns(sector);
 			rate.WageRates.Returns(
 				new List<WageRate> {
 					new WageRate {
@@ -976,7 +976,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			};
 
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district);
+			routeListItemWageCalculationSource1.WageSectorOfAddress.Returns(sector);
 			routeListItemWageCalculationSource1.EmptyBottle19LCount.Returns(50);
 			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
@@ -1007,10 +1007,10 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForDriverAsForwarderWithNestedFailedAdvancedWageParameters()
 		{
 			// arrange
-			WageDistrict district = Substitute.For<WageDistrict>();
-			district.Id.Returns(1);
+			WageSector sector = Substitute.For<WageSector>();
+			sector.Id.Returns(1);
 			WageDistrictLevelRate rate = Substitute.For<WageDistrictLevelRate>();
-			rate.WageDistrict.Returns(district);
+			rate.WageSector.Returns(sector);
 			rate.WageRates.Returns(
 				new List<WageRate> {
 					new WageRate {
@@ -1160,7 +1160,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			};
 
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district);
+			routeListItemWageCalculationSource1.WageSectorOfAddress.Returns(sector);
 			routeListItemWageCalculationSource1.EmptyBottle19LCount.Returns(50);
 			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();

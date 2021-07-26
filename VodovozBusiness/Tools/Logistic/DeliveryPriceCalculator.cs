@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using NetTopologySuite.Geometries;
 using QS.DomainModel.UoW;
 using QS.Osm;
 using QS.Osm.Osrm;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
+using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Sale;
 
@@ -25,12 +28,12 @@ namespace Vodovoz.Tools.Logistic
 		public static DeliveryPriceNode Calculate(DeliveryPoint point, int? bottlesCount = null)
 		{
 			deliveryPoint = point;
-			return Calculate(deliveryPoint.Latitude, deliveryPoint.Longitude, bottlesCount);
+			return Calculate(deliveryPoint?.ActiveVersion.Latitude, deliveryPoint?.ActiveVersion.Longitude, bottlesCount);
 		}
 
 		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount)
 		{
-			IList<District> districts;
+			IList<SectorVersion> sectorVersions;
 
 			DeliveryPriceNode result = new DeliveryPriceNode();
 
@@ -44,8 +47,8 @@ namespace Vodovoz.Tools.Logistic
 				fuelCost = (double)fuel.Cost;
 
 				//Районы
-				districts = ScheduleRestrictionRepository.GetDistrictsWithBorder(uow);
-				result.WageDistrict = deliveryPoint?.District?.WageDistrict?.Name ?? "Неизвестно";
+				sectorVersions = ScheduleRestrictionRepository.GetSectorVersion(uow);
+				result.WageDistrict = deliveryPoint?.ActiveVersion?.Sector?.ActiveSectorVersion?.WageSector?.Name ?? "Неизвестно";
 
 				//Координаты
 				if(!latitude.HasValue || !longitude.HasValue) {
@@ -55,7 +58,7 @@ namespace Vodovoz.Tools.Logistic
 
 				//Расчет растояния
 				if(deliveryPoint == null) {
-					var gg = GeographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, districts);
+					var gg = GeographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, sectorVersions);
 					var route = new List<PointOnEarth>(2);
 					if(gg != null && gg.BaseCoordinatesExist)
 						route.Add(new PointOnEarth((double)gg.BaseLatitude, (double)gg.BaseLongitude));
@@ -78,7 +81,7 @@ namespace Vodovoz.Tools.Logistic
 					}
 					distance = osrmResult.Routes[0].TotalDistance / 1000d;
 				} else {
-					distance = (deliveryPoint.DistanceFromBaseMeters ?? 0) / 1000d;
+					distance = (deliveryPoint?.ActiveVersion?.DistanceFromBaseMeters ?? 0) / 1000d;
 				}
 				result.Distance = distance.ToString("N1") + " км";
 
@@ -92,34 +95,49 @@ namespace Vodovoz.Tools.Logistic
 
 				//Расчет цены
 				var point = new Point((double)latitude, (double)longitude);
-				var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
-				result.DistrictName = district?.DistrictName ?? string.Empty;
-				result.GeographicGroups = district?.GeographicGroup != null ? district.GeographicGroup.Name : "Неизвестно";
-				result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
-				result.WithPrice = (district != null && district.PriceType != DistrictWaterPrice.ByDistance)
+				var sectorVersion = sectorVersions.FirstOrDefault(x => x.Polygon.Contains(point));
+				result.SectorName = sectorVersion?.SectorName ?? string.Empty;
+				result.GeographicGroups = sectorVersion?.GeographicGroup != null ? sectorVersion.GeographicGroup.Name : "Неизвестно";
+				result.ByDistance = sectorVersion == null || sectorVersion.PriceType == SectorWaterPrice.ByDistance;
+				result.WithPrice = (sectorVersion != null && sectorVersion.PriceType != SectorWaterPrice.ByDistance)
 					|| (result.ByDistance && bottlesCount.HasValue);
 				if(result.ByDistance) {
 					if(bottlesCount.HasValue) {
 						result.Price = PriceByDistance(bottlesCount.Value).ToString("C2");
 					}
-				} else if(district?.PriceType == DistrictWaterPrice.FixForDistrict)
-					result.Price = district.WaterPrice.ToString("C2");
-				else if(district?.PriceType == DistrictWaterPrice.Standart)
+				} else if(sectorVersion?.PriceType == SectorWaterPrice.FixForDistrict)
+					result.Price = sectorVersion.WaterPrice.ToString("C2");
+				else if(sectorVersion?.PriceType == SectorWaterPrice.Standart)
 					result.Price = "прайс";
-				result.MinBottles = district?.MinBottles.ToString();
-				result.Schedule = district != null && district.HaveRestrictions
-					? string.Join(", ", district.GetSchedulesString(true))
-					: "любой день";
+				result.MinBottles = sectorVersion?.MinBottles.ToString();
+
+				SectorsRepository sectorsRepository = new SectorsRepository();
+				var sectorSchedule = sectorsRepository.GetSectorDeliveryRules(uow, sectorVersion?.Sector);
+				var sectorScheduleWeekDay = sectorsRepository.GetSectorWeekDayRules(uow, sectorVersion?.Sector);
+				
+				// result.Schedule = sectorVersion != null && sectorVersion.HaveRestrictions
+				// 	? string.Join(", ", sectorVersion.GetSchedulesString(true))
+				// 	: "любой день";
 			}
 
 			return result;
 		}
-
 		//((а * 2/100)*20*б)/в+110
 		//а - расстояние от границы города минус
 		//б - стоимость литра топлива(есть в справочниках)
 		//в - кол-во бут
 		static double PriceByDistance(int bootles) => ((distance * 2 / 100) * 20 * fuelCost) / bootles + 125;
+
+		// static string GetSchedulesString(IList<SectorDeliveryRuleVersion> deliveryRuleVersions,
+		// 	IList<SectorWeekDayRulesVersion> weekDayRulesVersions)
+		// {
+		// 	var result = new StringBuilder();
+		// 	foreach(var weekDayRules in weekDayRulesVersions)
+		// 	{
+		// 		weekDayRules.
+		// 	}
+		// };
+		
 	}
 
 	public class DeliveryPriceNode
@@ -131,7 +149,7 @@ namespace Vodovoz.Tools.Logistic
 		public List<DeliveryPriceRow> Prices { get; set; }
 		public bool ByDistance { get; set; }
 		public bool WithPrice { get; set; }
-		public string DistrictName { get; set; }
+		public string SectorName { get; set; }
 		public string GeographicGroups { get; set; }
 		public string WageDistrict { get; set; }
 
@@ -158,7 +176,7 @@ namespace Vodovoz.Tools.Logistic
 			Price = string.Empty;
 			MinBottles = string.Empty;
 			Schedule = string.Empty;
-			DistrictName = string.Empty;
+			SectorName = string.Empty;
 			GeographicGroups = string.Empty;
 			Prices = new List<DeliveryPriceRow>();
 		}

@@ -7,6 +7,7 @@ using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalNodes;
@@ -14,9 +15,9 @@ using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
-    public sealed class DistrictJournalViewModel: FilterableSingleEntityJournalViewModelBase<District, DistrictViewModel, DistrictJournalNode, DistrictJournalFilterViewModel>
+    public sealed class DistrictJournalViewModel: FilterableSingleEntityJournalViewModelBase<Sector, DistrictViewModel, DistrictJournalNode, SectorJournalFilterViewModel>
     {
-        public DistrictJournalViewModel(DistrictJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(
+        public DistrictJournalViewModel(SectorJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(
             filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал районов";
@@ -30,37 +31,37 @@ namespace Vodovoz.Journals.JournalViewModels
         public bool EnableDeleteButton { get; set; }
         public bool EnableEditButton { get; set; }
 
-        protected override Func<IUnitOfWork, IQueryOver<District>> ItemsSourceQueryFunction => uow => {
+        protected override Func<IUnitOfWork, IQueryOver<Sector>> ItemsSourceQueryFunction => uow => {
             DistrictJournalNode districtJournalNode = null;
-            District districtAlias = null;
-            DistrictsSet districtsSetAlias = null;
-            WageDistrict wageDistrictAlias = null;
+            Sector sectorAlias = null;
+            SectorVersion sectorVersion = null;
+            WageSector wageSectorAlias = null;
 
-            var query = uow.Session.QueryOver<District>(() => districtAlias)
-                .Inner.JoinAlias(() => districtAlias.WageDistrict, () => wageDistrictAlias)
-                .Inner.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias);
+            var query = uow.Session.QueryOver<Sector>(() => sectorAlias)
+                .Inner.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersion)
+                .Inner.JoinAlias(() => sectorVersion.WageSector, () => wageSectorAlias);
 
             if(FilterViewModel != null) {
                 if(FilterViewModel.Status.HasValue)
-                    query.Where(() => districtsSetAlias.Status == FilterViewModel.Status.Value);
+                    query.Where(() => sectorVersion.Status == FilterViewModel.Status.Value);
                 if(FilterViewModel.OnlyWithBorders)
-                    query.Where(() => districtAlias.DistrictBorder != null);
+                    query.Where(() => sectorVersion.Polygon != null);
             }
 
             query.Where(GetSearchCriterion(
-                () => districtAlias.Id,
-                () => districtAlias.DistrictName,
-                () => wageDistrictAlias.Name
+                () => sectorAlias.Id,
+                () => sectorAlias.SectorName,
+                () => wageSectorAlias.Name
             ));
 
             var result = query
                 .SelectList(list => list
                     .Select(c => c.Id).WithAlias(() => districtJournalNode.Id)
-                    .Select(c => c.DistrictName).WithAlias(() => districtJournalNode.Name)
-                    .Select(() => wageDistrictAlias.Name).WithAlias(() => districtJournalNode.WageDistrict)
-                    .Select(() => districtsSetAlias.Status).WithAlias(() => districtJournalNode.DistrictsSetStatus)
-                    .Select(() => districtsSetAlias.Id).WithAlias(() => districtJournalNode.DistrictsSetId))
-                .OrderBy(() => districtsSetAlias.Id).Desc
+                    .Select(c => c.SectorName).WithAlias(() => districtJournalNode.Name)
+                    .Select(() => wageSectorAlias.Name).WithAlias(() => districtJournalNode.WageDistrict)
+                    .Select(() => sectorVersion.Status).WithAlias(() => districtJournalNode.SectorsSetStatus)
+                    .Select(() => sectorVersion.Id).WithAlias(() => districtJournalNode.DistrictsSetId))
+                .OrderBy(() => sectorVersion.Id).Desc
                 .TransformUsing(Transformers.AliasToBean<DistrictJournalNode>());
 
             return result;

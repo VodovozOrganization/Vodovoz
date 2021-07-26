@@ -10,6 +10,7 @@ using QSReport;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.ReportsParameters.Retail
 {
@@ -48,7 +49,7 @@ namespace Vodovoz.ReportsParameters.Retail
                 { "create_date", ydateperiodpickerCreate.StartDateOrNull },
                 { "end_date", ydateperiodpickerCreate.EndDateOrNull?.AddDays(1).AddSeconds(-1) },
                 { "sales_channel_id", (yEntitySalesChannel.Subject as SalesChannel)?.Id ?? 0},
-                { "district", (yEntityDistrict.Subject as District)?.Id ?? 0 },
+                { "district", (yEntityDistrict.Subject as Sector)?.Id ?? 0 },
                 { "payment_type", (yenumPaymentType.SelectedItemOrNull)},
                 { "all_types", (ycheckpaymentform.Active)}
             };

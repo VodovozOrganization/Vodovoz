@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -15,11 +16,11 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int Id { get; set; }
 
-		private District district;
+		private Sector _sector;
 		[Display(Name = "Район")]
-		public virtual District District {
-			get => district;
-			set => SetField(ref district, value);
+		public virtual Sector Sector {
+			get => _sector;
+			set => SetField(ref _sector, value);
 		}
 
 		//FIXME Удалить после обновления
@@ -53,7 +54,7 @@ namespace Vodovoz.Domain.Logistic
 			var result = new AtWorkDriverDistrictPriority
 			{
 				Driver = atDayDriver,
-				District = this.District,
+				Sector = this.Sector,
 				Priority = this.Priority
 			};
 			return result;
@@ -64,7 +65,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual object Clone()
 		{
 			return new DriverDistrictPriority {
-				District = District,
+				Sector = Sector,
 				Priority = Priority,
 				DriverDistrictPrioritySet = DriverDistrictPrioritySet
 			};
@@ -72,7 +73,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public override string ToString()
 		{
-			return District?.DistrictName == null ? base.ToString() : $"({Priority}) {District.DistrictName}";
+			return Sector?.SectorName == null ? base.ToString() : $"({Priority}) {Sector.SectorName}";
 		}
 	}
 }

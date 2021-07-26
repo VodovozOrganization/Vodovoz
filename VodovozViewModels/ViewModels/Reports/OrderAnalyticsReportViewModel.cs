@@ -26,6 +26,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Domain.WageCalculation;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -232,9 +233,10 @@ namespace Vodovoz.ViewModels.Reports
             Order orderAlias2 = null;
             DeliverySchedule deliveryScheduleAlias = null;
             DeliveryPoint deliveryPointAlias = null;
-            District districtAlias = null;
-            DistrictsSet districtsSetAlias = null;
-            WageDistrict wageDistrictAlias = null;
+            Sector sectorAlias = null;
+            SectorVersion sectorVersionAlias = null;
+            DeliveryPointSectorVersion deliveryPointSectorVersion = null;
+            WageSector wageSectorAlias = null;
             RouteListItem routeListItemAlias = null;
             RouteListItem routeListItemAlias2 = null;
             RouteList routeListAlias = null;
@@ -249,10 +251,11 @@ namespace Vodovoz.ViewModels.Reports
                 .JoinAlias(x => x.DeliverySchedule, () => deliveryScheduleAlias)
                 .JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
                 .JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
-                .Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-                .Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
-                .Left.JoinAlias(() => districtAlias.WageDistrict, () => wageDistrictAlias)
-                .JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
+                .Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersion)
+                .Left.JoinAlias(() => deliveryPointSectorVersion.Sector, () => sectorAlias)
+                .JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersionAlias)
+                .Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
+                .Left.JoinAlias(() => sectorVersionAlias.WageSector, () => wageSectorAlias)
                 .Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
                 .Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
                 .Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
@@ -264,7 +267,7 @@ namespace Vodovoz.ViewModels.Reports
                  .WhereRestrictionOn(x => x.OrderStatus)
                     .Not.IsIn(new[]{OrderStatus.NewOrder, OrderStatus.Canceled, OrderStatus.WaitForPayment})
 	             .Where(() => carAlias.TypeOfUse == null || carAlias.TypeOfUse != CarTypeOfUse.CompanyTruck)
-                 .Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active)
+                 .Where(() => sectorVersionAlias.Status == SectorsSetStatus.Active)
 	             .WithSubquery.WhereNotExists(
 		             QueryOver.Of(() => orderAlias2)
 			             .JoinEntityAlias(() => routeListItemAlias2, () => routeListItemAlias2.Order.Id == orderAlias2.Id, JoinType.LeftOuterJoin)
@@ -321,9 +324,9 @@ namespace Vodovoz.ViewModels.Reports
                     .Select(() => driverAlias.IsDriverForOneDay).WithAlias(() => resultAlias.IsDriverForOneDay)
                     .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.Bottles19LCount)
                     .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
-                    .Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+                    .Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
                     .Select(() => geographicGroupAlias.Name).WithAlias(() => resultAlias.GeographicGroupName)
-                    .Select(() => wageDistrictAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
+                    .Select(() => wageSectorAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
                     .Select(() => deliveryScheduleAlias.From).WithAlias(() => resultAlias.DeliveryScheduleFrom)
                     .Select(() => deliveryScheduleAlias.To).WithAlias(() => resultAlias.DeliveryScheduleTo)
                     .Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)

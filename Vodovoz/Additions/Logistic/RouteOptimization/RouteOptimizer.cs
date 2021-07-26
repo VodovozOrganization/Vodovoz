@@ -12,6 +12,7 @@ using QS.Tools;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
@@ -159,23 +160,23 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			TestCars(possibleRoutes);
 
-			var areas = UoW.GetAll<District>().Where(x => x.DistrictsSet.Status == DistrictsSetStatus.Active).ToList();
-			List<District> unusedDistricts = new List<District>();
+			var areas = UoW.GetAll<Sector>().Where(x => x.ActiveSectorVersion.Status == SectorsSetStatus.Active).ToList();
+			List<Sector> unusedDistricts = new List<Sector>();
 			List<CalculatedOrder> calculatedOrders = new List<CalculatedOrder>();
 
 			// Перебираем все заказы, исключаем те которые без координат, определяем для каждого заказа район
 			// на основании координат. И создавая экземпляр <c>CalculatedOrder</c>, происходит подсчет сумарной
 			// информации о заказе. Всего бутылей, вес и прочее.
 			foreach(var order in Orders) {
-				if(order.DeliveryPoint.Longitude == null || order.DeliveryPoint.Latitude == null)
+				if(order.DeliveryPoint.ActiveVersion.Longitude == null || order.DeliveryPoint.ActiveVersion.Latitude == null)
 					continue;
-				var point = new Point((double)order.DeliveryPoint.Latitude.Value, (double)order.DeliveryPoint.Longitude.Value);
-				var area = areas.Find(x => x.DistrictBorder.Contains(point));
+				var point = new Point((double)order.DeliveryPoint.ActiveVersion.Latitude.Value, (double)order.DeliveryPoint.ActiveVersion.Longitude.Value);
+				var area = areas.Find(x => x.ActiveSectorVersion.Polygon.Contains(point));
 				if(area != null) {
 					var oldRoute = Routes.FirstOrDefault(r => r.Addresses.Any(a => a.Order.Id == order.Id));
 					if(oldRoute != null)
 						calculatedOrders.Add(new CalculatedOrder(order, area, false, oldRoute));
-					else if(possibleRoutes.SelectMany(x => x.Districts).Any(x => x.District.Id == area.Id)) {
+					else if(possibleRoutes.SelectMany(x => x.Districts).Any(x => x.Sector.Id == area.Id)) {
 						var cOrder = new CalculatedOrder(order, area);
 						//if(possibleRoutes.Any(r => r.GeographicGroup.Id == cOrder.ShippingBase.Id))//убрать, если в автоформировании должны учавствовать заказы из всех частей города вне зависимости от того какие части города выбраны в диалоге
 						calculatedOrders.Add(cOrder);
@@ -185,14 +186,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 			Nodes = calculatedOrders.ToArray();
 			if(unusedDistricts.Any()) {
-				AddWarning("Районы без водителей: {0}", string.Join(", ", unusedDistricts.Select(x => x.DistrictName)));
+				AddWarning("Районы без водителей: {0}", string.Join(", ", unusedDistricts.Select(x => x.SectorName)));
 			}
 
 			// Создаем калькулятор расчета расстояний. Он сразу запрашивает уже имеющиеся расстояния из кеша
 			// и в фоновом режиме начинает считать недостающую матрицу.
 			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), StatisticsTxtAction);
 
-			logger.Info("Развозка по {0} районам.", calculatedOrders.Select(x => x.District).Distinct().Count());
+			logger.Info("Развозка по {0} районам.", calculatedOrders.Select(x => x.Sector).Distinct().Count());
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
 
 			// Пред запуском оптимизации мы должны создать модель и внести в нее все необходимые данные.
@@ -432,7 +433,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			List<CalculatedOrder> calculatedOrders = new List<CalculatedOrder>();
 
 			foreach(var address in route.Addresses) {
-				if(address.Order.DeliveryPoint.Longitude == null || address.Order.DeliveryPoint.Latitude == null)
+				if(address.Order.DeliveryPoint.ActiveVersion.Longitude == null || address.Order.DeliveryPoint.ActiveVersion.Latitude == null)
 					continue;
 
 				calculatedOrders.Add(new CalculatedOrder(address.Order, null));

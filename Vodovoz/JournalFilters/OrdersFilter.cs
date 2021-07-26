@@ -196,7 +196,7 @@ namespace Vodovoz
 
 		public int[] ExceptIds { get; set; }
 
-		public int[] IncludeDistrictsIds { get; set; }
+		public int[] IncludeSectorsIds { get; set; }
 
 		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
 		{

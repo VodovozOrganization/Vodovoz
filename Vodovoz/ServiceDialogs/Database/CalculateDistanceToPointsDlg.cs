@@ -7,6 +7,8 @@ using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using QS.Project.Repositories;
 using QS.Project.Services;
+using Vodovoz.Domain.Sectors;
+using Vodovoz.EntityRepositories.Sectors;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
@@ -17,7 +19,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 
-		IList<DeliveryPoint> points;
+		IList<DeliveryPointSectorVersion> points;
 
 		public CalculateDistanceToPointsDlg()
 		{
@@ -39,9 +41,9 @@ namespace Vodovoz.ServiceDialogs.Database
 		protected void OnButtonLoadClicked(object sender, EventArgs e)
 		{
 			logger.Info("Загружаем все точки доставки...");
-			points = uow.Session.QueryOver<DeliveryPoint>()
-			            //.Where(x => x.DistanceFromBaseMeters == null && x.Latitude != null && x.Longitude != null)
-			            .Fetch(x => x.DeliverySchedule).Lazy
+			points = uow.Session.QueryOver<DeliveryPointSectorVersion>()
+			            .Where(x => x.DistanceFromBaseMeters == null && x.Latitude != null && x.Longitude != null)
+			            .Fetch(x => x.DeliveryPoint.DeliverySchedule).Lazy
 						.List();
 
 			labelTotal.LabelProp = points.Count.ToString();
@@ -60,9 +62,10 @@ namespace Vodovoz.ServiceDialogs.Database
 			int notSaved = 0;
 			int calculated = 0;
 			int saved = 0;
+			ISectorsRepository sectorsRepository = new SectorsRepository();
 			foreach(var point in points)
 			{
-				point.SetСoordinates(point.Latitude, point.Longitude);
+				point.SetСoordinates(point.Latitude, point.Longitude, sectorsRepository);
 				notSaved++;
 				calculated++;
 				labelCalculated.LabelProp = calculated.ToString();

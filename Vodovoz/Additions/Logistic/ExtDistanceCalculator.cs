@@ -87,7 +87,7 @@ namespace Vodovoz.Tools.Logistic
 			MultiTaskLoad = multiThreadLoad;
 			Canceled = false;
 			var basesHashes = GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW).Select(CachedDistance.GetHash);
-			hashes = points.Select(CachedDistance.GetHash)
+			hashes = points.Select(x => CachedDistance.GetHash(x.ActiveVersion))
 						   .Concat(basesHashes)
 						   .Distinct()
 						   .ToArray();
@@ -212,8 +212,8 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		public int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
-			var fromHash = CachedDistance.GetHash(fromDP);
-			var toHash = CachedDistance.GetHash(toDP);
+			var fromHash = CachedDistance.GetHash(fromDP.ActiveVersion);
+			var toHash = CachedDistance.GetHash(toDP.ActiveVersion);
 			return DistanceMeter(fromHash, toHash);
 		}
 
@@ -222,7 +222,7 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		public int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
-			var toHash = CachedDistance.GetHash(toDP);
+			var toHash = CachedDistance.GetHash(toDP.ActiveVersion);
 			var fromBaseHash = CachedDistance.GetHash(fromBase);
 			return DistanceMeter(fromBaseHash, toHash);
 		}
@@ -232,7 +232,7 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
-			var fromHash = CachedDistance.GetHash(fromDP);
+			var fromHash = CachedDistance.GetHash(fromDP.ActiveVersion);
 			var toBaseHash = CachedDistance.GetHash(toBase);
 			return DistanceMeter(fromHash, toBaseHash);
 		}
@@ -242,8 +242,8 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		public int TimeSec(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
-			var fromHash = CachedDistance.GetHash(fromDP);
-			var toHash = CachedDistance.GetHash(toDP);
+			var fromHash = CachedDistance.GetHash(fromDP.ActiveVersion);
+			var toHash = CachedDistance.GetHash(toDP.ActiveVersion);
 			return TimeSec(fromHash, toHash);
 		}
 
@@ -252,7 +252,7 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		public int TimeFromBaseSec(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
-			var toHash = CachedDistance.GetHash(toDP);
+			var toHash = CachedDistance.GetHash(toDP.ActiveVersion);
 			var fromBaseHash = CachedDistance.GetHash(fromBase);
 			return TimeSec(fromBaseHash, toHash);
 		}
@@ -262,7 +262,7 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		public int TimeToBaseSec(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
-			var fromHash = CachedDistance.GetHash(fromDP);
+			var fromHash = CachedDistance.GetHash(fromDP.ActiveVersion);
 			var toBaseHash = CachedDistance.GetHash(toBase);
 			return TimeSec(fromHash, toBaseHash);
 		}

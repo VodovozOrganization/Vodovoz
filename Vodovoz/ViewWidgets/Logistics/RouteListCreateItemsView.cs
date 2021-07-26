@@ -19,6 +19,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
@@ -236,13 +237,15 @@ namespace Vodovoz
 			var geoGrpIds = RouteListUoW.Root.GeographicGroups.Select(x => x.Id).ToArray();
 			if(geoGrpIds.Any()) {
 				GeographicGroup geographicGroupAlias = null;
-				var districtIds = RouteListUoW.Session.QueryOver<District>()
-					.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
+				SectorVersion sectorVersionAlias = null;
+				var districtIds = RouteListUoW.Session.QueryOver<Sector>()
+					.Left.JoinAlias(x => x.ActiveSectorVersion, () => sectorVersionAlias)
+					.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
 					.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
 					.Select
 					  (
 						  Projections.Distinct(
-						  Projections.Property<District>(x => x.Id)
+						  Projections.Property<Sector>(x => x.Id)
 					  )
 					)
 					.List<int>()
@@ -291,14 +294,14 @@ namespace Vodovoz
 
 		protected void AddOrdersFromRegion()
 		{
-			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active, OnlyWithBorders = true };
+			var filter = new SectorJournalFilterViewModel { Status = SectorsSetStatus.Active, OnlyWithBorders = true };
 			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
 				SelectionMode = JournalSelectionMode.Single, EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false
 			};
 			journalViewModel.OnEntitySelectedResult += (o, args) => {
 				var selectedDistrict = args.SelectedNodes.FirstOrDefault();
 				if(selectedDistrict != null) {
-					foreach(var order in OrderSingletonRepository.GetInstance().GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, RouteListUoW.GetById<District>(selectedDistrict.Id)))
+					foreach(var order in OrderSingletonRepository.GetInstance().GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, RouteListUoW.GetById<Sector>(selectedDistrict.Id)))
 						if(RouteListUoW.Root.ObservableAddresses.All(a => a.Order.Id != order.Id))
 							RouteListUoW.Root.AddAddressFromOrder(order);
 				}

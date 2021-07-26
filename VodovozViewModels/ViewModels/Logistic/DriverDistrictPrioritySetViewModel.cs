@@ -11,6 +11,7 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
@@ -100,15 +101,15 @@ namespace Vodovoz.ViewModels.Logistic
         private DelegateCommand acceptCommand;
         public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
             () => {
-                if(ObservableDriverDistrictPriorities.Any()
-                    && ObservableDriverDistrictPriorities.Any(x =>
-                        x.District.DistrictsSet.Id !=
-                        ObservableDriverDistrictPriorities.First().District.DistrictsSet.Id)
-                ) {
-                    commonServices.InteractiveService.ShowMessage(
-                        ImportanceLevel.Error, "Все районы должны быть из одной версии");
-                    return;
-                }
+                // if(ObservableDriverDistrictPriorities.Any()
+                //     && ObservableDriverDistrictPriorities.Any(x =>
+                //         x.Sector.ActiveSectorVersion.Id !=
+                //         ObservableDriverDistrictPriorities.First().Sector.ActiveSectorVersion.Id)
+                // ) {
+                //     commonServices.InteractiveService.ShowMessage(
+                //         ImportanceLevel.Error, "Все районы должны быть из одной версии");
+                //     return;
+                // }
                 
                 var employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(uow);
                 if(Entity.Author == null) {
@@ -126,7 +127,7 @@ namespace Vodovoz.ViewModels.Logistic
         private DelegateCommand addDistrictCommand;
         public DelegateCommand AddDistrictsCommand => addDistrictCommand ?? (addDistrictCommand = new DelegateCommand(
             () => {
-                var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active, OnlyWithBorders = true };
+                var filter = new SectorJournalFilterViewModel { Status = SectorsSetStatus.Active, OnlyWithBorders = true };
                 var journalViewModel = new DistrictJournalViewModel(filter, unitOfWorkFactory, commonServices) {
                     EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false,
                     SelectionMode = JournalSelectionMode.Multiple
@@ -136,13 +137,13 @@ namespace Vodovoz.ViewModels.Logistic
                         return;
                     }
                     var districtNodesToAdd = args.SelectedNodes
-                        .Where(x => ObservableDriverDistrictPriorities.All(n => n.District.Id != x.Id));
-                    var districtsToAdd = uow.GetById<District>(districtNodesToAdd.Select(x => x.Id));
+                        .Where(x => ObservableDriverDistrictPriorities.All(n => n.Sector.Id != x.Id));
+                    var districtsToAdd = uow.GetById<Sector>(districtNodesToAdd.Select(x => x.Id));
 
                     foreach(var district in districtsToAdd) {
                         ObservableDriverDistrictPriorities.Add(
                             new DriverDistrictPriorityNode {
-                                District = district
+                                Sector = district
                             });
                     }
                     CheckAndFixDistrictsPrioritiesCommand.Execute();
@@ -189,7 +190,7 @@ namespace Vodovoz.ViewModels.Logistic
             
             foreach(DriverDistrictPriority driverDistrictPriority in Entity.ObservableDriverDistrictPriorities) {
                 ObservableDriverDistrictPriorities.Add(new DriverDistrictPriorityNode {
-                    District = driverDistrictPriority.District,
+                    Sector = driverDistrictPriority.Sector,
                     Priority = driverDistrictPriority.Priority
                 });
             }
@@ -200,7 +201,7 @@ namespace Vodovoz.ViewModels.Logistic
             //Удаляем удалённые из сущности
             for(int i = 0; i < Entity.ObservableDriverDistrictPriorities.Count; i++) {
                 if(ObservableDriverDistrictPriorities.All(x =>
-                    x.District.Id != Entity.ObservableDriverDistrictPriorities[i].District.Id))
+                    x.Sector.Id != Entity.ObservableDriverDistrictPriorities[i].Sector.Id))
                 {
                     Entity.ObservableDriverDistrictPriorities.RemoveAt(i);
                     i--;
@@ -210,14 +211,14 @@ namespace Vodovoz.ViewModels.Logistic
             foreach(DriverDistrictPriorityNode priorityNode in ObservableDriverDistrictPriorities) {
                 
                 var existingPriority = Entity.ObservableDriverDistrictPriorities
-                    .SingleOrDefault(x => x.District.Id == priorityNode.District.Id);
+                    .SingleOrDefault(x => x.Sector.Id == priorityNode.Sector.Id);
                 
                 if(existingPriority != null) {
                     existingPriority.Priority = priorityNode.Priority;
                 }
                 else {
                     Entity.ObservableDriverDistrictPriorities.Add(new DriverDistrictPriority {
-                        District = priorityNode.District,
+                        Sector = priorityNode.Sector,
                         Priority = priorityNode.Priority,
                         DriverDistrictPrioritySet = Entity
                     });

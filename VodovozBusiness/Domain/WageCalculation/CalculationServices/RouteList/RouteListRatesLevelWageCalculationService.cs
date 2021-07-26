@@ -205,7 +205,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			return src.WageCalculationMethodic ?? wageParameterItem.WageDistrictLevelRates
 															   .LevelRates
-															   .FirstOrDefault(r => r.WageDistrict == src.WageDistrictOfAddress);
+															   .FirstOrDefault(r => r.WageSector == src.WageSectorOfAddress);
 		}
 
 		public RouteListItemWageCalculationDetails GetWageCalculationDetailsForRouteListItem(IRouteListItemWageCalculationSource src)

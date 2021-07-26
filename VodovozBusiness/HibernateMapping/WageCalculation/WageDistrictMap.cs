@@ -3,7 +3,7 @@ using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.HibernateMapping.WageCalculation
 {
-	public class WageDistrictMap : ClassMap<WageDistrict>
+	public class WageDistrictMap : ClassMap<WageSector>
 	{
 		public WageDistrictMap()
 		{

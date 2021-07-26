@@ -37,10 +37,10 @@ namespace Vodovoz.ViewModels.WageCalculation
 		void Configure()
 		{
 			foreach(var district in WageSingletonRepository.GetInstance().AllWageDistricts(UoW)) {
-				if(!Entity.ObservableLevelRates.Any(r => r.WageDistrict == district))
+				if(!Entity.ObservableLevelRates.Any(r => r.WageSector == district))
 					Entity.ObservableLevelRates.Add(
 						new WageDistrictLevelRate {
-							WageDistrict = district,
+							WageSector = district,
 							WageDistrictLevelRates = Entity
 						}
 					);
@@ -53,11 +53,11 @@ namespace Vodovoz.ViewModels.WageCalculation
 		{
 			foreach(WageDistrictLevelRate distr in Entity.ObservableLevelRates) {
 				WageDistrictLevelRateViewModel viewModel = null;
-				if(!viewModelsCache.ContainsKey(distr.WageDistrict.Id)) {
+				if(!viewModelsCache.ContainsKey(distr.WageSector.Id)) {
 					viewModel = new WageDistrictLevelRateViewModel(distr, CommonServices, UoW, this, new AdvancedWageWidgetFactory());
-					viewModelsCache[distr.WageDistrict.Id] = viewModel;
+					viewModelsCache[distr.WageSector.Id] = viewModel;
 				} else {
-					viewModel = viewModelsCache[distr.WageDistrict.Id];
+					viewModel = viewModelsCache[distr.WageSector.Id];
 				}
 
 				if(!ObservableWageDistrictLevelRateViewModels.Contains(viewModel))

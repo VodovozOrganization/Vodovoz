@@ -3,6 +3,7 @@ using System.Linq;
 using Google.OrTools.ConstraintSolver;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
@@ -24,7 +25,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		private CalculatedOrder[] Nodes;
 		PossibleTrip Trip;
-		Dictionary<District, int> priorites;
+		Dictionary<Sector, int> priorites;
 		IDistanceCalculator distanceCalculator;
 
 		/// <summary>
@@ -40,7 +41,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		{
 			Nodes = nodes;
 			Trip = trip;
-			priorites = trip.Districts.ToDictionary(x => x.District, x => x.Priority);
+			priorites = trip.Districts.ToDictionary(x => x.Sector, x => x.Priority);
 			fixedAddressPenality = RouteOptimizer.DriverPriorityAddressPenalty * (Trip.DriverPriority - 1);
 			this.distanceCalculator = distanceCalculator;
 			resultsCache = new long?[Nodes.Length + 1, Nodes.Length + 1];
@@ -113,7 +114,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(!isLightTonnage && !isRightAddress)
 				return RouteOptimizer.LargusMaxBottlePenalty;
 
-			var area = Nodes[second_index - 1].District;
+			var area = Nodes[second_index - 1].Sector;
 
 			// Если адрес из уже существующего маршрута, не учитываем приоритеты районов.
 			// Иначе добавляем штрафы за приоритеты по району.

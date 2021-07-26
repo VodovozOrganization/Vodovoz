@@ -381,7 +381,7 @@ namespace Vodovoz.Views.Logistic
 
 				//Если выбран адрес, центруем на него карту.
 				if(row is RouteListItem rli)
-					gmapWidget.Position = rli.Order.DeliveryPoint.GmapPoint;
+					gmapWidget.Position = rli.Order.DeliveryPoint.ActiveVersion.GmapPoint;
 			}
 			logger.Info("Ok");
 		}
@@ -500,7 +500,7 @@ namespace Vodovoz.Views.Logistic
 					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
-				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue)
+				if(order.DeliveryPoint.ActiveVersion.Latitude.HasValue && order.DeliveryPoint.ActiveVersion.Longitude.HasValue)
 				{
 					bool overdueOrder = false;
 					var undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay.Where(x =>
@@ -572,7 +572,7 @@ namespace Vodovoz.Views.Logistic
 
 		private PointMarker FillAddressMarker(Order order, PointMarkerType type, PointMarkerShape shape, GMapOverlay overlay, RouteList route)
 		{
-			var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude), type, shape) {
+			var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.ActiveVersion.Latitude, (double)order.DeliveryPoint.ActiveVersion.Longitude), type, shape) {
 				Tag = order
 			};
 
@@ -588,11 +588,11 @@ namespace Vodovoz.Views.Logistic
 
 			ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
 				order.DeliverySchedule?.Name ?? "Не назначено",
-				ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.DistrictBorder.Contains(order.DeliveryPoint.NetTopologyPoint))?.DistrictName);
+				ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.Polygon.Contains(order.DeliveryPoint.ActiveVersion.NetTopologyPoint))?.SectorName);
 
 			addressMarker.ToolTipText = ttText;
 
-			var identicalPoint = overlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.Latitude && g.Position.Lng == (double)order.DeliveryPoint.Longitude);
+			var identicalPoint = overlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.ActiveVersion.Latitude && g.Position.Lng == (double)order.DeliveryPoint.ActiveVersion.Longitude);
 			var pointShift = 5;
 			if(identicalPoint >= 1) {
 				addressMarker.Offset = new System.Drawing.Point(identicalPoint * pointShift, identicalPoint * pointShift);
@@ -730,11 +730,11 @@ namespace Vodovoz.Views.Logistic
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			ViewModel.LogisticanDistricts = ScheduleRestrictionRepository.GetDistrictsWithBorder(ViewModel.UoW);
-			foreach(var district in ViewModel.LogisticanDistricts) {
+			ViewModel.LogisticanDistricts = ScheduleRestrictionRepository.GetSectorVersion(ViewModel.UoW);
+			foreach(var sector in ViewModel.LogisticanDistricts) {
 				var poligon = new GMapPolygon(
-					district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),
-					district.DistrictName
+					sector.Polygon.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),
+					sector.SectorName
 				);
 				districtsOverlay.Polygons.Add(poligon);
 			}
@@ -748,19 +748,19 @@ namespace Vodovoz.Views.Logistic
 
 				var driverDistricts = driver.DriverDistrictPrioritySets
 					.SingleOrDefault(x => x.IsActive)
-					?.DriverDistrictPriorities.Select(x => x.District)
+					?.DriverDistrictPriorities.Select(x => x.Sector).Select(x=>x.ActiveSectorVersion)
 					.ToList();
 
 				if(driverDistricts == null || !driverDistricts.Any()) {
 					return;
 				}
 				
-				foreach(var district in driverDistricts) {
+				foreach(var sectorVersion in driverDistricts) {
 					var poligon = new GMapPolygon(
-						district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),
-						district.DistrictName
+						sectorVersion.Polygon.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),
+						sectorVersion.SectorName
 					);
-					switch(driverDistricts.IndexOf(district) + 1) {
+					switch(driverDistricts.IndexOf(sectorVersion) + 1) {
 						case 1:
 							poligon.Fill = new SolidBrush(System.Drawing.Color.FromArgb(155, System.Drawing.Color.LightGreen));
 							break;
@@ -822,7 +822,7 @@ namespace Vodovoz.Views.Logistic
 			
 			var driverDistricts = driver.DriverDistrictPrioritySets
 				.SingleOrDefault(x => x.IsActive)
-				?.DriverDistrictPriorities.Select(x => x.District)
+				?.DriverDistrictPriorities.Select(x => x.Sector)
 				.ToList();
 
 			if(driverDistricts == null || !driverDistricts.Any()) {
@@ -836,12 +836,12 @@ namespace Vodovoz.Views.Logistic
 			foreach(var order in ordersOnDay) {
 				var route = ViewModel.RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
 			
-				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
+				if(order.DeliveryPoint.ActiveVersion.Latitude.HasValue && order.DeliveryPoint.ActiveVersion.Longitude.HasValue) {
 					if(!ordersRouteLists.TryGetValue(order.Id, out var orderRls)) {
 						orderRls = new List<int>();
 					}
 			
-					if(driverDistricts.Contains(order.DeliveryPoint.District) && route == null) {
+					if(driverDistricts.Contains(order.DeliveryPoint.ActiveVersion.Sector) && route == null) {
 						FillTypeAndShapeMarker(order, null, orderRls, out PointMarkerShape shape, out PointMarkerType type);
 						var addressMarker = FillAddressMarker(order, type, shape, driverAddressesOverlay, null);
 						driverAddressesOverlay.Markers.Add(addressMarker);

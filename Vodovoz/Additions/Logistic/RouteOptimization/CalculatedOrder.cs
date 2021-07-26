@@ -3,6 +3,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
@@ -24,18 +25,18 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public double Weight { get; set; }
 		public double Volume { get; set; }
 
-		public District District { get; set; }
+		public Sector Sector { get; set; }
 
 		GeographicGroup shippingBase;
 		public GeographicGroup ShippingBase {
-			get => shippingBase ?? Order?.DeliveryPoint.District?.GeographicGroup;
+			get => shippingBase ?? Order?.DeliveryPoint?.ActiveVersion?.Sector?.ActiveSectorVersion?.GeographicGroup;
 			set => shippingBase = value;
 		}
 
-		public CalculatedOrder(Order order, District district, bool notCalculate = false, RouteList existRoute = null)
+		public CalculatedOrder(Order order, Sector _sector, bool notCalculate = false, RouteList existRoute = null)
 		{
 			Order = order;
-			District = district;
+			Sector = _sector;
 			ExistRoute = existRoute;
 
 			if(notCalculate)

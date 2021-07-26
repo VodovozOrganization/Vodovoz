@@ -3,6 +3,7 @@ using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Repositories.Sale
 {
@@ -20,20 +21,20 @@ namespace Vodovoz.Repositories.Sale
 			return res;
 		}
 
-		public static IList<CommonDistrictRuleItem> GetCommonDistrictRuleItemsForDistrict(IUnitOfWork uow, District district)
+		public static IList<CommonDistrictRuleItem> GetCommonDistrictRuleItemsForDistrict(IUnitOfWork uow, Sector _sector)
 		{
 			var res = uow.Session.QueryOver<CommonDistrictRuleItem>()
-						 .Where(i => i.District.Id == district.Id)
+						 .Where(i => i.Sector.Id == _sector.Id)
 						 .List();
 			return res;
 		}
 
-		public static IList<District> GetDistrictsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule)
+		public static IList<Sector> GetDistrictsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule)
 		{
 			var res = uow.Session.QueryOver<CommonDistrictRuleItem>()
 						 .Where(d => d.DeliveryPriceRule.Id == rule.Id)
 						 .List()
-						 .Select(r => r.District)
+						 .Select(r => r.Sector)
 						 .ToList();
 
 			return res;

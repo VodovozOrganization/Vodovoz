@@ -37,6 +37,7 @@ using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Project.Services;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz
@@ -56,7 +57,7 @@ namespace Vodovoz
 		IList<RouteList> routesAtDay;
 		IList<AtWorkDriver> driversAtDay;
 		IList<AtWorkForwarder> forwardersAtDay;
-		IList<District> logisticanDistricts;
+		IList<SectorVersion> logisticanDistricts;
 		RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
 		RouteGeometryCalculator distanceCalculator = new RouteGeometryCalculator(DistanceProvider.Osrm);
 
@@ -398,7 +399,7 @@ namespace Vodovoz
 
 				//Если выбран адрес, центруем на него карту.
 				if(row is RouteListItem rli) {
-					gmapWidget.Position = rli.Order.DeliveryPoint.GmapPoint;
+					gmapWidget.Position = rli.Order.DeliveryPoint.ActiveVersion.GmapPoint;
 				}
 			}
 			logger.Info("Ok");
@@ -661,8 +662,10 @@ namespace Vodovoz
 			UoW.Session.Clear();
 
 			DeliveryPoint deliveryPointAlias = null;
-			District districtAlias = null;
+			Sector sectorAlias = null;
 			GeographicGroup geographicGroupAlias = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
+			SectorVersion sectorVersionAlias = null;
 
 			var baseOrderQuery = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session);
@@ -670,8 +673,10 @@ namespace Vodovoz
 			if(selectedGeographicGroup.Any()) {
 				baseOrderQuery
 				.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersionAlias)
+				.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
+				.Left.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersionAlias)
+				.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
 				.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
 			}
 
@@ -683,7 +688,7 @@ namespace Vodovoz
 				.Fetch(SelectMode.Fetch, x => x.OrderItems)
 				.Future();
 			var withoutTime = ordersQuery.Where(x => x.DeliverySchedule == null).ToList();
-			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.CoordinatesExist).ToList();
+			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.ActiveVersion.CoordinatesExist).ToList();
 			if(withoutTime.Any() || withoutLocation.Any())
 				MessageDialogHelper.RunWarningDialog("Не все заказы были загружены!" +
 													(withoutTime.Any() ? ("\n* У заказов отсутсвует время доставки: " + string.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +
@@ -704,7 +709,7 @@ namespace Vodovoz
 			var outLogisticAreas = ordersAtDay
 				.Where(
 					x => !logisticanDistricts.Any(
-						a => x.DeliveryPoint.NetTopologyPoint != null && a.DistrictBorder.Contains(x.DeliveryPoint.NetTopologyPoint)
+						a => x.DeliveryPoint.ActiveVersion.NetTopologyPoint != null && a.Polygon.Contains(x.DeliveryPoint.ActiveVersion.NetTopologyPoint)
 					)
 				)
 				.ToList();
@@ -781,7 +786,7 @@ namespace Vodovoz
 					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
-				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
+				if(order.DeliveryPoint.ActiveVersion.Latitude.HasValue && order.DeliveryPoint.ActiveVersion.Longitude.HasValue) {
 					PointMarkerShape shape = GetMarkerShape(order.Total19LBottlesToDeliver);
 
 					PointMarkerType type = PointMarkerType.black;
@@ -808,7 +813,7 @@ namespace Vodovoz
 					if(selectedMarkers.FirstOrDefault(m => ((Order)m.Tag).Id == order.Id) != null)
 						type = PointMarkerType.white;
 
-					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude), type, shape) {
+					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.ActiveVersion.Latitude, (double)order.DeliveryPoint.ActiveVersion.Longitude), type, shape) {
 						Tag = order
 					};
 
@@ -822,11 +827,11 @@ namespace Vodovoz
 
 					ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
 						order.DeliverySchedule?.Name ?? "Не назначено",
-						logisticanDistricts?.FirstOrDefault(x => x.DistrictBorder.Contains(order.DeliveryPoint.NetTopologyPoint))?.DistrictName);
+						logisticanDistricts?.FirstOrDefault(x => x.Polygon.Contains(order.DeliveryPoint.ActiveVersion.NetTopologyPoint))?.SectorName);
 
 					addressMarker.ToolTipText = ttText;
 
-					var identicalPoint = addressesOverlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.Latitude && g.Position.Lng == (double)order.DeliveryPoint.Longitude);
+					var identicalPoint = addressesOverlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.ActiveVersion.Latitude && g.Position.Lng == (double)order.DeliveryPoint.ActiveVersion.Longitude);
 					var pointShift = 5;
 					if(identicalPoint >= 1) {
 						addressMarker.Offset = new System.Drawing.Point(identicalPoint * pointShift, identicalPoint * pointShift);
@@ -1191,11 +1196,11 @@ namespace Vodovoz
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			logisticanDistricts = ScheduleRestrictionRepository.GetDistrictsWithBorder(UoW);
+			logisticanDistricts = ScheduleRestrictionRepository.GetSectorVersion(UoW);
 			foreach(var district in logisticanDistricts) {
 				var poligon = new GMapPolygon(
-					district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),
-					district.DistrictName
+					district.Polygon.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),
+					district.SectorName
 				);
 				districtsOverlay.Polygons.Add(poligon);
 			}

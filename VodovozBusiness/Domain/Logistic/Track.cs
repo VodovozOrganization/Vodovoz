@@ -124,14 +124,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			var points = new List<PointOnEarth>();
-			var lastPoint = lastAddress.Order.DeliveryPoint;
+			var lastPoint = lastAddress.Order.DeliveryPoint?.ActiveVersion;
 			points.Add(new PointOnEarth(lastPoint.Latitude.Value, lastPoint.Longitude.Value));
 			//Координаты базы
-			if(lastPoint.District == null) {
+			if(lastPoint.Sector == null) {
 				logger.Warn("Для точки доставки не удалось подобрать часть города. Расчёт расстояния до центра СПб");
 				points.Add(new PointOnEarth(Constants.CenterOfCityLatitude, Constants.CenterOfCityLongitude));
-			} else if(lastPoint.District != null && lastPoint.District.GeographicGroup.BaseCoordinatesExist) {
-				var gg = lastPoint.District.GeographicGroup;
+			} else if(lastPoint.Sector != null && lastPoint.Sector.ActiveSectorVersion.GeographicGroup.BaseCoordinatesExist) {
+				var gg = lastPoint.Sector.ActiveSectorVersion.GeographicGroup;
 				points.Add(new PointOnEarth((double)gg.BaseLatitude.Value, (double)gg.BaseLongitude.Value));
 			} else {
 				logger.Error("В подобранной части города не указаны координаты базы");

@@ -12,7 +12,7 @@ using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 {
-	public class WageDistrictsJournalViewModel : SingleEntityJournalViewModelBase<WageDistrict, WageDistrictViewModel, WageDistrictJournalNode>
+	public class WageDistrictsJournalViewModel : SingleEntityJournalViewModelBase<WageSector, WageDistrictViewModel, WageDistrictJournalNode>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
@@ -26,7 +26,7 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
 			threadLoader.MergeInOrderBy(x => x.Name, false);
 
-			UpdateOnChanges(typeof(WageDistrict));
+			UpdateOnChanges(typeof(WageSector));
 		}
 
 		protected override Func<WageDistrictViewModel> CreateDialogFunction => () => new WageDistrictViewModel(
@@ -41,12 +41,12 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 			commonServices
 		);
 
-		protected override Func<IUnitOfWork, IQueryOver<WageDistrict>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IUnitOfWork, IQueryOver<WageSector>> ItemsSourceQueryFunction => (uow) => {
 			WageDistrictJournalNode resultAlias = null;
 
-			var query = uow.Session.QueryOver<WageDistrict>();
+			var query = uow.Session.QueryOver<WageSector>();
 			query.Where(
-				GetSearchCriterion<WageDistrict>(
+				GetSearchCriterion<WageSector>(
 					x => x.Id
 				)
 			);

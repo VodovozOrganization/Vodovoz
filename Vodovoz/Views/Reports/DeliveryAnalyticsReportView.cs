@@ -71,7 +71,7 @@ namespace Vodovoz.Views.Reports
 
 			treeviewPartCity.ColumnsConfig = FluentColumnsConfig<WageDistrictNode>.Create()
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
-				.AddColumn("").AddTextRenderer(x => x.WageDistrict.Name)
+				.AddColumn("").AddTextRenderer(x => x.WageSector.Name)
 				.Finish();
 			treeviewPartCity.Binding.AddBinding(ViewModel, x => x.WageDistrictNodes, x => x.ItemsDataSource).InitializeFromSource();
 			treeviewPartCity.HeadersVisible = false;
@@ -98,7 +98,7 @@ namespace Vodovoz.Views.Reports
 			treeviewWeekDay.HeadersVisible = false;
 
 			districtEntry.SetEntityAutocompleteSelectorFactory(ViewModel.DistrictSelectorFactory);
-			districtEntry.Binding.AddBinding(ViewModel, x => x.District, x => x.Subject).InitializeFromSource();
+			districtEntry.Binding.AddBinding(ViewModel, x => x.Sector, x => x.Subject).InitializeFromSource();
 
 			deliveryDate.Binding.AddBinding(ViewModel, s => s.StartDeliveryDate, w => w.StartDateOrNull);
 			deliveryDate.Binding.AddBinding(ViewModel, s => s.EndDeliveryDate, w => w.EndDateOrNull);

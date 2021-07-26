@@ -21,6 +21,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics;
@@ -36,7 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		private DateTime? _startDeliveryDate;
 		private DateTime? _endDeliveryDate;
-		private District _district;
+		private Sector _sector;
 
 		private bool _isLoadingData;
 		private string _progress = string.Empty;
@@ -79,23 +80,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			WaveList = new GenericObservableList<WaveNode>();
 			WeekDayName = new GenericObservableList<WeekDayNodes>();
-			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>();
-
-			WageDistrictNodes = new GenericObservableList<WageDistrictNode>();
-
-			foreach(var wage in Uow.GetAll<WageDistrict>().Select(x => x).ToList())
-			{
-				var wageNode = new WageDistrictNode(wage);
-				wageNode.Selected = true;
-				WageDistrictNodes.Add(wageNode);
-			}
-
-			foreach(var geographic in Uow.GetAll<GeographicGroup>().Select(x => x).ToList())
-			{
-				var geographicNode = new GeographicGroupNode(geographic);
-				geographicNode.Selected = true;
-				GeographicGroupNodes.Add(geographicNode);
-			}
+			GeographicGroupNodes =
+				new GenericObservableList<GeographicGroupNode>(Uow.GetAll<GeographicGroup>().Select(x => new GeographicGroupNode(x))
+					.ToList());
+			WageDistrictNodes =
+				new GenericObservableList<WageDistrictNode>(Uow.GetAll<WageSector>().Select(x => new WageDistrictNode(x)).ToList());
 
 			foreach(var wave in Enum.GetValues(typeof(WaveNodes)))
 			{
@@ -115,10 +104,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		public IUnitOfWork Uow;
 
-		public District District
+		public Sector Sector
 		{
-			get => _district;
-			set => SetField(ref _district, value);
+			get => _sector;
+			set => SetField(ref _sector, value);
 		}
 
 		public DateTime? StartDeliveryDate
@@ -169,23 +158,27 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			var createDate18 = DateTime.Parse(EndDeliveryDate.Value.ToShortDateString() + " 18:00:00");
 
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
-			var selectedWages = WageDistrictNodes.Where(x => x.Selected).Select(x => x.WageDistrict);
+			var selectedWages = WageDistrictNodes.Where(x => x.Selected).Select(x => x.WageSector);
 
 			DeliveryAnalyticsReportNode resultAlias = null;
-			District districtAlias = null;
-			WageDistrict wageDistrictAlias = null;
+			Sector sectorAlias = null;
+			WageSector wageSectorAlias = null;
 			GeographicGroup geographicGroupAlias = null;
 			Order orderAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			DeliverySchedule deliveryScheduleAlias = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
+			SectorVersion sectorVersion = null;
 
 			var query = Uow.Session.QueryOver(() => orderAlias)
 				.Inner.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-				.Inner.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
-				.Left.JoinAlias(() => districtAlias.WageDistrict, () => wageDistrictAlias)
+				.Inner.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersion)
+				.Inner.JoinAlias(() => deliveryPointSectorVersion.Sector, () => sectorAlias)
+				.Inner.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersion)
+				.Left.JoinAlias(() => sectorVersion.GeographicGroup, () => geographicGroupAlias)
+				.Left.JoinAlias(() => sectorVersion.WageSector, () => wageSectorAlias)
 				.Left.JoinAlias(x => x.DeliverySchedule, () => deliveryScheduleAlias)
 				.Left.JoinAlias(x => x.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias);
@@ -206,9 +199,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				query.Where(x => x.DeliveryDate <= EndDeliveryDate);
 			}
 
-			if(District != null)
+			if(Sector != null)
 			{
-				query.Where(() => districtAlias.Id == District.Id);
+				query.Where(() => sectorAlias.Id == Sector.Id);
 			}
 
 			if(selectedGeographicGroup.Any())
@@ -235,45 +228,45 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			if(!selectedWages.Any() || selectedWages.Count() == 2)
 			{
 				oneWaveMorningQuery.Where(x =>
-					(x.CreateDate < createDate4 && wageDistrictAlias.Name == "Город") || (wageDistrictAlias.Name == "Пригород"));
+					(x.CreateDate < createDate4 && wageSectorAlias.Name == "Город") || (wageSectorAlias.Name == "Пригород"));
 				oneWaveDayQuery.Where(x =>
-					(x.CreateDate < createDate4 && wageDistrictAlias.Name == "Город") || wageDistrictAlias.Name == "Пригород");
+					(x.CreateDate < createDate4 && wageSectorAlias.Name == "Город") || wageSectorAlias.Name == "Пригород");
 				oneWaveEveningQuery.Where(x =>
-					deliveryScheduleAlias.From >= createDate18.TimeOfDay && wageDistrictAlias.Name == "Пригород");
+					deliveryScheduleAlias.From >= createDate18.TimeOfDay && wageSectorAlias.Name == "Пригород");
 				twoWaveQuery.Where(x =>
 					x.CreateDate >= createDate4 && x.CreateDate < createDate12 && deliveryScheduleAlias.From < createDate18.TimeOfDay &&
-					wageDistrictAlias.Name == "Город");
+					wageSectorAlias.Name == "Город");
 				threeWaveQuery.Where(x =>
 					((x.CreateDate >= createDate12) || (x.CreateDate >= createDate4 && x.CreateDate < createDate12 &&
 														deliveryScheduleAlias.From >= createDate18.TimeOfDay) ||
 					 (x.CreateDate < createDate4 && deliveryScheduleAlias.From >= createDate18.TimeOfDay)) &&
-					wageDistrictAlias.Name == "Город");
+					wageSectorAlias.Name == "Город");
 			}
 
 			else if(selectedWages.Any(x => x.Name == "Город"))
 			{
 				oneWaveMorningQuery.Where(x =>
-					x.CreateDate < createDate4 && wageDistrictAlias.Name == "Город");
+					x.CreateDate < createDate4 && wageSectorAlias.Name == "Город");
 				oneWaveDayQuery.Where(x =>
 					x.CreateDate < createDate4 &&
-					wageDistrictAlias.Name == "Город");
+					wageSectorAlias.Name == "Город");
 				twoWaveQuery.Where(x =>
 					x.CreateDate >= createDate4 && x.CreateDate < createDate12 && deliveryScheduleAlias.From < createDate18.TimeOfDay &&
-					wageDistrictAlias.Name == "Город");
+					wageSectorAlias.Name == "Город");
 				threeWaveQuery.Where(x =>
-					(x.CreateDate >= createDate12 && wageDistrictAlias.Name == "Город") ||
+					(x.CreateDate >= createDate12 && wageSectorAlias.Name == "Город") ||
 					(x.CreateDate >= createDate4 && x.CreateDate < createDate12 && deliveryScheduleAlias.From >= createDate18.TimeOfDay &&
-					 wageDistrictAlias.Name == "Город") ||
+					 wageSectorAlias.Name == "Город") ||
 					(x.CreateDate < createDate4 && deliveryScheduleAlias.From >= createDate18.TimeOfDay) &&
-					wageDistrictAlias.Name == "Город");
+					wageSectorAlias.Name == "Город");
 			}
 
 			else if(selectedWages.Any(x => x.Name == "Пригород"))
 			{
-				oneWaveMorningQuery.Where(x => wageDistrictAlias.Name == "Пригород");
-				oneWaveDayQuery.Where(x => wageDistrictAlias.Name == "Пригород");
+				oneWaveMorningQuery.Where(x => wageSectorAlias.Name == "Пригород");
+				oneWaveDayQuery.Where(x => wageSectorAlias.Name == "Пригород");
 				oneWaveEveningQuery.Where(x =>
-					deliveryScheduleAlias.From >= createDate18.TimeOfDay && wageDistrictAlias.Name == "Пригород");
+					deliveryScheduleAlias.From >= createDate18.TimeOfDay && wageSectorAlias.Name == "Пригород");
 			}
 
 			#endregion
@@ -345,8 +338,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					.SelectList(list => list
 						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => geographicGroupAlias.Name).WithAlias(() => resultAlias.GeographicGroupName)
-						.Select(() => wageDistrictAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
-						.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+						.Select(() => wageSectorAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
+						.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersOneMorning)
@@ -362,8 +355,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					.SelectList(list => list
 						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => geographicGroupAlias.Name).WithAlias(() => resultAlias.GeographicGroupName)
-						.Select(() => wageDistrictAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
-						.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+						.Select(() => wageSectorAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
+						.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersOneDay)
@@ -379,8 +372,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					.SelectList(list => list
 						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => geographicGroupAlias.Name).WithAlias(() => resultAlias.GeographicGroupName)
-						.Select(() => wageDistrictAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
-						.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+						.Select(() => wageSectorAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
+						.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersOneEvening)
@@ -401,8 +394,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					.SelectList(list => list
 						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => geographicGroupAlias.Name).WithAlias(() => resultAlias.GeographicGroupName)
-						.Select(() => wageDistrictAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
-						.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+						.Select(() => wageSectorAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
+						.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersTwoDay)
@@ -423,8 +416,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					.SelectList(list => list
 						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => geographicGroupAlias.Name).WithAlias(() => resultAlias.GeographicGroupName)
-						.Select(() => wageDistrictAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
-						.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+						.Select(() => wageSectorAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
+						.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersThreeDay)
@@ -453,7 +446,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			var count = 1;
 			var selectedDays = WeekDayName.Where(x => x.Selected).Select(x => x.WeekNameNode);
-			var selectedWages = WageDistrictNodes.Where(x => x.Selected).Select(x => x.WageDistrict);
+			var selectedWages = WageDistrictNodes.Where(x => x.Selected).Select(x => x.WageSector);
 			var selectedWaves = WaveList.Where(x => x.Selected).Select(x => x.WaveNodes);
 
 			var nodesCsv = new List<DeliveryAnalyticsReportNode>();
@@ -524,9 +517,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		private string GetSelectedFilters()
 		{
 			var result = "";
-			if(District != null)
+			if(Sector != null)
 			{
-				result += $"район - {District.DistrictName}, ";
+				result += $"район - {Sector.SectorName}, ";
 			}
 			result += "часть -";
 			if(GeographicGroupNodes.Any(x => x.Selected) && GeographicGroupNodes.Count(x => x.Selected) < GeographicGroupNodes.Count)

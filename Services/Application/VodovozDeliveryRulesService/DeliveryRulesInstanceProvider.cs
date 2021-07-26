@@ -2,23 +2,23 @@
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
-using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Services;
 
 namespace VodovozDeliveryRulesService
 {
 	public class DeliveryRulesInstanceProvider : IInstanceProvider
 	{
-		private readonly IDeliveryRepository deliveryRepository;
+		private readonly ISectorsRepository _sectorsRepository;
 		private readonly IBackupDistrictService backupDistrictService;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParameters;
 
 		public DeliveryRulesInstanceProvider(
-			IDeliveryRepository deliveryRepository,
+			ISectorsRepository sectorsRepository,
 			IBackupDistrictService backupDistrictService,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
 		{
-			this.deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+			_sectorsRepository = sectorsRepository ?? throw new ArgumentNullException(nameof(sectorsRepository));
 			this.backupDistrictService = backupDistrictService ?? throw new ArgumentNullException(nameof(backupDistrictService));
 			_deliveryRulesParameters = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 		}
@@ -27,7 +27,7 @@ namespace VodovozDeliveryRulesService
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new DeliveryRulesService(deliveryRepository, backupDistrictService, _deliveryRulesParameters);
+			return new DeliveryRulesService(_sectorsRepository, backupDistrictService, _deliveryRulesParameters);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

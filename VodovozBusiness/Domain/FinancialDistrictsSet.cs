@@ -9,6 +9,7 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Domain
 {
@@ -37,9 +38,9 @@ namespace Vodovoz.Domain
             set => SetField(ref author, value);
         }
 
-        private DistrictsSetStatus status;
+        private SectorsSetStatus status;
         [Display(Name = "Статус")]
-        public virtual DistrictsSetStatus Status {
+        public virtual SectorsSetStatus Status {
             get => status;
             set => SetField(ref status, value);
         }

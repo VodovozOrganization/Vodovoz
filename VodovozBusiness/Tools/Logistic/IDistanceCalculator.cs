@@ -1,5 +1,6 @@
 ﻿using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Tools.Logistic
 {

@@ -6,6 +6,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -77,7 +78,9 @@ namespace Vodovoz.Models
 				RouteListItem routeListAdressesAlias = null;
 				Order orderAlias = null;
 				DeliveryPoint deliveryPointAlias = null;
-				District districtAlias = null;
+				DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
+				Sector sectorAlias = null;
+				SectorVersion sectorVersionAlias = null;
 				PremiumItem premiumItemAlias = null;
 				PremiumRaskatGAZelle premiumRaskatGAZelleAlias = null;
 
@@ -98,9 +101,12 @@ namespace Vodovoz.Models
 				var wageDistrictQuery = uow.Session.QueryOver(() => routeListAdressesAlias)
 					.JoinAlias(() => routeListAdressesAlias.Order, () => orderAlias)
 					.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-					.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-					.Where(() => districtAlias.WageDistrict.Id == wageParametersProvider.GetSuburbWageDistrictId &&
-								 routeListAdressesAlias.RouteList.Id == routeList.Id)
+					.JoinAlias(() => deliveryPointAlias.Id, () => deliveryPointSectorVersionAlias.DeliveryPoint)
+					.Where(() => deliveryPointSectorVersionAlias.Status == SectorsSetStatus.Active)
+					.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
+					.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersionAlias)
+					.Where(() => sectorVersionAlias.WageSector.Id == wageParametersProvider.GetSuburbWageDistrictId &&
+					             routeListAdressesAlias.RouteList.Id == routeList.Id)
 					.Take(1).SingleOrDefault();
 
 				return premiumRaskatGAZelleQuery == null && wageDistrictQuery != null;

@@ -6,6 +6,7 @@ using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace VodovozDeliveryRulesService
 {
@@ -19,7 +20,7 @@ namespace VodovozDeliveryRulesService
         private const double startInterval =  5 * 1000;    //5 секунд
         private const double interval = 60 * 60 * 1000;    //1 час
         
-        public IEnumerable<District> Districts { get; private set; } = new List<District>();
+        public IEnumerable<Sector> Sector { get; private set; } = new List<Sector>();
 
         public void StartAutoUpdateTask()
         {
@@ -38,26 +39,25 @@ namespace VodovozDeliveryRulesService
                 
                 using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 
-                    DistrictsSet districtsSetAlias = null;
-                    var districts = uow.Session.QueryOver<District>()
-                        .JoinAlias(x => x.DistrictsSet, () => districtsSetAlias)
-                        .Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active).List();
+	                SectorVersion sectorVersion = null;
+                    var districts = uow.Session.QueryOver<Sector>()
+                        .JoinAlias(x => x.ActiveSectorVersion, () => sectorVersion).List();
 
                     foreach (var district in districts) {
-                        NHibernateUtil.Initialize(district.GeographicGroup);
+                        NHibernateUtil.Initialize(district.ActiveSectorVersion.GeographicGroup);
 
-                        foreach (var scheduleRestriction in district.GetAllDeliveryScheduleRestrictions()) {
+                        foreach (var scheduleRestriction in district.ActiveWeekDayRulesVersion.SectorSchedules) {
                             NHibernateUtil.Initialize(scheduleRestriction.DeliverySchedule);
                         }
-                        foreach (var weekDayRuleItem in district.GetAllWeekDayDistrictRuleItems()) {
+                        foreach (var weekDayRuleItem in district.ActiveWeekDayRulesVersion.SectorDeliveryRules) {
                             NHibernateUtil.Initialize(weekDayRuleItem.DeliveryPriceRule);
                         }
-                        foreach (var commonRuleItem in district.CommonDistrictRuleItems) {
+                        foreach (var commonRuleItem in district.ActiveDeliveryRuleVersion.CommonDistrictRuleItems) {
                             NHibernateUtil.Initialize(commonRuleItem.DeliveryPriceRule);
                         }
+                        
                     }
-
-                    Districts = districts;
+                    Sector = districts;
                 }
                 
                 logger.Info("Обновление бэкапа районов успешно завершено");
@@ -66,11 +66,10 @@ namespace VodovozDeliveryRulesService
                 logger.Error(ex, "Ошибка при обновлении бэкапа районов");
             }
         }
-
     }
 
     public interface IBackupDistrictService
     {
-        IEnumerable<District> Districts { get; }
+        IEnumerable<Sector> Sector { get; }
     }
 }

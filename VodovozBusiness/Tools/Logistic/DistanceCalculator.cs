@@ -2,6 +2,7 @@
 using GMap.NET.MapProviders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -15,7 +16,7 @@ namespace Vodovoz.Tools.Logistic
 
 		public static double GetDistance(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
-			return GetDistance(fromDP.GmapPoint, toDP.GmapPoint);
+			return GetDistance(fromDP.ActiveVersion.GmapPoint, toDP.ActiveVersion.GmapPoint);
 		}
 
 		public static double GetDistance(PointLatLng fromPoint, PointLatLng toPoint)
@@ -26,13 +27,13 @@ namespace Vodovoz.Tools.Logistic
 		public static double GetDistanceFromBase(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
 			var basePoint = new PointLatLng((double)fromBase.BaseLatitude.Value, (double)fromBase.BaseLongitude.Value);
-			return (int)GetDistance(basePoint, toDP.GmapPoint);
+			return (int)GetDistance(basePoint, toDP.ActiveVersion.GmapPoint);
 		}
 
 		public static double GetDistanceToBase(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
 			var basePoint = new PointLatLng((double)toBase.BaseLatitude.Value, (double)toBase.BaseLongitude.Value);
-			return (int)GetDistance(fromDP.GmapPoint, basePoint);
+			return (int)GetDistance(fromDP.ActiveVersion.GmapPoint, basePoint);
 		}
 
 		public int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP)

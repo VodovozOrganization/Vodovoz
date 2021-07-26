@@ -11,6 +11,7 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 
@@ -67,16 +68,16 @@ namespace Vodovoz.ViewModels.ViewModels
 			
 			if(uowBuilder.IsNewEntity) {
 				Entity.Author = employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
-				Entity.Status = DistrictsSetStatus.Draft;
+				Entity.Status = SectorsSetStatus.Draft;
 			}
 			
 			var permissionResult = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FinancialDistrict));
-			CanEditDistrict = permissionResult.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
-			CanDeleteDistrict = permissionResult.CanDelete && Entity.Status != DistrictsSetStatus.Active;
-			CanCreateDistrict = permissionResult.CanCreate && Entity.Status != DistrictsSetStatus.Active;
+			CanEditDistrict = permissionResult.CanUpdate && Entity.Status != SectorsSetStatus.Active;
+			CanDeleteDistrict = permissionResult.CanDelete && Entity.Status != SectorsSetStatus.Active;
+			CanCreateDistrict = permissionResult.CanCreate && Entity.Status != SectorsSetStatus.Active;
 			
 			var permissionRes = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FinancialDistrictsSet));
-			CanEdit = permissionRes.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
+			CanEdit = permissionRes.CanUpdate && Entity.Status != SectorsSetStatus.Active;
 			
 			geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
 		}

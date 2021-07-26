@@ -17,7 +17,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Domain.Client
 {
@@ -246,30 +246,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref comment, value, () => Comment);
 		}
 
-		decimal? latitude;
-
-		/// <summary>
-		/// Широта. Для установки координат используйте метод SetСoordinates
-		/// </summary>
-		[Display(Name = "Широта")]
-		[PropertyChangedAlso("СoordinatesText")]
-		public virtual decimal? Latitude {
-			get => latitude;
-			protected set => SetField(ref latitude, value, () => Latitude);
-		}
-
-		decimal? longitude;
-
-		/// <summary>
-		/// Долгота. Для установки координат используйте метод SetСoordinates
-		/// </summary>
-		[Display(Name = "Долгота")]
-		[PropertyChangedAlso("СoordinatesText")]
-		public virtual decimal? Longitude {
-			get => longitude;
-			protected set => SetField(ref longitude, value, () => Longitude);
-		}
-
 		bool isActive = true;
 
 		[Display(Name = "Активный")]
@@ -294,13 +270,6 @@ namespace Vodovoz.Domain.Client
                     observableResponsiblePersons = new GenericObservableList<DeliveryPointResponsiblePerson>(ResponsiblePersons);
 				return observableResponsiblePersons;
 			}
-		}
-
-		District district;
-		[Display(Name = "Район доставки")]
-		public virtual District District {
-			get => district;
-			set => SetField(ref district, value, () => District);
 		}
 
 		DeliverySchedule deliverySchedule;
@@ -406,14 +375,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref coordsLastChangeUser, value, () => СoordsLastChangeUser);
 		}
 
-		private int? distanceFromBaseMeters;
-
-		[Display(Name = "Расстояние от базы в метрах")]
-		public virtual int? DistanceFromBaseMeters {
-			get => distanceFromBaseMeters;
-			set => SetField(ref distanceFromBaseMeters, value, () => DistanceFromBaseMeters);
-		}
-
 		IList<Phone> phones = new List<Phone>();
 
 		[Display(Name = "Телефоны")]
@@ -495,6 +456,40 @@ namespace Vodovoz.Domain.Client
 					?? (observableDeliveryPointEstimatedCoordinates = new GenericObservableList<DeliveryPointEstimatedCoordinate>(DeliveryPointEstimatedCoordinates));
 		}
 
+		
+		private IList<DeliveryPointSectorVersion> _deliveryPointSectorVersion;
+		
+		public IList<DeliveryPointSectorVersion> DeliveryPointSectorVersion
+		{
+			get => _deliveryPointSectorVersion;
+			set => SetField(ref _deliveryPointSectorVersion, value);
+		}
+		
+		private GenericObservableList<DeliveryPointSectorVersion> _observableDeliveryPointSectorVersions;
+		
+		public GenericObservableList<DeliveryPointSectorVersion> ObservableDeliveryPointSectorVersions =>
+			_observableDeliveryPointSectorVersions ?? (_observableDeliveryPointSectorVersions =
+				new GenericObservableList<DeliveryPointSectorVersion>(DeliveryPointSectorVersion));
+
+		private DeliveryPointSectorVersion _activeVersion;
+
+		public DeliveryPointSectorVersion ActiveVersion
+		{
+			get => _activeVersion;
+			set
+			{
+				var active = ObservableDeliveryPointSectorVersions.Single(x => x.Status == SectorsSetStatus.Active);
+				if(active != null)
+				{
+					_activeVersion = active;
+				}
+				else
+				{
+					_activeVersion = null;
+				}
+			}
+		}
+
 		#region Временные поля для хранения фиксированных цен из 1с
 
 		private decimal fixPrice1;
@@ -570,62 +565,14 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
-		#region Расчетные
-
-		public virtual string CoordinatesText {
-			get {
-				if(Latitude == null || Longitude == null)
-					return string.Empty;
-				return string.Format("(ш. {0:F5}, д. {1:F5})", Latitude, Longitude);
-			}
-		}
-
-		public virtual bool CoordinatesExist => Latitude.HasValue && Longitude.HasValue;
-
-		public virtual Point NetTopologyPoint => CoordinatesExist ? new Point((double)Latitude, (double)Longitude) : null;
-
-		public virtual PointOnEarth PointOnEarth => new PointOnEarth(Latitude.Value, Longitude.Value);
-
-		public virtual GMap.NET.PointLatLng GmapPoint => new GMap.NET.PointLatLng((double)Latitude, (double)Longitude);
-
-		public virtual long СoordinatesHash => CachedDistance.GetHash(this);
-
-        #endregion
-
-        //FIXME вынести зависимость
-        IDeliveryRepository deliveryRepository = new DeliveryRepository();
+		//FIXME вынести зависимость
+        
 
 		/// <summary>
 		/// Возврат районов доставки, в которые попадает точка доставки
 		/// </summary>
 		/// <param name="uow">UnitOfWork через который будет получены все районы доставки,
 		/// среди которых будет производится поиск подходящего района</param>
-		public virtual IEnumerable<District> CalculateDistricts(IUnitOfWork uow)
-		{
-			if(!CoordinatesExist) {
-				return new List<District>();
-			}
-			return deliveryRepository.GetDistricts(uow, Latitude.Value, Longitude.Value);
-		}
-
-		/// <summary>
-		/// Поиск района города, в котором находится текущая точка доставки
-		/// </summary>
-		/// <returns><c>true</c>, если район города найден</returns>
-		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города</param>
-		public bool FindAndAssociateDistrict(IUnitOfWork uow)
-		{
-			if(!CoordinatesExist) {
-				return false;
-			}
-
-			District foundDistrict = deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value);
-			if(foundDistrict == null) {
-				return false;
-			}
-			District = foundDistrict;
-			return true;
-		}
 
 		public DeliveryPoint()
 		{
@@ -636,42 +583,6 @@ namespace Vodovoz.Domain.Client
 			Building = string.Empty;
 			Room = string.Empty;
 			Comment = string.Empty;
-		}
-
-		/// <summary>
-		/// Устанавливает правильно координты точки.
-		/// </summary>
-		/// <returns><c>true</c>, если координаты установлены</returns>
-		/// <param name="latitude">Широта</param>
-		/// <param name="longitude">Долгота</param>
-		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города
-		/// для определения расстояния до базы</param>
-		public virtual bool SetСoordinates(decimal? latitude, decimal? longitude, IUnitOfWork uow = null)
-		{
-			Latitude = latitude;
-			Longitude = longitude;
-
-			OnPropertyChanged(nameof(CoordinatesExist));
-
-			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
-				return true;
-			var gg = District.GeographicGroup;
-			var route = new List<PointOnEarth>(2) {
-				new PointOnEarth(gg.BaseLatitude.Value, gg.BaseLongitude.Value),
-				new PointOnEarth(Latitude.Value, Longitude.Value)
-			};
-
-			var result = OsrmMain.GetRoute(route, false, GeometryOverview.False);
-			if(result == null) {
-				logger.Error("Сервер расчета расстояний не вернул ответа.");
-				return false;
-			}
-			if(result.Code != "Ok") {
-				logger.Error("Сервер расчета расстояний вернул следующее сообщение:\n" + result.StatusMessageRus);
-				return false;
-			}
-			DistanceFromBaseMeters = result.Routes[0].TotalDistance;
-			return true;
 		}
 
 		public static IUnitOfWorkGeneric<DeliveryPoint> CreateUowForNew(Counterparty counterparty)

@@ -1907,7 +1907,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var result = new List<long>();
 			result.Add(CachedDistance.GetHash(GeographicGroups.FirstOrDefault()));
-			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.CoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
+			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.ActiveVersion.CoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint.ActiveVersion)));
 			result.Add(CachedDistance.GetHash(GeographicGroups.FirstOrDefault()));
 			return result.ToArray();
 		}
@@ -2012,7 +2012,7 @@ namespace Vodovoz.Domain.Logistic
 				{
 					if(address.Status == RouteListItemStatus.Completed)
 					{
-						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.Latitude, (double)address.Order.DeliveryPoint.Longitude));
+						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.ActiveVersion.Latitude, (double)address.Order.DeliveryPoint.ActiveVersion.Longitude));
 					}
 				}
 
@@ -2023,7 +2023,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 			else
 			{
-				var point = Addresses.First(x => x.Status == RouteListItemStatus.Completed).Order.DeliveryPoint;
+				var point = Addresses.First(x => x.Status == RouteListItemStatus.Completed).Order.DeliveryPoint.ActiveVersion;
 				pointsToRecalculate.Add(new PointOnEarth((double)point.Latitude, (double)point.Longitude));
 			}
 

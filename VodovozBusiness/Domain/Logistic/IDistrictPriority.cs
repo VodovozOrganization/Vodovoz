@@ -1,10 +1,11 @@
 ﻿using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Domain.Logistic
 {
 	public interface IDistrictPriority
 	{
-		District District {get;}
+		Sector Sector {get;}
 		int Priority { get; }
 	}
 }

@@ -10,6 +10,7 @@ using QS.Services;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
@@ -130,7 +131,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						var copy = districtsSetToCopy.Clone() as FinancialDistrictsSet;
 						copy.Name += " - копия";
 						copy.Author = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
-						copy.Status = DistrictsSetStatus.Draft;
+						copy.Status = SectorsSetStatus.Draft;
 						copy.DateCreated = DateTime.Now;
 						
 						UoW.Save(copy);
@@ -157,7 +158,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				new JournalAction(
 					"Активировать",
 					selectedItems => canActivateDistrictsSet && canUpdate
-						&& selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Draft,
+						&& selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault()?.Status == SectorsSetStatus.Draft,
 					selectedItems => true,
 					selectedItems => {
 						var selectedNodes = selectedItems.OfType<FinancialDistrictsSetsJournalNode>();
@@ -167,7 +168,7 @@ namespace Vodovoz.Journals.JournalViewModels
 							return;
 						
 						var activeFinancialDistrictsSet = UoW.Session.QueryOver<FinancialDistrictsSet>()
-															.Where(x => x.Status == DistrictsSetStatus.Active)
+															.Where(x => x.Status == SectorsSetStatus.Active)
 															.Take(1)
 															.SingleOrDefault();
 						
@@ -190,7 +191,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				new JournalAction(
 					"Закрыть",
 					selectedItems => canUpdate &&
-						selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Draft,
+						selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault()?.Status == SectorsSetStatus.Draft,
 					selectedItems => true,
 					selectedItems => {
 						var selectedNodes = selectedItems.OfType<FinancialDistrictsSetsJournalNode>();
@@ -200,7 +201,7 @@ namespace Vodovoz.Journals.JournalViewModels
 							var districtsSet = UoW.GetById<FinancialDistrictsSet>(selectedNode.Id);
 							
 							if(districtsSet != null) {
-								districtsSet.Status = DistrictsSetStatus.Closed;
+								districtsSet.Status = SectorsSetStatus.Closed;
 								districtsSet.DateClosed = DateTime.Now;
 								districtsSet.DateActivated = null;
 								UoW.Save(districtsSet);
@@ -219,7 +220,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				new JournalAction(
 					"В черновик",
 					selectedItems => canUpdate &&
-						selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Closed,
+						selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault()?.Status == SectorsSetStatus.Closed,
 					selectedItems => true,
 					selectedItems => {
 						var selectedNodes = selectedItems.OfType<FinancialDistrictsSetsJournalNode>();
@@ -229,7 +230,7 @@ namespace Vodovoz.Journals.JournalViewModels
 							var districtsSet = UoW.GetById<FinancialDistrictsSet>(selectedNode.Id);
 							
 							if(districtsSet != null) {
-								districtsSet.Status = DistrictsSetStatus.Draft;
+								districtsSet.Status = SectorsSetStatus.Draft;
 								districtsSet.DateClosed = null;
 								districtsSet.DateActivated = null;
 								UoW.Save(districtsSet);
@@ -247,12 +248,12 @@ namespace Vodovoz.Journals.JournalViewModels
 		{
 			if (activeFinancialDistrictSet != null)
 			{
-				activeFinancialDistrictSet.Status = DistrictsSetStatus.Draft;
+				activeFinancialDistrictSet.Status = SectorsSetStatus.Draft;
 				activeFinancialDistrictSet.DateActivated = null;
 				UoW.Save(activeFinancialDistrictSet);
 			}
 			
-			selectedDistrictsSet.Status = DistrictsSetStatus.Active;
+			selectedDistrictsSet.Status = SectorsSetStatus.Active;
 			selectedDistrictsSet.DateActivated = DateTime.Now;
 				
 			UoW.Save(selectedDistrictsSet);

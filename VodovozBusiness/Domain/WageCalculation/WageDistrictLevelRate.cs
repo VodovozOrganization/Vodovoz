@@ -27,11 +27,11 @@ namespace Vodovoz.Domain.WageCalculation
 
 		public virtual int Id { get; set; }
 
-		WageDistrict wageDistrict;
+		WageSector _wageSector;
 		[Display(Name = "Зарплатный район")]
-		public virtual WageDistrict WageDistrict {
-			get => wageDistrict;
-			set => SetField(ref wageDistrict, value);
+		public virtual WageSector WageSector {
+			get => _wageSector;
+			set => SetField(ref _wageSector, value);
 		}
 
 		WageDistrictLevelRates wageDistrictLevelRates;
@@ -68,7 +68,7 @@ namespace Vodovoz.Domain.WageCalculation
 		{
 			if(WageRates.Count < Enum.GetValues(typeof(WageRateTypes)).Length)
 				yield return new ValidationResult(
-					string.Format("Не заполнены ставки для зарплатной группы \"{0}\"", WageDistrict.Name),
+					string.Format("Не заполнены ставки для зарплатной группы \"{0}\"", WageSector.Name),
 					new[] { this.GetPropertyName(o => o.WageRates) }
 				);
 			foreach(var wageRate in WageRates) {

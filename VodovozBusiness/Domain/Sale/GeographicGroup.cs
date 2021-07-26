@@ -5,6 +5,7 @@ using System.Data.Bindings.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Domain.Sale
 {
@@ -13,7 +14,7 @@ namespace Vodovoz.Domain.Sale
 		NominativePlural = "Части города")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class GeographicGroup : BusinessObjectBase<District>, IDomainObject, IValidatableObject
+	public class GeographicGroup : BusinessObjectBase<Sector>, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 

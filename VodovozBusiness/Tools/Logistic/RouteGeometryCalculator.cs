@@ -10,6 +10,7 @@ using QS.Osm.Spuntik;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Tools.Logistic
@@ -56,8 +57,8 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		public int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
-			var fromHash = CachedDistance.GetHash(fromDP);
-			var toHash = CachedDistance.GetHash(toDP);
+			var fromHash = CachedDistance.GetHash(fromDP.ActiveVersion);
+			var toHash = CachedDistance.GetHash(toDP.ActiveVersion);
 			return DistanceMeter(fromHash, toHash);
 		}
 
@@ -66,8 +67,8 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		public int TimeSec(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
-			var fromHash = CachedDistance.GetHash(fromDP);
-			var toHash = CachedDistance.GetHash(toDP);
+			var fromHash = CachedDistance.GetHash(fromDP.ActiveVersion);
+			var toHash = CachedDistance.GetHash(toDP.ActiveVersion);
 			return TimeSec(fromHash, toHash);
 		}
 
@@ -77,7 +78,7 @@ namespace Vodovoz.Tools.Logistic
 		public int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
 			var fromBaseHash = CachedDistance.GetHash(fromBase);
-			var toHash = CachedDistance.GetHash(toDP);
+			var toHash = CachedDistance.GetHash(toDP.ActiveVersion);
 			return DistanceMeter(fromBaseHash, toHash);
 		}
 
@@ -87,7 +88,7 @@ namespace Vodovoz.Tools.Logistic
 		public int TimeFromBase(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
 			var fromBaseHash = CachedDistance.GetHash(fromBase);
-			var toHash = CachedDistance.GetHash(toDP);
+			var toHash = CachedDistance.GetHash(toDP.ActiveVersion);
 			return TimeSec(fromBaseHash, toHash);
 		}
 
@@ -96,7 +97,7 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		public int TimeToBase(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
-			var fromHash = CachedDistance.GetHash(fromDP);
+			var fromHash = CachedDistance.GetHash(fromDP.ActiveVersion);
 			var toBaseHash = CachedDistance.GetHash(toBase);
 			return TimeSec(fromHash, toBaseHash);
 		}
@@ -106,7 +107,7 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
-			var fromHash = CachedDistance.GetHash(fromDP);
+			var fromHash = CachedDistance.GetHash(fromDP.ActiveVersion);
 			var toBaseHash = CachedDistance.GetHash(toBase);
 			return DistanceMeter(fromHash, toBaseHash);
 		}

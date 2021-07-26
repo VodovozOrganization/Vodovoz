@@ -59,6 +59,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Converters;
@@ -669,7 +670,7 @@ namespace Vodovoz
 		{
 			if(Entity.SelfDelivery
 			   || Entity.OrderStatus != OrderStatus.NewOrder
-			   || Entity.DeliveryPoint.District == null)
+			   || Entity.DeliveryPoint.ActiveVersion.Sector == null)
 			{
 				return;
 			}
@@ -679,7 +680,7 @@ namespace Vodovoz
 				vodovozLeaflet = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.VodovozLeafletId);
 			}
 
-			var geographicGroupId = Entity.DeliveryPoint.District.GeographicGroup.Id;
+			var geographicGroupId = Entity.DeliveryPoint.ActiveVersion.Sector.ActiveSectorVersion.GeographicGroup.Id;
 			
 			if (!orderRepository.CanAddVodovozLeafletToOrder(
 			    UoW, 
@@ -1155,7 +1156,9 @@ namespace Vodovoz
 				return false;
 			}
 
-			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.CalculateDistricts(UoW).Any())
+			ISectorsRepository sectorsRepository = new SectorsRepository();
+			
+			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.ActiveVersion.CalculateDistricts(UoW, sectorsRepository).Any())
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
 
 			OnFormOrderActions();

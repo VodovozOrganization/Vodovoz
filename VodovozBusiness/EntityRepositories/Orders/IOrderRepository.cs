@@ -8,6 +8,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 
@@ -23,7 +24,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="order">Заказ</param>
 		int Get19LWatterQtyForOrder(IUnitOfWork uow, Domain.Orders.Order order);
 
-		IList<Domain.Orders.Order> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, District district);
+		IList<Domain.Orders.Order> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, Sector _sector);
 
 		/// <summary>
 		/// Список МЛ для заказа, отсортированный в порядке владения этим заказом, в случае переносов

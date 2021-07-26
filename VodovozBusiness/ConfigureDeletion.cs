@@ -27,6 +27,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Proposal;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredEmails;
@@ -565,7 +566,7 @@ namespace Vodovoz
 						.AddDeleteDependence<Subdivision>(x => x.GeographicGroup)
 						.AddRemoveFromDependence<Car>(x => x.GeographicGroups)
 						.AddRemoveFromDependence<RouteList>(x => x.GeographicGroups)
-						.AddRemoveFromDependence<District>(x => x.GeographicGroup)
+						.AddRemoveFromDependence<SectorVersion>(x => x.GeographicGroup)
 						;
 
 			DeleteConfig.AddHibernateDeleteInfo<CarEventType>();
@@ -613,25 +614,24 @@ namespace Vodovoz
 
 			#region District
 
-			DeleteConfig.AddHibernateDeleteInfo<DistrictsSet>()
-				.AddDeleteDependence<District>(x => x.DistrictsSet);
+			DeleteConfig.AddHibernateDeleteInfo<SectorVersion>()
+				.AddDeleteDependence<Sector>(x => x.ActiveSectorVersion);
 
-			DeleteConfig.AddHibernateDeleteInfo<District>()
-				.AddDeleteDependence<DriverDistrictPriority>(i => i.District)
-				.AddClearDependence<AtWorkDriverDistrictPriority>(i => i.District)
-				.AddClearDependence<DeliveryPoint>(i => i.District)
-				.AddClearDependence<District>(i => i.CopyOf)
-				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.District)
-				.AddDeleteDependence<DeliveryScheduleRestriction>(item => item.District)
-				.AddDeleteDependence<WeekDayDistrictRuleItem>(item => item.District)
-				.AddRemoveFromDependence<DistrictsSet>(x => x.Districts);
+			DeleteConfig.AddHibernateDeleteInfo<Sector>()
+				.AddDeleteDependence<DriverDistrictPriority>(i => i.Sector)
+				.AddClearDependence<AtWorkDriverDistrictPriority>(i => i.Sector)
+				.AddClearDependence<DeliveryPointSectorVersion>(i => i.Sector)
+				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.Sector)
+				.AddDeleteDependence<DeliveryScheduleRestriction>(item => item.Sector)
+				.AddDeleteDependence<WeekDayDistrictRuleItem>(item => item.Sector)
+				.AddRemoveFromDependence<SectorVersion>(x => x.Sector);
 
 			DeleteConfig.AddHibernateDeleteInfo<CommonDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<WeekDayDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryScheduleRestriction>();
 			
 			DeleteConfig.AddHibernateDeleteInfo<TariffZone>()
-				.AddClearDependence<District>(i => i.TariffZone);
+				.AddClearDependence<SectorVersion>(i => i.TariffZone);
 			
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPriceRule>()
 				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.DeliveryPriceRule)

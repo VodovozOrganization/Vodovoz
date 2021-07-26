@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Logistic
 		NominativePlural = "графики доставки",
 		Nominative = "график доставки")]
 	[EntityPermission]
-	public class DeliverySchedule: PropertyChangedBase, IDomainObject, IValidatableObject
+	public class DeliverySchedule: PropertyChangedBase, IDomainObject, IValidatableObject, ICloneable
 	{
 		public DeliverySchedule()
 		{
@@ -80,7 +80,17 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion
-		
+
+		public object Clone()
+		{
+			return new DeliverySchedule
+			{
+				Name = Name,
+				From = From,
+				To = To,
+				IsArchive = IsArchive
+			};
+		}
 	}
 }
 

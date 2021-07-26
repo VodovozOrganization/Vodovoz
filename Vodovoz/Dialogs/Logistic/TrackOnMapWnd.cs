@@ -178,7 +178,7 @@ namespace Dialogs.Logistic
 				var point = orderItem.Order.DeliveryPoint;
 				if (point == null)
 					continue;
-				if(point.Latitude.HasValue && point.Longitude.HasValue)
+				if(point.ActiveVersion.Latitude.HasValue && point.ActiveVersion.Longitude.HasValue)
 				{
 					GMarkerGoogleType type;
 					switch(orderItem.Status)
@@ -209,13 +209,13 @@ namespace Dialogs.Logistic
 							.OrderBy(x => x.StatusLastUpdate)
 							.ToList().IndexOf(orderItem);
 
-						addressMarker = new NumericPointMarker(new PointLatLng((double)point.Latitude, (double)point.Longitude),
+						addressMarker = new NumericPointMarker(new PointLatLng((double)point.ActiveVersion.Latitude, (double)point.ActiveVersion.Longitude),
 							NumericPointMarkerType.green_large, index + 1);
 					}
 					else
-						addressMarker = new GMarkerGoogle(new PointLatLng((double)point.Latitude, (double)point.Longitude),	type);
+						addressMarker = new GMarkerGoogle(new PointLatLng((double)point.ActiveVersion.Latitude, (double)point.ActiveVersion.Longitude),	type);
 
-					var identicalPoint = addressesOverlay.Markers.Count(g => g.Position.Lat == (double)point.Latitude && g.Position.Lng == (double)point.Longitude);
+					var identicalPoint = addressesOverlay.Markers.Count(g => g.Position.Lat == (double)point.ActiveVersion.Latitude && g.Position.Lng == (double)point.ActiveVersion.Longitude);
 					var pointShift = 4;
 					if(identicalPoint > 0)
 					{
@@ -354,8 +354,8 @@ namespace Dialogs.Logistic
 						var throughAddress = addressesByCompletion.GetRange (beforeIndex + 1, afterIndex - beforeIndex - 1);
 						logger.Info ("В разрыве найдены выполенные адреса порядковый(е) номер(а) {0}", String.Join (", ", throughAddress.Select (x => x.IndexInRoute)));
 						routePoints.AddRange (
-							throughAddress.Where (x => x.Order?.DeliveryPoint?.Latitude != null && x.Order?.DeliveryPoint?.Longitude != null)
-							.Select (x => new PointOnEarth (x.Order.DeliveryPoint.Latitude.Value, x.Order.DeliveryPoint.Longitude.Value)));
+							throughAddress.Where (x => x.Order?.DeliveryPoint?.ActiveVersion?.Latitude != null && x.Order?.DeliveryPoint?.ActiveVersion?.Longitude != null)
+							.Select (x => new PointOnEarth (x.Order.DeliveryPoint.ActiveVersion.Latitude.Value, x.Order.DeliveryPoint.ActiveVersion.Longitude.Value)));
 
 						message += $" c выполненными адресами({beforeIndex + 2}-{afterIndex}) п/п в МЛ " + String.Join (", ", throughAddress.Select (x => x.IndexInRoute));
 					}
@@ -531,7 +531,7 @@ namespace Dialogs.Logistic
 			{
 				foreach(RouteListItem address in routeList.Addresses.OrderBy(x => x.StatusLastUpdate)) {
 					if(address.Status == RouteListItemStatus.Completed) {
-						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.Latitude, (double)address.Order.DeliveryPoint.Longitude));
+						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.ActiveVersion.Latitude, (double)address.Order.DeliveryPoint.ActiveVersion.Longitude));
 					}
 				}
 
@@ -553,7 +553,7 @@ namespace Dialogs.Logistic
 			} else
 			{
 				var point = routeList.Addresses.First(x => x.Status == RouteListItemStatus.Completed).Order.DeliveryPoint;
-				pointsToRecalculate.Add(new PointOnEarth((double)point.Latitude, (double)point.Longitude));
+				pointsToRecalculate.Add(new PointOnEarth((double)point.ActiveVersion.Latitude, (double)point.ActiveVersion.Longitude));
 			}
 
 			pointsToBase.Add(pointsToRecalculate.Last());

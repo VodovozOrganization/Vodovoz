@@ -1431,8 +1431,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientFinDepartmentReport.cs" />
     <Compile Include="ServiceDialogs\LargeMessageDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.LargeMessageDialog.cs" />
-    <Compile Include="Views\Logistic\DistrictsSetView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetView.cs" />
     <Compile Include="Views\Logistic\AcceptBeforeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AcceptBeforeView.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
@@ -1448,14 +1446,12 @@
     <Compile Include="Dialogs\Email\SendDocumentByEmailView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Email.SendDocumentByEmailView.cs" />
     <Compile Include="Dialogs\Email\SendDocumentByEmailViewModel.cs" />
-    <Compile Include="Filters\GtkViews\DistrictJournalFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\SectorJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.SectorJournalFilterView.cs" />
     <Compile Include="Views\Logistic\DistrictView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictView.cs" />
     <Compile Include="Filters\GtkViews\DistrictsSetJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictsSetJournalFilterView.cs" />
-    <Compile Include="Views\Logistic\DistrictsSetActivationView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetActivationView.cs" />
     <Compile Include="Views\Cash\PaymentByCardView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.PaymentByCardView.cs" />
     <Compile Include="ReportsParameters\Bottles\ReturnedTareReport.cs" />
@@ -1648,8 +1644,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintObjectView.cs" />
     <Compile Include="Filters\GtkViews\ComplaintKindJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintKindJournalFilterView.cs" />
-    <Compile Include="Views\Logistic\DistrictsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsView.cs" />
+    <Compile Include="Views\Logistic\SectorsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SectorsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

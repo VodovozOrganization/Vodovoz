@@ -3,6 +3,8 @@ using NetTopologySuite.Geometries;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Models
 {
@@ -15,7 +17,7 @@ namespace Vodovoz.Models
 
             var districts = uow.Session.QueryOver(() => financialDistrictAlias)
                 .Left.JoinAlias(() => financialDistrictAlias.FinancialDistrictsSet, () => financialDistrictsSetAlias)
-                .Where(() => financialDistrictsSetAlias.Status == DistrictsSetStatus.Active)
+                .Where(() => financialDistrictsSetAlias.Status == SectorsSetStatus.Active)
                 .List();
 
             Point point = new Point((double)latitude, (double)longitude);

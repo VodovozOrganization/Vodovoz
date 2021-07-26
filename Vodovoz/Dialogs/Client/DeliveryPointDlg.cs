@@ -37,6 +37,7 @@ using Vodovoz.Models;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.TempAdapters;
 using System.Collections.Generic;
+using Vodovoz.EntityRepositories.Sectors;
 
 namespace Vodovoz
 {
@@ -165,8 +166,8 @@ namespace Vodovoz
 			fixedpricesview.ViewModel = fixedPricesViewModel;
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding(Entity,
-				entity => entity.CoordinatesExist
-				? String.Format("<span foreground='{1}'>{0}</span>", entity.CoordinatesText,
+				entity => entity.ActiveVersion.CoordinatesExist
+				? String.Format("<span foreground='{1}'>{0}</span>", entity.ActiveVersion.CoordinatesText,
 					(entity.FoundOnOsm ? "green" : "blue"))
 				: "<span foreground='red'>Не найден на карте.</span>",
 				widget => widget.LabelProp)
@@ -314,8 +315,8 @@ namespace Vodovoz
 
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == Entity.GetPropertyName(x => x.Latitude)
-				|| e.PropertyName == Entity.GetPropertyName(x => x.Longitude)) {
+			if(e.PropertyName == Entity.GetPropertyName(x => x.ActiveVersion.Latitude)
+				|| e.PropertyName == Entity.GetPropertyName(x => x.ActiveVersion.Longitude)) {
 				UpdateMapPosition();
 				UpdateAddressOnMap();
 			}
@@ -389,8 +390,8 @@ namespace Vodovoz
 
 		private void UpdateMapPosition()
 		{
-			if(Entity.Latitude.HasValue && Entity.Longitude.HasValue) {
-				var position = new PointLatLng((double)Entity.Latitude.Value, (double)Entity.Longitude.Value);
+			if(Entity.ActiveVersion.Latitude.HasValue && Entity.ActiveVersion.Longitude.HasValue) {
+				var position = new PointLatLng((double)Entity.ActiveVersion.Latitude.Value, (double)Entity.ActiveVersion.Longitude.Value);
 				if(!MapWidget.ViewArea.Contains(position)) {
 					MapWidget.Position = position;
 					MapWidget.Zoom = 15;
@@ -408,11 +409,11 @@ namespace Vodovoz
 				addressMarker = null;
 			}
 
-			if(Entity.Latitude.HasValue && Entity.Longitude.HasValue) {
+			if(Entity.ActiveVersion.Latitude.HasValue && Entity.ActiveVersion.Longitude.HasValue) {
 				addressMarker = new GMarkerGoogle(
 									new PointLatLng(
-										(double)Entity.Latitude.Value,
-										(double)Entity.Longitude.Value
+										(double)Entity.ActiveVersion.Latitude.Value,
+										(double)Entity.ActiveVersion.Longitude.Value
 									),
 									GMarkerGoogleType.arrow
 								) {
@@ -444,13 +445,13 @@ namespace Vodovoz
                 deliverypointresponsiblepersonsview1.RemoveEmpty();
                 phonesview1.ViewModel.RemoveEmpty();
 
-				if(!Entity.CoordinatesExist && !MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
+				if(!Entity.ActiveVersion.CoordinatesExist && !MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 					return false;
 
 				var valid = new QSValidator<DeliveryPoint>(UoWGeneric.Root);
 				if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 					return false;
-				if(Entity.District == null && !MessageDialogHelper.RunWarningDialog(
+				if(Entity.ActiveVersion.Sector == null && !MessageDialogHelper.RunWarningDialog(
 									"Проверьте координаты!",
 									"Район доставки не найден. Это приведёт к невозможности отображения заказа на эту точку доставки у логистов при составлении маршрутного листа. Укажите правильные координаты.\nПродолжить сохранение точки доставки?",
 									Gtk.ButtonsType.YesNo
@@ -515,10 +516,12 @@ namespace Vodovoz
 
 		private void WriteCoordinates(decimal? latitude, decimal? longitude)
 		{
-			if(EqualCoords(Entity.Latitude, latitude) && EqualCoords(Entity.Longitude, longitude))
+			if(EqualCoords(Entity.ActiveVersion.Latitude, latitude) && EqualCoords(Entity.ActiveVersion.Longitude, longitude))
 				return;
 
-			Entity.SetСoordinates(latitude, longitude, UoW);
+			ISectorsRepository sectorsRepository = new SectorsRepository();
+			
+			Entity.ActiveVersion.SetСoordinates(latitude, longitude, sectorsRepository, UoW);
 			Entity.СoordsLastChangeUser = Repositories.HumanResources.UserRepository.GetCurrentUser(UoW);
 		}
 

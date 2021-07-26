@@ -259,9 +259,9 @@ namespace Vodovoz.Additions.Accounting
                     waybillItemsEnumerator.Current.Mileage = DistanceCalculator.DistanceToBaseMeter(orderEnumerator.Current.DeliveryPoint,
                         employee.Subdivision.GeographicGroup) * 2 / 1000;
 
-                    if (orderEnumerator.Current.DeliveryPoint.CoordinatesExist)
+                    if (orderEnumerator.Current.DeliveryPoint.ActiveVersion.CoordinatesExist)
                     {
-                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint));
+                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint.ActiveVersion));
                     }
                     wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(employee.Subdivision.GeographicGroup));
                 }
@@ -270,9 +270,9 @@ namespace Vodovoz.Additions.Accounting
                     waybillItemsEnumerator.Current.Mileage = DistanceCalculator.DistanceMeter(deliveryPointFrom,
                         orderEnumerator.Current.DeliveryPoint) * 2 / 1000;
 
-                    if (orderEnumerator.Current.DeliveryPoint.CoordinatesExist)
+                    if (orderEnumerator.Current.DeliveryPoint.ActiveVersion.CoordinatesExist)
                     {
-                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint));
+                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint.ActiveVersion));
                     }
                     deliveryPointFrom = orderEnumerator.Current.DeliveryPoint;
                 }

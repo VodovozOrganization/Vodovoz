@@ -40,7 +40,7 @@ namespace Vodovoz.ViewWidgets
 			yTxtWarehouses.Buffer.Text = deliveryPriceNode.GeographicGroups;
 			GtkScrolledWindow.Visible = deliveryPriceNode.ByDistance;
 			ytreeviewPrices.SetItemsSource(deliveryPriceNode.Prices);
-			lblDistrict.LabelProp = deliveryPriceNode.DistrictName;
+			lblDistrict.LabelProp = deliveryPriceNode.SectorName;
 			wageTypeValueLabel.Text = deliveryPriceNode.WageDistrict + ",";
 		}
 	}

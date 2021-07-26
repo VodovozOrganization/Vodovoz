@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -11,20 +12,20 @@ namespace Vodovoz.Tools.Logistic
             var copy = (DriverDistrictPrioritySet)districtPrioritySet.Clone();
             notCopiedPriorities = new List<DriverDistrictPriority>();
             
-            for(int i = 0; i < copy.DriverDistrictPriorities.Count; i++) {
-                if(copy.DriverDistrictPriorities[i].District.IsActive) {
-                    continue;
-                }
-                var activeDistrict = District.GetDistrictFromActiveDistrictsSetOrNull(copy.DriverDistrictPriorities[i].District);
-                if(activeDistrict != null) {
-                    copy.DriverDistrictPriorities[i].District = activeDistrict;
-                }
-                else {
-                    notCopiedPriorities.Add(districtPrioritySet.DriverDistrictPriorities[i]);
-                    copy.DriverDistrictPriorities.RemoveAt(i);
-                    i--;
-                }
-            }
+            // for(int i = 0; i < copy.DriverDistrictPriorities.Count; i++) {
+            //     if(copy.DriverDistrictPriorities[i].Sector.IsActive) {
+            //         continue;
+            //     }
+            //     var activeDistrict = Sector.GetDistrictFromActiveDistrictsSetOrNull(copy.DriverDistrictPriorities[i].Sector.SectorVersion);
+            //     if(activeDistrict != null) {
+            //         copy.DriverDistrictPriorities[i].Sector = activeDistrict;
+            //     }
+            //     else {
+            //         notCopiedPriorities.Add(districtPrioritySet.DriverDistrictPriorities[i]);
+            //         copy.DriverDistrictPriorities.RemoveAt(i);
+            //         i--;
+            //     }
+            // }
             copy.CheckAndFixDistrictsPriorities();
             return copy;
         }

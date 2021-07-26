@@ -6,6 +6,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -24,9 +25,9 @@ namespace Vodovoz.Repositories.Orders
 			return OrderSingletonRepository.GetInstance().GetOrdersForRLEditingQuery(date, showShipped);
 		}
 
-		public static IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, District district)
+		public static IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, Sector _sector)
 		{
-			return OrderSingletonRepository.GetInstance().GetAcceptedOrdersForRegion(uow, date, district);
+			return OrderSingletonRepository.GetInstance().GetAcceptedOrdersForRegion(uow, date, _sector);
 		}
 
 		public static VodovozOrder GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)

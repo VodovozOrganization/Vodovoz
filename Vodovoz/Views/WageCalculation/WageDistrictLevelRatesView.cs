@@ -47,7 +47,7 @@ namespace Vodovoz.Views.WageCalculation
 
 				Label tabLabel = new Label {
 					UseMarkup = true,
-					Markup = vm.Entity.WageDistrict.Name
+					Markup = vm.Entity.WageSector.Name
 				};
 
 				nbDistricts.AppendPage(scrolledWindow, tabLabel);

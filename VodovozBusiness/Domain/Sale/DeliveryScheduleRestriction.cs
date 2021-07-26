@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Domain.Sale
 {
@@ -13,11 +14,11 @@ namespace Vodovoz.Domain.Sale
     {
         public virtual int Id { get; set; }
 
-        private District district;
+        private Sector _sector;
         [Display(Name = "Район")]
-        public virtual District District {
-            get => district;
-            set => SetField(ref district, value, () => District);
+        public virtual Sector Sector {
+            get => _sector;
+            set => SetField(ref _sector, value, () => Sector);
         }
         
         private WeekDayName weekDay;

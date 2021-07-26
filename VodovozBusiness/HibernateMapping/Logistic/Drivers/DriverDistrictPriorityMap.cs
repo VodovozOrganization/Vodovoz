@@ -13,7 +13,7 @@ namespace Vodovoz.HibernateMapping
 
             Map(x => x.Priority).Column("priority");
 
-            References(x => x.District).Column("district_id");
+            References(x => x.Sector).Column("district_id");
             
             //FIXME Удалить после обновления
             References(x => x.Driver).Column("driver_id");

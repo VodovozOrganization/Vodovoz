@@ -31,10 +31,10 @@ namespace Vodovoz
 		{
 			foreach(var order in (sender as MenuItemId<Order[]>).ID)
 			{
-				if (order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
+				if (order.DeliveryPoint == null || order.DeliveryPoint.ActiveVersion.Latitude == null || order.DeliveryPoint.ActiveVersion.Longitude == null)
 					continue;
 
-				System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
+				System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.ActiveVersion.Longitude, order.DeliveryPoint.ActiveVersion.Latitude));
 			}
 		}
 
@@ -59,10 +59,10 @@ namespace Vodovoz
 		{
 			foreach(var order in (sender as MenuItemId<Order[]>).ID)
 			{
-				if (order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
+				if (order.DeliveryPoint == null || order.DeliveryPoint.ActiveVersion.Latitude == null || order.DeliveryPoint.ActiveVersion.Longitude == null)
 					continue;
 
-				System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "https://maps.yandex.ru/?ll={0},{1}&z=17", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
+				System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "https://maps.yandex.ru/?ll={0},{1}&z=17", order.DeliveryPoint.ActiveVersion.Longitude, order.DeliveryPoint.ActiveVersion.Latitude));
 			}
 		} 
 	}

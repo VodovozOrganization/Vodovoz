@@ -36,6 +36,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -190,9 +191,10 @@ namespace Vodovoz.JournalViewModels
 			DeliverySchedule deliveryScheduleAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
-			District districtAlias = null;
+			Sector sectorAlias = null;
 			CounterpartyContract contractAlias = null;
 			PaymentFrom paymentFromAlias = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
 
 			Nomenclature sanitizationNomenclature = nomenclatureRepository.GetSanitisationNomenclature(uow);
 
@@ -300,7 +302,8 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias)
 				.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersionAlias)
+				.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
 				.Left.JoinAlias(o => o.Contract, () => contractAlias);
 
 			query.Where(GetSearchCriterion(
@@ -333,7 +336,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
 					.Select(() => orderAlias.OnlineOrder).WithAlias(() => resultAlias.OnlineOrder)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
-					.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+					.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompilledAddress)
 					.Select(() => deliveryPointAlias.City).WithAlias(() => resultAlias.City)
 					.Select(() => deliveryPointAlias.Street).WithAlias(() => resultAlias.Street)
@@ -837,15 +840,15 @@ namespace Vodovoz.JournalViewModels
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						foreach(var sel in selectedNodes) {
 							var order = UoW.GetById<VodovozOrder>(sel.Id);
-							if(order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
+							if(order.DeliveryPoint == null || order.DeliveryPoint.ActiveVersion.Latitude == null || order.DeliveryPoint.ActiveVersion.Longitude == null)
 								continue;
 
 							System.Diagnostics.Process.Start(
 								string.Format(
 									CultureInfo.InvariantCulture,
 									"https://maps.yandex.ru/?ll={0},{1}&z=17",
-									order.DeliveryPoint.Longitude,
-									order.DeliveryPoint.Latitude
+									order.DeliveryPoint.ActiveVersion.Longitude,
+									order.DeliveryPoint.ActiveVersion.Latitude
 								)
 							);
 						}
@@ -885,10 +888,10 @@ namespace Vodovoz.JournalViewModels
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						foreach(var sel in selectedNodes) {
 							var order = UoW.GetById<VodovozOrder>(sel.Id);
-							if(order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
+							if(order.DeliveryPoint == null || order.DeliveryPoint.ActiveVersion.Latitude == null || order.DeliveryPoint.ActiveVersion.Longitude == null)
 								continue;
 
-							System.Diagnostics.Process.Start(string.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
+							System.Diagnostics.Process.Start(string.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.ActiveVersion.Longitude, order.DeliveryPoint.ActiveVersion.Latitude));
 						}
 					}
 				)

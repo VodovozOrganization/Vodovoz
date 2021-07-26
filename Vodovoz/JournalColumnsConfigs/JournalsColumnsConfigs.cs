@@ -9,6 +9,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Proposal;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Employees;
@@ -68,29 +69,13 @@ namespace Vodovoz.JournalColumnsConfigs
 		            .Finish()
             );
 
-			//DistrictsSetJournalViewModel
-			TreeViewColumnsConfigFactory.Register<DistrictsSetJournalViewModel>(
-				() => FluentColumnsConfig<DistrictsSetJournalNode>.Create()
-					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
-					.AddColumn("Название").AddTextRenderer(node => node.Name)
-					.AddColumn("Статус").AddTextRenderer(node => node.Status.GetEnumTitle())
-					.AddColumn("Автор").AddTextRenderer(node => node.Author)
-					.AddColumn("Дата создания").AddTextRenderer(node => node.DateCreated.Date.ToString("d")).XAlign(0.5f)
-					.AddColumn("Дата активации").AddTextRenderer(node => node.DateActivated != null ? node.DateActivated.Value.Date.ToString("d") : "-").XAlign(0.5f)
-					.AddColumn("Дата закрытия").AddTextRenderer(node => node.DateClosed != null ? node.DateClosed.Value.Date.ToString("d") : "-").XAlign(0.5f)
-					.AddColumn("Комментарий").AddTextRenderer(node => node.Comment).WrapMode(WrapMode.WordChar).WrapWidth(500).XAlign(0.5f)
-					.AddColumn("")
-					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? colorDarkGrey : colorBlack)
-					.Finish()
-			);
-			
-			//DistrictJournalViewModel
+            //DistrictJournalViewModel
 			TreeViewColumnsConfigFactory.Register<DistrictJournalViewModel>(
 				() => FluentColumnsConfig<DistrictJournalNode>.Create()
 					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.AddColumn("Зарплатный район").AddTextRenderer(node => node.WageDistrict)
-					.AddColumn("Статус версии районов").AddTextRenderer(node => node.DistrictsSetStatus.GetEnumTitle())
+					.AddColumn("Статус версии районов").AddTextRenderer(node => node.SectorsSetStatus.GetEnumTitle())
 					.AddColumn("Код версии").AddNumericRenderer(node => node.DistrictsSetId)
 					.AddColumn("")
 					.Finish()
@@ -882,7 +867,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => 
-							c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? colorDarkGrey : colorBlack)
+							c.ForegroundGdk = n.Status == SectorsSetStatus.Closed ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
 

@@ -8,6 +8,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 
@@ -20,8 +21,8 @@ namespace Vodovoz.ReportsParameters
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-			entryDistrict.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () => {
-				var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
+			entryDistrict.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(Sector), () => {
+				var filter = new SectorJournalFilterViewModel { Status = SectorsSetStatus.Active };
 				return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
 					EnableDeleteButton = false,
 					EnableAddButton = false,
@@ -50,7 +51,7 @@ namespace Vodovoz.ReportsParameters
 				ReportName = "Orders.OrdersByAllDistrict";
 			} else {
 				ReportName = "Orders.OrdersByDistrict";
-				parameters.Add("id_district", ((District)entryDistrict.Subject).Id);
+				parameters.Add("id_district", ((Sector)entryDistrict.Subject).Id);
 			}
 
 			return new ReportInfo {

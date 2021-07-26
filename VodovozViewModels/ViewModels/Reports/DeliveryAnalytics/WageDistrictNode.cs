@@ -12,20 +12,20 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics
 			set => SetField(ref selected, value);
 		}
 
-		private WageDistrict _wageDistrict;
-		public virtual WageDistrict WageDistrict {
-			get => _wageDistrict;
-			set => SetField(ref _wageDistrict, value);
+		private WageSector _wageSector;
+		public virtual WageSector WageSector {
+			get => _wageSector;
+			set => SetField(ref _wageSector, value);
 		}
 
-		public WageDistrictNode(WageDistrict wageDistrict)
+		public WageDistrictNode(WageSector wageSector)
 		{
-			WageDistrict = wageDistrict ?? throw new ArgumentNullException(nameof(wageDistrict));
+			WageSector = wageSector ?? throw new ArgumentNullException(nameof(wageSector));
 		}
 
 		public override string ToString()
 		{
-			return _wageDistrict.Name;
+			return _wageSector.Name;
 		}
 	}
 }

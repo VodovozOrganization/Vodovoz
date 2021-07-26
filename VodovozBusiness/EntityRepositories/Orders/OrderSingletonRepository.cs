@@ -18,6 +18,9 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
+using Vodovoz.EntityRepositories.Sectors;
+using Vodovoz.NhibernateExtensions;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
@@ -56,16 +59,23 @@ namespace Vodovoz.EntityRepositories.Orders
 			return query;
 		}
 
-		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, District district)
+		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, Sector sector)
 		{
 			DeliveryPoint point = null;
+			
+			// var sectorsRepository = new SectorsRepository();
+			// var sectorVersion = sectorsRepository.GetSectorVersions(uow, date, SectorsSetStatus.Active).Single(x=> x.Sector.Id == sector.Id);
+			
+			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
 			return uow.Session.QueryOver<VodovozOrder>()
 							  .JoinAlias(o => o.DeliveryPoint, () => point)
+							  .JoinAlias(() => point, () => deliveryPointSectorVersion.DeliveryPoint)
 							  .Where(
 							  		o => o.DeliveryDate == date.Date
-									&& point.District.Id == district.Id
+									&& deliveryPointSectorVersion.Sector.Id == sector.Id
 									&& !o.SelfDelivery
 									&& o.OrderStatus == OrderStatus.Accepted
+									&& deliveryPointSectorVersion.Status == SectorsSetStatus.Active
 							  )
 							  .List<VodovozOrder>()
 							  ;
@@ -830,7 +840,9 @@ namespace Vodovoz.EntityRepositories.Orders
 			Nomenclature nomenclatureAlias = null;
 			VodovozOrder orderAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
-			District districtAlias = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
+			SectorVersion sectorVersion = null;
+			Sector sectorAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 
 			var warehouseId = geographicGroupId == routeListParametersProvider.SouthGeographicGroupId
@@ -854,10 +866,14 @@ namespace Vodovoz.EntityRepositories.Orders
 			var subqueryReserved = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+				.JoinAlias(() => deliveryPointAlias.Id, () => deliveryPointSectorVersion.DeliveryPoint)
+				.Where(() => deliveryPointSectorVersion.Status == SectorsSetStatus.Active)
+				.JoinAlias(() => deliveryPointSectorVersion.Sector, () => sectorAlias)
+				.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersion)
+				.Where(() => sectorVersion.Status == SectorsSetStatus.Active)
 				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => orderEquipmentAlias.Nomenclature.Id == leafletId)
-				.Where(() => districtAlias.GeographicGroup.Id == geographicGroupId)
+				.Where(() => sectorVersion.Id == geographicGroupId)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
 				             || orderAlias.OrderStatus == OrderStatus.InTravelList
 				             || orderAlias.OrderStatus == OrderStatus.OnLoading)

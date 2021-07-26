@@ -26,6 +26,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -197,9 +198,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
-			District districtAlias = null;
+			Sector sectorAlias = null;
 			RouteList routeListAlias2 = null;
 			WagesMovementOperations driverWageOperationAlias2 = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
 
 			#endregion
 
@@ -216,7 +218,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
 				.Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersion)
+				.Left.JoinAlias(() => deliveryPointSectorVersion.Sector, () => sectorAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias);
 
@@ -293,7 +296,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Select(() => routeListItemAlias.Status).WithAlias(() => resultAlias.RouteListItemStatus)
 				.Select(() => routeListItemAlias.Id).WithAlias(() => resultAlias.RouteListItemId)
 				.Select(() => routeListItemAlias.BottlesReturned).WithAlias(() => resultAlias.RouteListItemReturnedBottlesCount)
-				.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.RouteListItemDistrictName)
+				.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.RouteListItemSectorName)
 				.Select(Projections.SubQuery(firstRouteListDateSubQuery)).WithAlias(() => resultAlias.DriverFirstRouteListDate)
 				.Select(Projections.SubQuery(lastRouteListDateSubQuery)).WithAlias(() => resultAlias.DriverLastRouteListDate)
 				.Select(Projections.SubQuery(wagePeriodSubQuery)).WithAlias(() => resultAlias.DriverPeriodWage)
@@ -317,7 +320,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			RouteListAssignedDistrictsNode routeListAssignedDistrictsNodeAlias = null;
 			RouteList routeListAlias = null;
 			Employee driverAlias = null;
-			District districtAlias = null;
+			Sector sectorAlias = null;
 
 			#endregion
 
@@ -447,7 +450,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					groupNode.GroupBy(x => x.RouteListItemId)
 						.Select(x => x.First())
 						.Where(x => !x.WasTransfered)
-						.Select(x => x.RouteListItemDistrictName)
+						.Select(x => x.RouteListItemSectorName)
 						.Distinct()
 				);
 
@@ -456,7 +459,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						groupNode.GroupBy(x => x.RouteListItemId)
 							.Select(x => x.First())
 							.Where(x => x.RouteListItemStatus == RouteListItemStatus.Completed)
-							.Select(x => x.RouteListItemDistrictName)
+							.Select(x => x.RouteListItemSectorName)
 							.Distinct())
 					: "";
 
@@ -495,7 +498,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Inner.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.Inner.JoinAlias(() => driverAlias.DriverDistrictPrioritySets, () => driverDistrictPrioritySetAlias)
 				.Inner.JoinAlias(() => driverDistrictPrioritySetAlias.DriverDistrictPriorities, () => driverDistrictPriorityAlias)
-				.Inner.JoinAlias(() => driverDistrictPriorityAlias.District, () => districtAlias)
+				.Inner.JoinAlias(() => driverDistrictPriorityAlias.Sector, () => sectorAlias)
 				.WhereRestrictionOn(() => routeListAlias.Id).IsIn(driverInfoNodes.Select(x => x.RouteListId).ToArray())
 				.And(() => driverDistrictPrioritySetAlias.DateActivated <= routeListAlias.Date)
 				.And(Restrictions.Disjunction()
@@ -503,8 +506,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.Add(() => driverDistrictPrioritySetAlias.DateDeactivated >= routeListAlias.Date))
 				.SelectList(list => list
 					.SelectGroup(() => routeListAlias.Id).WithAlias(() => routeListAssignedDistrictsNodeAlias.RouteListId)
-					.Select(CustomProjections.GroupConcat(() => districtAlias.DistrictName,
-						orderByExpression: () => districtAlias.DistrictName, separator: ", "))
+					.Select(CustomProjections.GroupConcat(() => sectorAlias.SectorName,
+						orderByExpression: () => sectorAlias.SectorName, separator: ", "))
 					.WithAlias(() => routeListAssignedDistrictsNodeAlias.AssignedDistricts))
 				.TransformUsing(Transformers.AliasToBean<RouteListAssignedDistrictsNode>())
 				.List<RouteListAssignedDistrictsNode>();
@@ -626,7 +629,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public int RouteListItemId { get; set; }
 		public bool WasTransfered { get; set; }
 		public RouteListItemStatus RouteListItemStatus { get; set; }
-		public string RouteListItemDistrictName { get; set; }
+		public string RouteListItemSectorName { get; set; }
 		public int RouteListItemCountPlanned { get; set; }
 		public string RouteListItemCountFact { get; set; }
 		public int? RouteListItemReturnedBottlesCount { get; set; }

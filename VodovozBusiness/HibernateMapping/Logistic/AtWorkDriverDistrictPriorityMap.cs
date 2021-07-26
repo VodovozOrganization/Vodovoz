@@ -14,7 +14,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Priority).Column ("priority");
 
 			References(x => x.Driver).Column ("at_work_driver_id").Not.Nullable();
-			References(x => x.District).Column ("district_id").Not.LazyLoad().Not.Nullable();
+			References(x => x.Sector).Column ("district_id").Not.LazyLoad().Not.Nullable();
 		}
 	}
 }

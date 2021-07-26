@@ -6,7 +6,8 @@ using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Domain.Sectors;
+using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Services;
 
 namespace VodovozDeliveryRulesService
@@ -16,18 +17,18 @@ namespace VodovozDeliveryRulesService
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 
 		public DeliveryRulesService(
-			IDeliveryRepository deliveryRepository,
+			ISectorsRepository sectorsRepository,
 			IBackupDistrictService backupDistrictService,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
 		{
-			this.deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+			this._sectorsRepository = sectorsRepository ?? throw new ArgumentNullException(nameof(sectorsRepository));
 			this.backupDistrictService = backupDistrictService ?? throw new ArgumentNullException(nameof(backupDistrictService));
 			_deliveryRulesParametersProvider = 
 				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 		}
 		
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly IDeliveryRepository deliveryRepository;
+		private readonly ISectorsRepository _sectorsRepository;
 		private readonly IBackupDistrictService backupDistrictService;
 
 		public DeliveryRulesDTO GetRulesByDistrict(decimal latitude, decimal longitude)
@@ -38,24 +39,24 @@ namespace VodovozDeliveryRulesService
 				
 				using (var uow = UnitOfWorkFactory.CreateWithoutRoot()) 
 				{
-					District district;
+					Sector sector;
 
 					try 
 					{
-						district = deliveryRepository.GetDistrict(uow, latitude, longitude);
+						sector = _sectorsRepository.GetSectorVersionInCoordinates(uow, latitude, longitude).FirstOrDefault()?.Sector;
 					}
 					catch (Exception e) 
 					{
 						logger.Error(e, "Ошибка при подборе района по координатам");
 						logger.Info("Пробую подобрать район из бэкапа...");
-						district = backupDistrictService
-							.Districts
-							.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)latitude, (double)longitude)));
+						sector = backupDistrictService
+							.Sector
+							.FirstOrDefault(x => x.ActiveSectorVersion.Polygon.Contains(new Point((double)latitude, (double)longitude)));
 					}
 					
-					if(district != null) 
+					if(sector != null) 
 					{
-						logger.Info($"Район получен {district.DistrictName}");
+						logger.Info($"Район получен {sector.SectorName}");
 
 						var response = new DeliveryRulesDTO 
 						{
@@ -68,12 +69,13 @@ namespace VodovozDeliveryRulesService
 						{
 							//Берём все правила дня недели
 							var rulesToAdd = 
-								district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay).Select(x => x.Title).ToList();
+								sector.ActiveWeekDayRulesVersion.SectorDeliveryRules.Single(x=>x.DeliveryWeekDay == weekDay).Title; 
 							
+							IList<string> commonRules = null;
 							//Если правил дня недели нет берем общие правила района
-							if(!rulesToAdd.Any())
+							if(string.IsNullOrWhiteSpace(rulesToAdd))
 							{
-								rulesToAdd = district.ObservableCommonDistrictRuleItems.Select(x => x.Title).ToList();
+								commonRules = sector.ActiveDeliveryRuleVersion.ObservableCommonDistrictRuleItems.Select(x => x.Title).ToList();
 							}
 
 							List<DeliverySchedule> scheduleRestrictions;
@@ -83,15 +85,15 @@ namespace VodovozDeliveryRulesService
 							}
 							else
 							{
-								scheduleRestrictions = district
-									.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
+								scheduleRestrictions = sector.ActiveWeekDayRulesVersion.SectorSchedules
+									.Where(x=>x.DeliveryWeekDay == weekDay)
 									.Select(x => x.DeliverySchedule)
 									.ToList();
 							}
 
 							var item = new WeekDayDeliveryRuleDTO {
 								WeekDayEnum = weekDay,
-								DeliveryRules = rulesToAdd,
+								DeliveryRules = !string.IsNullOrWhiteSpace(rulesToAdd)? new List<string>{ rulesToAdd } : commonRules,
 								ScheduleRestrictions = ReorderScheduleRestrictions(scheduleRestrictions).Select(x => x.Name).ToList()
 							};
 							response.WeekDayDeliveryRules.Add(item);
@@ -130,26 +132,26 @@ namespace VodovozDeliveryRulesService
 				
 				using (var uow = UnitOfWorkFactory.CreateWithoutRoot()) 
 				{
-					District district;
+					Sector sector;
 					
 					try 
 					{
-						district = deliveryRepository.GetDistrict(uow, latitude, longitude);
+						sector = _sectorsRepository.GetSectorVersionInCoordinates(uow, latitude, longitude).FirstOrDefault()?.Sector;
 					}
 					catch (Exception e) 
 					{
 						logger.Error(e, "Ошибка при подборе района по координатам.");
 						logger.Info("Пробую подобрать район из бэкапа...");
-						district = backupDistrictService
-							.Districts
-							.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)latitude, (double)longitude)));
+						sector = backupDistrictService
+							.Sector
+							.FirstOrDefault(x => x.ActiveSectorVersion.Polygon.Contains(new Point((double)latitude, (double)longitude)));
 					}
 					
-					if(district != null) 
+					if(sector != null) 
 					{
-						logger.Info($"Район получен {district.DistrictName}");
+						logger.Info($"Район получен {sector.SectorName}");
 
-						return FillDeliveryInfoDTO(district);
+						return FillDeliveryInfoDTO(sector);
 					}
 					
 					string message = $"Невозможно получить информацию о правилах доставки так как по координатам {latitude}, {longitude} не был найден район";
@@ -182,7 +184,7 @@ namespace VodovozDeliveryRulesService
 			return true;
 		}
 
-		private DeliveryInfoDTO FillDeliveryInfoDTO(District district)
+		private DeliveryInfoDTO FillDeliveryInfoDTO(Sector sector)
 		{
 			var info = new DeliveryInfoDTO
 			{
@@ -193,7 +195,7 @@ namespace VodovozDeliveryRulesService
 			
 			foreach (WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName))) 
 			{
-				var rules = district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay).ToList();
+				var rules = sector.ActiveWeekDayRulesVersion.SectorDeliveryRules.Where(x=>x.DeliveryWeekDay == weekDay).ToList();
 
 				List<DeliverySchedule> scheduleRestrictions;
 				if(weekDay == WeekDayName.Today && isStoppedOnlineDeliveriesToday)
@@ -202,8 +204,8 @@ namespace VodovozDeliveryRulesService
 				}
 				else
 				{
-					scheduleRestrictions = district
-						.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
+					scheduleRestrictions = sector.ActiveWeekDayRulesVersion.SectorSchedules
+						.Where(x=>x.DeliveryWeekDay == weekDay)
 						.Select(x => x.DeliverySchedule)
 						.ToList();
 				}
@@ -212,7 +214,7 @@ namespace VodovozDeliveryRulesService
 				{
 					DeliveryRules = rules.Any()
 						? FillDeliveryRuleDTO(rules) //Берём все правила дня недели
-						: FillDeliveryRuleDTO(district.ObservableCommonDistrictRuleItems), //Если правил дня недели нет берем общие правила района
+						: FillDeliveryRuleDTO(sector.ActiveDeliveryRuleVersion.ObservableCommonDistrictRuleItems), //Если правил дня недели нет берем общие правила района
 					WeekDayEnum = weekDay,
 					ScheduleRestrictions = ReorderScheduleRestrictions(scheduleRestrictions).Select(x => x.Name).ToList()
 				};
@@ -220,7 +222,7 @@ namespace VodovozDeliveryRulesService
 				info.WeekDayDeliveryInfos.Add(item);
 			}
 
-			info.GeoGroup = district.GeographicGroup.Name;
+			info.GeoGroup = sector.ActiveSectorVersion.GeographicGroup.Name;
 			info.StatusEnum = DeliveryRulesResponseStatus.Ok;
 			info.Message = "";
 			return info;
@@ -252,6 +254,21 @@ namespace VodovozDeliveryRulesService
 
 		private IList<DeliveryRuleDTO> FillDeliveryRuleDTO<T>(IList<T> rules)
 			where T : DistrictRuleItemBase
+		{
+			return rules.Select(rule => new DeliveryRuleDTO
+				{
+					Bottles19l = rule.DeliveryPriceRule.Water19LCount.ToString(),
+					Bottles6l = rule.DeliveryPriceRule.Water6LCount,
+					Bottles1500ml = rule.DeliveryPriceRule.Water1500mlCount,
+					Bottles600ml = rule.DeliveryPriceRule.Water600mlCount,
+					Bottles500ml = rule.DeliveryPriceRule.Water500mlCount,
+					MinOrder = $"{rule.DeliveryPriceRule.OrderMinSumEShopGoods}",
+					Price = $"{rule.Price:N0}"
+				})
+				.ToList();
+		}
+		
+		private IList<DeliveryRuleDTO> FillDeliveryRuleDTO(IList<SectorWeekDayDeliveryRule> rules)
 		{
 			return rules.Select(rule => new DeliveryRuleDTO
 				{

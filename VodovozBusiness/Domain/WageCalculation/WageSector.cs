@@ -17,7 +17,7 @@ namespace Vodovoz.Domain.WageCalculation
 	]
 	[HistoryTrace]
 	[EntityPermission]
-	public class WageDistrict : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class WageSector : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 

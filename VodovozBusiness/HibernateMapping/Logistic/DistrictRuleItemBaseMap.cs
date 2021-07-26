@@ -15,7 +15,7 @@ namespace Vodovoz.HibernateMapping.Sale
 			Map(x => x.Price).Column("price");
 
 			References(x => x.DeliveryPriceRule).Column("delivery_price_rule_id");
-			References(x => x.District).Column("district_id");
+			References(x => x.Sector).Column("district_id");
 		}
 	}
 	

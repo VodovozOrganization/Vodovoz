@@ -7,6 +7,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 
@@ -20,7 +21,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 			this.Build();
 
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<AtWorkDriverDistrictPriority>.Create()
-				.AddColumn("Район").AddTextRenderer(x => x.District.DistrictName)
+				.AddColumn("Район").AddTextRenderer(x => x.Sector.SectorName)
 				.AddColumn("Приоритет").AddNumericRenderer(x => x.Priority + 1)
 				.Finish();
 			ytreeviewDistricts.Reorderable = true;
@@ -39,16 +40,16 @@ namespace Vodovoz.ViewWidgets.Logistics
 
 		protected void OnButtonAddDistrictClicked(object sender, EventArgs e)
 		{
-			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active, OnlyWithBorders = true };
+			var filter = new SectorJournalFilterViewModel { Status = SectorsSetStatus.Active, OnlyWithBorders = true };
 			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
 				EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false, SelectionMode = JournalSelectionMode.Multiple
 			};
 			journalViewModel.OnEntitySelectedResult += (o, args) => {
 				var addDistricts = args.SelectedNodes;
-				addDistricts.Where(x => observableDistricts.All(d => d.District.Id != x.Id))
+				addDistricts.Where(x => observableDistricts.All(d => d.Sector.Id != x.Id))
 					.Select(x => new AtWorkDriverDistrictPriority {
 						Driver = ListParent,
-						District = UoW.GetById<District>(x.Id)
+						Sector = UoW.GetById<Sector>(x.Id)
 					})
 					.ToList()
 					.ForEach(x => observableDistricts.Add(x));

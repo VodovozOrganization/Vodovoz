@@ -13,6 +13,7 @@ using QS.Views.GtkUI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz.Views
@@ -45,13 +46,13 @@ namespace Vodovoz.Views
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.Name)
 					.AddSetter((c, n) => 
-						c.Editable = n.FinancialDistrictsSet.Status != DistrictsSetStatus.Active)
+						c.Editable = n.FinancialDistrictsSet.Status != SectorsSetStatus.Active)
 				.AddColumn("Организация")
 					.AddComboRenderer(x => x.Organization)
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(ViewModel.UoW.GetAll<Domain.Organizations.Organization>().ToList())
 					.AddSetter((c, n) => 
-						c.Editable = n.FinancialDistrictsSet.Status != DistrictsSetStatus.Active)
+						c.Editable = n.FinancialDistrictsSet.Status != SectorsSetStatus.Active)
 				.AddColumn("")
 				.Finish();
 			

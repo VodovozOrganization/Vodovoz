@@ -13,6 +13,7 @@ using Gamma.ColumnConfig;
 using NHibernate.Transform;
 using NHibernate.Criterion;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -91,19 +92,19 @@ namespace Vodovoz.ReportsParameters
 				})
 			);
 
-			District districtAlias = null;
-			DistrictsSet districtsSetAlias = null;
+			Sector sectorAlias = null;
+			SectorVersion sectorVersionAlias = null;
 			GeographicGroup geoGroupAlias = null;
 			var districtParameter = filter.CreateParameterSet(
 				"Районы",
 				"districts",
 				new ParametersFactory(UoW, (filters) => {
-					SelectableEntityParameter<District> resultAlias = null;
+					SelectableEntityParameter<Sector> resultAlias = null;
 
-					var query = UoW.Session.QueryOver(() => districtAlias)
-						.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
-						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geoGroupAlias)
-						.Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active);
+					var query = UoW.Session.QueryOver(() => sectorAlias)
+						.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersionAlias)
+						.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geoGroupAlias)
+						.Where(() => sectorVersionAlias.Status == SectorsSetStatus.Active);
 
 					if(filters != null && filters.Any()) {
 						foreach(var f in filters) {
@@ -115,11 +116,11 @@ namespace Vodovoz.ReportsParameters
 					}
 
 					query.SelectList(list => list
-							.Select(() => districtAlias.Id).WithAlias(() => resultAlias.EntityId)
-							.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.EntityTitle)
+							.Select(() => sectorAlias.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.EntityTitle)
 						);
-					var result = query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<District>>())
-						.List<SelectableEntityParameter<District>>();
+					var result = query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Sector>>())
+						.List<SelectableEntityParameter<Sector>>();
 					foreach (var parameter in result) {
 						parameter.EntityTitle = $"{parameter.EntityId} {parameter.EntityTitle}";
 					}

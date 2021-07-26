@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
@@ -65,7 +66,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// Зарплатный район к которому относится данный адрес
 		/// </summary>
 		/// <value>Зарплатный район адреса</value>
-		WageDistrict WageDistrictOfAddress { get; }
+		WageSector WageSectorOfAddress { get; }
 
 		/// <summary>
 		/// Был ли адрес посещён с экспедитором
@@ -79,9 +80,9 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 		/// <summary>
 		/// Методика расчёта ЗП. Заполняется для исторических МЛ, т.к. районы
-		/// доставки (<see cref="District"/>) со временем
+		/// доставки (<see cref="Sector"/>) со временем
 		/// могут меняться и происходить смена зарплатной группы
-		/// (<see cref="WageDistrict"/>), что недопустимо, ибо произойдёт
+		/// (<see cref="WageSector"/>), что недопустимо, ибо произойдёт
 		/// перерасчёт ЗП.
 		/// </summary>
 		WageDistrictLevelRate WageCalculationMethodic { get; }

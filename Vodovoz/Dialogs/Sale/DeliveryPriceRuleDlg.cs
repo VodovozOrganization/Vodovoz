@@ -3,6 +3,7 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz.Dialogs.Sale
@@ -39,8 +40,8 @@ namespace Vodovoz.Dialogs.Sale
 			ylabel500mlBottles.Binding.AddBinding(Entity, e => e.Water500mlCount, w => w.LabelProp).InitializeFromSource();
 			vboxDistricts.Visible = Entity.Id > 0;
 			if(Entity.Id > 0) {
-				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<District>()
-					.AddColumn("Правило используется в районах:").AddTextRenderer(d => d.DistrictName)
+				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<Sector>()
+					.AddColumn("Правило используется в районах:").AddTextRenderer(d => d.SectorName)
 					.Finish();
 
 				treeDistricts.ItemsDataSource = DistrictRuleRepository.GetDistrictsHavingRule(UoW, Entity);

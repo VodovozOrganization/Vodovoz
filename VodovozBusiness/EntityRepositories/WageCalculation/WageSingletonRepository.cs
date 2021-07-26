@@ -20,9 +20,9 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 			return instance;
 		}
 
-		public IEnumerable<WageDistrict> AllWageDistricts(IUnitOfWork uow, bool hideArchive = true)
+		public IEnumerable<WageSector> AllWageDistricts(IUnitOfWork uow, bool hideArchive = true)
 		{
-			var baseQuery = uow.Session.QueryOver<WageDistrict>();
+			var baseQuery = uow.Session.QueryOver<WageSector>();
 			return hideArchive ? baseQuery.Where(d => !d.IsArchive).List() : baseQuery.List();
 		}
 

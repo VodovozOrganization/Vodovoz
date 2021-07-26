@@ -72,8 +72,8 @@ namespace Vodovoz.ServiceDialogs.Database
 
 			var dublicateSubquery = QueryOver.Of<DeliveryPoint>()
 			                                 .Where(x => x.Counterparty.Id == mainPointAlias.Counterparty.Id
-			                                        && x.Latitude == mainPointAlias.Latitude
-			                                        && x.Longitude == mainPointAlias.Longitude
+			                                        && x.ActiveVersion.Latitude == mainPointAlias.ActiveVersion.Latitude
+			                                        && x.ActiveVersion.Longitude == mainPointAlias.ActiveVersion.Longitude
 			                                        && x.Id != mainPointAlias.Id
 			                                        && (x.Code1c == null || mainPointAlias.Code1c == null || x.Code1c == mainPointAlias.Code1c))
 			                                 .Select(x => x.Id);
@@ -82,8 +82,8 @@ namespace Vodovoz.ServiceDialogs.Database
 						  .WithSubquery.WhereExists(dublicateSubquery)
 			              .Fetch(x => x.Counterparty).Eager
 			              .OrderBy(x => x.Counterparty).Asc
-			              .ThenBy(x => x.Latitude).Asc
-			              .ThenBy(x => x.Longitude).Asc
+			              .ThenBy(x => x.ActiveVersion.Latitude).Asc
+			              .ThenBy(x => x.ActiveVersion.Longitude).Asc
 			              .List();
 
 			progressOp.Adjustment.Upper = list.Count + 3;
@@ -187,8 +187,8 @@ namespace Vodovoz.ServiceDialogs.Database
 			{
 				var first = Addresses.First().Address;
 				return first.Counterparty.Id == dp.Counterparty.Id 
-					        && first.Latitude == dp.Latitude 
-					        && first.Longitude == dp.Longitude;
+					        && first.ActiveVersion.Latitude == dp.ActiveVersion.Latitude 
+					        && first.ActiveVersion.Longitude == dp.ActiveVersion.Longitude;
 			}
 
 			public void FineMain()

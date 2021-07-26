@@ -6,6 +6,7 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gdk;
 using Gtk;
+using MoreLinq;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -16,6 +17,7 @@ using QS.Tdi;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
@@ -78,7 +80,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Грузоп.")
 					.AddTextRenderer(x => x.Car != null ? x.Car.MaxWeight.ToString("D") : null)
 				.AddColumn("Районы доставки")
-					.AddTextRenderer(x => string.Join(", ", x.DistrictsPriorities.Select(d => d.District.DistrictName)))
+					.AddTextRenderer(x => string.Join(", ", x.DistrictsPriorities.Select(d => d.Sector.SectorName)))
 				.AddColumn("")
 				.AddColumn("Комментарий")
 					.AddTextRenderer(x => x.Comment)
@@ -298,7 +300,7 @@ namespace Vodovoz.Dialogs.Logistic
 					.Where(dr =>
 						dr.Car != null
 						&& dr.Car.TypeOfUse != CarTypeOfUse.CompanyLargus
-						&& dr.DistrictsPriorities.Any(dd2 => dd2.District.Id == districtId)
+						&& dr.DistrictsPriorities.Any(dd2 => dd2.Sector.Id == districtId)
 					)
 					.Sum(dr => dr.WithForwarder == null ? 1 : 2);
 
@@ -309,7 +311,7 @@ namespace Vodovoz.Dialogs.Logistic
 					.OrderByDescending(x => districtsBottles
 						.Where(db => x.Employee.DriverDistrictPrioritySets
 							.First(s => s.IsActive).DriverDistrictPriorities
-							.Any(dd => dd.District.Id == db.Key))
+							.Any(dd => dd.Sector.Id == db.Key))
 						.Max(db => (double)db.Value / ManOnDistrict(db.Key)))
 					.FirstOrDefault();
 
@@ -578,35 +580,69 @@ namespace Vodovoz.Dialogs.Logistic
         }
 
 		//Если дата диалога >= даты активации набора районов и есть хотя бы один район у водителя, который не принадлежит активному набору районов
-		private void CheckAndCorrectDistrictPriorities() {
-			var activeDistrictsSet = UoW.Session.QueryOver<DistrictsSet>().Where(x => x.Status == DistrictsSetStatus.Active).SingleOrDefault();
-			if(activeDistrictsSet == null) {
-				throw new ArgumentNullException(nameof(activeDistrictsSet), @"Не найдена активная версия районов");
+		private void CheckAndCorrectDistrictPriorities()
+		{
+			var activeSectors = UoW.Session.QueryOver<SectorVersion>().Where(x => x.StartDate >= DialogAtDate).List();
+			if(!activeSectors.Any()) {
+				throw new ArgumentNullException(nameof(activeSectors), @"Не найдены нужные версии районов");
 			}
-			if(activeDistrictsSet.DateActivated == null) {
-				throw new ArgumentNullException(nameof(activeDistrictsSet), @"У активной версии районов не проставлена дата активации");
-			}
-			if(DialogAtDate.Date >= activeDistrictsSet.DateActivated.Value.Date) {
-				var outDatedpriorities = DriversAtDay.SelectMany(x => x.DistrictsPriorities.Where(d => d.District.DistrictsSet.Id != activeDistrictsSet.Id)).ToList();
-				if(!outDatedpriorities.Any()) 
-					return;
-				
-				int deletedCount = 0;
-				foreach (var priority in outDatedpriorities) {
-					var newDistrict = activeDistrictsSet.ObservableDistricts.FirstOrDefault(x => x.CopyOf == priority.District);
-					if(newDistrict == null) {
-						priority.Driver.ObservableDistrictsPriorities.Remove(priority);
-						UoW.Delete(priority);
-						deletedCount++;
-					}
-					else {
-						priority.District = newDistrict;
-						UoW.Save(priority);
-					}
+
+			activeSectors.ForEach(x =>
+			{
+				if(x.StartDate == null)
+				{
+					throw new ArgumentNullException(nameof(activeSectors), @"У активной версии районов не проставлена дата активации");
 				}
-				MessageDialogHelper.RunInfoDialog($"Были найдены и исправлены устаревшие приоритеты районов.\nУдалено приоритетов, ссылающихся на несуществующий район: {deletedCount}");
-				ytreeviewAtWorkDrivers.YTreeModel.EmitModelChanged();
-			}
+			});
+			activeSectors.ForEach(sectorVersion =>
+			{
+				if(DialogAtDate.Date >= sectorVersion.StartDate.Date)
+				{
+					var outDatedPriorities = DriversAtDay
+						.SelectMany(atWorkDriver => atWorkDriver.DistrictsPriorities.Where(atWorkDriverDistrictPriority =>
+							atWorkDriverDistrictPriority.Sector.ActiveSectorVersion.Id != sectorVersion.Id));
+					if(!outDatedPriorities.Any()) 
+						return;
+					int deletedCount = 0;
+					foreach(var priority in outDatedPriorities)
+					{
+						var newSector = sectorVersion.Sector.Clone() as Sector;
+						if(newSector is null)
+						{
+							priority.Driver.ObservableDistrictsPriorities.Remove(priority);
+							UoW.Delete(priority);
+							deletedCount++;
+						}
+						else {
+							priority.Sector = newSector;
+							UoW.Save(priority);
+						}
+					}
+					MessageDialogHelper.RunInfoDialog($"Были найдены и исправлены устаревшие приоритеты районов.\nУдалено приоритетов, ссылающихся на несуществующий район: {deletedCount}");
+					ytreeviewAtWorkDrivers.YTreeModel.EmitModelChanged();
+				}
+			});
+			// if(DialogAtDate.Date >= activeDistrictsSet.DateActivated.Value.Date) {
+			// 	var outDatedpriorities = DriversAtDay.SelectMany(x => x.DistrictsPriorities.Where(d => d.Sector.DistrictsSet.Id != activeDistrictsSet.Id)).ToList();
+			// 	if(!outDatedpriorities.Any()) 
+			// 		return;
+			// 	
+			// 	int deletedCount = 0;
+			// 	foreach (var priority in outDatedpriorities) {
+			// 		var newDistrict = activeDistrictsSet.ObservableDistricts.FirstOrDefault(x => x.CopyOf == priority.Sector);
+			// 		if(newDistrict == null) {
+			// 			priority.Driver.ObservableDistrictsPriorities.Remove(priority);
+			// 			UoW.Delete(priority);
+			// 			deletedCount++;
+			// 		}
+			// 		else {
+			// 			priority.Sector = newDistrict;
+			// 			UoW.Save(priority);
+			// 		}
+			// 	}
+			// 	MessageDialogHelper.RunInfoDialog($"Были найдены и исправлены устаревшие приоритеты районов.\nУдалено приоритетов, ссылающихся на несуществующий район: {deletedCount}");
+			// 	ytreeviewAtWorkDrivers.YTreeModel.EmitModelChanged();
+			// }
 		}
 		#endregion
 		

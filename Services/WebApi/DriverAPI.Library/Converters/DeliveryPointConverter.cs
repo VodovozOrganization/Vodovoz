@@ -18,8 +18,8 @@ namespace DriverAPI.Library.Converters
 				DeliveryPointCategory = deliveryPoint.Category?.Name,
 				EntranceType = deliveryPoint.EntranceType.ToString(),
 				RoomType = deliveryPoint.RoomType.ToString(),
-				Latitude = deliveryPoint.Latitude ?? 0,
-				Longitude = deliveryPoint.Longitude ?? 0
+				Latitude = deliveryPoint.ActiveVersion.Latitude ?? 0,
+				Longitude = deliveryPoint.ActiveVersion.Longitude ?? 0
 			};
 		}
 	}

@@ -104,7 +104,6 @@
     <Compile Include="Domain\Logistic\CarEvent.cs" />
     <Compile Include="Domain\Logistic\DeliverySummary.cs" />
     <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
-    <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\DriverCarKind.cs" />
     <Compile Include="Domain\Logistic\OrdersCountNode.cs" />
     <Compile Include="Domain\Logistic\CarEventType.cs" />
@@ -127,6 +126,13 @@
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
+    <Compile Include="Domain\Sectors\DeliveryPointSectorVersion.cs" />
+    <Compile Include="Domain\Sectors\Sector.cs" />
+    <Compile Include="Domain\Sectors\SectorDeliveryRuleVersion.cs" />
+    <Compile Include="Domain\Sectors\SectorVersion.cs" />
+    <Compile Include="Domain\Sectors\SectorWeekDayDeliveryRule.cs" />
+    <Compile Include="Domain\Sectors\SectorWeekDayRulesVersion.cs" />
+    <Compile Include="Domain\Sectors\SectorWeekDaySchedule.cs" />
     <Compile Include="Domain\Security\RegisteredRM.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
@@ -147,6 +153,8 @@
     <Compile Include="EntityRepositories\Cash\RouteListItemCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\ISelfDeliveryCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\SelfDeliveryCashDistributionDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Sectors\ISectorsRepository.cs" />
+    <Compile Include="EntityRepositories\Sectors\SectorsRepository.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
     <Compile Include="EntityRepositories\Cash\Requests\CashRequestRepository.cs" />
@@ -178,7 +186,6 @@
     <Compile Include="HibernateMapping\Goods\NomenclatureFixedPriceMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\CarEventMap.cs" />
-    <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DriverCarKindMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverMobileAppActionRecordMap.cs" />
@@ -189,7 +196,6 @@
     <Compile Include="HibernateMapping\Order\OnlineStoreMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentMap.cs" />
-    <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
     <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
@@ -199,6 +205,13 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
+    <Compile Include="HibernateMapping\Sectors\DeliveryPointSectorVersionMap.cs" />
+    <Compile Include="HibernateMapping\Sectors\SectorMap.cs" />
+    <Compile Include="HibernateMapping\Sectors\SectorDeliveryRuleVersionMap.cs" />
+    <Compile Include="HibernateMapping\Sectors\SectorVersionMap.cs" />
+    <Compile Include="HibernateMapping\Sectors\SectorWeekDayScheduleMap.cs" />
+    <Compile Include="HibernateMapping\Sectors\SectorWeekDaysDeliveryRuleMap.cs" />
+    <Compile Include="HibernateMapping\Sectors\SectorWeekDayRulesVersionMap.cs" />
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
@@ -517,7 +530,6 @@
     <Compile Include="Domain\Client\Comments.cs" />
     <Compile Include="Domain\Client\CommentsGroups.cs" />
     <Compile Include="Domain\Client\CommentsTemplates.cs" />
-    <Compile Include="Domain\Sale\District.cs" />
     <Compile Include="Repositories\Sale\ScheduleRestrictionRepository.cs" />
     <Compile Include="Domain\Orders\DiscountReason.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonMap.cs" />
@@ -773,7 +785,7 @@
     <Compile Include="Domain\WageCalculation\WageRateTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageRate.cs" />
     <Compile Include="Domain\WageCalculation\WageDistrictLevelRate.cs" />
-    <Compile Include="Domain\WageCalculation\WageDistrict.cs" />
+    <Compile Include="Domain\WageCalculation\WageSector.cs" />
     <Compile Include="Domain\WageCalculation\WageDistrictLevelRates.cs" />
     <Compile Include="Domain\WageCalculation\PercentWageTypes.cs" />
     <Compile Include="Domain\WageCalculation\FixedWageTypes.cs" />
@@ -895,8 +907,6 @@
     <Compile Include="Domain\Orders\UndeliveryProblemSource.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveryProblemSourceMap.cs" />
     <Compile Include="Services\IDriverServiceParametersProvider.cs" />
-    <Compile Include="EntityRepositories\Delivery\IDeliveryRepository.cs" />
-    <Compile Include="EntityRepositories\Delivery\DeliveryRepository.cs" />
     <Compile Include="Services\IErrorSendParameterProvider.cs" />
     <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModel.cs" />
     <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModelFactory.cs" />
@@ -960,6 +970,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Domain\" />
+    <Folder Include="EntityRepositories\Delivery" />
     <Folder Include="HibernateMapping\" />
     <Folder Include="Repositories\" />
     <Folder Include="DocTemplates\" />

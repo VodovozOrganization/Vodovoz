@@ -31,6 +31,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -423,7 +424,7 @@ namespace Vodovoz
 					&& !selectedDistrictPrioritySet.IsActive 
 					&& selectedDistrictPrioritySet.DateActivated == null
 					&& selectedDistrictPrioritySet.ObservableDriverDistrictPriorities
-						.All(x => x.District.DistrictsSet.Status == DistrictsSetStatus.Active)
+						.All(x => x.Sector.ActiveSectorVersion.Status == SectorsSetStatus.Active)
 					&& canActivateDriverDistrictPrioritySetPermission;
 			};
 
@@ -473,8 +474,8 @@ namespace Vodovoz
 
 				foreach(var driverDistrictPriority in notCopiedPriorities) {
 					messageBuilder.AppendLine(
-						$"Район: ({driverDistrictPriority.District.Id}) " +
-						$"{driverDistrictPriority.District.DistrictName}. " +
+						$"Район: ({driverDistrictPriority.Sector.Id}) " +
+						$"{driverDistrictPriority.Sector.SectorName}. " +
 						$"Приоритет: {driverDistrictPriority.Priority + 1}"
 					);
 				}

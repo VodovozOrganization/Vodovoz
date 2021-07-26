@@ -1,17 +1,18 @@
 using QS.Project.Filter;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Journals.FilterViewModels
 {
-    public class DistrictJournalFilterViewModel : FilterViewModelBase<DistrictJournalFilterViewModel>
+    public class SectorJournalFilterViewModel : FilterViewModelBase<SectorJournalFilterViewModel>
     {
-        public DistrictJournalFilterViewModel()
+        public SectorJournalFilterViewModel()
         {
             OnlyWithBorders = false;
         }
         
-        private DistrictsSetStatus? status;
-        public DistrictsSetStatus? Status {
+        private SectorsSetStatus? status;
+        public SectorsSetStatus? Status {
             get => status;
             set => UpdateFilterField(ref status, value, () => Status);
         }

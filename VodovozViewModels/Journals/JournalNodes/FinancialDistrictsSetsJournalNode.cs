@@ -3,6 +3,7 @@ using QS.Project.Journal;
 using QS.Utilities.Text;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes
 {
@@ -12,7 +13,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
         public DateTime DateCreated { get; set; }
         public DateTime? DateActivated { get; set; }
         public DateTime? DateClosed { get; set; }
-        public DistrictsSetStatus Status { get; set; }
+        public SectorsSetStatus Status { get; set; }
         public string AuthorName { get; set; }
         public string AuthorLastName { get; set; }
         public string AuthorPatronymic { get; set; }

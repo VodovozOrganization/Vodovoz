@@ -33,6 +33,7 @@ using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories;
@@ -499,18 +500,18 @@ namespace Vodovoz.ViewModels.Logistic
 			set => SetField(ref optimizer, value);
 		}
 
-		IList<District> logisticanDistricts = new List<District>();
-		public virtual IList<District> LogisticanDistricts {
+		IList<SectorVersion> logisticanDistricts = new List<SectorVersion>();
+		public virtual IList<SectorVersion> LogisticanDistricts {
 			get => logisticanDistricts;
 			set => SetField(ref logisticanDistricts, value);
 		}
 
-		GenericObservableList<District> observableLogisticanDistricts;
+		GenericObservableList<SectorVersion> observableLogisticanDistricts;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<District> ObservableLogisticanDistricts {
+		public virtual GenericObservableList<SectorVersion> ObservableLogisticanDistricts {
 			get {
 				if(observableLogisticanDistricts == null)
-					observableLogisticanDistricts = new GenericObservableList<District>(LogisticanDistricts);
+					observableLogisticanDistricts = new GenericObservableList<SectorVersion>(LogisticanDistricts);
 				return observableLogisticanDistricts;
 			}
 		}
@@ -1132,10 +1133,12 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			DeliveryPoint deliveryPointAlias = null;
-			District districtAlias = null;
+			Sector sectorAlias = null;
 			GeographicGroup geographicGroupAlias = null;
 			Counterparty counterpartyAlias = null;
-
+			DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
+			SectorVersion sectorVersionAlias = null;
+			
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 
 			if(AddressTypes.Any(x => x.Selected))
@@ -1201,8 +1204,10 @@ namespace Vodovoz.ViewModels.Logistic
 				if(selectedGeographicGroup.Any())
 				{
 					baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-						.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
+						.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersionAlias)
+						.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
+						.Left.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersionAlias)
+						.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
 						.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
 							selectedGeographicGroup.Select(x => x.Id).ToArray()));
 				}
@@ -1216,7 +1221,7 @@ namespace Vodovoz.ViewModels.Logistic
 				switch(DeliveryScheduleType)
 				{
 					case DeliveryScheduleFilterType.DeliveryStart:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.ActiveVersion.CoordinatesExist)
 								.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
 								.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
 								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
@@ -1224,7 +1229,7 @@ namespace Vodovoz.ViewModels.Logistic
 							;
 						break;
 					case DeliveryScheduleFilterType.DeliveryEnd:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.ActiveVersion.CoordinatesExist)
 								.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
 								.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
 								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
@@ -1232,7 +1237,7 @@ namespace Vodovoz.ViewModels.Logistic
 							;
 						break;
 					case DeliveryScheduleFilterType.DeliveryStartAndEnd:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.ActiveVersion.CoordinatesExist)
 								.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
 								.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
 								.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
@@ -1409,9 +1414,11 @@ namespace Vodovoz.ViewModels.Logistic
 			OrdersCountNode ordersCountNode = null;
 			DeliverySummaryNode resultAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
-			District districtAlias = null;
+			Sector sectorAlias = null;
 			GeographicGroup geographicGroupAlias = null;
 			Counterparty counterpartyAlias = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
+			SectorVersion sectorVersionAlias = null;
 
 			ObservableDeliverySummary.Clear();
 
@@ -1465,8 +1472,10 @@ namespace Vodovoz.ViewModels.Logistic
 				if(selectedGeographicGroup.Any())
 				{
 					baseQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-						.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
+						.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersionAlias)
+						.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
+						.Left.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersionAlias)
+						.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
 						.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
 							selectedGeographicGroup.Select(x => x.Id).ToArray()));
 				}

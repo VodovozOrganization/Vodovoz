@@ -91,8 +91,8 @@ namespace Android
 			Title = item.Order.Title;
 			CityDistrict = item.Order.DeliveryPoint?.CityDistrict;
 			StreetDistrict = item.Order.DeliveryPoint?.StreetDistrict;
-			Latitude = item.Order.DeliveryPoint?.Latitude;
-			Longitude = item.Order.DeliveryPoint?.Longitude;
+			Latitude = item.Order.DeliveryPoint?.ActiveVersion.Latitude;
+			Longitude = item.Order.DeliveryPoint?.ActiveVersion.Longitude;
 			DeliveryPointComment = item.Order.DeliveryPoint?.Comment;
 			Address = item.Order.DeliveryPoint?.CompiledAddress;
 			DeliverySchedule = item.Order.DeliverySchedule.DeliveryTime;

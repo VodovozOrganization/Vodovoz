@@ -34,13 +34,10 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.FoundOnOsm)		  		.Column("found_on_osm");
 			Map(x => x.ManualCoordinates)		.Column("manual_coordinates");
 			Map(x => x.IsFixedInOsm)	 	 	.Column("is_fixed_in_osm");
-			Map(x => x.Latitude)		 	 	.Column("latitude");
-			Map(x => x.Longitude)			  	.Column("longitude");
 			Map(x => x.IsActive)			  	.Column("is_active");
 			Map(x => x.Address1c)			  	.Column("address_1c");
 			Map(x => x.Code1c)			  		.Column("code1c");
 			Map(x => x.BottleReserv)	  		.Column("bottle_reserv");
-			Map(x => x.DistanceFromBaseMeters)	.Column("distance_from_center_meters");
 			Map(x => x.HaveResidue)				.Column("have_residue");
 			Map(x => x.AlwaysFreeDelivery)		.Column("always_free_delivery");
 			Map(x => x.AddCertificatesAlways)	.Column("add_certificates_always");
@@ -60,7 +57,6 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.DeliverySchedule)			.Column("delivery_schedule_id");
 			References(x => x.СoordsLastChangeUser)		.Column("coords_lastchange_user_id");
 			References(x => x.DefaultWaterNomenclature)	.Column("default_nomenclature_id");
-			References(x => x.District)					.Column("district_id");
 			References(x => x.Category)					.Column("delivery_point_category_id");
 
 			HasMany(x => x.Phones).Cascade.All().LazyLoad().KeyColumn("delivery_point_id");

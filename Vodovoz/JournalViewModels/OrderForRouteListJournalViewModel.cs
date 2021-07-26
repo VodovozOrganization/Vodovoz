@@ -24,6 +24,7 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -95,7 +96,9 @@ namespace Vodovoz.JournalViewModels
 			DeliverySchedule deliveryScheduleAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
-			District districtAlias = null;
+			Sector sectorAlias = null;
+			SectorVersion sectorVersionAlias = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
 
 			Nomenclature sanitizationNomenclature = new NomenclatureRepository(new NomenclatureParametersProvider()).GetSanitisationNomenclature(uow);
 
@@ -195,7 +198,8 @@ namespace Vodovoz.JournalViewModels
 				 .Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				 .Left.JoinAlias(o => o.Author, () => authorAlias)
 				 .Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
-				 .Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias);
+				 .Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersionAlias)
+				 .Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias);
 
 			query.Where(GetSearchCriterion(
 				() => orderAlias.Id,
@@ -209,7 +213,7 @@ namespace Vodovoz.JournalViewModels
 			));
 			
 			if(FilterViewModel.IncludeDistrictsIds != null && FilterViewModel.IncludeDistrictsIds.Any())
-				query = query.Where(() => deliveryPointAlias.District.Id.IsIn(FilterViewModel.IncludeDistrictsIds));
+				query = query.Where(() => sectorAlias.Id.IsIn(FilterViewModel.IncludeDistrictsIds));
 			
 			// Для того чтобы уже добавленные в МЛ заказы больше не появлялись 
 			if(FilterViewModel.ExceptIds != null && FilterViewModel.ExceptIds.Any())
@@ -226,7 +230,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 				   .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
-				   .Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+				   .Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 				   .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompilledAddress)
 				   .Select(() => deliveryPointAlias.City).WithAlias(() => resultAlias.City)
 				   .Select(() => deliveryPointAlias.Street).WithAlias(() => resultAlias.Street)
@@ -348,15 +352,15 @@ namespace Vodovoz.JournalViewModels
 						var selectedNodes = selectedItems.Cast<OrderForRouteListJournalNode>();
 						foreach(var sel in selectedNodes) {
 							var order = UoW.GetById<VodovozOrder>(sel.Id);
-							if(order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
+							if(order.DeliveryPoint == null || order.DeliveryPoint.ActiveVersion.Latitude == null || order.DeliveryPoint.ActiveVersion.Longitude == null)
 								continue;
 
 							System.Diagnostics.Process.Start(
 								string.Format(
 									CultureInfo.InvariantCulture,
 									"https://maps.yandex.ru/?ll={0},{1}&z=17",
-									order.DeliveryPoint.Longitude,
-									order.DeliveryPoint.Latitude
+									order.DeliveryPoint.ActiveVersion.Longitude,
+									order.DeliveryPoint.ActiveVersion.Latitude
 								)
 							);
 						}
@@ -396,10 +400,10 @@ namespace Vodovoz.JournalViewModels
 						var selectedNodes = selectedItems.Cast<OrderForRouteListJournalNode>();
 						foreach(var sel in selectedNodes) {
 							var order = UoW.GetById<VodovozOrder>(sel.Id);
-							if(order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
+							if(order.DeliveryPoint == null || order.DeliveryPoint.ActiveVersion.Latitude == null || order.DeliveryPoint.ActiveVersion.Longitude == null)
 								continue;
 
-							System.Diagnostics.Process.Start(string.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
+							System.Diagnostics.Process.Start(string.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.ActiveVersion.Longitude, order.DeliveryPoint.ActiveVersion.Latitude));
 						}
 					}
 				)

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Sale
 {
-    public enum DistrictWaterPrice
+    public enum SectorWaterPrice
     {
         [Display(Name = "По прайсу")]
         Standart,
@@ -12,9 +12,9 @@ namespace Vodovoz.Domain.Sale
         ByDistance,
     }
 
-    public class DistrictWaterPriceStringType : NHibernate.Type.EnumStringType
+    public class SectorWaterPriceStringType : NHibernate.Type.EnumStringType
     {
-        public DistrictWaterPriceStringType() : base(typeof(DistrictWaterPrice)) { }
+        public SectorWaterPriceStringType() : base(typeof(SectorWaterPrice)) { }
     }
 	
     public enum WeekDayName

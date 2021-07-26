@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Domain.Sale
 {
@@ -8,11 +9,11 @@ namespace Vodovoz.Domain.Sale
     {
         public virtual int Id { get; set; }
 
-        District district;
+        Sector _sector;
         [Display(Name = "Район доставки")]
-        public virtual District District {
-            get => district;
-            set => SetField(ref district, value, () => District);
+        public virtual Sector Sector {
+            get => _sector;
+            set => SetField(ref _sector, value, () => Sector);
         }
 
         DeliveryPriceRule deliveryPriceRule;

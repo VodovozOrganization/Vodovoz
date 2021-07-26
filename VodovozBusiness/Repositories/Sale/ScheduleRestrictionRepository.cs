@@ -9,23 +9,22 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Repositories.Sale
 {
 	public static class ScheduleRestrictionRepository
 	{
-		public static QueryOver<District> GetDistrictsWithBorder()
+		public static QueryOver<SectorVersion> GetSectorVersion()
 		{
-			DistrictsSet districtsSetAlias = null;
-			return QueryOver.Of<District>()
-				.Left.JoinAlias(x => x.DistrictsSet, () => districtsSetAlias)
-				.Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active)
-				.And(x => x.DistrictBorder != null);
+			return QueryOver.Of<SectorVersion>()
+				.Where(x => x.Status == SectorsSetStatus.Active)
+				.And(x => x.Polygon != null);
 		}
 
-		public static IList<District> GetDistrictsWithBorder(IUnitOfWork uow)
+		public static IList<SectorVersion> GetSectorVersion(IUnitOfWork uow)
 		{
-			return GetDistrictsWithBorder()
+			return GetSectorVersion()
 				.GetExecutableQueryOver(uow.Session)
 				.List();
 		}
@@ -35,9 +34,9 @@ namespace Vodovoz.Repositories.Sale
 			OrderCountResultNode resultAlias = null;
 			Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
-			DeliveryPoint deliveryPointAlias = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
 
-			var districtSubquery = QueryOver.Of<District>()
+			var districtSubquery = QueryOver.Of<Sector>()
 				.Where(
 					Restrictions.Eq(
 						Projections.SqlFunction(
@@ -46,9 +45,9 @@ namespace Vodovoz.Repositories.Sale
 								"ST_WITHIN(PointFromText(CONCAT('POINT(', ?1 ,' ', ?2,')')), ?3)"
 							),
 							NHibernateUtil.Boolean,
-							Projections.Property(() => deliveryPointAlias.Latitude),
-							Projections.Property(() => deliveryPointAlias.Longitude),
-							Projections.Property<District>(x => x.DistrictBorder)
+							Projections.Property(() => deliveryPointSectorVersion.Latitude),
+							Projections.Property(() => deliveryPointSectorVersion.Longitude),
+							Projections.Property<SectorVersion>(x => x.Polygon)
 						),
 						true
 					)
@@ -62,7 +61,7 @@ namespace Vodovoz.Repositories.Sale
 				.JoinQueryOver(x => x.OrderItems, () => orderItemsAlias)
 				.JoinQueryOver(x => x.Nomenclature)
 				.Where(x => x.Category == Domain.Goods.NomenclatureCategory.water && !x.IsDisposableTare)
-				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointSectorVersion)
 				.SelectList(list => list.SelectGroup(x => x.Id).WithAlias(() => resultAlias.OrderId)
 					.SelectSum(() => (int)orderItemsAlias.Count).WithAlias(() => resultAlias.WaterCount)
 					.SelectSubQuery(districtSubquery).WithAlias(() => resultAlias.DistrictId)
