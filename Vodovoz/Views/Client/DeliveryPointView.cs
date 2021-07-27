@@ -179,8 +179,8 @@ namespace Vodovoz.Views.Client
 			_mapWidget.ButtonReleaseEvent += MapWidgetOnButtonReleaseEvent;
 			_mapWidget.MotionNotifyEvent += MapWidgetOnMotionNotifyEvent;
 			sidePanelMap.Panel = _mapWidget;
-			sidePanelMap.PanelOpened += SidePanelMapOnPanelOpened;
-			sidePanelMap.PanelHided += SidePanelMapOnPanelHided;
+			sidePanelMap.PanelOpened += (s, a) =>  ViewModel.HideJournalCommand.Execute();
+			sidePanelMap.PanelHided += (s, a) => ViewModel.ShowJournalCommand.Execute();
 			ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
 			UpdateAddressOnMap();
 
@@ -207,13 +207,6 @@ namespace Vodovoz.Views.Client
 				deliverypointresponsiblepersonsview1.Visible = false;
 				labelResponsiblePersons.Visible = false;
 			}
-		}
-
-		public override void Destroy()
-		{
-			sidePanelMap.PanelOpened -= SidePanelMapOnPanelOpened;
-			sidePanelMap.PanelHided -= SidePanelMapOnPanelHided;
-			base.Destroy();
 		}
 
 		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -377,20 +370,6 @@ namespace Vodovoz.Views.Client
 			entryStreet.Street = string.Empty;
 			entryStreet.StreetDistrict = string.Empty;
 			entryBuilding.House = string.Empty;
-		}
-
-		#endregion
-
-		#region SidePanelEvents
-
-		private void SidePanelMapOnPanelHided(object sender, EventArgs e)
-		{
-			ViewModel.ShowJournalCommand.Execute();
-		}
-
-		private void SidePanelMapOnPanelOpened(object sender, EventArgs e)
-		{
-			ViewModel.HideJournalCommand.Execute();
 		}
 
 		#endregion
