@@ -13,7 +13,6 @@ namespace Vodovoz.HibernateMapping.Sale
 
             Map(x => x.WeekDay).Column("week_day").CustomType<WeekDayNameStringType>();
             
-            References(x => x.Sector).Column("district_id");
             References(x => x.DeliverySchedule).Column("delivery_schedule_id");
             References(x => x.AcceptBefore).Column("accept_before_id");
         }

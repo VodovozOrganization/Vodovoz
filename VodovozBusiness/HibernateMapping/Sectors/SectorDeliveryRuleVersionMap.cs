@@ -16,7 +16,9 @@ namespace Vodovoz.HibernateMapping.Sectors
 			Map(x => x.EndDate).Column("end_date");
 			
 			References(x => x.Sector).Column("sector_id");
-			HasMany(x => x.CommonDistrictRuleItems).Cascade.AllDeleteOrphan().Inverse().KeyColumn("sector_week_days_delivery_rules_id");
+			
+			HasMany(x => x.CommonDistrictRuleItems).KeyColumn("sector_week_days_delivery_rules_id")
+				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();
 		}
 	}
 }

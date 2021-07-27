@@ -15,7 +15,7 @@ namespace Vodovoz.HibernateMapping.Sectors
 			Map(x => x.DeliveryWeekDay).Column("delivery_week_day");
 			Map(x => x.Price).Column("price");
 			
-			References(x => x.DeliveryPriceRule).Column("delivery_rule_id");
+			References(x => x.DeliveryPriceRule).Column("delivery_price_rule_id");
 			References(x => x.SectorWeekDayRulesVersion).Column("sector_week_day_rules_version");
 		}
 	}
