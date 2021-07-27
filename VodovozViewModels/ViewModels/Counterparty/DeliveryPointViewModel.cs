@@ -186,7 +186,10 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			try
 			{
 				IsNotSaving = false;
-				PhonesViewModel.RemoveEmpty();
+				if(!HasChanges)
+				{
+					return true;
+				}
 
 				if(!Entity.CoordinatesExist &&
 				   !CommonServices.InteractiveService.Question(
