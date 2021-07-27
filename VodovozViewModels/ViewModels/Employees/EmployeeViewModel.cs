@@ -42,147 +42,147 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly ICommonServices _commonServices;
 		private readonly ValidationContext _validationContext;
 
-        private bool _canActivateDriverDistrictPrioritySetPermission;
-        private bool _canChangeTraineeToDriver;
-        private DriverWorkScheduleSet _selectedDriverScheduleSet;
-        private DriverDistrictPrioritySet _selectedDistrictPrioritySet;
-        private Employee _employeeForCurrentUser;
-        private IEnumerable<EmployeeDocument> _selectedEmployeeDocuments = new EmployeeDocument[0];
-        private IEnumerable<EmployeeContract> _selectedEmployeeContracts = new EmployeeContract[0];
+		private bool _canActivateDriverDistrictPrioritySetPermission;
+		private bool _canChangeTraineeToDriver;
+		private DriverWorkScheduleSet _selectedDriverScheduleSet;
+		private DriverDistrictPrioritySet _selectedDistrictPrioritySet;
+		private Employee _employeeForCurrentUser;
+		private IEnumerable<EmployeeDocument> _selectedEmployeeDocuments = new EmployeeDocument[0];
+		private IEnumerable<EmployeeContract> _selectedEmployeeContracts = new EmployeeContract[0];
 
-        private DelegateCommand _openDistrictPrioritySetCreateWindowCommand;
-        private DelegateCommand _openDistrictPrioritySetEditWindowCommand;
-        private DelegateCommand _copyDistrictPrioritySetCommand;
-        private DelegateCommand _activateDistrictPrioritySetCommand;
-        private DelegateCommand _openDriverWorkScheduleSetCreateWindowCommand;
-        private DelegateCommand _openDriverWorkScheduleSetEditWindowCommand;
-        private DelegateCommand _copyDriverWorkScheduleSetCommand;
-        private DelegateCommand _removeEmployeeDocumentsCommand;
-        private DelegateCommand _removeEmployeeContractsCommand;
+		private DelegateCommand _openDistrictPrioritySetCreateWindowCommand;
+		private DelegateCommand _openDistrictPrioritySetEditWindowCommand;
+		private DelegateCommand _copyDistrictPrioritySetCommand;
+		private DelegateCommand _activateDistrictPrioritySetCommand;
+		private DelegateCommand _openDriverWorkScheduleSetCreateWindowCommand;
+		private DelegateCommand _openDriverWorkScheduleSetEditWindowCommand;
+		private DelegateCommand _copyDriverWorkScheduleSetCommand;
+		private DelegateCommand _removeEmployeeDocumentsCommand;
+		private DelegateCommand _removeEmployeeContractsCommand;
 
-        public IReadOnlyList<Organization> organizations;
-        public event Action SaveAttachmentFilesChangesAction;
-        public event Func<bool> HasAttachmentFilesChangesFunc;
-        public event EventHandler<EntitySavedEventArgs> EntitySaved;
+		public IReadOnlyList<Organization> organizations;
+		public event Action SaveAttachmentFilesChangesAction;
+		public event Func<bool> HasAttachmentFilesChangesFunc;
+		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
-        public EmployeeViewModel(
-	        IAuthorizationService authorizationService,
-	        IEmployeeWageParametersFactory employeeWageParametersFactory,
-	        IEmployeeJournalFactory employeeJournalFactory,
-	        ISubdivisionJournalFactory subdivisionJournalFactory,
-	        IEmployeePostsJournalFactory employeePostsJournalFactory,
-	        ICashDistributionCommonOrganisationProvider commonOrganisationProvider,
-	        ISubdivisionService subdivisionService,
-	        IEmailServiceSettingAdapter emailServiceSettingAdapter,
-	        IWageCalculationRepository wageCalculationRepository,
-	        IEmployeeRepository employeeRepository,
-	        IUnitOfWorkGeneric<Employee> uowGeneric,
-	        ICommonServices commonServices,
-	        IValidationContextFactory validationContextFactory,
-	        IPhonesViewModelFactory phonesViewModelFactory,
-	        bool traineeToEmployee = false,
-	        INavigationManager navigationManager = null
-	        ) : base(commonServices?.InteractiveService, navigationManager)
-        {
-	        _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-	        EmployeeWageParametersFactory =
-		        employeeWageParametersFactory ?? throw new ArgumentNullException(nameof(employeeWageParametersFactory));
-	        EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-	        EmployeePostsJournalFactory = employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
-	        SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)); 
-	        
-	        if(commonOrganisationProvider == null)
-	        {
-		        throw new ArgumentNullException(nameof(commonOrganisationProvider));
-	        }
-	        
-	        _subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
-	        _emailServiceSettingAdapter = emailServiceSettingAdapter ?? throw new ArgumentNullException(nameof(emailServiceSettingAdapter));
-	        _wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
-	        _employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-	        UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
-	        _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-	        _validationContext = 
-		        (validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory)))
+		public EmployeeViewModel(
+			IAuthorizationService authorizationService,
+			IEmployeeWageParametersFactory employeeWageParametersFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IEmployeePostsJournalFactory employeePostsJournalFactory,
+			ICashDistributionCommonOrganisationProvider commonOrganisationProvider,
+			ISubdivisionService subdivisionService,
+			IEmailServiceSettingAdapter emailServiceSettingAdapter,
+			IWageCalculationRepository wageCalculationRepository,
+			IEmployeeRepository employeeRepository,
+			IUnitOfWorkGeneric<Employee> uowGeneric,
+			ICommonServices commonServices,
+			IValidationContextFactory validationContextFactory,
+			IPhonesViewModelFactory phonesViewModelFactory,
+			bool traineeToEmployee = false,
+			INavigationManager navigationManager = null
+			) : base(commonServices?.InteractiveService, navigationManager)
+		{
+			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+			EmployeeWageParametersFactory =
+				employeeWageParametersFactory ?? throw new ArgumentNullException(nameof(employeeWageParametersFactory));
+			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			EmployeePostsJournalFactory = employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
+			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)); 
+			
+			if(commonOrganisationProvider == null)
+			{
+				throw new ArgumentNullException(nameof(commonOrganisationProvider));
+			}
+			
+			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
+			_emailServiceSettingAdapter = emailServiceSettingAdapter ?? throw new ArgumentNullException(nameof(emailServiceSettingAdapter));
+			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_validationContext = 
+				(validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory)))
 					.CreateNewValidationContext(Entity);
-	        
-	        if(phonesViewModelFactory == null)
-	        {
-		        throw new ArgumentNullException(nameof(phonesViewModelFactory));
-	        }
+			
+			if(phonesViewModelFactory == null)
+			{
+				throw new ArgumentNullException(nameof(phonesViewModelFactory));
+			}
 
-	        PhonesViewModel = phonesViewModelFactory.CreateNewPhonesViewModel(UoW);
-	        
-	        if(Entity.Id == 0)
-	        {
-		        Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
-	        }
-	        
-	        if(Entity.Phones == null)
-	        {
-		        Entity.Phones = new List<Phone>();
-	        }
-	        
-	        SetPermissions();
+			PhonesViewModel = phonesViewModelFactory.CreateNewPhonesViewModel(UoW);
+			
+			if(Entity.Id == 0)
+			{
+				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
+			}
+			
+			if(Entity.Phones == null)
+			{
+				Entity.Phones = new List<Phone>();
+			}
+			
+			SetPermissions();
 
-	        organizations = UoW.GetAll<Organization>().ToList();
-	        FillHiddenCategories(traineeToEmployee);
+			organizations = UoW.GetAll<Organization>().ToList();
+			FillHiddenCategories(traineeToEmployee);
 
-	        var permissionResult = 
-		        _commonServices.PermissionService.ValidateUserPermission(typeof(Employee), _commonServices.UserService.CurrentUserId);
-	        
-	        if(!permissionResult.CanRead) {
-		        AbortOpening(PermissionsSettings.GetEntityReadValidateResult(typeof(Employee)));
-	        }
-        }
-        
-        private Employee EmployeeForCurrentUser => 
-	        _employeeForCurrentUser ?? (_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW));
+			var permissionResult = 
+				_commonServices.PermissionService.ValidateUserPermission(typeof(Employee), _commonServices.UserService.CurrentUserId);
+			
+			if(!permissionResult.CanRead) {
+				AbortOpening(PermissionsSettings.GetEntityReadValidateResult(typeof(Employee)));
+			}
+		}
+		
+		private Employee EmployeeForCurrentUser => 
+			_employeeForCurrentUser ?? (_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW));
 
-        public List<EmployeeCategory> HiddenCategories { get; } = new List<EmployeeCategory>();
+		public List<EmployeeCategory> HiddenCategories { get; } = new List<EmployeeCategory>();
 
-        public EmployeeDocumentType[] HiddenForRussianDocument { get; } =
-        {
-	        EmployeeDocumentType.RefugeeId,
-	        EmployeeDocumentType.RefugeeCertificate,
-	        EmployeeDocumentType.Residence,
-	        EmployeeDocumentType.ForeignCitizenPassport
-        };
+		public EmployeeDocumentType[] HiddenForRussianDocument { get; } =
+		{
+			EmployeeDocumentType.RefugeeId,
+			EmployeeDocumentType.RefugeeCertificate,
+			EmployeeDocumentType.Residence,
+			EmployeeDocumentType.ForeignCitizenPassport
+		};
 
-        public EmployeeDocumentType[] HiddenForForeignCitizen { get; } =
-        {
-	        EmployeeDocumentType.MilitaryID,
-	        EmployeeDocumentType.NavyPassport,
-	        EmployeeDocumentType.OfficerCertificate
-        };
+		public EmployeeDocumentType[] HiddenForForeignCitizen { get; } =
+		{
+			EmployeeDocumentType.MilitaryID,
+			EmployeeDocumentType.NavyPassport,
+			EmployeeDocumentType.OfficerCertificate
+		};
 
-        public IUnitOfWork UoW => UoWGeneric;
-        public Employee Entity => UoWGeneric.Root;
-        public IUnitOfWorkGeneric<Employee> UoWGeneric { get; }
-        public IEmployeeWageParametersFactory EmployeeWageParametersFactory { get; }
-        public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-        public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
-        public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
-        
-        public bool HasChanges
-        {
-	        get
-	        {
-		        PhonesViewModel.RemoveEmpty();
+		public IUnitOfWork UoW => UoWGeneric;
+		public Employee Entity => UoWGeneric.Root;
+		public IUnitOfWorkGeneric<Employee> UoWGeneric { get; }
+		public IEmployeeWageParametersFactory EmployeeWageParametersFactory { get; }
+		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
+		public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
+		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
+		
+		public bool HasChanges
+		{
+			get
+			{
+				PhonesViewModel.RemoveEmpty();
 
-		        var attachmentFilesHasChanges = HasAttachmentFilesChangesFunc?.Invoke() ?? false;
-		        
-		        return UoWGeneric.HasChanges
-		               || attachmentFilesHasChanges
-		               || !string.IsNullOrEmpty(Entity.LoginForNewUser);
-	        }
-        }
-        
-        public IPermissionResult DriverDistrictPrioritySetPermission { get; private set; }
-        public IPermissionResult DriverWorkScheduleSetPermission { get; private set; }
+				var attachmentFilesHasChanges = HasAttachmentFilesChangesFunc?.Invoke() ?? false;
+				
+				return UoWGeneric.HasChanges
+					   || attachmentFilesHasChanges
+					   || !string.IsNullOrEmpty(Entity.LoginForNewUser);
+			}
+		}
+		
+		public IPermissionResult DriverDistrictPrioritySetPermission { get; private set; }
+		public IPermissionResult DriverWorkScheduleSetPermission { get; private set; }
 
-        public PhonesViewModel PhonesViewModel { get; }
-        public bool CanManageUsers { get; private set; }
+		public PhonesViewModel PhonesViewModel { get; }
+		public bool CanManageUsers { get; private set; }
 		public bool CanManageDriversAndForwarders { get; private set; }
 		public bool CanManageOfficeWorkers { get; private set; }
 		public bool CanCreateNewUser => Entity.User == null && CanManageUsers;
