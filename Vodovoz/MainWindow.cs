@@ -197,7 +197,12 @@ public partial class MainWindow : Gtk.Window
         ActionDriversWageBalance.Visible = hasAccessToSalaries;
         ActionCRM.Sensitive = hasAccessToCRM;
 
-        ActionWage.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
+        bool canEditWage = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
+        ActionWageDistrict.Sensitive = canEditWage;
+        ActionRates.Sensitive = canEditWage;
+
+        bool canEditWageBySelfSubdivision = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage_by_self_subdivision");
+        ActionSalesPlans.Sensitive = canEditWageBySelfSubdivision;
 
         ActionFinesJournal.Visible = ActionPremiumJournal.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
         ActionReports.Sensitive = false;
