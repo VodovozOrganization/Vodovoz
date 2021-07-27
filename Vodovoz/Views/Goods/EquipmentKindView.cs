@@ -21,15 +21,14 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 
 			enumWarrantyType.ItemsEnum = typeof(WarrantyCardType);
-
 			enumWarrantyType.Binding
 				.AddBinding(ViewModel.Entity, e => e.WarrantyCardType, widget => widget.SelectedItem)
 				.InitializeFromSource();
 
-			yspeccomboboxEquipmentType.SetRenderTextFunc<EquipmentType>(s => s.GetEnumTitle());
-			yspeccomboboxEquipmentType.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.EquipmentTypes, w => w.ItemsList)
-				.AddBinding(vm => vm.Entity.EquipmentType, w => w.SelectedItem).InitializeFromSource();
+			enumEquipmentType.ItemsEnum = typeof(EquipmentType);
+			enumEquipmentType.Binding
+				.AddBinding(ViewModel.Entity, e => e.EquipmentType, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
