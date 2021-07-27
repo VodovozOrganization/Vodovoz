@@ -322,6 +322,20 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			() => Entity.Counterparty != null
 		));
 
+		private DelegateCommand _showJournalCommand;
+
+		public DelegateCommand ShowJournalCommand => _showJournalCommand ?? (_showJournalCommand = new DelegateCommand(
+			() => ((ITdiSliderTab) TabParent).IsHideJournal = false,
+			() => TabParent is ITdiSliderTab
+		));
+
+		private DelegateCommand _hideJournalCommand;
+
+		public DelegateCommand HideJournalCommand => _hideJournalCommand ?? (_hideJournalCommand = new DelegateCommand(
+			() => ((ITdiSliderTab) TabParent).IsHideJournal = true,
+			() => TabParent is ITdiSliderTab
+		));
+
 		#endregion
 	}
 }
