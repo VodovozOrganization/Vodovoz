@@ -5,13 +5,9 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Widgets;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters.Logistic
@@ -20,10 +16,14 @@ namespace Vodovoz.ReportsParameters.Logistic
 	public partial class MileageReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ICarJournalFactory _carJournalFactory;
 		
-		public MileageReport(IEmployeeJournalFactory employeeJournalFactory)
+		public MileageReport(
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICarJournalFactory carJournalFactory)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 
 			Build();
 			Configure();
@@ -51,8 +51,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			entityviewmodelentryEmployee.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 			
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
 		}
 
 		#region IParametersWidget implementation

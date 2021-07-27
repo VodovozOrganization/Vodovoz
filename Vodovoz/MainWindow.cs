@@ -846,39 +846,22 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnPropertiesActionActivated(object sender, EventArgs e)
     {
-        var employeeJournalFactory = new EmployeeJournalFactory();
-        var salesPlanJournalFactory = new SalesPlanJournalFactory();
-        var nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
-
-        var filter = new SubdivisionFilterViewModel { SubdivisionType = SubdivisionType.Default };
-
-        var subdivisionAutocompleteSelectorFactory =
-            new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () => new SubdivisionsJournalViewModel(
-	            filter,
-	            UnitOfWorkFactory.GetDefaultFactory,
-	            ServicesConfig.CommonServices,
-	            employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-	            salesPlanJournalFactory,
-	            nomenclatureSelectorFactory
-            ));
+	    var subdivisionJournalFactory = new SubdivisionJournalFactory();
 
         var counterpartyAutocompleteSelectorFactory =
-            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+	            ServicesConfig.CommonServices);
 
         tdiMain.OpenTab(
-            () =>
-            {
-                return new UserSettingsViewModel(
-                    EntityUoWBuilder.ForOpen(CurrentUserSettings.Settings.Id),
-                    UnitOfWorkFactory.GetDefaultFactory,
-                    ServicesConfig.CommonServices,
-                    VodovozGtkServicesConfig.EmployeeService,
-                    SubdivisionParametersProvider.Instance,
-                    subdivisionAutocompleteSelectorFactory,
-                    counterpartyAutocompleteSelectorFactory
-                );
-            }
-        );
+            () => new UserSettingsViewModel(
+	            EntityUoWBuilder.ForOpen(CurrentUserSettings.Settings.Id),
+	            UnitOfWorkFactory.GetDefaultFactory,
+	            ServicesConfig.CommonServices,
+	            VodovozGtkServicesConfig.EmployeeService,
+	            SubdivisionParametersProvider.Instance,
+	            subdivisionJournalFactory,
+	            counterpartyAutocompleteSelectorFactory
+            ));
     }
 
     protected void OnActionTransportationWagonActivated(object sender, EventArgs e)
@@ -1254,12 +1237,13 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionMileageReportActivated(object sender, EventArgs e)
     {
-	    var employeeJournalFactory = new EmployeeJournalFactory();
-	    
-        tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<MileageReport>(),
-            () => new QSReport.ReportViewDlg(new MileageReport(employeeJournalFactory))
-        );
+		var employeeJournalFactory = new EmployeeJournalFactory();
+		var carJournalFactory = new CarJournalFactory();
+		
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<MileageReport>(),
+			() => new QSReport.ReportViewDlg(new MileageReport(employeeJournalFactory, carJournalFactory))
+		);
     }
 
     protected void OnActionMastersReportActivated(object sender, EventArgs e)
@@ -1822,15 +1806,13 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionSetBillsReportActivated(object sender, EventArgs e)
     {
-	    var employeeJournalFactory = new EmployeeJournalFactory();
 	    var subdivisionJournalFactory = new SubdivisionJournalFactory();
 	    
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<SetBillsReport>(),
             () => new QSReport.ReportViewDlg(new SetBillsReport(
 	            UnitOfWorkFactory.GetDefaultFactory,
-	            subdivisionJournalFactory.CreateSubdivisionAutocompleteSelectorFactory(
-		            employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory())))
+	            subdivisionJournalFactory.CreateSubdivisionAutocompleteSelectorFactory()))
         );
     }
 
