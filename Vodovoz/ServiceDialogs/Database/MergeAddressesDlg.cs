@@ -298,7 +298,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		protected void OnYtreeviewAddressesRowActivated(object o, Gtk.RowActivatedArgs args)
 		{
-			var id = ((AddressNode) ytreeviewAddresses.GetSelectedObject()).Address.Id;
+			var id = ytreeviewAddresses.GetSelectedObject<AddressNode>().Address.Id;
 			var dpViewModel = new DeliveryPointViewModel(UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
 				ContactParametersProvider.Instance,
 				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
@@ -311,4 +311,3 @@ namespace Vodovoz.ServiceDialogs.Database
 		}
 	}
 }
-

@@ -99,7 +99,7 @@ namespace Vodovoz
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			var dpId = ((ClientDeliveryPointVMNode) treeDeliveryPoints.GetSelectedObjects()[0]).Id;
+			var dpId = treeDeliveryPoints.GetSelectedObjects<ClientDeliveryPointVMNode>()[0].Id;
 			var dpViewModel = new DeliveryPointViewModel(UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
 				ContactParametersProvider.Instance,
 				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
