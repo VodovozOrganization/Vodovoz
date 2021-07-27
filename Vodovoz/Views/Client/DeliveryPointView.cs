@@ -19,14 +19,6 @@ namespace Vodovoz.Views.Client
 	[ToolboxItem(true)]
 	public partial class DeliveryPointView : TabViewBase<DeliveryPointViewModel>
 	{
-		private EventHandler _onPanelOpened;
-		private EventHandler _onPanelHided;
-		private EventHandler _onSaveButtonClicked;
-		private EventHandler _onButtonInsertFromBufferClicked;
-		private EventHandler _onButtonApplyLimitsToAllDeliveryPointsOfCounterpartyClicked;
-		private EventHandler _onButtonCancelClicked;
-		private EventHandler _onOpenClientItemClicked;
-		private MenuItem _openClientItem;
 		private bool _addressIsMoving;
 		private GMapControl _mapWidget;
 		private GMapMarker _addressMarker;
@@ -53,17 +45,16 @@ namespace Vodovoz.Views.Client
 				}
 			};
 			notebook1.ShowTabs = false;
-			buttonSave.Clicked += _onSaveButtonClicked = (sender, args) =>
+			buttonSave.Clicked += (sender, args) =>
 			{
 				deliverypointresponsiblepersonsview1.RemoveEmpty();
 				ViewModel.Save(true);
 			};
 			buttonSave.Binding.AddBinding(ViewModel, vm => vm.IsNotSaving, w => w.Sensitive).InitializeFromSource();
-			buttonCancel.Clicked += _onButtonCancelClicked = (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			buttonCancel.Binding.AddBinding(ViewModel, vm => vm.IsNotSaving, w => w.Sensitive).InitializeFromSource();
-			buttonInsertFromBuffer.Clicked +=
-				_onButtonInsertFromBufferClicked = (s, a) => ViewModel.SetCoordinatesFromBuffer(_clipboard.WaitForText());
-			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked += _onButtonApplyLimitsToAllDeliveryPointsOfCounterpartyClicked =
+			buttonInsertFromBuffer.Clicked += (s, a) => ViewModel.SetCoordinatesFromBuffer(_clipboard.WaitForText());
+			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked +=
 				(s, a) => ViewModel.ApplyOrderSumLimitsToAllDeliveryPointsOfClient();
 			radioInformation.Toggled += RadioInformationOnToggled;
 			radioFixedPrices.Toggled += RadioFixedPricesOnToggled;
@@ -166,9 +157,9 @@ namespace Vodovoz.Views.Client
 
 			//make actions menu
 			var menu = new Menu();
-			_openClientItem = new MenuItem("Открыть контрагента");
-			_openClientItem.Activated += _onOpenClientItemClicked = (s, a) => ViewModel.OpenCounterpartyCommand.Execute();
-			menu.Add(_openClientItem);
+			var openClientItem = new MenuItem("Открыть контрагента");
+			openClientItem.Activated += (s, a) => ViewModel.OpenCounterpartyCommand.Execute();
+			menu.Add(openClientItem);
 			menuActions.Menu = menu;
 			menu.ShowAll();
 
@@ -188,8 +179,8 @@ namespace Vodovoz.Views.Client
 			_mapWidget.ButtonReleaseEvent += MapWidgetOnButtonReleaseEvent;
 			_mapWidget.MotionNotifyEvent += MapWidgetOnMotionNotifyEvent;
 			sidePanelMap.Panel = _mapWidget;
-			sidePanelMap.PanelOpened += _onPanelOpened = (sender, args) => ViewModel.HideJournalCommand.Execute();
-			sidePanelMap.PanelHided += _onPanelHided = (sender, args) => ViewModel.ShowJournalCommand.Execute();
+			sidePanelMap.PanelOpened += SidePanelMapOnPanelOpened;
+			sidePanelMap.PanelHided += SidePanelMapOnPanelHided;
 			ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
 			UpdateAddressOnMap();
 
@@ -220,14 +211,8 @@ namespace Vodovoz.Views.Client
 
 		public override void Destroy()
 		{
-			sidePanelMap.PanelOpened -= _onPanelOpened;
-			sidePanelMap.PanelHided -= _onPanelHided;
-			buttonSave.Clicked -= _onSaveButtonClicked;
-			buttonCancel.Clicked -= _onButtonCancelClicked;
-			buttonInsertFromBuffer.Clicked -= _onButtonInsertFromBufferClicked;
-			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked -= _onButtonApplyLimitsToAllDeliveryPointsOfCounterpartyClicked;
-			_openClientItem.Activated -= _onOpenClientItemClicked;
-			ViewModel.PropertyChanged -= ViewModelOnPropertyChanged;
+			sidePanelMap.PanelOpened -= SidePanelMapOnPanelOpened;
+			sidePanelMap.PanelHided -= SidePanelMapOnPanelHided;
 			base.Destroy();
 		}
 
@@ -392,6 +377,20 @@ namespace Vodovoz.Views.Client
 			entryStreet.Street = string.Empty;
 			entryStreet.StreetDistrict = string.Empty;
 			entryBuilding.House = string.Empty;
+		}
+
+		#endregion
+
+		#region SidePanelEvents
+
+		private void SidePanelMapOnPanelHided(object sender, EventArgs e)
+		{
+			ViewModel.ShowJournalCommand.Execute();
+		}
+
+		private void SidePanelMapOnPanelOpened(object sender, EventArgs e)
+		{
+			ViewModel.HideJournalCommand.Execute();
 		}
 
 		#endregion
