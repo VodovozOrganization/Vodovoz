@@ -8,56 +8,75 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.TempAdapters
 {
 	public class EmployeeJournalFactory : IEmployeeJournalFactory
 	{
 		private readonly EmployeeFilterViewModel _employeeJournalFilter;
-
+		private IAuthorizationServiceFactory _authorizationServiceFactory;
+		private IEmployeeWageParametersFactory _employeeWageParametersFactory;
+		private IEmployeeJournalFactory _employeeJournalFactory;
+		private ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private IEmployeePostsJournalFactory _employeePostsJournalFactory;
+		private ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
+		private ISubdivisionService _subdivisionService;
+		private IEmailServiceSettingAdapter _emailServiceSettingAdapter;
+		private IWageCalculationRepository _wageCalculationRepository;
+		private IEmployeeRepository _employeeRepository;
+		private IValidationContextFactory _validationContextFactory;
+		private IPhonesViewModelFactory _phonesViewModelFactory;
+		
 		public EmployeeJournalFactory(EmployeeFilterViewModel employeeJournalFilter = null)
 		{
 			_employeeJournalFilter = employeeJournalFilter;
 		}
+
+		private void CreateNewDependencies()
+		{
+			_authorizationServiceFactory = new AuthorizationServiceFactory();
+			_employeeWageParametersFactory = new EmployeeWageParametersFactory();
+			_employeeJournalFactory = new EmployeeJournalFactory();
+			_subdivisionJournalFactory = new SubdivisionJournalFactory();
+			_employeePostsJournalFactory = new EmployeePostsJournalFactory();
+        
+			_cashDistributionCommonOrganisationProvider =
+				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
+        
+			_subdivisionService = SubdivisionParametersProvider.Instance;
+			_emailServiceSettingAdapter = new EmailServiceSettingAdapter();
+			_wageCalculationRepository = WageSingletonRepository.GetInstance();
+			_employeeRepository = EmployeeSingletonRepository.GetInstance();
+			_validationContextFactory = new ValidationContextFactory();
+			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+		}
 		
 		public IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory()
 		{
-			var authorizationServiceFactory = new AuthorizationServiceFactory();
-			var employeeWageParametersFactory = new EmployeeWageParametersFactory();
-			var employeeJournalFactory = new EmployeeJournalFactory();
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var employeePostsJournalFactory = new EmployeePostsJournalFactory();
-        
-			var cashDistributionCommonOrganisationProvider =
-				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-        
-			var subdivisionService = SubdivisionParametersProvider.Instance;
-			var emailServiceSettingAdapter = new EmailServiceSettingAdapter();
-			var wageRepository = WageSingletonRepository.GetInstance();
-			var employeeRepository = EmployeeSingletonRepository.GetInstance();
-			var validationContextFactory = new ValidationContextFactory();
-			var phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+			CreateNewDependencies();
 			
 			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
 				typeof(Employee),
 				() => new EmployeesJournalViewModel(
 					_employeeJournalFilter ?? new EmployeeFilterViewModel(),
-					authorizationServiceFactory,
-					employeeWageParametersFactory,
-					employeeJournalFactory,
-					subdivisionJournalFactory,
-					employeePostsJournalFactory,
-					cashDistributionCommonOrganisationProvider,
-					subdivisionService,
-					emailServiceSettingAdapter,
-					wageRepository,
-					employeeRepository,
-					validationContextFactory,
-					phonesViewModelFactory,
+					_authorizationServiceFactory,
+					_employeeWageParametersFactory,
+					_employeeJournalFactory,
+					_subdivisionJournalFactory,
+					_employeePostsJournalFactory,
+					_cashDistributionCommonOrganisationProvider,
+					_subdivisionService,
+					_emailServiceSettingAdapter,
+					_wageCalculationRepository,
+					_employeeRepository,
+					_validationContextFactory,
+					_phonesViewModelFactory,
 					ServicesConfig.CommonServices,
 					UnitOfWorkFactory.GetDefaultFactory));
 		}
@@ -72,21 +91,7 @@ namespace Vodovoz.TempAdapters
 		
 		public EmployeesJournalViewModel CreateWorkingDriverEmployeeJournal()
 		{
-			var authorizationServiceFactory = new AuthorizationServiceFactory();
-			var employeeWageParametersFactory = new EmployeeWageParametersFactory();
-			var employeeJournalFactory = new EmployeeJournalFactory();
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var employeePostsJournalFactory = new EmployeePostsJournalFactory();
-        
-			var cashDistributionCommonOrganisationProvider =
-				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-        
-			var subdivisionService = SubdivisionParametersProvider.Instance;
-			var emailServiceSettingAdapter = new EmailServiceSettingAdapter();
-			var wageRepository = WageSingletonRepository.GetInstance();
-			var employeeRepository = EmployeeSingletonRepository.GetInstance();
-			var validationContextFactory = new ValidationContextFactory();
-			var phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+			CreateNewDependencies();
 			
 			var driverFilter = new EmployeeFilterViewModel
 			{
@@ -97,39 +102,25 @@ namespace Vodovoz.TempAdapters
 					
 			return new EmployeesJournalViewModel(
 				driverFilter,
-				authorizationServiceFactory,
-				employeeWageParametersFactory,
-				employeeJournalFactory,
-				subdivisionJournalFactory,
-				employeePostsJournalFactory,
-				cashDistributionCommonOrganisationProvider,
-				subdivisionService,
-				emailServiceSettingAdapter,
-				wageRepository,
-				employeeRepository,
-				validationContextFactory,
-				phonesViewModelFactory,
+				_authorizationServiceFactory,
+				_employeeWageParametersFactory,
+				_employeeJournalFactory,
+				_subdivisionJournalFactory,
+				_employeePostsJournalFactory,
+				_cashDistributionCommonOrganisationProvider,
+				_subdivisionService,
+				_emailServiceSettingAdapter,
+				_wageCalculationRepository,
+				_employeeRepository,
+				_validationContextFactory,
+				_phonesViewModelFactory,
 				ServicesConfig.CommonServices,
 				UnitOfWorkFactory.GetDefaultFactory);
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateWorkingOfficeEmployeeAutocompleteSelectorFactory()
 		{
-			var authorizationServiceFactory = new AuthorizationServiceFactory();
-			var employeeWageParametersFactory = new EmployeeWageParametersFactory();
-			var employeeJournalFactory = new EmployeeJournalFactory();
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var employeePostsJournalFactory = new EmployeePostsJournalFactory();
-        
-			var cashDistributionCommonOrganisationProvider =
-				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-        
-			var subdivisionService = SubdivisionParametersProvider.Instance;
-			var emailServiceSettingAdapter = new EmailServiceSettingAdapter();
-			var wageRepository = WageSingletonRepository.GetInstance();
-			var employeeRepository = EmployeeSingletonRepository.GetInstance();
-			var validationContextFactory = new ValidationContextFactory();
-			var phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+			CreateNewDependencies();
 			
 			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
 				typeof(Employee),
@@ -144,18 +135,18 @@ namespace Vodovoz.TempAdapters
 					
 					return new EmployeesJournalViewModel(
 						officeFilter,
-						authorizationServiceFactory,
-						employeeWageParametersFactory,
-						employeeJournalFactory,
-						subdivisionJournalFactory,
-						employeePostsJournalFactory,
-						cashDistributionCommonOrganisationProvider,
-						subdivisionService,
-						emailServiceSettingAdapter,
-						wageRepository,
-						employeeRepository,
-						validationContextFactory,
-						phonesViewModelFactory,
+						_authorizationServiceFactory,
+						_employeeWageParametersFactory,
+						_employeeJournalFactory,
+						_subdivisionJournalFactory,
+						_employeePostsJournalFactory,
+						_cashDistributionCommonOrganisationProvider,
+						_subdivisionService,
+						_emailServiceSettingAdapter,
+						_wageCalculationRepository,
+						_employeeRepository,
+						_validationContextFactory,
+						_phonesViewModelFactory,
 						ServicesConfig.CommonServices,
 						UnitOfWorkFactory.GetDefaultFactory);
 				}
@@ -172,21 +163,7 @@ namespace Vodovoz.TempAdapters
 
 		public EmployeesJournalViewModel CreateWorkingForwarderEmployeeJournal()
 		{
-			var authorizationServiceFactory = new AuthorizationServiceFactory();
-			var employeeWageParametersFactory = new EmployeeWageParametersFactory();
-			var employeeJournalFactory = new EmployeeJournalFactory();
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var employeePostsJournalFactory = new EmployeePostsJournalFactory();
-        
-			var cashDistributionCommonOrganisationProvider =
-				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-        
-			var subdivisionService = SubdivisionParametersProvider.Instance;
-			var emailServiceSettingAdapter = new EmailServiceSettingAdapter();
-			var wageRepository = WageSingletonRepository.GetInstance();
-			var employeeRepository = EmployeeSingletonRepository.GetInstance();
-			var validationContextFactory = new ValidationContextFactory();
-			var phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+			CreateNewDependencies();
 			
 			var forwarderFilter = new EmployeeFilterViewModel
 			{
@@ -199,18 +176,18 @@ namespace Vodovoz.TempAdapters
 					
 			return new EmployeesJournalViewModel(
 				forwarderFilter,
-				authorizationServiceFactory,
-				employeeWageParametersFactory,
-				employeeJournalFactory,
-				subdivisionJournalFactory,
-				employeePostsJournalFactory,
-				cashDistributionCommonOrganisationProvider,
-				subdivisionService,
-				emailServiceSettingAdapter,
-				wageRepository,
-				employeeRepository,
-				validationContextFactory,
-				phonesViewModelFactory,
+				_authorizationServiceFactory,
+				_employeeWageParametersFactory,
+				_employeeJournalFactory,
+				_subdivisionJournalFactory,
+				_employeePostsJournalFactory,
+				_cashDistributionCommonOrganisationProvider,
+				_subdivisionService,
+				_emailServiceSettingAdapter,
+				_wageCalculationRepository,
+				_employeeRepository,
+				_validationContextFactory,
+				_phonesViewModelFactory,
 				ServicesConfig.CommonServices,
 				UnitOfWorkFactory.GetDefaultFactory);
 		}
