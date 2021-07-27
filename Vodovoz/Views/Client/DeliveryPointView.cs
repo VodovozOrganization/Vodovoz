@@ -87,8 +87,9 @@ namespace Vodovoz.Views.Client
 			ySpecCmbCategory.ItemsList = ViewModel.DeliveryPointCategories;
 			ySpecCmbCategory.Binding.AddBinding(ViewModel.Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
-			ycheckHaveResidue.Binding.AddFuncBinding(ViewModel.Entity, e => e.HaveResidue.HasValue, w => w.Visible).InitializeFromSource();
-			ycheckHaveResidue.Binding.AddFuncBinding(ViewModel.Entity, e => e.HaveResidue.HasValue && e.HaveResidue.Value, w => w.Active)
+			ycheckHaveResidue.Binding.AddSource(ViewModel.Entity)
+				.AddFuncBinding(e => e.HaveResidue.HasValue, w => w.Visible)
+				.AddFuncBinding(e => e.HaveResidue.HasValue && e.HaveResidue.Value, w => w.Active)
 				.InitializeFromSource();
 
 			comboRoomType.ItemsEnum = typeof(RoomType);
@@ -122,8 +123,10 @@ namespace Vodovoz.Views.Client
 
 			#region Оставлено для корректного отображения старых заказов
 
-			yentryAddress1c.Binding.AddBinding(ViewModel.Entity, e => e.Address1c, w => w.Text).InitializeFromSource();
-			yentryAddress1c.Binding.AddBinding(ViewModel.Entity, e => e.Address1c, w => w.TooltipText).InitializeFromSource();
+			yentryAddress1c.Binding.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.Address1c, w => w.Text)
+				.AddBinding(e => e.Address1c, w => w.TooltipText)
+				.InitializeFromSource();
 			labelAddress1c.Visible = yentryAddress1c.Visible = !string.IsNullOrWhiteSpace(ViewModel.Entity.Address1c);
 			yentryCode1c.Binding.AddBinding(ViewModel.Entity, e => e.Code1c, w => w.Text).InitializeFromSource();
 			codeLabel.Visible = hboxCode.Visible = !string.IsNullOrWhiteSpace(ViewModel.Entity.Code1c);
@@ -199,10 +202,10 @@ namespace Vodovoz.Views.Client
 			}
 			else
 			{
-				label5.Visible = false;
-				hbox14.Visible = false;
+				labelLimit.Visible = false;
+				hboxLimits.Visible = false;
 				deliverypointresponsiblepersonsview1.Visible = false;
-				label17.Visible = false;
+				labelResponsiblePersons.Visible = false;
 			}
 		}
 
