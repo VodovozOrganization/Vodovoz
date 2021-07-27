@@ -20,7 +20,7 @@ namespace Vodovoz.Factories
 				new PermissionRepository());
 
 			return new EmployeeWageParametersViewModel(employee, tab, uow, validator, UserSingletonRepository.GetInstance(),
-				ServicesConfig.CommonServices, NavigationManagerProvider.NavigationManager);
+				ServicesConfig.CommonServices, NavigationManagerProvider.NavigationManager, EmployeeSingletonRepository.GetInstance());
 		}
 	}
 }
