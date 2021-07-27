@@ -34,25 +34,31 @@
             <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>272.9pt</Width>
+            <Width>247.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>140.0pt</Width>
+            <Width>101.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.0pt</Width>
+            <Width>43.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>58.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>54.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>55.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>53.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>72.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.0pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>64.0pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>104.2pt</Width>
+            <Width>101.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -88,7 +94,7 @@
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>8</ColSpan>
+                  <ColSpan>10</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -118,11 +124,10 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>8</ColSpan>
+                  <ColSpan>10</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -155,7 +160,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>8</ColSpan>
+                  <ColSpan>10</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -176,6 +181,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -194,6 +200,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -212,6 +219,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -229,6 +237,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -246,6 +255,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -263,6 +273,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -280,6 +291,43 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>Чистый забор, шт.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>Доп. продажи, руб.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -297,6 +345,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -309,7 +358,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>17.3pt</Height>
+              <Height>21.3pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -330,6 +379,7 @@
                         <PaddingRight>3pt</PaddingRight>
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -354,6 +404,7 @@
                         <PaddingRight>3pt</PaddingRight>
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -378,6 +429,7 @@
                         <PaddingBottom>7pt</PaddingBottom>
                         <PaddingLeft>3pt</PaddingLeft>
                         <PaddingRight>3pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -401,6 +453,7 @@
                         <PaddingRight>3pt</PaddingRight>
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -425,6 +478,7 @@
                         <PaddingRight>3pt</PaddingRight>
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -448,6 +502,7 @@
                         <PaddingRight>3pt</PaddingRight>
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -471,8 +526,56 @@
                         <PaddingRight>3pt</PaddingRight>
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>={bottles_returned}-{count}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>={adds_sum}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -494,6 +597,7 @@
                         <PaddingRight>3pt</PaddingRight>
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -609,6 +713,47 @@
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum({bottles_returned})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>=Sum({bottles_returned}-{count})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>=Sum({adds_sum})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -769,6 +914,48 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -970,7 +1157,8 @@
 	o.order_status != 'Closed' AND a.route_list_id IS NOT NULL AS unclosed_rl,
 	o.order_status != 'Closed' AND a.route_list_id IS NULL AS unclosed_not_in_rl,
 	CONCAT('МЛ№', rl.id, ', водитель - ',GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic)) AS rl_details,
-    o.comment_manager
+    o.comment_manager,
+    IFNULL(additions.adds_sum, 0) as adds_sum
 FROM orders o
 LEFT JOIN (
 	SELECT
@@ -982,14 +1170,38 @@ LEFT JOIN (
 	FROM orders o
 	LEFT JOIN order_items i ON o.id = i.order_id
 	LEFT JOIN nomenclature n ON n.id = i.nomenclature_id
-	WHERE o.create_date BETWEEN @start_date AND @end_date
-		AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
+	WHERE (IF(@is_creation_date,
+			   o.create_date BETWEEN @start_date AND @end_date,
+			   o.delivery_date BETWEEN @start_date AND @end_date))
+		AND (IF(@is_creation_date,
+               o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
+			   o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+               OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
 		AND o.author_employee_id = @employee_id
 		AND !o.is_contract_closer
 		AND n.category = 'water' AND n.tare_volume = 'Vol19L'
 ) AS items ON o.id = items.order_id
+LEFT JOIN ( -- расчет дополнительных продаж
+	SELECT
+		SUM(GET_TOTAL_SUM_FOR_ORDER_ITEM(oi.id)) as adds_sum,
+		o.id as order_id
+	FROM orders o
+	LEFT JOIN order_items oi ON o.id = oi.order_id
+	LEFT JOIN nomenclature adds ON adds.id = oi.nomenclature_id
+	WHERE (IF(@is_creation_date,
+			   o.create_date BETWEEN @start_date AND @end_date,
+			   o.delivery_date BETWEEN @start_date AND @end_date))
+		AND (IF(@is_creation_date,
+               o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
+			   o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+               OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
+		AND o.author_employee_id = @employee_id
+		AND !o.is_contract_closer
+		AND (adds.category != 'water' OR adds.tare_volume != 'Vol19L')
+	GROUP BY o.id
+) AS additions on additions.order_id = o.id
 LEFT JOIN employees auth ON auth.id = o.author_employee_id
-JOIN (
+INNER JOIN (
 	SELECT
 		sales_plans.empty_bottles_to_take_salesplan_wage AS empty_quantity,
 		sales_plans.full_bottles_to_sell_salesplan_wage AS full_quantity,
@@ -1001,14 +1213,19 @@ JOIN (
 		AND (w.end_date IS NULL OR w.end_date &gt;= CURDATE())
 ) w ON w.employee_id = auth.id
 LEFT JOIN route_list_addresses a ON a.order_id = o.id
-JOIN counterparty c ON c.id = o.client_id
+INNER JOIN counterparty c ON c.id = o.client_id
 LEFT JOIN route_lists rl ON a.route_list_id = rl.id
 LEFT JOIN employees e ON e.id = rl.driver_id
-WHERE o.create_date BETWEEN @start_date AND @end_date
-	AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
+WHERE (IF(@is_creation_date,
+       o.create_date BETWEEN @start_date AND @end_date,
+	   o.delivery_date BETWEEN @start_date AND @end_date))
+	AND (IF(@is_creation_date,
+         o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
+         o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+         OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
 	AND o.author_employee_id = @employee_id
 	AND !o.is_contract_closer
-	AND (items.nomenclature IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0)
+	AND (items.nomenclature IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0 OR additions.adds_sum &gt; 0)
 	AND !(a.status &lt;=&gt; 'Transfered')
 GROUP BY o.id
 ;</CommandText>
@@ -1021,6 +1238,9 @@ GROUP BY o.id
           </QueryParameter>
           <QueryParameter Name="employee_id">
             <Value>={?employee_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_creation_date">
+            <Value>=Parameters!is_creation_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1075,6 +1295,11 @@ GROUP BY o.id
         </Field>
         <Field Name="comment_manager">
           <DataField>comment_manager</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="adds_sum">
+          <DataField>adds_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1164,12 +1389,21 @@ WHERE e.id = @employee_id
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="is_creation_date">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
   </ReportParameters>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
+        <ConnectString>
+        </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

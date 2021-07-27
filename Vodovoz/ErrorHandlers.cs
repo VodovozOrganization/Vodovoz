@@ -59,10 +59,23 @@ namespace Vodovoz
 			
 			if (mysqlEx != null && mysqlEx.Message.Contains("Authentication to host"))
 			{
-				interactiveMessage.ShowMessage(ImportanceLevel.Info, "Пароль вашего аккаунта был сброшен, E-Mail придет в течении 15 минут, для продолжения работы перезайдите в программу");
+				interactiveMessage.ShowMessage(ImportanceLevel.Info, "Пароль вашего аккаунта был сброшен, для продолжения работы перезайдите в программу");
 				return true;
 			}
 			return false;
 		}
+
+		public static bool SocketTimeoutException(Exception exception, IApplicationInfo application, UserBase user, IInteractiveService interactiveService)
+        {
+			var nhibernateEx = ExceptionHelper.FindExceptionTypeInInner<NHibernate.Exceptions.GenericADOException>(exception);
+			var timeOutEx = ExceptionHelper.FindExceptionTypeInInner<System.Net.Sockets.SocketException>(exception);
+
+			if (nhibernateEx != null && timeOutEx != null && timeOutEx.SocketErrorCode == System.Net.Sockets.SocketError.TimedOut)
+            {
+				interactiveService.ShowMessage(ImportanceLevel.Warning, "Программа не смогла обработать запрос во время, переоткройте вкладку");
+				return true;
+            }
+			return false;
+        }
 	}
 }

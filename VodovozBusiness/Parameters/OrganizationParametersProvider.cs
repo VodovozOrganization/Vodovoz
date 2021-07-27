@@ -5,28 +5,22 @@ namespace Vodovoz.Parameters
 {
     public class OrganizationParametersProvider : IOrganizationParametersProvider
     {
-        private readonly ParametersProvider parametersProvider;
+        private readonly IParametersProvider _parametersProvider;
 
-        public OrganizationParametersProvider(ParametersProvider parametersProvider)
+        public OrganizationParametersProvider(IParametersProvider parametersProvider)
         {
-            this.parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+            _parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }
-        
-        public int GetCashlessOrganisationId => parametersProvider.GetIntValue("cashless_organization_id");
 
-        public int GetCashOrganisationId => parametersProvider.GetIntValue("cash_organization_id");
-
-        public int BeveragesWorldOrganizationId => parametersProvider.GetIntValue("beverages_world_organization_id");
-
-        public int SosnovcevOrganizationId => parametersProvider.GetIntValue("sosnovcev_organization_id");
-        
-        public int VodovozOrganizationId => parametersProvider.GetIntValue("vodovoz_organization_id");
-        
-        public int VodovozSouthOrganizationId => parametersProvider.GetIntValue("vodovoz_south_organization_id");
-        
-        public int VodovozNorthOrganizationId => parametersProvider.GetIntValue("vodovoz_north_organization_id");
-
+        public int GetCashlessOrganisationId => _parametersProvider.GetIntValue("cashless_organization_id");
+        public int GetCashOrganisationId => _parametersProvider.GetIntValue("cash_organization_id");
+        public int BeveragesWorldOrganizationId => _parametersProvider.GetIntValue("beverages_world_organization_id");
+        public int SosnovcevOrganizationId => _parametersProvider.GetIntValue("sosnovcev_organization_id");
+        public int VodovozOrganizationId => _parametersProvider.GetIntValue("vodovoz_organization_id");
+        public int VodovozSouthOrganizationId => _parametersProvider.GetIntValue("vodovoz_south_organization_id");
+        public int VodovozNorthOrganizationId => _parametersProvider.GetIntValue("vodovoz_north_organization_id");
+        public int VodovozDeshitsOrganizationId => _parametersProvider.GetIntValue("vodovoz_Deshits_organization_id");
         public int CommonCashDistributionOrganisationId =>
-            parametersProvider.GetIntValue("common_cash_distribution_organisation_id");
+            _parametersProvider.GetIntValue("common_cash_distribution_organisation_id");
     }
 }

@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using QS.DomainModel.UoW;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.Tools.Orders
@@ -95,6 +98,9 @@ namespace Vodovoz.Tools.Orders
 
 		[Display(Name = "Сколько воды одноразовой таре 0.6л?")]
 		public decimal DisposableWater600mlCount { get; set; }
+		
+		[Display(Name = "Сколько воды одноразовой таре 0.5л?")]
+		public decimal DisposableWater500mlCount { get; set; }
 
 		#endregion
 
@@ -105,11 +111,12 @@ namespace Vodovoz.Tools.Orders
 			//для документов
 			this.DefaultDocumentType = Order.DocumentType ?? Order.Client.DefaultDocumentType;
 			this.IsDocTypeTORG12 = DefaultDocumentType.HasValue && DefaultDocumentType == Domain.Client.DefaultDocumentType.torg12;
-			this.HasOrderEquipment = Order.ObservableOrderEquipments.Any();
-			
+
+			HasOrderEquipment = HasOrderEquipments(UnitOfWorkFactory.CreateWithoutRoot());
+
 			if(!Order.ObservableOrderItems.Any() || 
 			   (Order.ObservableOrderItems.Count == 1 && Order.ObservableOrderItems.Any(x => 
-				x.Nomenclature.Id == int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))))) 
+				   x.Nomenclature.Id == int.Parse(SingletonParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))))) 
 			{
 				HasOrderItems = false;
 			}
@@ -118,7 +125,7 @@ namespace Vodovoz.Tools.Orders
 				HasOrderItems = true;
 			}
 			
-			this.IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.Sum) <= 0m;
+			this.IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.ActualSum) <= 0m;
 			this.NeedToReturnBottles = Order.BottlesReturn > 0;
 			this.NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any();
 			this.PaymentType = Order.PaymentType;
@@ -156,6 +163,39 @@ namespace Vodovoz.Tools.Orders
 				&& x.Nomenclature.IsDisposableTare
 				&& x.Nomenclature.TareVolume == TareVolume.Vol600ml)
 				.Sum(x => x.Count);
+			this.DisposableWater500mlCount = Order.OrderItems
+				.Where(x => x.Nomenclature != null
+	            && x.Nomenclature.Category == NomenclatureCategory.water
+	            && x.Nomenclature.IsDisposableTare
+	            && x.Nomenclature.TareVolume == TareVolume.Vol500ml)
+				.Sum(x => x.Count);
+		}
+
+		private bool HasOrderEquipments(IUnitOfWork uow)
+		{
+			var allActiveFlyersNomenclaturesIds = new FlyerRepository().GetAllActiveFlyersNomenclaturesIds(uow);
+			
+			if (!Order.ObservableOrderEquipments.Any() || OnlyFlyersInEquipments(allActiveFlyersNomenclaturesIds)) 
+			{
+				return false;
+			}
+			
+			return true;
+		}
+
+		private bool OnlyFlyersInEquipments(IList<int> allActiveFlyersNomenclaturesIds)
+		{
+			foreach(OrderEquipment equipment in Order.ObservableOrderEquipments)
+			{
+				if(allActiveFlyersNomenclaturesIds.Contains(equipment.Nomenclature.Id))
+				{
+					continue;
+				}
+
+				return false;
+			}
+
+			return true;
 		}
 
 		public bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)
@@ -164,6 +204,7 @@ namespace Vodovoz.Tools.Orders
 			decimal totalNo19LWater = DisposableWater6LCount / rule.EqualsCount6LFor19L;
 			totalNo19LWater += DisposableWater1500mlCount / rule.EqualsCount1500mlFor19L;
 			totalNo19LWater += DisposableWater600mlCount / rule.EqualsCount600mlFor19L;
+			totalNo19LWater += DisposableWater500mlCount / rule.EqualsCount500mlFor19L;
 			total19LWater += (int)totalNo19LWater;
 
 			bool result = total19LWater < rule.Water19LCount;

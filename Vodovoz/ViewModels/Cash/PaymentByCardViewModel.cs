@@ -16,6 +16,7 @@ namespace Vodovoz.ViewModels.Cash
     public class PaymentByCardViewModel: EntityTabViewModelBase<Order> 
     {
         private readonly IOrderPaymentSettings orderPaymentSettings;
+        private readonly IOrderParametersProvider _orderParametersProvider;
 
         private readonly CallTaskWorker callTaskWorker;
 
@@ -24,10 +25,12 @@ namespace Vodovoz.ViewModels.Cash
             IUnitOfWorkFactory unitOfWorkFactory, 
             ICommonServices commonServices, 
             CallTaskWorker callTaskWorker, 
-            IOrderPaymentSettings orderPaymentSettings
+            IOrderPaymentSettings orderPaymentSettings,
+            IOrderParametersProvider orderParametersProvider
         ) 
             : base(uowBuilder, unitOfWorkFactory, commonServices) {
             this.orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
+            this._orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             this.callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
             TabName = "Оплата по карте";
 
@@ -38,6 +41,8 @@ namespace Vodovoz.ViewModels.Cash
             }
 
             Entity.PropertyChanged += Entity_PropertyChanged;
+            
+            ValidationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), this._orderParametersProvider);
         }
 
         void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -55,16 +60,19 @@ namespace Vodovoz.ViewModels.Cash
 
         public List<PaymentFrom> ItemsList { get; private set; }
 
-        protected override void BeforeSave(){
-            Entity.ChangePaymentTypeToByCard(callTaskWorker);
+        protected override void BeforeValidation()
+        {
+	        Entity.ChangePaymentTypeToByCard(callTaskWorker);
 
-            if (!Entity.PayAfterShipment){
-                Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService, callTaskWorker);
-            }
+	        if(!Entity.PayAfterShipment)
+	        {
+		        Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService, callTaskWorker);
+	        }
 
-            if (Entity.SelfDelivery){
-                Entity.IsSelfDeliveryPaid = true;
-            }
+	        if(Entity.SelfDelivery)
+	        {
+		        Entity.IsSelfDeliveryPaid = true;
+	        }
         }
     }
 }

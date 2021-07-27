@@ -241,6 +241,22 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref driverCarKind, value);
 		}
 
+		private int? orderNumber;
+		[Display(Name = "Порядковый номер автомобиля")]
+		public virtual int? OrderNumber {
+			get => orderNumber;
+			set {
+				if (value == 0)
+                {
+					SetField(ref orderNumber, null);
+				}
+				else
+                {
+					SetField(ref orderNumber, value);
+				}
+			}
+		}
+
 		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
 		[Display(Name = "Группа района")]
 		public virtual IList<GeographicGroup> GeographicGroups {
@@ -256,6 +272,14 @@ namespace Vodovoz.Domain.Logistic
 					observableGeographicGroups = new GenericObservableList<GeographicGroup>(GeographicGroups);
 				return observableGeographicGroups;
 			}
+		}
+
+		private RaskatType? raskatType;
+		[Display(Name = "Тип раската")]
+		public virtual RaskatType? RaskatType
+		{
+			get { return raskatType; }
+			set { SetField(ref raskatType, value); }
 		}
 
 		#endregion
@@ -276,7 +300,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region IValidatableObject implementation
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(Model))
 				yield return new ValidationResult("Модель автомобиля должна быть заполнена", new[] { "Model" });
@@ -308,6 +332,12 @@ namespace Vodovoz.Domain.Logistic
 						"Отправьте его в архив, а затем повторите закрепление еще раз.", new[] { nameof(Car) });
 				}
 			}
+
+            if (IsRaskat && TypeOfUse != CarTypeOfUse.DriverCar)
+                yield return new ValidationResult("Раскатным может быть только автомобиль водителя", new[] { nameof(IsRaskat), nameof(TypeOfUse) });
+
+			if (IsRaskat && RaskatType == null)
+				yield return new ValidationResult("Для раскатного авто необходимо указать тип раската", new[] { nameof(IsRaskat), nameof(RaskatType) });
 		}
 
 		#endregion
@@ -323,6 +353,19 @@ namespace Vodovoz.Domain.Logistic
 		CompanyGAZelle,
 		[Display(Name = "Автомобиль водителя")]
 		DriverCar
+	}
+
+	public enum RaskatType
+	{
+		[Display(Name = "Газель")]
+		RaskatGazelle,
+		[Display(Name = "Ларгус")]
+		RaskatLargus
+	}
+
+	public class RaskatTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public RaskatTypeStringType() : base(typeof(RaskatType)) { }
 	}
 
 	public class CarTypeOfUseStringType : NHibernate.Type.EnumStringType

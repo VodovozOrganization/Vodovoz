@@ -55,10 +55,10 @@
             <Width>34.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>119.4pt</Width>
+            <Width>116.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>65.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>140.7pt</Width>
@@ -68,6 +68,9 @@
           </TableColumn>
           <TableColumn>
             <Width>75.2pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>30.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -167,6 +170,23 @@
                     <Textbox Name="Textbox24">
                       <Value>Расход, руб. коп.</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>Юр. лицо</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -279,6 +299,24 @@
                     <Textbox Name="Textbox25">
                       <Value>=Iif({expense} = 0, " ", {expense})</Value>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>Solid</Right>
+                          <Left>None</Left>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>={is_jur}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Right>Solid</Right>
@@ -422,6 +460,26 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
             <TableRow>
@@ -546,6 +604,24 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -651,6 +727,23 @@
                             <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>=Sum({expense})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox49">
+                          <Value></Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Left>None</Left>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -971,66 +1064,84 @@
         <DataSourceName>DS1</DataSourceName>
         <Timeout>75</Timeout>
         <CommandText>##INCOME
-SELECT codd.last_edited_time as doc_date,
-       ci.id as doc_id,
-       IF(employeeal1_.name is null,
-          CONCAT_WS
-              (
-                  '.',
-                  NULLIF(LEFT(author.name, 1), ''),
-                  NULLIF(LEFT(author.patronymic, 1), ''),
-                  author.last_name
-              ),
-          CONCAT_WS
-              (
-                  '.',
-                  NULLIF(LEFT(employeeal1_.name, 1), ''),
-                  NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
-                  employeeal1_.last_name
-              )) as name,
-       codd.amount as income,
+SELECT ocmo.operation_time as doc_date,
+       IFNULL(ci.id, octd.id) as doc_id,
+       CASE WHEN codd.id IS NOT NULL THEN
+           IF(employeeal1_.name is null,
+              CONCAT_WS
+                  (
+                      '.',
+                      NULLIF(LEFT(author.name, 1), ''),
+                      NULLIF(LEFT(author.patronymic, 1), ''),
+                      author.last_name
+                  ),
+              CONCAT_WS
+                  (
+                      '.',
+                      NULLIF(LEFT(employeeal1_.name, 1), ''),
+                      NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
+                      employeeal1_.last_name
+                  ))
+       ELSE
+          organizations.name
+       END as name,
+       ocmo.amount as income,
        0 as expense,
-       codd.organisation_id
+       IFNULL(codd.organisation_id, octd.organization_to_id) AS organisation_id,
+       IF(octd.id IS NOT NULL, 'v', '') is_jur
 
-FROM cash_organisation_distribution_documents codd
-    join cash_income ci on codd.cash_income_id = ci.id
+FROM organisation_cash_movement_operations ocmo
+    LEFT JOIN (cash_organisation_distribution_documents codd 
+    inner join cash_income ci on codd.cash_income_id = ci.id) ON codd.organisation_cash_movement_operation_id = ocmo.id
     left join employees employeeal1_ on codd.employee_id = employeeal1_.id
     left join employees author on codd.author_id = author.id
-WHERE IF(@organisation != -1,
-         (codd.organisation_id = @organisation and codd.last_edited_time BETWEEN @StartDate and @EndDate),
-         (codd.last_edited_time BETWEEN @StartDate and @EndDate))
+    LEFT JOIN organization_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_to_id = ocmo.id
+    LEFT JOIN organizations ON organizations.id = octd.organization_to_id
 
-UNION
+WHERE IF(@organisation != -1,
+        (IFNULL(codd.organisation_id, octd.organization_to_id) = @organisation AND ocmo.operation_time BETWEEN @StartDate and @EndDate),
+        (ocmo.operation_time BETWEEN @StartDate and @EndDate) AND (IFNULL(codd.organisation_id, octd.organization_to_id) IS NOT NULL))
+
+UNION ALL
 
 ##EXPENCE
-SELECT codd.last_edited_time as doc_date,
-       ce.id as doc_id,
-       IF(employeeal1_.name is null,
-          CONCAT_WS
-              (
-                  '.',
-                  NULLIF(LEFT(author.name, 1), ''),
-                  NULLIF(LEFT(author.patronymic, 1), ''),
-                  author.last_name
-              ),
-          CONCAT_WS
-              (
-                  '.',
-                  NULLIF(LEFT(employeeal1_.name, 1), ''),
-                  NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
-                  employeeal1_.last_name
-              )) as name,
+SELECT ocmo.operation_time as doc_date,
+       IFNULL(ce.id, octd.id) as doc_id,
+       CASE WHEN codd.id IS NOT NULL THEN
+           IF(employeeal1_.name is null,
+              CONCAT_WS
+                  (
+                      '.',
+                      NULLIF(LEFT(author.name, 1), ''),
+                      NULLIF(LEFT(author.patronymic, 1), ''),
+                      author.last_name
+                  ),
+              CONCAT_WS
+                  (
+                      '.',
+                      NULLIF(LEFT(employeeal1_.name, 1), ''),
+                      NULLIF(LEFT(employeeal1_.patronymic, 1), ''),
+                      employeeal1_.last_name
+                  ))
+       ELSE
+          organizations.name
+       END as name,
        0 as income,
-       -codd.amount as expance,
-       codd.organisation_id
-
-FROM cash_organisation_distribution_documents codd
-     join cash_expense ce on codd.cash_expense_id = ce.id
-     left join employees employeeal1_ on codd.employee_id = employeeal1_.id
-     left join employees author on codd.author_id = author.id
+       -ocmo.amount as expance,
+       IFNULL(codd.organisation_id, octd.organization_from_id) AS organisation_id,
+       IF(octd.id IS NOT NULL, 'v', '') is_jur
+       
+FROM organisation_cash_movement_operations ocmo
+    LEFT JOIN (cash_organisation_distribution_documents codd 
+    inner join cash_expense ce on codd.cash_expense_id = ce.id) ON codd.organisation_cash_movement_operation_id = ocmo.id
+    left join employees employeeal1_ on codd.employee_id = employeeal1_.id
+    left join employees author on codd.author_id = author.id
+    LEFT JOIN organization_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_from_id = ocmo.id
+    LEFT JOIN organizations ON organizations.id = octd.organization_from_id      
+	 
 WHERE IF(@organisation != -1,
-         (codd.organisation_id = @organisation and codd.last_edited_time BETWEEN @StartDate and @EndDate),
-         (codd.last_edited_time BETWEEN @StartDate and @EndDate));</CommandText>
+        (IFNULL(codd.organisation_id, octd.organization_from_id) = @organisation AND ocmo.operation_time BETWEEN @StartDate and @EndDate),
+        (ocmo.operation_time BETWEEN @StartDate and @EndDate) AND (IFNULL(codd.organisation_id, octd.organization_to_id) IS NOT NULL));</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -1046,6 +1157,7 @@ WHERE IF(@organisation != -1,
       <Fields >
         <Field Name="doc_date">
           <DataField>doc_date</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="doc_id">
           <DataField>doc_id</DataField>
@@ -1062,6 +1174,10 @@ WHERE IF(@organisation != -1,
         <Field Name="expense">
           <DataField>expense</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="is_jur">
+          <DataField>is_jur</DataField>
+          <TypeName>System.Boolean</TypeName>
         </Field>
       </Fields>
     </DataSet>

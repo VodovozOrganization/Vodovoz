@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -60,6 +60,10 @@
     <Compile Include="IDriverNotificator.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
+      <Name>QS.Project.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
       <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
       <Name>QSOrmProject</Name>
@@ -99,8 +103,8 @@
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
-    <PackageReference Include="NHibernate" Version="5.3.4" />
-    <PackageReference Include="NLog" Version="4.7.5" />
+    <PackageReference Include="NHibernate" Version="5.3.8" />
+    <PackageReference Include="NLog" Version="4.7.10" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
   </ItemGroup>

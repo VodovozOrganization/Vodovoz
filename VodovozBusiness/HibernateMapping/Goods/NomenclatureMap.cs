@@ -70,12 +70,16 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.StorageCell).Column("storage_cell");
 			Map(x => x.PurchasePrice).Column("purchase_price");
 
+			//Планирование продаж для КЦ
+			Map(x => x.PlanDay).Column("plan_day");
+			Map(x => x.PlanMonth).Column("plan_month");
+
 			References(x => x.ShipperCounterparty).Column("shipper_counterparty_id");
 			References(x => x.CreatedBy).Column("created_by");
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
 			References(x => x.Unit).Column("unit_id").Not.LazyLoad();
 			References(x => x.EquipmentColor).Column("color_id");
-			References(x => x.Type).Column("type_id");
+			References(x => x.Kind).Column("kind_id");
 			References(x => x.Manufacturer).Column("manufacturer_id");
 			References(x => x.RouteListColumn).Column("route_column_id");
 			References(x => x.Folder1C).Column("folder_1c_id");

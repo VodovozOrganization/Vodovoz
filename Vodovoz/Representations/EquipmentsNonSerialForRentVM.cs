@@ -23,7 +23,7 @@ namespace Vodovoz.Representations
 			}
 		}
 
-		public EquipmentType EquipmentType { get; set; }
+		public EquipmentKind EquipmentKind { get; set; }
 
 		#region implemented abstract members of RepresentationModelBase
 
@@ -31,9 +31,9 @@ namespace Vodovoz.Representations
 		{
 			IList<NomenclatureForRentVMNode> items;
 			if(Filter != null) {
-				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW, Filter.NomenEquipmentType);
-			} else if(EquipmentType != null) {
-				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW, EquipmentType);
+				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW, Filter.NomenEquipmentKind);
+			} else if(EquipmentKind != null) {
+				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW, EquipmentKind);
 			} else {
 				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW);
 			}
@@ -51,7 +51,7 @@ namespace Vodovoz.Representations
 			.Create()
 			.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Оборудование").AddTextRenderer (node => node.Nomenclature.Name)
-		    .AddColumn("Тип оборудования").AddTextRenderer (node => node.Type != null ? node.Type.Name : "")
+		    .AddColumn("Вид оборудования").AddTextRenderer (node => node.Type != null ? node.Type.Name : "")
 			.AddColumn("Кол-во").AddTextRenderer (node => node.InStockText)
 			.AddColumn("Зарезервировано").AddTextRenderer (node => node.ReservedText)
 			.AddColumn("Доступно").AddTextRenderer (node => node.AvailableText)
@@ -73,10 +73,10 @@ namespace Vodovoz.Representations
 			Filter = filter;
 		}
 
-		public EquipmentsNonSerialForRentVM(IUnitOfWork uow, EquipmentType equipType) : this(uow)
+		public EquipmentsNonSerialForRentVM(IUnitOfWork uow, EquipmentKind equipType) : this(uow)
 		{
 			Filter = null;
-			EquipmentType = equipType;
+			EquipmentKind = equipType;
 		}
 
 		public EquipmentsNonSerialForRentVM(IUnitOfWork uow)

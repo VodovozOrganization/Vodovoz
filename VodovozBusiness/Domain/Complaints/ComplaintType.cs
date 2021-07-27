@@ -7,7 +7,9 @@ namespace Vodovoz.Domain.Complaints
 		[Display(Name = "Внутренняя")]
 		Inner,
 		[Display(Name = "Клиентская")]
-		Client
+		Client,
+		[Display(Name = "Водительская")]
+		Driver
 	}
 
 	public class ComplaintTypeStringType : NHibernate.Type.EnumStringType

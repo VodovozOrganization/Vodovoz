@@ -25,6 +25,7 @@ using System.Text.RegularExpressions;
 using QS.Project.Search;
 using QS.Project.Journal.Search;
 using System.Linq.Expressions;
+using QS.Navigation;
 using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.ViewModels
@@ -323,7 +324,7 @@ namespace Vodovoz.ViewModels
 		{
 			CloseViewModelCommand = new DelegateCommand(
 				() => {
-					Close(false, QS.Navigation.CloseSource.Cancel);
+					Close(true, QS.Navigation.CloseSource.Cancel);
 				},
 				() => true
 			);
@@ -650,6 +651,26 @@ namespace Vodovoz.ViewModels
 
 		private ICriterion GetSearchCriterion<TRootEntity>(params Expression<Func<TRootEntity, object>>[] propertiesExpr) => 
 			searchHelper.GetSearchCriterion(propertiesExpr);
+
+		public override bool Save(bool close)
+		{
+			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
+			{
+				return false;
+			}
+			
+			return base.Save(close);
+		}
+
+		public override void Close(bool askSave, CloseSource source)
+		{
+			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
+			{
+				return;
+			}
+
+			base.Close(askSave, source);
+		}
 	}
 
 	public class ManualPaymentMatchingViewModelNode : JournalEntityNodeBase<VodOrder>

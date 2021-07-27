@@ -20,6 +20,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Date).Column ("date");
 			Map(x => x.Status).Column ("status").CustomType<RouteListStatusStringType> ();
 			Map(x => x.ClosingDate).Column("closing_date");
+			Map(x => x.FirstClosingDate).Column("first_closing_date");
 			Map(x => x.ClosingComment).Column("closing_comment");
 			Map(x => x.LogisticiansComment).Column("logisticians_comment");
 			Map(x => x.ClosingFilled).Column("closing_filled");
@@ -31,7 +32,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OnLoadGate).Column("on_load_gate");
 			Map(x => x.OnloadTimeFixed).Column("on_load_time_fixed");
 			Map(x => x.PlanedDistance).Column("plan_distance");
-			Map(x => x.Printed).Column("printed");
 			Map(x => x.AddressesOrderWasChangedAfterPrinted).Column("addresses_order_was_changed_after_printed");
 			Map(x => x.RecalculatedDistance).Column("recalculated_distance");
 			Map(x => x.MileageComment).Column("mileage_comment");
@@ -58,9 +58,9 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.LogisticiansCommentAuthor).Column("logisticians_comment_author_id");
 
 			HasMany(x => x.Addresses).Cascade.AllDeleteOrphan ().Inverse ()
-				.KeyColumn ("route_list_id")
-				.AsList (x => x.Column ("order_in_route"));
+				.KeyColumn ("route_list_id").OrderBy("order_in_route");
 			HasMany(x => x.FuelDocuments).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
+			HasMany(x => x.PrintsHistory).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
 			HasManyToMany(x => x.GeographicGroups).Table("geographic_groups_to_entities")
 			                                      .ParentKeyColumn("route_list_id")
 												  .ChildKeyColumn("geographic_group_id")

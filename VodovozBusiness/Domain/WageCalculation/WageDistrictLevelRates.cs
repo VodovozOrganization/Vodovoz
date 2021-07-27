@@ -79,10 +79,15 @@ namespace Vodovoz.Domain.WageCalculation
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(Name))
-				yield return new ValidationResult(
-					"Укажите название ставки",
-					new[] { this.GetPropertyName(o => o.Name) }
-				);
+			{
+				yield return new ValidationResult("Укажите название ставки", new[] {nameof(Name)});
+			}
+
+			if(Name?.Length > 255)
+			{
+				yield return new ValidationResult("Слишком длинное название ставки.\n Оно не должно превышать 255 символов",
+					new[] {nameof(Name)});
+			}
 
 			#region валидация ставок
 

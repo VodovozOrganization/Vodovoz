@@ -10,6 +10,9 @@ namespace Vodovoz.HibernateMapping
 		{
 			Table("route_list_addresses");
 
+			OptimisticLock.Version();
+			Version(x => x.Version).Column("version");
+
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.IndexInRoute)							.Column("order_in_route");
@@ -28,7 +31,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Status)									.Column("status").CustomType<RouteListItemStatusStringType>();
 			Map(x => x.NeedToReload)							.Column("need_to_reload");
 			Map(x => x.WasTransfered)							.Column("was_transfered");
-			Map(x => x.CashierComment)							.Column("cashier_comment").Length(150);
+			Map(x => x.CashierComment)							.Column("cashier_comment");
 			Map(x => x.CashierCommentCreateDate)				.Column("cashier_comment_create_date");
 			Map(x => x.CashierCommentLastUpdate)				.Column("cashier_comment_last_update");
 			Map(x => x.Notified30Minutes)						.Column("notified_30minutes");
@@ -36,16 +39,17 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.PlanTimeStart)							.Column("plan_time_start").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.PlanTimeEnd)								.Column("plan_time_end").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.CommentForFine).Column("comment_for_fine");
-			
+			Map(x => x.IsDriverForeignDistrict).Column("is_driver_foreign_district");
+
 			References(x => x.RouteList)						.Column("route_list_id").Not.Nullable ();
 			References(x => x.Order)							.Column("order_id").Cascade.SaveUpdate();
 			References(x => x.TransferedTo)						.Column("transfered_to_id");
 			References(x => x.CashierCommentAuthor)				.Column("cashier_comment_author");
 			References(x => x.DriverWageCalculationMethodic)	.Column("driver_wage_calculation_methodic_id");
 			References(x => x.ForwarderWageCalculationMethodic)	.Column("forwarder_wage_calculation_methodic_id");
-			References(x => x.LateArrivalReason).Column("late_arrival_reason_id");
-			References(x => x.LateArrivalReasonAuthor).Column("late_arrival_reason_author_id");
-			References(x => x.CommentForFineAuthor).Column("comment_for_fine_author_id");
+			References(x => x.LateArrivalReason)                .Column("late_arrival_reason_id");
+			References(x => x.LateArrivalReasonAuthor)          .Column("late_arrival_reason_author_id");
+			References(x => x.CommentForFineAuthor)             .Column("comment_for_fine_author_id");
 			
 			HasManyToMany(x => x.Fines)
 				.Table("fines_to_route_list_addresses")

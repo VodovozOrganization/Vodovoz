@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Services

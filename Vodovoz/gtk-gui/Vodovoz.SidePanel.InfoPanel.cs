@@ -4,7 +4,7 @@ namespace Vodovoz.SidePanel
 {
 	public partial class InfoPanel
 	{
-		private global::QSWidgetLib.RightSidePanel rightsidepanel1;
+		private global::Gamma.Widgets.SidePanels.RightSidePanel rightsidepanel1;
 
 		protected virtual void Build()
 		{
@@ -13,7 +13,7 @@ namespace Vodovoz.SidePanel
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.SidePanel.InfoPanel";
 			// Container child Vodovoz.SidePanel.InfoPanel.Gtk.Container+ContainerChild
-			this.rightsidepanel1 = new global::QSWidgetLib.RightSidePanel();
+			this.rightsidepanel1 = new global::Gamma.Widgets.SidePanels.RightSidePanel();
 			this.rightsidepanel1.Events = ((global::Gdk.EventMask)(256));
 			this.rightsidepanel1.Name = "rightsidepanel1";
 			this.rightsidepanel1.Title = "Информация";

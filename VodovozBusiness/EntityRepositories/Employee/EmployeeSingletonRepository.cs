@@ -15,14 +15,13 @@ namespace Vodovoz.EntityRepositories.Employees
 	{
 		private static EmployeeSingletonRepository instance;
 
+		[Obsolete("Необходимо избавляться от синглтонов")]
 		public static EmployeeSingletonRepository GetInstance()
 		{
 			if(instance == null)
 				instance = new EmployeeSingletonRepository();
 			return instance;
 		}
-
-		protected EmployeeSingletonRepository() { }
 
 		public Employee GetEmployeeForCurrentUser(IUnitOfWork uow)
 		{
@@ -139,6 +138,24 @@ namespace Vodovoz.EntityRepositories.Employees
 		public QueryOver<Employee> ActiveEmployeeOrderedQuery()
 		{
 			return QueryOver.Of<Employee>().Where(e => e.Status != EmployeeStatus.IsFired).OrderBy(e => e.LastName).Asc.ThenBy(e => e.Name).Asc.ThenBy(e => e.Patronymic).Asc;
+		}
+
+		public string GetEmployeePushTokenByOrderId(IUnitOfWork uow, int orderId)
+		{
+			Vodovoz.Domain.Orders.Order vodovozOrder = null;
+			RouteListItem routeListAddress = null;
+			RouteList routeList = null;
+			Employee employee = null;
+
+			return uow.Session.QueryOver<RouteListItem>(() => routeListAddress)
+				.Inner.JoinAlias(() => routeListAddress.RouteList, () => routeList)
+				.Inner.JoinAlias(() => routeListAddress.Order, () => vodovozOrder)
+				.Inner.JoinAlias(() => routeList.Driver, () => employee)
+				.Where(Restrictions.Eq(Projections.Property(() => vodovozOrder.Id), orderId))
+				.And(Restrictions.Not(Restrictions.Eq(Projections.Property(() => routeListAddress.Status), RouteListItemStatus.Transfered)))
+				.And(Restrictions.IsNull(Projections.Property(() => routeListAddress.TransferedTo)))
+				.Select(Projections.Property(() => employee.AndroidToken))
+				.SingleOrDefault<string>();
 		}
 	}
 }

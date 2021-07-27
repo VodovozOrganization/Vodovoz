@@ -5,13 +5,14 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Logistic
 {
 	public class RouteListItemWageCalculationSource : IRouteListItemWageCalculationSource
 	{
-		readonly RouteListItem item;
-		readonly EmployeeCategory employeeCategory;
+		private readonly RouteListItem item;
+		private readonly EmployeeCategory employeeCategory;
 
 		public RouteListItemWageCalculationSource(RouteListItem item, EmployeeCategory employeeCategory)
 		{
@@ -21,31 +22,55 @@ namespace Vodovoz.Domain.Logistic
 
 		#region IRouteListItemWageCalculationSource implementation
 
-		public int FullBottle19LCount => (int)item.Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
-															  .Sum(item => item.ActualCount ?? 0);
+		public int FullBottle19LCount => (int)item.Order.OrderItems
+			.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
+			.Sum(i => i.CurrentCount);
 
-		public int EmptyBottle19LCount => item.BottlesReturned;
+		public int EmptyBottle19LCount => item.RouteListIsUnloaded() || item.RouteList.Status == RouteListStatus.MileageCheck
+			? item.BottlesReturned : item.Order.BottlesReturn ?? 0;
 
-		public int Bottle6LCount => (int)item.Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol6L)
-														 .Sum(item => item.ActualCount ?? 0);
+		public int Bottle6LCount => (int)item.Order.OrderItems
+			.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol6L)
+			.Sum(i => i.CurrentCount);
 
-		public int Bottle600mlCount => (int)item.Order.OrderItems.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol600ml)
-													   		.Sum(i => i.ActualCount ?? 0);
-		public int Bottle1500mlCount => (int)item.Order.OrderItems.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol1500ml)
-															.Sum(i => i.ActualCount ?? 0);
+		public int Bottle600mlCount => (int)item.Order.OrderItems
+			.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol600ml)
+			.Sum(i => i.CurrentCount);
+		
+		public int Bottle1500mlCount => (int)item.Order.OrderItems
+			.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol1500ml)
+			.Sum(i => i.CurrentCount);
+		
+		public int Bottle500mlCount => (int)item.Order.OrderItems
+			.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol500ml)
+			.Sum(i => i.CurrentCount);
 
 		public bool ContractCancelation => false;
 
 		public IEnumerable<IOrderItemWageCalculationSource> OrderItemsSource => item.Order.OrderItems;
 
 		public IEnumerable<IOrderDepositItemWageCalculationSource> OrderDepositItemsSource => item.Order.OrderDepositItems;
+		public bool IsDriverForeignDistrict
+		{
+			get
+			{
+				var driverDistricts = item.RouteList.Driver.DriverDistrictPrioritySets
+					.FirstOrDefault(x =>
+						item.RouteList.Date >= x.DateActivated && (x.DateDeactivated == null || item.RouteList.Date <= x.DateDeactivated))
+					?.DriverDistrictPriorities
+					?.Select(x => x.District);
+
+				return driverDistricts == null || !driverDistricts.Contains(item.Order.DeliveryPoint.District);
+			}
+		}
 
 		public bool HasFirstOrderForDeliveryPoint {
-			get {
-
-				var sameAddress = item.RouteList.Addresses.Where(a => a.IsDelivered())
-											   .Select(i => i.Order)
-											   .FirstOrDefault(o => o.DeliveryPoint?.Id == item.Order.DeliveryPoint?.Id);
+			get
+			{
+				var sameAddress = item.RouteList.Addresses
+					.Where(i => i.IsValidForWageCalculation())
+					.Select(i => i.Order)
+					.FirstOrDefault(o => o.DeliveryPoint?.Id == item.Order.DeliveryPoint?.Id); 
 				if(sameAddress == null) {
 					return false;
 				}
@@ -104,9 +129,12 @@ namespace Vodovoz.Domain.Logistic
 
 		public decimal DriverWageSurcharge => item.DriverWageSurcharge;
 
-		public bool IsDelivered => item.IsDelivered() && item.Status != RouteListItemStatus.Transfered;
+		public bool IsDelivered => item.IsDelivered();
+		public bool IsValidForWageCalculation => item.IsValidForWageCalculation();
 
 		public (TimeSpan, TimeSpan) DeliverySchedule => (item.Order.DeliverySchedule.From, item.Order.DeliverySchedule.To);
+
+		public EmployeeCategory EmployeeCategory => employeeCategory;
 
 		#endregion IRouteListItemWageCalculationSource implementation
 	}

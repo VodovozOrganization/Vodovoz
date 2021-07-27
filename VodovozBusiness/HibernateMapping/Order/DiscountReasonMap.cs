@@ -9,8 +9,9 @@ namespace Vodovoz.HibernateMapping.Order
 		{
 			Table("discount_reasons");
 
-			Id (x => x.Id)	.Column("id").GeneratedBy.Native();
+			Id (x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Name).Column("name");
+			Map(x => x.IsArchive).Column("is_archive");
 		}
 	}
 }

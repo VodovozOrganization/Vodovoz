@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
@@ -33,6 +34,11 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// Количество 1,5л бутылей
 		/// </summary>
 		int Bottle1500mlCount { get; }
+		
+		/// <summary>
+		/// Количество 0,5л бутылей
+		/// </summary>
+		int Bottle500mlCount { get; }
 
 		/// <summary>
 		/// Заказ на адресе является расторжением договора
@@ -87,6 +93,11 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		bool IsDelivered { get; }
 
 		/// <summary>
+		/// Можно ли расчитывать ЗП по этому адресу
+		/// </summary>
+		bool IsValidForWageCalculation { get; }
+
+		/// <summary>
 		/// Время доставки
 		/// </summary>
 		(TimeSpan,TimeSpan) DeliverySchedule { get; }
@@ -98,5 +109,9 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 		IEnumerable<IOrderItemWageCalculationSource> OrderItemsSource { get; }
 		IEnumerable<IOrderDepositItemWageCalculationSource> OrderDepositItemsSource { get; }
+
+		bool IsDriverForeignDistrict { get; }
+
+		EmployeeCategory EmployeeCategory { get; }
 	}
 }

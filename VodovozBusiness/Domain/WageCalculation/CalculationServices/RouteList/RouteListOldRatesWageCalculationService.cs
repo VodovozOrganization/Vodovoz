@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Bindings;
 using System.Linq;
 using Vodovoz.Domain.Employees;
@@ -81,7 +82,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			if(!src.HasFirstOrderForDeliveryPoint)
 				return 0;
 
-			var rate = GetActualRate(WageRateTypes.Address);
+			var rate = GetActualRate(src.IsDriverForeignDistrict? WageRateTypes.ForeignAddress : WageRateTypes.Address);
 			return GetRateValue(src, rate);
 		}
 
@@ -152,6 +153,114 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			decimal paymentForOne = GetRateValue(src, rate);
 
 			return paymentForOne * src.Bottle6LCount;
+		}
+
+		public RouteListItemWageCalculationDetails GetWageCalculationDetailsForRouteListItem(IRouteListItemWageCalculationSource src)
+		{
+			RouteListItemWageCalculationDetails addressWageDetails = new RouteListItemWageCalculationDetails()
+			{
+				RouteListItemWageCalculationName = wageParameterItem.Title,
+				WageCalculationEmployeeCategory = source.EmployeeCategory
+			};
+
+			if(!src.IsDelivered)
+			{
+				addressWageDetails.WageCalculationDetailsList.Add(
+					new WageCalculationDetailsItem()
+					{
+						Name = $"Заказ не доставлен",
+					});
+				return addressWageDetails;
+			}
+
+			if(source.IsTruck)
+			{
+				addressWageDetails.WageCalculationDetailsList.Add(
+					new WageCalculationDetailsItem()
+					{
+						Name = $"ТС является фурой",
+					});
+				return addressWageDetails;
+			}
+
+			if(!src.HasFirstOrderForDeliveryPoint)
+			{
+				addressWageDetails.WageCalculationDetailsList.Add(
+					new WageCalculationDetailsItem()
+					{
+						Name = $"Не первый заказ на точку доставки",
+					});
+			}
+			else
+			{
+				var rateAddress = GetActualRate(src.IsDriverForeignDistrict ? WageRateTypes.ForeignAddress : WageRateTypes.Address);
+				if(rateAddress != null)
+				{
+					addressWageDetails.WageCalculationDetailsList.Add(
+						new WageCalculationDetailsItem()
+						{
+							Name = $"{rateAddress.WageRateType.GetEnumTitle()}",
+							Count = 1,
+							Price = GetRateValue(src, rateAddress)
+						});
+				}
+			}
+
+			bool addressWithBigOrder = HasBigOrder(src);
+			var rateFullBottle19L = GetActualRate(addressWithBigOrder ? WageRateTypes.Bottle19LInBigOrder : WageRateTypes.Bottle19L);
+			var priceFullBottle19L = GetRateValue(src, rateFullBottle19L);
+			if(priceFullBottle19L * src.FullBottle19LCount > 0)
+			{
+				addressWageDetails.WageCalculationDetailsList.Add(
+					new WageCalculationDetailsItem()
+					{
+						Name = rateFullBottle19L.WageRateType.GetEnumTitle(),
+						Count = src.FullBottle19LCount,
+						Price = priceFullBottle19L
+					});
+			}
+			else
+			{
+				if(src.NeedTakeOrDeliverEquipment)
+				{
+					addressWageDetails.WageCalculationDetailsList.Add(
+						new WageCalculationDetailsItem()
+						{
+							Name = WageRateTypes.Equipment.GetEnumTitle(),
+							Count = 1,
+							Price = GetRateValue(src, GetActualRate(WageRateTypes.Equipment)
+							)
+						});
+				}
+			}
+
+			addressWageDetails.WageCalculationDetailsList.Add(
+				new WageCalculationDetailsItem()
+				{
+					Name = addressWithBigOrder ? WageRateTypes.EmptyBottle19LInBigOrder.GetEnumTitle() : WageRateTypes.EmptyBottle19L.GetEnumTitle(),
+					Count = src.EmptyBottle19LCount,
+					Price = GetRateValue(src, GetActualRate(addressWithBigOrder ? WageRateTypes.EmptyBottle19LInBigOrder : WageRateTypes.EmptyBottle19L)
+					)
+				});
+
+			addressWageDetails.WageCalculationDetailsList.Add(
+				new WageCalculationDetailsItem()
+				{
+					Name = WageRateTypes.PackOfBottles600ml.GetEnumTitle(),
+					Count = src.Bottle600mlCount,
+					Price = GetRateValue(src, GetActualRate(WageRateTypes.PackOfBottles600ml)) / 36
+				});
+
+			addressWageDetails.WageCalculationDetailsList.Add(
+				new WageCalculationDetailsItem()
+				{
+					Name = WageRateTypes.Bottle6L.GetEnumTitle(),
+					Count = src.Bottle6LCount,
+					Price = GetRateValue(src, GetActualRate(WageRateTypes.Bottle6L)
+				)
+				});
+
+			return addressWageDetails;
 		}
 	}
 }

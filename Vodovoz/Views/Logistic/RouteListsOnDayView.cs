@@ -24,6 +24,8 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
 using System.Drawing;
+using Gamma.Utilities;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -229,8 +231,16 @@ namespace Vodovoz.Views.Logistic
 			enumCmbDeliveryType.ItemsEnum = typeof(DeliveryScheduleFilterType);
 			enumCmbDeliveryType.Binding.AddBinding(ViewModel, vm => vm.DeliveryScheduleType, w => w.SelectedItem).InitializeFromSource();
 			enumCmbDeliveryType.ChangedByUser += (sender, e) => FillItems();
+			
+			ytextWorkDriversInfo.Binding.AddBinding(ViewModel, vm => vm.CanTake, w => w.Buffer.Text).InitializeFromSource(); 
+			viewDeliverySummary.ColumnsConfig = FluentColumnsConfig<DeliverySummary>
+				.Create()
+				.AddColumn("Статус").AddTextRenderer(x => x.Name)
+				.AddColumn("Адреса").AddTextRenderer(x=>x.AddressCount.ToString()).XAlign(0.5f)
+				.AddColumn("Бутыли").AddTextRenderer(x=>x.Bottles.ToString("N0")).XAlign(0.5f)
+				.Finish();
 
-			ytextWorkDriversInfo.Binding.AddBinding(ViewModel, vm => vm.CanTake, w => w.Buffer.Text).InitializeFromSource();
+			viewDeliverySummary.Binding.AddBinding(ViewModel, vm => vm.ObservableDeliverySummary, w => w.ItemsDataSource).InitializeFromSource();
 		}
 
 		void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
@@ -446,7 +456,8 @@ namespace Vodovoz.Views.Logistic
 		{
 			addressesOverlay.Clear();
 			TurnOffCheckShowOnlyDriverOrders();
-
+			
+			
 			logger.Info("Загружаем заказы на {0:d}...", ViewModel.DateForRouting);
 			ViewModel.InitializeData();
 			UpdateRoutesPixBuf();
@@ -489,9 +500,17 @@ namespace Vodovoz.Views.Logistic
 					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
-				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
+				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue)
+				{
+					bool overdueOrder = false;
+					var undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay.Where(x =>
+						x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department);
+					if(undeliveryOrderNodes.Any(x => x.NewOrderId == order.Id))
+					{
+						overdueOrder = true;
+					}
 
-					FillTypeAndShapeMarker(order, route, orderRls, out PointMarkerShape shape, out PointMarkerType type);
+					FillTypeAndShapeMarker(order, route, orderRls, out PointMarkerShape shape, out PointMarkerType type, overdueOrder);
 
 					if(selectedMarkers.FirstOrDefault(m => (m.Tag as Order)?.Id == order.Id) != null)
 						type = PointMarkerType.white;
@@ -503,14 +522,14 @@ namespace Vodovoz.Views.Logistic
 				else
 					addressesWithoutCoordinats++;
 			}
-
+			
 			UpdateOrdersInfo();
 			logger.Info("Ок.");
 		}
 
-		private void FillTypeAndShapeMarker(Order order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type)
+		private void FillTypeAndShapeMarker(Order order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type, bool overdueOrder = false)
 		{
-			shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver);
+			shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver, overdueOrder);
 			type = PointMarkerType.black;
 
 			if(!orderRlsIds.Any()) {

@@ -9,7 +9,8 @@ namespace SmsPaymentService
     {
         public SmsPaymentDTO CreateSmsPaymentDTO(SmsPayment smsPayment, Order order)
         {
-            var newSmsPaymentDTO = new SmsPaymentDTO {
+            var newSmsPaymentDTO = new SmsPaymentDTO
+            {
                 Recepient = smsPayment.Recepient.Name,
                 RecepientId = smsPayment.Recepient.Id,
                 PhoneNumber = smsPayment.PhoneNumber,
@@ -18,18 +19,66 @@ namespace SmsPaymentService
                 PaymentCreationDate = smsPayment.CreationDate,
                 Amount = smsPayment.Amount,
                 RecepientType = smsPayment.Recepient.PersonType,
-                Items = new List<SmsPaymentItemDTO>()
+                Items = GetCalculatedSmsPaymentItemDTOs(order.OrderItems)
             };
 
-            foreach(var orderItem in order.OrderItems) {
-                newSmsPaymentDTO.Items.Add(new SmsPaymentItemDTO {
-                    Name = orderItem.Nomenclature.OfficialName,
-                    Quantity = orderItem.CurrentCount,
-                    Price = orderItem.Sum / orderItem.Count
-                });
+            return newSmsPaymentDTO;
+        }
+
+        private List<SmsPaymentItemDTO> GetCalculatedSmsPaymentItemDTOs(IList<OrderItem> itemList)
+        {
+            List<SmsPaymentItemDTO> smsPaymentDTOList = new List<SmsPaymentItemDTO>();
+
+            SmsPaymentItemDTO compensatingItem = null;
+            decimal remains = 0;
+
+            foreach (var item in itemList)
+            {
+                decimal price = decimal.Round(item.ActualSum / item.CurrentCount, 2, MidpointRounding.AwayFromZero);
+                bool isDivided = item.ActualSum == price * item.CurrentCount;
+
+                if (isDivided)
+                {
+                    smsPaymentDTOList.Add(
+                        new SmsPaymentItemDTO()
+                        {
+                            Name = item.Nomenclature.OfficialName,
+                            Quantity = item.CurrentCount,
+                            Price = price
+                        });
+                }
+                else
+                {
+                    smsPaymentDTOList.Add(
+                        new SmsPaymentItemDTO()
+                        {
+                            Name = item.Nomenclature.OfficialName,
+                            Quantity = item.CurrentCount - (compensatingItem == null ? 1 : 0),
+                            Price = price
+                        });
+
+                    remains += item.ActualSum - price * item.CurrentCount;
+
+                    if (compensatingItem == null)
+                    {
+                        compensatingItem = new SmsPaymentItemDTO
+                        {
+                            Name = item.Nomenclature.OfficialName,
+                            Quantity = 1,
+                            Price = price
+                        };
+
+                        smsPaymentDTOList.Add(compensatingItem);
+                    }
+                }
             }
 
-            return newSmsPaymentDTO;
+            if (compensatingItem != null)
+            {
+                compensatingItem.Price += remains;
+            }
+
+            return smsPaymentDTOList;
         }
     }
 }

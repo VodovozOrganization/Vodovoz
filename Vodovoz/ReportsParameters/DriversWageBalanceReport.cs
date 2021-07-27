@@ -97,6 +97,7 @@ namespace Vodovoz.Reports
 				                 () => employeeAlias.Status != EmployeeStatus.IsFired
 				                 && (employeeAlias.Category == EmployeeCategory.driver || employeeAlias.Category == EmployeeCategory.forwarder)
 				                 && !employeeAlias.VisitingMaster
+				                 && employeeAlias.Status != EmployeeStatus.OnCalculation
 				                )
 			                 .SelectList(list => list
 			                             .Select(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)

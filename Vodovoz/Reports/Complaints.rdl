@@ -55,20 +55,23 @@
           <TableColumn>
             <Width>42.1pt</Width>
           </TableColumn>
-          <TableColumn >
-            <Width>42.1pt</Width>
+          <TableColumn>
+            <Width>38.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.3pt</Width>
+            <Width>37.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>70.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.9pt</Width>
+            <Width>63.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.5pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>47.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>51.3pt</Width>
@@ -77,16 +80,16 @@
             <Width>95.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.6pt</Width>
+            <Width>38.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>84.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>58.1pt</Width>
+            <Width>46.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>21.6pt</Width>
+            <Width>16.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>86.1pt</Width>
@@ -159,7 +162,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -222,6 +225,23 @@
                     <Textbox Name="Textbox9">
                       <Value>Виновный</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Объект</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -313,7 +333,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -330,7 +350,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -496,6 +516,23 @@
                       <Value>=Fields!guilties.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>={complaint_object_text}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -689,18 +726,21 @@
     GROUP_CONCAT(DISTINCT subdivisions.name SEPARATOR ' ') AS subdivisions,
     counterparty.name AS client,
     complaints.arrangement_text AS arrangement_text,
-    CASE
-        WHEN complaint_guilty_items.guilty_type = 'Client' THEN 'Клиент'
-        WHEN complaint_guilty_items.guilty_type = 'Node' THEN 'Нет'
-        WHEN complaint_guilty_items.guilty_type = 'Employee' THEN  CONCAT_WS('', CONCAT(guiltyEmployee.last_name, ' '), IF(guiltyEmployee.name = '', '', CONCAT(LEFT(guiltyEmployee.name, 1), '.')), IF(guiltyEmployee.patronymic = '', '', CONCAT(LEFT(guiltyEmployee.patronymic, 1), '.')))
-        WHEN complaint_guilty_items.guilty_type = 'Subdivision' THEN guiltySubdivisions.name
-    END AS guilties,
+    GROUP_CONCAT(DISTINCT
+        CASE complaint_guilty_items.guilty_type
+            WHEN 'Client' THEN 'Клиент'
+            WHEN 'None'	THEN 'Нет'
+            WHEN 'Employee' THEN GET_PERSON_NAME_WITH_INITIALS(guiltyEmployee.last_name, guiltyEmployee.name, guiltyEmployee.patronymic)
+            WHEN 'Subdivision' THEN guiltySubdivisions.name
+        END SEPARATOR ';\n')
+    AS guilties,
     complaints.complaint_text,
     GROUP_CONCAT(DISTINCT ROUND(fines.total_money,2) SEPARATOR ' ') AS fines,
     complaints.result_text,
     complaints.actual_completion_date,
     DATEDIFF(complaints.actual_completion_date, complaints.creation_date) AS days_at_work,
-    complaint_kinds.name as complaint_kind_text
+    complaint_kinds.name as complaint_kind_text,
+    complaint_objects.name as complaint_object_text
 FROM
     complaints
     LEFT JOIN complaint_discussions ON complaint_discussions.complaint_id = complaints.id
@@ -714,6 +754,7 @@ FROM
     LEFT JOIN complaint_fines ON complaint_fines.complaint_id = complaints.id
     LEFT JOIN fines ON complaint_fines.fine_id = fines.id
     LEFT JOIN complaint_kinds ON complaints.complaint_kind_id = complaint_kinds.id
+    LEFT JOIN complaint_objects ON complaint_kinds.complaint_object_id = complaint_objects.id
 WHERE
     (
         (
@@ -816,6 +857,10 @@ GROUP BY
         </Field>
         <Field Name="complaint_kind_text">
           <DataField>complaint_kind_text</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="complaint_object_text">
+          <DataField>complaint_object_text</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

@@ -37,6 +37,7 @@ namespace Vodovoz.Domain.Sale
 					OnPropertyChanged(() => Water6LCount);
 					OnPropertyChanged(() => Water1500mlCount);
 					OnPropertyChanged(() => Water600mlCount);
+					OnPropertyChanged(() => Water500mlCount);
 				}
 			}
 		}
@@ -51,17 +52,22 @@ namespace Vodovoz.Domain.Sale
 		private int? equalsCount6LFor19L;
 		[Display(Name = "Количество 6л бутылей на одну 19л бутыль")]
 		public virtual int EqualsCount6LFor19L => 
-			equalsCount6LFor19L ?? (equalsCount6LFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_6л_на_1бутыль_19л"))).Value;
+			equalsCount6LFor19L ?? (equalsCount6LFor19L = int.Parse(SingletonParametersProvider.Instance.GetParameterValue("эквивалент_6л_на_1бутыль_19л"))).Value;
 
 		private int? equalsCount1500mlFor19L;
 		[Display(Name = "Количество 1,5л бутылей на одну 19л бутыль")]
 		public virtual int EqualsCount1500mlFor19L => 
-			equalsCount1500mlFor19L ?? (equalsCount1500mlFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_1,5л_на_1бутыль_19л"))).Value;
+			equalsCount1500mlFor19L ?? (equalsCount1500mlFor19L = int.Parse(SingletonParametersProvider.Instance.GetParameterValue("эквивалент_1,5л_на_1бутыль_19л"))).Value;
 		
 		private int? equalsCount600mlFor19L;
 		[Display(Name = "Количество 0,6л бутылей на одну 19л бутыль")]
 		public virtual int EqualsCount600mlFor19L => 
-			equalsCount600mlFor19L ?? (equalsCount600mlFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_0,6л_на_1бутыль_19л"))).Value;
+			equalsCount600mlFor19L ?? (equalsCount600mlFor19L = int.Parse(SingletonParametersProvider.Instance.GetParameterValue("эквивалент_0,6л_на_1бутыль_19л"))).Value;
+		
+		private int? equalsCount500mlFor19L;
+		[Display(Name = "Количество 0,5л бутылей на одну 19л бутыль")]
+		public virtual int EqualsCount500mlFor19L => 
+			equalsCount500mlFor19L ?? (equalsCount500mlFor19L = int.Parse(SingletonParametersProvider.Instance.GetParameterValue("эквивалент_0,5л_на_1бутыль_19л"))).Value;
 
 		[Display(Name = "Количество 6л бутылей в заказе")]
 		public virtual string Water6LCount => (water19LCount * EqualsCount6LFor19L).ToString();
@@ -71,6 +77,9 @@ namespace Vodovoz.Domain.Sale
 		
 		[Display(Name = "Количество 0,6л бутылей в заказе")]
 		public virtual string Water600mlCount => (water19LCount * EqualsCount600mlFor19L).ToString();
+		
+		[Display(Name = "Количество 0,5л бутылей в заказе")]
+		public virtual string Water500mlCount => (water19LCount * EqualsCount500mlFor19L).ToString();
 
 		#endregion
 
@@ -96,6 +105,7 @@ namespace Vodovoz.Domain.Sale
 				sb.Append($" или 6л б. < {water19LCount * EqualsCount6LFor19L}шт.");
 				sb.Append($" или 1500мл б. < {Water19LCount * EqualsCount1500mlFor19L}шт.");
 				sb.Append($" или 600мл б. < {Water19LCount * EqualsCount600mlFor19L}шт.");
+				sb.Append($" или 500мл б. < {Water19LCount * EqualsCount500mlFor19L}шт.");
 			}
 
 			return sb.ToString().Trim(' ', ',', 'и');

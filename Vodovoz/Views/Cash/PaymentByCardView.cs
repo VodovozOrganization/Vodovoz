@@ -20,7 +20,7 @@ namespace Vodovoz.Views.Cash
 				w => w.Sensitive).InitializeFromSource();
 			
 			ybuttonSave.Clicked += (s, ea) => ViewModel.SaveAndClose();
-			ybuttonCancel.Clicked += (s, ea) => ViewModel.Close(false,CloseSource.Cancel);
+			ybuttonCancel.Clicked += (s, ea) => ViewModel.Close(true,CloseSource.Cancel);
 			
 			entryOnlineOrder.ValidationMode = (QS.Widgets.ValidationType)ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(ViewModel.Entity,

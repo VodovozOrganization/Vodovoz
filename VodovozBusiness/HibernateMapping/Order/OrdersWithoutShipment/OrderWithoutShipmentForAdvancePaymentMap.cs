@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.HibernateMapping.Order.OrdersWithoutShipment
@@ -12,7 +12,6 @@ namespace Vodovoz.HibernateMapping.Order.OrdersWithoutShipment
             Id(x => x.Id).Column("id").GeneratedBy.Native();
             Map(x => x.CreateDate).Column("create_date").ReadOnly();
             Map (x => x.IsBillWithoutShipmentSent).Column ("is_bill_sent");
-            Map(x => x.IsForRetail).Column("is_for_retail");
 
             References(x => x.Author).Column("author_id");
             References(x => x.Client).Column("client_id");

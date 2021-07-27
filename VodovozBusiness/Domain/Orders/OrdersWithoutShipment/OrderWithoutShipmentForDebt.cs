@@ -70,7 +70,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
             {
 				if (value != null)
                 {
-					IsForRetail = value.IsForRetail;
 					SetField(ref order, value);
 				}
             } 
@@ -85,7 +84,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				Parameters = new Dictionary<string, object> {
 					{ "bill_ws_for_debt_id", Id },
 					{ "special_contract_number", SpecialContractNumber },
-					{ "organization_id", new OrganizationParametersProvider(ParametersProvider.Instance).GetCashlessOrganisationId },
+					{ "organization_id", new OrganizationParametersProvider(SingletonParametersProvider.Instance).GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
 					{ "special", false }
 				}
@@ -118,14 +117,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual bool HideSignature {
 			get => hideSignature;
 			set => SetField(ref hideSignature, value);
-		}
-
-		private bool isForRetail;
-		[Display(Name = "Для розницы")]
-		public virtual bool IsForRetail
-		{
-			get => isForRetail;
-			set => SetField(ref isForRetail, value);
 		}
 
 		#endregion

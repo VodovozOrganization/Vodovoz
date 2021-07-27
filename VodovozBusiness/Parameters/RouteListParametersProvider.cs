@@ -5,9 +5,9 @@ namespace Vodovoz.Parameters
 {
     public class RouteListParametersProvider : IRouteListParametersProvider
     {
-        private readonly ParametersProvider parametersProvider;
+        private readonly IParametersProvider parametersProvider;
 
-        public RouteListParametersProvider(ParametersProvider parametersProvider)
+        public RouteListParametersProvider(IParametersProvider parametersProvider)
         {
             this.parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }
@@ -16,5 +16,6 @@ namespace Vodovoz.Parameters
         public int CashSubdivisionParnasId => parametersProvider.GetIntValue("cashsubdivision_parnas_id");
         public int WarehouseSofiiskayaId => parametersProvider.GetIntValue("warehouse_sofiiskaya_id");
         public int WarehouseParnasId => parametersProvider.GetIntValue("warehouse_parnas_id");
+        public int SouthGeographicGroupId => parametersProvider.GetIntValue("south_geographic_group_id");
     }
 }

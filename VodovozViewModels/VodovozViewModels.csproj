@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -27,57 +27,11 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CsvHelper, Version=15.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823">
-      <HintPath>..\packages\CsvHelper.15.0.8\lib\net45\CsvHelper.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FluentNHibernate, Version=3.0.0.0, Culture=neutral, PublicKeyToken=8aa435e3cb308880">
-      <HintPath>..\packages\FluentNHibernate.3.0.1\lib\net461\FluentNHibernate.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="GeoAPI, Version=1.7.5.0, Culture=neutral, PublicKeyToken=a1a0da7def465678">
-      <HintPath>..\packages\GeoAPI.Core.1.7.5\lib\net45\GeoAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="GeoAPI.CoordinateSystems, Version=1.7.5.0, Culture=neutral, PublicKeyToken=a1a0da7def465678">
-      <HintPath>..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45\GeoAPI.CoordinateSystems.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NetTopologySuite, Version=1.15.3.0, Culture=neutral, PublicKeyToken=f580a05016ebada1">
-      <HintPath>..\..\..\..\..\.nuget\packages\nettopologysuite.core\1.15.3\lib\net45\NetTopologySuite.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate, Version=5.3.0.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4">
-      <HintPath>..\packages\NHibernate.5.3.4\lib\net461\NHibernate.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NHibernate.Spatial, Version=5.3.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\NHibernate.Spatial.5.3.0\lib\netstandard2.0\NHibernate.Spatial.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c">
-      <HintPath>..\packages\NLog.4.7.5\lib\net45\NLog.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="Antlr3.Runtime">
-      <HintPath>..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Iesi.Collections">
-      <HintPath>..\packages\Iesi.Collections.4.0.4\lib\net461\Iesi.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="Remotion.Linq">
-      <HintPath>..\packages\Remotion.Linq.2.2.0\lib\net45\Remotion.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="Remotion.Linq.EagerFetching">
-      <HintPath>..\packages\Remotion.Linq.EagerFetching.2.2.0\lib\net45\Remotion.Linq.EagerFetching.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Core" />
@@ -86,24 +40,6 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="mscorlib" />
-    <Reference Include="System.Buffers">
-      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Numerics.Vectors">
-      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Memory">
-      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ValueTuple">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite.CoordinateSystems">
-      <HintPath>..\packages\NetTopologySuite.CoordinateSystems.1.15.3\lib\net45\NetTopologySuite.CoordinateSystems.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dialogs\Fuel\FuelBalanceViewModel.cs" />
@@ -111,7 +47,13 @@
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
+    <Compile Include="Infrastructure\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
     <Compile Include="Journals\FilterViewModels\CashRequestJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Complaints\DriverComplaintReasonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Complaints\ComplaintKindJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Complaints\ComplaintObjectJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Employees\PremiumJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Enums\ActionsWithInvoice.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
     <Compile Include="Journals\FilterViewModels\ExpenseCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\FinancialDistrictsSetsJournalFilterViewModel.cs" />
@@ -121,26 +63,49 @@
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictsSetJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DriverCarKindJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\CarEventFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\RouteListJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\NomenclaturePlanFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\UndeliveredOrdersFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\OrganizationCashTransferDocumentFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Proposal\ApplicationDevelopmentProposalsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Retail\SalesChannelJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Security\RegisteredRMJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\MovementWagonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalFactories\SalesPlanJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\CarEventTypeJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\ISalesPlanJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\ICarEventTypeJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\SubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\CashRequestJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\DriverComplaintReasonJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintKindJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintObjectJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\DiscountReasonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DistrictsSetJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DriverCarKindNode.cs" />
     <Compile Include="Journals\JournalNodes\ExpenseCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\FinancialDistrictsSetsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\EquipmentKindJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\IncomeCategoryJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Flyers\FlyersJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonTypeJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\CarEventTypeJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\CarEventJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\MovementWagonJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\NomenclaturePlanJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\OrganizationCashTransferDocumentJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\PremiumJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\PremiumTemplateJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RegisteredRMJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RouteListJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RouteListStatusNode.cs" />
     <Compile Include="Journals\JournalNodes\SalesChannelJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\UndeliveredOrderJournalNode.cs" />
     <Compile Include="Journals\JournalSelectors\ExpanceCategoryAutoCompleteSelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />
@@ -149,13 +114,39 @@
     <Compile Include="Journals\JournalViewModels\Cash\ExpenseCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\OrganizationCashTransferDocumentJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\DriverComplaintReasonsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintKindJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintObjectJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\PremiumJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\PremiumTemplateJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\FinancialDistrictsSetsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Flyers\FlyersJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\EquipmentKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DriverCarKindJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\CarEventTypeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\CarEventJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\MovementWagonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
+    <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\DiscountReasonJournalViewModel.cs" />
+    <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
+    <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
+    <Compile Include="ViewModels\Employees\PremiumRaskatGAZelleViewModel.cs" />
+    <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
+    <Compile Include="ViewModels\Employees\PremiumViewModel.cs" />
+    <Compile Include="ViewModels\Flyers\FlyerViewModel.cs" />
+    <Compile Include="ViewModels\Goods\EquipmentKindViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
+    <Compile Include="ViewModels\Orders\DiscountReasonViewModel.cs" />
+    <Compile Include="ViewModels\Orders\NomenclaturePlanViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\NomenclaturesPlanJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Proposal\ApplicationDevelopmentProposalsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Security\RegisteredRMJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Retail\SalesChannelJournalViewModel.cs" />
@@ -173,7 +164,7 @@
     <Compile Include="ViewModels\Employees\FineViewModel.cs" />
     <Compile Include="Infrastructure\Services\EmployeeService.cs" />
     <Compile Include="Infrastructure\Services\IEmployeeService.cs" />
-    <Compile Include="TempAdapters\IUndeliveriesViewOpener.cs" />
+    <Compile Include="TempAdapters\IUndeliveredOrdersJournalOpener.cs" />
     <Compile Include="ViewModels\Employees\FineTemplateViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateComplaintViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateInnerComplaintViewModel.cs" />
@@ -195,15 +186,22 @@
     <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DriverDistrictPriorityNode.cs" />
     <Compile Include="ViewModels\Logistic\DriverDistrictPrioritySetViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DriversInfoExportViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DriverWorkScheduleNode.cs" />
     <Compile Include="ViewModels\Logistic\DriverWorkScheduleSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DriverCarKindViewModel.cs" />
-    <Compile Include="ViewModels\Organization\SubdivisionViewModel.cs" />
+    <Compile Include="ViewModels\Organizations\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
-    <Compile Include="TempAdapters\IGtkTabsOpenerForRouteListViewAndOrderView.cs" />
+    <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalytics\DeliveryAnalyticsReportNode.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalytics\GeographicGroupNode.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalytics\WageDistrictNode.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalytics\WaveNode.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalytics\WeekDayNodes.cs" />
+    <Compile Include="ViewModels\Reports\OrderAnalyticsReportViewModel.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
@@ -261,7 +259,7 @@
     <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
     <Compile Include="TempAdapters\SearchHelper.cs" />
     <Compile Include="TempAdapters\SearchParameter.cs" />
-    <Compile Include="Journals\JournalViewModels\ComplaintsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\PhoneTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FinesJournalViewModel.cs" />
@@ -269,7 +267,7 @@
     <Compile Include="Journals\JournalViewModels\WageCalculation\SalesPlanJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\WageCalculation\WageDistrictLevelRatesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\WageCalculation\WageDistrictsJournalViewModel.cs" />
-    <Compile Include="Journals\JournalNodes\ComplaintJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DistrictJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\FineJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\NomenclatureStockJournalNode.cs" />
@@ -279,7 +277,7 @@
     <Compile Include="Journals\JournalNodes\SubdivisionJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\WageDistrictJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\WageDistrictLevelRatesJournalNode.cs" />
-    <Compile Include="Journals\FilterViewModels\ComplaintFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Complaints\ComplaintFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Employees\FineFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\NomenclatureFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />
@@ -301,6 +299,11 @@
     <Compile Include="Journals\JournalSelectors\EmployeePostsJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeePostsJournalViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeePostViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\WarehouseJournalNode.cs" />
+    <Compile Include="ViewModels\Warehouses\WarehouseViewModel.cs" />
+    <Compile Include="ViewModels\Reports\CarsExploitationReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalyticsViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\DriverComplaintReasonViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />
@@ -340,6 +343,10 @@
       <Project>{d0c39d9d-bed0-418b-9a5e-713176caf40c}</Project>
       <Name>GMap.NET.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
+      <Name>QS.Project.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
@@ -372,14 +379,6 @@
       <Project>{F22749B2-E35B-455D-BD8D-081373B16FC7}</Project>
       <Name>QS.BusinessCommon</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\Modules\QSBusinessCommon\QSBusinessCommon.csproj">
-      <Project>{AD329D59-938D-42AC-ABE2-B0F14FDBB7C6}</Project>
-      <Name>QSBusinessCommon</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
-      <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
-      <Name>QSProjectsLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</Project>
       <Name>VodovozInfrastructure</Name>
@@ -390,7 +389,28 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
+    <PackageReference Include="CsvHelper" Version="15.0.10" />
+    <PackageReference Include="FluentNHibernate" Version="3.1.0" />
+    <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
+    <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
+    <PackageReference Include="Iesi.Collections" Version="4.0.4" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="NetTopologySuite" Version="2.3.0" />
+    <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
+    <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
+    <PackageReference Include="NHibernate" Version="5.3.8" />
+    <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
+    <PackageReference Include="NLog" Version="4.7.10" />
+    <PackageReference Include="Remotion.Linq" Version="2.2.0" />
+    <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
+    <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="Vodovoz.ClosedXML.Report" Version="0.2.0.1" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

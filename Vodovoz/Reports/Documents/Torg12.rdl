@@ -301,7 +301,7 @@ GROUP BY orders.id</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>659.3pt</Height>
+    <Height>566.9pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox45">
@@ -1618,13 +1618,13 @@ GROUP BY orders.id</CommandText>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Footer>
         <Left>12.5pt</Left>
-        <Top>226.8pt</Top>
+        <Top>217.8pt</Top>
       </Table>
       <List Name="List4">
         <Height>216.99pt</Height>
         <Width>785.50pt</Width>
-        <Left>0.00pt</Left>
-        <Top>308.20pt</Top>
+        <Left>0.0pt</Left>
+        <Top>298.6pt</Top>
         <ReportItems>
           <Textbox Name="Textbox131">
             <Height>10.53pt</Height>
@@ -2059,12 +2059,12 @@ GROUP BY orders.id</CommandText>
             <Top>70.5pt</Top>
           </Line>
           <Textbox Name="Textbox149">
-            <Height>12.00pt</Height>
-            <Width>100.77pt</Width>
+            <Height>11.40pt</Height>
+            <Width>82.14pt</Width>
             <Value>По доверенности №</Value>
             <ZIndex>1</ZIndex>
-            <Left>460.1pt</Left>
-            <Top>73.4pt</Top>
+            <Left>460.10pt</Left>
+            <Top>73.40pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2074,11 +2074,10 @@ GROUP BY orders.id</CommandText>
           </Textbox>
           <Textbox Name="Textbox150" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.28pt</Height>
-            <Width>104.57pt</Width>
-            <Value>
-            </Value>
+            <Width>100.57pt</Width>
+            <Value></Value>
             <ZIndex>1</ZIndex>
-            <Left>542.6pt</Left>
+            <Left>545.0pt</Left>
             <Top>71.5pt</Top>
             <Style>
               <BorderStyle>
@@ -2092,10 +2091,9 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox151" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.03pt</Height>
             <Width>106.07pt</Width>
-            <Value>
-            </Value>
+            <Value></Value>
             <ZIndex>1</ZIndex>
-            <Left>664.6pt</Left>
+            <Left>667.0pt</Left>
             <Top>70.4pt</Top>
             <Style>
               <BorderStyle>
@@ -2108,11 +2106,11 @@ GROUP BY orders.id</CommandText>
           </Textbox>
           <Textbox Name="Textbox152">
             <Height>10.50pt</Height>
-            <Width>16.77pt</Width>
+            <Width>13.77pt</Width>
             <Value>от</Value>
             <ZIndex>1</ZIndex>
-            <Left>650.5pt</Left>
-            <Top>72.8pt</Top>
+            <Left>650.50pt</Left>
+            <Top>72.80pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2457,7 +2455,7 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox116" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
             <Width>389.15pt</Width>
-            <Value>=SummaString_Val(Convert.ToString(Sum(Fields!item_price.Value * Fields!count.Value - {item_discount_money}, "Goods")))</Value>
+            <Value>=SummaString_Val(Convert.ToString(Sum(Round(Fields!item_price.Value * Fields!count.Value - {item_discount_money}, 2), "Goods")))</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
             <Top>85.1pt</Top>
@@ -2926,7 +2924,7 @@ GROUP BY orders.id</CommandText>
         <Value>Вид операции</Value>
         <ZIndex>1</ZIndex>
         <Left>620.3pt</Left>
-        <Top>201.1pt</Top>
+        <Top>192.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3083,7 +3081,7 @@ GROUP BY orders.id</CommandText>
         <Value>="Страница " + {@PageNumber}</Value>
         <ZIndex>1</ZIndex>
         <Left>718.1pt</Left>
-        <Top>214.8pt</Top>
+        <Top>205.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />

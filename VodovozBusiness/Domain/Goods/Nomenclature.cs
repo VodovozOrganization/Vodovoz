@@ -249,12 +249,12 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref equipmentColor, value, () => EquipmentColor);
 		}
 
-		private EquipmentType type;
+		private EquipmentKind _kind;
 
-		[Display(Name = "Тип оборудования")]
-		public virtual EquipmentType Type {
-			get => type;
-			set => SetField(ref type, value, () => Type);
+		[Display(Name = "Вид оборудования")]
+		public virtual EquipmentKind Kind {
+			get => _kind;
+			set => SetField(ref _kind, value, () => Kind);
 		}
 
 		private Manufacturer manufacturer;
@@ -601,6 +601,25 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref amountInAPackage, value);
 		}
 
+
+        private int? planDay;
+
+        [Display(Name = "План день")]
+        public virtual int? PlanDay
+        {
+            get => planDay;
+            set => SetField(ref planDay, value);
+        }
+
+        private int? planMonth;
+
+        [Display(Name = "План месяц")]
+        public virtual int? PlanMonth
+        {
+            get => planMonth;
+            set => SetField(ref planMonth, value);
+        }
+
 		#endregion
 
 		#region Рассчетные
@@ -613,7 +632,7 @@ namespace Vodovoz.Domain.Goods
 			Category == NomenclatureCategory.water
 			&& TareVolume.HasValue
 			&& TareVolume.Value == Goods.TareVolume.Vol19L;
-		
+
 		public override string ToString() => $"id ={Id} Name = {Name}";
 
 		#endregion
@@ -694,10 +713,10 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult(
 					"Код 1С обязателен для заполнения", new[] { this.GetPropertyName(o => o.Code1c) });
 
-			if(Category == NomenclatureCategory.equipment && Type == null)
+			if(Category == NomenclatureCategory.equipment && Kind == null)
 				yield return new ValidationResult(
-					"Не указан тип оборудования.",
-					new[] { this.GetPropertyName(o => o.Type) });
+					"Не указан вид оборудования.",
+					new[] { this.GetPropertyName(o => o.Kind) });
 
 			if(GetCategoriesWithSaleCategory().Contains(category) && SaleCategory == null)
 				yield return new ValidationResult(
@@ -960,7 +979,9 @@ namespace Vodovoz.Domain.Goods
 		[Display(Name = "1,5 л.")]
 		Vol1500ml = 1500,
 		[Display(Name = "0,6 л.")]
-		Vol600ml = 600
+		Vol600ml = 600,
+		[Display(Name = "0,5 л.")]
+		Vol500ml = 500
 	}
 
 	/// <summary>

@@ -9,6 +9,8 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.Dialogs.Cash
@@ -54,7 +56,9 @@ namespace Vodovoz.Dialogs.Cash
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
-						employeeSelectorFactory
+						employeeSelectorFactory,
+						new SalesPlanJournalFactory(),
+						new NomenclatureSelectorFactory()
 					);
 				})
 			);
@@ -69,7 +73,7 @@ namespace Vodovoz.Dialogs.Cash
 			yenumTypeDocument.Binding.AddBinding(ViewModel.Entity, e => e.ExpenseDocumentType, w => w.SelectedItem).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 		}
 	}
 }

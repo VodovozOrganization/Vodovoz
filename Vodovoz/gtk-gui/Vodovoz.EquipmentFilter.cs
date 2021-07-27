@@ -10,7 +10,7 @@ namespace Vodovoz
 
 		private global::Gtk.CheckButton checkSelectOutdated;
 
-		private global::QSOrmProject.EntryReference entryrefEquipmentType;
+		private global::QSOrmProject.EntryReference entryrefEquipmentKind;
 
 		private global::Gtk.Label label1;
 
@@ -42,11 +42,11 @@ namespace Vodovoz
 			w1.RightAttach = ((uint)(3));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryrefEquipmentType = new global::QSOrmProject.EntryReference();
-			this.entryrefEquipmentType.Events = ((global::Gdk.EventMask)(256));
-			this.entryrefEquipmentType.Name = "entryrefEquipmentType";
-			this.table1.Add(this.entryrefEquipmentType);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entryrefEquipmentType]));
+			this.entryrefEquipmentKind = new global::QSOrmProject.EntryReference();
+			this.entryrefEquipmentKind.Events = ((global::Gdk.EventMask)(256));
+			this.entryrefEquipmentKind.Name = "entryrefEquipmentKind";
+			this.table1.Add(this.entryrefEquipmentKind);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entryrefEquipmentKind]));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -67,7 +67,7 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.entryrefEquipmentType.ChangedByUser += new global::System.EventHandler(this.OnEntryrefEquipmentTypeChangedByUser);
+			this.entryrefEquipmentKind.ChangedByUser += new global::System.EventHandler(this.OnEntryrefEquipmentKindChangedByUser);
 			this.checkSelectOutdated.Toggled += new global::System.EventHandler(this.OnCheckSelectOutdatedToggled);
 		}
 	}

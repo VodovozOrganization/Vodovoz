@@ -5,9 +5,9 @@ namespace Vodovoz.Parameters
 {
     public class OrderParametersProvider : IOrderParametersProvider
     {
-        private readonly ParametersProvider parametersProvider;
+        private readonly IParametersProvider parametersProvider;
 
-        public OrderParametersProvider(ParametersProvider parametersProvider)
+        public OrderParametersProvider(IParametersProvider parametersProvider)
         {
             this.parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }
@@ -16,6 +16,7 @@ namespace Vodovoz.Parameters
         public int PaymentByCardFromOnlineStoreId => parametersProvider.GetIntValue("PaymentByCardFromOnlineStoreId");
         public int PaymentByCardFromSiteId => parametersProvider.GetIntValue("PaymentByCardFromSiteId");
         public int PaymentByCardFromSmsId => parametersProvider.GetIntValue("sms_payment_by_card_from_id");
+        public int PaymentFromTerminalId => parametersProvider.GetIntValue("paymentfrom_terminal_id");
         public int OldInternalOnlineStoreId => parametersProvider.GetIntValue("OldInternalOnlineStoreId");
         
         public int[] PaymentsByCardFromNotToSendSalesReceipts =>

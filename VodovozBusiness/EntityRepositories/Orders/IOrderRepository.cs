@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Orders;
@@ -43,6 +42,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="UoW">UoW</param>
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
 		IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false);
+
+		IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow);
 
 		/// <summary>
 		/// Оборудование заказа от клиента
@@ -87,8 +88,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		OrderStatus[] GetOnClosingOrderStatuses();
 
 		Domain.Orders.Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);
-
-		IList<Domain.Orders.Order> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate);
+        Domain.Orders.Order GetOrder(IUnitOfWork unitOfWork, int orderId);
+        IList<Domain.Orders.Order> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate);
 
 		IList<Domain.Orders.Order> GetOrdersByCode1c(IUnitOfWork uow, string[] codes1c);
 
@@ -119,6 +120,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow,
 			IOrderParametersProvider orderParametersProvider,
 			IOrganizationParametersProvider organizationParametersProvider,
+			ISalesReceiptsParametersProvider salesReceiptsParametersProvider,
 			DateTime? startDate = null);
 
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order);
@@ -130,7 +132,10 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<PaymentItem> GetPaymentItemsForOrder(IUnitOfWork uow, int orderId);
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
-	}
+		IEnumerable<Domain.Orders.Order> GetOrders(IUnitOfWork uow, int[] ids);
+		bool CanAddFlyerToOrder(
+			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
+    }
 
 	public class ClientEquipmentNode
 	{

@@ -16,6 +16,12 @@ using Vodovoz.ViewModel;
 using QS.Project.Repositories;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
+using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz
 {
@@ -262,14 +268,39 @@ namespace Vodovoz
 
 		protected void OnBtnShowUndeliveryClicked(object sender, EventArgs e)
 		{
-			UndeliveriesView dlg = new UndeliveriesView();
-			dlg.HideFilterAndControls();
-			dlg.UndeliveredOrdersFilter.SetAndRefilterAtOnce(
-				x => x.RestrictOldOrder = Entity.UndeliveredOrder.OldOrder,
-				x => x.RestrictOldOrderStartDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
-				x => x.RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
-				x => x.RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus
-			);
+			var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
+				ServicesConfig.CommonServices,
+				new OrderSelectorFactory(),
+				new EmployeeJournalFactory(),
+				new CounterpartyJournalFactory(),
+				new DeliveryPointJournalFactory(),
+				new SubdivisionJournalFactory(
+					new SubdivisionFilterViewModel()
+					{
+						SubdivisionType = SubdivisionType.Default
+					}),
+				new SalesPlanJournalFactory(),
+				new NomenclatureSelectorFactory()
+				)
+			{
+				HidenByDefault = true,
+				RestrictOldOrder = Entity.UndeliveredOrder.OldOrder,
+				RestrictOldOrderStartDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
+				RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
+				RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus
+			};
+
+			var dlg = new UndeliveredOrdersJournalViewModel(
+				undeliveredOrdersFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new GtkTabsOpener(),
+				new EmployeeJournalFactory(),
+				VodovozGtkServicesConfig.EmployeeService,
+				new UndeliveredOrdersJournalOpener(),
+				new OrderSelectorFactory()
+				);
+
 			TabParent.AddSlaveTab(this, dlg);
 		}
 	}

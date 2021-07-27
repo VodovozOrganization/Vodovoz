@@ -28,6 +28,9 @@
     <ExternalConsole>true</ExternalConsole>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
@@ -73,9 +76,9 @@
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
       <Name>QS.Banks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj">
-      <Project>{B1DD034B-EC88-400C-9C6B-83CE68AB3541}</Project>
-      <Name>QS.Contacts</Name>
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
+      <Name>QS.Project.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj">
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
@@ -104,13 +107,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BouncyCastle">
-      <Version>1.8.6.1</Version>
+      <Version>1.8.9</Version>
     </PackageReference>
     <PackageReference Include="FluentNHibernate">
-      <Version>3.0.1</Version>
+      <Version>3.1.0</Version>
     </PackageReference>
     <PackageReference Include="Google.Protobuf">
-      <Version>3.13.0</Version>
+      <Version>3.17.3</Version>
     </PackageReference>
     <PackageReference Include="K4os.Compression.LZ4.Streams">
       <Version>1.2.6</Version>
@@ -122,19 +125,19 @@
       <Version>5.0.0</Version>
     </PackageReference>
     <PackageReference Include="MySql.Data">
-      <Version>8.0.19</Version>
+      <Version>8.0.25</Version>
     </PackageReference>
     <PackageReference Include="NetTopologySuite">
-      <Version>1.15.3</Version>
+      <Version>2.3.0</Version>
     </PackageReference>
     <PackageReference Include="NHibernate">
-      <Version>5.3.4</Version>
+      <Version>5.3.8</Version>
     </PackageReference>
     <PackageReference Include="NHibernate.Spatial.MySQL">
-      <Version>5.3.0</Version>
+      <Version>6.0.0</Version>
     </PackageReference>
     <PackageReference Include="NLog">
-      <Version>4.7.5</Version>
+      <Version>4.7.10</Version>
     </PackageReference>
     <PackageReference Include="SmsRu_Unofficial_API_Client">
       <Version>1.0.0.1</Version>
@@ -143,7 +146,7 @@
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
-      <Version>4.7.1</Version>
+      <Version>5.0.0</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

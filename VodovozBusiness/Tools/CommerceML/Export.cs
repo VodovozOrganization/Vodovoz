@@ -126,19 +126,19 @@ namespace Vodovoz.Tools.CommerceML
 		{
 			Errors.Clear();
             TotalTasks = 12;
-			ExportMode mode = ParametersProvider.Instance.ContainsParameter(OnlineStoreExportMode) 
-				? (ExportMode)Enum.Parse(typeof(ExportMode), ParametersProvider.Instance.GetParameterValue(OnlineStoreExportMode))
+			ExportMode mode = SingletonParametersProvider.Instance.ContainsParameter(OnlineStoreExportMode) 
+				? (ExportMode)Enum.Parse(typeof(ExportMode), SingletonParametersProvider.Instance.GetParameterValue(OnlineStoreExportMode))
 				: ExportMode.Umi;
 
 			OnProgressPlusOneTask("Соединяемся с сайтом");
 			//Проверяем связь с сервером
-			var configuredUrl = ParametersProvider.Instance.GetParameterValue(OnlineStoreUrlParameterName);
+			var configuredUrl = SingletonParametersProvider.Instance.GetParameterValue(OnlineStoreUrlParameterName);
 			var parsedUrl = new Uri(configuredUrl);
 			var path = parsedUrl.LocalPath; 
 			var client = new RestClient(configuredUrl.Replace(path, ""));
 			client.CookieContainer = new System.Net.CookieContainer();
-			client.Authenticator = new HttpBasicAuthenticator(ParametersProvider.Instance.GetParameterValue(OnlineStoreLoginParameterName),
-			                                                  ParametersProvider.Instance.GetParameterValue(OnlineStorePasswordParameterName));
+			client.Authenticator = new HttpBasicAuthenticator(SingletonParametersProvider.Instance.GetParameterValue(OnlineStoreLoginParameterName),
+			                                                  SingletonParametersProvider.Instance.GetParameterValue(OnlineStorePasswordParameterName));
 			var request = new RestRequest(path + "?type=catalog&mode=checkauth", Method.GET);
 			IRestResponse response = client.Execute(request);
 			DebugResponse(response);

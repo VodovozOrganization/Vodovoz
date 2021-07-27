@@ -7,6 +7,7 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using System.Diagnostics;
+using QS.Dialog;
 using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.ViewModels.Complaints
@@ -50,6 +51,15 @@ namespace Vodovoz.ViewModels.Complaints
 					if(filePicker.OpenSelectFilePicker(out string filePath)) {
 						var complaintFile = new ComplaintFile();
 						complaintFile.FileStorageId = Path.GetFileName(filePath);
+
+						if (complaintFile.FileStorageId.Length > 45) {
+							CommonServices.InteractiveService.ShowMessage(
+								ImportanceLevel.Warning, 
+								"Слишком длинное имя файла.\n" +
+								"Оно не должно превышать 45 символов, включая расширение (.txt, .png и т.д.).");
+							return;
+						}
+						
 						complaintFile.ByteFile = File.ReadAllBytes(filePath);
 						Entity.AddFile(complaintFile);
 					}

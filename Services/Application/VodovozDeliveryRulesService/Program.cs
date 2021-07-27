@@ -15,6 +15,8 @@ using QS.Osm.Osrm;
 using QS.Project.DB;
 using QSProjectsLib;
 using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace VodovozDeliveryRulesService
 {
@@ -89,8 +91,11 @@ namespace VodovozDeliveryRulesService
 
 				IDeliveryRepository deliveryRepository = new DeliveryRepository();
 				var backupDistrictService = new BackupDistrictService();
+				IDeliveryRulesParametersProvider deliveryRulesParametersProvider
+					= new DeliveryRulesParametersProvider(new ParametersProvider());
 				
-				DeliveryRulesInstanceProvider deliveryRulesInstanceProvider = new DeliveryRulesInstanceProvider(deliveryRepository, backupDistrictService);
+				DeliveryRulesInstanceProvider deliveryRulesInstanceProvider = 
+					new DeliveryRulesInstanceProvider(deliveryRepository, backupDistrictService, deliveryRulesParametersProvider);
 				ServiceHost deliveryRulesHost = new DeliveryRulesServiceHost(deliveryRulesInstanceProvider);
 
 				ServiceEndpoint webEndPoint = deliveryRulesHost.AddServiceEndpoint(

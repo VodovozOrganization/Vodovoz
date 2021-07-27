@@ -36,6 +36,7 @@ namespace Vodovoz.Dialogs.Sale
 			ylabel6LWater.Binding.AddBinding(Entity, e => e.Water6LCount, w => w.LabelProp).InitializeFromSource();
 			ylabel1500mlBottles.Binding.AddBinding(Entity, e => e.Water1500mlCount, w => w.LabelProp).InitializeFromSource();
 			ylabel600mlBottles.Binding.AddBinding(Entity, e => e.Water600mlCount, w => w.LabelProp).InitializeFromSource();
+			ylabel500mlBottles.Binding.AddBinding(Entity, e => e.Water500mlCount, w => w.LabelProp).InitializeFromSource();
 			vboxDistricts.Visible = Entity.Id > 0;
 			if(Entity.Id > 0) {
 				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<District>()

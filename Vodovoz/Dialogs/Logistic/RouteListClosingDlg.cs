@@ -45,6 +45,7 @@ using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
+using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz
 {
@@ -62,7 +63,7 @@ namespace Vodovoz
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
-		
+
 		List<ReturnsNode> allReturnsToWarehouse;
 		private IEnumerable<DefectSource> defectiveReasons;
 		int bottlesReturnedToWarehouse;
@@ -125,7 +126,6 @@ namespace Vodovoz
 			PerformanceHelper.StartMeasurement();
 
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
-			this.HasChanges = true;
 
 			TabName = string.Format("Закрытие маршрутного листа №{0}", Entity.Id);
 			PerformanceHelper.AddTimePoint("Создан UoW");
@@ -291,12 +291,16 @@ namespace Vodovoz
 			CalculateTotal();
 
 			UpdateSensitivity();
+
+			notebook1.ShowTabs = false;
+			notebook1.Page = 0;
 		}
 
 		private void UpdateSensitivity()
 		{
-			if(Entity.Status != RouteListStatus.OnClosing && Entity.Status != RouteListStatus.MileageCheck
-			&& Entity.Status != RouteListStatus.Delivered) {
+			var sensStatuses = new[] { RouteListStatus.OnClosing, RouteListStatus.MileageCheck, RouteListStatus.Delivered};
+			if(!sensStatuses.Contains(Entity.Status))
+			{
 				ytextviewFuelInfo.Sensitive = false;
 				ycheckHideCells.Sensitive = false;
 				vbxFuelTickets.Sensitive = false;
@@ -311,6 +315,7 @@ namespace Vodovoz
 				hbxStatistics1.Sensitive = false;
 				hbxStatistics2.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
+				toggleWageDetails.Sensitive = editing;
 
 				HasChanges = false;
 
@@ -337,6 +342,7 @@ namespace Vodovoz
 			advanceCheckbox.Sensitive = advanceSpinbutton.Sensitive = editing;
 			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = editing;
 			buttonCalculateCash.Sensitive = editing;
+			toggleWageDetails.Sensitive = editing;
 			UpdateButtonState();
 		}
 
@@ -470,7 +476,9 @@ namespace Vodovoz
 							Entity.Id, 
 							RouteListAddressesTransferringDlg.OpenParameter.Receiver,
 							employeeNomenclatureMovementRepository,
-							terminalNomenclatureProvider
+							terminalNomenclatureProvider,
+							new EmployeeService(),
+							ServicesConfig.CommonServices
 						)
 					);
 					break;
@@ -487,7 +495,9 @@ namespace Vodovoz
 							Entity.Id, 
 							RouteListAddressesTransferringDlg.OpenParameter.Sender,
 							employeeNomenclatureMovementRepository,
-							terminalNomenclatureProvider
+							terminalNomenclatureProvider,
+							new EmployeeService(),
+							ServicesConfig.CommonServices
 						)
 					);
 					break;
@@ -592,8 +602,6 @@ namespace Vodovoz
 			Entity.CalculateWages(wageParameterService);
 			decimal driverWage = Entity.GetDriversTotalWage();
 			decimal forwarderWage = Entity.GetForwardersTotalWage();
-			decimal acceptedDriverWage = Entity.DriverWageOperation?.Money ?? 0;
-			decimal acceptedForwarderWage = Entity.ForwarderWageOperation?.Money ?? 0;
 
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = string.Format(
@@ -625,12 +633,9 @@ namespace Vodovoz
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = string.Format(
-				"ЗП вод.: <b>{0}</b> {4}" + "  " + "ЗП эксп.: <b>{2}</b> {4}" + " " + 
-				"Подтв.: ЗП вод.: <b>{1}</b> {4}" + "  " + "ЗП эксп.: <b>{3}</b> {4}",
+				"ЗП вод.: <b>{0}</b> {2}" + "  " + "ЗП эксп.: <b>{1}</b> {2}",
 				driverWage,
-				acceptedDriverWage,
 				forwarderWage,
-				acceptedForwarderWage,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelEmptyBottlesFommula.Markup = string.Format("Тара: <b>{0}</b><sub>(выгружено на склад)</sub> - <b>{1}</b><sub>(по документам)</sub> =",
@@ -725,9 +730,13 @@ namespace Vodovoz
 			bool isOrdersValid = true;
 			string orderIds = "";
 			byte ordersCounter = 0;
+			OrderParametersProvider orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
+			ValidationContext validationContext;
 			foreach(var item in Entity.Addresses) {
-				var orderValidator = new QSValidator<Order>(item.Order);
-				if(!orderValidator.IsValid) {
+				validationContext = new ValidationContext(item.Order);
+				validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
+				if(!ServicesConfig.ValidationService.Validate(item.Order, validationContext))
+				{
 					if(string.IsNullOrWhiteSpace(orderIds)) {
 						orderIds = string.Format("{0}", item.Order.Id);
 					} else {
@@ -786,6 +795,11 @@ namespace Vodovoz
 				return;
 			}
 
+			if(Entity.Car.IsRaskat)
+			{
+				Entity.RecountMileage();
+			}
+
 			Entity.UpdateMovementOperations();
 
 			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
@@ -842,10 +856,18 @@ namespace Vodovoz
 		{
 			{
 				var document = Additions.Logistic.PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
+				var reportDlg = new QSReport.ReportViewDlg(document);
+				reportDlg.ReportPrinted += SavePrintTime;
 				this.TabParent.OpenTab(
 					QS.Dialog.Gtk.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
-					() => new QSReport.ReportViewDlg(document));
+					() => reportDlg);
 			}
+		}
+
+		void SavePrintTime(object sender, EventArgs e)
+		{
+			Entity.AddPrintHistory();
+			UoW.Save();
 		}
 
 		void PrintFines()
@@ -1045,7 +1067,7 @@ namespace Vodovoz
 		private void ReloadReturnedToWarehouse()
 		{
 			allReturnsToWarehouse = new RouteListRepository().GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
-			var returnedBottlesNom = int.Parse(ParametersProvider.Instance.GetParameterValue("returned_bottle_nomenclature_id"));
+			var returnedBottlesNom = int.Parse(SingletonParametersProvider.Instance.GetParameterValue("returned_bottle_nomenclature_id"));
 			bottlesReturnedToWarehouse = (int)new RouteListRepository().GetReturnsToWarehouse(
 				UoW,
 				Entity.Id,
@@ -1213,6 +1235,27 @@ namespace Vodovoz
 				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
 			} else {
 				MessageDialogHelper.RunInfoDialog("Сумма по кассе соответствует сумме МЛ.");
+			}
+		}
+
+		#endregion
+
+		#region Toggle buttons
+
+		protected void OnToggleClosingToggled(object sender, EventArgs e)
+		{
+			if(toggleClosing.Active)
+			{
+				notebook1.CurrentPage = 0;
+			}
+		}
+
+		protected void OnToggleWageToggled(object sender, EventArgs e)
+		{
+			if(toggleWageDetails.Active)
+			{
+				notebook1.CurrentPage = 1;
+				textWageDetails.Buffer.Text = Entity.GetWageCalculationDetails(wageParameterService);
 			}
 		}
 

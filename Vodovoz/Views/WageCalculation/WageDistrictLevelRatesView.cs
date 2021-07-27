@@ -21,7 +21,7 @@ namespace Vodovoz.Views.WageCalculation
 			chkDefaultLevelOurCars.Binding.AddBinding(ViewModel.Entity, s => s.IsDefaultLevelForOurCars, w => w.Active).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
 			GenerateTabs();
 		}

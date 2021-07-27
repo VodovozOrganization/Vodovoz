@@ -18,7 +18,7 @@ namespace Vodovoz.Views.WageCalculation
 			chkIsArchive.Binding.AddBinding(ViewModel.Entity, s => s.IsArchive, w => w.Active).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 		}
 	}
 }

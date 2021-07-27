@@ -42,7 +42,19 @@ using Vodovoz.Domain.Retail;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
+using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Domain.Service.BaseParametersServices;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.FilterViewModels;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.JournalViewers;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.ViewWidgets;
+using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepository;
 
 namespace Vodovoz
 {
@@ -59,7 +71,82 @@ namespace Vodovoz
 
         private bool deliveryPointsConfigured = false;
         private bool documentsConfigured = false;
+        
+        private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 
+        public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener
+        {
+	        get
+	        {
+		        if (_undeliveredOrdersJournalOpener is null)
+		        {
+			        _undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
+		        }
+
+		        return _undeliveredOrdersJournalOpener;
+	        }
+        }
+
+        private IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+
+        public virtual IEntityAutocompleteSelectorFactory EmployeeSelectorFactory
+        {
+	        get
+	        {
+		        if (employeeSelectorFactory is null)
+		        {
+			        employeeSelectorFactory =
+				        new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					        ServicesConfig.CommonServices);
+		        }
+		        return employeeSelectorFactory;
+	        }
+        }
+
+        private ISubdivisionRepository subdivisionRepository;
+
+        public virtual ISubdivisionRepository SubdivisionRepository
+        {
+	        get
+	        {
+		        if (subdivisionRepository is null)
+		        {
+			        subdivisionRepository = new SubdivisionRepository();
+		        }
+		        return subdivisionRepository;
+	        }
+        }
+
+        private IRouteListItemRepository routeListItemRepository;
+        
+        public virtual IRouteListItemRepository RouteListItemRepository
+        {
+	        get
+	        {
+		        if (routeListItemRepository is null)
+		        {
+			        routeListItemRepository = new RouteListItemRepository();
+		        }
+
+		        return routeListItemRepository;
+	        }
+        }
+
+        private IFilePickerService filePickerService = new GtkFilePicker();
+        
+        public virtual IFilePickerService FilePickerService
+        {
+	        get
+	        {
+		        if (filePickerService is null)
+		        {
+			        filePickerService = new GtkFilePicker();
+		        }
+
+		        return filePickerService;
+	        }
+        }
+        
         public virtual INomenclatureRepository NomenclatureRepository {
             get {
                 if(nomenclatureRepository == null) {
@@ -227,6 +314,10 @@ namespace Vodovoz
             var menuItemFixedPrices = new Gtk.MenuItem("Фикс. цены для самовывоза");
             menuItemFixedPrices.Activated += (s, e) => OpenFixedPrices();
             menu.Add(menuItemFixedPrices);
+            
+            var menuComplaint = new Gtk.MenuItem("Рекламации контрагента");
+            menuComplaint.Activated += ComplaintViewOnActivated;
+            menu.Add(menuComplaint);
             
             menuActions.Menu = menu;
             menu.ShowAll();
@@ -613,14 +704,74 @@ namespace Vodovoz
 
         void AllOrders_Activated(object sender, EventArgs e)
         {
-            var filter = new OrdersFilter(UoW);
-            filter.SetAndRefilterAtOnce(x => x.RestrictCounterparty = Entity);
-            Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete") ? Buttons.All : (Buttons.Add | Buttons.Edit);
-            PermissionControlledRepresentationJournal OrdersDialog = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {
-                Mode = JournalSelectMode.None
-            };
+	        SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
+	        {
+		        SubdivisionType = SubdivisionType.Default
+	        };
+	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
 
-            TabParent.AddTab(OrdersDialog, this, false);
+	        var orderJournalFilter = new OrderJournalFilterViewModel { RestrictCounterparty = Entity };
+	        var orderJournalViewModel = new OrderJournalViewModel(
+		        orderJournalFilter,
+		        UnitOfWorkFactory.GetDefaultFactory,
+		        ServicesConfig.CommonServices,
+		        new EmployeeService(),
+		        nomenclatureSelectorFactory,
+		        counterpartySelectorFactory,
+		        nomenclatureRepository,
+		        userRepository,
+		        new OrderSelectorFactory(),
+		        new EmployeeJournalFactory(),
+		        new CounterpartyJournalFactory(),
+		        new DeliveryPointJournalFactory(),
+		        subdivisionJournalFactory,
+		        new GtkTabsOpener(),
+		        new UndeliveredOrdersJournalOpener(),
+				new SalesPlanJournalFactory(),
+				new NomenclatureSelectorFactory()
+			);
+
+	        TabParent.AddTab(orderJournalViewModel, this, false);
+        }
+        
+        private void ComplaintViewOnActivated(object sender, EventArgs e)
+        {
+	        SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
+	        {
+		        SubdivisionType = SubdivisionType.Default
+	        };
+	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+
+	        var filter = new ComplaintFilterViewModel(ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
+	        filter.SetAndRefilterAtOnce(x=> x.Counterparty = Entity);
+	        
+	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
+		        UnitOfWorkFactory.GetDefaultFactory,
+		        ServicesConfig.CommonServices,
+		        UndeliveredOrdersJournalOpener,
+		        employeeService,
+		        EmployeeSelectorFactory,
+		        CounterpartySelectorFactory,
+		        NomenclatureSelectorFactory,
+		        RouteListItemRepository,
+		        SubdivisionParametersProvider.Instance,
+		        filter,
+		        FilePickerService,
+		        SubdivisionRepository,
+		        new GtkReportViewOpener(),
+		        new GtkTabsOpener(),
+		        NomenclatureRepository,
+		        userRepository,
+		        new OrderSelectorFactory(),
+		        new EmployeeJournalFactory(),
+		        new CounterpartyJournalFactory(),
+		        new DeliveryPointJournalFactory(),
+		        subdivisionJournalFactory,
+				new SalesPlanJournalFactory(),
+				new NomenclatureSelectorFactory()
+	        );
+	        
+	        TabParent.AddTab(complaintsJournalViewModel, this, false);
         }
 
         private bool canClose = true;

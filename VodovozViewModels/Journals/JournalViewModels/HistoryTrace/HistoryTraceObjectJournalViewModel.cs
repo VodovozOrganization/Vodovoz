@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using QS.Dialog;
 using Vodovoz.Journal;
 using Vodovoz.JournalNodes;
 
@@ -49,7 +50,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace
             {
                 foreach (var searchValue in Search.SearchValues)
                 {
-                    result = result.Where(n => n.DisplayName.Contains(searchValue)|| n.ObjectType.ToString().Contains(searchValue));
+	                const StringComparison caseInsensitive = StringComparison.CurrentCultureIgnoreCase;
+	                result = result.Where(n => n.DisplayName.IndexOf(searchValue, caseInsensitive) > -1
+	                                           || n.ObjectType.ToString().IndexOf(searchValue, caseInsensitive) > -1);
                 }
             }
 

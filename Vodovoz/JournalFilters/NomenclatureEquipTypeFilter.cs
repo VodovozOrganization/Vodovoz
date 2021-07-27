@@ -15,7 +15,7 @@ namespace Vodovoz.JournalFilters
 	{
 		protected override void ConfigureWithUow()
 		{
-			entryrefEquipmentType.SubjectType = typeof(EquipmentType);
+			entryrefEquipmentKind.SubjectType = typeof(EquipmentKind);
 			OnRefiltered();
 		}
 
@@ -29,13 +29,13 @@ namespace Vodovoz.JournalFilters
 			this.Build();
 		}
 
-		EquipmentType nomenEquipmentType;
+		EquipmentKind nomenEquipmentKind;
 
-		public EquipmentType NomenEquipmentType {
-			get { return nomenEquipmentType; }
+		public EquipmentKind NomenEquipmentKind {
+			get { return nomenEquipmentKind; }
 			set {
-				nomenEquipmentType = value;
-				entryrefEquipmentType.Subject = value;
+				nomenEquipmentKind = value;
+				entryrefEquipmentKind.Subject = value;
 			}
 		}
 
@@ -59,8 +59,8 @@ namespace Vodovoz.JournalFilters
 				return;
 			}
 			filtredCriteria = (ICriteria)BaseCriteria.Clone();
-			if(entryrefEquipmentType.Subject is EquipmentType) {
-				filtredCriteria.Add(Restrictions.Eq("Type", entryrefEquipmentType.Subject));
+			if(entryrefEquipmentKind.Subject is EquipmentKind) {
+				filtredCriteria.Add(Restrictions.Eq("Type", entryrefEquipmentKind.Subject));
 			}
 			IsFiltred = true;
 			OnRefiltered();
@@ -68,19 +68,19 @@ namespace Vodovoz.JournalFilters
 
 		public bool IsFiltred { get; private set; }
 
-		protected void OnEntryrefEquipmentTypeChangedByUser(object sender, EventArgs e)
+		protected void OnEntryrefEquipmentKindChangedByUser(object sender, EventArgs e)
 		{
-			if(entryrefEquipmentType.Subject == null) {
+			if(entryrefEquipmentKind.Subject == null) {
 				return;
 			} else {
-				NomenEquipmentType = (EquipmentType)entryrefEquipmentType.Subject;
+				NomenEquipmentKind = (EquipmentKind)entryrefEquipmentKind.Subject;
 				OnRefiltered();
 			}
 		}
 
 		protected void OnButtonClearClicked(object sender, EventArgs e)
 		{
-			NomenEquipmentType = null;
+			NomenEquipmentKind = null;
 			FiltredCriteria = null;
 			OnRefiltered();
 		}

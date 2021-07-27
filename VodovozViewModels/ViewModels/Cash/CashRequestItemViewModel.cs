@@ -13,7 +13,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 {
     public class CashRequestItemViewModel: TabViewModelBase, ISingleUoWDialog
     {
-        public UserRole UserRole;
+        public CashRequestUserRole UserRole;
 
         public IUnitOfWork UoW { get; set; }
 
@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IUnitOfWork uow,
             IInteractiveService interactiveService, 
             INavigationManager navigation,
-            UserRole userRole) 
+            CashRequestUserRole userRole) 
             : base(interactiveService, navigation)
         {
             this.UoW = uow;
@@ -82,10 +82,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     return (
                         Entity.CashRequest.State == CashRequest.States.New 
                         && !Entity.ObservableExpenses.Any()
-                        && (UserRole == UserRole.RequestCreator
-                            || UserRole == UserRole.Coordinator)
+                        && (UserRole == CashRequestUserRole.RequestCreator
+                            || UserRole == CashRequestUserRole.Coordinator)
                         || (Entity.CashRequest.State == CashRequest.States.Agreed
-                            && UserRole == UserRole.Coordinator)
+                            && UserRole == CashRequestUserRole.Coordinator)
                         );
                 }
             }
@@ -100,7 +100,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 Entity.AccountableEmployee = accountableEmployee;
                 Entity.Sum = Sum;
                 Entity.Comment = Comment;
-                Close(false, CloseSource.Self);
+                Close(true, CloseSource.Self);
                 EntityAccepted?.Invoke(this, new CashRequestSumItemAcceptedEventArgs(Entity));
             },
             () => true
@@ -109,7 +109,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         private DelegateCommand cancelCommand;
         public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
             () => {
-                Close(false, CloseSource.Cancel);
+                Close(true, CloseSource.Cancel);
             },
             () => true
         ));

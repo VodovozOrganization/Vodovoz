@@ -1,5 +1,4 @@
-using System;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Services;
 
@@ -7,11 +6,11 @@ namespace Vodovoz.Parameters
 {
     public class NomenclatureParametersProvider : INomenclatureParametersProvider
     {
-        private ParametersProvider parametersProvider;
+        private IParametersProvider parametersProvider;
         
         public NomenclatureParametersProvider()
         {
-            parametersProvider = ParametersProvider.Instance;
+            parametersProvider = SingletonParametersProvider.Instance;
         }
         
         #region INomenclatureParametersProvider implementation

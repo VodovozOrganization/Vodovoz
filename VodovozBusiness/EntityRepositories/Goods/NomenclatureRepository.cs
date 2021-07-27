@@ -81,9 +81,9 @@ namespace Vodovoz.EntityRepositories.Goods
 		public Nomenclature GetDefaultBottle(IUnitOfWork uow)
 		{
 			var defaultBottleParameter = "default_bottle_nomenclature";
-			if(!ParametersProvider.Instance.ContainsParameter(defaultBottleParameter))
+			if(!SingletonParametersProvider.Instance.ContainsParameter(defaultBottleParameter))
 				throw new InvalidProgramException("В параметрах базы не настроена номенклатура бутыли по умолчанию.");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(defaultBottleParameter)));
+			return uow.GetById<Nomenclature>(int.Parse(SingletonParametersProvider.Instance.GetParameterValue(defaultBottleParameter)));
 		}
 
 		/// <summary>
@@ -152,25 +152,25 @@ namespace Vodovoz.EntityRepositories.Goods
 		public Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow)
 		{
 			var followingNomenclaure = "номенклатура_для_выезда_с_мастером";
-			if(!ParametersProvider.Instance.ContainsParameter(followingNomenclaure))
+			if(!SingletonParametersProvider.Instance.ContainsParameter(followingNomenclaure))
 				throw new InvalidProgramException("В параметрах базы не указана номенклатура \"номенклатура_для_выезда_с_мастером\" для добавления в заказ типа \"Выезд мастера\"");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(followingNomenclaure)));
+			return uow.GetById<Nomenclature>(int.Parse(SingletonParametersProvider.Instance.GetParameterValue(followingNomenclaure)));
 		}
 
 		public Nomenclature GetForfeitNomenclature(IUnitOfWork uow)
 		{
 			var forfeitNomenclatureStr = "forfeit_nomenclature_id";
-			if(!ParametersProvider.Instance.ContainsParameter(forfeitNomenclatureStr))
+			if(!SingletonParametersProvider.Instance.ContainsParameter(forfeitNomenclatureStr))
 				throw new InvalidProgramException("В параметрах базы не настроена номенклатура для \"Бутыль (Неустойка)\"");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(forfeitNomenclatureStr)));
+			return uow.GetById<Nomenclature>(int.Parse(SingletonParametersProvider.Instance.GetParameterValue(forfeitNomenclatureStr)));
 		}
 
 		public Nomenclature GetSanitisationNomenclature(IUnitOfWork uow)
 		{
 			var sanitisationNomenclature = "выезд_мастера_для_сан_обр";
-			if(!ParametersProvider.Instance.ContainsParameter(sanitisationNomenclature))
+			if(!SingletonParametersProvider.Instance.ContainsParameter(sanitisationNomenclature))
 				throw new InvalidProgramException("В параметрах базы не настроена номенклатура для \"Выезд мастера для с\\о\"");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(sanitisationNomenclature)));
+			return uow.GetById<Nomenclature>(int.Parse(SingletonParametersProvider.Instance.GetParameterValue(sanitisationNomenclature)));
 		}
 
 		public IList<Nomenclature> GetNomenclatureWithPriceForMobileApp(IUnitOfWork uow, params MobileCatalog[] catalogs)
@@ -256,7 +256,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		public int GetIdentifierOfOnlineShopGroup()
 		{
 			string parameterName = "код_группы_товаров_для_интерент-магазина";
-			if(!ParametersProvider.Instance.ContainsParameter(parameterName) || !int.TryParse(ParametersProvider.Instance.GetParameterValue(parameterName), out int res))
+			if(!SingletonParametersProvider.Instance.ContainsParameter(parameterName) || !int.TryParse(SingletonParametersProvider.Instance.GetParameterValue(parameterName), out int res))
 				return 0;
 			return res;
 		}

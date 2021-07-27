@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Google.OrTools.ConstraintSolver;
 using NetTopologySuite.Geometries;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Services;

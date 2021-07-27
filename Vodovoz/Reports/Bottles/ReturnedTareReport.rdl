@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>277mm</Width>
@@ -57,6 +55,22 @@
           <BorderColor />
           <BorderWidth />
           <TextAlign>Right</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <Format>dd.mm.yyyy</Format>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox47" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.01pt</Height>
+        <Width>312.38pt</Width>
+        <Value>=Iif(Len({?author_employee_name})&gt;0, "Автор заказов:" + {?author_employee_name}, "")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>57.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Left</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
           <Format>dd.mm.yyyy</Format>
         </Style>
@@ -555,7 +569,7 @@
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -618,8 +632,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -636,8 +649,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -654,8 +666,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -672,8 +683,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -690,8 +700,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -708,8 +717,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -769,8 +777,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -787,8 +794,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -805,8 +811,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -833,8 +838,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1089,7 +1093,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id as order_id,
@@ -1115,88 +1119,82 @@
     rtr.name as reason_name,
     rtrc.name as category_name,
     orders.comment_manager as comment,
-    GROUP_CONCAT(
-            CONCAT(
-                    '+7 ',
-                    dp_phones.number,
-                    IF(
-                            dp_phones.name IS NULL,
-                            '',
-                            CONCAT(' ', dp_phones.name)
-                        )
-                )
-            SEPARATOR '\n') AS delivery_point_contact,
-    GROUP_CONCAT(
-            CONCAT(
-                    '+7 ',
-                    client_phones.number,
-                    IF(
-                            client_phones.name IS NULL,
-                            '',
-                            CONCAT(' ', client_phones.name)
-                        )
-                )
-            SEPARATOR '\n') AS client_contact,
+    (SELECT GROUP_CONCAT(
+        CONCAT(
+            '+7 ',
+            p.number,
+            IF(p.name IS NULL, '', CONCAT(' ', p.name)))
+        SEPARATOR '\n'
+        ) from phones p where p.delivery_point_id = dp.id
+    ) as delivery_point_contact,
+    (SELECT GROUP_CONCAT(
+        CONCAT(
+            '+7 ',
+            p.number,
+            IF(p.name IS NULL, '', CONCAT(' ', p.name)))
+        SEPARATOR '\n'
+        ) from phones p where p.counterparty_id = c.id
+    ) as client_contact,
     CONCAT(employees.last_name, ' ', LEFT(employees.name, 1), '.', LEFT(employees.patronymic, 1), '.') AS author,
     (
+        SELECT
+            SUM(order_items.price * IFNULL(order_items.actual_count, order_items.count) - order_items.discount_money)
+        FROM
+            orders
+                LEFT JOIN order_items ON order_items.order_id = orders.id
+        WHERE
+            orders.client_id = c.id
+            AND orders.order_status = 'Closed'
+            AND EXISTS
+            (
             SELECT
-                SUM(order_items.price * IFNULL(order_items.actual_count, order_items.count) - order_items.discount_money)
+                *
             FROM
-                orders
-                    LEFT JOIN order_items ON order_items.order_id = orders.id
+                order_items
+                    JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
             WHERE
-                    orders.client_id = c.id
-              AND orders.order_status = 'Closed'
-              AND EXISTS
-                (
-                    SELECT
-                        *
-                    FROM
-                        order_items
-                            JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-                    WHERE
-                      nomenclature.category = 'water'
-                      AND nomenclature.tare_volume = 'Vol19L'
-                      AND orders.id = order_items.order_id
-                      AND order_items.actual_count &gt; 0
-                )
-            GROUP BY
-                orders.id, orders.delivery_date 
-            ORDER BY
-                orders.delivery_date DESC
-            LIMIT 1
-        ) as lastsum,
-       
+                nomenclature.category = 'water'
+                AND nomenclature.tare_volume = 'Vol19L'
+                AND orders.id = order_items.order_id
+                AND order_items.actual_count &gt; 0
+            )
+        GROUP BY
+            orders.id, orders.delivery_date
+        ORDER BY
+            orders.delivery_date DESC
+        LIMIT 1
+    ) as lastsum,
+
 #       КОЛ ВО ЗАКАЗОВ
-t.order_count as order_count
+    t.order_count as order_count
 
 FROM orders
-         LEFT JOIN counterparty c ON c.id = orders.client_id
-         LEFT JOIN delivery_points dp ON dp.id = orders.delivery_point_id
-         LEFT JOIN phones as dp_phones ON dp.id = dp_phones.delivery_point_id
-         LEFT JOIN phones as client_phones ON c.id = client_phones.counterparty_id
-         LEFT JOIN employees ON orders.author_employee_id = employees.id
-         LEFT JOIN route_list_addresses rla ON orders.id = rla.order_id
-         LEFT JOIN return_tare_reasons rtr ON orders.return_tare_reason_id = rtr.id
-         LEFT JOIN return_tare_reason_categories rtrc ON orders.return_tare_reason_category_id = rtrc.id
-         LEFT JOIN ( SELECT COUNT(*) as order_count, dp2.id 
-                     FROM orders o2
-                     LEFT JOIN delivery_points dp2 ON o2.delivery_point_id = dp2.id
-                     WHERE o2.order_status != 'DeliveryCanceled' AND o2.order_status != 'Canceled'
-                     GROUP BY dp2.id
-                    ) as t ON t.id = orders.delivery_point_id 
-         
+    LEFT JOIN counterparty c ON c.id = orders.client_id
+    LEFT JOIN delivery_points dp ON dp.id = orders.delivery_point_id
+    LEFT JOIN employees ON orders.author_employee_id = employees.id
+    LEFT JOIN route_list_addresses rla ON orders.id = rla.order_id
+    LEFT JOIN return_tare_reasons rtr ON orders.return_tare_reason_id = rtr.id
+    LEFT JOIN return_tare_reason_categories rtrc ON orders.return_tare_reason_category_id = rtrc.id
+    LEFT JOIN ( SELECT COUNT(*) as order_count, dp2.id
+                FROM orders o2
+                    LEFT JOIN delivery_points dp2 ON o2.delivery_point_id = dp2.id
+                WHERE o2.order_status != 'DeliveryCanceled' AND o2.order_status != 'Canceled'
+                GROUP BY dp2.id
+) as t ON t.id = orders.delivery_point_id
+
 WHERE
-        orders.bottles_return &gt; 0
-  AND NOT EXISTS (
-        SELECT oi2.id
-        FROM order_items oi2
-                 LEFT JOIN nomenclature n2 ON oi2.nomenclature_id = n2.id
-        WHERE oi2.order_id = orders.id AND n2.category = 'water' AND n2.tare_volume = 'Vol19l'
+    orders.bottles_return &gt; 0
+    AND NOT EXISTS (
+    SELECT oi2.id
+    FROM order_items oi2
+        LEFT JOIN nomenclature n2 ON oi2.nomenclature_id = n2.id
+    WHERE oi2.order_id = orders.id AND n2.category = 'water' AND n2.tare_volume = 'Vol19l'
     )
-  AND (IF(@date_type, orders.create_date BETWEEN @start_date AND @end_date, orders.delivery_date BETWEEN @start_date AND @end_date))
+    AND (IF(@date_type, orders.create_date BETWEEN @start_date AND @end_date, orders.delivery_date BETWEEN @start_date AND @end_date))
+    AND (@author_employee_id = '' OR  orders.author_employee_id = @author_employee_id)
 GROUP BY orders.id
-ORDER BY orders.id DESC;</CommandText>
+ORDER BY orders.id DESC;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -1210,9 +1208,12 @@ ORDER BY orders.id DESC;</CommandText>
           <QueryParameter Name="date_type">
             <Value>=Parameters!date_type</Value>
           </QueryParameter>
+          <QueryParameter Name="author_employee_id">
+            <Value>={?author_employee_id}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -1288,6 +1289,7 @@ WHERE
           AND n2.tare_volume = 'Vol19l'
     )
   AND (IF(@date_type, o.create_date BETWEEN @start_date AND @end_date, o.delivery_date BETWEEN @start_date AND @end_date))
+  AND (@author_employee_id = '' OR  o.author_employee_id = @author_employee_id)
 GROUP BY rtr.name</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -1298,6 +1300,9 @@ GROUP BY rtr.name</CommandText>
           </QueryParameter>
           <QueryParameter Name="date_type">
             <Value>=Parameters!date_type</Value>
+          </QueryParameter>
+          <QueryParameter Name="author_employee_id">
+            <Value>={?author_employee_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1333,6 +1338,7 @@ WHERE
           AND n2.tare_volume = 'Vol19l'
     )
   AND (IF(@date_type, o.create_date BETWEEN @start_date AND @end_date, o.delivery_date BETWEEN @start_date AND @end_date))
+  AND (@author_employee_id = '' OR  o.author_employee_id = @author_employee_id)
 GROUP BY rtrc.name</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -1343,6 +1349,9 @@ GROUP BY rtrc.name</CommandText>
           </QueryParameter>
           <QueryParameter Name="date_type">
             <Value>=Parameters!date_type</Value>
+          </QueryParameter>
+          <QueryParameter Name="author_employee_id">
+            <Value>={?author_employee_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1364,8 +1373,7 @@ GROUP BY rtrc.name</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -1376,31 +1384,42 @@ GROUP BY rtrc.name</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="date_type">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="author_employee_id">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="author_employee_name">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

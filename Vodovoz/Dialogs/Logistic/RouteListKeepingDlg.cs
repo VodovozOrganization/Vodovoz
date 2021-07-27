@@ -213,6 +213,7 @@ namespace Vodovoz
 				for(uint i = 1; i < rows; i++) {
 					Label l = new Label();
 					l.LabelProp = "+7 " + Entity.Driver.Phones[Convert.ToInt32(i-1)].Number;
+					l.Selectable = true;
 					PhonesTable1.Attach(l, 0, 1, i, i + 1);
 
 					HandsetView h = new HandsetView(Entity.Driver.Phones[Convert.ToInt32(i-1)].DigitsNumber);
@@ -229,6 +230,7 @@ namespace Vodovoz
 				for(uint i = 1; i < rows; i++) {
 					Label l = new Label();
 					l.LabelProp = "+7 " + Entity.Forwarder.Phones[Convert.ToInt32(i-1)].Number;
+					l.Selectable = true;
 					PhonesTable2.Attach(l, 0, 1, i, i + 1);
 
 					HandsetView h = new HandsetView(Entity.Forwarder.Phones[Convert.ToInt32(i-1)].DigitsNumber);
@@ -392,6 +394,7 @@ namespace Vodovoz
 				{
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.Delivered, CallTaskWorker);
 				}
+				Entity.CalculateWages(wageParameterService);
 
 				UoWGeneric.Save();
 

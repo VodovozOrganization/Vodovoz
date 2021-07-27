@@ -125,9 +125,9 @@ namespace Vodovoz.Tools
 		private decimal GetWaterPriceIncrement()
 		{
 			var waterPriceParam = "water_price_increment";
-			if(!ParametersProvider.Instance.ContainsParameter(waterPriceParam))
+			if(!SingletonParametersProvider.Instance.ContainsParameter(waterPriceParam))
 				throw new InvalidProgramException("В параметрах базы не настроено значение инкремента для цен на воду");
-			return decimal.Parse(ParametersProvider.Instance.GetParameterValue(waterPriceParam));
+			return decimal.Parse(SingletonParametersProvider.Instance.GetParameterValue(waterPriceParam));
 		}
 	}
 }
