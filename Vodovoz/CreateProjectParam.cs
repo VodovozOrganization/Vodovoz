@@ -128,13 +128,16 @@ using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Parameters;
+using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 using Vodovoz.Views.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Flyers;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.Views.Flyers;
+using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 
 namespace Vodovoz
 {
@@ -225,6 +228,7 @@ namespace Vodovoz
                 .RegisterWidgetForTabViewModel<SalesChannelViewModel, SalesChannelView>()
                 .RegisterWidgetForTabViewModel<DeliveryPointResponsiblePersonTypeViewModel, DeliveryPointResponsiblePersonTypeView>()
                 .RegisterWidgetForTabViewModel<NomenclaturePlanViewModel, NomenclaturePlanView>()
+                .RegisterWidgetForTabViewModel<NomenclaturePlanReportViewModel, NomenclaturePlanReportView>()
                 .RegisterWidgetForTabViewModel<OrganizationCashTransferDocumentViewModel, OrganizationCashTransferDocumentView>()
 				.RegisterWidgetForTabViewModel<PremiumViewModel, PremiumView>()
 				.RegisterWidgetForTabViewModel<PremiumRaskatGAZelleViewModel, PremiumRaskatGAZelleView>()
@@ -239,6 +243,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<DriverAttachedTerminalViewModel, DriverAttachedTerminalView>()
 				.RegisterWidgetForTabViewModel<DeliveryPointViewModel, DeliveryPointView>()
 				.RegisterWidgetForTabViewModel<EquipmentKindViewModel, EquipmentKindView>()
+				.RegisterWidgetForTabViewModel<ProductGroupViewModel, ProductGroupView>()
 				;
 
             //Регистрация виджетов
@@ -301,6 +306,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ComplaintKindJournalFilterViewModel, ComplaintKindJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesBalanceSummaryViewModel, WarehousesBalanceSummaryView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureBalanceByStockFilterViewModel, NomenclatureBalanceByStockFilterView>()
+				.RegisterWidgetForWidgetViewModel<ProductGroupJournalFilterViewModel, ProductGroupJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

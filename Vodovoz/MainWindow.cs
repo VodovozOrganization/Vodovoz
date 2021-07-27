@@ -2304,15 +2304,15 @@ public partial class MainWindow : Gtk.Window
         );
     }
 
-    protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
-    {
-        tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<NomenclaturePlanReport>(),
-            () => new QSReport.ReportViewDlg(new NomenclaturePlanReport(ServicesConfig.InteractiveService))
-        );
-    }
+	protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
+	{
+		NomenclaturePlanReportViewModel viewModel = new NomenclaturePlanReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, ServicesConfig.CommonServices, new ProductGroupJournalFactory(), new NomenclaturePlanParametersProvider(new ParametersProvider()));
 
-    protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
     {
         var employeeJournalFactory = new EmployeeJournalFactory();
         
