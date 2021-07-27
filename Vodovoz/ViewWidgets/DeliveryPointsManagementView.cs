@@ -22,25 +22,34 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		IUnitOfWorkGeneric<Counterparty> deliveryPointUoW;
+		private IUnitOfWorkGeneric<Counterparty> _deliveryPointUoW;
 
-		public IUnitOfWorkGeneric<Counterparty> DeliveryPointUoW {
-			get { return deliveryPointUoW; }
-			set {
-				if(deliveryPointUoW == value)
+		public IUnitOfWorkGeneric<Counterparty> DeliveryPointUoW
+		{
+			get => _deliveryPointUoW;
+			set
+			{
+				if(_deliveryPointUoW == value)
+				{
 					return;
-				deliveryPointUoW = value;
+				}
+
+				_deliveryPointUoW = value;
 				if(DeliveryPointUoW.Root.DeliveryPoints == null)
+				{
 					DeliveryPointUoW.Root.DeliveryPoints = new List<DeliveryPoint>();
+				}
+
 				treeDeliveryPoints.RepresentationModel = new ClientDeliveryPointsVM(value);
 				treeDeliveryPoints.RepresentationModel.UpdateNodes();
 			}
 		}
 
-		bool CanDelete()
+		private bool CanDelete()
 		{
-			return ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint") 
-				         && treeDeliveryPoints.Selection.CountSelectedRows() > 0;
+			return ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+				"can_delete_counterparty_and_deliverypoint")
+			       && treeDeliveryPoints.Selection.CountSelectedRows() > 0;
 		}
 
 
@@ -51,26 +60,35 @@ namespace Vodovoz
 			treeDeliveryPoints.Selection.Changed += OnSelectionChanged;
 		}
 
-		void OnSelectionChanged(object sender, EventArgs e)
+		private void OnSelectionChanged(object sender, EventArgs e)
 		{
-			bool selected = treeDeliveryPoints.Selection.CountSelectedRows() > 0;
+			var selected = treeDeliveryPoints.Selection.CountSelectedRows() > 0;
 			buttonEdit.Sensitive = selected;
 			buttonDelete.Sensitive = CanDelete();
 		}
 
-		void OnButtonAddClicked(object sender, EventArgs e)
+		private void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			if(MyOrmDialog.UoW.IsNew) {
-				if(CommonDialogs.SaveBeforeCreateSlaveEntity(MyEntityDialog.EntityObject.GetType(), typeof(DeliveryPoint))) {
+			if(MyOrmDialog.UoW.IsNew)
+			{
+				if(CommonDialogs.SaveBeforeCreateSlaveEntity(MyEntityDialog.EntityObject.GetType(), typeof(DeliveryPoint)))
+				{
 					if(!MyTdiDialog.Save())
+					{
 						return;
-				} else
+					}
+				}
+				else
+				{
 					return;
+				}
 			}
 
 			var client = DeliveryPointUoW.Root;
-			var dpViewModel = new DeliveryPointViewModel(client, UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(), ContactParametersProvider.Instance,
-				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()), new HousesDataLoader(OsmWorker.GetOsmService()),
+			var dpViewModel = new DeliveryPointViewModel(client, UserSingletonRepository.GetInstance(), new GtkTabsOpener(),
+				new PhoneRepository(), ContactParametersProvider.Instance,
+				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
+				new HousesDataLoader(OsmWorker.GetOsmService()),
 				new NomenclatureSelectorFactory(),
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
@@ -82,8 +100,10 @@ namespace Vodovoz
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
 			var dpId = ((ClientDeliveryPointVMNode) treeDeliveryPoints.GetSelectedObjects()[0]).Id;
-			var dpViewModel = new DeliveryPointViewModel(UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(), ContactParametersProvider.Instance,
-				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()), new HousesDataLoader(OsmWorker.GetOsmService()),
+			var dpViewModel = new DeliveryPointViewModel(UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
+				ContactParametersProvider.Instance,
+				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
+				new HousesDataLoader(OsmWorker.GetOsmService()),
 				new NomenclatureSelectorFactory(),
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
@@ -98,11 +118,10 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			if(OrmMain.DeleteObject(typeof(DeliveryPoint),
-				(treeDeliveryPoints.GetSelectedObject() as DeliveryPoint).Id)) {
+			if(OrmMain.DeleteObject(typeof(DeliveryPoint), treeDeliveryPoints.GetSelectedObject<DeliveryPoint>().Id))
+			{
 				treeDeliveryPoints.RepresentationModel.UpdateNodes();
 			}
 		}
 	}
 }
-
