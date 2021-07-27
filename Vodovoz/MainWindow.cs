@@ -452,40 +452,9 @@ public partial class MainWindow : Gtk.Window
         var employeeFilter = new EmployeeFilterViewModel();
         employeeFilter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
 
-        var authorizationServiceFactory = new AuthorizationServiceFactory();
-        var employeeWageParametersFactory = new EmployeeWageParametersFactory();
-        var employeeJournalFactory = new EmployeeJournalFactory();
-        var subdivisionJournalFactory = new SubdivisionJournalFactory();
-        var employeePostsJournalFactory = new EmployeePostsJournalFactory();
+        var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
         
-        var cashDistributionCommonOrganisationProvider =
-	        new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-        
-        var subdivisionService = SubdivisionParametersProvider.Instance;
-        var emailServiceSettingAdapter = new EmailServiceSettingAdapter();
-        var wageRepository = WageSingletonRepository.GetInstance();
-        var employeeRepository = EmployeeSingletonRepository.GetInstance();
-        var validationContextFactory = new ValidationContextFactory();
-        var phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
-        
-        var employeesJournal = new EmployeesJournalViewModel(
-	        employeeFilter,
-	        authorizationServiceFactory,
-	        employeeWageParametersFactory,
-	        employeeJournalFactory,
-	        subdivisionJournalFactory,
-	        employeePostsJournalFactory,
-	        cashDistributionCommonOrganisationProvider,
-	        subdivisionService,
-	        emailServiceSettingAdapter,
-	        wageRepository,
-	        employeeRepository,
-	        validationContextFactory,
-	        phonesViewModelFactory,
-	        ServicesConfig.CommonServices,
-	        UnitOfWorkFactory.GetDefaultFactory);
-        
-        tdiMain.AddTab(employeesJournal);
+        tdiMain.AddTab(employeeJournalFactory.CreateEmployeeJournal());
     }
 
     protected void OnActionCarsActivated(object sender, EventArgs e)

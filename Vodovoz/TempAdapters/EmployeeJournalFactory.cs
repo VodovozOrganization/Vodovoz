@@ -63,22 +63,31 @@ namespace Vodovoz.TempAdapters
 			
 			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
 				typeof(Employee),
-				() => new EmployeesJournalViewModel(
-					_employeeJournalFilter ?? new EmployeeFilterViewModel(),
-					_authorizationServiceFactory,
-					_employeeWageParametersFactory,
-					_employeeJournalFactory,
-					_subdivisionJournalFactory,
-					_employeePostsJournalFactory,
-					_cashDistributionCommonOrganisationProvider,
-					_subdivisionService,
-					_emailServiceSettingAdapter,
-					_wageCalculationRepository,
-					_employeeRepository,
-					_validationContextFactory,
-					_phonesViewModelFactory,
-					ServicesConfig.CommonServices,
-					UnitOfWorkFactory.GetDefaultFactory));
+				CreateEmployeeJournal
+			);
+		}
+		
+		public EmployeesJournalViewModel CreateEmployeeJournal()
+		{
+			CreateNewDependencies();
+			
+			return new EmployeesJournalViewModel(
+				_employeeJournalFilter ?? new EmployeeFilterViewModel(),
+				_authorizationServiceFactory,
+				_employeeWageParametersFactory,
+				_employeeJournalFactory,
+				_subdivisionJournalFactory,
+				_employeePostsJournalFactory,
+				_cashDistributionCommonOrganisationProvider,
+				_subdivisionService,
+				_emailServiceSettingAdapter,
+				_wageCalculationRepository,
+				_employeeRepository,
+				_validationContextFactory,
+				_phonesViewModelFactory,
+				ServicesConfig.CommonServices,
+				UnitOfWorkFactory.GetDefaultFactory
+			);
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateWorkingDriverEmployeeAutocompleteSelectorFactory()
@@ -115,7 +124,8 @@ namespace Vodovoz.TempAdapters
 				_validationContextFactory,
 				_phonesViewModelFactory,
 				ServicesConfig.CommonServices,
-				UnitOfWorkFactory.GetDefaultFactory);
+				UnitOfWorkFactory.GetDefaultFactory
+			);
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateWorkingOfficeEmployeeAutocompleteSelectorFactory()
@@ -148,7 +158,8 @@ namespace Vodovoz.TempAdapters
 						_validationContextFactory,
 						_phonesViewModelFactory,
 						ServicesConfig.CommonServices,
-						UnitOfWorkFactory.GetDefaultFactory);
+						UnitOfWorkFactory.GetDefaultFactory
+					);
 				}
 			);
 		}
@@ -189,7 +200,8 @@ namespace Vodovoz.TempAdapters
 				_validationContextFactory,
 				_phonesViewModelFactory,
 				ServicesConfig.CommonServices,
-				UnitOfWorkFactory.GetDefaultFactory);
+				UnitOfWorkFactory.GetDefaultFactory
+			);
 		}
 	}
 }
