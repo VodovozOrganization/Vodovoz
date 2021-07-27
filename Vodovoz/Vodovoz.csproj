@@ -1343,7 +1343,6 @@
     <Compile Include="JournalViewModels\OrderForMovDocJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\OrderForMovDocFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrderForMovDocFilterView.cs" />
-    <Compile Include="JournalViewModels\DeliveryPointJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\DeliveryPointJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView.cs" />
     <Compile Include="Infrastructure\DatabaseInfo.cs" />

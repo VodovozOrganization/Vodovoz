@@ -1,7 +1,7 @@
 ﻿using QS.Project.Journal;
 using Vodovoz.Domain.Client;
 
-namespace Vodovoz.ViewModels.Journals.JournalNodes
+namespace Vodovoz.ViewModels.Journals.JournalNodes.Client
 {
 	public class DeliveryPointByClientJournalNode : JournalEntityNodeBase<DeliveryPoint>
 	{

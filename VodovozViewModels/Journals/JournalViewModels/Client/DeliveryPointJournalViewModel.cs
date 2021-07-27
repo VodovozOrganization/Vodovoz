@@ -16,9 +16,10 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
-namespace Vodovoz.JournalViewModels
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 {
 	public class DeliveryPointJournalViewModel : FilterableSingleEntityJournalViewModelBase<DeliveryPoint, DeliveryPointViewModel, DeliveryPointJournalNode, DeliveryPointJournalFilterViewModel>
 	{
@@ -158,20 +159,5 @@ namespace Vodovoz.JournalViewModels
 				_nomenclatureSelectorFactory,
 				_nomenclatureFixedPriceController,
 				EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
-
-	}
-
-	public class DeliveryPointJournalNode : JournalEntityNodeBase<DeliveryPoint>
-	{
-		public override string Title => CompiledAddress;
-		public string CompiledAddress { get; set; }
-		public string LogisticsArea { get; set; }
-		public string Address1c { get; set; }
-		public string Counterparty { get; set; }
-		public bool IsActive { get; set; }
-		public bool FoundOnOsm { get; set; }
-		public bool FixedInOsm { get; set; }
-		public string RowColor { get { return IsActive ? "black" : "grey"; } }
-		public string IdString => Id.ToString();
 	}
 }
