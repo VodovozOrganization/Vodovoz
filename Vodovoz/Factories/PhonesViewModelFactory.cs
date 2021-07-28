@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.ViewModels;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz.Factories
 {

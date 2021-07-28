@@ -128,6 +128,9 @@ using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.ViewModels.Complaints;
+using Vodovoz.Views.Client;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Flyers;
 using Vodovoz.Views.Flyers;
 
@@ -231,6 +234,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<DriverComplaintReasonViewModel, DriverComplaintReasonView>()
 				.RegisterWidgetForTabViewModel<FlyerViewModel, FlyerView>()
 				.RegisterWidgetForTabViewModel<ComplaintObjectViewModel, ComplaintObjectView>()
+				.RegisterWidgetForTabViewModel<DeliveryPointViewModel, DeliveryPointView>()
 				.RegisterWidgetForTabViewModel<EquipmentKindViewModel, EquipmentKindView>()
 				;
 

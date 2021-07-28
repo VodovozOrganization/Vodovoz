@@ -28,6 +28,7 @@ using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {

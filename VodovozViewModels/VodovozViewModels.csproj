@@ -47,6 +47,7 @@
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
+    <Compile Include="Infrastructure\InfoProviders\IDeliveryPointInfoProvider.cs" />
     <Compile Include="Factories\IAuthorizationServiceFactory.cs" />
     <Compile Include="Factories\IEmployeeWageParametersFactory.cs" />
     <Compile Include="Factories\IPhonesViewModelFactory.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="Journals\FilterViewModels\Complaints\DriverComplaintReasonJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Complaints\ComplaintKindJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Complaints\ComplaintObjectJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\DeliveryPointJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Employees\EmployeeFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Employees\PremiumJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\ActionsWithInvoice.cs" />
@@ -86,6 +88,8 @@
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\CashRequestJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Client\DeliveryPointByClientJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Client\DeliveryPointJoournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\DriverComplaintReasonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintKindJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintObjectJournalNode.cs" />
@@ -122,6 +126,8 @@
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\OrganizationCashTransferDocumentJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\DeliveryPointByClientJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\DeliveryPointJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\DriverComplaintReasonsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintObjectJournalViewModel.cs" />
@@ -147,6 +153,7 @@
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
+    <Compile Include="ViewModels\Contacts\PhonesViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumRaskatGAZelleViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumViewModel.cs" />
@@ -206,7 +213,6 @@
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
-    <Compile Include="ViewModels\PhonesViewModel.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\DeliveryAnalyticsReportNode.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\GeographicGroupNode.cs" />
@@ -315,6 +321,7 @@
     <Compile Include="ViewModels\Reports\CarsExploitationReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalyticsViewModel.cs" />
     <Compile Include="ViewModels\Complaints\DriverComplaintReasonViewModel.cs" />
+    <Compile Include="ViewModels\Counterparty\DeliveryPointViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Export" />
@@ -353,6 +360,10 @@
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
       <Project>{d0c39d9d-bed0-418b-9a5e-713176caf40c}</Project>
       <Name>GMap.NET.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj">
+      <Project>{72968ef4-2127-45c7-9bfe-2470dacddc3e}</Project>
+      <Name>QS.Osm</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
