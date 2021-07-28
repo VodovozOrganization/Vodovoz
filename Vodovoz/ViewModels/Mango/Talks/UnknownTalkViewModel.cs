@@ -5,49 +5,55 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Mango.Talks
 {
-	public class UnknowTalkViewModel : TalkViewModelBase
+	public class UnknownTalkViewModel : TalkViewModelBase
 	{
-		private readonly ITdiCompatibilityNavigation tdiNavigation;
-		private readonly IInteractiveQuestion interactive;
-		private IUnitOfWork UoW;
-		public UnknowTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
+		private readonly ITdiCompatibilityNavigation _tdiNavigation;
+		private readonly IInteractiveQuestion _interactive;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IUnitOfWork _uow;
+		
+		public UnknownTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
 			IInteractiveQuestion interactive,
-			MangoManager manager) : base(navigation, manager)
+			MangoManager manager,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			INomenclatureRepository nomenclatureRepository) : base(navigation, manager)
 		{
-			this.tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
-			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			_tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
+			_interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_uow = unitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		#region Действия View
 
 		public void SelectNewConterparty()
 		{
-			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg,Phone>(this, ActiveCall.Phone);
+			var page = _tdiNavigation.OpenTdiTab<CounterpartyDlg,Phone>(this, ActiveCall.Phone);
 			var tab = page.TdiTab as CounterpartyDlg;
 			page.PageClosed += NewCounerpatry_PageClosed;
 		}
@@ -74,12 +80,12 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
-			Counterparty client = UoW.GetById<Counterparty>(counterpartyNode.Id);
-			if(interactive.Question($"Добавить телефон к контрагенту {client.Name} ?", "Телефон контрагента")) {
+			Counterparty client = _uow.GetById<Counterparty>(counterpartyNode.Id);
+			if(_interactive.Question($"Добавить телефон к контрагенту {client.Name} ?", "Телефон контрагента")) {
 				if(!client.Phones.Any(phone => phone.DigitsNumber == ActiveCall.Phone.DigitsNumber)) {
 					client.Phones.Add(ActiveCall.Phone);
-					UoW.Save<Counterparty>(client);
-					UoW.Commit();
+					_uow.Save<Counterparty>(client);
+					_uow.Commit();
 				}
 			}
 			this.Close(true, CloseSource.External);
@@ -88,37 +94,31 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void CreateComplaintCommand()
 		{
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+			var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
-					ServicesConfig.CommonServices);
+			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-					CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
+			var nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
 					.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-					nomenclatureRepository, UserSingletonRepository.GetInstance());
+					_nomenclatureRepository, UserSingletonRepository.GetInstance());
 
 			ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 
 			var parameters = new Dictionary<string, object> {
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
-				{ "unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory },
+				{ "unitOfWorkFactory", UnitOfWorkFactory.GetDefaultFactory },
 				//Autofac: IEmployeeService 
 				{"employeeSelectorFactory", employeeSelectorFactory},
 				{"counterpartySelectorFactory", counterpartySelectorFactory},
-				{"subdivisionService",subdivisionRepository},
+				{"subdivisionService", subdivisionRepository},
 				//Autofac: ICommonServices
-				{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
-				{"nomenclatureRepository",nomenclatureRepository},
+				{"nomenclatureSelectorFactory", nomenclatureSelectorFactory},
 				//Autofac: IUserRepository
 				{"phone", "+7" + ActiveCall.Phone.Number }
 			};
-			tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
+			
+			_tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
 		}
 
 		public void StockBalanceCommand()
@@ -132,7 +132,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void CostAndDeliveryIntervalCommand()
 		{
-			tdiNavigation.OpenTdiTab<DeliveryPriceDlg>(null);
+			_tdiNavigation.OpenTdiTab<DeliveryPriceDlg>(null);
 		}
 
 		#endregion

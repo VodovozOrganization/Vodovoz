@@ -518,7 +518,7 @@ namespace Vodovoz.ViewModel
 									new EmployeeJournalFactory(),
 									new CounterpartyJournalFactory(),
 									new DeliveryPointJournalFactory(), 
-									new SubdivisionJournalFactory(new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default }),
+									new SubdivisionJournalFactory(),
 									new GtkTabsOpener(),
 									new UndeliveredOrdersJournalOpener(),
 									new SalesPlanJournalFactory(),

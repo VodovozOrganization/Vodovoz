@@ -10,48 +10,45 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ChainStoreDelayReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public ChainStoreDelayReport()
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		
+		public ChainStoreDelayReport(IEmployeeJournalFactory employeeJournalFactory)
 		{
-			this.Build();
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ydatepicker.Date = DateTime.Now.Date;
-			entityviewmodelentryCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty,
-				CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
-			entityviewmodelentrySellManager.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() =>
-					{
-						var employeeFilter = new EmployeeFilterViewModel{
-							Status = EmployeeStatus.IsWorking,
-							Category = EmployeeCategory.office
-						};
-						return new EmployeesJournalViewModel(employeeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-					})
-			);
-			
-			entityviewmodelentryOrderAuthor.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() =>
-					{
-						var employeeFilter = new EmployeeFilterViewModel{
-							Status = EmployeeStatus.IsWorking,
-							Category = EmployeeCategory.office
-						};
-						return new EmployeesJournalViewModel(employeeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-					})
-			);
+			ConfigureEntries();
 			ydatepicker.Date = DateTime.Now;
 			buttonRun.Sensitive = true;
 			buttonRun.Clicked += OnButtonCreateReportClicked;
 		}
-		
+
+		private void ConfigureEntries()
+		{
+			entityviewmodelentryCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty,
+				CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			
+			entityviewmodelentrySellManager.SetEntityAutocompleteSelectorFactory(
+				_employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
+
+			entityviewmodelentryOrderAuthor.SetEntityAutocompleteSelectorFactory(
+				_employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
+		}
+
 		void OnButtonCreateReportClicked (object sender, EventArgs e)
 		{
 			OnUpdate (true);

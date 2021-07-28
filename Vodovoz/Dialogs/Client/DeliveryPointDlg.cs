@@ -34,6 +34,7 @@ using Vodovoz.TempAdapters;
 using System.Collections.Generic;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
+using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz
 {

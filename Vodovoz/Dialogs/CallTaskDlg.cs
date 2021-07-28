@@ -24,6 +24,9 @@ using QS.Project.Services;
 using QS.Project.Journal;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz.Dialogs
 {
@@ -96,7 +99,7 @@ namespace Vodovoz.Dialogs
 			yentryTareReturn.Binding.AddBinding(Entity, s => s.TareReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 
-			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel();
+			var employeeFilterViewModel = new EmployeeRepresentationFilterViewModel();
 			employeeFilterViewModel.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			EmployeesVM employeeVM = new EmployeesVM(employeeFilterViewModel);
 			EmployeeyEntryreferencevm.RepresentationModel = employeeVM;

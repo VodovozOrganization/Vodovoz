@@ -1,12 +1,16 @@
-﻿using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public interface ISubdivisionJournalFactory
 	{
-		IEntityAutocompleteSelectorFactory CreateSubdivisionAutocompleteSelectorFactory(IEntityAutocompleteSelectorFactory employeeSelectorFactory, 
-			ISalesPlanJournalFactory salesPlanJournalFactory, INomenclatureSelectorFactory nomenclatureSelectorFactory);
+		IEntityAutocompleteSelectorFactory CreateSubdivisionAutocompleteSelectorFactory(
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null);
+		
+		IEntityAutocompleteSelectorFactory CreateDefaultSubdivisionAutocompleteSelectorFactory(
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null);
+
+		IEntityAutocompleteSelectorFactory CreateLogisticSubdivisionAutocompleteSelectorFactory(
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null);
 	}
 }

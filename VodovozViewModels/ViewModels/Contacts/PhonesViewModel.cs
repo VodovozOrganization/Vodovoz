@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.ViewModels;
 using System.Data.Bindings.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Commands;
 using System.Linq;
-using Vodovoz.Services;
+using QS.Commands;
+using QS.DomainModel.UoW;
+using QS.ViewModels;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {

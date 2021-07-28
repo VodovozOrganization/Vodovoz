@@ -1,38 +1,25 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Services;
+using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Journals.JournalSelectors
 {
-    public class EmployeePostsJournalFactory : IEntityAutocompleteSelectorFactory
+    public class EmployeePostsJournalFactory : IEmployeePostsJournalFactory
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
-        private readonly ICommonServices commonServices;
-
-        public EmployeePostsJournalFactory(IUnitOfWorkFactory unitOfWorkFactory,
-            ICommonServices commonServices)
+        public IEntityAutocompleteSelectorFactory CreateEmployeePostsAutocompleteSelectorFactory(bool multipleSelect = false)
         {
-            this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-            this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-        }
-
-        public Type EntityType => typeof(EmployeePost);
-
-
-        public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
-        {
-            var journal = new EmployeePostsJournalViewModel(unitOfWorkFactory, commonServices);
-            journal.SelectionMode = JournalSelectionMode.Single;
-            return journal;
-        }
-
-        public IEntitySelector CreateSelector(bool multipleSelect = false)
-        {
-            return CreateAutocompleteSelector(multipleSelect);
+	        return new EntityAutocompleteSelectorFactory<EmployeePostsJournalViewModel>(
+		        typeof(EmployeePost),
+		        () => new EmployeePostsJournalViewModel(
+			        UnitOfWorkFactory.GetDefaultFactory,
+			        ServicesConfig.CommonServices)
+		        {
+			        SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single
+		        });
         }
     }
 }
