@@ -116,6 +116,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			if(Entity.Id == 0)
 			{
 				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
+				TabName = "Новый сотрудник";
+			}
+			else
+			{
+				TabName = Entity.GetPersonNameWithInitials();
 			}
 			
 			if(Entity.Phones == null)
