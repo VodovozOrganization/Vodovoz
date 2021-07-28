@@ -530,9 +530,11 @@ namespace Vodovoz
 				
 				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 				enumPaymentType.SelectedItem = Entity.PaymentType;
-				
-				if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+
+				if((Entity.DeliveryPoint != null || Entity.SelfDelivery) && Entity.OrderStatus == OrderStatus.NewOrder)
+				{
 					OnFormOrderActions();
+				}
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
