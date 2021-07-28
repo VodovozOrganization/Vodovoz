@@ -415,7 +415,7 @@ namespace Vodovoz
 			builder.Register(c => EmployeeSingletonRepository.GetInstance()).As<IEmployeeRepository>();
 			builder.RegisterType<WarehouseRepository>().As<IWarehouseRepository>();
 			builder.Register(c => UserSingletonRepository.GetInstance()).As<IUserRepository>();
-			builder.Register(c => new NomenclatureRepository(new NomenclatureParametersProvider())).As<INomenclatureRepository>();
+			builder.RegisterType<NomenclatureRepository>().As<INomenclatureRepository>();
 			
 			#endregion
 			
