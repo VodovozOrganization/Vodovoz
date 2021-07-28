@@ -8,6 +8,7 @@ using QS.Osm;
 using QS.Osm.Loaders;
 using QS.Project.Domain;
 using QS.Project.Services;
+using QS.Tdi;
 using QSProjectsLib;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
@@ -188,6 +189,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
 				EntityUoWBuilder.ForOpen(DeliveryPoint.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			TDIMain.MainNotebook.OpenTab(() => dpViewModel);
 		}
 	}
 }
