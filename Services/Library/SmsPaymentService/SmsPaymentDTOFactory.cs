@@ -1,13 +1,23 @@
 using System;
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Models;
 
 namespace SmsPaymentService
 {
-    public class SmsPaymentDTOFactory
+    public class SmsPaymentDTOFactory : ISmsPaymentDTOFactory
     {
-        public SmsPaymentDTO CreateSmsPaymentDTO(SmsPayment smsPayment, Order order)
+	    private readonly IOrganizationProvider _organizationProvider;
+
+	    public SmsPaymentDTOFactory(IOrganizationProvider organizationProvider)
+	    {
+		    _organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
+	    }
+	    
+        public SmsPaymentDTO CreateSmsPaymentDTO(IUnitOfWork uow, SmsPayment smsPayment, Order order, PaymentFrom paymentFrom)
         {
             var newSmsPaymentDTO = new SmsPaymentDTO
             {
@@ -19,7 +29,9 @@ namespace SmsPaymentService
                 PaymentCreationDate = smsPayment.CreationDate,
                 Amount = smsPayment.Amount,
                 RecepientType = smsPayment.Recepient.PersonType,
-                Items = GetCalculatedSmsPaymentItemDTOs(order.OrderItems)
+                Items = GetCalculatedSmsPaymentItemDTOs(order.OrderItems),
+                OrganizationId = _organizationProvider.GetOrganization(uow, PaymentType.ByCard, order.SelfDelivery, order.OrderItems,
+	                paymentFrom, order.DeliveryPoint?.District?.GeographicGroup).Id
             };
 
             return newSmsPaymentDTO;

@@ -216,6 +216,7 @@
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
     <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
+    <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
@@ -484,6 +485,7 @@
     <Compile Include="Services\ICashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Services\IDeliveryRulesParametersProvider.cs" />
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
+    <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IOrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />
