@@ -7,7 +7,6 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Sms
 {
-	//FEDOS
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "смс уведомления при н/согл автопереносе в недовозе при переносе",
 		Nominative = "смс уведомление при н/согл автопереносе в недовозе при переносе")]
