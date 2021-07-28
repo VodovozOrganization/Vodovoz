@@ -141,7 +141,8 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			if(Save() && UndeliveredOrder.OrderTransferType == TransferType.AutoTransferNotApproved 
+			if(Save() && UndeliveredOrder.NewOrder != null
+			          && UndeliveredOrder.OrderTransferType == TransferType.AutoTransferNotApproved 
 			          && UndeliveredOrder.NewOrder.OrderStatus != OrderStatus.Canceled)
 			{
 				ProcessSmsNotification();
