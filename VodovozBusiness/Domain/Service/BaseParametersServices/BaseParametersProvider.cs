@@ -184,6 +184,14 @@ namespace Vodovoz.Core.DataService
 			}
 			return SingletonParametersProvider.Instance.GetParameterValue("low_balance_sms_notify_text");
 		}
+		
+		public string GetUndeliveryAutoTransferNotApprovedTextTemplate()
+		{
+			if(!SingletonParametersProvider.Instance.ContainsParameter("undelivery_autotransport_notapproved_sms_text_template")) {
+				throw new InvalidProgramException("В параметрах базы не настроен шаблон для смс уведомлений о переносе при недовозе  без согласования(undelivery_autotransport_notapproved_sms_text_template).");
+			}
+			return SingletonParametersProvider.Instance.GetParameterValue("undelivery_autotransport_notapproved_sms_text_template");
+		}
 
 		#endregion ISmsNotifierParameters implementation
 
