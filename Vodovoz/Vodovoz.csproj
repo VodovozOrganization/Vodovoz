@@ -1448,8 +1448,6 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.SectorJournalFilterView.cs" />
     <Compile Include="Views\Logistic\DistrictView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictView.cs" />
-    <Compile Include="Filters\GtkViews\DistrictsSetJournalFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictsSetJournalFilterView.cs" />
     <Compile Include="Views\Cash\PaymentByCardView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.PaymentByCardView.cs" />
     <Compile Include="ReportsParameters\Bottles\ReturnedTareReport.cs" />
