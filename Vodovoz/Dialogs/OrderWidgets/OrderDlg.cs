@@ -1975,7 +1975,7 @@ namespace Vodovoz
 			}
 			else
 			{
-				if(_addedFlyersNomenclaturesIds.Any())
+				if(_addedFlyersNomenclaturesIds != null &&_addedFlyersNomenclaturesIds.Any())
 				{
 					foreach(var flyerNomenclatureId in _addedFlyersNomenclaturesIds)
 					{
