@@ -1,7 +1,7 @@
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.Additions
+namespace Vodovoz.ViewModels.Infrastructure.Services
 {
     public interface IAuthorizationService
     {

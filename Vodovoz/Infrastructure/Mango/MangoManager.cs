@@ -248,7 +248,7 @@ namespace Vodovoz.Infrastructure.Mango
 				CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager>(null, this);
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
 			} else {
-				CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, MangoManager>(null, this);
+				CurrentPage = navigation.OpenViewModel<UnknownTalkViewModel, MangoManager>(null, this);
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
 			}
 			ConnectionState = ConnectionState.Talk;

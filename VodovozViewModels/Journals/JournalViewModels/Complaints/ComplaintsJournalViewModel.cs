@@ -40,7 +40,6 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ICommonServices commonServices;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService employeeService;
-		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		private readonly IFilePickerService filePickerService;
@@ -72,7 +71,6 @@ namespace Vodovoz.Journals.JournalViewModels
 			ICommonServices commonServices,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			IRouteListItemRepository routeListItemRepository,
@@ -97,7 +95,6 @@ namespace Vodovoz.Journals.JournalViewModels
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this._undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
@@ -431,7 +428,6 @@ namespace Vodovoz.Journals.JournalViewModels
 						EntityUoWBuilder.ForCreate(),
 						unitOfWorkFactory,
 						employeeService,
-						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						subdivisionRepository,
 						commonServices,
@@ -456,7 +452,6 @@ namespace Vodovoz.Journals.JournalViewModels
 						commonServices,
 						_undeliveredOrdersJournalOpener,
 						employeeService,
-						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						filePickerService,
 						subdivisionRepository,
@@ -488,7 +483,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						employeeService,
 						subdivisionRepository,
 						commonServices,
-						employeeSelectorFactory,
+						_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
                         filePickerService
 					),
 					//функция диалога открытия документа
@@ -498,7 +493,6 @@ namespace Vodovoz.Journals.JournalViewModels
 						commonServices,
 						_undeliveredOrdersJournalOpener,
 						employeeService,
-						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						filePickerService,
 						subdivisionRepository,
@@ -597,7 +591,6 @@ namespace Vodovoz.Journals.JournalViewModels
 								commonServices,
 								_undeliveredOrdersJournalOpener,
 								employeeService,
-								employeeSelectorFactory,
 								counterpartySelectorFactory,
 								filePickerService,
 								subdivisionRepository,
@@ -635,7 +628,6 @@ namespace Vodovoz.Journals.JournalViewModels
 								commonServices,
 								_undeliveredOrdersJournalOpener,
 								employeeService,
-								employeeSelectorFactory,
 								counterpartySelectorFactory,
 								filePickerService,
 								subdivisionRepository,

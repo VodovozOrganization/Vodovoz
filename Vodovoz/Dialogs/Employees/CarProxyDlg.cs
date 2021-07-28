@@ -16,7 +16,9 @@ using Vodovoz.Journals.JournalViewModels;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -58,7 +60,7 @@ namespace Vodovoz.Dialogs.Employees
 				UpdateStates();
 			};
 
-			var filterDefaultForwarder = new EmployeeFilterViewModel();
+			var filterDefaultForwarder = new EmployeeRepresentationFilterViewModel();
 			filterDefaultForwarder.Status = EmployeeStatus.IsWorking;
 			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryDriver.RepresentationModel = new EmployeesVM(filterDefaultForwarder);

@@ -40,6 +40,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Flyers;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
+using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 
 namespace Vodovoz.JournalColumnsConfigs
 {

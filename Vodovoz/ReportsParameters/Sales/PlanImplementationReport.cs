@@ -10,13 +10,15 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalFilters;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters
 {
 	public partial class PlanImplementationReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		EmployeeFilterViewModel filter;
+		EmployeeRepresentationFilterViewModel filter;
 		public PlanImplementationReport(bool orderById = false)
 		{
 			this.Build();
@@ -29,7 +31,7 @@ namespace Vodovoz.ReportsParameters
 			dateperiodpicker.StartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
 			dateperiodpicker.EndDate = dateperiodpicker.StartDate.AddMonths(1).AddTicks(-1);
 
-			filter = new EmployeeFilterViewModel();
+			filter = new EmployeeRepresentationFilterViewModel();
 
 			var availablePlansToUse = new[] { WageParameterItemTypes.SalesPlan };
 			lstCmbPlanType.SetRenderTextFunc<WageParameterItemTypes>(t => t.GetEnumTitle());

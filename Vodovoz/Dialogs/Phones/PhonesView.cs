@@ -5,6 +5,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using QSWidgetLib;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.ViewModels.ViewModels;
 using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz.Dialogs.Phones

@@ -1,10 +1,13 @@
-﻿using QS.DomainModel.UoW;
+﻿using System;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using VodovozInfrastructure.Interfaces;
 
@@ -17,11 +20,28 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IFileChooserProvider fileChooserProvider,
-			ExpenseCategoryJournalFilterViewModel journalFilterViewModel
+			ExpenseCategoryJournalFilterViewModel journalFilterViewModel,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory
 			) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			if(employeeJournalFactory == null)
+			{
+				throw new ArgumentNullException(nameof(employeeJournalFactory));
+			}
+			
+			if(subdivisionJournalFactory == null)
+			{
+				throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			}
+			
 			ExpenseCategoryAutocompleteSelectorFactory = 
-				new ExpenseCategoryAutoCompleteSelectorFactory(commonServices, journalFilterViewModel, fileChooserProvider);
+				new ExpenseCategoryAutoCompleteSelectorFactory(
+					commonServices, journalFilterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory);
+
+			SubdivisionAutocompleteSelectorFactory =
+				subdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(
+					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 			
 			if(uowBuilder.IsNewEntity)
 				TabName = "Создание новой категории расхода";
@@ -29,6 +49,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				TabName = $"{Entity.Title}";
 			
 		}
+		
+		public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
 
 		public bool IsArchive
 		{

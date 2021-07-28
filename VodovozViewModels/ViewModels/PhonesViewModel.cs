@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.ViewModels;
 using System.Data.Bindings.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Commands;
 using System.Linq;
-using Vodovoz.Services;
+using QS.Commands;
+using QS.DomainModel.UoW;
+using QS.ViewModels;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Parameters;
-using Vodovoz.Repositories;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
-namespace Vodovoz.Dialogs.Phones
+namespace Vodovoz.ViewModels.ViewModels
 {
 	public class PhonesViewModel : WidgetViewModelBase
 	{

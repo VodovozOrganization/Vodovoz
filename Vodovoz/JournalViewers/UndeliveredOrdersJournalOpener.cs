@@ -24,14 +24,7 @@ namespace Vodovoz.JournalViewers
 				new EmployeeJournalFactory(),
 				new CounterpartyJournalFactory(),
 				new DeliveryPointJournalFactory(),
-				new SubdivisionJournalFactory(
-					new SubdivisionFilterViewModel()
-					{
-						SubdivisionType = SubdivisionType.Default
-					}),
-				new SalesPlanJournalFactory(),
-				new NomenclatureSelectorFactory()
-			)
+				new SubdivisionJournalFactory())
 			{
 				RestrictOldOrder = oldOrder,
 				RestrictOldOrderStartDate = deliveryDate,
