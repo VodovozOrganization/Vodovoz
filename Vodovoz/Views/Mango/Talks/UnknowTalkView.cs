@@ -4,9 +4,9 @@ using Vodovoz.ViewModels.Mango.Talks;
 
 namespace Vodovoz.Views.Mango.Talks
 {
-	public partial class UnknowTalkView : DialogViewBase<UnknowTalkViewModel>
+	public partial class UnknowTalkView : DialogViewBase<UnknownTalkViewModel>
 	{
-		public UnknowTalkView(UnknowTalkViewModel viewModel) : base(viewModel)
+		public UnknowTalkView(UnknownTalkViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			Configure();

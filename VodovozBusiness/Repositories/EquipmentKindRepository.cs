@@ -5,13 +5,13 @@ using Vodovoz.Domain;
 
 namespace Vodovoz.Repositories
 {
-	public static class EquipmentTypeRepository
+	public static class EquipmentKindRepository
 	{
-		public static List<EquipmentType> GetPaidRentEquipmentTypes (IUnitOfWork uow)
+		public static List<EquipmentKind> GetPaidRentEquipmentKinds (IUnitOfWork uow)
 		{
 			var availableTypes = uow.Session.CreateCriteria (typeof(PaidRentPackage))
 				.List<PaidRentPackage> ()
-				.Select (p => p.EquipmentType)
+				.Select (p => p.EquipmentKind)
 				.Distinct ().ToList ();
 			return availableTypes;
 		}

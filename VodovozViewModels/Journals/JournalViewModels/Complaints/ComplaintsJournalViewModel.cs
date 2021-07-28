@@ -40,7 +40,6 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ICommonServices commonServices;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService employeeService;
-		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		private readonly IFilePickerService filePickerService;
@@ -60,6 +59,8 @@ namespace Vodovoz.Journals.JournalViewModels
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		private bool canCloseComplaint = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
+		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelector;
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
 
@@ -70,7 +71,6 @@ namespace Vodovoz.Journals.JournalViewModels
 			ICommonServices commonServices,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			IRouteListItemRepository routeListItemRepository,
@@ -86,14 +86,15 @@ namespace Vodovoz.Journals.JournalViewModels
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelector
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this._undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
@@ -109,6 +110,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_nomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 
 			TabName = "Журнал рекламаций";
 
@@ -425,7 +428,6 @@ namespace Vodovoz.Journals.JournalViewModels
 						EntityUoWBuilder.ForCreate(),
 						unitOfWorkFactory,
 						employeeService,
-						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						subdivisionRepository,
 						commonServices,
@@ -439,7 +441,9 @@ namespace Vodovoz.Journals.JournalViewModels
 						_deliveryPointJournalFactory,
 						_subdivisionJournalFactory,
 						gtkDlgOpener,
-						_undeliveredOrdersJournalOpener
+						_undeliveredOrdersJournalOpener,
+						_salesPlanJournalFactory,
+						_nomenclatureSelector
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -448,7 +452,6 @@ namespace Vodovoz.Journals.JournalViewModels
 						commonServices,
 						_undeliveredOrdersJournalOpener,
 						employeeService,
-						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						filePickerService,
 						subdivisionRepository,
@@ -461,7 +464,9 @@ namespace Vodovoz.Journals.JournalViewModels
 						_deliveryPointJournalFactory,
 						_subdivisionJournalFactory,
 						gtkDlgOpener,
-						_undeliveredOrdersJournalOpener
+						_undeliveredOrdersJournalOpener,
+						_salesPlanJournalFactory,
+						_nomenclatureSelector
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -478,7 +483,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						employeeService,
 						subdivisionRepository,
 						commonServices,
-						employeeSelectorFactory,
+						_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
                         filePickerService
 					),
 					//функция диалога открытия документа
@@ -488,7 +493,6 @@ namespace Vodovoz.Journals.JournalViewModels
 						commonServices,
 						_undeliveredOrdersJournalOpener,
 						employeeService,
-						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						filePickerService,
 						subdivisionRepository,
@@ -501,7 +505,9 @@ namespace Vodovoz.Journals.JournalViewModels
 						_deliveryPointJournalFactory,
 						_subdivisionJournalFactory,
 						gtkDlgOpener,
-						_undeliveredOrdersJournalOpener
+						_undeliveredOrdersJournalOpener,
+						_salesPlanJournalFactory,
+						_nomenclatureSelector
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -585,7 +591,6 @@ namespace Vodovoz.Journals.JournalViewModels
 								commonServices,
 								_undeliveredOrdersJournalOpener,
 								employeeService,
-								employeeSelectorFactory,
 								counterpartySelectorFactory,
 								filePickerService,
 								subdivisionRepository,
@@ -598,7 +603,9 @@ namespace Vodovoz.Journals.JournalViewModels
 								_deliveryPointJournalFactory,
 								_subdivisionJournalFactory,
 								gtkDlgOpener,
-								_undeliveredOrdersJournalOpener
+								_undeliveredOrdersJournalOpener,
+								_salesPlanJournalFactory,
+								_nomenclatureSelector
 							);
 							currentComplaintVM.AddFineCommand.Execute(this);
 						}
@@ -621,7 +628,6 @@ namespace Vodovoz.Journals.JournalViewModels
 								commonServices,
 								_undeliveredOrdersJournalOpener,
 								employeeService,
-								employeeSelectorFactory,
 								counterpartySelectorFactory,
 								filePickerService,
 								subdivisionRepository,
@@ -634,7 +640,9 @@ namespace Vodovoz.Journals.JournalViewModels
 								_deliveryPointJournalFactory,
 								_subdivisionJournalFactory,
 								gtkDlgOpener,
-								_undeliveredOrdersJournalOpener
+								_undeliveredOrdersJournalOpener,
+								_salesPlanJournalFactory,
+								_nomenclatureSelector
 							);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))

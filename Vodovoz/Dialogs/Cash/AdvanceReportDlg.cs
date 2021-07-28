@@ -16,6 +16,8 @@ using Vodovoz.EntityRepositories;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -145,13 +147,17 @@ namespace Vodovoz
 				accessfilteredsubdivisionselectorwidget.SelectIfPossible(Entity.RelatedToSubdivision);
 			}
 
-			var filterEmployee = new EmployeeFilterViewModel();
-			filterEmployee.Status = EmployeeStatus.IsWorking;
+			var filterEmployee = new EmployeeRepresentationFilterViewModel
+			{
+				Status = EmployeeStatus.IsWorking
+			};
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
 			yentryEmployee.Binding.AddBinding(Entity, e => e.Accountable, w => w.Subject).InitializeFromSource();
 
-			var filterCasher = new EmployeeFilterViewModel();
-			filterCasher.Status = EmployeeStatus.IsWorking;
+			var filterCasher = new EmployeeRepresentationFilterViewModel
+			{
+				Status = EmployeeStatus.IsWorking
+			};
 			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, e => e.Casher, w => w.Subject).InitializeFromSource();
 

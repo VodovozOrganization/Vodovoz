@@ -79,7 +79,10 @@ namespace Vodovoz.Views.Complaints
 												ViewModel.DeliveryPointJournalFactory,
 												ViewModel.SubdivisionJournalFactory,
 												ViewModel.GtkDialogsOpener,
-												ViewModel.UndeliveredOrdersJournalOpener);
+												ViewModel.UndeliveredOrdersJournalOpener,
+												ViewModel.SalesPlanJournalFactory,
+												ViewModel.NomenclatureSelector
+												);
 			});
 
 			entryOrder.SetEntityAutocompleteSelectorFactory(orderSelectorFactory);

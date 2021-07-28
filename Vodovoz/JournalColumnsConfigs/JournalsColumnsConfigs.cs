@@ -37,8 +37,11 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Flyers;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
+using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -480,6 +483,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Name)
 					.AddColumn("Описание")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Title)
@@ -1231,6 +1237,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Дата окончания").AddTextRenderer(n =>
 						n.EndDate.HasValue ? n.EndDate.Value.ToShortDateString() : "")
 					.AddColumn("")
+					.Finish()
+			);
+
+			//EquipmentKindJournalViewModel
+			TreeViewColumnsConfigFactory.Register<EquipmentKindJournalViewModel>(
+				() => FluentColumnsConfig<EquipmentKindJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Гарантийный талон").AddTextRenderer(node => node.WarrantyCardType.GetEnumTitle())
 					.Finish()
 			);
 		}

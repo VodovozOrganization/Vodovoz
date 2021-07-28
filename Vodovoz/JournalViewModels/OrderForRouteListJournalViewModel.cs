@@ -43,6 +43,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
+
 		public OrderForRouteListJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
 			IUnitOfWorkFactory unitOfWorkFactory, 

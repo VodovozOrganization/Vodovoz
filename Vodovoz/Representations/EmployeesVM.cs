@@ -15,13 +15,14 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
+using Vodovoz.JournalFilters;
 
 namespace Vodovoz.ViewModel
 {
 	public class EmployeesVM : RepresentationModelEntityBase<Employee, EmployeesVMNode>
 	{
-		public EmployeeFilterViewModel Filter {
-			get => RepresentationFilter as EmployeeFilterViewModel;
+		public EmployeeRepresentationFilterViewModel Filter {
+			get => RepresentationFilter as EmployeeRepresentationFilterViewModel;
 			set => RepresentationFilter = value as IRepresentationFilter;
 		}
 
@@ -174,25 +175,25 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public EmployeesVM(IUnitOfWork uow, EmployeeFilterViewModel filterViewModel)
+		public EmployeesVM(IUnitOfWork uow, EmployeeRepresentationFilterViewModel filterViewModel)
 		{
 			Filter = filterViewModel;
 			UoW = uow;
 		}
 
-		public EmployeesVM(EmployeeFilterViewModel filterViewModel)
+		public EmployeesVM(EmployeeRepresentationFilterViewModel filterViewModel)
 		{
 			Filter = filterViewModel;
 		}
 
 		public EmployeesVM()
 		{
-			CreateRepresentationFilter = () => new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking };
+			CreateRepresentationFilter = () => new EmployeeRepresentationFilterViewModel { Status = EmployeeStatus.IsWorking };
 		}
 
 		public EmployeesVM(IUnitOfWork uow)
 		{
-			CreateRepresentationFilter = () => new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking };
+			CreateRepresentationFilter = () => new EmployeeRepresentationFilterViewModel { Status = EmployeeStatus.IsWorking };
 			this.UoW = uow;
 		}
 	}

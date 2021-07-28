@@ -13,7 +13,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.Name).Column ("name");
 			Map (x => x.MinWaterAmount).Column ("min_water_amount");
 			Map (x => x.Deposit).Column ("deposit");
-			References (x => x.EquipmentType).Column ("equipment_type_id");
+			References (x => x.EquipmentKind).Column ("equipment_kind_id");
 			References (x => x.DepositService).Column ("deposit_service_id").LazyLoad ();
 		}
 	}

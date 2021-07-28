@@ -47,14 +47,14 @@ using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels;
-using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.JournalFilters;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
-using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepository;
 
 namespace Vodovoz
 {
@@ -95,9 +95,7 @@ namespace Vodovoz
 	        {
 		        if (employeeSelectorFactory is null)
 		        {
-			        employeeSelectorFactory =
-				        new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
-					        ServicesConfig.CommonServices);
+			        employeeSelectorFactory = new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory();
 		        }
 		        return employeeSelectorFactory;
 	        }
@@ -495,7 +493,7 @@ namespace Vodovoz
                 UoWGeneric.Root.Emails = new List<Email>();
             emailsView.Emails = UoWGeneric.Root.Emails;
 
-            var filterSalesManager = new EmployeeFilterViewModel();
+            var filterSalesManager = new EmployeeRepresentationFilterViewModel();
             filterSalesManager.SetAndRefilterAtOnce(
                 x => x.RestrictCategory = EmployeeCategory.office,
                 x => x.Status = EmployeeStatus.IsWorking
@@ -504,7 +502,7 @@ namespace Vodovoz
             referenceSalesManager.RepresentationModel = new EmployeesVM(filterSalesManager);
             referenceSalesManager.Binding.AddBinding(Entity, e => e.SalesManager, w => w.Subject).InitializeFromSource();
 
-            var filterAccountant = new EmployeeFilterViewModel();
+            var filterAccountant = new EmployeeRepresentationFilterViewModel();
             filterAccountant.SetAndRefilterAtOnce(
                 x => x.RestrictCategory = EmployeeCategory.office,
                 x => x.Status = EmployeeStatus.IsWorking
@@ -516,7 +514,7 @@ namespace Vodovoz
             dataentryMainContact.RepresentationModel = new ContactsVM(UoW, Entity);
             dataentryMainContact.Binding.AddBinding(Entity, e => e.MainContact, w => w.Subject).InitializeFromSource();
 
-            var filterBottleManager = new EmployeeFilterViewModel();
+            var filterBottleManager = new EmployeeRepresentationFilterViewModel();
             filterBottleManager.SetAndRefilterAtOnce(
                 x => x.RestrictCategory = EmployeeCategory.office,
                 x => x.Status = EmployeeStatus.IsWorking
@@ -704,11 +702,7 @@ namespace Vodovoz
 
         void AllOrders_Activated(object sender, EventArgs e)
         {
-	        SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
-	        {
-		        SubdivisionType = SubdivisionType.Default
-	        };
-	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 	        var orderJournalFilter = new OrderJournalFilterViewModel { RestrictCounterparty = Entity };
 	        var orderJournalViewModel = new OrderJournalViewModel(
@@ -726,7 +720,9 @@ namespace Vodovoz
 		        new DeliveryPointJournalFactory(),
 		        subdivisionJournalFactory,
 		        new GtkTabsOpener(),
-		        new UndeliveredOrdersJournalOpener()
+		        new UndeliveredOrdersJournalOpener(),
+				new SalesPlanJournalFactory(),
+				new NomenclatureSelectorFactory()
 			);
 
 	        TabParent.AddTab(orderJournalViewModel, this, false);
@@ -734,13 +730,10 @@ namespace Vodovoz
         
         private void ComplaintViewOnActivated(object sender, EventArgs e)
         {
-	        SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
-	        {
-		        SubdivisionType = SubdivisionType.Default
-	        };
-	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
-	        var filter = new ComplaintFilterViewModel(ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
+	        var filter = new ComplaintFilterViewModel(
+		        ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
 	        filter.SetAndRefilterAtOnce(x=> x.Counterparty = Entity);
 	        
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
@@ -748,7 +741,6 @@ namespace Vodovoz
 		        ServicesConfig.CommonServices,
 		        UndeliveredOrdersJournalOpener,
 		        employeeService,
-		        EmployeeSelectorFactory,
 		        CounterpartySelectorFactory,
 		        NomenclatureSelectorFactory,
 		        RouteListItemRepository,
@@ -764,7 +756,9 @@ namespace Vodovoz
 		        new EmployeeJournalFactory(),
 		        new CounterpartyJournalFactory(),
 		        new DeliveryPointJournalFactory(),
-		        subdivisionJournalFactory
+		        subdivisionJournalFactory,
+				new SalesPlanJournalFactory(),
+				new NomenclatureSelectorFactory()
 	        );
 	        
 	        TabParent.AddTab(complaintsJournalViewModel, this, false);

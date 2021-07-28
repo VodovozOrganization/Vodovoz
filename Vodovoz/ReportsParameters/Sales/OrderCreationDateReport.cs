@@ -8,6 +8,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
 using QS.Dialog.GtkUI;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters.Sales
 {
@@ -17,7 +19,7 @@ namespace Vodovoz.ReportsParameters.Sales
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var filter = new EmployeeFilterViewModel();
+			var filter = new EmployeeRepresentationFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking

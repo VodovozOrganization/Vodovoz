@@ -2,7 +2,9 @@
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalFilters;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -29,7 +31,7 @@ namespace Vodovoz.Views.Logistic
 			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.ChangedByUser += (sender, e) => ViewModel.ChangeDriverCommand.Execute();
 
-			var filterDriver = new EmployeeFilterViewModel();
+			var filterDriver = new EmployeeRepresentationFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking

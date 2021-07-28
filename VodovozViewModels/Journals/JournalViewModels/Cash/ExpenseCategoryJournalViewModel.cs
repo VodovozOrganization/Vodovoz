@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Cash;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
@@ -30,17 +30,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
     {
         private readonly IUnitOfWorkFactory unitOfWorkFactory;
         private readonly IFileChooserProvider fileChooserProvider;
+        private readonly IEmployeeJournalFactory _employeeJournalFactory;
+        private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 
         public ExpenseCategoryJournalViewModel(
             ExpenseCategoryJournalFilterViewModel filterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IFileChooserProvider fileChooserProvider
+            IFileChooserProvider fileChooserProvider,
+            IEmployeeJournalFactory employeeJournalFactory,
+            ISubdivisionJournalFactory subdivisionJournalFactory
             ) : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
             this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
             this.fileChooserProvider =
                 fileChooserProvider ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+            _employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+            _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
             
             
             TabName = "Категории расхода";
@@ -126,15 +132,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             unitOfWorkFactory,
             commonServices,
             fileChooserProvider,
-            FilterViewModel
-
+            FilterViewModel,
+            _employeeJournalFactory,
+            _subdivisionJournalFactory
         );
         protected override Func<ExpenseCategoryJournalNode, ExpenseCategoryViewModel> OpenDialogFunction => node => new ExpenseCategoryViewModel(
             EntityUoWBuilder.ForOpen(node.Id),
             unitOfWorkFactory,
             commonServices,
             fileChooserProvider,
-            FilterViewModel
+            FilterViewModel,
+            _employeeJournalFactory,
+            _subdivisionJournalFactory
         );
         
         protected override void CreatePopupActions()

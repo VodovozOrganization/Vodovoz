@@ -79,6 +79,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 
@@ -478,7 +479,8 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			var filterAuthor = new EmployeeFilterViewModel {
+			var filterAuthor = new EmployeeRepresentationFilterViewModel
+			{
 				Status = EmployeeStatus.IsWorking
 			};
 			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
@@ -1975,7 +1977,7 @@ namespace Vodovoz
 			}
 			else
 			{
-				if(_addedFlyersNomenclaturesIds.Any())
+				if(_addedFlyersNomenclaturesIds != null &&_addedFlyersNomenclaturesIds.Any())
 				{
 					foreach(var flyerNomenclatureId in _addedFlyersNomenclaturesIds)
 					{
@@ -2896,11 +2898,11 @@ namespace Vodovoz
 					.Distinct()
 					.ToArray();
 				
-				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentType, existingItems);
+				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentKind, existingItems);
 				AddPaidRent(rentType, paidRentPackage, anyNomenclature);
 			}
 			else {
-				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, paidRentPackage.EquipmentType));
+				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, paidRentPackage.EquipmentKind));
 				selectDialog.Mode = JournalSelectMode.Single;
 				selectDialog.CustomTabName("Оборудование для аренды");
 				selectDialog.ObjectSelected += (sender, e) => {
@@ -2971,11 +2973,11 @@ namespace Vodovoz
 					.Distinct()
 					.ToArray();
 				
-				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentType, existingItems);
+				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentKind, existingItems);
 				AddFreeRent(freeRentPackage, anyNomenclature);
 			}
 			else {
-				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, freeRentPackage.EquipmentType));
+				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, freeRentPackage.EquipmentKind));
 				selectDialog.Mode = JournalSelectMode.Single;
 				selectDialog.CustomTabName("Оборудование для аренды");
 				selectDialog.ObjectSelected += (sender, e) => {

@@ -18,7 +18,9 @@ using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
 using System.Linq;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Reports
 {
@@ -47,7 +49,7 @@ namespace Vodovoz.Reports
 			dateStart.Date = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
 			dateEnd.Date = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
 
-			var filterCasher = new EmployeeFilterViewModel();
+			var filterCasher = new EmployeeRepresentationFilterViewModel();
 			filterCasher.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			filterCasher.Status = EmployeeStatus.IsWorking;
 			yentryrefCasher.RepresentationModel = new EmployeesVM(filterCasher);

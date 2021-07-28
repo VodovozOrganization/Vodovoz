@@ -299,6 +299,7 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
     rl.date AS rl_date,
     rl.id AS rl_id,

@@ -32,6 +32,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz
 {
@@ -100,12 +101,12 @@ namespace Vodovoz
 
 			DeleteConfig.AddDeleteInfo(
 				new DeleteInfo {
-					ObjectClass = typeof(EquipmentType),
+					ObjectClass = typeof(EquipmentKind),
 					SqlSelect = "SELECT id, name FROM @tablename ",
 					DisplayString = "{1}",
 					DeleteItems = new List<DeleteDependenceInfo> {
-						DeleteDependenceInfo.Create<Nomenclature> (item => item.Type),
-						DeleteDependenceInfo.Create<PaidRentPackage> (item => item.EquipmentType)
+						DeleteDependenceInfo.Create<Nomenclature> (item => item.Kind),
+						DeleteDependenceInfo.Create<PaidRentPackage> (item => item.EquipmentKind)
 					}
 				}.FillFromMetaInfo()
 			);
@@ -407,6 +408,19 @@ namespace Vodovoz
 			//Не добавляем сообщения чата чтобы не заполонять вывод удаления. все сообщения удалятся вместе с чатом.
 
 			DeleteConfig.AddHibernateDeleteInfo<ChatMessage>();
+
+			DeleteConfig.AddHibernateDeleteInfo<EmployeeWageParameter>();
+
+			DeleteConfig.AddHibernateDeleteInfo<SalesPlanWageParameterItem>()
+				.AddDeleteDependence<EmployeeWageParameter>(x => x.WageParameterItem);
+
+			DeleteConfig.AddHibernateDeleteInfo<SalesPlanItem>().HasSubclasses();
+
+			DeleteConfig.AddHibernateDeleteInfo<SalesPlan>()
+				.AddDeleteDependence<SalesPlanItem>(x => x.SalesPlan)
+				.AddDeleteDependence<SalesPlanWageParameterItem>(x => x.SalesPlan)
+				.AddClearDependence<Subdivision>(x => x.DefaultSalesPlan);
+
 			#endregion
 
 			//Контрагент и все что сним связано

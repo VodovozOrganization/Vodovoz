@@ -37,6 +37,8 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -52,6 +54,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly ICommonServices commonServices;
 		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
 		private readonly int closingDocumentDeliveryScheduleId;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 
 		public IUnitOfWork UoW;
 
@@ -66,13 +69,15 @@ namespace Vodovoz.ViewModels.Logistic
 			ICarRepository carRepository,
 			INavigationManager navigationManager,
 			IUserRepository userRepository,
-			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings
+			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
+			IEmployeeJournalFactory employeeJournalFactory
 		) : base(commonServices.InteractiveService, navigationManager)
 		{
 			if(defaultDeliveryDayScheduleSettings == null) throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			this.gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			this.atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -80,7 +85,7 @@ namespace Vodovoz.ViewModels.Logistic
 			this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			
 			closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
-				throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
+			                                    throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
 			
 			CreateUoW();
 
@@ -212,20 +217,12 @@ namespace Vodovoz.ViewModels.Logistic
 		void CreateAddDriverCommand()
 		{
 			AddDriverCommand = new DelegateCommand(
-				() => {
-					var drvFilter = new EmployeeFilterViewModel();
-					drvFilter.SetAndRefilterAtOnce(
-						x => x.RestrictCategory = EmployeeCategory.driver,
-						x => x.Status = EmployeeStatus.IsWorking
-					);
-					var drvJournalViewModel = new EmployeesJournalViewModel(
-						drvFilter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						commonServices
-					) {
-						SelectionMode = JournalSelectionMode.Multiple,
-						TabName = "Водители"
-					};
+				() =>
+				{
+					var drvJournalViewModel = _employeeJournalFactory.CreateWorkingDriverEmployeeJournal();
+					drvJournalViewModel.SelectionMode = JournalSelectionMode.Multiple;
+					drvJournalViewModel.TabName = "Водители";
+					
 					drvJournalViewModel.OnEntitySelectedResult += (sender, e) => {
 						var selectedNodes = e.SelectedNodes;
 						var onlyNew = selectedNodes.Where(x => ObservableDriversOnDay.All(y => y.Employee.Id != x.Id)).ToList();
@@ -300,19 +297,11 @@ namespace Vodovoz.ViewModels.Logistic
 		void CreateAddForwarderCommand()
 		{
 			AddForwarderCommand = new DelegateCommand(
-				() => {
-					var fwdFilter = new EmployeeFilterViewModel();
-					fwdFilter.SetAndRefilterAtOnce(
-						x => x.RestrictCategory = EmployeeCategory.forwarder,
-						x => x.Status = EmployeeStatus.IsWorking
-					);
-					var fwdJournalViewModel = new EmployeesJournalViewModel(
-						fwdFilter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						commonServices
-					) {
-						SelectionMode = JournalSelectionMode.Multiple
-					};
+				() =>
+				{
+					var fwdJournalViewModel = _employeeJournalFactory.CreateWorkingForwarderEmployeeJournal();
+					fwdJournalViewModel.SelectionMode = JournalSelectionMode.Multiple;
+					
 					fwdJournalViewModel.OnEntitySelectedResult += (sender, e) => {
 						var selectedNodes = e.SelectedNodes;
 						foreach(var n in selectedNodes) {

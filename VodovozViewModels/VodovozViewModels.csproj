@@ -47,11 +47,17 @@
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
+    <Compile Include="Factories\IAuthorizationServiceFactory.cs" />
+    <Compile Include="Factories\IEmployeeWageParametersFactory.cs" />
+    <Compile Include="Factories\IPhonesViewModelFactory.cs" />
+    <Compile Include="Factories\IValidationContextFactory.cs" />
     <Compile Include="Infrastructure\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
+    <Compile Include="Infrastructure\Services\IAuthorizationService.cs" />
     <Compile Include="Journals\FilterViewModels\CashRequestJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Complaints\DriverComplaintReasonJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Complaints\ComplaintKindJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Complaints\ComplaintObjectJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Employees\EmployeeFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Employees\PremiumJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\ActionsWithInvoice.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
@@ -72,10 +78,11 @@
     <Compile Include="Journals\FilterViewModels\Retail\SalesChannelJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Security\RegisteredRMJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\MovementWagonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalFactories\SalesPlanJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\CarEventTypeJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\ISalesPlanJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventTypeJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\SubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\CashRequestJournalNode.cs" />
@@ -85,8 +92,11 @@
     <Compile Include="Journals\JournalNodes\DiscountReasonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DistrictsSetJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DriverCarKindNode.cs" />
+    <Compile Include="Journals\JournalNodes\Employees\EmployeeJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Employees\EmployeePostJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\ExpenseCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\FinancialDistrictsSetsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\EquipmentKindJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\IncomeCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Flyers\FlyersJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonJournalNode.cs" />
@@ -116,10 +126,12 @@
     <Compile Include="Journals\JournalViewModels\Complaints\DriverComplaintReasonsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintObjectJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\EmployeesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\PremiumJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\PremiumTemplateJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\FinancialDistrictsSetsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Flyers\FlyersJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\EquipmentKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
@@ -132,6 +144,8 @@
     <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\DiscountReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\NomenclatureBalanceByStockJournalViewModel.cs" />
+    <Compile Include="TempAdapters\IEmailServiceSettingAdapter.cs" />
+    <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
@@ -139,6 +153,7 @@
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumViewModel.cs" />
     <Compile Include="ViewModels\Flyers\FlyerViewModel.cs" />
+    <Compile Include="ViewModels\Goods\EquipmentKindViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
     <Compile Include="ViewModels\Orders\DiscountReasonViewModel.cs" />
@@ -159,6 +174,7 @@
     <Compile Include="ViewModels\Cash\IncomeCategoryViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintViewModel.cs" />
     <Compile Include="ViewModels\Employees\FineViewModel.cs" />
+    <Compile Include="ViewModels\Employees\EmployeeViewModel.cs" />
     <Compile Include="Infrastructure\Services\EmployeeService.cs" />
     <Compile Include="Infrastructure\Services\IEmployeeService.cs" />
     <Compile Include="TempAdapters\IUndeliveredOrdersJournalOpener.cs" />
@@ -192,6 +208,7 @@
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
+    <Compile Include="ViewModels\PhonesViewModel.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\DeliveryAnalyticsReportNode.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\GeographicGroupNode.cs" />
@@ -292,7 +309,6 @@
     <Compile Include="ViewModels\Users\UserViewModel.cs" />
     <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyFilesViewModel.cs" />
-    <Compile Include="Journals\JournalNodes\EmployeePostJournalNode.cs" />
     <Compile Include="Journals\JournalSelectors\EmployeePostsJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeePostsJournalViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeePostViewModel.cs" />

@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.Project.Domain;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
@@ -22,6 +23,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		private readonly ICommonServices commonServices;
 		private readonly INavigationManager navigationManager;
 		private readonly bool canChangeWageCalculation;
+		private readonly bool _canEditWageBySelfSubdivision;
 
 		public EmployeeWageParametersViewModel(
 			Employee entity, 
@@ -30,7 +32,8 @@ namespace Vodovoz.ViewModels.WageCalculation
 			IPresetPermissionValidator permissionValidator,
 			IUserRepository userRepository, 
 			ICommonServices commonServices,
-			INavigationManager navigationManager
+			INavigationManager navigationManager, 
+			IEmployeeRepository employeeRepository 
 			) : base(entity, commonServices)
 		{
 			this.tab = tab ?? throw new ArgumentNullException(nameof(tab));
@@ -40,6 +43,10 @@ namespace Vodovoz.ViewModels.WageCalculation
 			Entity.ObservableWageParameters.ElementAdded += (aList, aIdx) => WageParametersUpdated();
 			Entity.ObservableWageParameters.ElementRemoved += (aList, aIdx, aObject) => WageParametersUpdated();
 			canChangeWageCalculation = permissionValidator.Validate("can_edit_wage", userRepository.GetCurrentUser(UoW).Id);
+			_canEditWageBySelfSubdivision = userRepository.GetCurrentUser(UoW).IsAdmin ||
+										   (employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision == Entity.Subdivision &&
+										    permissionValidator.Validate("can_edit_wage_by_self_subdivision", userRepository.GetCurrentUser(UoW).Id)
+										    );
 		}
 
 		public event EventHandler OnParameterNodesUpdated;
@@ -63,7 +70,9 @@ namespace Vodovoz.ViewModels.WageCalculation
 
 		#region ChangeWageParameterCommand
 
-		public virtual bool CanChangeWageCalculation => canChangeWageCalculation && StartDate.HasValue && Entity.CheckStartDateForNewWageParameter(StartDate.Value);
+		public virtual bool CanChangeWageCalculation =>
+			(StartDate.HasValue && Entity.CheckStartDateForNewWageParameter(StartDate.Value)) &&
+			(canChangeWageCalculation || _canEditWageBySelfSubdivision);
 
 		private DelegateCommand changeWageParameterCommand;
 
