@@ -192,8 +192,8 @@ namespace Vodovoz.Domain.Sms
 		
 		private string GetMobilePhoneNumberForUndeliveryOrderId(int id)
 		{
-			var UoW = UnitOfWorkFactory.CreateForRoot<UndeliveredOrder>(id);
-			var order = UoW.Root.OldOrder;
+			var uow = UnitOfWorkFactory.CreateForRoot<UndeliveredOrder>(id);
+			var order = uow.Root.OldOrder;
 			Phone phone = null;
 			if(order.DeliveryPoint != null && order.DeliveryPoint.Phones.Count > 0) 
 			{
