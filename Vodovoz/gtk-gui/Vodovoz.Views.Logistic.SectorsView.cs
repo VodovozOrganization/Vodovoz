@@ -154,9 +154,15 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.Widgets.yEnumComboBox enumProviderMap;
 
-		private global::Gamma.GtkWidgets.yButton btnZoomIn;
+		private global::Gamma.GtkWidgets.yButton AddBorderBtn;
 
-		private global::Gamma.GtkWidgets.yButton btnZoomOut;
+		private global::Gamma.GtkWidgets.yButton RemoveBorderBtn;
+
+		private global::Gamma.GtkWidgets.yButton CancelBorderBtn;
+
+		private global::Gamma.GtkWidgets.yButton ApplyBorderBtn;
+
+		private global::Gamma.GtkWidgets.yButton previewMapBtn;
 
 		private global::GMap.NET.GtkSharp.GMapControl gmapwidget;
 
@@ -877,36 +883,78 @@ namespace Vodovoz.Views.Logistic
 			w89.Expand = false;
 			w89.Fill = false;
 			// Container child hbox19.Gtk.Box+BoxChild
-			this.btnZoomIn = new global::Gamma.GtkWidgets.yButton();
-			this.btnZoomIn.CanFocus = true;
-			this.btnZoomIn.Name = "btnZoomIn";
-			this.btnZoomIn.UseUnderline = true;
+			this.AddBorderBtn = new global::Gamma.GtkWidgets.yButton();
+			this.AddBorderBtn.CanFocus = true;
+			this.AddBorderBtn.Name = "AddBorderBtn";
+			this.AddBorderBtn.UseUnderline = true;
 			global::Gtk.Image w90 = new global::Gtk.Image();
-			w90.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-zoom-in", global::Gtk.IconSize.Menu);
-			this.btnZoomIn.Image = w90;
-			this.hbox19.Add(this.btnZoomIn);
-			global::Gtk.Box.BoxChild w91 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.btnZoomIn]));
+			w90.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.AddBorderBtn.Image = w90;
+			this.hbox19.Add(this.AddBorderBtn);
+			global::Gtk.Box.BoxChild w91 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.AddBorderBtn]));
 			w91.Position = 1;
 			w91.Expand = false;
 			w91.Fill = false;
 			// Container child hbox19.Gtk.Box+BoxChild
-			this.btnZoomOut = new global::Gamma.GtkWidgets.yButton();
-			this.btnZoomOut.CanFocus = true;
-			this.btnZoomOut.Name = "btnZoomOut";
-			this.btnZoomOut.UseUnderline = true;
+			this.RemoveBorderBtn = new global::Gamma.GtkWidgets.yButton();
+			this.RemoveBorderBtn.CanFocus = true;
+			this.RemoveBorderBtn.Name = "RemoveBorderBtn";
+			this.RemoveBorderBtn.UseUnderline = true;
 			global::Gtk.Image w92 = new global::Gtk.Image();
-			w92.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-zoom-out", global::Gtk.IconSize.Menu);
-			this.btnZoomOut.Image = w92;
-			this.hbox19.Add(this.btnZoomOut);
-			global::Gtk.Box.BoxChild w93 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.btnZoomOut]));
+			w92.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
+			this.RemoveBorderBtn.Image = w92;
+			this.hbox19.Add(this.RemoveBorderBtn);
+			global::Gtk.Box.BoxChild w93 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.RemoveBorderBtn]));
 			w93.Position = 2;
 			w93.Expand = false;
 			w93.Fill = false;
+			// Container child hbox19.Gtk.Box+BoxChild
+			this.CancelBorderBtn = new global::Gamma.GtkWidgets.yButton();
+			this.CancelBorderBtn.CanFocus = true;
+			this.CancelBorderBtn.Name = "CancelBorderBtn";
+			this.CancelBorderBtn.UseUnderline = true;
+			global::Gtk.Image w94 = new global::Gtk.Image();
+			w94.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.CancelBorderBtn.Image = w94;
+			this.hbox19.Add(this.CancelBorderBtn);
+			global::Gtk.Box.BoxChild w95 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.CancelBorderBtn]));
+			w95.PackType = ((global::Gtk.PackType)(1));
+			w95.Position = 3;
+			w95.Expand = false;
+			w95.Fill = false;
+			// Container child hbox19.Gtk.Box+BoxChild
+			this.ApplyBorderBtn = new global::Gamma.GtkWidgets.yButton();
+			this.ApplyBorderBtn.CanFocus = true;
+			this.ApplyBorderBtn.Name = "ApplyBorderBtn";
+			this.ApplyBorderBtn.UseUnderline = true;
+			global::Gtk.Image w96 = new global::Gtk.Image();
+			w96.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.ApplyBorderBtn.Image = w96;
+			this.hbox19.Add(this.ApplyBorderBtn);
+			global::Gtk.Box.BoxChild w97 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.ApplyBorderBtn]));
+			w97.PackType = ((global::Gtk.PackType)(1));
+			w97.Position = 4;
+			w97.Expand = false;
+			w97.Fill = false;
+			// Container child hbox19.Gtk.Box+BoxChild
+			this.previewMapBtn = new global::Gamma.GtkWidgets.yButton();
+			this.previewMapBtn.CanFocus = true;
+			this.previewMapBtn.Name = "previewMapBtn";
+			this.previewMapBtn.UseUnderline = true;
+			global::Gtk.Image w98 = new global::Gtk.Image();
+			w98.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-find", global::Gtk.IconSize.Menu);
+			this.previewMapBtn.Image = w98;
+			this.hbox19.Add(this.previewMapBtn);
+			global::Gtk.Box.BoxChild w99 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.previewMapBtn]));
+			w99.PackType = ((global::Gtk.PackType)(1));
+			w99.Position = 5;
+			w99.Expand = false;
+			w99.Fill = false;
 			this.vbox5.Add(this.hbox19);
-			global::Gtk.Box.BoxChild w94 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox19]));
-			w94.Position = 0;
-			w94.Expand = false;
-			w94.Fill = false;
+			global::Gtk.Box.BoxChild w100 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox19]));
+			w100.Position = 0;
+			w100.Expand = false;
+			w100.Fill = false;
 			// Container child vbox5.Gtk.Box+BoxChild
 			this.gmapwidget = new global::GMap.NET.GtkSharp.GMapControl();
 			this.gmapwidget.Name = "gmapwidget";
@@ -924,16 +972,16 @@ namespace Vodovoz.Views.Logistic
 			this.gmapwidget.MarkersEnabled = true;
 			this.gmapwidget.CanDragMap = true;
 			this.vbox5.Add(this.gmapwidget);
-			global::Gtk.Box.BoxChild w95 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.gmapwidget]));
-			w95.Position = 1;
+			global::Gtk.Box.BoxChild w101 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.gmapwidget]));
+			w101.Position = 1;
 			this.hbox3.Add(this.vbox5);
-			global::Gtk.Box.BoxChild w96 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox5]));
-			w96.Position = 4;
+			global::Gtk.Box.BoxChild w102 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox5]));
+			w102.Position = 4;
 			this.vbox1.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w97 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
-			w97.Position = 1;
-			w97.Expand = false;
-			w97.Fill = false;
+			global::Gtk.Box.BoxChild w103 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
+			w103.Position = 1;
+			w103.Expand = false;
+			w103.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
