@@ -34,6 +34,10 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
+		private IList<ComplaintObject> _complaintObjectSource;
+		private ComplaintObject _complaintObject;
+		private readonly IList<ComplaintKind> _complaintKinds;
+		private DelegateCommand _changeDeliveryPointCommand;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
@@ -60,7 +64,9 @@ namespace Vodovoz.ViewModels.Complaints
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener
+			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelector
 			) : base(uowBuilder, uowFactory, commonServices)
 		{
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
@@ -73,6 +79,8 @@ namespace Vodovoz.ViewModels.Complaints
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			SalesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 
 			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
@@ -97,6 +105,11 @@ namespace Vodovoz.ViewModels.Complaints
 			ConfigureEntityChangingRelations();
 
 			CreateCommands();
+
+			_complaintKinds = complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
+
+			ComplaintObject = Entity.ComplaintKind?.ComplaintObject;
+
 			TabName = $"Рекламация №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
 		}
 
@@ -191,7 +204,9 @@ namespace Vodovoz.ViewModels.Complaints
 						filePickerService,
 						EmployeeService,
 						CommonServices,
-						employeeSelectorFactory
+						employeeSelectorFactory,
+						SalesPlanJournalFactory,
+						NomenclatureSelector
 					);
 				}
 				return discussionsViewModel;
@@ -264,17 +279,35 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		List<ComplaintKind> complaintKindSource;
-		public IEnumerable<ComplaintKind> ComplaintKindSource {
+		IList<ComplaintKind> complaintKindSource;
+
+		public IList<ComplaintKind> ComplaintKindSource {
 			get {
-				if(complaintKindSource == null)
-					complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 				if(Entity.ComplaintKind != null && Entity.ComplaintKind.IsArchive)
 					complaintKindSource.Add(UoW.GetById<ComplaintKind>(Entity.ComplaintKind.Id));
 
 				return complaintKindSource;
 			}
+			set
+			{
+				SetField(ref complaintKindSource, value);
+			}
 		}
+
+		public virtual ComplaintObject ComplaintObject
+		{
+			get => _complaintObject;
+			set
+			{
+				if(SetField(ref _complaintObject, value))
+				{
+					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value).ToList();
+				}
+			}
+		}
+
+		public IEnumerable<ComplaintObject> ComplaintObjectSource =>
+			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList());
 
 		public IList<FineItem> FineItems => Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
 
@@ -365,6 +398,21 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#endregion AddFineCommand
 
+		#region ChangeDeliveryPointCommand
+		
+		public DelegateCommand ChangeDeliveryPointCommand => _changeDeliveryPointCommand ?? (_changeDeliveryPointCommand =
+			new DelegateCommand(() =>
+				{
+					if(Entity.Order?.DeliveryPoint != null)
+					{
+						Entity.DeliveryPoint = Entity.Order.DeliveryPoint;
+					}
+				},
+				() => true
+			));
+			
+		#endregion ChangeDeliveryPointCommand
+
 		#endregion Commands
 
 		public IOrderSelectorFactory OrderSelectorFactory { get; }
@@ -374,6 +422,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 		public IGtkTabsOpener GtkDialogsOpener { get; }
 		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
+		public ISalesPlanJournalFactory SalesPlanJournalFactory { get; }
+		public INomenclatureSelectorFactory NomenclatureSelector { get; }
 
 		public override void Close(bool askSave, CloseSource source)
 		{

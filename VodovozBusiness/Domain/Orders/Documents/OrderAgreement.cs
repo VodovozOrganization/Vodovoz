@@ -42,12 +42,12 @@ namespace Vodovoz.Domain.Orders.Documents
 					case AgreementType.NonfreeRent:
 						var nonFreeRentAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as NonFreeRentAgreementParser);
 						nonFreeRentAgreementParser.AddTableNomenclatures((AdditionalAgreement.Self as NonfreeRentAgreement).PaidRentEquipments.ToList());
-						nonFreeRentAgreementParser.AddTableEquipmentTypes((AdditionalAgreement.Self as NonfreeRentAgreement).PaidRentEquipments.ToList());
+						nonFreeRentAgreementParser.AddTableEquipmentKinds((AdditionalAgreement.Self as NonfreeRentAgreement).PaidRentEquipments.ToList());
 						break;
 					case AgreementType.DailyRent:
 						var dailyRentAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as DailyRentAgreementParser);
 						dailyRentAgreementParser.AddTableNomenclatures((AdditionalAgreement.Self as DailyRentAgreement).Equipment.ToList());
-						dailyRentAgreementParser.AddTableEquipmentTypes((AdditionalAgreement.Self as DailyRentAgreement).Equipment.ToList());
+						dailyRentAgreementParser.AddTableEquipmentKinds((AdditionalAgreement.Self as DailyRentAgreement).Equipment.ToList());
 						break;
 					case AgreementType.FreeRent:
 						break;

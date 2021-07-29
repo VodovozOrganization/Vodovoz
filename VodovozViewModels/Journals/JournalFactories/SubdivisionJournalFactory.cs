@@ -4,6 +4,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
@@ -15,11 +16,13 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 		{
 			_subdivisionJournalFilter = subdivisionJournalFilter;
 		}
-		public IEntityAutocompleteSelectorFactory CreateSubdivisionAutocompleteSelectorFactory(IEntityAutocompleteSelectorFactory employeeSelectorFactory)
+		public IEntityAutocompleteSelectorFactory CreateSubdivisionAutocompleteSelectorFactory(IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			ISalesPlanJournalFactory salesPlanJournalFactory, INomenclatureSelectorFactory nomenclatureSelectorFactory)
 		{
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
 			{
-				return new SubdivisionsJournalViewModel(_subdivisionJournalFilter ?? new SubdivisionFilterViewModel(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, employeeSelectorFactory);
+				return new SubdivisionsJournalViewModel(_subdivisionJournalFilter ?? new SubdivisionFilterViewModel(), UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices, employeeSelectorFactory, salesPlanJournalFactory, nomenclatureSelectorFactory);
 			});
 		}
 	}

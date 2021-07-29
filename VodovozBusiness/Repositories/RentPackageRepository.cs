@@ -7,27 +7,27 @@ namespace Vodovoz.Repositories
 {
 	public static class RentPackageRepository
 	{
-		public static FreeRentPackage GetFreeRentPackage (IUnitOfWork uow, EquipmentType equipmentType)
+		public static FreeRentPackage GetFreeRentPackage (IUnitOfWork uow, EquipmentKind equipmentKind)
 		{
 			var package = uow.Session.QueryOver<FreeRentPackage>()
-				.Where(p => p.EquipmentType == equipmentType)
+				.Where(p => p.EquipmentKind == equipmentKind)
 				.SingleOrDefault();
 			return package;
 		}
 		
-		public static PaidRentPackage GetPaidRentPackage (IUnitOfWork uow, EquipmentType equipmentType)
+		public static PaidRentPackage GetPaidRentPackage (IUnitOfWork uow, EquipmentKind equipmentKind)
 		{
 			var package = uow.Session.QueryOver<PaidRentPackage>()
-				.Where(p => p.EquipmentType == equipmentType)
+				.Where(p => p.EquipmentKind == equipmentKind)
 				.SingleOrDefault();
 			return package;
 		}
 
-		public static List<EquipmentType> GetPaidRentEquipmentTypes (IUnitOfWork uow)
+		public static List<EquipmentKind> GetPaidRentEquipmentKinds (IUnitOfWork uow)
 		{
 			var availableTypes = uow.Session.CreateCriteria (typeof(PaidRentPackage))
 				.List<PaidRentPackage> ()
-				.Select (p => p.EquipmentType)
+				.Select (p => p.EquipmentKind)
 				.Distinct ().ToList ();
 			return availableTypes;
 		}
