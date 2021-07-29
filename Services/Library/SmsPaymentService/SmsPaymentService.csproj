@@ -57,6 +57,7 @@
     <Compile Include="DTO\SmsPaymentCacheDTO.cs" />
     <Compile Include="DTO\SmsPaymentDTO.cs" />
     <Compile Include="DTO\StatusCode.cs" />
+    <Compile Include="ISmsPaymentDTOFactory.cs" />
     <Compile Include="ISmsPaymentStatusNotificationReciever.cs" />
     <Compile Include="SmsPaymentDTOFactory.cs" />
     <Compile Include="SmsPaymentFileCache.cs" />

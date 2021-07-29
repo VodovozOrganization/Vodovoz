@@ -14,6 +14,7 @@ using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
 using SmsPaymentService;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
 
 namespace VodovozSmsPaymentService
@@ -118,7 +119,8 @@ namespace VodovozSmsPaymentService
 					driverPaymentService,
 					smsPaymentStatusNotificationReciever,
 					new OrderParametersProvider(SingletonParametersProvider.Instance),
-					smsPaymentFileCache
+					smsPaymentFileCache,
+					new SmsPaymentDTOFactory(new OrderOrganizationProviderFactory().CreateOrderOrganizationProvider())
 				);
 
 				ServiceHost smsPaymentServiceHost = new SmsPaymentServiceHost(smsPaymentServiceInstanceProvider);
