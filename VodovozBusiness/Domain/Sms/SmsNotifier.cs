@@ -208,12 +208,6 @@ namespace Vodovoz.Domain.Sms
 				return null;
 			}
 
-			//прямой мобильный городской номер
-			if(phone.DigitsNumber.Length == 7)
-			{
-				return phone.DigitsNumber;
-			}
-
 			//федеральный мобильный номер
 			string stringPhoneNumber = phone.DigitsNumber.TrimStart('+').TrimStart('7').TrimStart('8');
 			if(stringPhoneNumber.Length == 0 || stringPhoneNumber.First() != '9' || stringPhoneNumber.Length != 10) 

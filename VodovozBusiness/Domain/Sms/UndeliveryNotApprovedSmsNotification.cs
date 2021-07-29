@@ -15,6 +15,7 @@ namespace Vodovoz.Domain.Sms
 	public class UndeliveryNotApprovedSmsNotification : SmsNotification
 	{
 		private UndeliveredOrder _undeliveredOrder;
+		private Counterparty _counterparty;
 		
 		public override SmsNotificationType SmsNotificationType => SmsNotificationType.UndeliveryNotApproved;
 		
@@ -24,13 +25,12 @@ namespace Vodovoz.Domain.Sms
 			get => _undeliveredOrder;
 			set => SetField(ref _undeliveredOrder, value);
 		}
-
-		private Counterparty counterparty;
+		
 		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty 
 		{
-			get => counterparty;
-			set => SetField(ref counterparty, value);
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
 	}
 }
