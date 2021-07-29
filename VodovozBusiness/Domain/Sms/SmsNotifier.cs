@@ -198,7 +198,8 @@ namespace Vodovoz.Domain.Sms
 			if(order.DeliveryPoint != null && order.DeliveryPoint.Phones.Count > 0) 
 			{
 				phone = order.DeliveryPoint.Phones.FirstOrDefault(); 
-			} else 
+			} 
+			else 
 			{
 				phone = order.Client.Phones.FirstOrDefault();
 			}
@@ -207,6 +208,13 @@ namespace Vodovoz.Domain.Sms
 				return null;
 			}
 
+			//прямой мобильный городской номер
+			if(phone.DigitsNumber.Length == 7)
+			{
+				return phone.DigitsNumber;
+			}
+
+			//федеральный мобильный номер
 			string stringPhoneNumber = phone.DigitsNumber.TrimStart('+').TrimStart('7').TrimStart('8');
 			if(stringPhoneNumber.Length == 0 || stringPhoneNumber.First() != '9' || stringPhoneNumber.Length != 10) 
 			{

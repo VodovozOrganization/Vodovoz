@@ -187,7 +187,8 @@ namespace Vodovoz.Core.DataService
 		
 		public string GetUndeliveryAutoTransferNotApprovedTextTemplate()
 		{
-			if(!SingletonParametersProvider.Instance.ContainsParameter("undelivery_autotransport_notapproved_sms_text_template")) {
+			if(!SingletonParametersProvider.Instance.ContainsParameter("undelivery_autotransport_notapproved_sms_text_template")) 
+			{
 				throw new InvalidProgramException("В параметрах базы не настроен шаблон для смс уведомлений о переносе при недовозе  без согласования(undelivery_autotransport_notapproved_sms_text_template).");
 			}
 			return SingletonParametersProvider.Instance.GetParameterValue("undelivery_autotransport_notapproved_sms_text_template");

@@ -14,20 +14,23 @@ namespace Vodovoz.Domain.Sms
 	[HistoryTrace]
 	public class UndeliveryNotApprovedSmsNotification : SmsNotification
 	{
+		private UndeliveredOrder _undeliveredOrder;
+		
 		public override SmsNotificationType SmsNotificationType => SmsNotificationType.UndeliveryNotApproved;
-
-		private UndeliveredOrder undeliveredOrder;
+		
 		[Display(Name = "Недовоз")]
-		public virtual UndeliveredOrder UndeliveredOrder {
-			get => undeliveredOrder;
-			set => SetField(ref undeliveredOrder, value, () => UndeliveredOrder);
+		public virtual UndeliveredOrder UndeliveredOrder 
+		{
+			get => _undeliveredOrder;
+			set => SetField(ref _undeliveredOrder, value);
 		}
 
 		private Counterparty counterparty;
 		[Display(Name = "Контрагент")]
-		public virtual Counterparty Counterparty {
+		public virtual Counterparty Counterparty 
+		{
 			get => counterparty;
-			set => SetField(ref counterparty, value, () => Counterparty);
+			set => SetField(ref counterparty, value);
 		}
 	}
 }
