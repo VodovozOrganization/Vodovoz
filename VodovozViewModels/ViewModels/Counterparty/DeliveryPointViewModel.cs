@@ -165,11 +165,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				switch (e.PropertyName)
 				{ // от этого события зависит панель цен доставки, которые в свою очередь зависят от района и, возможно, фиксов
 					case nameof(Entity.District):
-					case nameof(Entity.FixPrice1):
-					case nameof(Entity.FixPrice2):
-					case nameof(Entity.FixPrice3):
-					case nameof(Entity.FixPrice4):
-					case nameof(Entity.FixPrice5):
 						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 						break;
 				}
@@ -195,15 +190,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				   !CommonServices.InteractiveService.Question(
 					   "Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 				{
-					close = false;
-					return false;
-				}
-
-				var error = Entity.RaiseValidationAndGetResult();
-				if(!string.IsNullOrWhiteSpace(error))
-				{
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, error, "Введенные данные некорректны");
-					close = false;
 					return false;
 				}
 
@@ -213,20 +199,13 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					"Продолжить сохранение точки доставки?",
 					"Проверьте координаты!"))
 				{
-					close = false;
 					return false;
 				}
 
-				UoWGeneric.Save();
-				return true;
+				return base.Save(close);
 			}
 			finally
 			{
-				if(close)
-				{
-					Close(false, CloseSource.Save);
-				}
-
 				IsNotSaving = true;
 			}
 		}
