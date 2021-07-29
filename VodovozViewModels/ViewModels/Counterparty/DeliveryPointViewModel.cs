@@ -26,7 +26,7 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Counterparty
 {
-	public class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab
+	public class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab, ITdiDialog
 	{
 		private int _currentPage = 0;
 		private User _currentUser;
@@ -36,6 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IUserRepository _userRepository;
 		private readonly IFixedPricesModel _fixedPricesModel;
+		public new event EventHandler<EntitySavedEventArgs> EntitySaved;
 
 		#region Свойства
 
@@ -165,11 +166,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				switch (e.PropertyName)
 				{ // от этого события зависит панель цен доставки, которые в свою очередь зависят от района и, возможно, фиксов
 					case nameof(Entity.District):
-					case nameof(Entity.FixPrice1):
-					case nameof(Entity.FixPrice2):
-					case nameof(Entity.FixPrice3):
-					case nameof(Entity.FixPrice4):
-					case nameof(Entity.FixPrice5):
 						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 						break;
 				}
@@ -218,6 +214,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				}
 
 				UoWGeneric.Save();
+				EntitySaved?.Invoke(this, new EntitySavedEventArgs(UoW.RootObject));
 				return true;
 			}
 			finally
