@@ -26,7 +26,7 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Counterparty
 {
-	public class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab, ITdiDialog
+	public class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab
 	{
 		private int _currentPage = 0;
 		private User _currentUser;
@@ -36,7 +36,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IUserRepository _userRepository;
 		private readonly IFixedPricesModel _fixedPricesModel;
-		public new event EventHandler<EntitySavedEventArgs> EntitySaved;
 
 		#region Свойства
 
@@ -191,15 +190,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				   !CommonServices.InteractiveService.Question(
 					   "Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 				{
-					close = false;
-					return false;
-				}
-
-				var error = Entity.RaiseValidationAndGetResult();
-				if(!string.IsNullOrWhiteSpace(error))
-				{
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, error, "Введенные данные некорректны");
-					close = false;
 					return false;
 				}
 
@@ -209,21 +199,13 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					"Продолжить сохранение точки доставки?",
 					"Проверьте координаты!"))
 				{
-					close = false;
 					return false;
 				}
 
-				UoWGeneric.Save();
-				EntitySaved?.Invoke(this, new EntitySavedEventArgs(UoW.RootObject));
-				return true;
+				return base.Save(close);
 			}
 			finally
 			{
-				if(close)
-				{
-					Close(false, CloseSource.Save);
-				}
-
 				IsNotSaving = true;
 			}
 		}
