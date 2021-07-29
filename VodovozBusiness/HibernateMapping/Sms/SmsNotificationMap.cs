@@ -41,4 +41,14 @@ namespace Vodovoz.HibernateMapping.Sms
 			Map(x => x.Balance).Column ("balance");
 		}
 	}
+	
+	public class UndeliveryNotApprovedSmsNotificationMap : SubclassMap<UndeliveryNotApprovedSmsNotification>
+	{
+		public UndeliveryNotApprovedSmsNotificationMap()
+		{
+			DiscriminatorValue(nameof(SmsNotificationType.UndeliveryNotApproved));
+			References(x => x.UndeliveredOrder).Column("undeliveried_order_id");
+			References(x => x.Counterparty).Column("counterparty_id");
+		}
+	}
 }

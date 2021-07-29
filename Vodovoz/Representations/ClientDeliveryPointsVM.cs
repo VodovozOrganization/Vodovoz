@@ -1,4 +1,5 @@
-﻿using Gamma.ColumnConfig;
+﻿using System;
+using Gamma.ColumnConfig;
 using Gtk;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -7,6 +8,8 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModel
 {
+	[Obsolete("Класс используется для некоторых representationEntry и виджета deliveryPointsManagement," +
+	          " следует заменять на entityVMentry и фабрику DeliveryPointJournalFactory")]
 	public class ClientDeliveryPointsVM : RepresentationModelEntityBase<DeliveryPoint, ClientDeliveryPointVMNode>, QS.RepresentationModel.GtkUI.IRepresentationModelWithParent
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {

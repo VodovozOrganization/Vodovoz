@@ -1,12 +1,11 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.Dialogs.Cash
@@ -16,8 +15,8 @@ namespace Vodovoz.Dialogs.Cash
 	{
 		public CashRequestItemView(CashRequestItemViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
-			this.Configure();
+			Build();
+			Configure();
 		}
 
 		private void Configure()
@@ -42,18 +41,7 @@ namespace Vodovoz.Dialogs.Cash
 			).InitializeFromSource();
 			
 			AccountableEntityviewmodelentry3.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() =>
-					{
-						var employeeFilter = new EmployeeFilterViewModel{
-							Status = EmployeeStatus.IsWorking,
-						};
-						return new EmployeesJournalViewModel(
-							employeeFilter,
-							UnitOfWorkFactory.GetDefaultFactory, 
-							ServicesConfig.CommonServices);
-					})
-			);
+				ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 			
 			AccountableEntityviewmodelentry3.Binding.AddBinding(
 				ViewModel,

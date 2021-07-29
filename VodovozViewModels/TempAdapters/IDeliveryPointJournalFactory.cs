@@ -5,5 +5,6 @@ namespace Vodovoz.ViewModels.TempAdapters
 	public interface IDeliveryPointJournalFactory
 	{
 		IEntityAutocompleteSelectorFactory CreateDeliveryPointAutocompleteSelectorFactory();
+		IEntityAutocompleteSelectorFactory CreateDeliveryPointByClientAutocompleteSelectorFactory();
 	}
 }

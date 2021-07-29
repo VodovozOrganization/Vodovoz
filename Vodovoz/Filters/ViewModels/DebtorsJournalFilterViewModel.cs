@@ -1,6 +1,5 @@
 ﻿using System;
 using QS.Project.Filter;
-using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Client;
@@ -8,12 +7,12 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.FilterViewModels.Goods;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -124,14 +123,9 @@ namespace Vodovoz.Filters.ViewModels
 		private IEntityAutocompleteSelectorFactory deliveryPointVM;
 		public virtual IEntityAutocompleteSelectorFactory DeliveryPointVM {
 			get {
-				if(deliveryPointVM == null) {
-					deliveryPointVM =
-						new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
-							() => new DeliveryPointJournalViewModel(DeliveryPointJournalFilterViewModel,
-							UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
-							{
-								SelectionMode = JournalSelectionMode.Single
-							});
+				if(deliveryPointVM == null)
+				{
+					deliveryPointVM = new DeliveryPointJournalFactory().CreateDeliveryPointAutocompleteSelectorFactory();
 				}
 				return deliveryPointVM;
 			}
