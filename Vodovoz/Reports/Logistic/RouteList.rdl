@@ -702,9 +702,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <!--table_cell_name-->
-                <TableCell>
+                </TableCell><!--table_cell_name--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value>КЛИЕНТУ</Value>
@@ -878,8 +876,7 @@
                       <Value>={Address} + Iif({Reloaded}, "*", "") + Iif({NeedNewBottles}, "(Н)", "")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
-                        <PaddingTop>=Len({Address}) / 7 + "pt"</PaddingTop>
-                        <PaddingBottom>=Len({Address}) / 7 + "pt"</PaddingBottom>
+                        <PaddingBottom>=Len({Address}) / 4 + "pt"</PaddingBottom>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -889,7 +886,7 @@
                         <FontWeight>=Iif({has_comment_for_driver} = true,'Bold','Normal')</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontStyle>='Normal'</FontStyle>
+                        <FontStyle>Normal</FontStyle>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -911,9 +908,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <!--table_cell_value-->
-                <TableCell>
+                </TableCell><!--table_cell_value--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
                       <Value>={ToClient}</Value>
@@ -1077,9 +1072,7 @@
                     </Textbox>
                   </ReportItems>
                   <ColSpan>4</ColSpan>
-                </TableCell>
-                <!--table_cell_total-->
-                <TableCell>
+                </TableCell><!--table_cell_total--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
                       <Value>Километраж</Value>
@@ -2204,7 +2197,8 @@ LIMIT 1
             FROM order_items
             WHERE order_id = orders.id), 
         0) as terminals_sum,
-    CONCAT_WS(' ', IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address),IF(route_list_addresses.status = 'Transfered',CONCAT_WS('','(Перенесен в МЛ №',TransferedAddresses.route_list_id,')'),'')) AS Address,
+    CONCAT_WS(' ', IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address),
+          IF(route_list_addresses.status = 'Transfered',CONCAT_WS('','(Перенесен в МЛ №',TransferedAddresses.route_list_id,')'),'')) AS Address,
     counterparty.need_new_bottles AS NeedNewBottles,
     CONCAT_WS(
             ' ',
