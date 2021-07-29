@@ -4,9 +4,11 @@ using SmsPaymentService;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Models;
 
 namespace VodovozBusinessTests.SmsPaymentService
 {
@@ -55,16 +57,19 @@ namespace VodovozBusinessTests.SmsPaymentService
 
         [Test(Description = "Сумма распределённых по номенклатурам цен*количество равна сумме заказа")]
         [TestCaseSource(nameof(OrdersTestSource))]
-        public void SmsPaymentItemsPriceSum_EqualOrderSum(Order order)
+        public void SmsPaymentItemsPriceSumEqualOrderSum(Order order)
         {
             // arrange
-
-            SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory();
+            var organizationProvidertMock = Substitute.For<IOrganizationProvider>();
             var smsPaymentMock = Substitute.For<SmsPayment>();
-
+            var uowMock = Substitute.For<IUnitOfWork>();
+            var paymentFromMock = Substitute.For<PaymentFrom>();
+            
+            SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory(organizationProvidertMock);
+            
             // act
 
-            var smsPaymentDTO = smsPaymentDTOFactory.CreateSmsPaymentDTO(smsPaymentMock, order);
+            var smsPaymentDTO = smsPaymentDTOFactory.CreateSmsPaymentDTO(uowMock, smsPaymentMock, order, paymentFromMock);
             var result = smsPaymentDTO.Items.Sum(x => x.Price * x.Quantity);
 
             // assert
@@ -73,13 +78,16 @@ namespace VodovozBusinessTests.SmsPaymentService
         }
 
         [Test(Description = "Распределение цен по номенклатурам (число без дроби)")]
-        public void SmsPaymentPriceForNomenclatureDistributions_WithoutFraction()
+        public void SmsPaymentPriceForNomenclatureDistributionsWithoutFraction()
         {
             // arrange
-
-            SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory();
+            var organizationProvidertMock = Substitute.For<IOrganizationProvider>();
             var smsPaymentMock = Substitute.For<SmsPayment>();
             var orderMock = Substitute.For<Order>();
+            var uowMock = Substitute.For<IUnitOfWork>();
+            var paymentFromMock = Substitute.For<PaymentFrom>();
+            
+            SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory(organizationProvidertMock);
             orderMock.OrderItems = new List<OrderItem>
             {
                 new OrderItem {Count = 3, Price = 300, Nomenclature = new Nomenclature()},
@@ -87,7 +95,7 @@ namespace VodovozBusinessTests.SmsPaymentService
 
             // act
 
-            var smsPaymentDTO = smsPaymentDTOFactory.CreateSmsPaymentDTO(smsPaymentMock, orderMock);
+            var smsPaymentDTO = smsPaymentDTOFactory.CreateSmsPaymentDTO(uowMock, smsPaymentMock, orderMock, paymentFromMock);
 
             // assert
 
@@ -98,13 +106,17 @@ namespace VodovozBusinessTests.SmsPaymentService
         }
 
         [Test(Description = "Распределение цен по номенклатурам (число с округляемой к меньшему периодической дробью 133.33333...)")]
-        public void SmsPaymentPriceForNomenclatureDistributions_WithCirculatingFraction_Down()
+        public void SmsPaymentPriceForNomenclatureDistributionsWithCirculatingFractionDown()
         {
             // arrange
-
-            SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory();
+            var organizationProvidertMock = Substitute.For<IOrganizationProvider>();
             var smsPaymentMock = Substitute.For<SmsPayment>();
             var orderMock = Substitute.For<Order>();
+            var uowMock = Substitute.For<IUnitOfWork>();
+            var paymentFromMock = Substitute.For<PaymentFrom>();
+            
+            SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory(organizationProvidertMock);
+            
             orderMock.OrderItems = new List<OrderItem>
             {
                 new OrderItem {Count = 3, Price = 150, DiscountMoney = 50, Nomenclature = new Nomenclature()}
@@ -112,7 +124,7 @@ namespace VodovozBusinessTests.SmsPaymentService
 
             // act
 
-            var smsPaymentDTO = smsPaymentDTOFactory.CreateSmsPaymentDTO(smsPaymentMock, orderMock);
+            var smsPaymentDTO = smsPaymentDTOFactory.CreateSmsPaymentDTO(uowMock, smsPaymentMock, orderMock, paymentFromMock);
 
             // assert
 
@@ -126,13 +138,17 @@ namespace VodovozBusinessTests.SmsPaymentService
         }
 
         [Test(Description = "Распределение цен по номенклатурам (число с округляемой к большему периодической дробью 142.857142857142...)")]
-        public void SmsPaymentPriceForNomenclatureDistributions_WithCirculatingFraction_Up()
+        public void SmsPaymentPriceForNomenclatureDistributionsWithCirculatingFractionUp()
         {
             // arrange
-
-            SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory();
+            var organizationProvidertMock = Substitute.For<IOrganizationProvider>();
             var smsPaymentMock = Substitute.For<SmsPayment>();
             var orderMock = Substitute.For<Order>();
+            var uowMock = Substitute.For<IUnitOfWork>();
+            var paymentFromMock = Substitute.For<PaymentFrom>();
+            
+            SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory(organizationProvidertMock);
+            
             orderMock.OrderItems = new List<OrderItem>
             {
                 new OrderItem {Count = 7, Price = 200, DiscountMoney = 400, Nomenclature = new Nomenclature()},
@@ -140,7 +156,7 @@ namespace VodovozBusinessTests.SmsPaymentService
 
             // act
 
-            var smsPaymentDTO = smsPaymentDTOFactory.CreateSmsPaymentDTO(smsPaymentMock, orderMock);
+            var smsPaymentDTO = smsPaymentDTOFactory.CreateSmsPaymentDTO(uowMock, smsPaymentMock, orderMock, paymentFromMock);
 
             // assert
 
@@ -154,13 +170,17 @@ namespace VodovozBusinessTests.SmsPaymentService
         }
 
         [Test(Description = "Распределение цен по номенклатурам (комбинация разных вариантов )")]
-        public void SmsPaymentPriceForNomenclatureDistributions_WithCirculatingFraction_Combine()
+        public void SmsPaymentPriceForNomenclatureDistributionsWithCirculatingFractionCombine()
         {
 	        // arrange
-
-	        SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory();
+	        var organizationProvidertMock = Substitute.For<IOrganizationProvider>();
 	        var smsPaymentMock = Substitute.For<SmsPayment>();
 	        var orderMock = Substitute.For<Order>();
+	        var uowMock = Substitute.For<IUnitOfWork>();
+	        var paymentFromMock = Substitute.For<PaymentFrom>();
+	        
+	        SmsPaymentDTOFactory smsPaymentDTOFactory = new SmsPaymentDTOFactory(organizationProvidertMock);
+	        
 	        orderMock.OrderItems = new List<OrderItem>
 	        {
 		        new OrderItem {Count = 3, Price = 150, DiscountMoney = 50, Nomenclature = new Nomenclature()},
@@ -170,7 +190,7 @@ namespace VodovozBusinessTests.SmsPaymentService
 
 	        // act
 
-	        var smsPaymentDTO = smsPaymentDTOFactory.CreateSmsPaymentDTO(smsPaymentMock, orderMock);
+	        var smsPaymentDTO = smsPaymentDTOFactory.CreateSmsPaymentDTO(uowMock, smsPaymentMock, orderMock, paymentFromMock);
 
 	        // assert
 
