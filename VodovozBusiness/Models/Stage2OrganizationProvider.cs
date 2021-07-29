@@ -35,26 +35,13 @@ namespace Vodovoz.Models
 
 		public Organization GetOrganization(IUnitOfWork uow, Order order)
 		{
-			if(uow == null)
-			{
-				throw new ArgumentNullException(nameof(uow));
-			}
 			if(order == null)
 			{
 				throw new ArgumentNullException(nameof(order));
 			}
 
-			if(IsOnlineStoreOrder(order))
-			{
-				return GetOrganizationForOnlineStore(uow);
-			}
-
-			if(order.SelfDelivery || order.DeliveryPoint == null)
-			{
-				return GetOrganizationForSelfDelivery(uow, order.PaymentType, order.PaymentByCardFrom);
-			}
-
-			return GetOrganizationForOtherOptions(uow, order.PaymentType, order.PaymentByCardFrom,
+			var isSelfDelivery = order.SelfDelivery || order.DeliveryPoint == null;
+			return GetOrganization(uow, order.PaymentType, isSelfDelivery, order.OrderItems, order.PaymentByCardFrom,
 				order.DeliveryPoint?.District?.GeographicGroup);
 		}
 
@@ -66,7 +53,7 @@ namespace Vodovoz.Models
 				throw new ArgumentNullException(nameof(uow));
 			}
 
-			if(IsOnlineStoreOrder(orderItems))
+			if(HasAnyOnlineStoreNomenclature(orderItems))
 			{
 				return GetOrganizationForOnlineStore(uow);
 			}
@@ -107,12 +94,7 @@ namespace Vodovoz.Models
 			return uow.GetById<Organization>(organizationId);
 		}
 
-		private bool IsOnlineStoreOrder(Order order)
-		{
-			return IsOnlineStoreOrder(order?.OrderItems);
-		}
-
-		private bool IsOnlineStoreOrder(IEnumerable<OrderItem> orderItems)
+		private bool HasAnyOnlineStoreNomenclature(IEnumerable<OrderItem> orderItems)
 		{
 			return orderItems != null
 				&& orderItems.Any(x =>

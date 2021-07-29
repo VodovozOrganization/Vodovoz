@@ -57,7 +57,7 @@ namespace VodovozBusinessTests.SmsPaymentService
 
         [Test(Description = "Сумма распределённых по номенклатурам цен*количество равна сумме заказа")]
         [TestCaseSource(nameof(OrdersTestSource))]
-        public void SmsPaymentItemsPriceSum_EqualOrderSum(Order order)
+        public void SmsPaymentItemsPriceSumEqualOrderSum(Order order)
         {
             // arrange
             var organizationProvidertMock = Substitute.For<IOrganizationProvider>();
@@ -78,7 +78,7 @@ namespace VodovozBusinessTests.SmsPaymentService
         }
 
         [Test(Description = "Распределение цен по номенклатурам (число без дроби)")]
-        public void SmsPaymentPriceForNomenclatureDistributions_WithoutFraction()
+        public void SmsPaymentPriceForNomenclatureDistributionsWithoutFraction()
         {
             // arrange
             var organizationProvidertMock = Substitute.For<IOrganizationProvider>();
@@ -106,7 +106,7 @@ namespace VodovozBusinessTests.SmsPaymentService
         }
 
         [Test(Description = "Распределение цен по номенклатурам (число с округляемой к меньшему периодической дробью 133.33333...)")]
-        public void SmsPaymentPriceForNomenclatureDistributions_WithCirculatingFraction_Down()
+        public void SmsPaymentPriceForNomenclatureDistributionsWithCirculatingFractionDown()
         {
             // arrange
             var organizationProvidertMock = Substitute.For<IOrganizationProvider>();
@@ -138,7 +138,7 @@ namespace VodovozBusinessTests.SmsPaymentService
         }
 
         [Test(Description = "Распределение цен по номенклатурам (число с округляемой к большему периодической дробью 142.857142857142...)")]
-        public void SmsPaymentPriceForNomenclatureDistributions_WithCirculatingFraction_Up()
+        public void SmsPaymentPriceForNomenclatureDistributionsWithCirculatingFractionUp()
         {
             // arrange
             var organizationProvidertMock = Substitute.For<IOrganizationProvider>();
@@ -170,7 +170,7 @@ namespace VodovozBusinessTests.SmsPaymentService
         }
 
         [Test(Description = "Распределение цен по номенклатурам (комбинация разных вариантов )")]
-        public void SmsPaymentPriceForNomenclatureDistributions_WithCirculatingFraction_Combine()
+        public void SmsPaymentPriceForNomenclatureDistributionsWithCirculatingFractionCombine()
         {
 	        // arrange
 	        var organizationProvidertMock = Substitute.For<IOrganizationProvider>();

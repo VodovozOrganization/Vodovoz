@@ -181,7 +181,7 @@ namespace SmsPaymentService
 
                     switch (status) {
                         case SmsPaymentStatus.Paid:
-                            payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(_orderParametersProvider.PaymentByCardFromSmsId));
+                            payment.SetPaid(uow, paidDate == default(DateTime) ? DateTime.Now : paidDate, uow.GetById<PaymentFrom>(_orderParametersProvider.PaymentByCardFromSmsId));
                             break;
                         case SmsPaymentStatus.Cancelled:
                             payment.SetCancelled();
