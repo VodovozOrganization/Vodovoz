@@ -11,6 +11,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ExportTo1c.Catalogs;
 using Vodovoz.HibernateMapping;
 using Vodovoz.Repositories.Orders;

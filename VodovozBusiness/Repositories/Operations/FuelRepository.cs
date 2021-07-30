@@ -14,6 +14,7 @@ namespace Vodovoz.Repository.Operations
 		{
 			FuelOperation operationAlias = null;
 			FuelQueryResult result = null;
+			
 			var queryResult = UoW.Session.QueryOver<FuelOperation>(() => operationAlias)
 				//.Where(() => operationAlias.Fuel.Id == fuel.Id) - ибо хотят для чего то литры бензина суммировать с литрами дизеля о_О
 				;
@@ -35,8 +36,8 @@ namespace Vodovoz.Repository.Operations
 
 		class FuelQueryResult
 		{
-			public decimal Gived{get;set;}
-			public decimal Outlayed{get;set;}
+			public decimal Gived { get; set; }
+			public decimal Outlayed { get; set; }
 			public decimal FuelBalance => Gived - Outlayed;
 		}
 	}

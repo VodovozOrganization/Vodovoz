@@ -283,6 +283,7 @@ namespace Vodovoz.Repositories
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
 
 			ItemInStock inStock = null;
+			
 			var stocklist = UoW.Session.QueryOver<Equipment>(() => equipmentAlias)
 				.Where(() => equipmentAlias.Id.IsIn(equipmentIds))
 				.SelectList(list => list
@@ -290,9 +291,13 @@ namespace Vodovoz.Repositories
 				   .SelectSubQuery(subqueryAdd).WithAlias(() => inStock.Added)
 				   .SelectSubQuery(subqueryRemove).WithAlias(() => inStock.Removed)
 				).TransformUsing(Transformers.AliasToBean<ItemInStock>()).List<ItemInStock>();
+			
 			var result = new Dictionary<int, decimal>();
+			
 			foreach(var nomenclatureInStock in stocklist)
+			{
 				result.Add(nomenclatureInStock.Id, nomenclatureInStock.Amount);
+			}
 
 			return result;
 		}

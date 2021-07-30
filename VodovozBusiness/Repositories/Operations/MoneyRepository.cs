@@ -36,20 +36,8 @@ namespace Vodovoz.Repository.Operations
 			public decimal Charged{ get; set; }
 			public decimal Payed{ get; set; }
 			public decimal Deposit{ get; set; }
-			public decimal Debt{
-				get{
-					return Charged-(Payed - Deposit);
-				}
-			}
-
-			public decimal Balance{
-				get{
-					return Payed - Deposit - Charged;
-				}
-			}
+			public decimal Debt => Charged - (Payed - Deposit);
+			public decimal Balance => Payed - Deposit - Charged;
 		}
-
 	}
-
-
 }

@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ExportTo1c;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Orders;

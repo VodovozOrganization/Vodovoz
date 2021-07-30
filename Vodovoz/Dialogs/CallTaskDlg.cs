@@ -17,16 +17,17 @@ using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Models;
-using Vodovoz.Repositories.Client;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using QS.Project.Services;
 using QS.Project.Journal;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.JournalFilters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels;
+using CounterpartyContractFactory = Vodovoz.Repositories.Client.CounterpartyContractFactory;
 
 namespace Vodovoz.Dialogs
 {

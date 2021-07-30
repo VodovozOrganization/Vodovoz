@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GMap.NET;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Models;
-using Vodovoz.Repository.Client;
 using Vodovoz.Tools;
-using Vodovoz.Tools.CallTasks;
 
-namespace Vodovoz.EntityRepositories
+namespace Vodovoz.EntityRepositories.Counterparties
 {
 	public class CounterpartyContractRepository : ICounterpartyContractRepository
 	{

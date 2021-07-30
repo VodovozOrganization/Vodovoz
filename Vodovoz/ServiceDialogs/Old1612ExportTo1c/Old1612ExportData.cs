@@ -10,6 +10,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Old1612ExportTo1c.Catalogs;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repositories;

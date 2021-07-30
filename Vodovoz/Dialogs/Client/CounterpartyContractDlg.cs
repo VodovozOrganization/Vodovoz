@@ -11,6 +11,7 @@ using Vodovoz.Repository.Client;
 using QS.Project.Services;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Models;
 
 namespace Vodovoz

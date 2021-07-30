@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Repositories.Orders
+﻿namespace Vodovoz.EntityRepositories.Orders
 {
 	public enum Export1cMode
 	{

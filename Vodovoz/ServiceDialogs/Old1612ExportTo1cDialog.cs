@@ -5,6 +5,7 @@ using System.Xml;
 using Gtk;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Orders;
 
