@@ -10,6 +10,8 @@ namespace Vodovoz.Services
         
         int PaymentByCardFromOnlineStoreId { get; }
         
+        int PaymentFromTerminalId { get; }
+        
         int OldInternalOnlineStoreId { get; }
         
         int[] PaymentsByCardFromNotToSendSalesReceipts { get; }

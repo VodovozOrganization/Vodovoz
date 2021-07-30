@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using QS.DomainModel.UoW;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.Tools.Orders
@@ -109,14 +112,7 @@ namespace Vodovoz.Tools.Orders
 			this.DefaultDocumentType = Order.DocumentType ?? Order.Client.DefaultDocumentType;
 			this.IsDocTypeTORG12 = DefaultDocumentType.HasValue && DefaultDocumentType == Domain.Client.DefaultDocumentType.torg12;
 
-			if (!Order.ObservableOrderEquipments.Any() ||
-			    (Order.ObservableOrderEquipments.Count == 1 && Order.ObservableOrderEquipments.All(x =>
-				    x.Nomenclature.Id == new NomenclatureParametersProvider().VodovozLeafletId))) {
-				HasOrderEquipment = false;
-			}
-			else {
-				HasOrderEquipment = true;
-			}
+			HasOrderEquipment = HasOrderEquipments(UnitOfWorkFactory.CreateWithoutRoot());
 
 			if(!Order.ObservableOrderItems.Any() || 
 			   (Order.ObservableOrderItems.Count == 1 && Order.ObservableOrderItems.Any(x => 
@@ -173,6 +169,33 @@ namespace Vodovoz.Tools.Orders
 	            && x.Nomenclature.IsDisposableTare
 	            && x.Nomenclature.TareVolume == TareVolume.Vol500ml)
 				.Sum(x => x.Count);
+		}
+
+		private bool HasOrderEquipments(IUnitOfWork uow)
+		{
+			var allActiveFlyersNomenclaturesIds = new FlyerRepository().GetAllActiveFlyersNomenclaturesIds(uow);
+			
+			if (!Order.ObservableOrderEquipments.Any() || OnlyFlyersInEquipments(allActiveFlyersNomenclaturesIds)) 
+			{
+				return false;
+			}
+			
+			return true;
+		}
+
+		private bool OnlyFlyersInEquipments(IList<int> allActiveFlyersNomenclaturesIds)
+		{
+			foreach(OrderEquipment equipment in Order.ObservableOrderEquipments)
+			{
+				if(allActiveFlyersNomenclaturesIds.Contains(equipment.Nomenclature.Id))
+				{
+					continue;
+				}
+
+				return false;
+			}
+
+			return true;
 		}
 
 		public bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)

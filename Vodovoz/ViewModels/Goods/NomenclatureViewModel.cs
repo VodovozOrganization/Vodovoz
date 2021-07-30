@@ -152,13 +152,13 @@ namespace Vodovoz.ViewModels.Goods
 			PopupMenuOn = null;
 		}
 		
-		public void OnEnumTypeChanged(object sender, EventArgs e) {
+		public void OnEnumKindChanged(object sender, EventArgs e) {
 			if(Entity.Category != NomenclatureCategory.deposit) {
 				Entity.TypeOfDepositCategory = null;
 			}
 		}
 		
-		public void OnEnumTypeChangedByUser(object sender, EventArgs e) {
+		public void OnEnumKindChangedByUser(object sender, EventArgs e) {
 			if(Entity.Id == 0 && Nomenclature.GetCategoriesWithSaleCategory().Contains(Entity.Category))
 				Entity.SaleCategory = SaleCategory.notForSale;
 

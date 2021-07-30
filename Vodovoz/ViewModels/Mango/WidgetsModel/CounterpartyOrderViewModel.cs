@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
@@ -30,6 +31,7 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -46,6 +48,7 @@ namespace Vodovoz.ViewModels.Mango
 		public Counterparty Client { get; private set; }
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private MangoManager MangoManager { get; set; }
+		private readonly IOrderParametersProvider _orderParametersProvider;
 
 		private readonly RouteListRepository routedListRepository;
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
@@ -67,6 +70,7 @@ namespace Vodovoz.ViewModels.Mango
 			ITdiCompatibilityNavigation tdinavigation,
 			RouteListRepository routedListRepository,
 			MangoManager mangoManager,
+			IOrderParametersProvider orderParametersProvider,
 			int count = 5)
 		: base()
 		{
@@ -74,6 +78,7 @@ namespace Vodovoz.ViewModels.Mango
 			this.tdiNavigation = tdinavigation;
 			this.routedListRepository = routedListRepository;
 			this.MangoManager = mangoManager;
+			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			OrderSingletonRepository orderRepos = OrderSingletonRepository.GetInstance();
 			LatestOrder = orderRepos.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
@@ -162,14 +167,17 @@ namespace Vodovoz.ViewModels.Mango
 							ServicesConfig.CommonServices.UserService,
 							SingletonErrorReporter.Instance);
 
-			if(order.OrderStatus == OrderStatus.InTravelList) {
+			if(order.OrderStatus == OrderStatus.InTravelList)
+			{
 
-				var valid = new QSValidator<Order>(order,
-				new Dictionary<object, object> {
-				{ "NewStatus", OrderStatus.Canceled },
+				ValidationContext validationContext = new ValidationContext(order, null, new Dictionary<object, object> {
+					{ "NewStatus", OrderStatus.Canceled },
 				});
-				if(valid.RunDlgIfNotValid(null))
+				validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), _orderParametersProvider);
+				if(!ServicesConfig.ValidationService.Validate(order, validationContext))
+				{
 					return;
+				}
 
 				ITdiPage page = tdiNavigation.OpenTdiTab<UndeliveryOnOrderCloseDlg, Order, IUnitOfWork>(null, order, UoW);
 				page.PageClosed += (sender, e) => {
