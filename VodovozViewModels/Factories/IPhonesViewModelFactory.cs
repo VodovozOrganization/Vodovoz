@@ -1,5 +1,5 @@
 ﻿using QS.DomainModel.UoW;
-using Vodovoz.ViewModels.ViewModels;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz.Factories
 {

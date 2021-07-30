@@ -55,6 +55,11 @@ namespace SmsPaymentService
         [DataMember] public PersonType RecepientType { get; set; }
         
         /// <summary>
+        /// Код организации, от имени которой отправится ссылка на оплату
+        /// </summary>
+        [DataMember] public int OrganizationId { get; set; }
+        
+        /// <summary>
         /// Товары
         /// </summary>
         [DataMember] public IList<SmsPaymentItemDTO> Items { get; set; }

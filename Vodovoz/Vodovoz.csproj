@@ -440,7 +440,6 @@
     <Compile Include="gtk-gui\Vodovoz.PricesView.cs" />
     <Compile Include="Dialogs\PaidRentPackageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentPackageDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.DeliveryPointView.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
@@ -517,7 +516,7 @@
     <Compile Include="Views\Employees\PremiumRaskatGAZelleView.cs" />
     <Compile Include="Views\Employees\PremiumView.cs" />
     <Compile Include="Views\Orders\NomenclaturePlanView.cs" />
-    <Compile Include="ViewWidgets\DeliveryPointView.cs" />
+    <Compile Include="ViewWidgets\DeliveryPointsManagementView.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
     <Compile Include="ViewWidgets\ContactsView.cs" />
@@ -647,7 +646,6 @@
     <Compile Include="SidePanel\InfoViews\CounterpartyPanelView.cs" />
     <Compile Include="SidePanel\InfoViews\DeliveryPointPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\ICounterpartyInfoProvider.cs" />
-    <Compile Include="SidePanel\InfoProviders\IDeliveryPointInfoProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
     <Compile Include="ReportsParameters\Revision.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
@@ -974,7 +972,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.UndeliveredOrderView.cs" />
     <Compile Include="Dialogs\UndeliveryOnOrderCloseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveryOnOrderCloseDlg.cs" />
-    <Compile Include="SidePanel\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
     <Compile Include="SidePanel\InfoViews\UndeliveredOrdersPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.UndeliveredOrdersPanelView.cs" />
     <Compile Include="Dialogs\UndeliveriesWithCommentsPrintDlg.cs" />
@@ -1349,8 +1346,6 @@
     <Compile Include="JournalViewModels\OrderForMovDocJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\OrderForMovDocFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrderForMovDocFilterView.cs" />
-    <Compile Include="Filters\ViewModels\DeliveryPointJournalFilterViewModel.cs" />
-    <Compile Include="JournalViewModels\DeliveryPointJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\DeliveryPointJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView.cs" />
     <Compile Include="Infrastructure\DatabaseInfo.cs" />
@@ -1650,6 +1645,9 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintObjectView.cs" />
     <Compile Include="Filters\GtkViews\ComplaintKindJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintKindJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.DeliveryPointsManagementView.cs" />
+    <Compile Include="Views\Client\DeliveryPointView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.DeliveryPointView.cs" />
     <Compile Include="Views\Flyers\FlyerView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Flyers.FlyerView.cs" />
     <Compile Include="Views\Employees\TerminalManagementView.cs" />

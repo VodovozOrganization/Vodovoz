@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using FluentNHibernate.Data;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -8,6 +9,7 @@ using QS.Tdi;
 using QS.Validation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
@@ -139,8 +141,19 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			Save();
+			if(Save() && UndeliveredOrder.NewOrder != null
+			          && UndeliveredOrder.OrderTransferType == TransferType.AutoTransferNotApproved 
+			          && UndeliveredOrder.NewOrder.OrderStatus != OrderStatus.Canceled)
+			{
+				ProcessSmsNotification();
+			}
 			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(UndeliveredOrder));
+		}
+	
+		private void ProcessSmsNotification()
+		{
+			SmsNotifier smsNotifier = new SmsNotifier(new BaseParametersProvider());
+			smsNotifier.NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder);
 		}
 
 		protected void OnButtonCancelClicked(object sender, EventArgs e)
