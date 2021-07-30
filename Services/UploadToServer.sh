@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 echo "Какие службы необходимо обновить?"
 echo "1) Driver"
@@ -86,8 +86,8 @@ function CopyFilesPublished {
 }
 
 function PublishProject {
-    dotnet build "Application/$1" --configuration $buildFolderName
-    dotnet publish "Application/$1" --configuration $buildFolderName
+    dotnet build "WebApi/$1" --configuration $buildFolderName
+    dotnet publish "WebApi/$1" --configuration $buildFolderName
 }
 
 function UpdateDriverService {
