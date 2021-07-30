@@ -391,7 +391,8 @@ namespace Vodovoz
 			builder.RegisterType<DeliveryPointJournalFactory>().As<IDeliveryPointJournalFactory>();
 			builder.RegisterType<EmployeeJournalFactory>().As<IEmployeeJournalFactory>();
 			builder.RegisterType<CounterpartyJournalFactory>().As<ICounterpartyJournalFactory>();
-			builder.RegisterType<SubdivisionJournalFactory>().As<ISubdivisionJournalFactory>();	
+			builder.RegisterType<SubdivisionJournalFactory>().As<ISubdivisionJournalFactory>();
+			builder.RegisterType<SalesPlanJournalFactory>().As<ISalesPlanJournalFactory>();
 			#endregion
 			#region Интерфейсы репозиториев
 			builder.RegisterType<SubdivisionRepository>().As<ISubdivisionRepository>();
