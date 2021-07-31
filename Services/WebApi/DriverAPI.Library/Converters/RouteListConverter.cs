@@ -33,7 +33,7 @@ namespace DriverAPI.Library.Converters
 		{
 			var result = new RouteListDto()
 			{
-				ForwarderFullName = routeList.Forwarder.FullName,
+				ForwarderFullName = routeList.Forwarder?.FullName ?? "Нет",
 				CompletionStatus = routeListCompletionStatusConverter.convertToAPIRouteListCompletionStatus(routeList.Status)
 			};
 
