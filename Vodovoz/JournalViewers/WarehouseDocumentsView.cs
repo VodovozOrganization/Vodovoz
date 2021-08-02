@@ -93,7 +93,8 @@ namespace Vodovoz
 								UnitOfWorkFactory.GetDefaultFactory,
 								new WarehousePermissionService(),
 								VodovozGtkServicesConfig.EmployeeService,
-								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+								new EntityExtendedPermissionValidator(
+									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
 								new NomenclatureSelectorFactory(),
 								new OrderSelectorFactory(),
 								new WarehouseRepository(),
@@ -114,7 +115,8 @@ namespace Vodovoz
 								UnitOfWorkFactory.GetDefaultFactory,
 								new WarehousePermissionService(),
 								VodovozGtkServicesConfig.EmployeeService,
-								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+								new EntityExtendedPermissionValidator(
+									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
 								new NomenclatureSelectorFactory(),
 								new OrderSelectorFactory(),
 								new WarehouseRepository(),
@@ -165,7 +167,8 @@ namespace Vodovoz
 									UnitOfWorkFactory.GetDefaultFactory,
 									new WarehousePermissionService(),
 									VodovozGtkServicesConfig.EmployeeService,
-									new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+									new EntityExtendedPermissionValidator(
+										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
 									new NomenclatureSelectorFactory(),
 									new OrderSelectorFactory(),
 									new WarehouseRepository(),
@@ -192,7 +195,8 @@ namespace Vodovoz
 									UnitOfWorkFactory.GetDefaultFactory,
 									new WarehousePermissionService(),
 									VodovozGtkServicesConfig.EmployeeService,
-									new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+									new EntityExtendedPermissionValidator(
+										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
 									new NomenclatureSelectorFactory(),
 									new OrderSelectorFactory(),
 									new WarehouseRepository(),

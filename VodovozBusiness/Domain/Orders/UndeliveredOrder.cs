@@ -11,6 +11,7 @@ using QS.HistoryLog;
 using QS.Utilities;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
@@ -279,10 +280,11 @@ namespace Vodovoz.Domain.Orders
 			return sb.ToString();
 		}
 
+		//TODO пробросить зависимостью EmployeeRepository
 		public virtual void Close()
 		{
 			SetUndeliveryStatus(UndeliveryStatus.Closed);
-			LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			LastEditor = new EmployeeRepository().GetEmployeeForCurrentUser(UoW);
 			LastEditedTime = DateTime.Now;
 		}
 
@@ -323,7 +325,7 @@ namespace Vodovoz.Domain.Orders
 				Comment = text,
 				CommentDate = DateTime.Now,
 				CommentedField = field,
-				Employee = EmployeeRepository.GetEmployeeForCurrentUser(uow),
+				Employee = new EmployeeRepository().GetEmployeeForCurrentUser(uow),
 				UndeliveredOrder = this
 			};
 

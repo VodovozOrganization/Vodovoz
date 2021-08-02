@@ -20,6 +20,7 @@ using QSProjectsLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using Vodovoz.Additions;
@@ -54,11 +55,12 @@ namespace Vodovoz
 	[Obsolete("Используйте EmployeeViewModel")]
 	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>, INotifyPropertyChanged
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+
 		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
 				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
 
-		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
 		private Employee _employeeForCurrentUser;
 
 		public EmployeeDlg()
@@ -157,7 +159,7 @@ namespace Vodovoz
 				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
 			}
 
-			_employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			canActivateDriverDistrictPrioritySetPermission = ServicesConfig.CommonServices
 				.CurrentPermissionService.ValidatePresetPermission("can_activate_driver_district_priority_set");
@@ -341,12 +343,12 @@ namespace Vodovoz
 				this, 
 				UoW, 
 				new HierarchicalPresetPermissionValidator(
-					EmployeeSingletonRepository.GetInstance(),
+					_employeeRepository,
 					new PermissionRepository()),
 				UserSingletonRepository.GetInstance(),
 				ServicesConfig.CommonServices,
 				NavigationManagerProvider.NavigationManager,
-				EmployeeSingletonRepository.GetInstance()
+				_employeeRepository
 			);
 
 			logger.Info("Ok");
@@ -498,7 +500,7 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new BaseParametersProvider(),
-				EmployeeSingletonRepository.GetInstance()
+				_employeeRepository
 			);
 
 			driverDistrictPrioritySetViewModel.EntityAccepted += (o, eventArgs) => {
@@ -523,7 +525,7 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new BaseParametersProvider(),
-				EmployeeSingletonRepository.GetInstance()
+				_employeeRepository
 			);
 
 			driverDistrictPrioritySetViewModel.EntityAccepted += (o, eventArgs) => {
@@ -561,7 +563,7 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new BaseParametersProvider(),
-				EmployeeSingletonRepository.GetInstance()
+				_employeeRepository
 			);
 
 			driverDistrictPrioritySetViewModel.EntityAccepted += (o, eventArgs) => {
@@ -688,7 +690,7 @@ namespace Vodovoz
 				UoW,
 				ServicesConfig.CommonServices,
 				new BaseParametersProvider(),
-				EmployeeSingletonRepository.GetInstance()
+				_employeeRepository
 			);
 			TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
 		}
@@ -705,7 +707,7 @@ namespace Vodovoz
 				UoW,
 				ServicesConfig.CommonServices,
 				new BaseParametersProvider(),
-				EmployeeSingletonRepository.GetInstance()
+				_employeeRepository
 			);
 			driverWorkScheduleSetViewModel.EntityAccepted += (o, eventArgs) => {
 				Entity.AddActiveDriverWorkScheduleSet(newDriverWorkScheduleSet);
@@ -807,18 +809,20 @@ namespace Vodovoz
 			if(string.IsNullOrWhiteSpace(Entity.AndroidLogin))
 				Entity.AndroidLogin = null;
 
-			var valid = new QSValidator<Employee>(UoWGeneric.Root,
-				Entity.GetValidationContextItems(subdivisionService));
+			//TODO проверить корректность работы
+			var validationContext = new ValidationContext(Entity);
+			
+			validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), subdivisionService);
+			validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
 
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
 			{
 				return false;
 			}
 
 			if (Entity.User != null) {
 				Entity.User.Deactivated = Entity.Status == EmployeeStatus.IsFired;
-				var associatedEmployees = EmployeeSingletonRepository.GetInstance()
-					.GetEmployeesForUser(UoW, Entity.User.Id);
+				var associatedEmployees = _employeeRepository.GetEmployeesForUser(UoW, Entity.User.Id);
 				if(associatedEmployees.Any(e => e.Id != Entity.Id)) {
 					string mes = string.Format("Пользователь {0} уже связан с сотрудником {1}, " +
 						"при привязке этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",

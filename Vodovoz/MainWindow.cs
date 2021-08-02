@@ -955,7 +955,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.SalesReport>(),
-            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport(EmployeeSingletonRepository.GetInstance()))
+            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport(new EmployeeRepository()))
         );
     }
 
@@ -1896,9 +1896,11 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionProductionRequestReportActivated(object sender, EventArgs e)
     {
+	    var employeeRepository = new EmployeeRepository();
+	    
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<ProductionRequestReport>(),
-            () => new QSReport.ReportViewDlg(new ProductionRequestReport())
+            () => new QSReport.ReportViewDlg(new ProductionRequestReport(employeeRepository))
         );
     }
 
@@ -1942,7 +1944,7 @@ public partial class MainWindow : Gtk.Window
     {
         var cashRequestFilterViewModel = new CashRequestJournalFilterViewModel(new EmployeeJournalFactory());
         IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории расхода.csv");
-        IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
+        IEmployeeRepository employeeRepository = new EmployeeRepository();
         CashRepository cashRepository = new CashRepository();
         ConsoleInteractiveService consoleInteractiveService = new ConsoleInteractiveService();
         

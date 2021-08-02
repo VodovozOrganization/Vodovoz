@@ -297,7 +297,7 @@ namespace Vodovoz.ViewModel
 					CallTaskSingletonFactory.GetInstance(),
 					new CallTaskRepository(),
 					OrderSingletonRepository.GetInstance(),
-					EmployeeSingletonRepository.GetInstance(),
+					new EmployeeRepository(),
 					new BaseParametersProvider(),
 					ServicesConfig.CommonServices.UserService,
 					SingletonErrorReporter.Instance);
@@ -595,7 +595,7 @@ namespace Vodovoz.ViewModel
 														RouteList, 
 														ServicesConfig.CommonServices, 
 														new SubdivisionRepository(), 
-														EmployeeSingletonRepository.GetInstance(), 
+														new EmployeeRepository(), 
 														new FuelRepository(),
 														NavigationManagerProvider.NavigationManager
 									)

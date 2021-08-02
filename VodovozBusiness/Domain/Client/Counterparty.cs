@@ -20,6 +20,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Retail;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
@@ -791,19 +792,21 @@ namespace Vodovoz.Domain.Client
 
         #region CloseDelivery
 
+        //TODO пробросить зависимостью EmployeeRepository
         public virtual void AddCloseDeliveryComment(string comment, IUnitOfWork UoW)
 		{
-			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			var employee = new EmployeeRepository().GetEmployeeForCurrentUser(UoW);
 			CloseDeliveryComment = employee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + comment;
 		}
 
+        //TODO пробросить зависимостью EmployeeRepository
 		protected virtual bool CloseDelivery(IUnitOfWork UoW)
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
 				return false;
 			IsDeliveriesClosed = true;
 			CloseDeliveryDate = DateTime.Now;
-			CloseDeliveryPerson = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			CloseDeliveryPerson = new EmployeeRepository().GetEmployeeForCurrentUser(UoW);
 			return true;
 		}
 

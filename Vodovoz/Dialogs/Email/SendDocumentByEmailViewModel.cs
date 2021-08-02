@@ -19,6 +19,7 @@ using QS.Dialog;
 using QS.Project.Services;
 using QS.Services;
 using RdlEngine;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Orders;
 
@@ -51,8 +52,8 @@ namespace Vodovoz.Dialogs.Email
 		}
 
 		private readonly IEmailRepository emailRepository;
-		private readonly IEmployeeRepository employeeRepository;
 		private readonly IInteractiveService interactiveService;
+		private readonly Employee _currentEmployee;
 		private IDocument Document { get; set; }
 
 		public GenericObservableList<StoredEmail> StoredEmails { get; set; }
@@ -61,10 +62,14 @@ namespace Vodovoz.Dialogs.Email
 
 		public DelegateCommand RefreshEmailListCommand { get; private set; }
 
-		public SendDocumentByEmailViewModel(IEmailRepository emailRepository, IEmployeeRepository employeeRepository, IInteractiveService interactiveService, IUnitOfWork uow = null)
+		public SendDocumentByEmailViewModel(
+			IEmailRepository emailRepository,
+			Employee currentEmployee,
+			IInteractiveService interactiveService,
+			IUnitOfWork uow = null)
 		{
 			this.emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_currentEmployee = currentEmployee;
             this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
             StoredEmails = new GenericObservableList<StoredEmail>();
 			UoW = uow;
@@ -257,12 +262,9 @@ namespace Vodovoz.Dialogs.Email
 				interactiveService.ShowMessage(ImportanceLevel.Warning,"Для данного типа документа не реализовано формирование письма");
 				return;
 			}
-
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				var employee = employeeRepository.GetEmployeeForCurrentUser(uow);
-				email.AuthorId = employee != null ? employee.Id : 0;
-				email.ManualSending = true;
-			}
+			
+			email.AuthorId = _currentEmployee?.Id ?? 0;
+			email.ManualSending = true;
 
 			IEmailService service = EmailServiceSetting.GetEmailService();
 			if(service == null) {

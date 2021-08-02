@@ -52,7 +52,7 @@ namespace Vodovoz.TempAdapters
 			_subdivisionService = SubdivisionParametersProvider.Instance;
 			_emailServiceSettingAdapter = new EmailServiceSettingAdapter();
 			_wageCalculationRepository = WageSingletonRepository.GetInstance();
-			_employeeRepository = EmployeeSingletonRepository.GetInstance();
+			_employeeRepository = new EmployeeRepository();
 			_validationContextFactory = new ValidationContextFactory();
 			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 		}

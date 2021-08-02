@@ -18,11 +18,9 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
-using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -39,16 +37,17 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
 	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+
 		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
 		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
-		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
 		private IRouteListRepository _routeListRepository = new RouteListRepository();
 
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
@@ -69,7 +68,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList>();
-			Entity.Logistician = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Logistician = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Logistician == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				FailInitialize = true;
@@ -338,7 +337,7 @@ namespace Vodovoz
 					CallTaskSingletonFactory.GetInstance(),
 					new CallTaskRepository(),
 					OrderSingletonRepository.GetInstance(),
-					EmployeeSingletonRepository.GetInstance(),
+					_employeeRepository,
 					new BaseParametersProvider(),
 					ServicesConfig.CommonServices.UserService,
 					SingletonErrorReporter.Instance);

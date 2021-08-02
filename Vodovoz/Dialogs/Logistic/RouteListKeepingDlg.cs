@@ -36,6 +36,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewWidgets.Mango;
+using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz
 {
@@ -91,7 +92,7 @@ namespace Vodovoz
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
+						new EmployeeRepository(),
 						new BaseParametersProvider(),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
@@ -404,7 +405,7 @@ namespace Vodovoz
 				if(changedList.Count == 0)
 					return true;
 
-				var currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+				var currentEmployee = Repositories.HumanResources.EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
 				if(currentEmployee == null) {
 					MessageDialogHelper.RunInfoDialog("Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
 					return true;

@@ -27,7 +27,7 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.EmailsPanelView:
 					return new EmailsPanelView();
 				case PanelViewType.CallTaskPanelView:
-					return new CallTaskPanelView(new BaseParametersProvider(), EmployeeSingletonRepository.GetInstance());
+					return new CallTaskPanelView(new BaseParametersProvider(), new EmployeeRepository());
 				case PanelViewType.ComplaintPanelView:
 					return new ComplaintPanelView(new ComplaintsRepository());
 				case PanelViewType.SmsSendPanelView:

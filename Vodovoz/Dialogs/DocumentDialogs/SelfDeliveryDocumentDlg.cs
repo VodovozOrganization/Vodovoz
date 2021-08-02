@@ -37,6 +37,7 @@ namespace Vodovoz
 	public partial class SelfDeliveryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<SelfDeliveryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		
 		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
@@ -45,7 +46,7 @@ namespace Vodovoz
 			this.Build();
 
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
-			Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -53,7 +54,7 @@ namespace Vodovoz
 			}
 
 			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.SelfDeliveryEdit);
-			var validationResult = CheckPermission(EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
+			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
 				FailInitialize = true;
@@ -74,7 +75,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
-			var validationResult = CheckPermission(EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
+			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
 				FailInitialize = true;
@@ -89,7 +90,7 @@ namespace Vodovoz
 		{
 		}
 
-		private IPermissionResult CheckPermission(Employee employee)
+		private IPermissionResult CheckPermission()
 		{
 			IPermissionService permissionService = ServicesConfig.CommonServices.PermissionService;
 			return permissionService.ValidateUserPermission(typeof(SelfDeliveryDocument), Repositories.HumanResources.UserRepository.GetCurrentUser(UoW).Id);
@@ -99,8 +100,6 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
-			var validationResult = CheckPermission(EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
-
 			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
@@ -183,7 +182,7 @@ namespace Vodovoz
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			Entity.CanEdit = permmissionValidator.Validate(typeof(SelfDeliveryDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				yTreeOtherGoods.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -251,7 +250,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
@@ -266,7 +265,7 @@ namespace Vodovoz
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
+						_employeeRepository,
 						new BaseParametersProvider(),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);

@@ -54,7 +54,7 @@ namespace Vodovoz.ViewModels.Mango
 
 		private readonly RouteListRepository routedListRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
-		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
 
@@ -165,7 +165,7 @@ namespace Vodovoz.ViewModels.Mango
 							CallTaskSingletonFactory.GetInstance(),
 							new CallTaskRepository(),
 							orderRepository,
-							employeeRepository,
+							_employeeRepository,
 							new BaseParametersProvider(),
 							ServicesConfig.CommonServices.UserService,
 							SingletonErrorReporter.Instance);

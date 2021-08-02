@@ -18,6 +18,7 @@ namespace Vodovoz.EntityRepositories.Employees
 		Employee GetDriverByAuthKey(IUnitOfWork uow, string authKey);
 		Employee GetEmployeeByINNAndAccount(IUnitOfWork uow, string inn, string account);
 		Employee GetEmployeeForCurrentUser(IUnitOfWork uow);
+		IList<Employee> GetWorkingDriversAtDay(IUnitOfWork uow, DateTime date);
 		IList<Employee> GetEmployeesForUser(IUnitOfWork uow, int userId);
 		IList<EmployeeWorkChart> GetWorkChartForEmployeeByDate(IUnitOfWork uow, Employee employee, DateTime date);
 		QueryOver<Employee> OfficeWorkersQuery();

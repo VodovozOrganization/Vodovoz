@@ -393,7 +393,8 @@ namespace Vodovoz
 			
 			builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
 			builder.RegisterType<GtkFilePicker>().As<IFilePickerService>();
-			builder.Register(c => new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance())).As<IEntityExtendedPermissionValidator>();
+			builder.Register(c => PermissionExtensionSingletonStore.GetInstance()).As<IPermissionExtensionStore>();
+			builder.RegisterType<EntityExtendedPermissionValidator>().As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
 			builder.RegisterType<ParametersProvider>().As<IParametersProvider>();
 			builder.RegisterType<OrderParametersProvider>().As<IOrderParametersProvider>();
@@ -417,7 +418,7 @@ namespace Vodovoz
 			#region Интерфейсы репозиториев
 			
 			builder.RegisterType<SubdivisionRepository>().As<ISubdivisionRepository>();
-			builder.Register(c => EmployeeSingletonRepository.GetInstance()).As<IEmployeeRepository>();
+			builder.RegisterType<EmployeeRepository>().As<IEmployeeRepository>();
 			builder.RegisterType<WarehouseRepository>().As<IWarehouseRepository>();
 			builder.Register(c => UserSingletonRepository.GetInstance()).As<IUserRepository>();
 			builder.RegisterType<NomenclatureRepository>().As<INomenclatureRepository>();

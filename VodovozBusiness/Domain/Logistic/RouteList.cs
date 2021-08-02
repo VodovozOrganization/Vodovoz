@@ -42,6 +42,7 @@ using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using CashRepository = Vodovoz.Repository.Cash.CashRepository;
+using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -70,7 +71,8 @@ namespace Vodovoz.Domain.Logistic
 
 		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository(new RouteListRepository());
 		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
-		private readonly ICashRepository cashRepository = new EntityRepositories.Cash.CashRepository(); 
+		private readonly ICashRepository cashRepository = new EntityRepositories.Cash.CashRepository();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		
 		#region Свойства
 
@@ -1130,7 +1132,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(Status == RouteListStatus.Closed)
 			{
-				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				ClosedBy = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				ClosingDate = DateTime.Now;
 				if(!FirstClosingDate.HasValue)
 				{
@@ -1568,7 +1570,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument() 
-				&& new PermissionRepository().HasAccessToClosingRoutelist(UoW, new SubdivisionRepository(), EmployeeSingletonRepository.GetInstance(), ServicesConfig.UserService)) {
+				&& new PermissionRepository().HasAccessToClosingRoutelist(UoW, new SubdivisionRepository(), _employeeRepository, ServicesConfig.UserService)) {
 				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
 				return;
 			}
@@ -1586,7 +1588,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if(cashier == null) {
-				throw new InvalidOperationException(String.Format("Должен быть заполнен кассир"));
+				throw new InvalidOperationException("Должен быть заполнен кассир");
 			}
 
 			ConfirmAndClose(callTaskWorker);
@@ -1660,7 +1662,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void UpdateDeliveryDocuments(IUnitOfWork uow)
 		{
 			var parametersProvider = new BaseParametersProvider();
-			var controller = new RouteListClosingDocumentsController(parametersProvider, EmployeeSingletonRepository.GetInstance(), new RouteListRepository(), parametersProvider);
+			var controller = new RouteListClosingDocumentsController(parametersProvider, _employeeRepository, new RouteListRepository(), parametersProvider);
 			controller.UpdateDocuments(this, uow);
 		}
 
@@ -1774,7 +1776,7 @@ namespace Vodovoz.Domain.Logistic
 
 			UpdateWageOperation();
 
-			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(EmployeeSingletonRepository.GetInstance(), new BaseParametersProvider(),
+			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, new BaseParametersProvider(),
 				new PremiumRaskatGAZelleParametersProvider(SingletonParametersProvider.Instance), this);
 			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}

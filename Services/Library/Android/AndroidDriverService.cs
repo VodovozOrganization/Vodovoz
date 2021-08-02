@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Core.DataService;
 using Android.DTO;
 using SmsPaymentService;
+using EmployeeRepository = Vodovoz.Repositories.HumanResources.EmployeeRepository;
 
 namespace Android
 {

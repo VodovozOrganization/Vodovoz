@@ -692,7 +692,6 @@
     <Compile Include="Domain\Payments\PaymentByCardOnline.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentByCardOnlineMap.cs" />
     <Compile Include="Repositories\Payments\PaymentsRepository.cs" />
-    <Compile Include="Repositories\HumanResourses\EmployeeRepository.cs" />
     <Compile Include="Repositories\HumanResourses\SubdivisionsRepository.cs" />
     <Compile Include="Repositories\HumanResourses\UserRepository.cs" />
     <Compile Include="Domain\Employees\EmployeeDocument.cs" />
@@ -830,8 +829,8 @@
     <Compile Include="EntityRepositories\Complaints\ComplaintsRepository.cs" />
     <Compile Include="EntityRepositories\Complaints\IComplaintsRepository.cs" />
     <Compile Include="Services\ISubdivisionService.cs" />
-    <Compile Include="EntityRepositories\Employee\EmployeeSingletonRepository.cs" />
-    <Compile Include="EntityRepositories\Employee\IEmployeeRepository.cs" />
+    <Compile Include="EntityRepositories\Employees\EmployeeRepository.cs" />
+    <Compile Include="EntityRepositories\Employees\IEmployeeRepository.cs" />
     <Compile Include="Domain\Client\SupplierPriceItem.cs" />
     <Compile Include="HibernateMapping\Counterparty\SuplierPriceItemMap.cs" />
     <Compile Include="Domain\Suppliers\RequestToSupplier.cs" />
@@ -1094,7 +1093,7 @@
     <Folder Include="Domain\Complaints\" />
     <Folder Include="HibernateMapping\Complaints\" />
     <Folder Include="EntityRepositories\Complaints\" />
-    <Folder Include="EntityRepositories\Employee\" />
+    <Folder Include="EntityRepositories\Employees\" />
     <Folder Include="Domain\Suppliers\" />
     <Folder Include="HibernateMapping\Suppliers\" />
     <Folder Include="EntityRepositories\Suppliers\" />

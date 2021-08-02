@@ -58,7 +58,6 @@ namespace Vodovoz.Domain.Orders
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
-		private readonly IEmployeeRepository _employeeRepository = EmployeeSingletonRepository.GetInstance();
 		private readonly IOrderRepository _orderRepository = OrderSingletonRepository.GetInstance();
 
 		#region Платная доставка
@@ -2703,14 +2702,17 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Отправка самовывоза на погрузку
 		/// </summary>
-		public virtual void SelfDeliveryToLoading(ICurrentPermissionService permissionService, CallTaskWorker callTaskWorker)
+		public virtual void SelfDeliveryToLoading(
+			Employee employee,
+			ICurrentPermissionService permissionService,
+			CallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery) {
 				return;
 			}
 			if(OrderStatus == OrderStatus.Accepted && permissionService.ValidatePresetPermission("allow_load_selfdelivery")) {
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
-				LoadAllowedBy = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+				LoadAllowedBy = employee;
 			}
 		}
 
@@ -3541,10 +3543,10 @@ namespace Vodovoz.Domain.Orders
 			UoW.Session.Refresh(this);
 		}
 
-		public virtual void SaveEntity(IUnitOfWork uow)
+		public virtual void SaveEntity(IUnitOfWork uow, Employee currentEmployee)
 		{
 			SetFirstOrder();
-			LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();
 			ClearPromotionSets();

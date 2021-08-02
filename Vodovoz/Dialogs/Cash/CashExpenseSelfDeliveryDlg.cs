@@ -10,8 +10,6 @@ using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
 using QS.Services;
@@ -27,7 +25,6 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Tools;
 using System.Linq;
 using Vodovoz.JournalFilters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -38,6 +35,7 @@ namespace Vodovoz.Dialogs.Cash
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
         private List<ExpenseCategory> expenseCategoryList = new List<ExpenseCategory>();
 		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
 			new SelfDeliveryCashOrganisationDistributor(new SelfDeliveryCashDistributionDocumentRepository());
@@ -50,7 +48,7 @@ namespace Vodovoz.Dialogs.Cash
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
+						_employeeRepository,
 						new BaseParametersProvider(),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
@@ -64,7 +62,7 @@ namespace Vodovoz.Dialogs.Cash
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Expense>();
-			Entity.Casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser(UoW);
             expenseCategoryList.AddRange(CategoryRepository.ExpenseSelfDeliveryCategories(UoW));
             if (Entity.Id == 0){
                 Entity.ExpenseCategory = expenseCategoryList.FirstOrDefault();
@@ -121,7 +119,8 @@ namespace Vodovoz.Dialogs.Cash
 
 			canEdit = userPermission.CanUpdate;
 			
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			canEditRectroactively = permmissionValidator.Validate(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 
 			ConfigureDlg();
@@ -203,14 +202,16 @@ namespace Vodovoz.Dialogs.Cash
 
 			Entity.AcceptSelfDeliveryPaid(CallTaskWorker);
 			
-			if (UoW.IsNew) {
+			if (UoW.IsNew)
+			{
 				logger.Info("Создаем документ распределения налички по юр лицу...");
 				selfDeliveryCashOrganisationDistributor.DistributeExpenseCash(UoW, Entity.Order, Entity);
 			}
-			else { 
+			else
+			{ 
 				logger.Info("Меняем документ распределения налички по юр лицу...");
 				selfDeliveryCashOrganisationDistributor.UpdateRecords(UoW, Entity.Order, Entity,
-					EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
+					_employeeRepository.GetEmployeeForCurrentUser(UoW));
 			}
 
 			logger.Info("Сохраняем расходный ордер...");

@@ -532,14 +532,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			return true;
 		}
 
-		private void TryAddServiceToValidationContext()
-		{
-			if(!_validationContext.Items.ContainsKey("Reason"))
-			{
-				_validationContext.Items.Add("Reason", _subdivisionService);
-			}
-		}
-		
 		private void FillHiddenCategories(bool traineeToEmployee)
 		{
 			var allCategories = (EmployeeCategory[])Enum.GetValues(typeof(EmployeeCategory));
@@ -586,7 +578,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				Entity.AndroidLogin = null;
 			}
 
-			TryAddServiceToValidationContext();
+			//TODO проверить правильность работы
+			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), _subdivisionService);
+			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
 
 			if(!Validate())
 			{

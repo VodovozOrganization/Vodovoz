@@ -32,6 +32,7 @@ using Vodovoz.Repository.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz
 {
@@ -45,6 +46,7 @@ namespace Vodovoz
 		private readonly bool canEditDate = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
 		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
@@ -65,7 +67,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Expense>();
-			Entity.Casher = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Casher = Repositories.HumanResources.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Casher == null)
 			{
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
@@ -111,7 +113,8 @@ namespace Vodovoz
 			}
 			canEdit = userPermission.CanUpdate;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			canEditRectroactively = permmissionValidator.Validate(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 
 			ConfigureDlg();
@@ -281,7 +284,7 @@ namespace Vodovoz
 		
 		private void UpdateCashDistributionsDocuments()
 		{
-			var editor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			var editor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			var document = UoW.Session.QueryOver<CashOrganisationDistributionDocument>()
 				.Where(x => x.Expense.Id == Entity.Id).List().FirstOrDefault();
 

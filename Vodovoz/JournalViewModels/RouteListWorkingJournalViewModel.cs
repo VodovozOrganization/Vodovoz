@@ -277,7 +277,7 @@ namespace Vodovoz.JournalViewModels
                     CallTaskSingletonFactory.GetInstance(),
                     callTaskRepository,
                     OrderSingletonRepository.GetInstance(),
-                    EmployeeSingletonRepository.GetInstance(),
+                    new EmployeeRepository(),
                     baseParametersProvider,
                     commonServices.UserService,
                     SingletonErrorReporter.Instance);
@@ -343,7 +343,7 @@ namespace Vodovoz.JournalViewModels
                                 RouteList,
                                 commonServices,
                                 subdivisionRepository,
-                                EmployeeSingletonRepository.GetInstance(),
+                                new EmployeeRepository(),
                                 fuelRepository,
                                 NavigationManagerProvider.NavigationManager
                             )

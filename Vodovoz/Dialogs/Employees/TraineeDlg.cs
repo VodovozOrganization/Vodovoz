@@ -43,7 +43,7 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly ISubdivisionService _subdivisionService = SubdivisionParametersProvider.Instance;
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter = new EmailServiceSettingAdapter();
 		private readonly IWageCalculationRepository _wageCalculationRepository  = WageSingletonRepository.GetInstance();
-		private readonly IEmployeeRepository _employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 

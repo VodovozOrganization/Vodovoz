@@ -430,37 +430,22 @@ public partial class MainWindow : Window
 
 	void ActionCallTasks_Activate(object sender, System.EventArgs e)
 	{
-
 		tdiMain.OpenTab(
 			"CRM",
-			() => new TasksView(EmployeeSingletonRepository.GetInstance(), 
+			() => new TasksView(new EmployeeRepository(), 
 								new BottlesRepository(),
 								new CallTaskRepository(),
 								new PhoneRepository()), null
 		);
-
-		/*
-		tdiMain.OpenTab(
-			"CRM",
-			() => new BusinessTasksJournalViewModel(new CallTaskFilterViewModel(),
-													new BusinessTasksJournalFooterViewModel(),
-													UnitOfWorkFactory.GetDefaultFactory,
-													ServicesConfig.CommonServices,
-													EmployeeSingletonRepository.GetInstance(),
-													new BottlesRepository(),
-													new CallTaskRepository(),
-													new PhoneRepository()) { SelectionMode = JournalSelectionMode.Multiple}, null
-		);
-	*/
 	}
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
 		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel();
-		var debtorsJournal = new DebtorsJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, EmployeeSingletonRepository.GetInstance());
+		var debtorsJournal = new DebtorsJournalViewModel(
+			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository());
 
 		tdiMain.AddTab(debtorsJournal);
-
 	}
 
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e) {
@@ -651,12 +636,14 @@ public partial class MainWindow : Window
 			new CallTaskWorker(CallTaskSingletonFactory.GetInstance(),
 				new CallTaskRepository(),
 				OrderSingletonRepository.GetInstance(),
-				EmployeeSingletonRepository.GetInstance(),
+				new EmployeeRepository(),
 				new BaseParametersProvider(),
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance),
-                new OrderPaymentSettings(),
-				new OrderParametersProvider(new ParametersProvider()));
+            new OrderPaymentSettings(),
+			new OrderParametersProvider(new ParametersProvider()),
+			VodovozGtkServicesConfig.EmployeeService
+		);
 		
 		tdiMain.AddTab(selfDeliveriesJournal);
 	}
@@ -706,8 +693,8 @@ public partial class MainWindow : Window
 
 	void ActionOrganizationCashTransferDocuments_Activated(object sender, System.EventArgs e)
 	{
-		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(),
-			EmployeeSingletonRepository.GetInstance());
+		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(
+			PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());
 		
 		var employeeFilter = new EmployeeFilterViewModel
 		{
@@ -1074,9 +1061,9 @@ public partial class MainWindow : Window
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
 		var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
-		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,
-			EmployeeSingletonRepository.GetInstance(), new EntityDeleteWorker(), new DeliveryRulesParametersProvider(new ParametersProvider())
-			, true, true));
+		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices, new EmployeeRepository(), new EntityDeleteWorker(),
+			new DeliveryRulesParametersProvider(new ParametersProvider()), true, true));
 	}
 
 	void ActionCarEventsJournalActivated(object sender, System.EventArgs e)

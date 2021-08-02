@@ -12,7 +12,6 @@ using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Cash;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Employees;
 using QS.Services;
 using Vodovoz.EntityRepositories;
@@ -24,7 +23,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.JournalFilters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -37,7 +35,10 @@ namespace Vodovoz
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
-		private readonly bool canEditDate = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
+		private readonly bool canEditDate
+			= ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
+
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
@@ -57,7 +58,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
-			Entity.Casher = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser (UoW);
+			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Casher == null)
 			{
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
@@ -104,7 +105,7 @@ namespace Vodovoz
 			}
 			canEdit = userPermission.CanUpdate;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			canEditRectroactively = permmissionValidator.Validate(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			
 			ConfigureDlg ();
@@ -235,7 +236,7 @@ namespace Vodovoz
 
 		public void FillForRoutelist(int routelistId)
 		{
-			var cashier = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			var cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(cashier == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
 				return;
@@ -308,7 +309,7 @@ namespace Vodovoz
 		
 		private void UpdateCashDistributionsDocuments()
 		{
-			var editor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			var editor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			var document = UoW.Session.QueryOver<CashOrganisationDistributionDocument>()
 				.Where(x => x.Income.Id == Entity.Id).List().FirstOrDefault();
 

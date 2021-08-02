@@ -116,7 +116,7 @@ namespace Vodovoz
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
+						new EmployeeRepository(),
 						new BaseParametersProvider(),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);

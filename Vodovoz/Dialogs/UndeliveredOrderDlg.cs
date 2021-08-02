@@ -17,6 +17,7 @@ using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz.Dialogs
 {
@@ -34,7 +35,7 @@ namespace Vodovoz.Dialogs
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
+						new EmployeeRepository(),
 						new BaseParametersProvider(),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
@@ -49,8 +50,8 @@ namespace Vodovoz.Dialogs
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithNewRoot<UndeliveredOrder>();
 			UndeliveredOrder = UoW.RootObject as UndeliveredOrder;
-			UndeliveredOrder.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			UndeliveredOrder.EmployeeRegistrator = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			UndeliveredOrder.Author = Repositories.HumanResources.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			UndeliveredOrder.EmployeeRegistrator = Repositories.HumanResources.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(UndeliveredOrder.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать недовозы, так как некого указывать в качестве автора документа.");
 				FailInitialize = true;

@@ -16,6 +16,7 @@ using QS.ViewModels;
 using QSOrmProject;
 using QSReport;
 using Vodovoz.Dialogs.Email;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
@@ -30,11 +31,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentForAdvancePaymentViewModel : EntityTabViewModelBase<OrderWithoutShipmentForAdvancePayment>, ITdiTabAddedNotifier
 	{
-		private readonly IEmployeeService employeeService;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
+		private readonly IEmployeeService _employeeService;
+		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IUserRepository _userRepository;
 		
 		private object selectedItem;
 		public object SelectedItem {
@@ -59,13 +60,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			
-			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
+			bool canCreateBillsWithoutShipment = 
+				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
+			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 			
 			if (uowBuilder.IsNewEntity)
 			{
@@ -77,7 +80,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					}
 					else
 					{
-						Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+						Entity.Author = currentEmployee;
 					}
 				}
 				else
@@ -89,7 +92,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
 			
-			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(), commonServices.InteractiveService, UoW);
+			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), currentEmployee, commonServices.InteractiveService, UoW);
 		}
 
 		#region Commands
@@ -117,11 +120,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					nomenclatureFilter,
 					UnitOfWorkFactory,
 					ServicesConfig.CommonServices,
-					employeeService,
-					nomenclatureSelectorFactory,
-					counterpartySelectorFactory,
-					nomenclatureRepository,
-					userRepository
+					_employeeService,
+					_nomenclatureSelectorFactory,
+					_counterpartySelectorFactory,
+					_nomenclatureRepository,
+					_userRepository
 				) {
 					SelectionMode = JournalSelectionMode.Single,
 				};

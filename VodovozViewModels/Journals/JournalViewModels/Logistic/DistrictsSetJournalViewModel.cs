@@ -229,7 +229,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								EntityUoWBuilder.ForOpen(selectedNode.Id),
 								QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 								commonServices,
-								EmployeeSingletonRepository.GetInstance()
+								new EmployeeRepository()
 								)
 						);
 						

@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 
@@ -27,8 +28,8 @@ namespace Vodovoz.Domain.Permissions
 			var result = new List<EntitySubdivisionForUserPermissionValidationResult>();
 
 			string[] entityNames = entityTypes.Select(x => x.Name).ToArray();
-			var employee = EmployeeRepository.GetEmployeesForUser(uow, userId).FirstOrDefault();
-			Subdivision mainSubdivision = employee == null ? null : employee.Subdivision;
+			var employee = new EmployeeRepository().GetEmployeesForUser(uow, userId).FirstOrDefault();
+			Subdivision mainSubdivision = employee?.Subdivision;
 
 			if(mainSubdivision != null) {
 				var mainTypesName = mainSubdivision.DocumentTypes.Select(x => x.Type);
@@ -92,9 +93,9 @@ namespace Vodovoz.Domain.Permissions
 		public static IEnumerable<IEntitySubdivisionForUserPermissionValidationResult> Validate(IUnitOfWork uow, int userId, Type entityType)
 		{
 			var result = new List<EntitySubdivisionForUserPermissionValidationResult>();
-			var employee = EmployeeRepository.GetEmployeesForUser(uow, userId).FirstOrDefault();
+			var employee = new EmployeeRepository().GetEmployeesForUser(uow, userId).FirstOrDefault();
 			var mainPermission = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(entityType, userId);
-			Subdivision mainSubdivision = employee == null ? null : employee.Subdivision;
+			Subdivision mainSubdivision = employee?.Subdivision;
 
 			if(mainSubdivision != null) {
 				var mainTypesName = mainSubdivision.DocumentTypes.Select(x => x.Type);

@@ -15,12 +15,15 @@ namespace Vodovoz.Factories
 	{
 		public EmployeeWageParametersViewModel CreateEmployeeWageParametersViewModel(Employee employee, ITdiTab tab, IUnitOfWork uow)
 		{
+			//TODO уточнить, может лучше создавать новые объекты
+			var employeeRepository = new EmployeeRepository();
+			
 			var validator = new HierarchicalPresetPermissionValidator(
-				EmployeeSingletonRepository.GetInstance(),
+				employeeRepository,
 				new PermissionRepository());
 
 			return new EmployeeWageParametersViewModel(employee, tab, uow, validator, UserSingletonRepository.GetInstance(),
-				ServicesConfig.CommonServices, NavigationManagerProvider.NavigationManager, EmployeeSingletonRepository.GetInstance());
+				ServicesConfig.CommonServices, NavigationManagerProvider.NavigationManager, employeeRepository);
 		}
 	}
 }

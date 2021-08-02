@@ -32,6 +32,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -47,7 +48,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly ISubdivisionService _subdivisionService = SubdivisionParametersProvider.Instance;
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter = new EmailServiceSettingAdapter();
 		private readonly IWageCalculationRepository _wageCalculationRepository  = WageSingletonRepository.GetInstance();
-		private readonly IEmployeeRepository _employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 		
@@ -201,7 +202,7 @@ namespace Vodovoz.Dialogs.Logistic
 		
 		protected void OnButtonAddWorkingDriversClicked(object sender, EventArgs e)
 		{
-			var workDriversAtDay = EmployeeSingletonRepository.GetInstance().GetWorkingDriversAtDay(UoW, DialogAtDate);
+			var workDriversAtDay = _employeeRepository.GetWorkingDriversAtDay(UoW, DialogAtDate);
 
 			if(workDriversAtDay.Count > 0) {
 				foreach(var driver in workDriversAtDay) {
@@ -252,7 +253,7 @@ namespace Vodovoz.Dialogs.Logistic
 					else
 					{
 						driver.Status = AtWorkDriver.DriverStatus.NotWorking;
-						driver.AuthorRemovedDriver = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+						driver.AuthorRemovedDriver = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 						driver.RemovedDate = DateTime.Now;
 					}
 				}
@@ -387,7 +388,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var SelectForwarder = new OrmReference(
 				UoW,
-				EmployeeRepository.ActiveForwarderOrderedQuery()
+				Repositories.HumanResources.EmployeeRepository.ActiveForwarderOrderedQuery()
 			) {
 				Mode = OrmReferenceMode.MultiSelect
 			};
@@ -582,7 +583,7 @@ namespace Vodovoz.Dialogs.Logistic
 			// Сохранение изменившихся за этот раз авторов и дат комментариев
 			foreach (var atWorkDriver in driversWithCommentChanged)
 			{
-				atWorkDriver.CommentLastEditedAuthor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				atWorkDriver.CommentLastEditedAuthor = Repositories.HumanResources.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 				atWorkDriver.CommentLastEditedDate = DateTime.Now;
 			}
 			driversWithCommentChanged.Clear();

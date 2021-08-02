@@ -18,7 +18,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
@@ -47,7 +46,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz
 {
@@ -56,12 +55,15 @@ namespace Vodovoz
 		#region поля
 
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
 		private bool editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 		private bool canCloseRoutelist = false;
 		private Employee previousForwarder = null;
+		//TODO вернуться к текущему сотруднику
+		//private Employee _currentEmployee;
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
@@ -80,7 +82,7 @@ namespace Vodovoz
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
+						_employeeRepository,
 						new BaseParametersProvider(),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
@@ -152,7 +154,7 @@ namespace Vodovoz
 
 
 			canCloseRoutelist = new PermissionRepository()
-				.HasAccessToClosingRoutelist(UoW, new SubdivisionRepository(), EmployeeSingletonRepository.GetInstance(), ServicesConfig.UserService);
+				.HasAccessToClosingRoutelist(UoW, new SubdivisionRepository(), _employeeRepository, ServicesConfig.UserService);
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
@@ -1151,7 +1153,7 @@ namespace Vodovoz
 
 		private bool TrySetCashier()
 		{
-			var cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			var cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(cashier == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
 				return false;
@@ -1164,7 +1166,7 @@ namespace Vodovoz
 		bool CheckIfCashier()
 		{
 			var cashSubdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
-			return cashSubdivisions.Contains(EmployeeRepository.GetEmployeeForCurrentUser(UoW)?.Subdivision);
+			return cashSubdivisions.Contains(_employeeRepository.GetEmployeeForCurrentUser(UoW)?.Subdivision);
 		}
 
 		protected void OnAdvanceCheckboxToggled(object sender, EventArgs e)
@@ -1193,7 +1195,7 @@ namespace Vodovoz
 					  Entity,
 					  ServicesConfig.CommonServices,
 					  new SubdivisionRepository(),
-					  EmployeeSingletonRepository.GetInstance(),
+					  _employeeRepository,
 					  new FuelRepository(),
 					  NavigationManagerProvider.NavigationManager
   			);
@@ -1207,7 +1209,7 @@ namespace Vodovoz
 				  ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>(),
 				  ServicesConfig.CommonServices,
 				  new SubdivisionRepository(),
-				  EmployeeSingletonRepository.GetInstance(),
+				  _employeeRepository,
 				  new FuelRepository(),
 				  NavigationManagerProvider.NavigationManager
 		  	);

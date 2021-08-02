@@ -11,18 +11,8 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.EntityRepositories.Employees
 {
-	public class EmployeeSingletonRepository : IEmployeeRepository
+	public class EmployeeRepository : IEmployeeRepository
 	{
-		private static EmployeeSingletonRepository instance;
-
-		[Obsolete("Необходимо избавляться от синглтонов")]
-		public static EmployeeSingletonRepository GetInstance()
-		{
-			if(instance == null)
-				instance = new EmployeeSingletonRepository();
-			return instance;
-		}
-
 		public Employee GetEmployeeForCurrentUser(IUnitOfWork uow)
 		{
 			User userAlias = null;

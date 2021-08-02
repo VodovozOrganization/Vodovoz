@@ -496,7 +496,7 @@ namespace Vodovoz
 
 		private void UpdateTranferDocuments(RouteList from, RouteList to)
 		{
-			var addressTransferController = new AddressTransferController(EmployeeSingletonRepository.GetInstance());
+			var addressTransferController = new AddressTransferController(new EmployeeRepository());
 			addressTransferController.UpdateDocuments(from, to, UoW);
 		}
 

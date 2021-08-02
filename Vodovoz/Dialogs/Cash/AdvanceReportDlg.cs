@@ -9,7 +9,6 @@ using QSProjectsLib;
 using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
 using QS.Services;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
@@ -17,7 +16,6 @@ using QS.DomainModel.NotifyChange;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.JournalFilters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -34,6 +32,7 @@ namespace Vodovoz
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
 		private readonly AdvanceCashOrganisationDistributor distributor = new AdvanceCashOrganisationDistributor();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 
 		protected decimal Debt {
 			get {
@@ -77,7 +76,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<AdvanceReport>();
-			Entity.Casher = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Casher == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
 				FailInitialize = true;
@@ -123,7 +122,8 @@ namespace Vodovoz
 			}
 			canEdit = userPermission.CanUpdate;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			canEditRectroactively = permmissionValidator.Validate(typeof(AdvanceReport), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 
 			//Отключаем отображение ненужных элементов.

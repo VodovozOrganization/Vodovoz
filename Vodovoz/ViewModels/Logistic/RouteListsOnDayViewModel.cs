@@ -950,7 +950,7 @@ namespace Vodovoz.ViewModels.Logistic
 			int totalBottles = 0;
 			int totalAddresses = 0;
 
-			var drivers = EmployeeSingletonRepository.GetInstance().GetWorkingDriversAtDay(UoW, DateForRouting);
+			var drivers = new EmployeeRepository().GetWorkingDriversAtDay(UoW, DateForRouting);
 
 			if(drivers.Count > 0) {
 				foreach(var driver in drivers) {

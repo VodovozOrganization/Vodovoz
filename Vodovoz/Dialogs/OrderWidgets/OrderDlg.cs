@@ -108,7 +108,8 @@ namespace Vodovoz
 		private CounterpartyContractFactory counterpartyContractFactory;
 		private IOrderParametersProvider _orderParametersProvider;
 		
-		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
+		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
@@ -116,8 +117,8 @@ namespace Vodovoz
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
 		private IList<int> _addedFlyersNomenclaturesIds;
+		private Employee _currentEmployee;
 
-		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
 		private IEmailRepository emailRepository { get; set; } = new EmailRepository();
@@ -195,7 +196,7 @@ namespace Vodovoz
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						orderRepository,
-						employeeRepository,
+						_employeeRepository,
 						new BaseParametersProvider(),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
@@ -229,7 +230,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
-			Entity.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = _currentEmployee = _employeeService.GetEmployeeForUser(UoW, userRepository.GetCurrentUser(UoW).Id);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать заказы, так как некого указывать в качестве автора документа.");
 				FailInitialize = true;
@@ -349,6 +350,11 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			if(_currentEmployee == null)
+			{
+				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, userRepository.GetCurrentUser(UoW).Id);
+			}
+
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
@@ -952,7 +958,7 @@ namespace Vodovoz
 		
 		private void ConfigureSendDocumentByEmailWidget()
 		{
-			SendDocumentByEmailViewModel = new SendDocumentByEmailViewModel(emailRepository, employeeRepository, ServicesConfig.InteractiveService);
+			SendDocumentByEmailViewModel = new SendDocumentByEmailViewModel(emailRepository, _currentEmployee, ServicesConfig.InteractiveService);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
 			hbox19.Add(sendEmailView);
 			sendEmailView.Show();
@@ -1068,11 +1074,11 @@ namespace Vodovoz
 							return false;
 						}
 					}
-					Entity.SaveEntity(UoWGeneric);
+					Entity.SaveEntity(UoWGeneric, _currentEmployee);
 					if(sendEmail)
 						SendBillByEmail(emailAddressForBill);
 				} else {
-					Entity.SaveEntity(UoWGeneric);
+					Entity.SaveEntity(UoWGeneric, _currentEmployee);
 				}
 				logger.Info("Ok.");
 				UpdateUIState();
@@ -1139,7 +1145,7 @@ namespace Vodovoz
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 			}
 
-			Entity.AcceptOrder(employeeRepository.GetEmployeeForCurrentUser(UoW), CallTaskWorker);
+			Entity.AcceptOrder(_currentEmployee, CallTaskWorker);
 
 			treeItems.Selection.UnselectAll();
 			Save();
@@ -1222,7 +1228,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonSelfDeliveryToLoadingClicked(object sender, EventArgs e)
 		{
-			Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService, CallTaskWorker);
+			Entity.SelfDeliveryToLoading(_currentEmployee, ServicesConfig.CommonServices.CurrentPermissionService, CallTaskWorker);
 			UpdateUIState();
 		}
 
@@ -1554,7 +1560,7 @@ namespace Vodovoz
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				employeeService,
+				_employeeService,
 				NomenclatureSelectorFactory,
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
@@ -1594,7 +1600,7 @@ namespace Vodovoz
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				employeeService,
+				_employeeService,
 				NomenclatureSelectorFactory,
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
@@ -2778,11 +2784,10 @@ namespace Vodovoz
 				string billDate = billDocument.DocumentDate.HasValue ? "_" + billDocument.DocumentDate.Value.ToString("ddMMyyyy") : "";
 				email.AddAttachment($"Bill_{billDocument.Order.Id}{billDate}.pdf", stream);
 			}
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				var employee = employeeRepository.GetEmployeeForCurrentUser(uow);
-				email.AuthorId = employee != null ? employee.Id : 0;
-				email.ManualSending = false;
-			}
+			
+			email.AuthorId = _currentEmployee?.Id ?? 0;
+			email.ManualSending = false;
+			
 			IEmailService service = EmailServiceSetting.GetEmailService();
 			if(service == null) {
 				return;

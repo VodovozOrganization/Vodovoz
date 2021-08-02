@@ -303,7 +303,7 @@ namespace Vodovoz.ViewModels.Warehouses
                 if(printCommand == null) {
                     printCommand = new DelegateCommand(
                         () => {
-                            int? currentEmployeeId = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW)?.Id;
+                            int? currentEmployeeId = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId)?.Id;
                             var doc = new IncomingInvoiceDocumentRDL(Entity, currentEmployeeId){Title = Entity.Title};
                             if(doc is IPrintableRDLDocument) {
                                 rdlPreviewOpener.OpenRldDocument(typeof(IncomingInvoice), doc);
