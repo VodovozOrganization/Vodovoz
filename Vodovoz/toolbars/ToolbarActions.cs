@@ -43,6 +43,7 @@ using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
@@ -69,6 +70,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 public partial class MainWindow : Window
 {
@@ -1078,6 +1080,10 @@ public partial class MainWindow : Window
 
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
+		tdiMain.AddTab(new SectorsViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			new EntityDeleteWorker(), EmployeeSingletonRepository.GetInstance(), new SectorsRepository()));
+		
 		// var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
 		// tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,
 		// 	EmployeeSingletonRepository.GetInstance(), new EntityDeleteWorker(), new DeliveryRulesParametersProvider(new ParametersProvider())

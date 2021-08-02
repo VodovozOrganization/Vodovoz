@@ -81,7 +81,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#endregion
 
-		public object Clone()
+		public virtual object Clone()
 		{
 			return new DeliverySchedule
 			{

@@ -34,10 +34,10 @@ namespace Vodovoz.Domain.Sectors
 			set => SetField(ref _startDate, value);
 		}
 
-		private DateTime? _endDate;
+		private DateTime _endDate;
 
 		[Display(Name = "Время закрытия")]
-		public virtual DateTime? EndDate
+		public virtual DateTime EndDate
 		{
 			get => _endDate;
 			set => SetField(ref _endDate, value);

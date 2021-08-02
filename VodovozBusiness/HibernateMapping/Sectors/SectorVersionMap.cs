@@ -12,7 +12,7 @@ namespace Vodovoz.HibernateMapping.Sectors
 			Table("sector_versions");
 			Not.LazyLoad();
 			
-			Id(x => x).Column("id").GeneratedBy.Native();
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			
 			Map(x => x.MinBottles).Column("min_bottles");
 			Map(x => x.WaterPrice).Column("water_price");

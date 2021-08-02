@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.Sectors
 	public class DeliveryPointSectorVersion : PropertyChangedBase, IDomainObject
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-		public int Id { get; }
+		public virtual int Id { get; set; }
 
 		private DateTime _startDate;
 

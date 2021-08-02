@@ -628,8 +628,8 @@ namespace Vodovoz
 
 			#region District
 
-			DeleteConfig.AddHibernateDeleteInfo<SectorVersion>()
-				.AddDeleteDependence<Sector>(x => x.ActiveSectorVersion);
+			// DeleteConfig.AddHibernateDeleteInfo<SectorVersion>()
+			// 	.AddDeleteDependence<Sector>(x => x.ActiveSectorVersion);
 
 			DeleteConfig.AddHibernateDeleteInfo<Sector>()
 				.AddDeleteDependence<DriverDistrictPriority>(i => i.Sector)

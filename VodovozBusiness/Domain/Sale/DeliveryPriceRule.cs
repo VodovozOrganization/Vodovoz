@@ -139,7 +139,7 @@ namespace Vodovoz.Domain.Sale
 
 		
 		#endregion
-		public object Clone()
+		public virtual object Clone()
 		{
 			return new DeliveryPriceRule
 			{

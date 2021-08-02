@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping.Sectors
 			Table("delivery_points_geodata_versions");
 			Not.LazyLoad();
 			
-			Id(x => x).Column("id").GeneratedBy.Native();
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.Latitude).Column("latitude");
 			Map(x => x.Longitude).Column("longitude");
