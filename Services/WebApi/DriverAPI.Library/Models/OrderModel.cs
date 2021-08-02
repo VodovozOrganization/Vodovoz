@@ -23,7 +23,6 @@ namespace DriverAPI.Library.Models
 		private readonly IOrderRepository _orderRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly OrderConverter _orderConverter;
-		private readonly IOrderParametersProvider _orderParametersProvider;
 		private readonly IDriverApiParametersProvider _webApiParametersProvider;
 		private readonly IComplaintsRepository _complaintsRepository;
 		private readonly ISmsPaymentModel _aPISmsPaymentData;
@@ -37,7 +36,6 @@ namespace DriverAPI.Library.Models
 			IOrderRepository orderRepository,
 			IRouteListRepository routeListRepository,
 			OrderConverter orderConverter,
-			IOrderParametersProvider orderParametersProvider,
 			IDriverApiParametersProvider webApiParametersProvider,
 			IComplaintsRepository complaintsRepository,
 			ISmsPaymentModel aPISmsPaymentData,
@@ -45,16 +43,15 @@ namespace DriverAPI.Library.Models
 			IUnitOfWork unitOfWork
 			)
 		{
-			this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			this._orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			this._routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			this._orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
-			this._orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			this._webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
-			this._complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
-			this._aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
-			this._driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
-			this._unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
+			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
+			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
+			_aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
+			_driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
 		/// <summary>
@@ -65,7 +62,7 @@ namespace DriverAPI.Library.Models
 		public OrderDto Get(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 
 			var order = _orderConverter.convertToAPIOrder(vodovozOrder, _aPISmsPaymentData.GetOrderPaymentStatus(orderId));
 			order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
@@ -83,7 +80,7 @@ namespace DriverAPI.Library.Models
 			var result = new List<OrderDto>();
 			var vodovozOrders = _orderRepository.GetOrders(_unitOfWork, orderIds);
 
-			foreach (var vodovozOrder in vodovozOrders)
+			foreach(var vodovozOrder in vodovozOrders)
 			{
 				var smsPaymentStatus = _aPISmsPaymentData.GetOrderPaymentStatus(vodovozOrder.Id);
 				var order = _orderConverter.convertToAPIOrder(vodovozOrder, smsPaymentStatus);
@@ -102,7 +99,7 @@ namespace DriverAPI.Library.Models
 		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 
 			return GetAvailableToChangePaymentTypes(vodovozOrder);
 		}
@@ -116,12 +113,12 @@ namespace DriverAPI.Library.Models
 		{
 			var availablePaymentTypes = new List<PaymentDtoType>();
 
-			if (order.PaymentType == PaymentType.cash)
+			if(order.PaymentType == PaymentType.cash)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Terminal);
 			}
 
-			if (order.PaymentType == PaymentType.Terminal)
+			if(order.PaymentType == PaymentType.Terminal)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
 			}
@@ -137,7 +134,7 @@ namespace DriverAPI.Library.Models
 		public OrderAdditionalInfoDto GetAdditionalInfo(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 
 			return GetAdditionalInfo(vodovozOrder);
 		}
@@ -171,7 +168,7 @@ namespace DriverAPI.Library.Models
 		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 
 			vodovozOrder.PaymentType = paymentType;
 			_unitOfWork.Save(vodovozOrder);
@@ -189,22 +186,17 @@ namespace DriverAPI.Library.Models
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
 			var routeList = _routeListRepository.GetRouteListByOrder(_unitOfWork, vodovozOrder);
-			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId).SingleOrDefault();
+			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId
+															   && x.Status != RouteListItemStatus.Transfered)
+													  .SingleOrDefault();
 
 			routeListAddress.DriverBottlesReturned = bottlesReturnCount;
 
 			if(vodovozOrder == null)
 			{
-				var error = $"Попытка завершения несуществующего заказа: {orderId}";
+				var error = $"Заказ не найден: { orderId }";
 				_logger.LogWarning(error);
 				throw new ArgumentOutOfRangeException(nameof(orderId), error);
-			}
-
-			if(routeListAddress.Status == RouteListItemStatus.Transfered)
-			{
-				var error = $"Попытка завершения заказа, который был передан: {orderId}";
-				_logger.LogWarning(error);
-				throw new InvalidOperationException(error);
 			}
 
 			routeListAddress.UpdateStatus(_unitOfWork, RouteListItemStatus.Completed);
@@ -226,8 +218,8 @@ namespace DriverAPI.Library.Models
 					ChangedDate = actionTime,
 					CreatedBy = driver,
 					ChangedBy = driver,
-					ComplaintText = $"Заказ номер {orderId}\n" +
-						$"По причине {reason}"
+					ComplaintText = $"Заказ номер { orderId }\n" +
+						$"По причине { reason }"
 				};
 
 				_unitOfWork.Save(complaint);
