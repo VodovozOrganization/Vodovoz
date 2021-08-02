@@ -156,12 +156,22 @@ namespace Vodovoz.Domain.Documents
 			if(!Items.Any() || Warehouse == null)
 				return;
 
-			var inLoaded = routeListRepository.AllGoodsLoaded(uow, RouteList, this);
-
-			foreach(var item in Items) {
-				var found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
+			var inLoaded = routeListRepository.AllGoodsLoadedDivided(uow, RouteList, this);
+			if(inLoaded.Count == 0)
+			{
+				return;
+			}
+			
+			foreach(var item in Items)
+			{
+				var found = inLoaded.FirstOrDefault(x => 
+					x.NomenclatureId == item.Nomenclature.Id 
+					&& x.OwnType == item.OwnType 
+					&& x.ExpireDatePercent == item.ExpireDatePercent);
 				if(found != null)
+				{
 					item.AmountLoaded = found.Amount;
+				}
 			}
 		}
 
@@ -234,11 +244,22 @@ namespace Vodovoz.Domain.Documents
 					new[] { nameof(Warehouse) });
 			}
 
-			foreach(var item in Items) {
-				if(item.Amount > item.AmountInStock) {
-					yield return new ValidationResult($"На складе недостаточное количество <{item.Nomenclature.Name}>",
+			var uniqueNomenclaturesIds = Items.Select(x => x.Nomenclature.Id).Distinct();
+
+			foreach(var nomenclatureId in uniqueNomenclaturesIds)
+			{
+				var amountInStock = Items.Where(x => x.Nomenclature.Id == nomenclatureId).First().AmountInStock;
+				var amountToLoad = Items.Where(x => x.Nomenclature.Id == nomenclatureId).Sum(x => x.Amount);
+				var nomenclatureName = Items.Where(x => x.Nomenclature.Id == nomenclatureId).First().Nomenclature.Name;
+
+				if(amountToLoad > amountInStock)
+				{
+					yield return new ValidationResult($"На складе недостаточное количество <{nomenclatureName}>",
 						new[] { nameof(Items) });
 				}
+			}
+
+			foreach(var item in Items) {
 				if(item.Equipment != null && !(item.Amount == 0 || item.Amount == 1) && item.Equipment.Nomenclature.IsSerial) {
 					yield return new ValidationResult(
 						$"Оборудование <{item.Nomenclature.Name}> сн: {item.Equipment.Serial} нельзя отгружать в количестве отличном от 0 или 1",

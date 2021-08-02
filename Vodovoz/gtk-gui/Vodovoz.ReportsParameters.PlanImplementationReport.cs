@@ -6,6 +6,12 @@ namespace Vodovoz.ReportsParameters
 	{
 		private global::Gtk.VBox vbox1;
 
+		private global::Gtk.HBox hbox5;
+
+		private global::Gtk.Label label2;
+
+		private global::Gamma.Widgets.yEnumComboBox comboTypeOfDate;
+
 		private global::Gtk.HBox hbox1;
 
 		private global::Gtk.Label label1;
@@ -39,6 +45,38 @@ namespace Vodovoz.ReportsParameters
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox5 = new global::Gtk.HBox();
+			this.hbox5.Name = "hbox5";
+			this.hbox5.Spacing = 6;
+			// Container child hbox5.Gtk.Box+BoxChild
+			this.label2 = new global::Gtk.Label();
+			this.label2.Name = "label2";
+			this.label2.Xalign = 1F;
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Тип даты:");
+			this.label2.Justify = ((global::Gtk.Justification)(1));
+			this.hbox5.Add(this.label2);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.label2]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child hbox5.Gtk.Box+BoxChild
+			this.comboTypeOfDate = new global::Gamma.Widgets.yEnumComboBox();
+			this.comboTypeOfDate.Name = "comboTypeOfDate";
+			this.comboTypeOfDate.ShowSpecialStateAll = false;
+			this.comboTypeOfDate.ShowSpecialStateNot = false;
+			this.comboTypeOfDate.UseShortTitle = false;
+			this.comboTypeOfDate.DefaultFirst = false;
+			this.hbox5.Add(this.comboTypeOfDate);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.comboTypeOfDate]));
+			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
+			this.vbox1.Add(this.hbox5);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
+			w3.Position = 0;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
@@ -48,10 +86,10 @@ namespace Vodovoz.ReportsParameters
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
 			this.hbox1.Add(this.label1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.label1]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.label1]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.dateperiodpicker = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.dateperiodpicker.Events = ((global::Gdk.EventMask)(256));
@@ -59,12 +97,12 @@ namespace Vodovoz.ReportsParameters
 			this.dateperiodpicker.StartDate = new global::System.DateTime(0);
 			this.dateperiodpicker.EndDate = new global::System.DateTime(0);
 			this.hbox1.Add(this.dateperiodpicker);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.dateperiodpicker]));
-			w2.Position = 1;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.dateperiodpicker]));
+			w5.Position = 1;
 			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w3.Position = 0;
-			w3.Expand = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w6.Position = 1;
+			w6.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
@@ -75,10 +113,10 @@ namespace Vodovoz.ReportsParameters
 			this.lblPlanType.Xalign = 1F;
 			this.lblPlanType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип плана:");
 			this.hbox4.Add(this.lblPlanType);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblPlanType]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblPlanType]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.lstCmbPlanType = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.lstCmbPlanType.Name = "lstCmbPlanType";
@@ -87,13 +125,13 @@ namespace Vodovoz.ReportsParameters
 			this.lstCmbPlanType.ShowSpecialStateAll = false;
 			this.lstCmbPlanType.ShowSpecialStateNot = false;
 			this.hbox4.Add(this.lstCmbPlanType);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lstCmbPlanType]));
-			w5.Position = 1;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lstCmbPlanType]));
+			w8.Position = 1;
 			this.vbox1.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxDriver = new global::Gtk.HBox();
 			this.hboxDriver.Name = "hboxDriver";
@@ -104,28 +142,28 @@ namespace Vodovoz.ReportsParameters
 			this.lblEmployee.Xalign = 1F;
 			this.lblEmployee.LabelProp = global::Mono.Unix.Catalog.GetString("Сотрудник:");
 			this.hboxDriver.Add(this.lblEmployee);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.lblEmployee]));
-			w7.Position = 0;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.lblEmployee]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child hboxDriver.Gtk.Box+BoxChild
 			this.yEntRefEmployee = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.yEntRefEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.yEntRefEmployee.Name = "yEntRefEmployee";
 			this.hboxDriver.Add(this.yEntRefEmployee);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.yEntRefEmployee]));
-			w8.Position = 1;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.yEntRefEmployee]));
+			w11.Position = 1;
 			this.vbox1.Add(this.hboxDriver);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxDriver]));
-			w9.Position = 2;
-			w9.Expand = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxDriver]));
+			w12.Position = 3;
+			w12.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.lblEmployeePlan = new global::Gamma.GtkWidgets.yLabel();
 			this.lblEmployeePlan.Name = "lblEmployeePlan";
 			this.vbox1.Add(this.lblEmployeePlan);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.lblEmployeePlan]));
-			w10.Position = 3;
-			w10.Expand = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.lblEmployeePlan]));
+			w13.Position = 4;
+			w13.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -133,11 +171,11 @@ namespace Vodovoz.ReportsParameters
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w11.PackType = ((global::Gtk.PackType)(1));
-			w11.Position = 4;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w14.PackType = ((global::Gtk.PackType)(1));
+			w14.Position = 5;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

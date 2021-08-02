@@ -20,6 +20,8 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Repositories;
+using Vodovoz.NhibernateExtensions;
+using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -34,6 +36,21 @@ namespace Vodovoz.EntityRepositories.Logistic
 					  .Where(() => routeListAlias.Status == status)
 					  .Where(() => routeListAlias.Date == date)
 					  .List();
+		}
+
+		public IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null)
+		{
+			RouteList routeListAlias = null;
+
+			var query = uow.Session.QueryOver<RouteList>(() => routeListAlias)
+					  .Where(() => routeListAlias.Driver == driver);
+
+			if (status != null)
+			{
+				query.Where(() => routeListAlias.Status == status);
+			}
+
+			return query.Select(x => x.Id).List<int>();
 		}
 
 		public QueryOver<RouteList> GetRoutesAtDay(DateTime date)
@@ -166,7 +183,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList)
 		{
 			GoodsInRouteListResult resultAlias = null;
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			VodovozOrder orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			Nomenclature OrderItemNomenclatureAlias = null;
 
@@ -193,7 +210,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public IList<GoodsInRouteListResultWithSpecialRequirements> GetGoodsInRLWithoutEquipmentsWithSpecialRequirements(IUnitOfWork uow, RouteList routeList)
 		{
 			GoodsInRouteListResultWithSpecialRequirements resultAlias = null;
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			VodovozOrder orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			Counterparty counterpartyAlias = null;
 			Nomenclature OrderItemNomenclatureAlias = null;
@@ -250,12 +267,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public IList<GoodsInRouteListResultWithSpecialRequirements> GetEquipmentsInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList)
 		{
 			GoodsInRouteListResultWithSpecialRequirements resultAlias = null;
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			VodovozOrder orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature OrderEquipmentNomenclatureAlias = null;
 
 			//Выбирается список Id заказов находящихся в МЛ
-			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
+			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
 				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
@@ -284,12 +301,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public IList<GoodsInRouteListResult> GetEquipmentsInRL(IUnitOfWork uow, RouteList routeList)
 		{
 			GoodsInRouteListResult resultAlias = null;
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			VodovozOrder orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature OrderEquipmentNomenclatureAlias = null;
 
 			//Выбирается список Id заказов находящихся в МЛ
-			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
+			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
 				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
@@ -368,8 +385,10 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 
+			var transferedCount = TerminalTransferedCountToRouteList(uow, routeList);
+
 			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
-			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal) && transferedCount == 0;
 
 			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
 									.JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
@@ -407,8 +426,32 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return null;
 		}
 
+		public IList<GoodsInRouteListResultToDivide> AllGoodsLoadedDivided(IUnitOfWork uow, RouteList routeList, CarLoadDocument excludeDoc = null)
+		{
+			CarLoadDocument docAlias = null;
+			CarLoadDocumentItem docItemsAlias = null;
+			GoodsInRouteListResultToDivide inCarLoads = null;
 
+			var loadedQuery = uow.Session.QueryOver<CarLoadDocument>(() => docAlias)
+				.Where(d => d.RouteList.Id == routeList.Id);
 
+			if(excludeDoc != null)
+			{
+				loadedQuery.Where(d => d.Id != excludeDoc.Id);
+			}
+
+			var loadedlist = loadedQuery
+				.JoinAlias(d => d.Items, () => docItemsAlias)
+				.SelectList(list => list
+					.SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inCarLoads.NomenclatureId)
+				    .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
+				    .SelectGroup(() => docItemsAlias.ExpireDatePercent).WithAlias(() => inCarLoads.ExpireDatePercent)
+				    .SelectGroup(() => docItemsAlias.OwnType).WithAlias(() => inCarLoads.OwnType)
+				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultToDivide>())
+				.List<GoodsInRouteListResultToDivide>();
+			return loadedlist;
+		}
+		
 		public IList<GoodsInRouteListResult> AllGoodsLoaded(IUnitOfWork uow, RouteList routeList, CarLoadDocument excludeDoc = null)
 		{
 			CarLoadDocument docAlias = null;
@@ -424,8 +467,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var loadedlist = loadedQuery
 				.JoinAlias(d => d.Items, () => docItemsAlias)
 				.SelectList(list => list
-				   .SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inCarLoads.NomenclatureId)
-				   .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
+					.SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inCarLoads.NomenclatureId)
+					.SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
 				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();
 			return loadedlist;
@@ -477,6 +520,42 @@ namespace Vodovoz.EntityRepositories.Logistic
 							NomenclatureId = nomenclatureId,
 							Amount = items.Sum(x => x.Amount)
 						});
+		}
+
+		public decimal TerminalTransferedCountToRouteList(IUnitOfWork unitOfWork, RouteList routeList)
+		{
+			if(unitOfWork == null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWork));
+			}
+
+			if(routeList == null)
+			{
+				throw new ArgumentNullException(nameof(routeList));
+			}
+
+			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+
+			var termanalTransferDocumentItems = unitOfWork.Session.Query<DriverTerminalTransferDocument>()
+				.Where(dttd => dttd.RouteListTo.Id == routeList.Id
+							|| dttd.RouteListFrom.Id == routeList.Id)
+				.ToList();
+
+			if(termanalTransferDocumentItems.Any())
+			{
+				return termanalTransferDocumentItems.Sum(dttd =>
+					dttd.RouteListTo.Id == routeList.Id ? 1 :
+					dttd.RouteListFrom.Id == routeList.Id ? -1 : 0);
+			}
+
+			return 0;
+		}
+
+		public IList<DocumentPrintHistory> GetPrintsHistory(IUnitOfWork uow, RouteList routeList)
+		{
+			var types = new[] {PrintedDocumentType.RouteList, PrintedDocumentType.ClosedRouteList};
+			return uow.Session.Query<DocumentPrintHistory>()
+				.Where(dph => types.Contains(dph.DocumentType) && dph.RouteList.Id == routeList.Id).ToList();
 		}
 
 		public IEnumerable<GoodsInRouteListResult> AllGoodsTransferredFrom(IUnitOfWork uow, RouteList routeList)
@@ -612,7 +691,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.Select(() => nomenclatureAlias.IsSerial).WithAlias(() => resultAlias.Trackable)
 					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
-					.Select(() => nomenclatureAlias.Type).WithAlias(() => resultAlias.EquipmentType)
+					.Select(() => nomenclatureAlias.Kind).WithAlias(() => resultAlias.EquipmentKind)
 					.Select(() => carUnloadItemsAlias.DefectSource).WithAlias(() => resultAlias.DefectSource)
 									  )
 				.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
@@ -665,13 +744,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 			   .List();
 		}
 
-		public RouteList GetRouteListByOrder(IUnitOfWork uow, Domain.Orders.Order order)
+		public RouteList GetRouteListByOrder(IUnitOfWork uow, VodovozOrder order)
 		{
 			RouteList routeListAlias = null;
 			RouteListItem routeListItemAlias = null;
 			return uow.Session.QueryOver(() => routeListAlias)
 							  .Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
 							  .Where(() => routeListItemAlias.Order.Id == order.Id)
+							  .Fetch(SelectMode.ChildFetch, routeList => routeList.Addresses)
 							  .List()
 							  .FirstOrDefault();
 		}
@@ -683,7 +763,65 @@ namespace Vodovoz.EntityRepositories.Logistic
 				return actualRouteList.Version != routeList.Version;
 			}
 		}
-	}
+
+		public IList<RouteList> GetRouteListsByIds(IUnitOfWork uow, int[] routeListsIds)
+		{
+			RouteList routeListAlias = null;
+			var query = uow.Session.QueryOver(() => routeListAlias)
+				.Where(
+					Restrictions.In(
+						Projections.Property(() => routeListAlias.Id),
+						routeListsIds
+						)
+					);
+
+			return query.List();
+		}
+
+        public RouteList GetRouteListById(IUnitOfWork uow, int routeListsId)
+        {
+			return uow.GetById<RouteList>(routeListsId);
+		}
+
+		public IEnumerable<KeyValuePair<string, int>> GetDeliveryItemsToReturn(IUnitOfWork unitOfWork, int routeListsId)
+		{
+			RouteListItem routeListItemAlias = null;
+			VodovozOrder orderAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			KeyValuePair<string, int> keyValuePairAlias = new KeyValuePair<string, int>();
+
+			return unitOfWork.Session.QueryOver(() => routeListItemAlias)
+				.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+				.Inner.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+				.Inner.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(Restrictions.Or(
+						Restrictions.And(
+							Restrictions.Eq(Projections.Property(() => orderAlias.OrderStatus), OrderStatus.Shipped),
+							Restrictions.Eq(Projections.Property(() => orderEquipmentAlias.Direction), Direction.PickUp)
+						),
+						Restrictions.And(
+							Restrictions.Eq(Projections.Property(() => orderAlias.OrderStatus), OrderStatus.NotDelivered),
+							Restrictions.Eq(Projections.Property(() => orderEquipmentAlias.Direction), Direction.Deliver)
+						)
+					))
+				.And(Restrictions.Eq(Projections.Property(() => routeListItemAlias.RouteList.Id), routeListsId))
+				.SelectList(list =>
+					list.Select(Projections.GroupProperty(Projections.Property(() => nomenclatureAlias.Name)).WithAlias(() => keyValuePairAlias.Key))
+						.Select(Projections.Sum(
+							Projections.Conditional(
+								Restrictions.Eq(Projections.Property(() => orderEquipmentAlias.Direction), Direction.PickUp),
+								Projections.Property(() => orderEquipmentAlias.ActualCount),
+								Projections.Conditional(
+									Restrictions.Eq(Projections.Property(() => orderEquipmentAlias.Direction), Direction.Deliver),
+									Projections.Property(() => orderEquipmentAlias.Count),
+									Projections.Constant(0))
+								)
+							)
+						).WithAlias(() => keyValuePairAlias.Value)
+				).TransformUsing(Transformers.AliasToBean<KeyValuePair<string, int>>()).List<KeyValuePair<string, int>>();
+		}
+    }
 
 	#region DTO
 
@@ -696,7 +834,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public string Name { get; set; }
 		public decimal Amount { get; set; }
 		public bool Trackable { get; set; }
-		public EquipmentType EquipmentType { get; set; }
+		public EquipmentKind EquipmentKind { get; set; }
 		public DefectSource DefectSource { get; set; }
 		
 		public string Serial {
@@ -717,6 +855,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 	{
 		public int NomenclatureId { get; set; }
 		public decimal Amount { get; set; }
+	}
+	
+	public class GoodsInRouteListResultToDivide
+	{
+		public int NomenclatureId { get; set; }
+		public decimal Amount { get; set; }
+		public decimal? ExpireDatePercent { get; set; } = null;
+		public OwnTypes OwnType { get; set; }
 	}
 
 	public class GoodsInRouteListResultWithSpecialRequirements

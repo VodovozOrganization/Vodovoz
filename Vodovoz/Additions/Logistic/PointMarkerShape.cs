@@ -14,6 +14,16 @@
 		// > 40 бутылей
 		star,
 		//без формы
-		custom
+		custom,
+		// < 6 бутылей
+		overduecircle,
+		// 6 - 10 бутылей
+		overduetriangle,
+		// 10 - 20 бутылей
+		overduesquare,
+		// 20 - 40 бутылей
+		overduecross,
+		// > 40 бутылей
+		overduestar
 	}
 }

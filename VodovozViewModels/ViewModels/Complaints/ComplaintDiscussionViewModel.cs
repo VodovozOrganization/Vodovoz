@@ -4,9 +4,6 @@ using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
-using System.Linq;
-using System.Collections.Generic;
-using QS.Project.Repositories;
 using System;
 using QS.Project.Services;
 using QS.DomainModel.UoW;
@@ -18,9 +15,9 @@ namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintDiscussionViewModel : EntityWidgetViewModelBase<ComplaintDiscussion>
 	{
-		private readonly IFilePickerService filePickerService;
-		private readonly IEmployeeService employeeService;
-		private readonly ICommonServices commonServices;
+		private readonly IFilePickerService _filePickerService;
+		private readonly IEmployeeService _employeeService;
+		private readonly bool _canCompleteComplaintDiscussionPermission;
 
 		public ComplaintDiscussionViewModel(
 			ComplaintDiscussion complaintDiscussion,
@@ -30,10 +27,10 @@ namespace Vodovoz.ViewModels.Complaints
 			IUnitOfWork uow
 			) : base(complaintDiscussion, commonServices)
 		{
-			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			newCommentFiles = new GenericObservableList<ComplaintFile>();
+			_canCompleteComplaintDiscussionPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_complete_complaint_discussion");
 			UoW = uow;
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
@@ -50,7 +47,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public Employee CurrentEmployee {
 			get {
 				if(currentEmployee == null) {
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
+					currentEmployee = _employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId);
 				}
 				return currentEmployee;
 			}
@@ -60,7 +57,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public FilesViewModel FilesViewModel {
 			get {
 				if(filesViewModel == null) {
-					filesViewModel = new FilesViewModel(filePickerService, UoW);
+					filesViewModel = new FilesViewModel(_filePickerService, CommonServices.InteractiveService, UoW);
 					filesViewModel.FilesList = NewCommentFiles;
 				}
 
@@ -79,10 +76,10 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public virtual ComplaintStatuses[] HiddenStatuses => new[] { ComplaintStatuses.Closed };
 
-		public bool CanEditStatus => CanEdit && Entity.Status != ComplaintStatuses.Closed || (CanEdit && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_complete_complaint_discussion"));
+		public bool CanEditStatus => CanEdit && Entity.Status != ComplaintStatuses.Closed || (CanEdit && _canCompleteComplaintDiscussionPermission);
 
 		//FIXME переделать репозиторий на зависимость
-		public bool CanCompleteDiscussion => CanEditStatus && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_complete_complaint_discussion");
+		public bool CanCompleteDiscussion => CanEditStatus && _canCompleteComplaintDiscussionPermission;
 
 		#endregion Status
 
@@ -120,7 +117,7 @@ namespace Vodovoz.ViewModels.Complaints
 				() => {
 					var newComment = new ComplaintDiscussionComment();
 					if(CurrentEmployee == null) {
-						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
 						return;
 					}
 					newComment.Author = CurrentEmployee;

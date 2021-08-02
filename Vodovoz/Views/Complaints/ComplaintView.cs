@@ -72,13 +72,24 @@ namespace Vodovoz.Views.Complaints
 												ViewModel.NomenclatureSelectorFactory,
 												ViewModel.CounterpartySelectorFactory,
 												ViewModel.NomenclatureRepository,
-												ViewModel.UserRepository);
+												ViewModel.UserRepository,
+												ViewModel.OrderSelectorFactory,
+												ViewModel.EmployeeJournalFactory,
+												ViewModel.CounterpartyJournalFactory,
+												ViewModel.DeliveryPointJournalFactory,
+												ViewModel.SubdivisionJournalFactory,
+												ViewModel.GtkDialogsOpener,
+												ViewModel.UndeliveredOrdersJournalOpener,
+												ViewModel.SalesPlanJournalFactory,
+												ViewModel.NomenclatureSelector
+												);
 			});
 
 			entryOrder.SetEntityAutocompleteSelectorFactory(orderSelectorFactory);
 			entryOrder.Binding.AddBinding(ViewModel.Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			entryOrder.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			entryOrder.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
+			entryOrder.ChangedByUser += (sender, e) => ViewModel.ChangeDeliveryPointCommand.Execute();
 			labelOrder.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
 			yentryPhone.Binding.AddBinding(ViewModel.Entity, e => e.Phone, w => w.Text).InitializeFromSource();
@@ -91,6 +102,11 @@ namespace Vodovoz.Views.Complaints
 			cmbComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
 			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
 			cmbComplaintKind.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem).InitializeFromSource();
+
+			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
+			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
+				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
 
 			comboboxComplaintSource.SetRenderTextFunc<ComplaintSource>(x => x.Name);
 			comboboxComplaintSource.Binding.AddBinding(ViewModel, vm => vm.ComplaintSources, w => w.ItemsList).InitializeFromSource();
@@ -137,7 +153,7 @@ namespace Vodovoz.Views.Complaints
 			buttonAttachFine.Binding.AddBinding(ViewModel, vm => vm.CanAttachFine, w => w.Sensitive).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 
 			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 		}

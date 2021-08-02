@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -70,10 +70,6 @@
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
       <Name>QS.Banks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj">
-      <Project>{B1DD034B-EC88-400C-9C6B-83CE68AB3541}</Project>
-      <Name>QS.Contacts</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
       <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
       <Name>QS.HistoryLog</Name>
@@ -101,7 +97,7 @@
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
-    <PackageReference Include="Google.Protobuf" Version="3.15.8" />
+    <PackageReference Include="Google.Protobuf" Version="3.17.3" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
@@ -114,14 +110,14 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.1" />
-    <PackageReference Include="MySql.Data" Version="8.0.24" />
-    <PackageReference Include="NetTopologySuite" Version="2.2.0" />
+    <PackageReference Include="MySql.Data" Version="8.0.25" />
+    <PackageReference Include="NetTopologySuite" Version="2.3.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
     <PackageReference Include="NHibernate" Version="5.3.8" />
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-    <PackageReference Include="NLog" Version="4.7.9" />
+    <PackageReference Include="NLog" Version="4.7.10" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="SSH.NET" Version="2020.0.1" />

@@ -34,16 +34,19 @@
             <Width>26.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>269.3pt</Width>
+            <Width>219.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>93.1pt</Width>
+            <Width>81.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>91.6pt</Width>
+            <Width>74.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.8pt</Width>
+            <Width>65.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>101.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -78,7 +81,7 @@
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -160,6 +163,23 @@
                   <ReportItems>
                     <Textbox Name="Textbox6">
                       <Value>Дельта, бут.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Доп. продажи, руб</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -285,6 +305,25 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>={adds_sum}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <BackgroundColor>
+                        </BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -377,6 +416,26 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>=Sum({adds_sum})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -419,7 +478,8 @@
 	w.full_quantity AS full_plan,
 	w.empty_quantity AS empty_plan,
 	CAST(sold.full_sold AS SIGNED) AS full_sold,
-	CAST(sold.empty_returned AS SIGNED) AS empty_returned
+	CAST(sold.empty_returned AS SIGNED) AS empty_returned,
+          sold.adds_sum
 FROM employees e
 JOIN (
 	SELECT
@@ -444,7 +504,8 @@ LEFT JOIN (
 				IFNULL(a.bottles_returned, 0)
 			)
 			+ IFNULL(o.bottles_by_stock_actual_count, 0)
-		) AS empty_returned
+		) AS empty_returned,
+          SUM(IFNULL(additions.adds_sum, 0)) as adds_sum
 	FROM orders o
 	LEFT JOIN (
 		SELECT
@@ -454,28 +515,60 @@ LEFT JOIN (
 		FROM orders o
 		LEFT JOIN order_items i ON o.id = i.order_id
 		LEFT JOIN nomenclature n ON n.id = i.nomenclature_id
-		WHERE o.create_date BETWEEN @start_date AND @end_date
-			AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
+		WHERE (IF(@is_creation_date,
+			   o.create_date BETWEEN @start_date AND @end_date,
+			   o.delivery_date BETWEEN @start_date AND @end_date))
+			AND (IF(@is_creation_date,
+               o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
+			   o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+               OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
 			AND !o.is_contract_closer
 			AND n.category = 'water' AND n.tare_volume = 'Vol19L'
 		GROUP BY o.id
 	) AS items ON o.id = items.order_id
+	LEFT JOIN ( -- расчет дополнительных продаж
+		SELECT
+			SUM(GET_TOTAL_SUM_FOR_ORDER_ITEM(oi.id)) as adds_sum,
+			o.id as order_id,
+			adds.id as nom_id
+		FROM orders o
+		LEFT JOIN order_items oi ON o.id = oi.order_id
+		LEFT JOIN nomenclature adds ON adds.id = oi.nomenclature_id
+		WHERE (IF(@is_creation_date,
+			   o.create_date BETWEEN @start_date AND @end_date,
+			   o.delivery_date BETWEEN @start_date AND @end_date))
+			AND (IF(@is_creation_date,
+               o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
+			   o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+               OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
+			AND !o.is_contract_closer
+			AND (adds.category != 'water' OR adds.tare_volume != 'Vol19L')
+		GROUP BY o.id
+		) AS additions on additions.order_id = o.id
 	LEFT JOIN route_list_addresses a ON a.order_id = o.id
-	WHERE o.create_date BETWEEN @start_date AND @end_date
-		AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
+	WHERE (IF(@is_creation_date,
+			   o.create_date BETWEEN @start_date AND @end_date,
+			   o.delivery_date BETWEEN @start_date AND @end_date))
+			AND (IF(@is_creation_date,
+               o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
+			   o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+               OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
 		AND !o.is_contract_closer
-		AND (items.nom_id IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0)
+		AND (items.nom_id IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0 OR additions.nom_id IS NOT NULL)
 		AND !(a.status &lt;=&gt; 'Transfered')
 	GROUP BY o.author_employee_id
 ) AS sold ON sold.employee_id = e.id
-WHERE sold.full_sold IS NOT NULL OR sold.empty_returned IS NOT NULL
-;</CommandText>
+WHERE sold.full_sold IS NOT NULL OR sold.empty_returned IS NOT NULL OR sold.adds_sum &gt; 0
+ORDER BY e.last_name</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_creation_date">
+            <Value>=Parameters!is_creation_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -499,6 +592,10 @@ WHERE sold.full_sold IS NOT NULL OR sold.empty_returned IS NOT NULL
         <Field Name="empty_returned">
           <DataField>empty_returned</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="adds_sum">
+          <DataField>adds_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -548,6 +645,14 @@ WHERE sold.full_sold IS NOT NULL OR sold.empty_returned IS NOT NULL
           <Value>221</Value>
         </Values>
       </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_creation_date">
+      <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

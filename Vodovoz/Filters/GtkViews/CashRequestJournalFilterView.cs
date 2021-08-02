@@ -1,11 +1,5 @@
-﻿using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
@@ -16,26 +10,14 @@ namespace Vodovoz.Filters.GtkViews
 	{
 		public CashRequestJournalFilterView(CashRequestJournalFilterViewModel journalFilterViewModel) : base(journalFilterViewModel)
 		{
-			this.Build();
-			this.Configure();
+			Build();
+			Configure();
 		}
 
 		private void Configure()
 		{
 			AuthorEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() =>
-					{
-						var employeeFilter = new EmployeeFilterViewModel{
-							Status = EmployeeStatus.IsWorking,
-							Category = EmployeeCategory.office
-						};
-						return new EmployeesJournalViewModel(
-							employeeFilter,
-							UnitOfWorkFactory.GetDefaultFactory, 
-							ServicesConfig.CommonServices);
-					})
-			);
+				ViewModel.EmployeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
 
 			daterangepicker.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull);
 			daterangepicker.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull);
@@ -45,12 +27,9 @@ namespace Vodovoz.Filters.GtkViews
 				vm => vm.Author,
 				w => w.Subject
 			).InitializeFromSource();
-
 			
 			AccountableEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>
-					(ServicesConfig.CommonServices)
-			);
+				ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 			
 			AccountableEntityviewmodelentry.Binding.AddBinding(
 				ViewModel,
@@ -84,5 +63,4 @@ namespace Vodovoz.Filters.GtkViews
 			}
 		}
 	}
-
 }

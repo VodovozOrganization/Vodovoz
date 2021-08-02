@@ -107,7 +107,7 @@ namespace Vodovoz.Views.Warehouse
 			ViewModel.PrintCommand.CanExecuteChanged += (sender, e) =>  buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
 			buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
 
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 		}
 
 		private MovementDocumentItem GetSelectedItem()

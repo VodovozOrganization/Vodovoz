@@ -76,16 +76,24 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel != null) 
 			{
 				if(FilterViewModel.StartDate.HasValue)
+				{
 					paymentQuery.Where(x => x.Date >= FilterViewModel.StartDate);
+				}
 
 				if(FilterViewModel.EndDate.HasValue)
-					paymentQuery.Where(x => x.Date <= FilterViewModel.EndDate);
+				{
+					paymentQuery.Where(x => x.Date <= FilterViewModel.EndDate.Value.AddDays(1).AddMilliseconds(-1));
+				}
 
 				if(FilterViewModel.HideCompleted)
+				{
 					paymentQuery.Where(x => x.Status != PaymentState.completed);
+				}
 
 				if(FilterViewModel.PaymentState.HasValue)
+				{
 					paymentQuery.Where(x => x.Status == FilterViewModel.PaymentState);
+				}
 			}
 
 			#endregion filter

@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -59,14 +60,17 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IUnitOfWork uow,
             IInteractiveService interactiveService, 
             INavigationManager navigation,
-            CashRequestUserRole userRole) 
+            CashRequestUserRole userRole,
+            IEmployeeJournalFactory employeeJournalFactory) 
             : base(interactiveService, navigation)
         {
-            this.UoW = uow;
-            this.UserRole = userRole;
+	        EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+	        UoW = uow;
+            UserRole = userRole;
         }
 
         public EventHandler EntityAccepted;
+        public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 
         //Создана - только для невыданных сумм - Заявитель, Согласователь
         //Согласована - Согласователь
@@ -100,7 +104,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 Entity.AccountableEmployee = accountableEmployee;
                 Entity.Sum = Sum;
                 Entity.Comment = Comment;
-                Close(false, CloseSource.Self);
+                Close(true, CloseSource.Self);
                 EntityAccepted?.Invoke(this, new CashRequestSumItemAcceptedEventArgs(Entity));
             },
             () => true
@@ -109,7 +113,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         private DelegateCommand cancelCommand;
         public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
             () => {
-                Close(false, CloseSource.Cancel);
+                Close(true, CloseSource.Cancel);
             },
             () => true
         ));

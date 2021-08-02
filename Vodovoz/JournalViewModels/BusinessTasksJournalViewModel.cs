@@ -25,6 +25,7 @@ using Vodovoz.JournalNodes;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Models;
 using Vodovoz.Repositories.Client;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Counterparties;
 
@@ -70,7 +71,7 @@ namespace Vodovoz.JournalViewModels
 			this.footerViewModel = footerViewModel;
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
-			actionsViewModel = new BusinessTasksJournalActionsViewModel();
+			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory());
 
 			RegisterTasks();
 			

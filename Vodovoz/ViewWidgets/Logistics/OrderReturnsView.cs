@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using FluentNHibernate.Data;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
@@ -35,7 +37,9 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Journal;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -232,7 +236,7 @@ namespace Vodovoz
 			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceClient.Binding.AddBinding(orderNode, s => s.Client, w => w.Subject).InitializeFromSource();
 			referenceClient.CanEditReference = false;
-			orderEquipmentItemsView.Configure(UoW, routeListItem.Order, new NomenclatureParametersProvider());
+			orderEquipmentItemsView.Configure(UoW, routeListItem.Order, new FlyerRepository());
 			ConfigureDeliveryPointRefference(orderNode.Client);
 
 			ytreeToClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
@@ -356,11 +360,8 @@ namespace Vodovoz
 			var deliveryPointFilter = new DeliveryPointJournalFilterViewModel {
 				Counterparty = client
 			};
-			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
-							() => new DeliveryPointJournalViewModel(deliveryPointFilter,
-							UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
-								SelectionMode = JournalSelectionMode.Single
-							}));
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(deliveryPointFilter)
+				.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 			entityVMEntryDeliveryPoint.Binding.AddBinding(orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 		}
 
@@ -480,12 +481,12 @@ namespace Vodovoz
 
 		public bool CanClose()
 		{
-			var orderValidator = new QSValidator<Order>(routeListItem.Order,
-				new Dictionary<object, object> {
-				{ "NewStatus", OrderStatus.Closed },
+			IOrderParametersProvider orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
+			ValidationContext validationContext = new ValidationContext(routeListItem.Order,null, new Dictionary<object, object>{
+					{ "NewStatus", OrderStatus.Closed },
 				{ "AddressStatus", routeListItem.Status }});
-			routeListItem.AddressIsValid = orderValidator.IsValid;
-			orderValidator.RunDlgIfNotValid((Window)this.Toplevel);
+			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
+			routeListItem.AddressIsValid = ServicesConfig.ValidationService.Validate(routeListItem.Order, validationContext);
 			routeListItem.Order.CheckAndSetOrderIsService();
 			orderEquipmentItemsView.UnsubscribeOnEquipmentAdd();
 			//Не блокируем закрытие вкладки

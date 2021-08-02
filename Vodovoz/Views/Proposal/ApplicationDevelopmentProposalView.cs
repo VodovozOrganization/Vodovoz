@@ -19,7 +19,7 @@ namespace Vodovoz.Views.Proposal
         {
             ybtnSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
             ybtnSend.Clicked += (sender, args) => ViewModel.SendCommand.Execute();
-            ybtnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+            ybtnCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
             ybtnEdit.Clicked += (sender, args) => { 
                 ytextviewProposalResponse.Sensitive = true; // Binding проверяется только при первом заходе на форму
                 ViewModel.EditCommand.Execute();

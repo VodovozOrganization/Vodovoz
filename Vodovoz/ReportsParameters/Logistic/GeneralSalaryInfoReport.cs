@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
-using Gtk;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
@@ -24,8 +23,7 @@ namespace Vodovoz.ReportsParameters.Logistic
             IEntityAutocompleteSelectorFactory employeeSelectorFactory,
             IInteractiveService interactiveService)
         {
-            this.interactiveService = interactiveService ??
-                                      throw new ArgumentNullException(nameof(interactiveService));
+            _interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
             this.employeeSelectorFactory = employeeSelectorFactory ??
                                            throw new ArgumentNullException(nameof(employeeSelectorFactory));
             this.Build();
@@ -37,7 +35,7 @@ namespace Vodovoz.ReportsParameters.Logistic
         public event EventHandler<LoadReportEventArgs> LoadReport;
 
         private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
-        private readonly IInteractiveService interactiveService;
+        private readonly IInteractiveService _interactiveService;
 
         private void Configure()
         {
@@ -75,7 +73,7 @@ namespace Vodovoz.ReportsParameters.Logistic
             var selectedMonth = (int) comboMonth.SelectedItem;
             var creationDate = DateTime.Now;
             var endDate = creationDate.Month == selectedMonth && creationDate.Year == selectedYear
-                ? new DateTime(creationDate.Year, creationDate.Month, creationDate.Day - 1, 23,59,59)
+                ? new DateTime(creationDate.Year, creationDate.Month, creationDate.Day, 23,59,59)
                 : new DateTime(selectedYear, selectedMonth, DateTime.DaysInMonth(selectedYear, selectedMonth), 23, 59, 59);
 
             return new ReportInfo
@@ -144,22 +142,11 @@ namespace Vodovoz.ReportsParameters.Logistic
                        "<b>ЗП за месяц</b>: фактическая ЗП за месяц\n" +
                        "<b>ЗП за месяц среднее за день</b>: ЗП за месяц / кол- во рабочих дней\n" +
                        "<b>Расчетная ЗП за 22 р.д.</b>: с ЗП за месяц среднее в день * 22\n";
-            var label = new Label {Markup = info};
-            label.SetPadding(10, 10);
-            var vbox = new VBox {label};
 
-            var messageWindow = new Window(WindowType.Toplevel)
-            {
-                Resizable = false,
-                Title = "Информация",
-                WindowPosition = WindowPosition.Center,
-                Modal = true
-            };
-            messageWindow.Add(vbox);
-            messageWindow.ShowAll();
-        }
+			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
+		}
 
-        private void OnDriverOfSelected()
+		private void OnDriverOfSelected()
         {
             if (comboDriverOf.SelectedItemOrNull != null)
             {
@@ -178,14 +165,14 @@ namespace Vodovoz.ReportsParameters.Logistic
             {
                 if (empl.Category == EmployeeCategory.office)
                 {
-                    interactiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя выбрать офисного сотрудника");
+                    _interactiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя выбрать офисного сотрудника");
                     entryEmployee.Subject = null;
                     return;
                 }
 
                 if (empl.DriverOf == CarTypeOfUse.CompanyTruck)
                 {
-                    interactiveService.ShowMessage(ImportanceLevel.Warning,
+                    _interactiveService.ShowMessage(ImportanceLevel.Warning,
                         "Нельзя выбрать водителя, управляющего фурой");
                     entryEmployee.Subject = null;
                     return;

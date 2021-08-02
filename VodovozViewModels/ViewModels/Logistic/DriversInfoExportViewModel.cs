@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -48,6 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool dataIsLoading;
 		private GenericObservableList<DriverInfoNode> items;
 		private DelegateCommand exportCommand;
+		private DelegateCommand helpCommand;
 
 		public DriversInfoExportViewModel(
 			WageParameterService wageParameterService,
@@ -125,6 +125,22 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			get => exportPath;
 			set => SetField(ref exportPath, value);
 		}
+		public DelegateCommand HelpCommand => helpCommand ?? (helpCommand = new DelegateCommand(
+			() =>
+			{
+				interactiveService.ShowMessage(
+					ImportanceLevel.Info,
+					"В отчёт попадают все МЛ, кроме тех, у которых:\n" +
+					$" - Тип автомобиля '{Domain.Logistic.CarTypeOfUse.CompanyTruck.GetEnumTitle()}'\n" +
+					" - Водитель является выездным мастером\n\n" +
+					"Планирумая ЗП водителя считается только для незакрытых МЛ\n" +
+					"Фактическая - только для закрытых\n" +
+					"ЗП за период - Сумма фактической ЗП за период",
+					"Информация"
+				);
+			},
+			() => true
+		));
 		public DelegateCommand ExportCommand => exportCommand ?? (exportCommand = new DelegateCommand(
 				() =>
 				{

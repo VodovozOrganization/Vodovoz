@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -12,17 +12,25 @@ using NHibernate.Transform;
 using NHibernate.Util;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
+using QS.Services;
 using QS.Utilities.Text;
 using QSProjectsLib;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.JournalViewers;
 using Vodovoz.Repositories;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModel
 {
@@ -246,14 +254,33 @@ namespace Vodovoz.ViewModel
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrdersVMNode>();
 						var order = UoW.GetById<Domain.Orders.Order>(selectedNodes.FirstOrDefault().Id);
-						UndeliveriesView dlg = new UndeliveriesView();
-						dlg.HideFilterAndControls();
-						dlg.UndeliveredOrdersFilter.SetAndRefilterAtOnce(
-							x => x.ResetFilter(),
-							x => x.RestrictOldOrder = order,
-							x => x.RestrictOldOrderStartDate = order.DeliveryDate,
-							x => x.RestrictOldOrderEndDate = order.DeliveryDate
+
+						var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
+							ServicesConfig.CommonServices,
+							new OrderSelectorFactory(),
+							new EmployeeJournalFactory(),
+							new CounterpartyJournalFactory(),
+							new DeliveryPointJournalFactory(),
+							new SubdivisionJournalFactory()
+						)
+						{
+							HidenByDefault = true,
+							RestrictOldOrder = order,
+							RestrictOldOrderStartDate = order.DeliveryDate,
+							RestrictOldOrderEndDate = order.DeliveryDate
+						};
+
+						var dlg = new UndeliveredOrdersJournalViewModel(
+							undeliveredOrdersFilter,
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices,
+							new GtkTabsOpener(),
+							new EmployeeJournalFactory(),
+							VodovozGtkServicesConfig.EmployeeService,
+							new UndeliveredOrdersJournalOpener(),
+							new OrderSelectorFactory()
 						);
+
 						MainClass.MainWin.TdiMain.AddTab(dlg);
 					},
 					(selectedItems) => selectedItems.Any(o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, ((OrdersVMNode)o).Id).Any())

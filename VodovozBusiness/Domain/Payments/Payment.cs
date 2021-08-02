@@ -280,14 +280,14 @@ namespace Vodovoz.Domain.Payments
 		{
 			return new Payment
 			{
-				PaymentNum = this.PaymentNum,
+				PaymentNum = PaymentNum,
 				Date = DateTime.Now,
 				Total = paymentSum,
-				ProfitCategory = this.ProfitCategory,
+				ProfitCategory = ProfitCategory,
 				PaymentPurpose = $"Возврат суммы оплаты заказа №{orderId} на баланс клиента",
-				Organization = this.Organization,
-				Counterparty = this.Counterparty,
-				CounterpartyName = this.counterpartyName,
+				Organization = Organization,
+				Counterparty = Counterparty,
+				CounterpartyName = counterpartyName,
 				Status = PaymentState.undistributed
 			};
 		}

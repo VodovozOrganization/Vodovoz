@@ -1,8 +1,14 @@
-﻿using QS.Views.GtkUI;
+﻿using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
+using QS.Views.GtkUI;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
+using Vodovoz.JournalFilters;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -17,8 +23,11 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void ConfigureDlg()
 		{
-			entryreferencevmEmployee.RepresentationModel = new EmployeesVM(new EmployeeFilterViewModel());
+			entryreferencevmEmployee.RepresentationModel = new EmployeesVM(new EmployeeRepresentationFilterViewModel());
 			entryreferencevmEmployee.Binding.AddBinding(ViewModel, x => x.Employee, v => v.Subject).InitializeFromSource();
+			
+			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
+			entryCounterparty.Binding.AddBinding(ViewModel, x => x.Counterparty, v => v.Subject).InitializeFromSource();
 
 			yenumcomboboxType.ItemsEnum = typeof(ComplaintType);
 			yenumcomboboxType.Binding.AddBinding(ViewModel, x => x.ComplaintType, v => v.SelectedItemOrNull).InitializeFromSource();
@@ -33,6 +42,11 @@ namespace Vodovoz.Filters.GtkViews
 			cmbComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
 			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
 			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKind, w => w.SelectedItem).InitializeFromSource();
+
+			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
+			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
+				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
 
 			yentryreferenceSubdivision.SubjectType = typeof(Subdivision);
 			yentryreferenceSubdivision.Binding.AddBinding(ViewModel, x => x.Subdivision, w => w.Subject).InitializeFromSource();

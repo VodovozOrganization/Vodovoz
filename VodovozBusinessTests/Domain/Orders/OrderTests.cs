@@ -5,6 +5,7 @@ using System.Linq;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
+using QS.Dialog;
 using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
 using QS.Services;

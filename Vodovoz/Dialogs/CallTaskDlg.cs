@@ -10,7 +10,6 @@ using QSReport;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using QSWidgetLib;
-using Vodovoz.Dialogs.Phones;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Tools.CallTasks;
@@ -24,6 +23,11 @@ using Vodovoz.JournalViewModels;
 using QS.Project.Services;
 using QS.Project.Journal;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz.Dialogs
 {
@@ -96,18 +100,15 @@ namespace Vodovoz.Dialogs
 			yentryTareReturn.Binding.AddBinding(Entity, s => s.TareReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 
-			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel();
+			var employeeFilterViewModel = new EmployeeRepresentationFilterViewModel();
 			employeeFilterViewModel.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			EmployeesVM employeeVM = new EmployeesVM(employeeFilterViewModel);
 			EmployeeyEntryreferencevm.RepresentationModel = employeeVM;
 
 			EmployeeyEntryreferencevm.Binding.AddBinding(Entity, s => s.AssignedEmployee, w => w.Subject).InitializeFromSource();
 
-			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
-							() => new DeliveryPointJournalViewModel(DeliveryPointJournalFilterViewModel,
-							UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
-								SelectionMode = JournalSelectionMode.Single
-							}));
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(DeliveryPointJournalFilterViewModel)
+				.CreateDeliveryPointAutocompleteSelectorFactory());
 			entityVMEntryDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
 			entityVMEntryCounterparty.SetEntityAutocompleteSelectorFactory(

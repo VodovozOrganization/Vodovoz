@@ -26,6 +26,8 @@ using Vodovoz.EntityRepositories.Documents;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Tools;
 using System.Linq;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -154,7 +156,7 @@ namespace Vodovoz.Dialogs.Cash
 			yentryOrder.RepresentationModel = new OrdersVM(filterOrders);
 			yentryOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
 
-			var filterCasher = new EmployeeFilterViewModel();
+			var filterCasher = new EmployeeRepresentationFilterViewModel();
 			filterCasher.Status = Domain.Employees.EmployeeStatus.IsWorking;
 			yentryCasher.RepresentationModel = new EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();

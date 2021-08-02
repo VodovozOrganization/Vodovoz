@@ -51,17 +51,17 @@ namespace Vodovoz.Views.Goods
 			#endregion
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
-			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);	
+			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);	
 			ylabelCreationDate.Binding.AddFuncBinding(ViewModel.Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
 			ylabelCreatedBy.Binding.AddFuncBinding(ViewModel.Entity, e => ViewModel.GetUserEmployeeName(), w => w.LabelProp).InitializeFromSource();
 
 			enumVAT.ItemsEnum = typeof(VAT);
 			enumVAT.Binding.AddBinding(ViewModel.Entity, e => e.VAT, w => w.SelectedItem).InitializeFromSource();
 
-			enumType.Changed += ViewModel.OnEnumTypeChanged;
-			enumType.ChangedByUser += ViewModel.OnEnumTypeChangedByUser;
-			enumType.ItemsEnum = typeof(NomenclatureCategory);
-			enumType.Binding.AddBinding(ViewModel.Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
+			enumCategory.Changed += ViewModel.OnEnumKindChanged;
+			enumCategory.ChangedByUser += ViewModel.OnEnumKindChangedByUser;
+			enumCategory.ItemsEnum = typeof(NomenclatureCategory);
+			enumCategory.Binding.AddBinding(ViewModel.Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
 			enumTareVolume.ItemsEnum = typeof(TareVolume);
 			enumTareVolume.Binding.AddBinding(ViewModel.Entity, e => e.TareVolume, w => w.SelectedItemOrNull).InitializeFromSource();
@@ -178,10 +178,10 @@ namespace Vodovoz.Views.Goods
 			referenceColor.Binding.AddBinding(ViewModel.Entity, e => e.EquipmentColor, w => w.Subject).InitializeFromSource();
 			referenceColor.Binding.AddBinding(ViewModel, vm => vm.SensitivityEquipmentCategoryItems, w => w.Sensitive).InitializeFromSource();
 
-			labelClass.Binding.AddBinding(ViewModel, vm => vm.SensitivityEquipmentCategoryItems, w => w.Sensitive).InitializeFromSource();
-			yentryrefEqupmentType.SubjectType = typeof(EquipmentType);
-			yentryrefEqupmentType.Binding.AddBinding(ViewModel.Entity, e => e.Type, w => w.Subject).InitializeFromSource();
-			yentryrefEqupmentType.Binding.AddBinding(ViewModel, vm => vm.SensitivityEquipmentCategoryItems, w => w.Sensitive).InitializeFromSource();
+			labelKind.Binding.AddBinding(ViewModel, vm => vm.SensitivityEquipmentCategoryItems, w => w.Sensitive).InitializeFromSource();
+			yentryrefEqupmentKind.SubjectType = typeof(EquipmentKind);
+			yentryrefEqupmentKind.Binding.AddBinding(ViewModel.Entity, e => e.Kind, w => w.Subject).InitializeFromSource();
+			yentryrefEqupmentKind.Binding.AddBinding(ViewModel, vm => vm.SensitivityEquipmentCategoryItems, w => w.Sensitive).InitializeFromSource();
 
 			labelModel.Binding.AddBinding(ViewModel, vm => vm.SensitivityEquipmentCategoryItems, w => w.Sensitive).InitializeFromSource();
 			entryModel.Binding.AddBinding(ViewModel, vm => vm.SensitivityEquipmentCategoryItems, w => w.Sensitive).InitializeFromSource();

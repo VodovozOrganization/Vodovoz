@@ -39,7 +39,7 @@ namespace Vodovoz.Views.Cash
             buttonSave.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
             
             buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-            buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+            buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
         }
     }
 }

@@ -7,6 +7,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Repository.Logistics
 {
+	[Obsolete("Используйте новый репозиторий в Vodovoz.EntityRepositories.Logistic, необходимый функционал перенесите")]
 	public static class TrackRepository
 	{
 		public static Track GetTrackForRouteList (IUnitOfWork uow, int routeListId)

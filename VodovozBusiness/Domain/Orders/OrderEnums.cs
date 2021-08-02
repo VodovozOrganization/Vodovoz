@@ -124,4 +124,15 @@ namespace Vodovoz.Domain.Orders
 		{
 		}
 	}
+
+	/// <summary>
+	/// Используется для заполнения комбобоксов
+	/// </summary>
+	public enum OrderDateType
+	{
+		[Display(Name = "Дата создания")]
+		CreationDate,
+		[Display(Name = "Дата доставки")]
+		DeliveryDate
+	}
 }

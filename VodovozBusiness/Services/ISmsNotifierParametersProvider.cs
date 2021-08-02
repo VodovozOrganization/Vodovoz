@@ -7,5 +7,6 @@
 		decimal GetLowBalanceLevel();
 		string GetLowBalanceNotifiedPhone();
 		string GetLowBalanceNotifyText();
+		string GetUndeliveryAutoTransferNotApprovedTextTemplate();
 	}
 }

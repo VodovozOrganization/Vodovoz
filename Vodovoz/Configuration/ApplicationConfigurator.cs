@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using Gamma.Binding;
@@ -46,6 +46,8 @@ using Vodovoz.Domain.StoredResources;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.ViewModels.Cash;
+using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.Views.Users;
 using VodovozInfrastructure.Configuration;
@@ -151,8 +153,8 @@ namespace Vodovoz.Configuration
                     .End(),
                 OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView()
                     .SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
-                OrmObjectMapping<EquipmentType>.Create().Dialog<EquipmentTypeDlg>().DefaultTableView()
-                    .Column("Название", equipmentType => equipmentType.Name).End(),
+                OrmObjectMapping<EquipmentKind>.Create().Dialog<EquipmentKindDlg>().DefaultTableView()
+                    .Column("Название", equipmentKind => equipmentKind.Name).End(),
                 //Связанное с клиентом
                 OrmObjectMapping<Proxy>.Create().Dialog<ProxyDlg>()
                     .DefaultTableView().SearchColumn("Номер", x => x.Number).SearchColumn("С", x => x.StartDate.ToShortDateString())
@@ -160,11 +162,11 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<DeliveryPoint>.Create().Dialog<DeliveryPointDlg>().DefaultTableView()
                     .SearchColumn("ID", x => x.Id.ToString()).Column("Адрес", x => x.Title).End(),
                 OrmObjectMapping<PaidRentPackage>.Create().Dialog<PaidRentPackageDlg>()
-                    .DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип оборудования", x => x.EquipmentType.Name)
+                    .DefaultTableView().SearchColumn("Название", x => x.Name).Column("Вид оборудования", x => x.EquipmentKind.Name)
                     .SearchColumn("Цена в сутки", x => CurrencyWorks.GetShortCurrencyString(x.PriceDaily))
                     .SearchColumn("Цена в месяц", x => CurrencyWorks.GetShortCurrencyString(x.PriceMonthly)).End(),
                 OrmObjectMapping<FreeRentPackage>.Create().Dialog<FreeRentPackageDlg>().DefaultTableView()
-                    .SearchColumn("Название", x => x.Name).Column("Тип оборудования", x => x.EquipmentType.Name).OrderAsc(x => x.Name)
+                    .SearchColumn("Название", x => x.Name).Column("Вид оборудования", x => x.EquipmentKind.Name).OrderAsc(x => x.Name)
                     .End(),
                 OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView()
                     .SearchColumn("Название", x => x.FullName).End(),
@@ -176,7 +178,7 @@ namespace Vodovoz.Configuration
                 //Справочники с фильтрами
                 OrmObjectMapping<Equipment>.Create().Dialog<EquipmentDlg>().JournalFilter<EquipmentFilter>()
                     .DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Номенклатура", x => x.NomenclatureName)
-                    .Column("Тип", x => x.Nomenclature.Type.Name).SearchColumn("Серийный номер", x => x.Serial)
+                    .Column("Тип", x => x.Nomenclature.Kind.Name).SearchColumn("Серийный номер", x => x.Serial)
                     .Column("Дата последней обработки", x => x.LastServiceDate.ToShortDateString()).End(),
                 //Логисткика
                 OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateDlg>()
@@ -213,12 +215,13 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w => w.Name)
                     .Column("В архиве", w => w.IsArchive ? "Да" : "").End(),
                 OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().DefaultTableView()
-                    .Column("Название", w => w.Name).End()
+                    .Column("Название", w => w.Name).End(),
+                OrmObjectMapping<CarEventType>.Create().Dialog<CarEventTypeViewModel>()
             };
 
-            #region Складские документы
+			#region Складские документы
 
-            OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
+			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
             OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentDlg>();
             OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentDlg>();
             OrmMain.AddObjectDescription<ShiftChangeWarehouseDocument>().Dialog<ShiftChangeWarehouseDocumentDlg>();
@@ -247,10 +250,6 @@ namespace Vodovoz.Configuration
 
             #region Простые справочники
 
-            OrmMain.AddObjectDescription<DiscountReason>()
-                .DefaultTableView()
-                .SearchColumn("Название", x => x.Name)
-                .End();
             OrmMain.AddObjectDescription<GeographicGroup>()
                 .Dialog<GeographicGroupDlg>()
                 .DefaultTableView()
@@ -316,6 +315,7 @@ namespace Vodovoz.Configuration
                 .Column("< 6л б.", x => x.Water6LCount)
                 .Column("< 1,5л б.", x => x.Water1500mlCount)
                 .Column("< 0,6л б.", x => x.Water600mlCount)
+                .Column("< 0,5л б.", x => x.Water500mlCount)
                 .Column("Минимальная сумма заказа", x => x.OrderMinSumEShopGoods.ToString())
                 .SearchColumn("Описание правила", x => x.Title)
                 .End();

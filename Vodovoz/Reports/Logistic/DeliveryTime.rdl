@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -14,64 +12,68 @@
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <Width>7.5in</Width>
-  <TopMargin>.25in</TopMargin>
-  <LeftMargin>.25in</LeftMargin>
-  <RightMargin>.25in</RightMargin>
-  <BottomMargin>.25in</BottomMargin>
+  <Width>297mm</Width>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	employees.visiting_master,
-	route_list_addresses.route_list_id,
-	CONCAT_WS('',
-			CONCAT(employees.last_name, ' '),
-			IF(employees.name = '',
-				'',
-				CONCAT(LEFT(employees.name, 1), '.')),
-			IF(employees.patronymic = '',
-				'',
-				CONCAT(LEFT(employees.patronymic, 1), '.')),
-			IF(visiting_master = 1, ' (Выездной мастер)', '')) AS driver_name,
-	delivery_schedule.name AS delivery_schedule,
-	delivery_schedule.to_time AS max_time,
-	counterparty.name AS client,
-	delivery_points.compiled_address_short,
-	GROUP_CONCAT(gg.name SEPARATOR ', ')
-FROM
-	route_lists
-LEFT JOIN
-	route_list_addresses ON route_lists.id = route_list_addresses.route_list_id
-LEFT JOIN
-	employees ON route_lists.driver_id = employees.id
-LEFT JOIN
-	orders ON route_list_addresses.order_id = orders.id
-LEFT JOIN
-	delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
-LEFT JOIN
-	counterparty ON orders.client_id = counterparty.id
-LEFT JOIN
-	delivery_points ON delivery_points.id = orders.delivery_point_id
-LEFT JOIN
-	geographic_groups_to_entities gge ON gge.route_list_id = route_lists.id
-LEFT JOIN
-	geographic_groups gg ON gge.geographic_group_id = gg.id
+    employees.visiting_master,
+    route_list_addresses.route_list_id,
+    CONCAT_WS('',
+        GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.name, employees.patronymic),
+        IF(visiting_master, ' (Выездной мастер)', '')
+    ) as driver_name,
+    delivery_schedule.name AS delivery_schedule,
+    delivery_schedule.to_time AS max_time,
+    counterparty.name AS client,
+    delivery_points.compiled_address_short,
+    GROUP_CONCAT(gg.name SEPARATOR ', ')
+FROM route_lists
+    LEFT JOIN
+route_list_addresses ON route_lists.id = route_list_addresses.route_list_id
+    INNER JOIN
+employees ON route_lists.driver_id = employees.id
+    INNER JOIN
+cars c ON route_lists.car_id = c.id
+    LEFT JOIN
+orders ON route_list_addresses.order_id = orders.id
+    LEFT JOIN
+delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
+    LEFT JOIN
+counterparty ON orders.client_id = counterparty.id
+    LEFT JOIN
+delivery_points ON delivery_points.id = orders.delivery_point_id
+    LEFT JOIN
+geographic_groups_to_entities gge ON gge.route_list_id = route_lists.id
+    LEFT JOIN
+geographic_groups gg ON gge.geographic_group_id = gg.id
 WHERE
-	route_lists.date = CURDATE()
-	AND route_list_addresses.status = 'EnRoute'
-	AND delivery_schedule.to_time &lt;= @beforeTime
-	AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups))
+    route_lists.date = CURDATE()
+    AND route_list_addresses.status = 'EnRoute'
+    AND delivery_schedule.to_time &lt;= @beforeTime
+    AND (gg.id IN (@geographic_groups))
+    AND (
+        IF('Logistics' IN (@rl_type_of_use), !employees.visiting_master AND c.type_of_use != 'CompanyTruck', false)
+            OR IF('CompanyTrucks' IN (@rl_type_of_use), c.type_of_use = 'CompanyTruck', false)
+            OR IF('ServiceCenter' IN (@rl_type_of_use), employees.visiting_master, false)
+        )
 GROUP BY route_list_addresses.id
 ORDER BY driver_name, max_time
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="beforeTime">
-            <Value>=Parameters!beforeTime</Value>
+            <Value>={?beforeTime}</Value>
           </QueryParameter>
           <QueryParameter Name="geographic_groups">
-            <Value>=Parameters!geographic_groups</Value>
+            <Value>={?geographic_groups}</Value>
+          </QueryParameter>
+          <QueryParameter Name="rl_type_of_use">
+            <Value>={?rl_type_of_use}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -108,20 +110,7 @@ ORDER BY driver_name, max_time
     </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>.5in</Height>
-    <ReportItems>
-      <Textbox Name="Textbox1">
-        <Top>.1in</Top>
-        <Left>.1in</Left>
-        <Width>6in</Width>
-        <Height>.25in</Height>
-        <Value>Время доставки</Value>
-        <Style>
-          <FontSize>15pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-        </Style>
-      </Textbox>
-    </ReportItems>
+    <Height>0.0pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
@@ -137,16 +126,22 @@ ORDER BY driver_name, max_time
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>66.7pt</Width>
+            <Width>23.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>217.6pt</Width>
+            <Width>99.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>217.6pt</Width>
+            <Width>41.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>291.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>317.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>39.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -154,6 +149,40 @@ ORDER BY driver_name, max_time
             <TableRow>
               <Height>12pt</Height>
               <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>№пп</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Водитель</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
@@ -166,6 +195,7 @@ ORDER BY driver_name, max_time
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -182,6 +212,7 @@ ORDER BY driver_name, max_time
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -198,6 +229,7 @@ ORDER BY driver_name, max_time
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -214,6 +246,7 @@ ORDER BY driver_name, max_time
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -223,59 +256,56 @@ ORDER BY driver_name, max_time
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <TableGroups>
-          <TableGroup>
-            <Header>
-              <TableRows>
-                <TableRow>
-                  <Height>12pt</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ColSpan>4</ColSpan>
-                      <ReportItems>
-                        <Textbox Name="Textbox7">
-                          <Value>=Fields.driver_name.Value</Value>
-                          <Style>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <FontWeight>Bold</FontWeight>
-                            <BorderColor />
-                            <BorderWidth />
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-              <RepeatOnNewPage>true</RepeatOnNewPage>
-            </Header>
-            <Grouping Name="driver_nameGroup">
-              <GroupExpressions>
-                <GroupExpression>=Fields!driver_name.Value</GroupExpression>
-              </GroupExpressions>
-              <PageBreakAtStart>false</PageBreakAtStart>
-              <PageBreakAtEnd>false</PageBreakAtEnd>
-            </Grouping>
-            <Sorting>
-              <SortBy>
-                <SortExpression>=Fields!visiting_master.Value</SortExpression>
-                <Direction>Ascending</Direction>
-              </SortBy>
-              <SortBy>
-                <SortExpression>=Fields!driver_name.Value</SortExpression>
-                <Direction>Ascending</Direction>
-              </SortBy>
-            </Sorting>
-          </TableGroup>
-        </TableGroups>
         <Details>
           <TableRows>
             <TableRow>
               <Height>12pt</Height>
               <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                          <Right>Solid</Right>
+                          <Top>Solid</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>={driver_name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                          <Right>Solid</Right>
+                          <Top>Solid</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>8pt</FontSize>
+                        <PaddingTop >=Len({driver_name}) / 6 + "pt"</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
@@ -290,7 +320,11 @@ ORDER BY driver_name, max_time
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -306,6 +340,8 @@ ORDER BY driver_name, max_time
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -322,6 +358,8 @@ ORDER BY driver_name, max_time
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -330,7 +368,7 @@ ORDER BY driver_name, max_time
                   <ReportItems>
                     <Textbox Name="max_time">
                       <Value>=Fields!delivery_schedule.Value</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -338,6 +376,9 @@ ORDER BY driver_name, max_time
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -346,9 +387,57 @@ ORDER BY driver_name, max_time
             </TableRow>
           </TableRows>
         </Details>
+        <Left>0.0pt</Left>
+        <Top>45.6pt</Top>
       </Table>
+      <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>265.00pt</Width>
+        <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>543.7pt</Left>
+        <Top>25.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+          <FontSize>8pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Top>3.60pt</Top>
+        <Left>0.00pt</Left>
+        <Width>811.62pt</Width>
+        <Height>17.04pt</Height>
+        <Value>Время доставки</Value>
+        <Style>
+          <FontSize>15pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox12">
+        <Height>11.40pt</Height>
+        <Width>310.00pt</Width>
+        <Value>={?filters_text}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>1.80pt</Left>
+        <Top>25.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>General</TextAlign>
+        </Style>
+        <CanGrow>true</CanGrow>
+      </Textbox>
     </ReportItems>
-    <Height>44.4pt</Height>
+    <Height>98.4pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -372,6 +461,8 @@ ORDER BY driver_name, max_time
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
   <ReportParameters>
     <ReportParameter Name="beforeTime">
       <DataType>String</DataType>
@@ -383,17 +474,35 @@ ORDER BY driver_name, max_time
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="geographic_groups">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="rl_type_of_use">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="creation_date">
+      <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="filters_text">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>
   </ReportParameters>
-  <DataElementName>Report</DataElementName>
-  <DataElementStyle>AttributeNormal</DataElementStyle>
 </Report>

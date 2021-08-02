@@ -9,6 +9,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Complaints
@@ -101,7 +102,7 @@ namespace Vodovoz.Domain.Complaints
 		[Display(Name = "Заказ")]
 		public virtual Order Order {
 			get => order;
-			set => SetField(ref order, value, () => Order);
+			set => SetField(ref order, value);
 		}
 
 		private string phone;
@@ -165,6 +166,14 @@ namespace Vodovoz.Domain.Complaints
 		public virtual string Arrangement {
 			get => arrangement;
 			set => SetField(ref arrangement, value);
+		}
+
+		int driverRating;
+		[Display(Name = "Оценка водителя")]
+		public virtual int DriverRating
+		{
+			get => driverRating;
+			set => SetField(ref driverRating, value);
 		}
 
 		IList<Fine> fines = new List<Fine>();

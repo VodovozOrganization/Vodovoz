@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
@@ -22,6 +23,25 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		public RouteListItemWageResult CalculateWageForRouteListItem(IRouteListItemWageCalculationSource source)
 		{
 			return new RouteListItemWageResult(source.CurrentWage, source.WageCalculationMethodic);
+		}
+
+		public RouteListItemWageCalculationDetails GetWageCalculationDetailsForRouteListItem(IRouteListItemWageCalculationSource source)
+		{
+			RouteListItemWageCalculationDetails addressWageDetails = new RouteListItemWageCalculationDetails()
+			{
+				RouteListItemWageCalculationName = "Расчёт ЗП для старых МЛ",
+				WageCalculationEmployeeCategory = src.EmployeeCategory
+			};
+
+			addressWageDetails.WageCalculationDetailsList.Add(
+				new WageCalculationDetailsItem()
+				{
+					Name = $"Текущая ЗП за адрес",
+					Count = 1,
+					Price = source.CurrentWage
+				});
+
+			return addressWageDetails;
 		}
 	}
 }

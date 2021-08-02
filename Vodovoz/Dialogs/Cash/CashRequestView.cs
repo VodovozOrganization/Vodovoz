@@ -11,10 +11,10 @@ using QS.Views.GtkUI;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
-using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.Dialogs.Cash
@@ -35,19 +35,7 @@ namespace Vodovoz.Dialogs.Cash
 			//Автор
 			var currentEmployee = ViewModel.CurrentEmployee;
 			AuthorEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() =>
-					{
-						var employeeFilter = new EmployeeFilterViewModel
-						{
-							Status = EmployeeStatus.IsWorking,
-						};
-						return new EmployeesJournalViewModel(
-							employeeFilter,
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices);
-					})
-			);
+				ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 			AuthorEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, x => x.Author, w => w.Subject).InitializeFromSource();
 
 			if (ViewModel.IsNewEntity)
@@ -58,23 +46,9 @@ namespace Vodovoz.Dialogs.Cash
 			AuthorEntityviewmodelentry.Sensitive = false;
 
 			//Подразделение
-			var employeeSelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory
-					<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
-
-			var filter = new SubdivisionFilterViewModel() {SubdivisionType = SubdivisionType.Default};
-
 			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
-					typeof(Subdivision),
-					() => new SubdivisionsJournalViewModel(
-						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices,
-						employeeSelectorFactory
-					)
-				)
-			);
+				ViewModel.SubdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(
+					ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()));
 			SubdivisionEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.Subject).InitializeFromSource();
 			SubdivisionEntityviewmodelentry.Sensitive = false;
 			ViewModel.Entity.Subdivision = currentEmployee.Subdivision;
@@ -167,7 +141,7 @@ namespace Vodovoz.Dialogs.Cash
 			ybtnDeleteSumm.Binding.AddBinding(ViewModel, vm => vm.CanDeleteSum, w => w.Visible).InitializeFromSource();
 			ybtnEditSum.Visible = false;
 			buttonSave.Clicked += (sender, args) => ViewModel.AfterSaveCommand.Execute();
-			buttonCancel.Clicked += (s, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (s, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 
 			ycheckPossibilityNotToReconcilePayments.Binding.AddBinding(ViewModel.Entity, e => e.PossibilityNotToReconcilePayments, w => w.Active).InitializeFromSource();
 			ycheckPossibilityNotToReconcilePayments.Binding.AddBinding(ViewModel, vm => vm.CanConfirmPossibilityNotToReconcilePayments, w => w.Visible).InitializeFromSource();

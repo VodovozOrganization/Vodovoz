@@ -74,11 +74,15 @@ namespace Vodovoz.Views.Organization
 			ytreeviewDocuments.Selection.Changed += (sender, e) => buttonDeleteDocument.Sensitive = ViewModel.DeleteDocumentCommand.CanExecute(ytreeviewDocuments.GetSelectedObject() as TypeOfEntity);
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 
 			ViewModel.OnSavedEntity += () => subdivisionentitypermissionwidget.ViewModel.SavePermissions(subdivisionentitypermissionwidget.UoW);
 
 			widgetcontainerview2.Binding.AddBinding(ViewModel, vm => vm.PresetSubdivisionPermissionVM, w => w.WidgetViewModel).InitializeFromSource();
+
+			entryDefaultSalesPlan.SetEntityAutocompleteSelectorFactory(ViewModel.SalesPlanSelectorFactory);
+			entryDefaultSalesPlan.Binding.AddBinding(ViewModel.Entity, e => e.DefaultSalesPlan, w => w.Subject).InitializeFromSource();
+			entryDefaultSalesPlan.CanEditReference = false;
 		}
 
 		void ButtonAddDocument_Clicked(object sender, EventArgs e)

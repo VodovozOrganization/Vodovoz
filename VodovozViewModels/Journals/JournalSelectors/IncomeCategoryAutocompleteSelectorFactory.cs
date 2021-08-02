@@ -2,7 +2,9 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
 
@@ -11,12 +13,16 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
     public class IncomeCategoryAutoCompleteSelectorFactory:
         IncomeCategorySelectorFactory, IEntityAutocompleteSelectorFactory
     {
-        public IncomeCategoryAutoCompleteSelectorFactory(
-            ICommonServices commonServices, 
-            IncomeCategoryJournalFilterViewModel filterViewModel,
-            IFileChooserProvider fileChooserProvider
-            ) 
-            : base(commonServices, filterViewModel, fileChooserProvider) { }
+	    public IncomeCategoryAutoCompleteSelectorFactory(
+		    ICommonServices commonServices,
+		    IncomeCategoryJournalFilterViewModel filterViewModel,
+		    IFileChooserProvider fileChooserProvider,
+		    IEmployeeJournalFactory employeeJournalFactory,
+		    ISubdivisionJournalFactory subdivisionJournalFactory)
+		    : base(commonServices, filterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory)
+	    {
+		    
+	    }
 
         public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
         {
@@ -24,7 +30,9 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
                 filter,
                 UnitOfWorkFactory.GetDefaultFactory,
                 commonServices,
-                fileChooserProvider)
+                fileChooserProvider,
+                _employeeJournalFactory,
+                _subdivisionJournalFactory)
             {
                 SelectionMode = JournalSelectionMode.Single
             };

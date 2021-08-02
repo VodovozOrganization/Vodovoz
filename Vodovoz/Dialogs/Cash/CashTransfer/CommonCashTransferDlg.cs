@@ -14,6 +14,8 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
@@ -46,7 +48,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			yspinMoney.Binding.AddBinding(ViewModel.Entity, e => e.TransferedSum, w => w.ValueAsDecimal).InitializeFromSource();
 			yspinMoney.Binding.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			var filterDriver = new EmployeeFilterViewModel();
+			var filterDriver = new EmployeeRepresentationFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking
 			);

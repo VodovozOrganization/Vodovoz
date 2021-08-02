@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -8,6 +7,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
@@ -23,8 +23,8 @@ namespace Vodovoz.ReportsParameters.Bottles
 			btnCreateReport.Clicked += (sender, e) => OnUpdate(true);
 			btnCreateReport.Sensitive = false;
 			daterangepicker.PeriodChangedByUser += Daterangepicker_PeriodChangedByUser;
-			yenumcomboboxDateType.ItemsEnum = typeof(DateType);
-			yenumcomboboxDateType.SelectedItem = DateType.CreationDate;
+			yenumcomboboxDateType.ItemsEnum = typeof(OrderDateType);
+			yenumcomboboxDateType.SelectedItem = OrderDateType.CreationDate;
 			entityviewmodelentryAuthor.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
 		}
 
@@ -50,7 +50,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 					{"start_date", daterangepicker.StartDate},
 					{"end_date", daterangepicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59)},
 					{"date", DateTime.Now},
-					{"date_type", ((DateType) yenumcomboboxDateType.SelectedItem) == DateType.CreationDate},
+					{"date_type", ((OrderDateType) yenumcomboboxDateType.SelectedItem) == OrderDateType.CreationDate},
 					{"author_employee_id", entityviewmodelentryAuthor.Subject.GetIdOrNull()},
 					{"author_employee_name", (entityviewmodelentryAuthor.Subject as Employee)?.FullName}
 				}
@@ -58,13 +58,5 @@ namespace Vodovoz.ReportsParameters.Bottles
 		}
 
 		void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		
-		public enum DateType
-		{
-			[Display (Name = "Дата создания")]
-			CreationDate,
-			[Display(Name = "Дата доставки")]
-			DeliveryDate
-		}
 	}
 }

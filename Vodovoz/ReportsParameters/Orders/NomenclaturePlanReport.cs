@@ -3,6 +3,7 @@ using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs.GtkUI;
@@ -12,6 +13,7 @@ using QS.Project.Search;
 using QS.Project.Search.GtkUI;
 using QS.Project.Services;
 using QS.Report;
+using QS.Services;
 using QS.Utilities;
 using QSReport;
 using System;
@@ -43,8 +45,10 @@ namespace Vodovoz.ReportsParameters.Orders
         private SearchHelper nomenclatureSearchHelper, employeeSearchHelper;
         private bool isNomenclatureNextPage, isEmployeeNextPage;
         private double nomenclatureLastScrollPosition, employeeLastScrollPosition;
+		private bool isDestroyed;
+		private readonly IInteractiveService _interactiveService;
 
-        private int pageSize = 100;
+		private int pageSize = 100;
 
         private ICriterion GetNomenclatureSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) =>
             nomenclatureSearchHelper.GetSearchCriterion(aliasPropertiesExpr);
@@ -52,11 +56,12 @@ namespace Vodovoz.ReportsParameters.Orders
         private ICriterion GetEmployeeSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) =>
             employeeSearchHelper.GetSearchCriterion(aliasPropertiesExpr);
 
-        public NomenclaturePlanReport()
+        public NomenclaturePlanReport(IInteractiveService interactiveService)
         {
             this.Build();
             Configure();
-        }
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+		}
 
         private void Configure()
         {
@@ -66,7 +71,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
             buttonCreateReport.Clicked += OnButtonCreateReportClicked;
             buttonNomenclaturePlan.Clicked += ButtonNomenclaturePlan_Clicked;
-            buttonHelp.Clicked += ButtonHelp_Clicked;
+            buttonHelp.Clicked += ShowInfoWindow;
 
             NomenclaturesConfigure();
             EmployeesConfigure();
@@ -359,7 +364,7 @@ namespace Vodovoz.ReportsParameters.Orders
             };
 
 
-        private void ButtonHelp_Clicked(object sender, EventArgs e)
+        private void ShowInfoWindow(object sender, EventArgs e)
         {
             var info =
                 "Кнопками со стрелками влево/вправо, либо двойным щелчком мыши выберите ТМЦ и сотрудников для отчёта.\n" +
@@ -371,22 +376,10 @@ namespace Vodovoz.ReportsParameters.Orders
                 "Если в справочнике не заданы плановые показатели за день или месяц, то сравнение показателей происходит по \n" +
                 "среднему по выбранным ТМЦ по всем сотрудникам установленного подразделения.";
 
-            var label = new Label { Markup = info };
-            label.SetPadding(10, 10);
-            var vbox = new VBox { label };
+			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
+		}
 
-            var messageWindow = new Window(WindowType.Toplevel)
-            {
-                Resizable = false,
-                Title = "Информация",
-                WindowPosition = WindowPosition.Center,
-                Modal = true
-            };
-            messageWindow.Add(vbox);
-            messageWindow.ShowAll();
-        }
-
-        private void ButtonNomenclaturePlan_Clicked(object sender, EventArgs e)
+		private void ButtonNomenclaturePlan_Clicked(object sender, EventArgs e)
         {
             MainClass.MainWin.TdiMain.OpenTab(() => new NomenclaturesPlanJournalViewModel(
                 new NomenclaturePlanFilterViewModel() { HidenByDefault = true },
@@ -530,9 +523,7 @@ namespace Vodovoz.ReportsParameters.Orders
             DeselectEmployee(ytreeviewSelectedEmployees.GetSelectedObjects<EmployeeReportNode>());
         }
 
-        private bool isDestroyed;
-
-        public override void Destroy()
+		public override void Destroy()
         {
             isDestroyed = true;
             nomenclatureDataLoader.CancelLoading();

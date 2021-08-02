@@ -78,6 +78,10 @@
     <Compile Include="SmsPaymentService\SmsPaymentItemDTOCalculateTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
+      <Name>QS.Project.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{EFE73102-83BC-4036-8642-D3A4121E8351}</Project>
       <Name>SmsPaymentService</Name>
@@ -126,20 +130,20 @@
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
-    <PackageReference Include="Google.Protobuf" Version="3.15.8" />
+    <PackageReference Include="Google.Protobuf" Version="3.17.3" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
-    <PackageReference Include="MySql.Data" Version="8.0.24" />
-    <PackageReference Include="NetTopologySuite" Version="2.2.0" />
+    <PackageReference Include="MySql.Data" Version="8.0.25" />
+    <PackageReference Include="NetTopologySuite" Version="2.3.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
     <PackageReference Include="NHibernate" Version="5.3.8" />
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
     <PackageReference Include="NSubstitute" Version="4.2.2" />
-    <PackageReference Include="NUnit" Version="3.13.1" />
+    <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit.Console" Version="3.12.0" />
     <PackageReference Include="NUnit.ConsoleRunner" Version="3.12.0" />
     <PackageReference Include="NUnit.Extension.NUnitProjectLoader" Version="3.6.0" />
@@ -147,7 +151,7 @@
     <PackageReference Include="NUnit.Extension.NUnitV2ResultWriter" Version="3.6.0" />
     <PackageReference Include="NUnit.Extension.TeamCityEventListener" Version="1.0.7" />
     <PackageReference Include="NUnit.Extension.VSProjectLoader" Version="3.8.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="SSH.NET" Version="2020.0.1" />

@@ -28,6 +28,11 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -39,6 +44,15 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUserRepository userRepository;
 		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly IOrderSelectorFactory _orderSelectorFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private readonly IGtkTabsOpener _gtkDialogsOpener;
+		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
+		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelector;
 
 		public RetailOrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -48,7 +62,16 @@ namespace Vodovoz.JournalViewModels
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUserRepository userRepository,
+			IOrderSelectorFactory orderSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IGtkTabsOpener gtkDialogsOpener,
+			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelector) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -56,7 +79,17 @@ namespace Vodovoz.JournalViewModels
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			
+
+			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
+			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_nomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
+
 			TabName = "Журнал заказов";
 
 			RegisterOrders();
@@ -98,9 +131,17 @@ namespace Vodovoz.JournalViewModels
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
-			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			if(FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(o => o.IsForRetail == FilterViewModel.IsForRetail);
+				query.JoinEntityAlias(
+					() => counterpartyAlias,
+					() => counterpartyAlias.Id == orderAlias.Client.Id
+					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
+					NHibernate.SqlCommand.JoinType.InnerJoin);
+			}
+			else
+			{
+				query.Left.JoinAlias(o => o.Client, () => counterpartyAlias);
 			}
 
 			if (FilterViewModel.ViewTypes != ViewTypes.Order && FilterViewModel.ViewTypes != ViewTypes.All)
@@ -202,7 +243,6 @@ namespace Vodovoz.JournalViewModels
 
 			query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
-				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias)
 				.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
@@ -297,9 +337,17 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Id == -1);
 			}
 
-			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			if(FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(o => o.IsForRetail == FilterViewModel.IsForRetail);
+				query.JoinEntityAlias(
+					() => counterpartyAlias,
+					() => counterpartyAlias.Id == orderWSDAlias.Client.Id
+					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
+					NHibernate.SqlCommand.JoinType.InnerJoin);
+			}
+			else
+			{
+				query.Left.JoinAlias(o => o.Client, () => counterpartyAlias);
 			}
 
 			if (FilterViewModel.RestrictStartDate != null) {
@@ -314,8 +362,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
 			}
 			
-			query.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
-				 .Left.JoinAlias(o => o.Author, () => authorAlias);
+			query.Left.JoinAlias(o => o.Author, () => authorAlias);
 
 			query.Where(GetSearchCriterion(
 				() => orderWSDAlias.Id,
@@ -379,7 +426,6 @@ namespace Vodovoz.JournalViewModels
 			Employee authorAlias = null;
 
 			var query = uow.Session.QueryOver(() => orderWSPAlias)
-				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFP && FilterViewModel.ViewTypes != ViewTypes.All
@@ -396,9 +442,17 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Id == -1);
 			}
 
-			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			if(FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(o => o.IsForRetail == FilterViewModel.IsForRetail);
+				query.JoinEntityAlias(
+					() => counterpartyAlias,
+					() => counterpartyAlias.Id == orderWSPAlias.Client.Id
+					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
+					NHibernate.SqlCommand.JoinType.InnerJoin);
+			}
+			else
+			{
+				query.Left.JoinAlias(o => o.Client, () => counterpartyAlias);
 			}
 
 			if (FilterViewModel.RestrictStartDate != null) {
@@ -499,7 +553,6 @@ namespace Vodovoz.JournalViewModels
 			Nomenclature nomenclatureAlias = null;
 
 			var query = uow.Session.QueryOver(() => orderWSAPAlias)
-				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFAP && FilterViewModel.ViewTypes != ViewTypes.All
@@ -516,9 +569,17 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Id == -1);
 			}
 
-			if (FilterViewModel != null && FilterViewModel.IsForRetail != null)
+			if(FilterViewModel != null && FilterViewModel.IsForRetail != null)
 			{
-				query.Where(o => o.IsForRetail == FilterViewModel.IsForRetail);
+				query.JoinEntityAlias(
+					() => counterpartyAlias,
+					() => counterpartyAlias.Id == orderWSAPAlias.Client.Id
+					   && counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail,
+					NHibernate.SqlCommand.JoinType.InnerJoin);
+			}
+			else
+			{
+				query.Left.JoinAlias(o => o.Client, () => counterpartyAlias);
 			}
 
 			if (FilterViewModel.RestrictStartDate != null) {
@@ -655,14 +716,32 @@ namespace Vodovoz.JournalViewModels
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
-						UndeliveriesView dlg = new UndeliveriesView();
-						dlg.HideFilterAndControls();
-						dlg.UndeliveredOrdersFilter.SetAndRefilterAtOnce(
-							x => x.ResetFilter(),
-							x => x.RestrictOldOrder = order,
-							x => x.RestrictOldOrderStartDate = order.DeliveryDate,
-							x => x.RestrictOldOrderEndDate = order.DeliveryDate
-						);
+
+						var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
+							commonServices,
+							_orderSelectorFactory,
+							_employeeJournalFactory,
+							_counterpartyJournalFactory,
+							_deliveryPointJournalFactory,
+							_subdivisionJournalFactory)
+						{
+							HidenByDefault = true,
+							RestrictOldOrder = order,
+							RestrictOldOrderStartDate = order.DeliveryDate,
+							RestrictOldOrderEndDate = order.DeliveryDate
+						};
+
+						var dlg = new UndeliveredOrdersJournalViewModel(
+							undeliveredOrdersFilter,
+							UnitOfWorkFactory,
+							commonServices,
+							_gtkDialogsOpener,
+							_employeeJournalFactory,
+							employeeService,
+							_undeliveredOrdersJournalOpener,
+							_orderSelectorFactory
+							);
+
 						MainClass.MainWin.TdiMain.AddTab(dlg);
 					}
 				)

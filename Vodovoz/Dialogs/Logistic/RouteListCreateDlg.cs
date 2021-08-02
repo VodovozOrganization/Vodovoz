@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
 using NLog;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
@@ -17,6 +18,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -31,11 +33,13 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -45,6 +49,7 @@ namespace Vodovoz
 		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
 		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private IRouteListRepository _routeListRepository = new RouteListRepository();
 
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
@@ -125,7 +130,7 @@ namespace Vodovoz
 				}
 			};
 
-			var filterDriver = new EmployeeFilterViewModel();
+			var filterDriver = new EmployeeRepresentationFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking,
@@ -134,7 +139,7 @@ namespace Vodovoz
 			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
-			var filter = new EmployeeFilterViewModel();
+			var filter = new EmployeeRepresentationFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.Status = EmployeeStatus.IsWorking,
@@ -215,10 +220,7 @@ namespace Vodovoz
 
 		void PrintSelectedDocument(RouteListPrintableDocuments choise)
 		{
-			TabParent.OpenTab(
-				QS.Dialog.Gtk.TdiTabBase.GenerateHashName<DocumentsPrinterDlg>(),
-				() => CreateDocumentsPrinterDlg(choise)
-			);
+			TabParent.AddSlaveTab(this, CreateDocumentsPrinterDlg(choise));
 		}
 
 		DocumentsPrinterDlg CreateDocumentsPrinterDlg(RouteListPrintableDocuments choise)
@@ -230,9 +232,9 @@ namespace Vodovoz
 
 		void Dlg_DocumentsPrinted(object sender, EventArgs e)
 		{
-			if(!Entity.Printed && e is EndPrintArgs printArgs) {
+			if(e is EndPrintArgs printArgs) {
 				if(printArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle())) {
-					Entity.Printed = true;
+					Entity.AddPrintHistory();
 					Save();
 				}
 			}
@@ -308,6 +310,26 @@ namespace Vodovoz
 			buttonAccept.Sensitive = isSensetive;
 		}
 
+		private void OnPrintTimeButtonClicked(object sender, EventArgs e)
+		{
+			var history = _routeListRepository.GetPrintsHistory(UoW, Entity);
+			if(history?.Any() ?? false)
+			{
+				var message = "<b>№\t| Дата и время печати\t| Тип документа</b>";
+				for(var i = 0; i < history.Count; i++)
+				{
+					var item = history[i];
+					message += $"\n{i + 1}\t| {item.PrintingTime.ToShortDateString()}" +
+					           $" {item.PrintingTime.ToShortTimeString()}\t\t| {item.DocumentType.GetEnumShortTitle()}";
+				}
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, message, $"История печати МЛ №: {Entity.Id}");
+			}
+			else
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, "МЛ не печатался ранее");
+			}
+		}
+
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
 			try {
@@ -356,7 +378,7 @@ namespace Vodovoz
 
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, callTaskWorker);
 					//Строим маршрут для МЛ.
-					if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
+					if((!Entity.PrintsHistory?.Any() ?? true) || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
 						var newRoute = optimizer.RebuidOneRoute(Entity);
 						if(newRoute != null) {
@@ -377,8 +399,11 @@ namespace Vodovoz
 
 					Save();
 
-					if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck) {
-						if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle())) {
+					if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck && !Entity.NeedToLoad) {
+						if(MessageDialogHelper.RunQuestionDialog(
+							"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?",
+							RouteListStatus.OnClosing.GetEnumTitle()))
+						{
 							Entity.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker);
 						}
 					} else {

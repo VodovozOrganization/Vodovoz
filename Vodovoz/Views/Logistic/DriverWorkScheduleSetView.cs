@@ -18,7 +18,7 @@ namespace Vodovoz.Views.Logistic
         {
             hboxInfo.Visible = ViewModel.IsInfoVisible;
 
-            ybuttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+            ybuttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
 
             ybuttonAccept.Sensitive = ViewModel.CanEdit;
             ybuttonAccept.Clicked += (sender, args) => ViewModel.AcceptCommand.Execute();

@@ -29,13 +29,17 @@ namespace Vodovoz.ViewModels.Complaints
 			this.commonServices = commonServices;
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
-			UpdateAcessibility();
 		}
 
 		GuiltyItemViewModel currentGuiltyVM;
-		public virtual GuiltyItemViewModel CurrentGuiltyVM {
+		public virtual GuiltyItemViewModel CurrentGuiltyVM
+		{
 			get => currentGuiltyVM;
-			set => SetField(ref currentGuiltyVM, value, () => CurrentGuiltyVM);
+			set
+			{
+				SetField(ref currentGuiltyVM, value, () => CurrentGuiltyVM);
+				OnPropertyChanged(nameof(CanAddGuilty));
+			}
 		}
 
 		private bool canRemoveGuilty;

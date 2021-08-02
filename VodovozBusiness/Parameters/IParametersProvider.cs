@@ -4,11 +4,13 @@
     {
         bool ContainsParameter(string parameterName);
         void CreateOrUpdateParameter(string name, string value);
+        string GetParameterValue(string parameterName);
         char GetCharValue(string parameterId);
         decimal GetDecimalValue(string parameterId);
         int GetIntValue(string parameterId);
-        string GetParameterValue(string parameterName);
         string GetStringValue(string parameterId);
+        bool GetBoolValue(string parameterId);
+
         void RefreshParameters();
     }
 }

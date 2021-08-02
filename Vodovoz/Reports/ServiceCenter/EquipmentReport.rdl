@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>209.804mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
@@ -53,25 +51,31 @@ Iif(
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>38.8pt</Width>
+            <Width>50.9pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>59.6pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>75.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>129.1pt</Width>
+            <Width>112.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>126.4pt</Width>
+            <Width>110.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>122.8pt</Width>
+            <Width>110.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>117.8pt</Width>
+            <Width>103.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.7pt</Width>
+            <Width>56.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>226.5pt</Width>
+            <Width>139.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -82,8 +86,42 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>='№ зак.'+'\n'+'Еж.ном.'</Value>
+                      <Value>='№ зак.'</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Дата доставки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Автор заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -211,7 +249,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>={both_numbers}</Value>
+                      <Value>={order_id}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -221,6 +259,45 @@ Iif(
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>={delivery_date}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>dd.MM.yyyy</Format>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>={employee_fullname}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -239,6 +316,8 @@ Iif(
                         <BorderWidth />
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -257,6 +336,8 @@ Iif(
                         <BorderWidth />
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -276,6 +357,8 @@ Iif(
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -295,6 +378,8 @@ Iif(
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -311,6 +396,8 @@ Iif(
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -330,6 +417,8 @@ Iif(
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -369,6 +458,8 @@ Iif(
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
+    orders.delivery_date,
+    GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.name, employees.patronymic) AS employee_fullname,
     counterparty.full_name AS client_name,
     delivery_points.compiled_address_short AS address,
     CONCAT_WS(
@@ -404,7 +495,6 @@ Iif(
         ) AS from_client,
     orders.order_status AS status,
     orders.daily_number_1c AS dailynum,
-    CONCAT_WS('\n', orders.id, orders.daily_number_1c) AS both_numbers,
     IF(nomenclature.category != 'water', GROUP_CONCAT(DISTINCT CONCAT_WS(' ', nomenclature.name, '-', FORMAT(order_items.count, measurement_units.digits), 'шт.') SEPARATOR ',\n'), '') AS nomenclatures,
     GROUP_CONCAT(DISTINCT gg.name SEPARATOR ', ')
 FROM
@@ -477,11 +567,11 @@ FROM
         WHERE equip_nomenclature.category = 'equipment'
         GROUP BY order_equipment.order_id
     ) AS equipments ON equipments.order_id = orders.id
-        LEFT JOIN
-    nomenclature ON nomenclature.id = order_items.nomenclature_id
+        LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
         LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
         LEFT JOIN districts distr ON delivery_points.district_id = distr.id
         LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+        LEFT JOIN employees ON orders.author_employee_id = employees.id
     #LEFT JOIN
     #nomenclature as equip_nomenclature ON equip_nomenclature.id = order_equipment.nomenclature_id AND equip_nomenclature.category = 'equipment'
 WHERE
@@ -504,18 +594,62 @@ WHERE
             )
         OR equipments.order_id IS NOT NULL
     )
-  AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups) OR gg.id IS NULL)
+       AND (
+             ((IFNULL(gg.id, 0) IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
+                 OR
+              (IFNULL(gg.id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
+             OR (0 IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
+         )
+       AND (
+             ((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
+                 OR
+              (IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) NOT IN (@subdivision_exclude) AND 0 IN (@subdivision_include)))
+             OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
+         )
+       AND (
+             ((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@order_author_include) AND 0 IN (@order_author_exclude) )
+                 OR
+              (IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@order_author_exclude) AND 0 IN (@order_author_include)))
+             OR (0 IN (@order_author_include) AND 0 IN (@order_author_exclude))
+         )
+       AND (
+             ((orders.client_id IN (@counterparty_include) AND 0 IN (@counterparty_exclude) )
+                 OR
+              (orders.client_id NOT IN (@counterparty_exclude) AND 0 IN (@counterparty_include)))
+             OR (0 IN (@counterparty_include) AND 0 IN (@counterparty_exclude))
+         )
 GROUP BY orders.id
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
-            <Value>=Parameters!start_date</Value>
+            <Value>={?start_date}</Value>
           </QueryParameter>
           <QueryParameter Name="end_date">
-            <Value>=Parameters!end_date</Value>
+            <Value>={?end_date}</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups">
-            <Value>=Parameters!geographic_groups</Value>
+          <QueryParameter Name="geographic_group_include">
+            <Value>={?geographic_group_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_group_exclude">
+            <Value>={?geographic_group_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_include">
+            <Value>={?subdivision_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_exclude">
+            <Value>={?subdivision_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_author_include">
+            <Value>={?order_author_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_author_exclude">
+            <Value>={?order_author_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_include">
+            <Value>={?counterparty_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_exclude">
+            <Value>={?counterparty_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -552,8 +686,12 @@ GROUP BY orders.id
           <DataField>nomenclatures</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="both_numbers">
-          <DataField>both_numbers</DataField>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="employee_fullname">
+          <DataField>employee_fullname</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -576,18 +714,65 @@ GROUP BY orders.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="geographic_groups">
+    <ReportParameter Name="geographic_group_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="geographic_group_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="subdivision_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="subdivision_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="order_author_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="order_author_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="counterparty_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="counterparty_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

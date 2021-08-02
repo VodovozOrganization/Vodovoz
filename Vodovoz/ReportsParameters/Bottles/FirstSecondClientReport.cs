@@ -9,8 +9,10 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalFilters;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
@@ -25,10 +27,11 @@ namespace Vodovoz.ReportsParameters.Bottles
 			yCpecCmbDiscountReason.ItemsList = reasons;
 			daterangepicker.StartDate = DateTime.Now.AddDays(-7);
 			daterangepicker.EndDate = DateTime.Now.AddDays(1);
-			
-			var filter = new EmployeeFilterViewModel();
-			filter.Status = EmployeeStatus.IsWorking;
-			filter.Category = EmployeeCategory.office;
+
+			var filter = new EmployeeRepresentationFilterViewModel
+			{
+				Status = EmployeeStatus.IsWorking, Category = EmployeeCategory.office
+			};
 			yentryEmployer.RepresentationModel = new EmployeesVM(filter);
 		}
 

@@ -5,18 +5,11 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Views.GtkUI;
-using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Dialogs.Fuel;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -37,9 +30,6 @@ namespace Vodovoz.Dialogs.Fuel
 			ydatepickerDate.Binding.AddBinding(ViewModel, e => e.CanEditDate, w => w.Sensitive).InitializeFromSource();
 			ylabelCashierValue.Binding.AddBinding(ViewModel.Entity, e => e.Cashier, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
 
-			// IFileChooserProvider fileChooserProvider = new FileChooser();
-			// var filterViewModel = new ExpenseCategoryJournalFilterViewModel();
-			
 			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
 				() => {
 					var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
@@ -49,17 +39,21 @@ namespace Vodovoz.Dialogs.Fuel
 							UnitOfWorkFactory.GetDefaultFactory,
 							ServicesConfig.CommonServices,
 							ViewModel.fileChooserProvider,
-							ViewModel.expenseCategoryJournalFilterViewModel
+							ViewModel.expenseCategoryJournalFilterViewModel,
+							ViewModel.EmployeeJournalFactory,
+							ViewModel.SubdivisionJournalFactory
 						),
 						(node) => new ExpenseCategoryViewModel(
 							EntityUoWBuilder.ForOpen(node.Id),
 							UnitOfWorkFactory.GetDefaultFactory,
 							ServicesConfig.CommonServices,
 							ViewModel.fileChooserProvider,
-							ViewModel.expenseCategoryJournalFilterViewModel
+							ViewModel.expenseCategoryJournalFilterViewModel,
+							ViewModel.EmployeeJournalFactory,
+							ViewModel.SubdivisionJournalFactory
 						),
 						UnitOfWorkFactory.GetDefaultFactory,
-						QS.Project.Services.ServicesConfig.CommonServices
+						ServicesConfig.CommonServices
 					) {
 						SelectionMode = JournalSelectionMode.Single
 					};
@@ -104,7 +98,7 @@ namespace Vodovoz.Dialogs.Fuel
 			ViewModel.DeleteWriteoffItemCommand.CanExecuteChanged += (sender, e) => { ybuttonDeleteItem.Sensitive = ViewModel.DeleteWriteoffItemCommand.CanExecute(GetSelectedItem()); };
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 
 			buttonPrint.Clicked += (sender, e) => { ViewModel.PrintCommand.Execute(); };
 			buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();

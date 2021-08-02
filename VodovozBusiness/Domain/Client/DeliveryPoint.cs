@@ -349,7 +349,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty {
 			get => counterparty;
-			protected set => SetField(ref counterparty, value, () => Counterparty);
+			set => SetField(ref counterparty, value, () => Counterparty);
 		}
 
 		private string kpp;
@@ -486,6 +486,22 @@ namespace Vodovoz.Domain.Client
 			set {
 				SetField(ref maximalOrderSumLimit, value);
 			}
+		}
+
+		private IList<DeliveryPointEstimatedCoordinate> deliveryPointEstimatedCoordinates = new List<DeliveryPointEstimatedCoordinate>();
+		[Display(Name = "Предполагаемые координаты доставки")]
+		public virtual IList<DeliveryPointEstimatedCoordinate> DeliveryPointEstimatedCoordinates
+		{
+			get => deliveryPointEstimatedCoordinates;
+			set => SetField(ref deliveryPointEstimatedCoordinates, value);
+		}
+
+		GenericObservableList<DeliveryPointEstimatedCoordinate> observableDeliveryPointEstimatedCoordinates;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<DeliveryPointEstimatedCoordinate> ObservableDeliveryPointEstimatedCoordinates
+		{
+			get => observableDeliveryPointEstimatedCoordinates
+					?? (observableDeliveryPointEstimatedCoordinates = new GenericObservableList<DeliveryPointEstimatedCoordinate>(DeliveryPointEstimatedCoordinates));
 		}
 
 		#region Временные поля для хранения фиксированных цен из 1с
@@ -667,6 +683,7 @@ namespace Vodovoz.Domain.Client
 			return true;
 		}
 
+		[Obsolete]
 		public static IUnitOfWorkGeneric<DeliveryPoint> CreateUowForNew(Counterparty counterparty)
 		{
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<DeliveryPoint>();

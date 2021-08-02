@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Services
@@ -10,7 +10,6 @@ namespace Vodovoz.Services
         int RootProductGroupForOnlineStoreNomenclatures { get; }
         int CurrentOnlineStoreId { get; }
         string OnlineStoreExportFileUrl { get; }
-        int VodovozLeafletId { get; }
 
         Nomenclature GetWaterSemiozerie(IUnitOfWork uow);
         Nomenclature GetWaterKislorodnaya(IUnitOfWork uow);

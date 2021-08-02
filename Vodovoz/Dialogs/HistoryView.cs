@@ -111,18 +111,15 @@ namespace Vodovoz.Dialogs
         {
             var selected = (ChangedEntity)datatreeChangesets.GetSelectedObject();
 
-            if (selected != null) {
+            if(selected != null)
+			{
                 List<FieldChange> changes;
 
-                if (needToHideProperties)
+				if (needToHideProperties)
                 {
-                    changes = selected.Changes.Where(x =>
-                    !OrmConfig.NhConfig.ClassMappings
-                        .Where(mc => mc.MappedClass.Name == x.Entity.EntityClassName)
-                        .Select(mc => mc.MappedClass)
-                        .FirstOrDefault().GetProperty(x.Path)
-                        .GetCustomAttributes(false).Contains(new RestrictedHistoryProperty())).ToList();
-                } else
+                    changes = selected.Changes.Where(FieldChangeNotNeedToBeHided).ToList();
+                } 
+				else
                 {
                     changes = selected.Changes.ToList();
                 }
@@ -130,9 +127,23 @@ namespace Vodovoz.Dialogs
                 changes.ForEach(x => x.DiffFormatter = diffFormatter);
 
                 datatreeChanges.ItemsDataSource = changes;
-            } else
-                datatreeChanges.ItemsDataSource = null;
-        }
+            }
+			else
+			{
+				datatreeChanges.ItemsDataSource = null;
+			}
+		}
+
+		private bool FieldChangeNotNeedToBeHided(FieldChange fieldChange)
+		{
+			var restrictedToShowPropertyAttribute = new RestrictedHistoryProperty();
+
+			var persistentClassType = OrmConfig.NhConfig.ClassMappings
+				.Where(mc => mc.MappedClass.Name == fieldChange.Entity.EntityClassName)
+				.Select(mc => mc.MappedClass).FirstOrDefault();
+
+			return !persistentClassType?.GetProperty(fieldChange.Path)?.GetCustomAttributes(false).Contains(restrictedToShowPropertyAttribute) ?? false;
+		}
 
         void UpdateJournal(bool nextPage = false)
         {

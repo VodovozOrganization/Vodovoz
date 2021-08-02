@@ -387,11 +387,11 @@
     <EmbeddedResource Include="toolbars\retail.xml">
       <LogicalName>retail.xml</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="icons\toolbar\car_service.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
-    <Compile Include="Additions\IAuthorizationService.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Commons\FileChooser.cs" />
@@ -399,10 +399,19 @@
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
+    <Compile Include="Factories\AuthorizationServiceFactory.cs" />
+    <Compile Include="Factories\EmployeeWageParametersFactory.cs" />
+    <Compile Include="Factories\PhonesViewModelFactory.cs" />
+    <Compile Include="Factories\ValidationContextFactory.cs" />
+    <Compile Include="Filters\GtkViews\PremiumJournalFilterView.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PremiumJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.OrderChangesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.OrganizationCashTransferDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumRaskatGAZelleView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.NomenclaturePlanView.cs" />
+    <Compile Include="JournalFilters\EmployeeRepresentationFilterViewModel.cs" />
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
     <Compile Include="JournalNodes\RetailOrderJournalNode.cs" />
@@ -431,7 +440,6 @@
     <Compile Include="gtk-gui\Vodovoz.PricesView.cs" />
     <Compile Include="Dialogs\PaidRentPackageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentPackageDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.DeliveryPointView.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
@@ -482,10 +490,14 @@
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
+    <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
+    <Compile Include="TempAdapters\EmailServiceSettingAdapter.cs" />
+    <Compile Include="TempAdapters\PremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
     <Compile Include="TempAdapters\EquipmentRepositoryForViews.cs" />
     <Compile Include="TempAdapters\FixedPricesDialogOpener.cs" />
+    <Compile Include="TempAdapters\SubdivisionJournalFactory.cs" />
     <Compile Include="TempAdapters\WaterJournalFactory.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterDlg.cs" />
@@ -501,8 +513,10 @@
     <Compile Include="ViewModels\Orders\ReturnTareReasonCategoryViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
     <Compile Include="Views\Cash\OrganizationCashTransferDocumentView.cs" />
+    <Compile Include="Views\Employees\PremiumRaskatGAZelleView.cs" />
+    <Compile Include="Views\Employees\PremiumView.cs" />
     <Compile Include="Views\Orders\NomenclaturePlanView.cs" />
-    <Compile Include="ViewWidgets\DeliveryPointView.cs" />
+    <Compile Include="ViewWidgets\DeliveryPointsManagementView.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
     <Compile Include="ViewWidgets\ContactsView.cs" />
@@ -606,7 +620,7 @@
     <Compile Include="Dialogs\Store\WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDlg.cs" />
     <Compile Include="Representations\NomenclatureForSaleVM.cs" />
-    <Compile Include="gtk-gui\Vodovoz.EquipmentTypeDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.EquipmentKindDlg.cs" />
     <Compile Include="Representations\RouteListsVM.cs" />
     <Compile Include="JournalFilters\RouteListsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListsFilter.cs" />
@@ -632,7 +646,6 @@
     <Compile Include="SidePanel\InfoViews\CounterpartyPanelView.cs" />
     <Compile Include="SidePanel\InfoViews\DeliveryPointPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\ICounterpartyInfoProvider.cs" />
-    <Compile Include="SidePanel\InfoProviders\IDeliveryPointInfoProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
     <Compile Include="ReportsParameters\Revision.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
@@ -674,7 +687,7 @@
     <Compile Include="Dialogs\Client\ContactDlg.cs" />
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
-    <Compile Include="Representations\EquipmentTypesForRentVM.cs" />
+    <Compile Include="Representations\EquipmentKindsForRentVM.cs" />
     <Compile Include="Representations\ClientDeliveryPointsVM.cs" />
     <Compile Include="Representations\DeliveryPointsVM.cs" />
     <Compile Include="Dialogs\DocumentDialogs\InventoryDocumentDlg.cs" />
@@ -705,7 +718,7 @@
     <Compile Include="gtk-gui\Vodovoz.SelfDeliveryDocumentItemsView.cs" />
     <Compile Include="Dialogs\Goods\EquipmentDlg.cs" />
     <Compile Include="Dialogs\Goods\EquipmentGenerator.cs" />
-    <Compile Include="Dialogs\Goods\EquipmentTypeDlg.cs" />
+    <Compile Include="Dialogs\Goods\EquipmentKindDlg.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\CarLoadDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CarLoadDocumentDlg.cs" />
@@ -949,8 +962,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CardPaymentsOrdersReport.cs" />
     <Compile Include="JournalFilters\UndeliveredOrdersFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.UndeliveredOrdersFilter.cs" />
-    <Compile Include="JournalViewers\UndeliveriesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.UndeliveriesView.cs" />
     <Compile Include="Dialogs\UndeliveredOrderCommentsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveredOrderCommentsDlg.cs" />
     <Compile Include="Dialogs\Goods\ProductGroupDlg.cs" />
@@ -961,7 +972,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.UndeliveredOrderView.cs" />
     <Compile Include="Dialogs\UndeliveryOnOrderCloseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveryOnOrderCloseDlg.cs" />
-    <Compile Include="SidePanel\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
     <Compile Include="SidePanel\InfoViews\UndeliveredOrdersPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.UndeliveredOrdersPanelView.cs" />
     <Compile Include="Dialogs\UndeliveriesWithCommentsPrintDlg.cs" />
@@ -981,8 +991,6 @@
     <Compile Include="ServiceDialogs\ExportCounterpartiesTo1C.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ExportCounterpartiesTo1cDlg.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportCounterpariesData.cs" />
-    <Compile Include="ReportsParameters\SendedEmailsReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SendedEmailsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.DefectiveItemsReport.cs" />
     <Compile Include="ReportsParameters\Store\DefectiveItemsReport.cs" />
     <Compile Include="DriverTerminal\DriverTerminalWindow.cs" />
@@ -1086,7 +1094,6 @@
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTransferDocumentView.cs" />
-    <Compile Include="Filters\ViewModels\EmployeeFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\EmployeeFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EmployeeFilterView.cs" />
     <Compile Include="Filters\RepresentationFilterViewModelBase.cs" />
@@ -1158,7 +1165,6 @@
     <Compile Include="Dialogs\Cash\ExpenseCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.ExpenseCategoryView.cs" />
     <Compile Include="Infrastructure\Converters\EmployeeToLastNameWithInitialsConverter.cs" />
-    <Compile Include="Dialogs\Phones\PhonesViewModel.cs" />
     <Compile Include="Dialogs\Phones\PhonesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Phones.PhonesView.cs" />
     <Compile Include="Additions\ManualEmailSender.cs" />
@@ -1167,7 +1173,7 @@
     <Compile Include="Views\Complaints\ComplaintView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintView.cs" />
     <Compile Include="JournalViewModels\CounterpartyJournalViewModel.cs" />
-    <Compile Include="JournalViewers\UndeliveriesViewOpener.cs" />
+    <Compile Include="JournalViewers\UndeliveredOrdersJournalOpener.cs" />
     <Compile Include="Views\Employees\FineTemplateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineTemplateView.cs" />
     <Compile Include="Views\Employees\FineView.cs" />
@@ -1231,7 +1237,6 @@
     <Compile Include="Infrastructure\Services\GtkTaskCreationInteractive.cs" />
     <Compile Include="ViewWidgets\TaskCreationDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.TaskCreationDialog.cs" />
-    <Compile Include="ReportsParameters\PlanImplementationReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PlanImplementationReport.cs" />
     <Compile Include="Views\WageCalculation\WageDistrictLevelRateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictLevelRateView.cs" />
@@ -1258,13 +1263,10 @@
     <Compile Include="ViewModels\Logistic\RouteListsOnDayViewModel.cs" />
     <Compile Include="Views\Logistic\RouteListsOnDayView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListsOnDayView.cs" />
-    <Compile Include="ViewModels\Logistic\GeographicGroupNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteColumnTag.cs" />
     <Compile Include="Additions\Logistic\PointMarkerType.cs" />
     <Compile Include="Additions\Logistic\PointMarkerShape.cs" />
     <Compile Include="ViewModels\FuelDocuments\FuelDocumentViewModel.cs" />
-    <Compile Include="JournalViewModels\EmployeesJournalViewModel.cs" />
-    <Compile Include="JournalNodes\EmployeeJournalNode.cs" />
     <Compile Include="JournalViewModels\IAdditionalJournalRestriction.cs" />
     <Compile Include="JournalViewModels\NomenclaturesForOrderJournalRestriction.cs" />
     <Compile Include="ViewWidgets\AdvancedWageParameterViews\BottlesCountAdvancedWageParameterWidget.cs" />
@@ -1344,8 +1346,6 @@
     <Compile Include="JournalViewModels\OrderForMovDocJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\OrderForMovDocFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrderForMovDocFilterView.cs" />
-    <Compile Include="Filters\ViewModels\DeliveryPointJournalFilterViewModel.cs" />
-    <Compile Include="JournalViewModels\DeliveryPointJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\DeliveryPointJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView.cs" />
     <Compile Include="Infrastructure\DatabaseInfo.cs" />
@@ -1482,7 +1482,7 @@
     <Compile Include="Views\Mango\IncomingCallView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.IncomingCallView.cs" />
     <Compile Include="ViewModels\Mango\Talks\CounterpartyTalkViewModel.cs" />
-    <Compile Include="ViewModels\Mango\Talks\UnknowTalkViewModel.cs" />
+    <Compile Include="ViewModels\Mango\Talks\UnknownTalkViewModel.cs" />
     <Compile Include="Views\Mango\Talks\CounterpartyTalkView.cs" />
     <Compile Include="Views\Mango\Talks\UnknowTalkView.cs" />
     <Compile Include="ViewModels\Mango\Talks\TalkViewModelBase.cs" />
@@ -1608,10 +1608,52 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.NomenclaturePlanReport.cs" />
     <Compile Include="ReportsParameters\Logistic\GeneralSalaryInfoReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.GeneralSalaryInfoReport.cs" />
+    <Compile Include="Views\Reports\OrderAnalyticsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.OrderAnalyticsReportView.cs" />
     <Compile Include="Filters\GtkViews\OrganizationCashTransferDocumentFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrganizationCashTransferDocumentFilterView.cs" />
     <Compile Include="ReportsParameters\Employees\EmployeesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Employees.EmployeesReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\AddressesOverpaymentsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.AddressesOverpaymentsReport.cs" />
+    <Compile Include="Views\Reports\CarsExploitationReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.CarsExploitationReportView.cs" />
+    <Compile Include="Views\Employees\PremiumTemplateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumTemplateView.cs" />
+    <Compile Include="Views\Reports\DeliveryAnalyticsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.DeliveryAnalyticsReportView.cs" />
+    <Compile Include="Views\Logistic\CarEventTypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarEventTypeView.cs" />
+    <Compile Include="Views\Logistic\CarEventView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarEventView.cs" />
+    <Compile Include="Filters\GtkViews\CarEventFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventFilterView.cs" />
+    <Compile Include="Filters\GtkViews\UndeliveredOrdersFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveredOrdersFilterView.cs" />
+    <Compile Include="Views\Orders\DiscountReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.DiscountReasonView.cs" />
+    <Compile Include="ReportsParameters\Sales\PlanImplementationReport.cs" />
+    <Compile Include="Views\Employees\EmployeeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeeView.cs" />
+    <Compile Include="Views\Complaints\DriverComplaintReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.DriverComplaintReasonView.cs" />
+    <Compile Include="JournalViewers\Complaints\DriverComplaintReasonJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalViewers.Complaints.DriverComplaintReasonJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\ComplaintObjectJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintObjectJournalFilterView.cs" />
+    <Compile Include="Views\Complaints\ComplaintObjectView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintObjectView.cs" />
+    <Compile Include="Filters\GtkViews\ComplaintKindJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintKindJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.DeliveryPointsManagementView.cs" />
+    <Compile Include="Views\Client\DeliveryPointView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.DeliveryPointView.cs" />
+    <Compile Include="Views\Flyers\FlyerView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Flyers.FlyerView.cs" />
+    <Compile Include="Views\Goods\EquipmentKindView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.EquipmentKindView.cs" />
+    <Compile Include="Filters\GtkViews\EmployeeRepresentationFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EmployeeRepresentationFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1626,6 +1668,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj">
       <Project>{72968ef4-2127-45c7-9bfe-2470dacddc3e}</Project>
       <Name>QS.Osm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
+      <Name>QS.Project.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
       <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
@@ -1690,6 +1736,10 @@
     <ProjectReference Include="..\Services\Library\ClientMangoService\ClientMangoService.csproj">
       <Project>{892519ba-d891-43b6-971c-6415ea4d14e5}</Project>
       <Name>ClientMangoService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\WebApi\MangoController\MangoController.csproj">
+      <Project>{665aaa79-4d55-41ce-a49a-bc8d926db39e}</Project>
+      <Name>MangoController</Name>
     </ProjectReference>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
@@ -1770,10 +1820,6 @@
     <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</Project>
       <Name>VodovozInfrastructure</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Services\Library\MangoControllerForNet\MangoControllerForNet.csproj">
-      <Project>{322CC78B-9068-4E5B-87F1-5FED9B5AB5E0}</Project>
-      <Name>MangoControllerForNet</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -1910,7 +1956,10 @@
     <Folder Include="Views\Retail\" />
     <Folder Include="ReportsParameters\Retail\" />
     <Folder Include="Reports\Retail\" />
+    <Folder Include="Views\Reports\" />
     <Folder Include="ReportsParameters\Employees\" />
+    <Folder Include="JournalViewers\Complaints\" />
+    <Folder Include="Views\Flyers\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2013,6 +2062,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\CarsExploitationReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\CarsExploitationReport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\DeliveryTimeGrouped.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\DriversToDistrictsAssignmentReport.rdl">
@@ -2299,9 +2354,6 @@
     <None Include="Reports\Orders\UndeliveriesWithComments.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Orders\SendedBillsReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Reports\Store\DefectiveItemsReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -2470,10 +2522,29 @@
     <None Include="Reports\Retail\CounterpartyReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="Reports\Logistic\DeliveryAnalyticsReport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Reports\Logistic\ScheduleOnLinePerShiftReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\GeneralSalaryInfoReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Employees\EmployeesReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\AddressesOverpaymentsReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\UPD2017Edition.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\ShetFactura2017Edition.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\CarsExploitationReport-ConditionalFormatting.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -2484,19 +2555,19 @@
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
-    <PackageReference Include="Google.Protobuf" Version="3.15.8" />
+    <PackageReference Include="Google.Protobuf" Version="3.17.3" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
-    <PackageReference Include="MySql.Data" Version="8.0.24" />
-    <PackageReference Include="NetTopologySuite" Version="2.2.0" />
+    <PackageReference Include="MySql.Data" Version="8.0.25" />
+    <PackageReference Include="NetTopologySuite" Version="2.3.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
     <PackageReference Include="NHibernate" Version="5.3.8" />
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-    <PackageReference Include="NLog" Version="4.7.9" />
+    <PackageReference Include="NLog" Version="4.7.10" />
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
@@ -2506,19 +2577,195 @@
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-    <PackageReference Include="Autofac">
-      <Version>6.2.0</Version>
-    </PackageReference>
+    <PackageReference Include="Autofac" Version="6.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Reports\Logistic\GeneralSalaryInfoReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Employees\EmployeesReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <Content Include="Reports\Payments\PaymentsDelayNetwork.rdl" />
-    <Content Include="Reports\Prodaction\ProducedProdaction.rdl" />
+    <EmbeddedResource Include="toolbars\car_service.xml" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\black.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\black_and_red.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\blue.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\blue_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color10.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color11.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color12.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color13.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color14.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color15.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color16.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color17.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color18.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color2.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color20.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color21.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color22.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color23.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color24.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color3.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color4.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color5.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color6.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color7.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color8.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\color9.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\gray.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\green.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\green_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\grey_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\marker_shadow.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\orange.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\purple.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\red.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\red_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\white.png" />
+    <EmbeddedResource Include="icons\map\points\overduecircle\yellow_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\black.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\black_and_red.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\blue.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\blue_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color10.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color11.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color12.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color13.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color14.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color15.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color16.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color17.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color18.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color2.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color20.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color21.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color22.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color23.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color24.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color3.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color4.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color5.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color6.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color7.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color8.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\color9.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\gray.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\green.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\green_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\grey_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\marker_shadow.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\orange.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\purple.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\red.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\red_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\white.png" />
+    <EmbeddedResource Include="icons\map\points\overduecross\yellow_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\black.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\black_and_red.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\blue.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\blue_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color10.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color11.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color12.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color13.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color14.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color15.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color16.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color17.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color18.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color2.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color20.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color21.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color22.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color23.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color24.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color3.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color4.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color5.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color6.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color7.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color8.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\color9.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\gray.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\green.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\green_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\grey_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\marker_shadow.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\orange.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\purple.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\red.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\red_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\white.png" />
+    <EmbeddedResource Include="icons\map\points\overduesquare\yellow_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\black.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\black_and_red.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\blue.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\blue_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color10.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color11.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color12.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color13.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color14.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color15.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color16.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color17.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color18.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color2.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color20.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color21.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color22.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color23.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color24.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color3.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color4.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color5.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color6.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color7.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color8.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\color9.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\gray.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\green.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\green_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\grey_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\marker_shadow.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\orange.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\purple.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\red.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\red_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\white.png" />
+    <EmbeddedResource Include="icons\map\points\overduestar\yellow_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\black.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\black_and_red.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\blue.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\blue_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color10.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color11.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color12.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color13.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color14.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color15.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color16.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color17.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color18.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color2.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color20.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color21.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color22.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color23.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color24.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color3.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color4.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color5.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color6.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color7.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color8.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\color9.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\gray.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\green.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\green_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\grey_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\marker_shadow.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\orange.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\purple.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\red.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\red_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\white.png" />
+    <EmbeddedResource Include="icons\map\points\overduetriangle\yellow_stripes.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
