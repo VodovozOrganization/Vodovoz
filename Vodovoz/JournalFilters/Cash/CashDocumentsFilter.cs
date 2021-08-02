@@ -14,10 +14,8 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using VodovozInfrastructure.Interfaces;
 using QS.Project.Services;
-using Vodovoz.Repository.Cash;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz
@@ -41,7 +39,7 @@ namespace Vodovoz
 		{
 			var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
 			var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel {
-				ExcludedIds = CategoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
+				ExcludedIds = new CategoryRepository().ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
 				HidenByDefault = true
 			};
 			

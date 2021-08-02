@@ -24,6 +24,7 @@ using Vodovoz.EntityRepositories.Documents;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Tools;
 using System.Linq;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.JournalFilters;
 
 namespace Vodovoz.Dialogs.Cash
@@ -36,6 +37,7 @@ namespace Vodovoz.Dialogs.Cash
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
         private List<ExpenseCategory> expenseCategoryList = new List<ExpenseCategory>();
 		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
 			new SelfDeliveryCashOrganisationDistributor(new SelfDeliveryCashDistributionDocumentRepository());
@@ -63,7 +65,7 @@ namespace Vodovoz.Dialogs.Cash
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Expense>();
 			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-            expenseCategoryList.AddRange(CategoryRepository.ExpenseSelfDeliveryCategories(UoW));
+            expenseCategoryList.AddRange(_categoryRepository.ExpenseSelfDeliveryCategories(UoW));
             if (Entity.Id == 0){
                 Entity.ExpenseCategory = expenseCategoryList.FirstOrDefault();
             }
@@ -164,7 +166,7 @@ namespace Vodovoz.Dialogs.Cash
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<ExpenseCategory>(
-				s => comboExpense.ItemsList = CategoryRepository.ExpenseSelfDeliveryCategories(UoW)
+				s => comboExpense.ItemsList = _categoryRepository.ExpenseSelfDeliveryCategories(UoW)
 			);
 			comboExpense.ItemsList = expenseCategoryList;
 			comboExpense.Binding.AddBinding(Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource();

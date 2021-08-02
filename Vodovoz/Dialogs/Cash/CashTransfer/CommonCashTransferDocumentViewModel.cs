@@ -8,24 +8,32 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Repositories.HumanResources;
 using QS.Commands;
 using Vodovoz.ViewModelBased;
-using Vodovoz.Repository.Cash;
 using QS.DomainModel.NotifyChange;
 using QS.Project.Domain;
 using QS.DomainModel.UoW;
+using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
 	public class CommonCashTransferDocumentViewModel : ViewModel<CommonCashTransferDocument>
 	{
+		private readonly ICategoryRepository _categoryRepository;
+		
 		private IEnumerable<Subdivision> cashSubdivisions;
 		private IList<Subdivision> availableSubdivisionsForUser;
 
-		public CommonCashTransferDocumentViewModel(IEntityUoWBuilder entityUoWBuilder, IUnitOfWorkFactory factory) : base(entityUoWBuilder, factory)
+		public CommonCashTransferDocumentViewModel(
+			IEntityUoWBuilder entityUoWBuilder,
+			IUnitOfWorkFactory factory,
+			ICategoryRepository categoryRepository) : base(entityUoWBuilder, factory)
 		{
+			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
+			
 			if(entityUoWBuilder.IsNewEntity) {
 				Entity.CreationDate = DateTime.Now;
 				Entity.Author = Cashier;
 			}
+			
 			CreateCommands();
 			UpdateCashSubdivisions();
 			UpdateIncomeCategories();
@@ -217,7 +225,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 				return;
 			}
 			var currentSelectedCategory = Entity.IncomeCategory;
-			IncomeCategories = CategoryRepository.IncomeCategories(UoW).Where(x => x.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeTransferDocument).ToList();
+			IncomeCategories = 
+				_categoryRepository.IncomeCategories(UoW)
+					.Where(x => x.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeTransferDocument).ToList();
 			if(IncomeCategories.Contains(currentSelectedCategory)) {
 				Entity.IncomeCategory = currentSelectedCategory;
 			}
@@ -229,7 +239,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 				return;
 			}
 			var currentSelectedCategory = Entity.ExpenseCategory;
-			ExpenseCategories = CategoryRepository.ExpenseCategories(UoW).Where(x => x.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseTransferDocument).ToList();
+			ExpenseCategories =
+				_categoryRepository.ExpenseCategories(UoW)
+					.Where(x => x.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseTransferDocument).ToList();
 			if(ExpenseCategories.Contains(currentSelectedCategory)) {
 				Entity.ExpenseCategory = currentSelectedCategory;
 			}

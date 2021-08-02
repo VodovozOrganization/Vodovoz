@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.JournalFilters;
 
 namespace Vodovoz
@@ -33,6 +34,7 @@ namespace Vodovoz
 		private readonly bool canEditRectroactively;
 		private readonly AdvanceCashOrganisationDistributor distributor = new AdvanceCashOrganisationDistributor();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
 
 		protected decimal Debt {
 			get {
@@ -202,7 +204,7 @@ namespace Vodovoz
 
 		private void UpdateExpenseCategories()
 		{
-			comboExpense.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories(UoW);
+			comboExpense.ItemsList = _categoryRepository.ExpenseCategories(UoW);
 		}
 
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)

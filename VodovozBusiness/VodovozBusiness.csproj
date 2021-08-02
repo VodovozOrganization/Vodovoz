@@ -501,7 +501,6 @@
     <Compile Include="Repositories\BasicHandbooks\DeliveryScheduleRepository.cs" />
     <Compile Include="Repositories\Cash\AccountableDebtsRepository.cs" />
     <Compile Include="Repositories\Cash\CashRepository.cs" />
-    <Compile Include="Repositories\Cash\CategoryRepository.cs" />
     <Compile Include="Repositories\CounterpartyRepository.cs" />
     <Compile Include="Repositories\EquipmentRepository.cs" />
     <Compile Include="Repositories\EquipmentKindRepository.cs" />

@@ -26,6 +26,7 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Tools;
 using System.Linq;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.JournalFilters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
@@ -40,6 +41,7 @@ namespace Vodovoz.Dialogs.Cash
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
 		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
 			new SelfDeliveryCashOrganisationDistributor(new SelfDeliveryCashDistributionDocumentRepository());
         private List<IncomeCategory> incomeCategoryList = new List<IncomeCategory>();
@@ -66,7 +68,7 @@ namespace Vodovoz.Dialogs.Cash
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
 			Entity.Casher = Repositories.HumanResources.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-            incomeCategoryList.AddRange(CategoryRepository.SelfDeliveryIncomeCategories(UoW));
+            incomeCategoryList.AddRange(_categoryRepository.SelfDeliveryIncomeCategories(UoW));
             if (Entity.Id == 0){
                 Entity.IncomeCategory = incomeCategoryList.FirstOrDefault();
             }
@@ -174,7 +176,7 @@ namespace Vodovoz.Dialogs.Cash
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<IncomeCategory>(
-				s => comboCategory.ItemsList = CategoryRepository.SelfDeliveryIncomeCategories(UoW)
+				s => comboCategory.ItemsList = _categoryRepository.SelfDeliveryIncomeCategories(UoW)
 			);
             comboCategory.ItemsList = incomeCategoryList;
 			comboCategory.Binding.AddBinding(Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource();

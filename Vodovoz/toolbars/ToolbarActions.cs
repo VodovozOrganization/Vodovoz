@@ -43,6 +43,7 @@ using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
@@ -459,7 +460,8 @@ public partial class MainWindow : Window
 				employeeNomenclatureMovementRepository,
 				terminalNomenclatureProvider,
 				employeeService,
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				new CategoryRepository()
 			)
 		);
 	}
@@ -613,7 +615,8 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashFlow>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashFlow(new SubdivisionRepository(), ServicesConfig.CommonServices))
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashFlow(
+				new SubdivisionRepository(), ServicesConfig.CommonServices, new CategoryRepository()))
 		);
 	}
 
@@ -710,7 +713,8 @@ public partial class MainWindow : Window
 			},
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			entityExtendedPermissionValidator)
+			entityExtendedPermissionValidator,
+			VodovozGtkServicesConfig.EmployeeService)
 		);
 	}
 
@@ -779,7 +783,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.AccountFlow>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.AccountFlow())
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.AccountFlow(new CategoryRepository()))
 		);
 	}
 
@@ -1078,7 +1082,8 @@ public partial class MainWindow : Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			carJournalFactory,
-			carEventTypeJournalFactory)
+			carEventTypeJournalFactory,
+			VodovozGtkServicesConfig.EmployeeService)
 		);
 	}
 }

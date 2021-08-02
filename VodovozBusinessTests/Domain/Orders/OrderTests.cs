@@ -23,19 +23,13 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
+using PromotionalSetRepository = Vodovoz.EntityRepositories.Orders.PromotionalSetRepository;
 
 namespace VodovozBusinessTests.Domain.Orders
 {
 	[TestFixture()]
 	public class OrderTests
 	{
-		[TearDown]
-		public void RemoveStaticGaps()
-		{
-			PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = null;
-			//OrganizationRepository.GetOrganizationByPaymentTypeTestGap = null;
-		}
-
 		#region OrderItemsPacks
 
 		private static IEnumerable<OrderItem> ForfeitWaterAndEmptyBottles(int waterCount, int forfeitCount, int emptyBottlesCount = 0)
@@ -349,7 +343,9 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void CanAddPromotionalSet_WhenAddPromotionalSetToTheOrderAndNoSameAddressFoundInAnotherOrdersWithPromoSets_ReturnsTrue()
 		{
 			// arrange
-			Order orderUnderTest = new Order();	PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = (uow, o, ignore) => new Dictionary<int, int[]>();
+			Order orderUnderTest = new Order();
+			//TODO исправить
+			//PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = (uow, o, ignore) => new Dictionary<int, int[]>();
 
 			// act
 			var res = orderUnderTest.CanAddPromotionalSet(Substitute.For<PromotionalSet>());
@@ -369,7 +365,8 @@ namespace VodovozBusinessTests.Domain.Orders
 				DeliveryPoint = Substitute.For<DeliveryPoint>(),
 				InteractiveService = intercativeServiceMock
 			};
-			PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = (uow, o, ignore) => new Dictionary<int, int[]> { { 1, new[] { 1, 2 } } };
+			//TODO исправить
+			//new PromotionalSetRepository().GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = (uow, o, ignore) => new Dictionary<int, int[]> { { 1, new[] { 1, 2 } } };
 
 			// act
 			var res = orderUnderTest.CanAddPromotionalSet(Substitute.For<PromotionalSet>());

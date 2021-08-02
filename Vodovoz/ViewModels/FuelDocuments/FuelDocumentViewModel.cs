@@ -13,19 +13,20 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using QS.Navigation;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ViewModels.FuelDocuments
 {
 	public class FuelDocumentViewModel : TabViewModelBase
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
 
 		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
@@ -300,7 +301,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return false;
 			if(FuelDocument.Id == 0) 
 			{
-				FuelDocument.CreateOperations(fuelRepository, commonOrganisationProvider);
+				FuelDocument.CreateOperations(fuelRepository, commonOrganisationProvider, _categoryRepository);
 				RouteList.ObservableFuelDocuments.Add(FuelDocument);
 
 				if (FuelInMoney && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)
@@ -310,7 +311,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			} 
 			else 
 			{
-				FuelDocument.UpdateFuelOperation(fuelRepository);
+				FuelDocument.UpdateFuelOperation(_categoryRepository);
 			}
 
 			logger.Info("Сохраняем топливный документ...");

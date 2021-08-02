@@ -35,7 +35,6 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
@@ -1453,7 +1452,8 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
-		public virtual string[] ManualCashOperations(ref Income cashIncome, ref Expense cashExpense, decimal casheInput)
+		public virtual string[] ManualCashOperations(
+			ref Income cashIncome, ref Expense cashExpense, decimal casheInput, ICategoryRepository categoryRepository)
 		{
 			var messages = new List<string>();
 
@@ -1464,7 +1464,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(casheInput > 0) {
 				cashIncome = new Income {
-					IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW),
+					IncomeCategory = categoryRepository.RouteListClosingIncomeCategory(UoW),
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -1479,7 +1479,7 @@ namespace Vodovoz.Domain.Logistic
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
-					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
+					ExpenseCategory = categoryRepository.RouteListClosingExpenseCategory(UoW),
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -1496,14 +1496,14 @@ namespace Vodovoz.Domain.Logistic
 			return messages.ToArray();
 		}
 
-		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput)
+		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput, ICategoryRepository categoryRepository)
 		{
 			string message;
 			if(Cashier?.Subdivision == null)
 				return "Создающий кассовый документ пользователь - не привязан к сотруднику!";
 
 			cashExpense = new Expense {
-				ExpenseCategory = CategoryRepository.EmployeeSalaryExpenseCategory(UoW),
+				ExpenseCategory = categoryRepository.EmployeeSalaryExpenseCategory(UoW),
 				TypeOperation = ExpenseType.EmployeeAdvance,
 				Date = DateTime.Now,
 				Casher = this.Cashier,
@@ -1686,7 +1686,7 @@ namespace Vodovoz.Domain.Logistic
 			return reportInfo;
 		}
 
-		public virtual IEnumerable<string> UpdateCashOperations()
+		public virtual IEnumerable<string> UpdateCashOperations(ICategoryRepository categoryRepository)
 		{
 			var messages = new List<string>();
 			//Закрываем наличку.
@@ -1706,7 +1706,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(different > 0) {
 				cashIncome = new Income {
-					IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW),
+					IncomeCategory = categoryRepository.RouteListClosingIncomeCategory(UoW),
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -1721,7 +1721,7 @@ namespace Vodovoz.Domain.Logistic
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
-					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
+					ExpenseCategory = categoryRepository.RouteListClosingExpenseCategory(UoW),
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -1754,9 +1754,9 @@ namespace Vodovoz.Domain.Logistic
 			return messages;
 		}
 
-		public virtual IEnumerable<string> UpdateMovementOperations()
+		public virtual IEnumerable<string> UpdateMovementOperations(ICategoryRepository categoryRepository)
 		{
-			var result = UpdateCashOperations();
+			var result = UpdateCashOperations(categoryRepository);
 			UpdateOperations();
 			return result;
 		}

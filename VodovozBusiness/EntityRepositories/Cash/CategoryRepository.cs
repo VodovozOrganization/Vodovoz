@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
@@ -98,14 +97,8 @@ namespace Vodovoz.EntityRepositories.Cash
 			return null;
 		}
 
-		internal static Func<IUnitOfWork, ExpenseCategory> FuelDocumentExpenseCategoryTestGap;
-		
 		public ExpenseCategory FuelDocumentExpenseCategory(IUnitOfWork uow)
 		{
-			if(FuelDocumentExpenseCategoryTestGap != null) {
-				return FuelDocumentExpenseCategoryTestGap(uow);
-			}
-
 			if(SingletonParametersProvider.Instance.ContainsParameter(fuelDocumentExpenseCategory))
 			{
 				int id = -1;

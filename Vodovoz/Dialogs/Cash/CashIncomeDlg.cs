@@ -39,6 +39,7 @@ namespace Vodovoz
 			= ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
 
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
@@ -181,20 +182,20 @@ namespace Vodovoz
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<ExpenseCategory>(
 				s => 
-					comboExpense.ItemsList = CategoryRepository.ExpenseCategories(UoW).Where(x => 
+					comboExpense.ItemsList = _categoryRepository.ExpenseCategories(UoW).Where(x => 
 						x.ExpenseDocumentType != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery)
 			);
 			comboExpense.ItemsList = 
-				CategoryRepository.ExpenseCategories(UoW).Where(x => 
+				_categoryRepository.ExpenseCategories(UoW).Where(x => 
 					x.ExpenseDocumentType != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery);
 			comboExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<IncomeCategory>(
 				s => 
-					comboCategory.ItemsList = CategoryRepository.IncomeCategories(UoW).Where(x =>
+					comboCategory.ItemsList = _categoryRepository.IncomeCategories(UoW).Where(x =>
 						x.IncomeDocumentType != IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery && x.Id != excludeIncomeCategoryId)
 			); 
-			comboCategory.ItemsList = CategoryRepository.IncomeCategories(UoW).Where(x =>
+			comboCategory.ItemsList = _categoryRepository.IncomeCategories(UoW).Where(x =>
 				x.IncomeDocumentType != IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery && x.Id != excludeIncomeCategoryId);
 			comboCategory.Binding.AddBinding (Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource ();
 
@@ -244,7 +245,7 @@ namespace Vodovoz
 
 			var rl = UoW.GetById<RouteList>(routelistId);
 
-			Entity.IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW);
+			Entity.IncomeCategory = _categoryRepository.RouteListClosingIncomeCategory(UoW);
 			Entity.TypeOperation = IncomeType.DriverReport;
 			Entity.Date = DateTime.Now;
 			Entity.Casher = cashier;
@@ -296,7 +297,7 @@ namespace Vodovoz
 		private void DistributeCash()
 		{
 			if (Entity.TypeOperation == IncomeType.DriverReport && 
-			    Entity.IncomeCategory.Id == CategoryRepository.RouteListClosingIncomeCategory(UoW)?.Id) {
+			    Entity.IncomeCategory.Id == _categoryRepository.RouteListClosingIncomeCategory(UoW)?.Id) {
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
 			}
 			else if (Entity.TypeOperation == IncomeType.Return) {

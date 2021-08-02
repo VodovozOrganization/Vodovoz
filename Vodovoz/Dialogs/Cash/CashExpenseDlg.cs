@@ -6,8 +6,6 @@ using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repositories.HumanResources;
 using QS.Services;
 using Vodovoz.EntityRepositories;
 using System.Linq;
@@ -28,11 +26,8 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.JournalFilters;
-using Vodovoz.Repository.Cash;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz
 {
@@ -47,6 +42,7 @@ namespace Vodovoz
 		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
 
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
@@ -67,7 +63,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Expense>();
-			Entity.Casher = Repositories.HumanResources.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Casher == null)
 			{
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
@@ -161,7 +157,7 @@ namespace Vodovoz
 
 			IFileChooserProvider fileChooserProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
 			var filterViewModel = new ExpenseCategoryJournalFilterViewModel {
-				ExcludedIds = CategoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
+				ExcludedIds = _categoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
 				HidenByDefault = true
 			};
 			
@@ -270,7 +266,7 @@ namespace Vodovoz
 		private void DistributeCash()
 		{
 			if (Entity.TypeOperation == ExpenseType.Expense && 
-			    Entity.ExpenseCategory.Id == CategoryRepository.RouteListClosingExpenseCategory(UoW)?.Id) {
+			    Entity.ExpenseCategory.Id == _categoryRepository.RouteListClosingExpenseCategory(UoW)?.Id) {
 				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
 			}
 			else if (Entity.TypeOperation == ExpenseType.EmployeeAdvance

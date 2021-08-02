@@ -14,9 +14,10 @@ using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Cash.CashTransfer;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.ViewModelBased;
-using Vodovoz.Repository.Cash;
 using Vodovoz.JournalFilters.Cash;
+using CashRepository = Vodovoz.Repository.Cash.CashRepository;
 
 namespace Vodovoz.Representations
 {
@@ -142,12 +143,14 @@ namespace Vodovoz.Representations
 				"По ордерам",
 				//функция диалога создания документа
 				() => {
-					var viewModel = new IncomeCashTransferDocumentViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory);
+					var viewModel = new IncomeCashTransferDocumentViewModel(
+						EntityUoWBuilder.ForCreate(), unitOfWorkFactory, new CategoryRepository());
 					return viewModel.View as IncomeCashTransferDlg;
 				},
 				//функция диалога открытия документа
 				(CashTransferDocumentVMNode node) => {
-					var viewModel = new IncomeCashTransferDocumentViewModel(EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory);
+					var viewModel = new IncomeCashTransferDocumentViewModel(
+						EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, new CategoryRepository());
 					return viewModel.View as IncomeCashTransferDlg;
 				}
 			);
@@ -223,12 +226,14 @@ namespace Vodovoz.Representations
 				"На сумму",
 				//функция диалога создания документа
 				() => {
-					var viewModel = new CommonCashTransferDocumentViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory);
+					var viewModel = new CommonCashTransferDocumentViewModel(
+						EntityUoWBuilder.ForCreate(), unitOfWorkFactory, new CategoryRepository());
 					return viewModel.View as CommonCashTransferDlg;
 				},
 				//функция диалога открытия документа
 				(CashTransferDocumentVMNode node) => {
-					var viewModel = new CommonCashTransferDocumentViewModel(EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory);
+					var viewModel = new CommonCashTransferDocumentViewModel(
+						EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, new CategoryRepository());
 					return viewModel.View as CommonCashTransferDlg;
 				}
 			);

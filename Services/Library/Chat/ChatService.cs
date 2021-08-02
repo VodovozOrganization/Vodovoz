@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Chats;
 using ChatClass = Vodovoz.Domain.Chats.Chat;
@@ -23,7 +24,7 @@ namespace Chats
 			try {
 				using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[CS]Отправка сообщения логисту"))
 				{
-					var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+					var driver = new EmployeeRepository().GetDriverByAuthKey(uow, authKey);
 					if (driver == null)
 						return false;
 
@@ -92,7 +93,7 @@ namespace Chats
 			try {
 				using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[CS]Получение сообщений чата"))
 				{
-					var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+					var driver = new EmployeeRepository().GetDriverByAuthKey(uow, authKey);
 					if (driver == null)
 						return null;
 

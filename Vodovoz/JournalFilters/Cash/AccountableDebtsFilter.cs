@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
+using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz
 {
@@ -10,7 +11,7 @@ namespace Vodovoz
 	{
 		protected override void ConfigureWithUow()
 		{
-			entryreferenceExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
+			entryreferenceExpense.ItemsQuery = new CategoryRepository().ExpenseCategoriesQuery();
 		}
 
 		public AccountableDebtsFilter(IUnitOfWork uow) : this()

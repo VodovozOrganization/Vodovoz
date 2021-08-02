@@ -21,7 +21,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -37,6 +36,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
@@ -46,7 +46,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
-using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
+using AccountableDebtsRepository = Vodovoz.Repository.Cash.AccountableDebtsRepository;
 
 namespace Vodovoz
 {
@@ -56,6 +56,8 @@ namespace Vodovoz
 
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly ICashRepository _cashRepository = new EntityRepositories.Cash.CashRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -482,7 +484,8 @@ namespace Vodovoz
 							employeeNomenclatureMovementRepository,
 							terminalNomenclatureProvider,
 							new EmployeeService(),
-							ServicesConfig.CommonServices
+							ServicesConfig.CommonServices,
+							_categoryRepository
 						)
 					);
 					break;
@@ -501,7 +504,8 @@ namespace Vodovoz
 							employeeNomenclatureMovementRepository,
 							terminalNomenclatureProvider,
 							new EmployeeService(),
-							ServicesConfig.CommonServices
+							ServicesConfig.CommonServices,
+							_categoryRepository
 						)
 					);
 					break;
@@ -804,7 +808,7 @@ namespace Vodovoz
 				Entity.RecountMileage();
 			}
 
-			Entity.UpdateMovementOperations();
+			Entity.UpdateMovementOperations(_categoryRepository);
 
 			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
 
@@ -1115,7 +1119,7 @@ namespace Vodovoz
 			Expense cashExpense = null;
 
 			var inputCashOrder = (decimal)spinCashOrder.Value;
-			messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder));
+			messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _categoryRepository));
 
 			if (cashIncome != null) UoW.Save(cashIncome);
 			if (cashExpense != null) UoW.Save(cashExpense);
@@ -1141,7 +1145,7 @@ namespace Vodovoz
 				return;
 			}
 
-			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput);
+			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput, _categoryRepository);
 
 			if(cashExpense != null)
 				UoW.Save(cashExpense);
@@ -1230,7 +1234,7 @@ namespace Vodovoz
 				}
 			}
 
-			var operationsResultMessage = Entity.UpdateCashOperations();
+			var operationsResultMessage = Entity.UpdateCashOperations(_categoryRepository);
 			messages.AddRange(operationsResultMessage);
 
 			CalculateTotal();

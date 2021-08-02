@@ -11,6 +11,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories;
 using Vodovoz.Repository;
@@ -21,6 +22,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class LoadBankTransferDocumentDlg : QS.Dialog.Gtk.TdiTabBase
 	{
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
 		private BankTransferDocumentParser parser;
 		private IUnitOfWork uow;
 
@@ -101,10 +103,10 @@ namespace Vodovoz
 
 			labelDescription1.Markup = String.Format ("<span background=\"{0}\">     </span> - объект будет создан", NeedToAdd);
 
-			foreach (var category in CategoryRepository.ExpenseCategories (uow)) {
+			foreach (var category in _categoryRepository.ExpenseCategories (uow)) {
 				expenseCategories.AppendValues (category.Name, category);
 			}
-			foreach (var category in CategoryRepository.IncomeCategories (uow)) {
+			foreach (var category in _categoryRepository.IncomeCategories (uow)) {
 				incomeCategories.AppendValues (category.Name, category);
 			}
 
@@ -319,7 +321,7 @@ namespace Vodovoz
 			if (!documents.GetIterFirst (out iter))
 				return;
 
-			var defaultIncomeCategory = CategoryRepository.DefaultIncomeCategory (uow);
+			var defaultIncomeCategory = _categoryRepository.DefaultIncomeCategory (uow);
 			progressBar.Fraction = 0;
 			progressBar.Text = "Идет обработка файла выгрузки...";
 			double progressStep = 1.0 / rowsCount;
