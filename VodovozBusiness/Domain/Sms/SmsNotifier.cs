@@ -160,10 +160,12 @@ namespace Vodovoz.Domain.Sms
 				uow.Root.Status = SmsNotificationStatus.New;
 				uow.Root.MessageText = msgToSend;
 				uow.Root.ExpiredTime = new DateTime(
-					undeliveredOrder.OldOrder.DeliveryDate.Value.Year,
-					undeliveredOrder.OldOrder.DeliveryDate.Value.Month,
-					undeliveredOrder.OldOrder.DeliveryDate.Value.Day,
-					23, 59, 59
+					undeliveredOrder.NewOrder.DeliveryDate.Value.Year,
+					undeliveredOrder.NewOrder.DeliveryDate.Value.Month,
+					undeliveredOrder.NewOrder.DeliveryDate.Value.Day,
+					undeliveredOrder.NewOrder.DeliveryDate.Value.Hour, 
+					undeliveredOrder.NewOrder.DeliveryDate.Value.Minute, 
+					undeliveredOrder.NewOrder.DeliveryDate.Value.Second
 				);
 
 				uow.Save();
